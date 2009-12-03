@@ -105,9 +105,13 @@ public class TaxonController extends ActionSupport {
         // lsid example: urn:lsid:biodiversity.xml.au:afd.taxon:0020382d-3763-4513-9298-ae622cf18ff1
         // fails with REST plugin due to full-stops which get interpretted as file extensions
         // Can't see a way around thid issue - plan to re-implement in Spring MVC 3.0
-        //String lsid = this.getId();
-        //pid = fedoraDAO.getPidForLsid(lsid);
-        //logger.debug("ID = " + this.getId() + "; PID = " + pid);
+        
+        if (id.equalsIgnoreCase("show")) {
+            pid = fedoraDAO.getPidForLsid(guid);
+            logger.info("ID = " + this.getId() + "; PID = " + pid);
+        } else {
+            pid = id;
+        }
 
         // Obtains the content of the RDF properties of the Fedora Digital object.
         FcGetDsContent fcGetDs = null;

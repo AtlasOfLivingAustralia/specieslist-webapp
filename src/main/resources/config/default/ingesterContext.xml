@@ -7,8 +7,10 @@
 
 	<bean id="fedoraAPIConfig" class="csiro.diasb.fedora.FedoraAPIConfig">
 		<property name="userName" value="fedoraAdmin" />
-		<property name="userPass" value="fedoraAdmin" />
-		<property name="host" value="localhost" />
+		<property name="userPass" value="blob123" />
+                <!--<property name="userPass" value="fedoraAdmin" />-->
+		<property name="host" value="diasbdev1-cbr.vm.csiro.au" />
+                <!--<property name="host" value="localhost" />-->
 		<property name="port" value="8080" />
 		<property name="pathM" value="/fedora/wsdl?api=API-M" />
 		<property name="pathA" value="/fedora/wsdl?api=API-A" />

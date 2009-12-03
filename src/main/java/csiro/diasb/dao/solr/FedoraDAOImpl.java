@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -30,8 +31,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
 /**
- * Return a list of TaxonNameDTO's for a given list of taxon name identifiers (urn*).
- * Note: the imput list of identifiers are NOT PIDs but the original identifiers from AFD, etc.
+ * DAO implementation for accessing FC object data via SOLR
  * 
  * @author "Nick dos Remedios <Nick.dosRemedios@csiro.au>"
  */
@@ -43,13 +43,13 @@ public class FedoraDAOImpl implements FedoraDAO {
     /** URL of the SOLR servlet */
     protected static String solrUrl = "http://diasbdev1-cbr.vm.csiro.au:8080/solr";  // http://localhost:8080/solr
     /* Constants for RDF properties */
-    private static final String COMMON_NAME = "rdf.hasCommonName";
-    private static final String PADIL_PEST_STATUS = "rdf.hasPADILPestStatus";
-    private static final String DESCRIPTIVE_TEXT = "rdf.hasDescriptiveText";
-    private static final String FLORA_BASE_STATUS = "rdf.hasFloraBaseStatus";
-    private static final String NAME_STATUS = "rdf.hasNameStatus";
-    private static final String OCCURRENCES_IN_REGIONS = "rdf.hasOccurrencesInRegion";
-    private static final String CITATION_TEXT = "rdf.hasCitationText";
+    protected static final String COMMON_NAME = "rdf.hasCommonName";
+    protected static final String PADIL_PEST_STATUS = "rdf.hasPADILPestStatus";
+    protected static final String DESCRIPTIVE_TEXT = "rdf.hasDescriptiveText";
+    protected static final String FLORA_BASE_STATUS = "rdf.hasFloraBaseStatus";
+    protected static final String NAME_STATUS = "rdf.hasNameStatus";
+    protected static final String OCCURRENCES_IN_REGIONS = "rdf.hasOccurrencesInRegion";
+    protected static final String CITATION_TEXT = "rdf.hasCitationText";
 
     /**
      * Constructor - set the server field
@@ -64,6 +64,7 @@ public class FedoraDAOImpl implements FedoraDAO {
      * @param taxonNameIds
      * @return list of TaxonNameDTOs
      */
+    @Override
     public List<TaxonNameDTO> getTaxonNamesForUrns(List<String> taxonNameIds) {
         List<TaxonNameDTO> tns = new ArrayList<TaxonNameDTO>();
         SolrDocumentList sdl = null;
@@ -103,6 +104,7 @@ public class FedoraDAOImpl implements FedoraDAO {
      * @param scientificNames the list of scientific names used to serach against
      * @return imageDTOs the list of ImageDTO objects populated with reults from SOLR search
      */
+    @Override
     public List<ImageDTO> getImagesForScientificNames(ArrayList<String> scientificNames) {
         List <ImageDTO> imageDTOs = new ArrayList<ImageDTO>();
         SolrDocumentList sdl = null;
@@ -145,6 +147,7 @@ public class FedoraDAOImpl implements FedoraDAO {
      * @param scientificNames the list of scientific names used to serach against
      * @return imageDTOs the list of ImageDTO objects populated with reults from SOLR search
      */
+    @Override
     public List<HtmlPageDTO> getHtmlPagesForScientificNames(ArrayList<String> scientificNames) {
         List <HtmlPageDTO> htmlPageDTOs = new ArrayList<HtmlPageDTO>();
         SolrDocumentList sdl = null;
@@ -168,22 +171,37 @@ public class FedoraDAOImpl implements FedoraDAO {
                 htmlPage.setUrl((String) doc.getFieldValue("rdf.hasURL"));
                 htmlPage.setSource((String) doc.getFieldValue("fgs.label"));
                 // optional fields stored in HashMap
+                Map fieldMap = doc.getFieldValueMap();
                 HashMap<String, String> rdfProperties = new HashMap<String, String>();
 
-                if (doc.getFieldValue(COMMON_NAME) != null)
-                    rdfProperties.put(COMMON_NAME, (String) doc.getFieldValue(COMMON_NAME));
-                if (doc.getFieldValue(PADIL_PEST_STATUS) != null)
-                    rdfProperties.put(PADIL_PEST_STATUS, (String) doc.getFieldValue(PADIL_PEST_STATUS));
-                if (doc.getFieldValue(DESCRIPTIVE_TEXT) != null)
-                    rdfProperties.put(DESCRIPTIVE_TEXT, (String) doc.getFieldValue(DESCRIPTIVE_TEXT));
-                if (doc.getFieldValue(FLORA_BASE_STATUS) != null)
-                    rdfProperties.put(FLORA_BASE_STATUS, (String) doc.getFieldValue(FLORA_BASE_STATUS));
-                if (doc.getFieldValue(NAME_STATUS) != null)
-                    rdfProperties.put(NAME_STATUS, (String) doc.getFieldValue(NAME_STATUS));
-                if (doc.getFieldValue(OCCURRENCES_IN_REGIONS) != null)
-                    rdfProperties.put(OCCURRENCES_IN_REGIONS, (String) doc.getFieldValue(OCCURRENCES_IN_REGIONS));
-                if (doc.getFieldValue(CITATION_TEXT) != null)
-                    rdfProperties.put(CITATION_TEXT, (String) doc.getFieldValue(CITATION_TEXT));
+                for (Object keyObj : fieldMap.keySet()) {
+                    // Cast key+value to String
+                    try {
+                        String key = (String) keyObj;
+                        
+                        if (key.startsWith("rdf")) {
+                            String value = (String) fieldMap.get(keyObj);
+                            rdfProperties.put(key, value);
+                        }
+                    } catch (Exception e) {
+                        logger.error("Error parsing SOLR values: " + e.getMessage());
+                    }
+                }
+
+//                if (doc.getFieldValue(COMMON_NAME) != null)
+//                    rdfProperties.put(COMMON_NAME, (String) doc.getFieldValue(COMMON_NAME));
+//                if (doc.getFieldValue(PADIL_PEST_STATUS) != null)
+//                    rdfProperties.put(PADIL_PEST_STATUS, (String) doc.getFieldValue(PADIL_PEST_STATUS));
+//                if (doc.getFieldValue(DESCRIPTIVE_TEXT) != null)
+//                    rdfProperties.put(DESCRIPTIVE_TEXT, (String) doc.getFieldValue(DESCRIPTIVE_TEXT));
+//                if (doc.getFieldValue(FLORA_BASE_STATUS) != null)
+//                    rdfProperties.put(FLORA_BASE_STATUS, (String) doc.getFieldValue(FLORA_BASE_STATUS));
+//                if (doc.getFieldValue(NAME_STATUS) != null)
+//                    rdfProperties.put(NAME_STATUS, (String) doc.getFieldValue(NAME_STATUS));
+//                if (doc.getFieldValue(OCCURRENCES_IN_REGIONS) != null)
+//                    rdfProperties.put(OCCURRENCES_IN_REGIONS, (String) doc.getFieldValue(OCCURRENCES_IN_REGIONS));
+//                if (doc.getFieldValue(CITATION_TEXT) != null)
+//                    rdfProperties.put(CITATION_TEXT, (String) doc.getFieldValue(CITATION_TEXT));
 
                 htmlPage.setRdfProperties(rdfProperties);
                 
@@ -201,6 +219,7 @@ public class FedoraDAOImpl implements FedoraDAO {
      * @param lsid
      * @return pid
      */
+    @Override
     public String getPidForLsid(String lsid) {
         String pid = null;
         try {
