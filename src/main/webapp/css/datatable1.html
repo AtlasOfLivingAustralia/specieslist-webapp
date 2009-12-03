@@ -1,0 +1,215 @@
+<html>
+  <head>
+    <title>test</title>
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.2/build/fonts/fonts-min.css" />
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.2/build/datatable/assets/skins/sam/datatable.css" />
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.2/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.2/build/datasource/datasource-beta-min.js"></script>
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.2/build/connection/connection-min.js"></script>
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.2/build/json/json-min.js"></script>
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.2/build/history/history-min.js"></script>
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.2/build/element/element-beta-min.js"></script>
+    <script type="text/javascript" src="http://yui.yahooapis.com/2.5.2/build/datatable/datatable-beta-min.js"></script>
+
+    <style type="text/css">
+        /* custom styles YUI datatable history component */
+        #yui-history-iframe {
+          position:absolute;
+          top:0; left:0;
+          width:1px; height:1px; /* avoid scrollbars */
+          visibility:hidden;
+        }
+    </style>
+  </head>
+  <body>
+      <div id="content" class="yui-skin-sam">
+        <iframe id="yui-history-iframe" src='blank.html"/>'></iframe>
+            <input id="yui-history-field" type="hidden">
+            <div id="dt-pag-nav1"></div>
+            <div id="results"></div>
+            <div id="dt-pag-nav2"></div>
+            <div id="results"></div>
+            <!--<jsp:include page="yui-datatable.jsp"/>
+            <!--<script type="text/javascript">
+               propertyName = "PID";
+                query = "ala*";
+                loadDatatable(propertyName, query, "");
+
+                // Catch bookmarked state and trigger facet search
+                var anchor = window.location.hash;
+                if (anchor.length > 0) {
+                    anchor = anchor.replace(/#/,""); // remove the hash character
+                    var args = anchor.split(":");
+                    var fieldname = args[0];
+                    var label = args[1];
+                    var displayLabel = (contentModelMap[label]) ? contentModelMap[label] : label;
+                    doFacetSearch(fieldname, label, displayLabel);
+                }
+            </script>-->
+            <script type="text/javascript">
+                (function () {
+                    // Create the DataSource
+                    thisPropertyName = "PID";
+                    thisQuery = "ala*";
+                    facetQuery = "";
+
+                    var formatTitleUrl = function(elCell, oRecord, oColumn, sData) {
+                        var cellContent;
+                        if (sData.length< 1) {
+                            cellContent = "[no title]";
+                        } else if (sData.length > 150) {
+                            cellContent = sData.substring(0,150) + "...";
+                        } else {
+                            cellContent = sData;
+                        }
+                        elCell.innerHTML = "<a href='" + "" + oRecord.getData("urlMapper") + "/" + oRecord.getData("pid") + "' title='view record details'>" + cellContent + "</a>";
+                    };
+
+                    var myDataSource = new YAHOO.util.DataSource("../ajax?propertyName="+thisPropertyName+"&query="+thisQuery+"&facetQuery="+facetQuery+"&");
+                    myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSON;
+                    myDataSource.responseSchema = {
+                        resultsList: "result",
+                        fields: ["pid","title","contentModel","contentModelInitial","contentModelLabel","urlMapper"],
+                        metaFields: {
+                            totalRecords: "totalRecords",
+                            paginationRecordOffset : "startIndex",
+                            paginationRowsPerPage : "pageSize",
+                            sortKey: "sort",
+                            sortDir: "dir"
+                        }
+                    };
+
+                    // Create the Paginator
+                    var myPaginator = new YAHOO.widget.Paginator({
+                        containers : ["dt-pag-nav1","dt-pag-nav2"],
+                        rowsPerPage: 10,
+                        rowsPerPageOptions: [10,20,50,100],
+                        template : "<div style='float:right;'>{RowsPerPageDropdown}</div> {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {CurrentPageReport}", //"{CurrentPageReport} {PageLinks}",
+                        pageReportTemplate : "<strong>{totalRecords} records.</strong>"
+                    });
+
+                    // Define Columns
+                    var myColumnDefs = [
+                        {key:"ContentModel", field:"contentModelLabel", label:"Type", sortable: true},
+                        {key:"dc3.title", field:"title", sortable:true, label:"Title"} // , formatter:formatTitleUrl
+                    ];
+
+                    // DataTable configurations
+                    var myConfig = {
+                        initialRequest:"sort=ContentModel&dir=asc&startIndex=0&results=10", //"sort=score&dir=desc&startIndex=0&results=25",
+                        dynamicData: true,
+                        initialLoad : false,
+                        sortedBy: {key:"ContentModel", dir:"asc"}, //{key:"score", dir:"desc"},
+                        paginator: myPaginator //paginator: new YAHOO.widget.Paginator({ rowsPerPage:20 })
+                    };
+
+                    // Instantiate DataTable
+                    var myDataTable = new YAHOO.widget.DataTable(
+                        "results", myColumnDefs, myDataSource, myConfig
+                    );
+
+                    // Show loading message while page is being rendered
+                    myDataTable.showTableMessage(myDataTable.get("MSG_LOADING"), YAHOO.widget.DataTable.CLASS_LOADING);
+
+                    // Add the instances to the YAHOO.example namespace for inspection
+                    YAHOO.example.BHMIntegration = {
+                        myPaginator  : myPaginator,
+                        myDataSource : myDataSource,
+                        myDataTable  : myDataTable
+                    };
+
+                    // Integrate with Browser History Manager
+                    var History = YAHOO.util.History;
+
+                    // Define a custom function to route sorting through the Browser History Manager
+                    var handleSorting = function (oColumn) {
+                        // Calculate next sort direction for given Column
+                        var sDir = this.getColumnSortDir(oColumn);
+
+                        // The next state will reflect the new sort values
+                        // while preserving existing pagination rows-per-page
+                        // As a best practice, a new sort will reset to page 0
+                        var newState = generateRequest(0, oColumn.key, sDir, this.get("paginator").getRowsPerPage());
+
+                        // Pass the state along to the Browser History Manager
+                        History.navigate("myDataTable", newState);
+                    };
+                    myDataTable.sortColumn = handleSorting;
+
+                    // Define a custom function to route pagination through the Browser History Manager
+                    var handlePagination = function(state) {
+                        // The next state will reflect the new pagination values
+                        // while preserving existing sort values
+                        // Note that the sort direction needs to be converted from DataTable format to server value
+                        var sortedBy  = this.get("sortedBy"),
+                            newState = generateRequest(
+                            state.recordOffset, sortedBy.key, sortedBy.dir, state.rowsPerPage
+                        );
+                        //alert("state.recordOffset = "+state.recordOffset+"; state.rowsPerPage = "+state.rowsPerPage+
+                        //       "; sortedBy.key = "+sortedBy.key+"; sortedBy.dir = "+sortedBy.dir)
+                        // Pass the state along to the Browser History Manager
+                        History.navigate("myDataTable", newState);
+                    };
+                    // First we must unhook the built-in mechanism...
+                    myPaginator.unsubscribe("changeRequest", myDataTable.onPaginatorChangeRequest);
+                    // ...then we hook up our custom function
+                    myPaginator.subscribe("changeRequest", handlePagination, myDataTable, true);
+
+                    // Update payload data on the fly for tight integration with latest values from server
+                    myDataTable.doBeforeLoadData = function(oRequest, oResponse, oPayload) {
+                        var meta = oResponse.meta;
+                        oPayload.totalRecords = meta.totalRecords || oPayload.totalRecords;
+                        oPayload.pagination = {
+                            rowsPerPage: meta.paginationRowsPerPage || 10,
+                            recordOffset: meta.paginationRecordOffset || 0
+                        };
+                        oPayload.sortedBy = {
+                            key: meta.sortKey || "ContentModel",
+                            dir: (meta.sortDir) ? "yui-dt-" + meta.sortDir : "yui-dt-asc" // Convert from server value to DataTable format
+                        };
+                        return true;
+                    };
+
+                    // Returns a request string for consumption by the DataSource
+                    var generateRequest = function(startIndex,sortKey,dir,results) {
+                        startIndex = startIndex || 0;
+                        sortKey   = sortKey || "ContentModel";
+                        dir   = (dir) ? dir.substring(7) : "asc"; // Converts from DataTable format "yui-dt-[dir]" to server value "[dir]"
+                        results   = results || 10;
+                        //alert("generateRequest: results="+results+"&startIndex="+startIndex+"&sort="+sortKey+"&dir="+dir);
+                        return "results="+results+"&startIndex="+startIndex+"&sort="+sortKey+"&dir="+dir;
+                    };
+
+                    // Called by Browser History Manager to trigger a new state
+                    var handleHistoryNavigation = function (request) {
+                        // Sends a new request to the DataSource
+                        myDataSource.sendRequest(request,{
+                            success : myDataTable.onDataReturnSetRows,
+                            failure : myDataTable.onDataReturnSetRows,
+                            scope : myDataTable,
+                            argument : {} // Pass in container for population at runtime via doBeforeLoadData
+                        });
+                    };
+
+                    // Calculate the first request
+                    var initialRequest = History.getBookmarkedState("myDataTable") || // Passed in via URL
+                                       generateRequest(); // Get default values
+
+                    // Register the module
+                    History.register("myDataTable", initialRequest, handleHistoryNavigation);
+
+                    // Render the first view
+                    History.onReady(function() {
+                        // Current state after BHM is initialized is the source of truth for what state to render
+                        var currentState = History.getCurrentState("myDataTable");
+                        handleHistoryNavigation(currentState);
+                    });
+
+                    // Initialize the Browser History Manager.
+                    YAHOO.util.History.initialize("yui-history-field", "yui-history-iframe");
+                })();
+            </script>
+        </div>
+  </body>
+</html>
