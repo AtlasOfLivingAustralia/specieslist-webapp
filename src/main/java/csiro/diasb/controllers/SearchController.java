@@ -6,6 +6,7 @@
  */
 package csiro.diasb.controllers;
 
+import csiro.diasb.fedora.PseudoRepository;
 import csiro.diasb.fedora.FedoraException;
 import java.io.*;
 import org.apache.struts2.rest.DefaultHttpHeaders;

@@ -107,6 +107,7 @@ public class TaxonController extends ActionSupport {
         // Can't see a way around thid issue - plan to re-implement in Spring MVC 3.0
         
         if (id.equalsIgnoreCase("show")) {
+            // e.g. /bie/taxon/show?guid=urn:lsid:biodiversity.org.au:afd.taxon:3da1a9b5-92f6-4096-84a6-3c976b06cbd4
             pid = fedoraDAO.getPidForLsid(guid);
             logger.info("ID = " + this.getId() + "; PID = " + pid);
         } else {

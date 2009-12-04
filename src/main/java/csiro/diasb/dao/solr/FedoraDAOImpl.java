@@ -42,14 +42,6 @@ public class FedoraDAOImpl implements FedoraDAO {
     private CommonsHttpSolrServer server = null;
     /** URL of the SOLR servlet */
     protected static String solrUrl = "http://diasbdev1-cbr.vm.csiro.au:8080/solr";  // http://localhost:8080/solr
-    /* Constants for RDF properties */
-    protected static final String COMMON_NAME = "rdf.hasCommonName";
-    protected static final String PADIL_PEST_STATUS = "rdf.hasPADILPestStatus";
-    protected static final String DESCRIPTIVE_TEXT = "rdf.hasDescriptiveText";
-    protected static final String FLORA_BASE_STATUS = "rdf.hasFloraBaseStatus";
-    protected static final String NAME_STATUS = "rdf.hasNameStatus";
-    protected static final String OCCURRENCES_IN_REGIONS = "rdf.hasOccurrencesInRegion";
-    protected static final String CITATION_TEXT = "rdf.hasCitationText";
 
     /**
      * Constructor - set the server field
@@ -175,7 +167,7 @@ public class FedoraDAOImpl implements FedoraDAO {
                 HashMap<String, String> rdfProperties = new HashMap<String, String>();
 
                 for (Object keyObj : fieldMap.keySet()) {
-                    // Cast key+value to String
+                    // Cast key to String
                     try {
                         String key = (String) keyObj;
                         
@@ -187,21 +179,6 @@ public class FedoraDAOImpl implements FedoraDAO {
                         logger.error("Error parsing SOLR values: " + e.getMessage());
                     }
                 }
-
-//                if (doc.getFieldValue(COMMON_NAME) != null)
-//                    rdfProperties.put(COMMON_NAME, (String) doc.getFieldValue(COMMON_NAME));
-//                if (doc.getFieldValue(PADIL_PEST_STATUS) != null)
-//                    rdfProperties.put(PADIL_PEST_STATUS, (String) doc.getFieldValue(PADIL_PEST_STATUS));
-//                if (doc.getFieldValue(DESCRIPTIVE_TEXT) != null)
-//                    rdfProperties.put(DESCRIPTIVE_TEXT, (String) doc.getFieldValue(DESCRIPTIVE_TEXT));
-//                if (doc.getFieldValue(FLORA_BASE_STATUS) != null)
-//                    rdfProperties.put(FLORA_BASE_STATUS, (String) doc.getFieldValue(FLORA_BASE_STATUS));
-//                if (doc.getFieldValue(NAME_STATUS) != null)
-//                    rdfProperties.put(NAME_STATUS, (String) doc.getFieldValue(NAME_STATUS));
-//                if (doc.getFieldValue(OCCURRENCES_IN_REGIONS) != null)
-//                    rdfProperties.put(OCCURRENCES_IN_REGIONS, (String) doc.getFieldValue(OCCURRENCES_IN_REGIONS));
-//                if (doc.getFieldValue(CITATION_TEXT) != null)
-//                    rdfProperties.put(CITATION_TEXT, (String) doc.getFieldValue(CITATION_TEXT));
 
                 htmlPage.setRdfProperties(rdfProperties);
                 

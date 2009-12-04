@@ -5,7 +5,7 @@
  * @version $Id:  PseudoRepository.java 697 2009-08-01 00:23:45Z oak021 $
  */
 
-package csiro.diasb.controllers;
+package csiro.diasb.fedora;
 
 import csiro.diasb.datamodels.InfoSource;
 import csiro.diasb.datamodels.SearchResult;
@@ -66,7 +66,7 @@ private static final org.apache.log4j.Logger logger =
  * mapped to their Fedora pids in the cmToCmIDMap mapper
  * @return
  */
-static Collection<String> getContentModels()
+public static Collection<String> getContentModels()
 {
     ArrayList<String> res = new ArrayList<String>();
     res.add("Publication Content Model");
@@ -83,7 +83,7 @@ static Collection<String> getContentModels()
  * mapped to their namespaced equivalents using propToNSPropMap
  * @return
  */
-static Collection<String> getProperties()
+public static Collection<String> getProperties()
 {
     ArrayList<String> res = new ArrayList<String>();
     res.add("identifier");
@@ -112,7 +112,7 @@ static Collection<String> getProperties()
 /**
  * List of search terms that match felds defined in SOLR schema.xml
  */
-static Collection<String> getSOLRFields()
+public static Collection<String> getSOLRFields()
 {
     if (propToSOLRFieldMap.isEmpty()) createPropertySOLRMap();
     ArrayList<String> res = new ArrayList<String>();
@@ -275,7 +275,7 @@ static Collection<String> getInfoSourceLabels()
  * if first removed.
  * @return
  */
-static Collection<String> getDCStreamFields()
+public static Collection<String> getDCStreamFields()
 {
     ArrayList<String> res = new ArrayList<String>();
     //res.add("pid");
@@ -359,7 +359,7 @@ static Collection<SearchResult> doInitIndex(String propertyName, String property
  * @throws java.io.IOException
  * @throws csiro.diasb.fedora.FedoraException
  */
-static Collection<SearchResult> findObjects(String propertyName, String propertyValue, String contentModelName) throws IOException, FedoraException
+public static Collection<SearchResult> findObjects(String propertyName, String propertyValue, String contentModelName) throws IOException, FedoraException
 {
     String contentModelPID = getContentModelPID(contentModelName);
     String NSPropertyName = getNSPropertyName(propertyName);
