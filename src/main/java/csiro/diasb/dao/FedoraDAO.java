@@ -4,14 +4,15 @@
  * @author $Author: dos009 $
  * @version $Id:  $
  */
-
 package csiro.diasb.dao;
 
+import java.util.List;
+
+import csiro.diasb.datamodels.DocumentDTO;
 import csiro.diasb.datamodels.HtmlPageDTO;
 import csiro.diasb.datamodels.ImageDTO;
+import csiro.diasb.datamodels.OrderedDocumentDTO;
 import csiro.diasb.datamodels.TaxonNameDTO;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Interface for the data access of Fedora Commons documents/objects
@@ -19,7 +20,8 @@ import java.util.List;
  * @author "Nick dos Remedios (dos009) <Nick.dosRemedios@csiro.au>"
  */
 public interface FedoraDAO {
-    /**
+
+	/**
      * Return a list of TaxonNameDTOs for a given list of Taxon Name idenitifiers (urn.*)
      * 
      * @param hasTaxonNames
@@ -33,15 +35,23 @@ public interface FedoraDAO {
      * @param scientificNames
      * @return
      */
-    public List<ImageDTO> getImagesForScientificNames(ArrayList<String> scientificNames);
+    public List<DocumentDTO> getPropertiesForName(List<String> scientificNames);
 
+    /**
+     * 
+     * 
+     * @param scientificNames
+     * @return
+     */
+	public List<OrderedDocumentDTO> getOrderedPropertiesForName(List<String> scientificNames);
+    
     /**
      * Return a list of HtmlPageDTOs for a given list of scientific names
      * 
      * @param scientificNames
      * @return
      */
-    public List<HtmlPageDTO> getHtmlPagesForScientificNames(ArrayList<String> scientificNames);
+    public List<HtmlPageDTO> getHtmlPagesForScientificNames(List<String> scientificNames);
     
     /**
      * Get a FC PID for a LSID/GUID
@@ -50,5 +60,12 @@ public interface FedoraDAO {
      * @return
      */
     public String getPidForLsid(String lsid);
-
+    
+    /**
+     * Return a list of ImageDTOs for a given list of scientific names
+     * 
+     * @param scientificNames
+     * @return
+     */
+    public List<ImageDTO> getImagesForScientificNames(List<String> scientificNames);
 }

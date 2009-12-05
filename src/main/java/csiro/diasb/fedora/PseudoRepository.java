@@ -336,7 +336,7 @@ static String harvest(String guid){
  * @param propertyValue
  * @return
  */
-static Collection<SearchResult> doInitIndex(String propertyName, String propertyValue, String contentModelName) throws IOException, FedoraException, SolrQueryException
+public static Collection<SearchResult> doInitIndex(String propertyName, String propertyValue, String contentModelName) throws IOException, FedoraException, SolrQueryException
 {
     SolrSearch solrj = new SolrSearch();
 

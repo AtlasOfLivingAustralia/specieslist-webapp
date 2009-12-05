@@ -7,9 +7,12 @@
 
 package csiro.diasb.datamodels;
 
-import java.net.*;
-import org.apache.log4j.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * Encapsulates the sourced properties data.  This is the unit of
@@ -24,7 +27,7 @@ import java.util.HashMap;
 public class AlaSourcedPropertiesData {
 
   private static final Logger classLogger =
-    Logger.getLogger(AlaSourcedPropertiesData.class.getName());
+    Logger.getLogger(AlaSourcedPropertiesData.class);
 
   private final boolean DEBUG_MSG = true;
 /**

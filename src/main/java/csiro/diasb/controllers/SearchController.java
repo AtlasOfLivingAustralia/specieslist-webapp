@@ -6,27 +6,30 @@
  */
 package csiro.diasb.controllers;
 
-import csiro.diasb.fedora.PseudoRepository;
-import csiro.diasb.fedora.FedoraException;
-import java.io.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.struts2.convention.annotation.Result;
+import org.apache.struts2.convention.annotation.Results;
 import org.apache.struts2.rest.DefaultHttpHeaders;
 import org.apache.struts2.rest.HttpHeaders;
-import org.apache.struts2.convention.annotation.Results;
-import org.apache.struts2.convention.annotation.Result;
+
 import com.opensymphony.xwork2.ActionSupport;
+
 import csiro.diasb.datamodels.SearchResult;
 import csiro.diasb.datamodels.SolrResults;
 import csiro.diasb.fedora.FacetQuery;
+import csiro.diasb.fedora.FedoraException;
+import csiro.diasb.fedora.PseudoRepository;
 import csiro.diasb.fedora.SolrSearch;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.log4j.*;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.QueryResponse;
 
 @Results({
-    @Result(name = "success", type = "redirectAction", params = {"actionName", "search"}),
-    @Result(name = "input", type = "redirectAction", params = {"actionName", "search"})
+    @Result(name = "success", type = "redirectAction", params = {"actionName", "searchSOLR"}),
+    @Result(name = "input", type = "redirectAction", params = {"actionName", "searchSOLR"})
 })
 /**
  * Controls searching the Fedora Repository and displaying the results.
