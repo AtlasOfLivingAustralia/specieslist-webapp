@@ -10,15 +10,17 @@ import org.apache.commons.collections.CollectionUtils;
  * 
  * Categories are ranked to help order for UI display purposes.
  * 
- * TODO Implement as an enum???
- * 
  * @author Dave Martin
  */
 public final class Category {
 
+	/** The name of this category e.g. Taxonomic */
 	private final String name;
+	/** The rank of this category - used for ordering categories */
 	private final int rank;
+	/** The property name associated with a category */
 	private final List<String> propertyNames;
+	
 	public static final Category taxonomic = new Category("Taxonomic", 1, 
 			new String[]{
 			"hasScientificName", 
@@ -141,16 +143,25 @@ public final class Category {
 		}
 		return null;
 	}
-	
+
+	/**
+	 * @return the name
+	 */
 	public String getName() {
 		return name;
 	}
-	
+
+	/**
+	 * @return the rank
+	 */
 	public int getRank() {
 		return rank;
 	}
-	
+
+	/**
+	 * @return the propertyNames
+	 */
 	public List<String> getPropertyNames() {
 		return propertyNames;
-	}	
+	}
 }

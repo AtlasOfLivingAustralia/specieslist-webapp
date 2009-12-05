@@ -4,29 +4,27 @@
 <%@ taglib prefix="fn" uri="/WEB-INF/tld/fn.tld" %>
 
 <c:choose>
+<c:when test="${!param['sort']}">
 
-<c:when test="">
-
-Number of results : ${fn:length(properties)}
-<hr/>    
- <c:forEach items="${properties}" var="properties">
- Infosource ID:${properties.infoSourceUrl}<br/>
- Infosource Name:${properties.infoSourceName}<br/>
- Source ID:${properties.sourceUrl}<br/>
- Source Title:${properties.sourceTitle}<br/>
- <table>
-  <c:forEach var="entry" items="${properties.propertyMap}">
-       <tr>
-         <td>${entry.key}</td>
-         <td>${entry.value}</td>
-       </tr>
-  </c:forEach>
-</table>        
-<hr/>    
-</c:forEach>
+	Number of results : ${fn:length(properties)}
+	<hr/>    
+	 <c:forEach items="${properties}" var="properties">
+	 Infosource ID:${properties.infoSourceUrl}<br/>
+	 Infosource Name:${properties.infoSourceName}<br/>
+	 Source ID:${properties.sourceUrl}<br/>
+	 Source Title:${properties.sourceTitle}<br/>
+	 <table>
+	  <c:forEach var="entry" items="${properties.propertyMap}">
+	       <tr>
+	         <td>${entry.key}</td>
+	         <td>${entry.value}</td>
+	       </tr>
+	  </c:forEach>
+	</table>        
+	<hr/>    
+	</c:forEach>
 
 </c:when>
-
 <c:otherwise>
 
  <c:forEach items="${orderedDocuments}" var="orderedDocument">
@@ -38,22 +36,21 @@ Number of results : ${fn:length(properties)}
         <tr><td>Source ID:</td><td>${orderedDocument.sourceUrl}</td></tr>
         <tr><td>Source Title:</td><td>${orderedDocument.sourceTitle}</td></tr>
    </table>
-  <c:forEach var="categorisedProperties" items="${orderedDocument.categorisedProperties}">
-    <h5>${categorisedProperties.category.name} - category rank: ${categorisedProperties.category.rank}</h5>
-    <table>
+	<c:forEach var="categorisedProperties" items="${orderedDocument.categorisedProperties}">
+	  <h5>${categorisedProperties.category.name} - category rank: ${categorisedProperties.category.rank}</h5>
+	  <table>
 	  <c:forEach var="entry" items="${categorisedProperties.propertyMap}">
-	       <tr>
-	         <td><s:text name="entry.key"/></td>
-	         <td>${entry.value}</td>
-	       </tr>
+	      <tr>
+	        <td>${entry.key}</td>
+	        <td>${entry.value}</td>
+	      </tr>
 	  </c:forEach>
-    </table>  	  
-  </c:forEach>
+	  </table>  	  
+	</c:forEach>
   
   </div>
   
 </c:forEach>
 
 </c:otherwise>
-
 </c:choose>

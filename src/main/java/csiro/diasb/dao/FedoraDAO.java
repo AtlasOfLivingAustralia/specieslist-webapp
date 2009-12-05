@@ -35,15 +35,15 @@ public interface FedoraDAO {
      * @param scientificNames
      * @return
      */
-    public List<DocumentDTO> getPropertiesForName(List<String> scientificNames);
+    public List<DocumentDTO> getDocumentsForName(List<String> scientificNames);
 
     /**
-     * 
+     * Returns a list of ordered documents.
      * 
      * @param scientificNames
      * @return
      */
-	public List<OrderedDocumentDTO> getOrderedPropertiesForName(List<String> scientificNames);
+	public List<OrderedDocumentDTO> getOrderedDocumentsForName(List<String> scientificNames);
     
     /**
      * Return a list of HtmlPageDTOs for a given list of scientific names

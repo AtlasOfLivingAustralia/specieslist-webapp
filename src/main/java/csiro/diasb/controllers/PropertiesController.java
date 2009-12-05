@@ -49,10 +49,10 @@ public class PropertiesController extends ActionSupport {
 		List<String> sciNames = new ArrayList<String>();
 		sciNames.add(getId());
 		logger.info("Searching with name:"+getId());
-		if(sort){
-			this.properties = fedoraDAO.getPropertiesForName(sciNames);
+		if(!sort){
+			this.properties = fedoraDAO.getDocumentsForName(sciNames);
 		} else {
-			this.orderedDocuments = fedoraDAO.getOrderedPropertiesForName(sciNames);
+			this.orderedDocuments = fedoraDAO.getOrderedDocumentsForName(sciNames);
 		}
 		return new DefaultHttpHeaders("show").disableCaching();
 	}	

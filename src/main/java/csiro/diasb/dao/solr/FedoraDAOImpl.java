@@ -51,8 +51,8 @@ public class FedoraDAOImpl implements FedoraDAO {
     /** SOLR server instance */
     private CommonsHttpSolrServer server = null;
     /** URL of the SOLR servlet */
-    protected static String solrUrl = "http://diasbdev1-cbr.vm.csiro.au:8080/solr";  // http://localhost:8080/solr
-   // protected static String solrUrl = "http://localhost:8080/solr";  // http://localhost:8080/solr
+//    protected static String solrUrl = "http://diasbdev1-cbr.vm.csiro.au:8080/solr";  // http://localhost:8080/solr
+    protected String solrUrl = "http://localhost:8080/solr";  // http://localhost:8080/solr
 
     /**
      * Constructor - set the server field
@@ -62,10 +62,10 @@ public class FedoraDAOImpl implements FedoraDAO {
     }
     
     /**
-     * @see csiro.diasb.dao.FedoraDAO#getPropertiesForName(java.lang.String)
+     * @see csiro.diasb.dao.FedoraDAO#getDocumentsForName(java.lang.String)
      */
     @Override
-	public List<DocumentDTO> getPropertiesForName(List<String> scientificNames) {
+	public List<DocumentDTO> getDocumentsForName(List<String> scientificNames) {
     	
     	List<DocumentDTO> propertiesList = new ArrayList<DocumentDTO>();
     	try {
@@ -96,10 +96,10 @@ public class FedoraDAOImpl implements FedoraDAO {
 	}
     
     /**
-     * @see csiro.diasb.dao.FedoraDAO#getPropertiesForName(java.lang.String)
+     * @see csiro.diasb.dao.FedoraDAO#getDocumentsForName(java.lang.String)
      */
     @Override
-	public List<OrderedDocumentDTO> getOrderedPropertiesForName(List<String> scientificNames) {
+	public List<OrderedDocumentDTO> getOrderedDocumentsForName(List<String> scientificNames) {
     	
     	List<OrderedDocumentDTO> orderedDocumentList = new ArrayList<OrderedDocumentDTO>();
     	try {
@@ -443,11 +443,11 @@ public class FedoraDAOImpl implements FedoraDAO {
         this.server = server;
     }
 
-    public static String getSolrUrl() {
+    public  String getSolrUrl() {
         return solrUrl;
     }
 
-    public static void setSolrUrl(String solrUrl) {
-        FedoraDAOImpl.solrUrl = solrUrl;
+    public  void setSolrUrl(String solrUrl) {
+        this.solrUrl = solrUrl;
     }
 }
