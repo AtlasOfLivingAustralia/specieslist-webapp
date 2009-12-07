@@ -80,7 +80,7 @@ public String getUrlMapper()
 {
     if (contentModel==null) return "datastream";
     
-    if (contentModel.equals("ala:TaxonConceptContentModel")) return "taxon";  // taxa
+    if (contentModel.equals("ala:TaxonConceptContentModel")) return "species";  // taxa
     else if (contentModel.equals("ala:TaxonNameContentModel")) return "name";
     else if (contentModel.equals("ala:PublicationContentModel")) return "pub";
     else if (contentModel.equals("ala:ImageContentModel")) return "image";

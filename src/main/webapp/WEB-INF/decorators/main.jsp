@@ -21,7 +21,7 @@
         <div id="page">
             <div id="header">
                 <div id="menuSearch">
-                    <s:form action="/search/searchSOLR" namespace="search" method="GET" theme="simple">
+                    <s:form action="/species/" namespace="search" method="GET" theme="simple">
                         <s:textfield key="propertyValue" size="25"/>
                         <s:submit value="Search"/>
                     </s:form>
@@ -35,12 +35,10 @@
                 <s:set name="pageName"><decorator:getProperty property="meta.pageName"/></s:set>
                 <ul class="tabs">
                     <li class="<s:if test="%{#pageName == 'home'}">active</s:if> first"><a href="${pageContext.request.contextPath}/">Home</a></li>
-                    <li class="<s:if test="%{#pageName == 'datastream'}">active</s:if>"><a href="${pageContext.request.contextPath}/datastream">Show&nbsp;All</a></li>
-                    <li class="<s:if test="%{#pageName == 'taxon'}">active</s:if>"><a href="${pageContext.request.contextPath}/taxon">Taxon&nbsp;Concepts</a></li>
-                    <li class="<s:if test="%{#pageName == 'name'}">active</s:if>"><a href="${pageContext.request.contextPath}/name">Taxon&nbsp;Names</a></li>
-                    <li class="<s:if test="%{#pageName == 'pub'}">active</s:if>"><a href="${pageContext.request.contextPath}/pub">Publications</a></li>
-                    <li class="<s:if test="%{#pageName == 'image'}">active</s:if>"><a href="${pageContext.request.contextPath}/image">Images</a></li>
-                    <li class="<s:if test="%{#pageName == 'html'}">active</s:if> last"><a href="${pageContext.request.contextPath}/html">HTML&nbsp;Pages</a></li>
+                    <%--<li class="<s:if test="%{#pageName == 'search'}">active</s:if>"><a href="${pageContext.request.contextPath}/datastream">Show&nbsp;All</a></li>--%>
+                    <li class="<s:if test="%{#pageName == 'species'}">active</s:if>"><a href="${pageContext.request.contextPath}/species/search">Explore Species</a></li>
+                    <li class="<s:if test="%{#pageName == 'maps'}">active</s:if>"><a href="${pageContext.request.contextPath}/maps">Explore maps</a></li>
+                    <li class="<s:if test="%{#pageName == 'datasets'}">active</s:if> last"><a href="${pageContext.request.contextPath}/datasets">Explore Rich Datasets</a></li>
                 </ul>                
             </div>
             <div id="body">

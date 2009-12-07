@@ -30,6 +30,8 @@ import csiro.diasb.datamodels.AlaSourcedPropertiesData;
 import csiro.diasb.datamodels.HtmlPageDTO;
 import csiro.diasb.fedora.FacetQuery;
 import csiro.diasb.fedora.SolrSearch;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.solr.client.solrj.response.FacetField;
 
 /**
  * Controls the display of TaxonConceptContentModel objects.
@@ -42,9 +44,9 @@ import csiro.diasb.fedora.SolrSearch;
 @Results({
     @Result(name = "success", type = "redirectAction", params = {"actionName", "taxon"})
 })
-public class TaxonController extends ActionSupport {
+public class SpeciesController extends ActionSupport {
 
-    private static Logger logger = Logger.getLogger(TaxonController.class);
+    private static Logger logger = Logger.getLogger(SpeciesController.class);
     // ID of digital object request from URL.
     private String id;
     /**
@@ -59,11 +61,22 @@ public class TaxonController extends ActionSupport {
      * Fedora repository pid
      */
     private String pid = "Unknown";
+    // params for search
+    private String propertyValue = "";
+    //private String propertyName = "";
     /**
      * List of all current publications in the Fedora repository (made if no
      * pid is specified on entry)
      */
     private List searchResults;
+     /**
+     * List of constraints that have been placed on the current set of results by using a queryFilter
+     */
+    List facetConstraints;
+    /**
+     * Current field contstraint when id is fq=foo
+     */
+    private String fieldConstraint;
     //    String propHTMLDataString;
     //RELS-EXT properties
     /**
@@ -100,12 +113,8 @@ public class TaxonController extends ActionSupport {
     public HttpHeaders show() {
         // Initialises the required mappings.
         // this.init();
-        this.pid = this.getId();
-        
-        // lsid example: urn:lsid:biodiversity.xml.au:afd.taxon:0020382d-3763-4513-9298-ae622cf18ff1
-        // fails with REST plugin due to full-stops which get interpretted as file extensions
-        // Can't see a way around thid issue - plan to re-implement in Spring MVC 3.0
-        
+        if (id.startsWith("fq=")) return addConstraint(id);
+        if (id.startsWith("search")) return new DefaultHttpHeaders("show").disableCaching();
         if (id.equalsIgnoreCase("show")) {
             // e.g. /bie/taxon/show?guid=urn:lsid:biodiversity.org.au:afd.taxon:3da1a9b5-92f6-4096-84a6-3c976b06cbd4
             pid = fedoraDAO.getPidForLsid(guid);
@@ -285,13 +294,52 @@ public class TaxonController extends ActionSupport {
 
         try {
             SolrSearch ss = new SolrSearch();
-            FacetQuery query = ss.initFacetedQuery(propertyName, solrQuery);
+            String queryStr;
+            String fieldName;
+            if (propertyValue.isEmpty()) {
+                // view all
+                queryStr = solrQuery;
+                fieldName = propertyName;
+            } else {
+                // search
+                queryStr = propertyValue;
+                fieldName = "all_text";
+            }
+
+            FacetQuery query = ss.initFacetedQuery(fieldName, queryStr);
             ss.setCurrentFacetQuery(query);
             solrResults = ss.getQueryResults(query);
             if (solrResults.getSearchResults().isEmpty())
                 responseMessage = "There are no objects which match your criterion";
         } catch (Exception ex) {
             logger.warn("Errors returned from initialise index query"+ex.getMessage(), ex);
+            this.addActionError("Errors returned from initialise index query "+ex.getMessage());
+            return new DefaultHttpHeaders(ERROR).disableCaching();
+        }
+
+        return new DefaultHttpHeaders("index").disableCaching();
+    }
+
+    /**
+     * Adds the selected facet filter (constraint) to the currentFacetQuery
+     * and performs a new search
+     * @return The updated index page
+     */
+    private HttpHeaders addConstraint(String cStr) {
+        try {
+            int index = cStr.indexOf(':');
+            SolrSearch ss = new SolrSearch();
+            String fieldName = cStr.substring(3, index);
+            fieldConstraint = cStr.substring(index+1).replace('_', '.');
+            FacetQuery query = ss.getCurrentFacetQuery();
+            query.addFacetConstraint(fieldName, fieldConstraint);
+            query.setStart(0);
+            solrResults = ss.getQueryResults(query);
+            String s[] = query.getFilterQueries();
+            for (String str : s)
+                this.getFacetConstraints().add(str.replace('.', '_'));
+        } catch (Exception ex) {
+            logger.warn("Errors returned from add constraint to query"+ex.getMessage());
             this.addActionError("Errors returned from initialise index query "+ex.getMessage());
             return new DefaultHttpHeaders(ERROR).disableCaching();
         }
@@ -417,6 +465,23 @@ public class TaxonController extends ActionSupport {
     public void setHtmlPages(List<HtmlPageDTO> htmlPages) {
         this.htmlPages = htmlPages;
     }
+
+    public String getPropertyValue() {
+        return propertyValue;
+    }
+
+    public void setPropertyValue(String propertyValue) {
+        this.propertyValue = propertyValue;
+    }
     
+    public List getFacetConstraints() {
+       if (facetConstraints==null)
+            facetConstraints = new ArrayList<FacetField>();
+        return facetConstraints;
+    }
+
+    public void setFacetConstraints(List facetConstraints) {
+        this.facetConstraints = facetConstraints;
+    }
     
 }
