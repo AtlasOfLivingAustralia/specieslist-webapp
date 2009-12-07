@@ -44,7 +44,7 @@
             </div>
         </s:if>
         <s:else>
-            <h3>Taxon Profile</h3>
+            <%--<h3>Taxon Profile</h3>--%>
             <div id="speciesHeader">
                 <s:if test="%{!images.isEmpty()}">
                     <div id="speciesPhoto">

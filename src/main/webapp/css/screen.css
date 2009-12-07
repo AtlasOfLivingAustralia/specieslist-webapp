@@ -91,6 +91,7 @@ td, th  {
     background-color: #CBDAF0;
     width: 64%;
     padding: 5px;
+    padding-left: 10px;
     margin-bottom: 15px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
