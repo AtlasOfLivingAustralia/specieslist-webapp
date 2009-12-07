@@ -4,8 +4,10 @@
         <pattern>/styles/*</pattern>
         <pattern>/scripts/*</pattern>
         <pattern>/images/*</pattern>
+        <pattern>/fancybox/*</pattern>
         <pattern>/ajax/*</pattern>
         <pattern>/css/*</pattern>
+        <pattern>/properties/*</pattern>
         <pattern>/index.html</pattern>
     </excludes>
 

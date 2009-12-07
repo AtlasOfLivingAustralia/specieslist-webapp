@@ -7,11 +7,29 @@
     <head>
         <meta name="pageName" content="species" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>ALA Repository Taxon Concept: ${tcTitle}</title>
+        <title>ALA Biodiversity Information Explorer: ${tcTitle}</title>
         <!-- Combo-handled YUI CSS files: -->
         <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.8.0r4/build/paginator/assets/skins/sam/paginator.css&2.8.0r4/build/datatable/assets/skins/sam/datatable.css">
         <!-- Combo-handled YUI JS files: -->
         <script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.0r4/build/yahoo-dom-event/yahoo-dom-event.js&2.8.0r4/build/connection/connection-min.js&2.8.0r4/build/element/element-min.js&2.8.0r4/build/paginator/paginator-min.js&2.8.0r4/build/datasource/datasource-min.js&2.8.0r4/build/datatable/datatable-min.js&2.8.0r4/build/json/json-min.js"></script>
+        <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+
+	<script type="text/javascript" src="${pageContext.request.contextPath}/fancybox/jquery.fancybox-1.2.6.pack.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("a.popup").fancybox({
+                            'frameWidth' : 800,
+                            'frameHeight' : 500,
+                            'hideOnContentClick' : false
+                        });
+
+			$("a.image").fancybox({
+				'imageScale' : true,
+                                'hideOnContentClick' : false
+			});
+		});
+	</script>
+
     </head>
     <body>
         <s:if test="%{id.startsWith('search')}">
@@ -26,36 +44,59 @@
             </div>
         </s:if>
         <s:else>
-            <h3>Species Profile</h3>
-            <div id="speciesTitle">
-                <h2>${tcTitle}</h2>
-                <div id="lsid">${title}</div>
-            </div>
+            <h3>Taxon Profile</h3>
+            <div id="speciesHeader">
+                <s:if test="%{!images.isEmpty()}">
+                    <div id="speciesPhoto">
+                        <img src="${images[0].photoSourceUrl}" width="250px" alt="species photo"/>
+                    </div>
+                </s:if>
+                <div id="speciesTitle">
+                    <h2>${tcTitle}</h2>
+                    <div class="speciesInfo"><b>Scientific name: </b>
+                        <s:if test="%{taxonNames.get(0).rank.contains('Species') || taxonNames.get(0).rank.contains('Genus')}"><i>${taxonNames[0].nameComplete}</i></s:if>
+                        <s:else>${taxonNames[0].nameComplete}</s:else>
+                    </div>
+                    <div class="speciesInfo"><b>Taxon Rank: </b><s:property value="%{taxonNames.get(0).rank.replace('TaxonRank.', '')}" /></div>
+                    <div class="speciesInfo"><b>GUID: </b><a href="${taxonNames[0].source}" target="_blank">${title}</a></div>
+                </div>
+                <ul style="float:left;">
+                    <s:if test="%{!taxonNames.isEmpty()}"><li><a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}" class="popup">View
+                        the complete set of harvested properties</a></li></s:if>
+                    <s:if test="%{!images.isEmpty()}"><li><a href="#images">Images</a></li></s:if>
+                    <s:if test="%{!htmlPages.isEmpty()}"><li><a href="#htmlpages">HTML Pages</a></li></s:if>
+                    <li><a href="#properties">Properties</a></li>
+                </ul>
 
-            <s:if test="%{!taxonNames.isEmpty()}">
-                <h4>Names</h4>
+            </div>
+            <div style="clear: both;">&nbsp;</div>
+            <s:if test="%{taxonNames.size() > 1}">
+                <h4>Names<a name="names">&nbsp;</a></h4>
                 <table class="propertyTable">
                     <!-- Table headings. -->
                     <tr>
                         <th>Title</th>
                         <th>Scientific&nbsp;Name</th>
-                        <th>Rank</th>
-                        <th>Source</th>
+                        <th>Taxon&nbsp;Rank</th>
+                        <%--<th>Source</th>--%>
                     </tr>
                     <!-- Dynamic table content. -->
                     <s:iterator value="taxonNames">
                         <tr>
                             <td><a href="${source}" target="_blank">${title}</a></td>
-                            <td>${nameComplete}</td>
-                            <td>${rank}</td>
-                            <td>${source}</td>
+                            <td>
+                                <s:if test="%{rank.contains('Species') || rank.contains('Genus')}"><i>${nameComplete}</i></s:if>
+                                <s:else>${nameComplete}</s:else>
+                            </td>
+                            <td><s:property value="%{rank.replace('TaxonRank.', '')}" /></td>
+                            <%--<td>${source}</td>--%>
                         </tr>
                     </s:iterator>
                 </table>
             </s:if>
 
             <s:if test="%{!images.isEmpty()}">
-                <h4>Images</h4>
+                <h4>Images<a name="images">&nbsp;</a></h4>
                 <table class ="propertyTable">
                     <!-- Table headings. -->
                     <tr>
@@ -67,17 +108,17 @@
                     <!-- Dynamic table content. -->
                     <s:iterator value="images">
                         <tr>
-                            <td><a href="../image/${pid}">${title}</a></td>
+                            <td><a href="${photoPage}" target="_blank">${title}</a></td>
                             <td>${description}</td>
                             <!-- <td>${scientificName}</td> -->
-                            <td><a href="${photoPage}" target="_blank"><img src="${photoSourceUrl}" height="55"/></a></td>
+                            <td><a href="${photoSourceUrl}" class="image" target="_blank" title="${title}"><img src="${photoSourceUrl}" height="55"/></a></td>
                         </tr>
                     </s:iterator>
                 </table>
             </s:if>
 
             <s:if test="%{!htmlPages.isEmpty()}">
-                <h4>HTML Pages</h4>
+                <h4>HTML Pages<a name="htmlpages">&nbsp;</a></h4>
                 <table class ="propertyTable">
                     <!-- Table headings. -->
                     <tr>
@@ -94,7 +135,7 @@
                                         <li><b>${prop.key}</b>: ${prop.value}<br/></li>
                                     </s:iterator></ul>
                             </td>
-                            <td>${source}</td>
+                            <td><a href="http://${source}" target="_blank"><s:text name="source.%{source}"/></a></td>
                         </tr>
                     </s:iterator>
                 </table>
@@ -122,7 +163,7 @@
           </script>
       </div>--%>
 
-            <h4>Properties:</h4>
+            <h4>Properties<a name="properties">&nbsp;</a></h4>
             <table class ="propertyTable">
                 <!-- Table headings. -->
                 <tr>
@@ -136,7 +177,10 @@
                 <s:iterator value="objProperties">
                     <tr>
                         <td><s:property value="relationship" /></td>
-                        <td>${value}</td>
+                        <td>
+                            <s:if test="%{relationship.startsWith('has') && value.contains('.taxon:')}"><a href="show?guid=${value}">${value}</a></s:if>
+                            <s:else>${value}</s:else>
+                        </td>
                         <td>
                             <s:property value="harvested" />
                         </td>
