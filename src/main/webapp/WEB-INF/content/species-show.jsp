@@ -1,8 +1,9 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
     "http://www.w3.org/TR/html4/loose.dtd">
-<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@taglib prefix="s" uri="/struts-tags" %>
-
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="s" uri="/struts-tags" %>
+<%@ taglib prefix="c" uri="/WEB-INF/tld/c.tld" %>
+<%@ taglib prefix="fn" uri="/WEB-INF/tld/fn.tld" %>
 <html>
     <head>
         <meta name="pageName" content="species" />
@@ -13,22 +14,40 @@
         <!-- Combo-handled YUI JS files: -->
         <script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.0r4/build/yahoo-dom-event/yahoo-dom-event.js&2.8.0r4/build/connection/connection-min.js&2.8.0r4/build/element/element-min.js&2.8.0r4/build/paginator/paginator-min.js&2.8.0r4/build/datasource/datasource-min.js&2.8.0r4/build/datatable/datatable-min.js&2.8.0r4/build/json/json-min.js"></script>
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+        <script type="text/javascript" src="${pageContext.request.contextPath}/fancybox/jquery.fancybox-1.2.6.pack.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $("a.popup").fancybox({
+                    'frameWidth' : 800,
+                    'frameHeight' : 500,
+                    'hideOnContentClick' : false
+                });
 
-	<script type="text/javascript" src="${pageContext.request.contextPath}/fancybox/jquery.fancybox-1.2.6.pack.js"></script>
-	<script type="text/javascript">
-		$(document).ready(function() {
-			$("a.popup").fancybox({
-                            'frameWidth' : 800,
-                            'frameHeight' : 500,
-                            'hideOnContentClick' : false
-                        });
+                $("a.image").fancybox({
+                    'imageScale' : true,
+                    'hideOnContentClick' : false
+                });
 
-			$("a.image").fancybox({
-				'imageScale' : true,
-                                'hideOnContentClick' : false
-			});
-		});
-	</script>
+                // Lookup portal for species info
+                $.getJSON("http://data.ala.org.au/search/scientificNames/%22${taxonNames[0].nameComplete}%22/json?callback=?", function(data){
+                    //alert("inspecting JSON data: " + data);
+                    if (data.result.length > 0) {
+                        var scientificNameId = data.result[0].scientificNameId;
+                        var scientificNameUrl = "http://data.ala.org.au" + data.result[0].scientificNameUrl;
+                        var occurrenceCount = data.result[0].occurrenceCount;
+                        var occurrenceTableUrl = "http://data.ala.org.au/occurrences/searchWithTable.htm?c[0].s=20&c[0].p=0&c[0].o=" + scientificNameId;
+                        // modify page DOM with values
+                        $("a#portalLink").attr("href", scientificNameUrl);
+                        //$("a#occurTableLink").attr("href", occurrenceTableUrl);
+                        var countText = "<a href='" + occurrenceTableUrl + "' target='_blank' " +
+                            "title='View list of all occurrences'>" + occurrenceCount + "</a>";
+                        $("#occurrenceCount").html(countText);
+                        $("#portalBookmark").fadeIn();
+                        $("#portalInfo").slideDown();
+                    }
+               });
+            });
+        </script>
 
     </head>
     <body>
@@ -44,7 +63,14 @@
             </div>
         </s:if>
         <s:else>
-            <%--<h3>Taxon Profile</h3>--%>
+            <s:set name="sciNameFormatted">
+                <%--<s:if test="%{taxonNames.get(0).rank.contains('Species') || taxonNames.get(0).rank.contains('Genus')}"><i>${taxonNames[0].nameComplete}</i></s:if>--%>
+                <c:choose>
+                    <c:when test="${fn:containsIgnoreCase(taxonNames[0].rank,'species')}"><i>${taxonNames[0].nameComplete}</i></c:when>
+                    <c:when test="${fn:containsIgnoreCase(taxonNames[0].rank,'genus')}"><i>${taxonNames[0].nameComplete}</i></c:when>
+                    <c:otherwise>${taxonNames[0].nameComplete}</c:otherwise>
+                </c:choose>
+            </s:set>
             <div id="speciesHeader">
                 <s:if test="%{!images.isEmpty()}">
                     <div id="speciesPhoto">
@@ -52,26 +78,28 @@
                     </div>
                 </s:if>
                 <div id="speciesTitle">
-                    <h2>${tcTitle}</h2>
-                    <div class="speciesInfo"><b>Scientific name: </b>
-                        <s:if test="%{taxonNames.get(0).rank.contains('Species') || taxonNames.get(0).rank.contains('Genus')}"><i>${taxonNames[0].nameComplete}</i></s:if>
-                        <s:else>${taxonNames[0].nameComplete}</s:else>
+                    <h2>${fn:replace(tcTitle, taxonNames[0].nameComplete, sciNameFormatted)}</h2>
+                    <div class="speciesInfo"><b>Scientific name: </b> <s:property value="sciNameFormatted" escape="false"/>
                     </div>
                     <div class="speciesInfo"><b>Taxon Rank: </b><s:property value="%{taxonNames.get(0).rank.replace('TaxonRank.', '')}" /></div>
                     <div class="speciesInfo"><b>GUID: </b><a href="${taxonNames[0].source}" target="_blank">${title}</a></div>
                 </div>
-                <ul style="float:left;">
-                    <s:if test="%{!taxonNames.isEmpty()}"><li><a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}" class="popup">View
-                        the complete set of harvested properties</a></li></s:if>
-                    <s:if test="%{!images.isEmpty()}"><li><a href="#images">Images</a></li></s:if>
-                    <s:if test="%{!htmlPages.isEmpty()}"><li><a href="#htmlpages">HTML Pages</a></li></s:if>
-                    <li><a href="#properties">Properties</a></li>
-                </ul>
-
+                <div id="toc">
+                    <p style="margin-bottom: 5px;"><b>Table of Contents</b> (click to jump to)</p>
+                    <ul>
+                        <li id="portalBookmark"><a href="#portal">Occurrences</a></li>
+                        <s:if test="%{!images.isEmpty()}"><li><a href="#images">Images</a></li></s:if>
+                        <s:if test="%{!htmlPages.isEmpty()}"><li><a href="#htmlpages">HTML Pages</a></li></s:if>
+                        <li><a href="#properties">Properties</a></li>
+                        <s:if test="%{!taxonNames.isEmpty()}"><li><a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}" class="popup">
+                            Harvested Properties Table</a></li></s:if>
+                    </ul>
+                </div>
             </div>
-            <div style="clear: both;">&nbsp;</div>
-            <s:if test="%{taxonNames.size() > 1}">
-                <h4>Names<a name="names">&nbsp;</a></h4>
+            <div style="clear: both;"></div>
+
+            <s:if test="%{taxonNames.size() > 1}"><a name="names">&nbsp;</a>
+                <h4 class="divider">Names</h4>
                 <table class="propertyTable">
                     <!-- Table headings. -->
                     <tr>
@@ -95,14 +123,22 @@
                 </table>
             </s:if>
 
+            <div id="portalInfo">
+                <h4 class="divider">Occurrence Data<a name="portal">&nbsp;</a></h4>
+                <ul>
+                    <li><a href="#" id="portalLink" target="_blank">View the "<s:property value="sciNameFormatted" escape="false"/>"
+                          species page</a> on the ALA Portal</li>
+                    <li>Number of occurrences: <span id="occurrenceCount"></span></li>
+                </ul>
+            </div>
+
             <s:if test="%{!images.isEmpty()}">
-                <h4>Images<a name="images">&nbsp;</a></h4>
+                <h4 class="divider">Images<a name="images">&nbsp;</a></h4>
                 <table class ="propertyTable">
                     <!-- Table headings. -->
                     <tr>
                         <th>Title</th>
                         <th>Desciption</th>
-                        <!-- <th>Scientific&nbsp;Name</th> -->
                         <th>Thumbnail</th>
                     </tr>
                     <!-- Dynamic table content. -->
@@ -110,15 +146,14 @@
                         <tr>
                             <td><a href="${photoPage}" target="_blank">${title}</a></td>
                             <td>${description}</td>
-                            <!-- <td>${scientificName}</td> -->
                             <td><a href="${photoSourceUrl}" class="image" target="_blank" title="${title}"><img src="${photoSourceUrl}" height="55"/></a></td>
                         </tr>
                     </s:iterator>
                 </table>
             </s:if>
 
-            <s:if test="%{!htmlPages.isEmpty()}">
-                <h4>HTML Pages<a name="htmlpages">&nbsp;</a></h4>
+            <s:if test="%{!htmlPages.isEmpty()}"><a name="htmlpages">&nbsp;</a>
+                <h4 class="divider">HTML Pages</h4>
                 <table class ="propertyTable">
                     <!-- Table headings. -->
                     <tr>
@@ -131,9 +166,18 @@
                         <tr>
                             <td><a href="${url}">${title}</a></td>
                             <td>
-                                <ul><s:iterator value="rdfProperties" var="prop">
+                                <table class="rdfProperties">
+                                    <s:iterator value="rdfProperties" var="prop">
+                                    <tr>
+                                        <td>${prop.key}</td>
+                                        <td>${prop.value}</td>
+                                    </tr>
+                                    </s:iterator>
+                                </table>
+
+                                <%--<ul><s:iterator value="rdfProperties" var="prop">
                                         <li><b>${prop.key}</b>: ${prop.value}<br/></li>
-                                    </s:iterator></ul>
+                                    </s:iterator></ul>--%>
                             </td>
                             <td><a href="http://${source}" target="_blank"><s:text name="source.%{source}"/></a></td>
                         </tr>
@@ -141,29 +185,8 @@
                 </table>
             </s:if>
 
-            <%--<div class="yui-skin-sam">
-                <h4>Search results for <i>${taxonNames[0].nameComplete}</i></h4>
-                <div id="results"></div>
-                <jsp:include page="yui-datatable.jsp"/>
-                <script type="text/javascript">
-                    propertyName = "rdf.hasScientificName";
-                    query = "\"${taxonNames[0].nameComplete}\"";// "${images[0].scientificName}";
-                    loadDatatable(propertyName, query, "");
-
-              // Catch bookmarked state and trigger facet search
-              var anchor = window.location.hash;
-              if (anchor.length > 0) {
-                  anchor = anchor.replace(/#/,""); // remove the hash character
-                  var args = anchor.split(":");
-                  var fieldname = args[0];
-                  var label = args[1];
-                  var displayLabel = (contentModelMap[label]) ? contentModelMap[label] : label;
-                  doFacetSearch(fieldname, label, displayLabel);
-              }
-          </script>
-      </div>--%>
-
-            <h4>Properties<a name="properties">&nbsp;</a></h4>
+            <a name="properties">&nbsp;</a>
+            <h4 class="divider">Properties</h4>
             <table class ="propertyTable">
                 <!-- Table headings. -->
                 <tr>

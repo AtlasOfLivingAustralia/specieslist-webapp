@@ -60,14 +60,15 @@ td, th  {
 }
 /* header */
 #header {
-    margin: 5px 0;
+    margin: 6px 0 7px 0;
 }
 #searchTab input[type="text"] {
     margin: 0;
 }
 #menuSearch {
     float: right;
-    margin-top: 60px;
+    /*margin-top: 60px;*/
+    padding: 2px;
 }
 #page > #header > #menuSearch {
     margin-top: 58px;
@@ -78,7 +79,8 @@ td, th  {
 #headerTitle {
     position: absolute;
     top: 20px;
-    margin-left: 200px;
+    width: 40%;
+    margin-left: 280px;
     font-size: 24px;
     font-weight: normal;
     color: #4b4c4e;
@@ -120,7 +122,29 @@ td, th  {
     margin-right: auto;
     text-align: center;
 }
- 
+#portalInfo, #portalBookmark {
+    display: none;
+}
+table.rdfProperties {
+    margin-bottom: 0;
+}
+table.rdfProperties tr:last-child td {
+    border-bottom: 1px solid white;
+}
+table.rdfProperties tr td:first-child {
+    color: #777777;
+}
+#toc {
+    width: 32%;
+    /*float: right;*/
+}
+#toc ul, #portalInfo ul {
+    margin-left: 1.2em;
+    padding-left: 3px;
+}
+#toc ul {
+    list-style-type: circle;
+}
 /* top menu */
 #topmenu .tabs {
     border-bottom: 0px solid #ddd;
@@ -261,6 +285,13 @@ div#results {
     margin-top: 20px;
     width: 640px;
 }
+h4.divider {
+    border-top: 1px solid #DDD;
+    padding-top: 6px;
+    margin-top: 15px;
+}
+
+/* YUI modifications */
 div.yui-dt > table {
     width: 100%;
 }

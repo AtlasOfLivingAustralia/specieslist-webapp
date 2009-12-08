@@ -22,16 +22,16 @@
     <body>
         <div id="page">
             <div id="header">
-                <div id="menuSearch">
-                    <s:form action="/species/" namespace="search" method="GET" theme="simple">
-                        <s:textfield key="propertyValue" size="25"/>
-                        <s:submit value="Search"/>
-                    </s:form>
-                </div>
                 <div id="headerLogo">
                     <a href="${pageContext.request.contextPath}/"><img src="<s:url value="/images/ALA-logo-50px.gif"/>" alt="ALA Logo" id="headerLogo" border="0"/></a>
                 </div>
                 <h1 id="headerTitle">Biodiversity Information Explorer</h1>
+            </div>
+            <div id="menuSearch">
+                <s:form action="/species/" namespace="search" method="GET" theme="simple">
+                    <s:textfield key="propertyValue" size="25"/>
+                    <s:submit value="Search"/>
+                </s:form>
             </div>
             <div id="topmenu">
                 <s:set name="pageName"><decorator:getProperty property="meta.pageName"/></s:set>
