@@ -55,14 +55,18 @@
         <script type="text/javascript" src="http://extjs.cachefly.net/builds/ext-cdn-771.js"></script>
         <link rel="stylesheet" type="text/css" href="http://extjs.cachefly.net/ext-2.2.1/resources/css/ext-all.css" />
         <link rel="stylesheet" type="text/css" href="http://extjs.cachefly.net/ext-2.2.1/examples/shared/examples.css" />
-        <script type="text/javascript" src="http://openlayers.org/api/2.8/OpenLayers.js"></script>
-        <script type="text/javascript" src="${pageContext.request.contextPath}/js/GeoExt.js"></script>
+        <script type="text/javascript" src="http://openlayers.org/api/OpenLayers.js"></script>
         <script type="text/javascript">
-            var cellLayer;
+            var map;
             function loadMap(scientificName,scientificNameId) {
                 var mapPanel;
                 //Ext.onReady(function() {
-                    var map = new OpenLayers.Map();
+                    var options = {
+                        numZoomLevels: 12,
+                        controls: []
+                        // maxExtent: new OpenLayers.Bounds()
+                    }; 
+                    map = new OpenLayers.Map('mappanel', options);
                     var layer = new OpenLayers.Layer.WMS(
                         "Global Imagery",
                         "http://maps.opengeo.org/geowebcache/service/wms",
@@ -103,8 +107,11 @@
                     //map.addLayer(layer);
                     //map.addLayer(cellLayer);
                     map.addLayers([layer,cellLayer,statesLayer]);
+                    map.addControl(new OpenLayers.Control.Navigation({zoomWheelEnabled: false}));
+                    map.addControl(new OpenLayers.Control.PanZoom({zoomWorldIcon: false}));
+                    map.setCenter(new OpenLayers.LonLat(133, -27), 4);
 
-                    mapPanel = new GeoExt.MapPanel({
+                    <%--mapPanel = new GeoExt.MapPanel({
                         title: "Species Density Map",
                         renderTo: "mappanel",
                         height: 450,
@@ -112,7 +119,7 @@
                         map: map,
                         center: new OpenLayers.LonLat(133, -27),
                         zoom: 4
-                    });
+                    });--%>
                 //});
             }
         </script>

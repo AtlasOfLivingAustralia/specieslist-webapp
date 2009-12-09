@@ -131,6 +131,8 @@ td, th  {
 }
 #mappanel {
     float: right;
+    width: 550px;
+    height: 450px;
 }
 table.rdfProperties {
     margin-bottom: 0;
