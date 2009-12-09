@@ -125,6 +125,13 @@ td, th  {
 #portalInfo, #portalBookmark {
     display: none;
 }
+#portalInfo ul {
+    width: 350px;
+    float: left;
+}
+#mappanel {
+    float: right;
+}
 table.rdfProperties {
     margin-bottom: 0;
 }

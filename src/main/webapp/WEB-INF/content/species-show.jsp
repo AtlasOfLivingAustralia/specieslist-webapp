@@ -16,6 +16,8 @@
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
         <script type="text/javascript" src="${pageContext.request.contextPath}/fancybox/jquery.fancybox-1.2.6.pack.js"></script>
         <script type="text/javascript">
+            //var scientificNameId, scientificName;
+
             $(document).ready(function() {
                 $("a.popup").fancybox({
                     'frameWidth' : 800,
@@ -33,6 +35,7 @@
                     //alert("inspecting JSON data: " + data);
                     if (data.result.length > 0) {
                         var scientificNameId = data.result[0].scientificNameId;
+                        var scientificName = data.result[0].scientificName;
                         var scientificNameUrl = "http://data.ala.org.au" + data.result[0].scientificNameUrl;
                         var occurrenceCount = data.result[0].occurrenceCount;
                         var occurrenceTableUrl = "http://data.ala.org.au/occurrences/searchWithTable.htm?c[0].s=20&c[0].p=0&c[0].o=" + scientificNameId;
@@ -44,11 +47,75 @@
                         $("#occurrenceCount").html(countText);
                         $("#portalBookmark").fadeIn();
                         $("#portalInfo").slideDown();
+                        loadMap(scientificName,scientificNameId);
                     }
                });
             });
         </script>
+        <script type="text/javascript" src="http://extjs.cachefly.net/builds/ext-cdn-771.js"></script>
+        <link rel="stylesheet" type="text/css" href="http://extjs.cachefly.net/ext-2.2.1/resources/css/ext-all.css" />
+        <link rel="stylesheet" type="text/css" href="http://extjs.cachefly.net/ext-2.2.1/examples/shared/examples.css" />
+        <script type="text/javascript" src="http://openlayers.org/api/2.8/OpenLayers.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/js/GeoExt.js"></script>
+        <script type="text/javascript">
+            var cellLayer;
+            function loadMap(scientificName,scientificNameId) {
+                var mapPanel;
+                //Ext.onReady(function() {
+                    var map = new OpenLayers.Map();
+                    var layer = new OpenLayers.Layer.WMS(
+                        "Global Imagery",
+                        "http://maps.opengeo.org/geowebcache/service/wms",
+                        {layers: "bluemarble"},
+                        {wrapDateLine: true}
+                    );
 
+                    var cellDensityLayerUrl = 'http://data.ala.org.au';
+                    //var cellDensityArray = [cellDensityLayerUrl+'/wms?'];
+                    var entityName = '<span class="genera">' + scientificName + ' </span>';
+                    var entityId = scientificNameId;
+                    var entityType = 1; // species type
+
+                    cellLayer = new OpenLayers.Layer.WMS(
+                        entityName + " 1 degree cells",
+                        "http://maps.ala.org.au/wms",  //cellDensityArray, // "http://maps.ala.org.au/wms",
+                        {   layers: "ala:tabDensityLayer",
+                            srs: 'EPSG:4326',
+                            version: "1.0.0",
+                            transparent: "true",
+                            format: "image/png",
+                            filter: "(<Filter><PropertyIsEqualTo><PropertyName>url</PropertyName><Literal><![CDATA["+cellDensityLayerUrl+"/mapping/simple/?id="+entityId+"&type="+entityType+"&unit=1]]></Literal></PropertyIsEqualTo></Filter>)"
+                        },
+                        {opacity: "0.65", wrapDateLine: true, buffer: 0}
+                    );
+
+                    var statesLayer = new OpenLayers.Layer.WMS("Political States",
+                        "http://maps.ala.org.au/wms",
+                        {layers: "ala:as",
+                        srs: 'EPSG:4326',
+                        version: "1.0.0",
+                        transparent: "true",
+                        format: "image/png",
+                        maxExtent: new OpenLayers.Bounds(112.91,-54.76,159.11,-10.06)},
+                        {alpha: true}
+                    );
+
+                    //map.addLayer(layer);
+                    //map.addLayer(cellLayer);
+                    map.addLayers([layer,cellLayer,statesLayer]);
+
+                    mapPanel = new GeoExt.MapPanel({
+                        title: "Species Density Map",
+                        renderTo: "mappanel",
+                        height: 450,
+                        width: 550,
+                        map: map,
+                        center: new OpenLayers.LonLat(133, -27),
+                        zoom: 4
+                    });
+                //});
+            }
+        </script>
     </head>
     <body>
         <s:if test="%{id.startsWith('search')}">
@@ -130,6 +197,8 @@
                           species page</a> on the ALA Portal</li>
                     <li>Number of occurrences: <span id="occurrenceCount"></span></li>
                 </ul>
+                <div id="mappanel"></div>
+                <div style="clear: both;"></div>
             </div>
 
             <s:if test="%{!images.isEmpty()}">
