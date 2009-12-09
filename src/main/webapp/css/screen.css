@@ -134,6 +134,13 @@ td, th  {
     width: 550px;
     height: 450px;
 }
+table#cellCountsLegend {
+    margin: 0;
+}
+#cellCountsLegend td {
+    text-align: center;
+    border: none;
+}
 table.rdfProperties {
     margin-bottom: 0;
 }
