@@ -52,7 +52,7 @@ public class FedoraDAOImpl implements FedoraDAO {
     private CommonsHttpSolrServer server = null;
     /** URL of the SOLR servlet */
     protected String solrUrl = "http://diasbdev1-cbr.vm.csiro.au:8080/solr";  // http://localhost:8080/solr
-    //protected String solrUrl = "http://localhost:8080/solr";  // http://localhost:8080/solr
+//    protected String solrUrl = "http://localhost:8080/solr";  // http://localhost:8080/solr
 
     /**
      * Constructor - set the server field
@@ -70,7 +70,7 @@ public class FedoraDAOImpl implements FedoraDAO {
     	List<DocumentDTO> propertiesList = new ArrayList<DocumentDTO>();
     	try {
     		SolrDocumentList solrDocumentList = doListQuery(scientificNames, "rdf.hasScientificName", null);
-    		logger.info("######### "+solrDocumentList.size()+ " documents returned.");
+    		logger.debug("######### "+solrDocumentList.size()+ " documents returned.");
     		Iterator iter = solrDocumentList.iterator();
     		while(iter.hasNext()){
     			SolrDocument solrDocument = (SolrDocument) iter.next();
@@ -79,14 +79,12 @@ public class FedoraDAOImpl implements FedoraDAO {
     			DocumentDTO propertiesDTO = new DocumentDTO();
     			Set<String> keys = fieldMap.keySet();
     			for(String key: keys){
-    				System.out.println("######### key: "+key+", value: "+fieldMap.get(key));   
+    				logger.debug("######### key: "+key+", value: "+fieldMap.get(key));   
     				propertiesDTO.getPropertyMap().put(key, fieldMap.get(key));
     			}
-    			System.out.println("######### Source: "+solrDocument.getFieldValue("dc.source"));    			
+    			logger.debug("######### Source: "+solrDocument.getFieldValue("dc.source"));    			
     			propertiesDTO.setInfoSourceName((String) fieldMap.get("dc.source"));
-
     			propertiesDTO.setPropertyMap(sortByKey(fieldMap));
-    			
     			propertiesList.add(propertiesDTO);
     		}
     	} catch (Exception e){
@@ -179,7 +177,19 @@ public class FedoraDAOImpl implements FedoraDAO {
     			}
     			
     			logger.info("DC Source: "+solrDocument.getFieldValue("dc.source"));    			
-    			orderedDocument.setInfoSourceName((String) fieldMap.get("dc.source"));
+    			
+    			//the ID of the infosource    			
+    			orderedDocument.setInfoSourceUrl((String) fieldMap.get("dc.source"));
+    			
+    			//a display name for the infosource    			
+    			orderedDocument.setInfoSourceName((String) fieldMap.get("dc.publisher"));
+
+    			//the URL of the web page
+    			orderedDocument.setSourceUrl((String) fieldMap.get("dc.identifier"));
+    			
+    			//the title of the web page
+    			orderedDocument.setSourceTitle((String) fieldMap.get("dc.title"));
+    			
     			orderedDocument.setCategorisedProperties(catPropertiesList);
     			orderedDocumentList.add(orderedDocument);
     		}
