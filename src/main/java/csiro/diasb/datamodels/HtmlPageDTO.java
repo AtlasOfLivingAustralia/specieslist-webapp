@@ -125,16 +125,18 @@ public class HtmlPageDTO {
     }
 
     public void setSource(String source) {
-        // if a URL, pul out just the host portion
-        URI uri;
-        try {
-            uri = new URI(source);
-            String host = uri.getHost();
-            if (!host.isEmpty()) source = host;
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(HtmlPageDTO.class.getName()).log(Level.WARNING, null, ex);
-        }
-        
+        // if a URL, pull out just the host portion
+    	if(source!=null){
+	        URI uri;
+	        try {
+	            uri = new URI(source);
+	            String host = uri.getHost();
+	            if (!host.isEmpty()) 
+	            	source = host;
+	        } catch (URISyntaxException ex) {
+	            Logger.getLogger(HtmlPageDTO.class.getName()).log(Level.WARNING, null, ex);
+	        }
+    	}
         this.source = source;
     }
 }

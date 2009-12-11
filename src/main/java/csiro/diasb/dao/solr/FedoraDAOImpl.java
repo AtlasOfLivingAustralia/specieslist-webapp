@@ -118,7 +118,8 @@ public class FedoraDAOImpl implements FedoraDAO {
     			
     			//for each key, find the correct category, and create a CategorisedProperties instance
     			for(String key: retrievedKeys){
-    				Category category = Category.getCategoryForProperty(key);
+    				
+    			    Category category = Category.getCategoryForProperty(key);
     				if(category!=null){
 	    				logger.info("Category:"+category.getName()+",  key: '"+key+"', value:"+fieldMap.get(key));
 	    				
@@ -135,8 +136,12 @@ public class FedoraDAOImpl implements FedoraDAO {
     				} else {
     					logger.info("No category found for key: '"+key+"', value:"+fieldMap.get(key));	
     				}
+    				
+    				if("rdf.hasModel".equals(key)){
+    					String model = (String) fieldMap.get(key);
+    					orderedDocument.setDocumentType(model);
+    				}
     			}
-    			
     			
     			//order categories by rank
     			Collection<CategorisedProperties> catProperties = catPropMap.values();
@@ -192,7 +197,10 @@ public class FedoraDAOImpl implements FedoraDAO {
     			orderedDocument.setSourceTitle((String) fieldMap.get("dc.title"));
     			
     			orderedDocument.setCategorisedProperties(catPropertiesList);
-    			orderedDocumentList.add(orderedDocument);
+    			
+    			if(orderedDocument.getDocumentType()!=null && !orderedDocument.getDocumentType().endsWith("ImageContentModel")){
+    				orderedDocumentList.add(orderedDocument);
+    			}
     		}
     	} catch (Exception e){
     		logger.error(e.getMessage(),e);
@@ -321,12 +329,12 @@ public class FedoraDAOImpl implements FedoraDAO {
             if (contentModel.equalsIgnoreCase("ala.HtmlPageContentModel")) {
                 // Only want to request these values if the returned document is the expected type
                 HtmlPageDTO htmlPage = new HtmlPageDTO();
-                htmlPage.setPid((String) doc.getFieldValue("PID"));
-                htmlPage.setGuid((String) doc.getFieldValue("rdf.hasGuid"));
-                htmlPage.setTitle((String) doc.getFieldValue("dc.title"));
-                htmlPage.setScientificName((String) doc.getFieldValue("rdf.hasScientificName"));
-                htmlPage.setUrl((String) doc.getFieldValue("rdf.hasURL"));
-                htmlPage.setSource((String) doc.getFieldValue("fgs.label"));
+                htmlPage.setPid(resolveSingleMultiValue(doc,"PID"));
+                htmlPage.setGuid(resolveSingleMultiValue(doc,"rdf.hasGuid"));
+                htmlPage.setTitle(resolveSingleMultiValue(doc,"dc.title"));
+                htmlPage.setGuid(resolveSingleMultiValue(doc,"rdf.hasScientificName"));
+                htmlPage.setUrl(resolveSingleMultiValue(doc,"rdf.hasURL"));
+                htmlPage.setSource(resolveSingleMultiValue(doc,"fgs.label"));
                 // optional fields stored in HashMap
                 Map fieldMap = doc.getFieldValueMap();
                 HashMap<String, String> rdfProperties = new HashMap<String, String>();
@@ -354,6 +362,20 @@ public class FedoraDAOImpl implements FedoraDAO {
 
         return htmlPageDTOs;
     }
+
+	private String resolveSingleMultiValue(SolrDocument doc, String fieldName) {
+		Object guid = doc.getFieldValue("rdf.hasGuid");
+		if(guid instanceof String){
+			return (String) guid;
+		} else if(guid instanceof List){
+			List<String> guidList = (List)guid;
+			if(guidList.isEmpty()){
+				String firstGuid = guidList.get(0);
+				return (String) firstGuid;
+			}
+		}
+		return null;
+	}
 
     /**
      * @see csiro.diasb.dao.FedoraDAO#getTaxonConceptForIdentifier(java.lang.String)

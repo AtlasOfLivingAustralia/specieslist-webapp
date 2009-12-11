@@ -18,6 +18,8 @@ public class OrderedDocumentDTO {
 	private String sourceUrl;
 	/** This is the title of the document/htmlpage/image that supplied the information */
 	private String sourceTitle;
+	/** This is the type of document e.g. Image, HTML page **/
+	private String documentType;
 	/** This is the organised properties that have been derived from the page */
 	private Collection<CategorisedProperties> categorisedProperties;
 	/**
@@ -80,5 +82,17 @@ public class OrderedDocumentDTO {
 	public void setCategorisedProperties(
 			Collection<CategorisedProperties> categorisedProperties) {
 		this.categorisedProperties = categorisedProperties;
+	}
+	/**
+	 * @return the documentType
+	 */
+	public String getDocumentType() {
+		return documentType;
+	}
+	/**
+	 * @param documentType the documentType to set
+	 */
+	public void setDocumentType(String documentType) {
+		this.documentType = documentType;
 	}
 }
