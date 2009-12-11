@@ -34,9 +34,12 @@ public class PropertiesController extends ActionSupport {
 	private FedoraDAO fedoraDAO;
 	private List<DocumentDTO> properties;
 	private List<OrderedDocumentDTO> orderedDocuments;
-	
+
+	/**
+	 * Required for REST plugin.
+	 * @return
+	 */
 	public HttpHeaders index() {
-		System.out.println("PropertyViewController - kicking off");
 		return new DefaultHttpHeaders("index").disableCaching();
 	}
 

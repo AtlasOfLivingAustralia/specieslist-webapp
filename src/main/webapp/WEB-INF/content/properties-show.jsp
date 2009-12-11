@@ -25,6 +25,33 @@
 	</c:forEach>
 
 </c:when>
+<c:when test="${param['sort'] && param['pretty']}">
+
+ <c:forEach items="${orderedDocuments}" var="orderedDocument">
+  
+  <div style="border:1px solid gray; padding:10px; margin:10px;">  
+    <h3>${orderedDocument.infoSourceName}</h3> 
+    <h4><a href="${orderedDocument.sourceUrl}">${orderedDocument.sourceTitle}</a></h4>
+    <c:forEach var="categorisedProperties" items="${orderedDocument.categorisedProperties}">
+    
+      <c:if test="${categorisedProperties.category.name!='Taxonomic'}">
+	      <h5>${categorisedProperties.category.name}</h5>
+	      <table>
+	      <c:forEach var="entry" items="${categorisedProperties.propertyMap}">
+	          <tr>
+	            <td>${entry.key}</td>
+	            <td>${entry.value}</td>
+	          </tr>
+	      </c:forEach>
+	      </table>
+      
+      </c:if>        
+    </c:forEach> 
+  </div>
+  
+</c:forEach>
+
+</c:when>
 <c:otherwise>
 
  <c:forEach items="${orderedDocuments}" var="orderedDocument">
@@ -46,8 +73,7 @@
 	      </tr>
 	  </c:forEach>
 	  </table>  	  
-	</c:forEach>
-  
+	</c:forEach> 
   </div>
   
 </c:forEach>

@@ -21,7 +21,7 @@ public final class Category {
 	/** The property name associated with a category */
 	private final List<String> propertyNames;
 	
-	public static final Category taxonomic = new Category("Taxonomic", 1, 
+	public static final Category taxonomic = new Category("Taxonomic", 0, 
 			new String[]{
 			"hasScientificName", 
 			"hasScientificDescriptionAuthor",
@@ -39,9 +39,12 @@ public final class Category {
 			"hasGenus",
 			"hasSpecificEpithet",
 			"specificEpithet",
+	});
+	public static final Category naming = new Category("Names", 1, 
+			new String[]{
 			"hasCommonName",
 			"hasSynonym"
-	});
+	});	
 	public static final Category description = new Category("Status", 2, 
 			new String[]{
 			"hasPestStatus",
@@ -86,7 +89,7 @@ public final class Category {
 			"hasDistributionWMS"
 	});	
 	public static final Category[] categories = 
-		new Category[]{taxonomic,description,geospatial,media,attribution,services};  
+		new Category[]{taxonomic,naming,description,geospatial,media,attribution,services};  
 	
 	/**
 	 * Private constructor.
