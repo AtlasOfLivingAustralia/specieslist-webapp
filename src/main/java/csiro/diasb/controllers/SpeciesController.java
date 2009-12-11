@@ -6,7 +6,6 @@
  */
 package csiro.diasb.controllers;
 
-import csiro.diasb.datamodels.OrderedDocumentDTO;
 import csiro.diasb.datamodels.SolrResults;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,6 +28,7 @@ import csiro.diasb.datamodels.TaxonNameDTO;
 import csiro.diasb.fedora.FcGetDsContent;
 import csiro.diasb.datamodels.AlaSourcedPropertiesData;
 import csiro.diasb.datamodels.HtmlPageDTO;
+import csiro.diasb.datamodels.OrderedDocumentDTO;
 import csiro.diasb.datamodels.TaxonConceptDTO;
 import csiro.diasb.fedora.FacetQuery;
 import csiro.diasb.fedora.SolrSearch;
@@ -103,8 +103,9 @@ public class SpeciesController extends ActionSupport {
     private String responseMessage = "";
     private String propertyName = "rdf.hasModel";
     private String solrQuery = "ala_TaxonConceptContentModel";
-    private List<OrderedDocumentDTO> orderedDocuments;
 
+    private List<OrderedDocumentDTO> orderedDocuments = null;
+    
     /**
      * Entry point to the controller from /AlaHarvester/taxa/<pid>
      * It displays a table of Taxon Concept object's properties
@@ -116,8 +117,10 @@ public class SpeciesController extends ActionSupport {
     public HttpHeaders show() {
         // Initialises the required mappings.
         // this.init();
-        if (id.startsWith("fq=")) return addConstraint(id);
-        if (id.startsWith("search")) return new DefaultHttpHeaders("show").disableCaching();
+        if (id.startsWith("fq=")) 
+        	return addConstraint(id);
+        if (id.startsWith("search")) 
+        	return new DefaultHttpHeaders("show").disableCaching();
         if (id.equalsIgnoreCase("show")) {
             // e.g. /bie/taxon/show?guid=urn:lsid:biodiversity.org.au:afd.taxon:3da1a9b5-92f6-4096-84a6-3c976b06cbd4
             taxonConcept = fedoraDAO.getTaxonConceptForIdentifier(guid);
@@ -200,13 +203,10 @@ public class SpeciesController extends ActionSupport {
             }
             //  identifiers = (List) fcGetDs.findDCValues("dc:identifier", DCDataString);
 
-        } catch (ParserConfigurationException ex) {
-            logger.warn(ex);
-        } catch (SAXException ex) {
-            logger.warn(ex);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             logger.warn(ex);
         }
+        
         //next look for RELS-EXT properties
         String RELS_EXTDataString = "";
         try {
@@ -240,14 +240,16 @@ public class SpeciesController extends ActionSupport {
         }
 
         taxonNames = fedoraDAO.getTaxonNamesForUrns(hasTaxonNames);
-        if (taxonNames.size() > 0) logger.info("fedoraDAO TN list: "+taxonNames.get(0).toString());
-
+        if (taxonNames.size() > 0) 
+        	logger.info("fedoraDAO TN list: "+taxonNames.get(0).toString());
+        
+        
         // Get the first taxon name and search for other FC objects that reference it
         String scientificName = null;
+        List<String> scientificNames = new ArrayList<String>();
         
         if (taxonNames.size() > 0) {
             scientificName = taxonNames.get(0).getNameComplete();
-            ArrayList<String> scientificNames = new ArrayList<String>();
 
             for (TaxonNameDTO tn : taxonNames) {
                 scientificNames.add(tn.getNameComplete());
@@ -256,12 +258,10 @@ public class SpeciesController extends ActionSupport {
             htmlPages = fedoraDAO.getHtmlPagesForScientificNames(scientificNames);
             logger.info("htmlpage for " + scientificName + " found " + htmlPages.size() + " pages.");
             // TODO references as well
-            
-            // Get
-            List<String> sciNames = new ArrayList<String>();
-            sciNames.add(scientificName);
-            this.orderedDocuments = fedoraDAO.getOrderedDocumentsForName(sciNames);
+            if (images.size() > 0) logger.info("image 1: "+images.get(0));
         }
+
+        this.orderedDocuments  = fedoraDAO.getOrderedDocumentsForName(scientificNames);
         
         //now look for attributed properties
         String propXMLDataString = "";
@@ -288,7 +288,7 @@ public class SpeciesController extends ActionSupport {
         } catch (IOException ex) {
             logger.warn(ex);
         }
-
+        
         return new DefaultHttpHeaders("show").disableCaching();
     } // End of `TaxaController.show` method.
 
@@ -506,20 +506,18 @@ public class SpeciesController extends ActionSupport {
         this.taxonConcept = taxonConcept;
     }
 
-    public List<OrderedDocumentDTO> getOrderedDocuments() {
-        return orderedDocuments;
-    }
+	/**
+	 * @return the orderedDocuments
+	 */
+	public List<OrderedDocumentDTO> getOrderedDocuments() {
+		return orderedDocuments;
+	}
 
-    public void setOrderedDocuments(List<OrderedDocumentDTO> orderedDocuments) {
-        this.orderedDocuments = orderedDocuments;
-    }
-
-    public String getFieldConstraint() {
-        return fieldConstraint;
-    }
-
-    public void setFieldConstraint(String fieldConstraint) {
-        this.fieldConstraint = fieldConstraint;
-    }
+	/**
+	 * @param orderedDocuments the orderedDocuments to set
+	 */
+	public void setOrderedDocuments(List<OrderedDocumentDTO> orderedDocuments) {
+		this.orderedDocuments = orderedDocuments;
+	}
     
 }
