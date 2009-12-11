@@ -7,6 +7,11 @@
 
 package csiro.diasb.datamodels;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * DTO bean to represent the FC Image objects
  *
@@ -25,6 +30,7 @@ public class ImageDTO {
     String longitude;
     String photoPage;
     String photoSourceUrl;
+    String source;
 
     /**
      * No args constructor
@@ -153,5 +159,23 @@ public class ImageDTO {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        // if a URL, pul out just the host portion
+        URI uri;
+        try {
+            uri = new URI(source);
+            String host = uri.getHost();
+            if (!host.isEmpty()) source = host;
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(HtmlPageDTO.class.getName()).log(Level.WARNING, null, ex);
+        }
+
+        this.source = source;
     }
 }

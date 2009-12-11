@@ -28,6 +28,7 @@ import csiro.diasb.datamodels.TaxonNameDTO;
 import csiro.diasb.fedora.FcGetDsContent;
 import csiro.diasb.datamodels.AlaSourcedPropertiesData;
 import csiro.diasb.datamodels.HtmlPageDTO;
+import csiro.diasb.datamodels.TaxonConceptDTO;
 import csiro.diasb.fedora.FacetQuery;
 import csiro.diasb.fedora.SolrSearch;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -87,7 +88,8 @@ public class SpeciesController extends ActionSupport {
             new ArrayList<AlaSourcedPropertiesData>(1);
 
     private String tcTitle = "";
-    
+
+    private TaxonConceptDTO taxonConcept = null;
     private List<TaxonNameDTO> taxonNames = null;
     private List<ImageDTO> images = null;
     private List<HtmlPageDTO> htmlPages = null;
@@ -117,10 +119,12 @@ public class SpeciesController extends ActionSupport {
         if (id.startsWith("search")) return new DefaultHttpHeaders("show").disableCaching();
         if (id.equalsIgnoreCase("show")) {
             // e.g. /bie/taxon/show?guid=urn:lsid:biodiversity.org.au:afd.taxon:3da1a9b5-92f6-4096-84a6-3c976b06cbd4
-            pid = fedoraDAO.getPidForLsid(guid);
+            taxonConcept = fedoraDAO.getTaxonConceptForIdentifier(guid);
+            pid = taxonConcept.getPid();
             logger.info("ID = " + this.getId() + "; PID = " + pid);
         } else {
             pid = id;
+            taxonConcept = fedoraDAO.getTaxonConceptForIdentifier(pid);
         }
 
         // Obtains the content of the RDF properties of the Fedora Digital object.
@@ -482,6 +486,14 @@ public class SpeciesController extends ActionSupport {
 
     public void setFacetConstraints(List facetConstraints) {
         this.facetConstraints = facetConstraints;
+    }
+
+    public TaxonConceptDTO getTaxonConcept() {
+        return taxonConcept;
+    }
+
+    public void setTaxonConcept(TaxonConceptDTO taxonConcept) {
+        this.taxonConcept = taxonConcept;
     }
     
 }

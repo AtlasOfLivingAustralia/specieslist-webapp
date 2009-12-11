@@ -16,7 +16,7 @@
         <s:head/>
         <decorator:head />
         <link rel="stylesheet" href="<s:url value="/css/screen.css"/>" type="text/css" media="screen" charset="utf-8">
-        <link rel="stylesheet" href="<s:url value="/css/print.css"/>" type="text/css" media="print" charset="utf-8">
+        <%--<link rel="stylesheet" href="<s:url value="/css/print.css"/>" type="text/css" media="print" charset="utf-8">--%>
         <!--[if IE]><link rel="stylesheet" href="<s:url value="/css/lib/ie.css"/>" type="text/css" media="screen, projection" /><![endif]-->
     </head>
     <body>

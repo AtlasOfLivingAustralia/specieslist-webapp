@@ -9,14 +9,11 @@
         <meta name="pageName" content="species" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>ALA Biodiversity Information Explorer: ${tcTitle}</title>
-        <!-- Combo-handled YUI CSS files: -->
-        <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.8.0r4/build/paginator/assets/skins/sam/paginator.css&2.8.0r4/build/datatable/assets/skins/sam/datatable.css">
-        <!-- Combo-handled YUI JS files: -->
-        <script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.0r4/build/yahoo-dom-event/yahoo-dom-event.js&2.8.0r4/build/connection/connection-min.js&2.8.0r4/build/element/element-min.js&2.8.0r4/build/paginator/paginator-min.js&2.8.0r4/build/datasource/datasource-min.js&2.8.0r4/build/datatable/datatable-min.js&2.8.0r4/build/json/json-min.js"></script>
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
         <script type="text/javascript" src="${pageContext.request.contextPath}/fancybox/jquery.fancybox-1.2.6.pack.js"></script>
         <script type="text/javascript">
             //var scientificNameId, scientificName;
+            var solrServer = "diasbdev1-cbr.vm.csiro.au:8080"; // TODO: read from properties file
 
             $(document).ready(function() {
                 $("a.popup").fancybox({
@@ -48,14 +45,67 @@
                         $("#portalBookmark").fadeIn();
                         $("#portalInfo").slideDown();
                         loadMap(scientificName,scientificNameId);
+                        //loadSpeciesRdf(scientificNameUrl);
                     }
-               });
+                });
+
+                // convert lsid link text to TC title via SOLR
+                $("a.lsidLink").each(function() {
+                    var link = $(this);
+                    //link.text("foo");
+                    var uri = encodeURIComponent(filterQuery(link.text()));
+                    var query = "q=dc.identifier:"+uri+" AND ContentModel:ala.TaxonConceptContentModel&wt=json&rows=1&indent=true&json.wrf=?"
+                    $.getJSON("http://"+solrServer+"/solr/select?"+query, function(data){
+                        if (data.response.numFound > 0) {
+                            var doc = data.response.docs[0];
+                            var title = doc['dc.title'];
+                            var rank = doc.Rank;
+                            link.text(title+" ("+rank+")");
+                            link.css("display","inline");
+                        }
+                    });
+                });
             });
+
+            /**
+             * Escape special characters for SOLR query
+             */
+            function filterQuery(data) {
+                data = data.replace(/\:/g, "\\:");
+                data = data.replace(/\-/g, "\\-");
+                return data;
+            }
+
+            /**
+             * Perform AJAX request for RFD version of portal Species page
+             * parse list of datasets and georegions and inject values
+             * into pageDOM.
+             *
+             * Won't work without proxy due to cross domain
+             */
+            function loadSpeciesRdf(speciesPageUrl) {
+                alert("Ajax request for: " + speciesPageUrl);
+                $.ajax({
+                    type: "GET",
+                    url: speciesPageUrl,
+                    data: "schema=rdf",
+                    datatype: "xml",
+                    success: function(xml){
+                        alert( "Data Saved: " + xml );
+                        $(xml).find("dataset:occurrencesCollectionSet").each(function() {
+                            var name = $(this).find("dc:title").text();
+                            var url = $(this).find("coll:Collection").attr("rdf:about");
+                            alert("DataSet name: "+name+"; URI: "+url);
+                        });
+                    }
+                });
+            }
         </script>
         <script type="text/javascript" src="http://extjs.cachefly.net/builds/ext-cdn-771.js"></script>
         <link rel="stylesheet" type="text/css" href="http://extjs.cachefly.net/ext-2.2.1/resources/css/ext-all.css" />
         <link rel="stylesheet" type="text/css" href="http://extjs.cachefly.net/ext-2.2.1/examples/shared/examples.css" />
         <script type="text/javascript" src="http://openlayers.org/api/OpenLayers.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/js/GeoExt.js"></script>
         <script type="text/javascript">
             var map;
             function loadMap(scientificName,scientificNameId) {
@@ -111,15 +161,17 @@
                     map.addControl(new OpenLayers.Control.PanZoom({zoomWorldIcon: false}));
                     map.setCenter(new OpenLayers.LonLat(133, -27), 4);
 
-                    <%--mapPanel = new GeoExt.MapPanel({
-                        title: "Species Density Map",
+                    mapPanel = new GeoExt.MapPanel({
+                        //title: "Species Density Map",
                         renderTo: "mappanel",
+                        border: false,
+                        heder: false,
                         height: 450,
                         width: 550,
                         map: map,
                         center: new OpenLayers.LonLat(133, -27),
                         zoom: 4
-                    });--%>
+                    });
                 //});
             }
         </script>
@@ -138,7 +190,6 @@
         </s:if>
         <s:else>
             <s:set name="sciNameFormatted">
-                <%--<s:if test="%{taxonNames.get(0).rank.contains('Species') || taxonNames.get(0).rank.contains('Genus')}"><i>${taxonNames[0].nameComplete}</i></s:if>--%>
                 <c:choose>
                     <c:when test="${fn:containsIgnoreCase(taxonNames[0].rank,'species')}"><i>${taxonNames[0].nameComplete}</i></c:when>
                     <c:when test="${fn:containsIgnoreCase(taxonNames[0].rank,'genus')}"><i>${taxonNames[0].nameComplete}</i></c:when>
@@ -153,10 +204,37 @@
                 </s:if>
                 <div id="speciesTitle">
                     <h2>${fn:replace(tcTitle, taxonNames[0].nameComplete, sciNameFormatted)}</h2>
-                    <div class="speciesInfo"><b>Scientific name: </b> <s:property value="sciNameFormatted" escape="false"/>
-                    </div>
-                    <div class="speciesInfo"><b>Taxon Rank: </b><s:property value="%{taxonNames.get(0).rank.replace('TaxonRank.', '')}" /></div>
-                    <div class="speciesInfo"><b>GUID: </b><a href="${taxonNames[0].source}" target="_blank">${title}</a></div>
+                    <table class="noBorders" style="width:90%;margin:0;">
+                        <%--<tr>
+                            <td>Scientific name</td>
+                            <td><s:property value="sciNameFormatted" escape="false"/></td>
+                        </tr>--%>
+                        <tr>
+                            <td>Classification</td>
+                            <td><s:text name="rank.%{taxonConcept.rank}" /></td>
+                        </tr>
+                        <tr>
+                            <td>Source</td>
+                            <td><s:text name="source.%{taxonConcept.source}" /></td>
+                        </tr>
+                        <c:if test="${fn:length(taxonConcept.parentTaxa) > 0}"><tr>
+                            <td>Parent Taxa</td>
+                            <td><s:iterator value="taxonConcept.parentTaxa" var="parent">
+                                <a href="show?guid=${parent}" class="lsidLink">${parent}</a><br/>
+                            </s:iterator></td>
+                        </tr></c:if>
+                        <c:if test="${fn:length(taxonConcept.childTaxa) > 0}"><tr>
+                            <td>Child Taxa</td>
+                            <td><s:iterator value="taxonConcept.childTaxa" var="child">
+                                <a href="show?guid=${child}" class="lsidLink">${child}</a><br/>
+                            </s:iterator></td>
+                        </tr></c:if>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                    <div id="LSID_icon"><a href="show?guid=${taxonConcept.guid}" onclick="prompt('LSID:','${taxonConcept.guid}');"><img src="${pageContext.request.contextPath}/images/lsid.png"/></a></div>
                 </div>
                 <div id="toc">
                     <p style="margin-bottom: 5px;"><b>Table of Contents</b> (click to jump to)</p>
@@ -164,7 +242,7 @@
                         <li id="portalBookmark"><a href="#portal">Occurrences</a></li>
                         <s:if test="%{!images.isEmpty()}"><li><a href="#images">Images</a></li></s:if>
                         <s:if test="%{!htmlPages.isEmpty()}"><li><a href="#htmlpages">HTML Pages</a></li></s:if>
-                        <li><a href="#properties">Properties</a></li>
+                        <%--<li><a href="#properties">Properties</a></li>--%>
                         <s:if test="%{!taxonNames.isEmpty()}"><li><a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}" class="popup">
                             Harvested Properties Table</a></li></s:if>
                     </ul>
@@ -206,27 +284,25 @@
                 </ul>
                 <div id="mappanel"></div>
                 <div style="float:right;font-size:11px;width:550px;">
-                    <p style="margin:4px;">Occurrences per cell</p>
+                    <%--<p style="margin:4px;">Occurrences per cell</p>--%>
                     <table id="cellCountsLegend">
-                        <tr style="width: 50px;">
-                          <!--<td style="width:auto;">Cell Colour:</td>-->
-                          <td style="width:50px;background-color:#ffff00;">&nbsp;</td>
-                          <td style="width:50px;background-color:#ffcc00;">&nbsp;</td>
-
-                          <td style="width:50px;background-color:#ff9900;">&nbsp;</td>
-                          <td style="width:50px;background-color:#ff6600;">&nbsp;</td>
-                          <td style="width:50px;background-color:#ff3300;">&nbsp;</td>
-                          <td style="width:50px;background-color:#cc0000;">&nbsp;</td>
+                        <tr>
+                          <td style="background-color:#333; color:white; text-align:right;">Occurrences per cell:&nbsp;</td>
+                          <td style="width:60px;background-color:#ffff00;">1&ndash;9</td>
+                          <td style="width:60px;background-color:#ffcc00;">10&ndash;49</td>
+                          <td style="width:60px;background-color:#ff9900;">50&ndash;99</td>
+                          <td style="width:60px;background-color:#ff6600;">100&ndash;249</td>
+                          <td style="width:60px;background-color:#ff3300;">250&ndash;499</td>
+                          <td style="width:60px;background-color:#cc0000;">500+</td>
                         </tr>
-                        <tr style="text-align: center;">
-                          <!--<td style="width: auto;">No. Occurrences:</td>-->
+                        <%--<tr style="text-align: center;">
                           <td>1&ndash;9</td>
                           <td>10&ndash;49</td>
                           <td>50&ndash;99</td>
                           <td>100&ndash;249</td>
                           <td>250&ndash;499</td>
                           <td>500&ndash;&infin;</td>
-                        </tr>
+                        </tr>--%>
                     </table>
                 </div>
 
@@ -240,6 +316,7 @@
                     <tr>
                         <th>Title</th>
                         <th>Desciption</th>
+                        <th>Source</th>
                         <th>Thumbnail</th>
                     </tr>
                     <!-- Dynamic table content. -->
@@ -247,6 +324,7 @@
                         <tr>
                             <td><a href="${photoPage}" target="_blank">${title}</a></td>
                             <td>${description}</td>
+                            <td><a href="http://${source}" target="_blank"><s:text name="source.%{source}"/></a></td>
                             <td><a href="${photoSourceUrl}" class="image" target="_blank" title="${title}"><img src="${photoSourceUrl}" height="55"/></a></td>
                         </tr>
                     </s:iterator>
@@ -286,9 +364,9 @@
                 </table>
             </s:if>
 
-            <a name="properties">&nbsp;</a>
+<%--            <a name="properties">&nbsp;</a>
             <h4 class="divider">Properties</h4>
-            <table class ="propertyTable">
+            <table class ="propertyTable" style="display:none;">
                 <!-- Table headings. -->
                 <tr>
                     <th>Property</th>
@@ -315,6 +393,52 @@
                 </s:iterator>
             </table>
             <br />
+            <s:if test="%{taxonConcept != null}">
+                <h4 class="divider">Taxon Concept Properties</h4>
+                <table class ="propertyTable">
+                    <!-- Table headings. -->
+                    <tr>
+                        <th>Property</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>PID</td>
+                        <td>${taxonConcept.pid}</td>
+                    </tr>
+                    <tr>
+                        <td>GUID</td>
+                        <td>${taxonConcept.guid}</td>
+                    </tr>
+                    <tr>
+                        <td>title</td>
+                        <td>${taxonConcept.title}</td>
+                    </tr>
+                    <tr>
+                        <td>Scientific Name</td>
+                        <td>${taxonConcept.scientificName}</td>
+                    </tr>
+                    <tr>
+                        <td>rank</td>
+                        <td>${taxonConcept.rank}</td>
+                    </tr>
+                    <tr>
+                        <td>Source</td>
+                        <td><s:property value="taxonConcept.source" /></td>
+                    </tr>
+                    <tr>
+                        <td>Parent Taxa</td>
+                        <td><s:iterator value="taxonConcept.parentTaxa" var="parent">
+                            <a href="show?guid=${parent}" class="lsidLink">${parent}</a><br/>
+                        </s:iterator></td>
+                    </tr>
+                    <tr>
+                        <td>Child Taxa</td>
+                        <td><s:iterator value="taxonConcept.childTaxa" var="child">
+                            <a href="show?guid=${child}" class="lsidLink">${child}</a><br/>
+                        </s:iterator></td>
+                    </tr>
+                </table>
+            </s:if>--%>
         </s:else>
     </body>
 </html>

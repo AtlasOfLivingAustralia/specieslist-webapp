@@ -12,6 +12,7 @@ import csiro.diasb.datamodels.DocumentDTO;
 import csiro.diasb.datamodels.HtmlPageDTO;
 import csiro.diasb.datamodels.ImageDTO;
 import csiro.diasb.datamodels.OrderedDocumentDTO;
+import csiro.diasb.datamodels.TaxonConceptDTO;
 import csiro.diasb.datamodels.TaxonNameDTO;
 
 /**
@@ -54,12 +55,12 @@ public interface FedoraDAO {
     public List<HtmlPageDTO> getHtmlPagesForScientificNames(List<String> scientificNames);
     
     /**
-     * Get a FC PID for a LSID/GUID
+     * Get a FC TaxonConcept for a identifier string (either PID or LSID)
      * 
      * @param lsid
      * @return
      */
-    public String getPidForLsid(String lsid);
+    public TaxonConceptDTO getTaxonConceptForIdentifier(String lsid);
     
     /**
      * Return a list of ImageDTOs for a given list of scientific names

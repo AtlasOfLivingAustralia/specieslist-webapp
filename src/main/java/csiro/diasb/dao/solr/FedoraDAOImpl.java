@@ -36,6 +36,7 @@ import csiro.diasb.datamodels.DocumentDTO;
 import csiro.diasb.datamodels.HtmlPageDTO;
 import csiro.diasb.datamodels.ImageDTO;
 import csiro.diasb.datamodels.OrderedDocumentDTO;
+import csiro.diasb.datamodels.TaxonConceptDTO;
 import csiro.diasb.datamodels.TaxonNameDTO;
 
 /**
@@ -220,6 +221,7 @@ public class FedoraDAOImpl implements FedoraDAO {
      * @param taxonNameIds
      * @return list of TaxonNameDTOs
      */
+    @Override
     public List<TaxonNameDTO> getTaxonNamesForUrns(List<String> taxonNameIds) {
         List<TaxonNameDTO> tns = new ArrayList<TaxonNameDTO>();
         SolrDocumentList sdl = null;
@@ -259,6 +261,7 @@ public class FedoraDAOImpl implements FedoraDAO {
      * @param scientificNames the list of scientific names used to serach against
      * @return imageDTOs the list of ImageDTO objects populated with reults from SOLR search
      */
+    @Override
     public List<ImageDTO> getImagesForScientificNames(List<String> scientificNames) {
         List <ImageDTO> imageDTOs = new ArrayList<ImageDTO>();
         SolrDocumentList sdl = null;
@@ -286,6 +289,7 @@ public class FedoraDAOImpl implements FedoraDAO {
                 image.setPhotoPage((String) doc.getFieldValue("rdf.hasPhotoPage"));
                 image.setPhotoSourceUrl((String) doc.getFieldValue("rdf.hasPhotoSourceUrl"));
                 image.setScientificName((String) doc.getFieldValue("rdf.hasScientificName"));
+                image.setSource((String) doc.getFieldValue("rdf.hasGuid"));
                 // Add the bean to the list
                 imageDTOs.add(image);
             }
@@ -352,15 +356,17 @@ public class FedoraDAOImpl implements FedoraDAO {
     }
 
     /**
-     * Look-up a PID for a given LSID
+     * @see csiro.diasb.dao.FedoraDAO#getTaxonConceptForIdentifier(java.lang.String)
      *
-     * @param lsid
-     * @return pid
+     *  
+     * @param identifier the identifier to search with
+     * @return tc the TaxonConceptDTO to return
      */
-    public String getPidForLsid(String lsid) {
-        String pid = null;
+    @Override
+    public TaxonConceptDTO getTaxonConceptForIdentifier(String identifier) {
+        TaxonConceptDTO tc = null;
         try {
-            String safeQuery = ClientUtils.escapeQueryChars(lsid);
+            String safeQuery = ClientUtils.escapeQueryChars(identifier);
             SolrQuery searchQuery = new SolrQuery(); // handle better?
             searchQuery.setQuery("dc.identifier:" + safeQuery);
             // do the Solr search
@@ -371,12 +377,23 @@ public class FedoraDAOImpl implements FedoraDAO {
 
             if (!sdl.isEmpty()) {
                 SolrDocument doc = sdl.get(0); // assume 1 result
-                pid = (String) doc.getFieldValue("PID");
+                String pid = (String) doc.getFieldValue("PID");
+                tc = new TaxonConceptDTO(pid);
+                tc.setGuid((String) doc.getFieldValue("rdf.hasGuid"));
+                tc.setTitle((String) doc.getFieldValue("dc.title"));
+                tc.setScientificName((String) doc.getFieldValue("dc.title")); // ideally should be rdf.hasScientificName
+                tc.setRank((String) doc.getFieldValue("rdf.hasRank"));
+                tc.setSource((String) doc.getFieldValue("fgs.label"));
+                tc.setTaxonNameGuid((String) doc.getFieldValue("rdf.hasTaxonName"));
+                List<String> childTaxaList = (List) doc.getFieldValues("rdf.hasIsParentTaxonOf");
+                tc.setChildTaxa(childTaxaList);
+                List<String> parentTaxaList = (List) doc.getFieldValues("rdf.hasIsChildTaxonOf");
+                tc.setParentTaxa(parentTaxaList);
             }
         } catch (SolrServerException ex) {
             logger.warn("Problem communicating with SOLR server. " + ex.getMessage(), ex);
         }
-        return pid;
+        return tc;
     }
 
     /**

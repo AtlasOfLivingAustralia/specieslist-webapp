@@ -114,6 +114,19 @@ td, th  {
 .speciesInfo a {
     color: inherit;
 }
+#LSID_icon {
+    float: right;
+    margin-top: -14px;
+    text-align: right;
+    padding-right: 2px;
+    width: 8%;
+}
+a.lsidLink {
+    display: none;
+}
+table.noBorders td {
+    border: none;
+}
 #searchBox {
     width: 40%;
     margin-top: 40px;
@@ -136,10 +149,14 @@ td, th  {
 }
 table#cellCountsLegend {
     margin: 0;
+    float: right;
+    width: 100%;
 }
 #cellCountsLegend td {
     text-align: center;
     border: none;
+    color: #000;
+    padding: 3px 2px;
 }
 table.rdfProperties {
     margin-bottom: 0;
