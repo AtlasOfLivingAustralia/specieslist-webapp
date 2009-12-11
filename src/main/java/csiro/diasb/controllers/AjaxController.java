@@ -71,6 +71,10 @@ public class AjaxController extends ActionSupport {
                 logger.debug("fq args: "+fieldName+" | "+fieldConstraint);
                 fq.addFacetConstraint(fieldName, fieldConstraint);
             }
+            // Hack to restrict search results to just TC objects
+            StringBuffer queryString = new StringBuffer(fq.getQuery());
+            queryString.append(" AND rdf.hasModel:ala.TaxonConceptContentModel");
+            fq.setQuery(queryString.toString());
             ss.setCurrentFacetQuery(fq);
             solrResults = ss.getQueryResults(fq);
             if (solrResults.getSearchResults().isEmpty())

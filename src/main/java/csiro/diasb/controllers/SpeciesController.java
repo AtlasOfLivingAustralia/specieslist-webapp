@@ -311,6 +311,10 @@ public class SpeciesController extends ActionSupport {
             }
 
             FacetQuery query = ss.initFacetedQuery(fieldName, queryStr);
+            // Hack to restrict search results to just TC objects
+            StringBuffer queryString = new StringBuffer(query.getQuery());
+            queryString.append(" AND rdf.hasModel:ala.TaxonConceptContentModel");
+            query.setQuery(queryString.toString());
             ss.setCurrentFacetQuery(query);
             solrResults = ss.getQueryResults(query);
             if (solrResults.getSearchResults().isEmpty())

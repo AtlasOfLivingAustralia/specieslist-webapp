@@ -204,35 +204,31 @@
                 </s:if>
                 <div id="speciesTitle">
                     <h2>${fn:replace(tcTitle, taxonNames[0].nameComplete, sciNameFormatted)}</h2>
-                    <table class="noBorders" style="width:90%;margin:0;">
+                    <table class="noBorders" style="max-width:90%;margin:0;">
                         <%--<tr>
                             <td>Scientific name</td>
                             <td><s:property value="sciNameFormatted" escape="false"/></td>
                         </tr>--%>
                         <tr>
-                            <td>Classification</td>
+                            <td>Classification:</td>
                             <td><s:text name="rank.%{taxonConcept.rank}" /></td>
                         </tr>
                         <tr>
-                            <td>Source</td>
-                            <td><s:text name="source.%{taxonConcept.source}" /></td>
+                            <td>Source:</td>
+                            <td><a href="<s:text name="source.%{taxonConcept.source}.url" />" target="_blank"><s:text name="source.%{taxonConcept.source}" /></a></td>
                         </tr>
                         <c:if test="${fn:length(taxonConcept.parentTaxa) > 0}"><tr>
-                            <td>Parent Taxa</td>
+                                <td>Parent <s:if test="%{taxonConcept.parentTaxa.size() > 1}">Taxa</s:if><s:else>Taxon</s:else>:</td>
                             <td><s:iterator value="taxonConcept.parentTaxa" var="parent">
                                 <a href="show?guid=${parent}" class="lsidLink">${parent}</a><br/>
                             </s:iterator></td>
                         </tr></c:if>
                         <c:if test="${fn:length(taxonConcept.childTaxa) > 0}"><tr>
-                            <td>Child Taxa</td>
+                            <td>Child <s:if test="%{taxonConcept.childTaxa.size() > 1}">Taxa</s:if><s:else>Taxon</s:else>:</td>
                             <td><s:iterator value="taxonConcept.childTaxa" var="child">
                                 <a href="show?guid=${child}" class="lsidLink">${child}</a><br/>
                             </s:iterator></td>
                         </tr></c:if>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                        </tr>
                     </table>
                     <div id="LSID_icon"><a href="show?guid=${taxonConcept.guid}" onclick="prompt('LSID:','${taxonConcept.guid}');"><img src="${pageContext.request.contextPath}/images/lsid.png"/></a></div>
                 </div>
@@ -243,7 +239,7 @@
                         <s:if test="%{!images.isEmpty()}"><li><a href="#images">Images</a></li></s:if>
                         <s:if test="%{!htmlPages.isEmpty()}"><li><a href="#htmlpages">HTML Pages</a></li></s:if>
                         <%--<li><a href="#properties">Properties</a></li>--%>
-                        <s:if test="%{!taxonNames.isEmpty()}"><li><a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}" class="popup">
+                        <s:if test="%{!taxonNames.isEmpty()}"><li><a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}?sort=true" class="popup">
                             Harvested Properties Table</a></li></s:if>
                     </ul>
                 </div>

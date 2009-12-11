@@ -24,7 +24,7 @@ public class FacetQuery extends SolrQuery {
     public FacetQuery() {
         setQueryType("standard");
         setFacet(true);
-        addFacetField("ContentModel");
+        //addFacetField("ContentModel");
         addFacetField("Rank");
         addFacetField("PublicationType");
         addFacetField("CollectionID");

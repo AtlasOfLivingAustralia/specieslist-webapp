@@ -60,7 +60,7 @@
                                         contentModelMap['<s:property value="label"/>'] = '<s:text name="fedora.%{label}"/>';
                                     </script>
                                     <a href="${pageContext.request.contextPath}/species/fq=<s:property value="fieldName"/>:<s:property value="label"/><s:property value="queryParam"/>">
-                                        <s:text name="fedora.%{label}"/> (<s:property value="count"/>)</a>
+                                        <s:text name="rank.%{label}"/> (<s:property value="count"/>)</a>
                                 </li>
                             </s:iterator>
                         </ul>

@@ -154,7 +154,7 @@ public class SolrSearch {
         query.setRows(rows);
         query.setStart(start);
        
-        query.addSortField("dc2.title", SolrQuery.ORDER.asc);
+        //query.addSortField("dc2.title", SolrQuery.ORDER.asc);
   
         try
         {
