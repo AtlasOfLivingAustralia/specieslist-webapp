@@ -70,7 +70,7 @@
         <br/>
         <s:if test="%{id.startsWith('fq')}">
             <div id="removeFacet">
-                <h4>Displaying subset of results, restricted to: <span id="facetName"><s:text name='fedora.%{fieldConstraint.replace(".","_")}'/></span></h4>
+                <h4>Displaying subset of results, restricted to: <span id="facetName"><s:text name='rank.%{fieldConstraint.replace(".","_")}'/></span></h4>
                 <p>&bull; <a href="../species/<s:property value="queryParam"/>">Return to full result list</a></p>
             </div>
         </s:if>

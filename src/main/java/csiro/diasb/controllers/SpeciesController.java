@@ -6,6 +6,7 @@
  */
 package csiro.diasb.controllers;
 
+import csiro.diasb.datamodels.OrderedDocumentDTO;
 import csiro.diasb.datamodels.SolrResults;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,7 +32,6 @@ import csiro.diasb.datamodels.HtmlPageDTO;
 import csiro.diasb.datamodels.TaxonConceptDTO;
 import csiro.diasb.fedora.FacetQuery;
 import csiro.diasb.fedora.SolrSearch;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.solr.client.solrj.response.FacetField;
 
 /**
@@ -103,6 +103,7 @@ public class SpeciesController extends ActionSupport {
     private String responseMessage = "";
     private String propertyName = "rdf.hasModel";
     private String solrQuery = "ala_TaxonConceptContentModel";
+    private List<OrderedDocumentDTO> orderedDocuments;
 
     /**
      * Entry point to the controller from /AlaHarvester/taxa/<pid>
@@ -255,7 +256,11 @@ public class SpeciesController extends ActionSupport {
             htmlPages = fedoraDAO.getHtmlPagesForScientificNames(scientificNames);
             logger.info("htmlpage for " + scientificName + " found " + htmlPages.size() + " pages.");
             // TODO references as well
-            if (images.size() > 0) logger.info("image 1: "+images.get(0));
+            
+            // Get
+            List<String> sciNames = new ArrayList<String>();
+            sciNames.add(scientificName);
+            this.orderedDocuments = fedoraDAO.getOrderedDocumentsForName(sciNames);
         }
         
         //now look for attributed properties
@@ -283,6 +288,7 @@ public class SpeciesController extends ActionSupport {
         } catch (IOException ex) {
             logger.warn(ex);
         }
+
         return new DefaultHttpHeaders("show").disableCaching();
     } // End of `TaxaController.show` method.
 
@@ -498,6 +504,22 @@ public class SpeciesController extends ActionSupport {
 
     public void setTaxonConcept(TaxonConceptDTO taxonConcept) {
         this.taxonConcept = taxonConcept;
+    }
+
+    public List<OrderedDocumentDTO> getOrderedDocuments() {
+        return orderedDocuments;
+    }
+
+    public void setOrderedDocuments(List<OrderedDocumentDTO> orderedDocuments) {
+        this.orderedDocuments = orderedDocuments;
+    }
+
+    public String getFieldConstraint() {
+        return fieldConstraint;
+    }
+
+    public void setFieldConstraint(String fieldConstraint) {
+        this.fieldConstraint = fieldConstraint;
     }
     
 }

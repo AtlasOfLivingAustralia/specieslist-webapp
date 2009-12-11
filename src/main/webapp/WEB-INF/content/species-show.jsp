@@ -178,6 +178,7 @@
     </head>
     <body>
         <s:if test="%{id.startsWith('search')}">
+            <%-- Special view to display search box --%>
             <div id="searchBox">
                 <h3>Search for Species and Taxa</h3>
                 <s:form action="/species/" namespace="search" method="GET" theme="simple">
@@ -189,6 +190,7 @@
             </div>
         </s:if>
         <s:else>
+            <%-- Normal species page view --%>
             <s:set name="sciNameFormatted">
                 <c:choose>
                     <c:when test="${fn:containsIgnoreCase(taxonNames[0].rank,'species')}"><i>${taxonNames[0].nameComplete}</i></c:when>
@@ -196,6 +198,8 @@
                     <c:otherwise>${taxonNames[0].nameComplete}</c:otherwise>
                 </c:choose>
             </s:set>
+            
+            <%-- Taxon Title section (in blue box) --%>
             <div id="speciesHeader">
                 <s:if test="%{!images.isEmpty()}">
                     <div id="speciesPhoto">
@@ -232,13 +236,15 @@
                     </table>
                     <div id="LSID_icon"><a href="show?guid=${taxonConcept.guid}" onclick="prompt('LSID:','${taxonConcept.guid}');"><img src="${pageContext.request.contextPath}/images/lsid.png"/></a></div>
                 </div>
+
+                <%-- Table of contents (links to jump to sections) --%>
                 <div id="toc">
-                    <p style="margin-bottom: 5px;"><b>Table of Contents</b> (click to jump to)</p>
+                    <p style="margin-bottom: 5px;"><b>Sections</b> (click to jump to:)</p>
                     <ul>
-                        <li id="portalBookmark"><a href="#portal">Occurrences</a></li>
+                        <li><a href="#properties">Properties</a></li>
                         <s:if test="%{!images.isEmpty()}"><li><a href="#images">Images</a></li></s:if>
                         <s:if test="%{!htmlPages.isEmpty()}"><li><a href="#htmlpages">HTML Pages</a></li></s:if>
-                        <%--<li><a href="#properties">Properties</a></li>--%>
+                        <li id="portalBookmark"><a href="#portal">Occurrences</a></li>
                         <s:if test="%{!taxonNames.isEmpty()}"><li><a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}?sort=true" class="popup">
                             Harvested Properties Table</a></li></s:if>
                     </ul>
@@ -246,6 +252,7 @@
             </div>
             <div style="clear: both;"></div>
 
+            <%-- Other Names --%>
             <s:if test="%{taxonNames.size() > 1}"><a name="names">&nbsp;</a>
                 <h4 class="divider">Names</h4>
                 <table class="propertyTable">
@@ -271,6 +278,37 @@
                 </table>
             </s:if>
 
+            <%-- Properties --%>
+            <c:if test="${fn:length(orderedDocuments) > 0}">
+                <h4 class="divider">Properties<a name="properties">&nbsp;</a></h4>
+                ${fn:length(orderedDocuments)}
+                
+            </c:if>
+
+            <%-- Images --%>
+            <s:if test="%{!images.isEmpty()}">
+                <h4 class="divider">Images<a name="images">&nbsp;</a></h4>
+                <table class ="propertyTable">
+                    <!-- Table headings. -->
+                    <tr>
+                        <th>Title</th>
+                        <th>Desciption</th>
+                        <th>Source</th>
+                        <th>Thumbnail</th>
+                    </tr>
+                    <!-- Dynamic table content. -->
+                    <s:iterator value="images">
+                        <tr>
+                            <td><a href="${photoPage}" target="_blank">${title}</a></td>
+                            <td>${description}</td>
+                            <td><a href="http://${source}" target="_blank"><s:text name="source.%{source}"/></a></td>
+                            <td><a href="${photoSourceUrl}" class="image" target="_blank" title="${title}"><img src="${photoSourceUrl}" height="55"/></a></td>
+                        </tr>
+                    </s:iterator>
+                </table>
+            </s:if>
+
+            <%-- Occurrence Info --%>
             <div id="portalInfo">
                 <h4 class="divider">Occurrence Data<a name="portal">&nbsp;</a></h4>
                 <ul>
@@ -305,28 +343,7 @@
                 <div style="clear: both;"></div>
             </div>
 
-            <s:if test="%{!images.isEmpty()}">
-                <h4 class="divider">Images<a name="images">&nbsp;</a></h4>
-                <table class ="propertyTable">
-                    <!-- Table headings. -->
-                    <tr>
-                        <th>Title</th>
-                        <th>Desciption</th>
-                        <th>Source</th>
-                        <th>Thumbnail</th>
-                    </tr>
-                    <!-- Dynamic table content. -->
-                    <s:iterator value="images">
-                        <tr>
-                            <td><a href="${photoPage}" target="_blank">${title}</a></td>
-                            <td>${description}</td>
-                            <td><a href="http://${source}" target="_blank"><s:text name="source.%{source}"/></a></td>
-                            <td><a href="${photoSourceUrl}" class="image" target="_blank" title="${title}"><img src="${photoSourceUrl}" height="55"/></a></td>
-                        </tr>
-                    </s:iterator>
-                </table>
-            </s:if>
-
+            <%-- HTML Pages --%>
             <s:if test="%{!htmlPages.isEmpty()}"><a name="htmlpages">&nbsp;</a>
                 <h4 class="divider">HTML Pages</h4>
                 <table class ="propertyTable">
@@ -359,82 +376,7 @@
                     </s:iterator>
                 </table>
             </s:if>
-
-<%--            <a name="properties">&nbsp;</a>
-            <h4 class="divider">Properties</h4>
-            <table class ="propertyTable" style="display:none;">
-                <!-- Table headings. -->
-                <tr>
-                    <th>Property</th>
-                    <th>Value</th>
-                    <th>Harvested</th>
-                    <th>Source</th>
-                </tr>
-
-                <!-- Dynamic table content. -->
-                <s:iterator value="objProperties">
-                    <tr>
-                        <td><s:property value="relationship" /></td>
-                        <td>
-                            <s:if test="%{relationship.startsWith('has') && value.contains('.taxon:')}"><a href="show?guid=${value}">${value}</a></s:if>
-                            <s:else>${value}</s:else>
-                        </td>
-                        <td>
-                            <s:property value="harvested" />
-                        </td>
-                        <td>
-                            <a href="/fedora/get/${pid}/<s:property value="sourceDSID"/>"><s:property value="dataSource" /></a>
-                        </td>
-                    </tr>
-                </s:iterator>
-            </table>
-            <br />
-            <s:if test="%{taxonConcept != null}">
-                <h4 class="divider">Taxon Concept Properties</h4>
-                <table class ="propertyTable">
-                    <!-- Table headings. -->
-                    <tr>
-                        <th>Property</th>
-                        <th>Value</th>
-                    </tr>
-                    <tr>
-                        <td>PID</td>
-                        <td>${taxonConcept.pid}</td>
-                    </tr>
-                    <tr>
-                        <td>GUID</td>
-                        <td>${taxonConcept.guid}</td>
-                    </tr>
-                    <tr>
-                        <td>title</td>
-                        <td>${taxonConcept.title}</td>
-                    </tr>
-                    <tr>
-                        <td>Scientific Name</td>
-                        <td>${taxonConcept.scientificName}</td>
-                    </tr>
-                    <tr>
-                        <td>rank</td>
-                        <td>${taxonConcept.rank}</td>
-                    </tr>
-                    <tr>
-                        <td>Source</td>
-                        <td><s:property value="taxonConcept.source" /></td>
-                    </tr>
-                    <tr>
-                        <td>Parent Taxa</td>
-                        <td><s:iterator value="taxonConcept.parentTaxa" var="parent">
-                            <a href="show?guid=${parent}" class="lsidLink">${parent}</a><br/>
-                        </s:iterator></td>
-                    </tr>
-                    <tr>
-                        <td>Child Taxa</td>
-                        <td><s:iterator value="taxonConcept.childTaxa" var="child">
-                            <a href="show?guid=${child}" class="lsidLink">${child}</a><br/>
-                        </s:iterator></td>
-                    </tr>
-                </table>
-            </s:if>--%>
+                
         </s:else>
     </body>
 </html>
