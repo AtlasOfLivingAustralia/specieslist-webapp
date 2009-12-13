@@ -26,6 +26,12 @@
                     'imageScale' : true,
                     'hideOnContentClick' : false
                 });
+                
+                $("a#lsid").fancybox({
+                    'hideOnContentClick' : false,
+                    'frameWidth' : 600,
+                    'frameHeight' : 100
+                });
 
                 // Lookup portal for species info
                 $.getJSON("http://data.ala.org.au/search/scientificNames/%22${taxonNames[0].nameComplete}%22/json?callback=?", function(data){
@@ -39,9 +45,8 @@
                         // modify page DOM with values
                         $("a#portalLink").attr("href", scientificNameUrl);
                         //$("a#occurTableLink").attr("href", occurrenceTableUrl);
-                        var countText = "<a href='" + occurrenceTableUrl + "' target='_blank' " +
-                            "title='View list of all occurrences'>" + occurrenceCount + "</a>";
-                        $("#occurrenceCount").html(countText);
+                        $("#occurrenceCount").html(occurrenceCount);
+                        $("a#occurrenceTableLink").attr("href", occurrenceTableUrl);
                         $("#portalBookmark").fadeIn();
                         $("#portalInfo").slideDown();
                         loadMap(scientificName,scientificNameId);
@@ -77,11 +82,11 @@
             }
 
             /**
-             * Perform AJAX request for RFD version of portal Species page
+             * Perform AJAX request for RDF version of portal Species page
              * parse list of datasets and georegions and inject values
              * into pageDOM.
              *
-             * Won't work without proxy due to cross domain
+             * Won't work without proxy due to cross domain security restriction
              */
             function loadSpeciesRdf(speciesPageUrl) {
                 alert("Ajax request for: " + speciesPageUrl);
@@ -125,21 +130,19 @@
                     );
 
                     var cellDensityLayerUrl = 'http://data.ala.org.au';
-                    //var cellDensityArray = [cellDensityLayerUrl+'/wms?'];
                     var entityName = '<span class="genera">' + scientificName + ' </span>';
                     var entityId = scientificNameId;
                     var entityType = 1; // species type
 
                     cellLayer = new OpenLayers.Layer.WMS(
                         entityName + " 1 degree cells",
-                        "http://maps.ala.org.au/wms",  //cellDensityArray, // "http://maps.ala.org.au/wms",
-                        {   layers: "ala:tabDensityLayer",
-                            srs: 'EPSG:4326',
-                            version: "1.0.0",
-                            transparent: "true",
-                            format: "image/png",
-                            filter: "(<Filter><PropertyIsEqualTo><PropertyName>url</PropertyName><Literal><![CDATA["+cellDensityLayerUrl+"/mapping/simple/?id="+entityId+"&type="+entityType+"&unit=1]]></Literal></PropertyIsEqualTo></Filter>)"
-                        },
+                        "http://maps.ala.org.au/wms",  //cellDensityArray, 
+                        {layers: "ala:tabDensityLayer",
+                        srs: 'EPSG:4326',
+                        version: "1.0.0",
+                        transparent: "true",
+                        format: "image/png",
+                        filter: "(<Filter><PropertyIsEqualTo><PropertyName>url</PropertyName><Literal><![CDATA["+cellDensityLayerUrl+"/mapping/simple/?id="+entityId+"&type="+entityType+"&unit=1]]></Literal></PropertyIsEqualTo></Filter>)"},
                         {opacity: "0.65", wrapDateLine: true, buffer: 0}
                     );
 
@@ -154,8 +157,6 @@
                         {alpha: true}
                     );
 
-                    //map.addLayer(layer);
-                    //map.addLayer(cellLayer);
                     map.addLayers([layer,cellLayer,statesLayer]);
                     map.addControl(new OpenLayers.Control.Navigation({zoomWheelEnabled: false}));
                     map.addControl(new OpenLayers.Control.PanZoom({zoomWorldIcon: false}));
@@ -196,6 +197,7 @@
                     <c:otherwise>${taxonNames[0].nameComplete}</c:otherwise>
                 </c:choose>
             </s:set>
+            <s:set name="authorship">${fn:substringAfter(taxonNames[0].title, taxonNames[0].nameComplete)}</s:set>
             <div id="speciesHeader">
                 <s:if test="%{!images.isEmpty()}">
                     <div id="speciesPhoto">
@@ -203,20 +205,16 @@
                     </div>
                 </s:if>
                 <div id="speciesTitle">
-                    <h2>${fn:replace(tcTitle, taxonNames[0].nameComplete, sciNameFormatted)}</h2>
+                    <h2>${sciNameFormatted}</h2>
                     <table class="noBorders" style="max-width:90%;margin:0;">
-                        <%--<tr>
-                            <td>Scientific name</td>
-                            <td><s:property value="sciNameFormatted" escape="false"/></td>
-                        </tr>--%>
                         <tr>
                             <td>Classification:</td>
                             <td><s:text name="rank.%{taxonConcept.rank}" /></td>
                         </tr>
-                        <tr>
-                            <td>Source:</td>
-                            <td><a href="<s:text name="source.%{taxonConcept.source}.url" />" target="_blank"><s:text name="source.%{taxonConcept.source}" /></a></td>
-                        </tr>
+                        <c:if test="${fn:length(authorship) > 0}"><tr>
+                            <td>Authorship:</td>
+                            <td>${authorship}</td>
+                        </tr></c:if>
                         <c:if test="${fn:length(taxonConcept.parentTaxa) > 0}"><tr>
                                 <td>Parent <s:if test="%{taxonConcept.parentTaxa.size() > 1}">Taxa</s:if><s:else>Taxon</s:else>:</td>
                             <td><s:iterator value="taxonConcept.parentTaxa" var="parent">
@@ -229,18 +227,30 @@
                                 <a href="show?guid=${child}" class="lsidLink">${child}</a><br/>
                             </s:iterator></td>
                         </tr></c:if>
+                        <tr>
+                            <td>Source:</td>
+                            <td><a href="<s:text name="source.%{taxonConcept.source}.url" />" target="_blank"><s:text name="source.%{taxonConcept.source}" /></a></td>
+                        </tr>
                     </table>
-                    <div id="LSID_icon"><a href="show?guid=${taxonConcept.guid}" onclick="prompt('LSID:','${taxonConcept.guid}');"><img src="${pageContext.request.contextPath}/images/lsid.png"/></a></div>
+                    <div id="lsidText" style="display:none;">
+                        <b><a href="http://lsids.sourceforge.net/" target="_blank">Life Science Identifier (LSID):</a></b>
+                        <%--<input type="text" size="50" value="${taxonConcept.guid}"/>--%>
+                        <p style="margin: 10px 0;"><a href="http://lsid.tdwg.org/summary/${taxonConcept.guid}" target="_blank">${taxonConcept.guid}</a></p>
+                    </div>
+                    <%--<div id="LSID_icon"><a href="show?guid=${taxonConcept.guid}" onclick="prompt('Life Science Identifier (LSID):','${taxonConcept.guid}');"><img src="${pageContext.request.contextPath}/images/lsid.png"/></a></div>--%>
+                    <div id="LSID_icon"><a href="#lsidText" id="lsid"><img src="${pageContext.request.contextPath}/images/lsid.png"/></a></div>
                 </div>
                 <div id="toc">
-                    <p style="margin-bottom: 5px;"><b>Table of Contents</b> (click to jump to)</p>
+                    <p style="margin-bottom: 5px;"><b>Show me information on:   </b> (click to jump to)</p>
                     <ul>
-                        <li id="portalBookmark"><a href="#portal">Occurrences</a></li>
+                        
+                        <s:if test="%{!taxonNames.isEmpty()}"><li><a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}?sort=true" class="popup">
+                            Harvested Properties Table</a></li></s:if>
                         <s:if test="%{!images.isEmpty()}"><li><a href="#images">Images</a></li></s:if>
                         <s:if test="%{!htmlPages.isEmpty()}"><li><a href="#htmlpages">HTML Pages</a></li></s:if>
                         <%--<li><a href="#properties">Properties</a></li>--%>
-                        <s:if test="%{!taxonNames.isEmpty()}"><li><a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}?sort=true" class="popup">
-                            Harvested Properties Table</a></li></s:if>
+                        <li id="portalBookmark"><a href="#portal">Distribution Map</a></li>
+                        
                     </ul>
                 </div>
             </div>
@@ -273,53 +283,48 @@
 
 
             <div id="harvestedInfo">
-                <h4 class="divider">Information from other sources<a name="portal">&nbsp;</a></h4>
-		         <c:forEach items="${orderedDocuments}" var="orderedDocument">
-		          <div style="border:1px solid gray; padding:10px; margin:10px;">  
-		            <h3>${orderedDocument.infoSourceName}</h3> 
-		            <h4><a href="${orderedDocument.sourceUrl}">${orderedDocument.sourceTitle}</a></h4>
-		            <c:forEach var="categorisedProperties" items="${orderedDocument.categorisedProperties}">
-		            
-		              <c:if test="${categorisedProperties.category.name!='Taxonomic' && categorisedProperties.category.name!='Media'}">
-		                  <h5>${categorisedProperties.category.name}</h5>
-		                  <table>
-		                  <c:forEach var="entry" items="${categorisedProperties.propertyMap}">
-		                      <tr>
-		                        <td>${entry.key}</td>
-		                        <td>${entry.value}</td>
-		                      </tr>
-		                  </c:forEach>
-		                  </table>
-		              </c:if>   
-		              
-                      <c:if test="${categorisedProperties.category.name=='Media'}">
-                          <h5>${categorisedProperties.category.name}</h5>
-                          <table>
-                          <tr>
-                          <c:forEach var="entry" items="${categorisedProperties.propertyMap}">
-
-                                <c:if test="${fn:startsWith(entry.value,'http://')}">
-                                    <td><img src ="${entry.value}"/></td>             
-                                </c:if>
-
-                          </c:forEach>
-                          </tr>
-                          </table>
-                      </c:if>   		              
-		              
-		                   
-		            </c:forEach> 
-		         </div>
-            </c:forEach>
+                <h4 class="divider">Information from other sources<a name="properties">&nbsp;</a></h4>
+                <c:forEach items="${orderedDocuments}" var="orderedDocument">
+                    <div style="border:1px solid gray; padding:10px; margin:10px;">
+                        <h3>${orderedDocument.infoSourceName}</h3>
+                        <h4><a href="${orderedDocument.sourceUrl}">${orderedDocument.sourceTitle}</a></h4>
+                        <c:forEach var="categorisedProperties" items="${orderedDocument.categorisedProperties}">
+                            <c:if test="${categorisedProperties.category.name!='Taxonomic' && categorisedProperties.category.name!='Media'}">
+                                <h5>${categorisedProperties.category.name}</h5>
+                                <table>
+                                    <c:forEach var="entry" items="${categorisedProperties.propertyMap}">
+                                        <tr>
+                                            <td>${entry.key}</td>
+                                            <td>${entry.value}</td>
+                                        </tr>
+                                    </c:forEach>
+                                </table>
+                            </c:if>
+                            <c:if test="${categorisedProperties.category.name=='Media'}">
+                                <h5>${categorisedProperties.category.name}</h5>
+                                <table>
+                                    <tr>
+                                        <c:forEach var="entry" items="${categorisedProperties.propertyMap}">
+                                            <c:if test="${fn:startsWith(entry.value,'http://')}">
+                                                <td><img src ="${entry.value}"/></td>
+                                                </c:if>
+                                        </c:forEach>
+                                    </tr>
+                                </table>
+                            </c:if>
+                        </c:forEach>
+                    </div>
+                </c:forEach>
             </div>
 
 
             <div id="portalInfo">
-                <h4 class="divider">Occurrence Data<a name="portal">&nbsp;</a></h4>
+                <h4 class="divider">Distribution Map (generated from specimen & observation occurrence data)<a name="portal">&nbsp;</a></h4>
                 <ul>
-                    <li><a href="#" id="portalLink" target="_blank">View the "<s:property value="sciNameFormatted" escape="false"/>"
-                          species page</a> on the ALA Portal</li>
-                    <li>Number of occurrences: <span id="occurrenceCount"></span></li>
+                    <%--<li><a href="#" id="portalLink" target="_blank">View the "<s:property value="sciNameFormatted" escape="false"/>"
+                          species page</a> on the ALA Portal</li>--%>
+                    <li>Number of occurrences of ${sciNameFormatted}: <span id="occurrenceCount"></span></li>
+                    <li><a href="#" id="occurrenceTableLink">View table of all occurrence records for ${sciNameFormatted}</a></li>
                 </ul>
                 <div id="mappanel"></div>
                 <div style="float:right;font-size:11px;width:550px;">

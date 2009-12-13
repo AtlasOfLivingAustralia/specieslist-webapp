@@ -25,7 +25,7 @@
                             myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSON;
                             myDataSource.responseSchema = {
                                 resultsList: "records",
-                                fields: ["pid","title","contentModel","contentModelInitial","contentModelLabel","urlMapper"],
+                                fields: ["pid","title","contentModel","contentModelInitial","contentModelLabel","urlMapper","rank", "rankId"],
                                 metaFields: {
                                     totalRecords: "totalRecords",
                                     paginationRecordOffset : "startIndex",
@@ -36,8 +36,10 @@
 
                             // Column definitions
                             var myColumnDefs = [
-                                {key:"ContentModel", field:"contentModelLabel", label:"Type", sortable: true, minWidth: 100},
-                                {key:"dc2.title", field:"title", sortable:true, label:"Title", formatter:formatTitleUrl} // , formatter:formatTitleUrl
+                                //{key:"ContentModel", field:"contentModelLabel", label:"Type", sortable: true, minWidth: 100},
+                                {key:"dc3.title", field:"title", sortable:true, label:"Title", formatter:formatTitleUrl}, // , formatter:formatTitleUrl
+                                {key:"rdf.hasRankId", field:"rank", label:"Classification", sortable: true, minWidth: 100},
+                                {key:"score", field:"score", hidden:true, maxAutoWidth: 0}
                             ];
 
                             // Create the Paginator
@@ -124,8 +126,8 @@
                                     recordOffset: meta.paginationRecordOffset || 0
                                 };
                                 oPayload.sortedBy = {
-                                    key: meta.sortKey || "ContentModel",
-                                    dir: (meta.sortDir) ? "yui-dt-" + meta.sortDir : "yui-dt-asc" // Convert from server value to DataTable format
+                                    key: meta.sortKey || "score",
+                                    dir: (meta.sortDir) ? "yui-dt-" + meta.sortDir : "yui-dt-desc" // Convert from server value to DataTable format
                                 };
                                 return true;
                             };
@@ -133,8 +135,8 @@
                             // Returns a request string for consumption by the DataSource
                             var generateRequest = function(startIndex,sortKey,dir,results) {
                                 startIndex = startIndex || 0;
-                                sortKey   = sortKey || "ContentModel";
-                                dir   = (dir) ? dir.substring(7) : "asc"; // Converts from DataTable format "yui-dt-[dir]" to server value "[dir]"
+                                sortKey   = sortKey || "score";
+                                dir   = (dir) ? dir.substring(7) : "desc"; // Converts from DataTable format "yui-dt-[dir]" to server value "[dir]"
                                 results   = results || ${pageSize};
                                 return "results="+results+"&startIndex="+startIndex+"&sort="+sortKey+"&dir="+dir;
                             };

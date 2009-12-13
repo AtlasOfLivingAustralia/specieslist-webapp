@@ -271,7 +271,11 @@ private static SolrResults parseSolrResults(QueryResponse qr) throws SolrQueryEx
         String PID = (String) values.get("PID");
         String title = (String) values.get("dc.title");
         String contentModel = (String) values.get("rdf.hasModel");
-        SearchResult sr = new SearchResult(PID, title, contentModel);
+        String rank = (String) values.get("Rank");
+        String rankId = (String) values.get("rdf.hasRankId");
+        //SearchResult sr = new SearchResult(PID, title, contentModel);
+        SearchResult sr = new SearchResult(PID, title, rank, rankId);
+        sr.setContentModel(contentModel);
         //look for highlighting
         Map<String, List<String>> hlItem = qr.getHighlighting().get(PID);
         if (hlItem != null && !hlItem.isEmpty())

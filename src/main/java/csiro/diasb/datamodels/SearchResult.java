@@ -15,26 +15,37 @@ import java.util.Set;
  * @author oak021
  */
 public class SearchResult {
+
     String pid;
     String guid;
     String contentModel;
+    String rank;
+    String rankId;
     String title;
     String highlighting;
     Set<Entry<String, List<String>>> highLights;
 
-    public SearchResult(String pid, String title, String contentModel)
-    {
+    public SearchResult(String pid, String title, String contentModel) {
         this.pid = pid;
         this.title = title;
         if (contentModel != null)
-                this.contentModel = contentModel.replace('.',':');
+            this.contentModel = contentModel.replace('.',':');
     }
+
+    public SearchResult(String pid, String title, String rank, String rankId) {
+        this.pid = pid;
+        this.title = title;
+        this.rank = rank;
+        this.rankId = rankId;
+    }
+
     public String getContentModel() {
         return contentModel;
     }
 
     public void setContentModel(String contentModel) {
-        this.contentModel = contentModel;
+        if (contentModel != null)
+            this.contentModel = contentModel.replace('.',':');
     }
 
     public String getGuid() {
@@ -76,28 +87,62 @@ public class SearchResult {
     public void setHighlighting(String highlighting) {
         this.highlighting = highlighting;
     }
-public String getUrlMapper()
-{
-    if (contentModel==null) return "datastream";
+
+    public String getUrlMapper() {
+        if (contentModel == null) {
+            return "datastream";
+        }
+
+        if (contentModel.equals("ala:TaxonConceptContentModel")) {
+            return "species";  // taxa
+        } else if (contentModel.equals("ala:TaxonNameContentModel")) {
+            return "name";
+        } else if (contentModel.equals("ala:PublicationContentModel")) {
+            return "pub";
+        } else if (contentModel.equals("ala:ImageContentModel")) {
+            return "image";
+        } else if (contentModel.equals("ala:HtmlPageContentModel")) {
+            return "html";
+        }
+        return "datastream";
+    }
+
+    public String getContentModelInitial() {
+        if (contentModel == null) {
+            return "-";
+        }
+
+        if (contentModel.equals("ala:TaxonConceptContentModel")) {
+            return "TC";
+        } else if (contentModel.equals("ala:TaxonNameContentModel")) {
+            return "TN";
+        } else if (contentModel.equals("ala:PublicationContentModel")) {
+            return "PUB";
+        } else if (contentModel.equals("ala:ImageContentModel")) {
+            return "IMG";
+        } else if (contentModel.equals("ala:HtmlPageContentModel")) {
+            return "HTML";
+        } else if (contentModel.equals("ala:InfoSourceContentModel")) {
+            return "IS";
+        }
+        return "-";
+    }
+
+    public String getRankId() {
+        return rankId;
+    }
+
+    public void setRankId(String rankId) {
+        this.rankId = rankId;
+    }
+
+    public String getRank() {
+        return rank;
+    }
+
+    public void setRank(String rank) {
+        this.rank = rank;
+    }
     
-    if (contentModel.equals("ala:TaxonConceptContentModel")) return "species";  // taxa
-    else if (contentModel.equals("ala:TaxonNameContentModel")) return "name";
-    else if (contentModel.equals("ala:PublicationContentModel")) return "pub";
-    else if (contentModel.equals("ala:ImageContentModel")) return "image";
-    else if (contentModel.equals("ala:HtmlPageContentModel")) return "html";
-    return "datastream";
-}
-public String getContentModelInitial()
-{
-    if (contentModel==null) return "-";
-    
-    if (contentModel.equals("ala:TaxonConceptContentModel")) return "TC";
-    else if (contentModel.equals("ala:TaxonNameContentModel")) return "TN";
-    else if (contentModel.equals("ala:PublicationContentModel")) return "PUB";
-    else if (contentModel.equals("ala:ImageContentModel")) return "IMG";
-    else if (contentModel.equals("ala:HtmlPageContentModel")) return "HTML";
-    else if (contentModel.equals("ala:InfoSourceContentModel")) return "IS";
-    return "-";
-}
 }
 

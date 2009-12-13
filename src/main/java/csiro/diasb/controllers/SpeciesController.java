@@ -93,6 +93,7 @@ public class SpeciesController extends ActionSupport {
     private List<TaxonNameDTO> taxonNames = null;
     private List<ImageDTO> images = null;
     private List<HtmlPageDTO> htmlPages = null;
+    private List<OrderedDocumentDTO> orderedDocuments = null;
     
     //  private static final Logger classLogger =
     //  Logger.getLogger(TaxaController.class.getName());
@@ -103,8 +104,6 @@ public class SpeciesController extends ActionSupport {
     private String responseMessage = "";
     private String propertyName = "rdf.hasModel";
     private String solrQuery = "ala_TaxonConceptContentModel";
-
-    private List<OrderedDocumentDTO> orderedDocuments = null;
     
     /**
      * Entry point to the controller from /AlaHarvester/taxa/<pid>
@@ -519,5 +518,5 @@ public class SpeciesController extends ActionSupport {
 	public void setOrderedDocuments(List<OrderedDocumentDTO> orderedDocuments) {
 		this.orderedDocuments = orderedDocuments;
 	}
-    
+
 }

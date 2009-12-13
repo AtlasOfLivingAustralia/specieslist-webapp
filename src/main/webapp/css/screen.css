@@ -124,6 +124,22 @@ td, th  {
 a.lsidLink {
     display: none;
 }
+div#fancy_div {
+    background-color: white;
+    color: #333;
+    /*font-size: 12px;*/
+}
+div#lsid {
+    white-space: nowrap;
+    padding: 5px;
+    border: 1px solid #DDD;
+}
+div#fancy_div input {
+    display: block;
+    margin-top: 10px;
+    font-size: 90%;
+    width: 480px;
+}
 table.noBorders td {
     border: none;
 }

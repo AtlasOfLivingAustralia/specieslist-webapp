@@ -6,6 +6,7 @@
 <%@ page contentType="application/json; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="s" uri="/struts-tags" %>
 <%@ taglib prefix="json" uri="http://www.atg.com/taglibs/json" %>
+<%@ taglib prefix="fn" uri="/WEB-INF/tld/fn.tld" %>
 <json:object prettyPrint="true">
     <json:property name="pageSize" value="${results}"/>
     <%--<json:property name="recordsReturned" value="${results}"/>--%>
@@ -21,6 +22,8 @@
             <json:property name="guid" value="${result.guid}"/>
             <json:property name="title" value="${result.title}"/>
             <json:property name="contentModel" value="${result.contentModel}"/>
+            <json:property name="rank"><s:set name="rankStr">${result.rank}</s:set><s:text name="rank.%{rankStr}"/></json:property>
+            <json:property name="rankId" value="${fn:replace(result.rankId, 'rank.', '')}"/>
             <json:property name="urlMapper" value="${result.urlMapper}"/>
             <json:property name="contentModelInitial" value="${result.contentModelInitial}"/>
             <json:property name="contentModelLabel" escapeXml="false">
