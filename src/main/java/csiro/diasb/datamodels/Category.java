@@ -167,4 +167,16 @@ public final class Category {
 	public List<String> getPropertyNames() {
 		return propertyNames;
 	}
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if(obj!=null && obj instanceof Category){
+			Category c = (Category) obj;
+			return this.getRank()==c.getRank();
+		}
+		return false;
+	}
 }

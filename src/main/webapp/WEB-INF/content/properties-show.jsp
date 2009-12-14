@@ -3,18 +3,59 @@
 <%@ taglib uri="/WEB-INF/tld/c.tld" prefix="c" %>
 <%@ taglib prefix="fn" uri="/WEB-INF/tld/fn.tld" %>
 
+<style>
+table.datasheet { border:1px solid #CCCCCC; border-collapse: collapse; background-color: #fffae4; padding: 5px; text-align:left; }
+table.datasheet thead { padding-top: 3px; border:0;}
+table.datasheet th { border-right: 1px solid gray; border-top:0; color: gray; padding:3px 5px 3px 5px; }
+table.datasheet td { border-right: 1px solid gray; border-top: 1px solid gray; text-align:left; padding:3px 5px 3px 5px; vertical-align:center; }
+
+</style>
+
+
 <c:choose>
+
+<c:when test="${param['propertiesOnly']}">
+
+    Number of properties : ${fn:length(orderedProperties)}
+    <table class="datasheet">    
+     <thead style="font-style: bold;">
+        <th>Property name</th>
+        <th>Property value</th>
+        <th>Category</th>      
+        <th>Source URL</th>
+        <th>Source Title</th>
+        <th>Infosource URL</th>
+        <th>Infosource Name</th>
+     </thead>    
+     <c:forEach items="${orderedProperties}" var="orderedProperty">
+     <tr style="border: 1px solid gray;border-collapse: collapse; ">
+        <td>${orderedProperty.propertyName}</td>
+        <td>${orderedProperty.propertyValue}</td>
+     
+        <td>${orderedProperty.category.name}</td>
+     
+        <td>${orderedProperty.sourceUrl}</td>
+        <td>${orderedProperty.sourceTitle}</td>
+     
+        <td>${orderedProperty.infoSourceUrl}</td>
+        <td>${orderedProperty.infoSourceName}</td>
+     </tr>
+    </c:forEach>
+    </table>
+</c:when>
+
+
 <c:when test="${!param['sort']}">
 
-	Number of results : ${fn:length(properties)}
+	Number of results : ${fn:length(documents)}
 	<hr/>    
-	 <c:forEach items="${properties}" var="properties">
-	 Infosource ID:${properties.infoSourceUrl}<br/>
-	 Infosource Name:${properties.infoSourceName}<br/>
-	 Source ID:${properties.sourceUrl}<br/>
-	 Source Title:${properties.sourceTitle}<br/>
+	 <c:forEach items="${documents}" var="document">
+	 Infosource ID:${document.infoSourceUrl}<br/>
+	 Infosource Name:${document.infoSourceName}<br/>
+	 Source ID:${document.sourceUrl}<br/>
+	 Source Title:${document.sourceTitle}<br/>
 	 <table>
-	  <c:forEach var="entry" items="${properties.propertyMap}">
+	  <c:forEach var="entry" items="${document.propertyMap}">
 	       <tr>
 	         <td>${entry.key}</td>
 	         <td>${entry.value}</td>

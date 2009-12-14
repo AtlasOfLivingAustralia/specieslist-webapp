@@ -12,6 +12,7 @@ import csiro.diasb.datamodels.DocumentDTO;
 import csiro.diasb.datamodels.HtmlPageDTO;
 import csiro.diasb.datamodels.ImageDTO;
 import csiro.diasb.datamodels.OrderedDocumentDTO;
+import csiro.diasb.datamodels.OrderedPropertyDTO;
 import csiro.diasb.datamodels.TaxonConceptDTO;
 import csiro.diasb.datamodels.TaxonNameDTO;
 
@@ -46,6 +47,14 @@ public interface FedoraDAO {
      */
 	public List<OrderedDocumentDTO> getOrderedDocumentsForName(List<String> scientificNames);
     
+    /**
+     * Returns a list of ordered documents.
+     * 
+     * @param scientificNames
+     * @return
+     */
+	public List<OrderedPropertyDTO> getOrderedPropertiesForName(List<String> scientificNames);
+	
     /**
      * Return a list of HtmlPageDTOs for a given list of scientific names
      * 

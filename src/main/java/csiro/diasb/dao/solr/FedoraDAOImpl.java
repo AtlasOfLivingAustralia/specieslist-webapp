@@ -36,6 +36,7 @@ import csiro.diasb.datamodels.DocumentDTO;
 import csiro.diasb.datamodels.HtmlPageDTO;
 import csiro.diasb.datamodels.ImageDTO;
 import csiro.diasb.datamodels.OrderedDocumentDTO;
+import csiro.diasb.datamodels.OrderedPropertyDTO;
 import csiro.diasb.datamodels.TaxonConceptDTO;
 import csiro.diasb.datamodels.TaxonNameDTO;
 
@@ -52,8 +53,8 @@ public class FedoraDAOImpl implements FedoraDAO {
     /** SOLR server instance */
     private CommonsHttpSolrServer server = null;
     /** URL of the SOLR servlet */
-    protected String solrUrl = "http://diasbdev1-cbr.vm.csiro.au:8080/solr";  // http://localhost:8080/solr
-    //protected String solrUrl = "http://localhost:8080/solr";  // http://localhost:8080/solr
+//    protected String solrUrl = "http://diasbdev1-cbr.vm.csiro.au:8080/solr";  // http://localhost:8080/solr
+    protected String solrUrl = "http://localhost:8080/solr";  // http://localhost:8080/solr
 
     /**
      * Constructor - set the server field
@@ -95,6 +96,136 @@ public class FedoraDAOImpl implements FedoraDAO {
 	}
     
     /**
+     * @see csiro.diasb.dao.FedoraDAO#getOrderedPropertiesForName(java.util.List)
+     */
+	@Override
+	public List<OrderedPropertyDTO> getOrderedPropertiesForName(
+			List<String> scientificNames) {
+    	List<OrderedPropertyDTO> orderedPropertyList = new ArrayList<OrderedPropertyDTO>();
+    	
+    	try {
+    		SolrDocumentList solrDocumentList = doListQuery(scientificNames, "rdf.hasScientificName", null);
+    		logger.info("######### "+solrDocumentList.size()+ " documents returned.");
+    		Iterator iter = solrDocumentList.iterator();
+    		
+    		//iterate through each SOLR document and create an OrderedDocumentDTO 
+    		while(iter.hasNext()){
+    			
+    			SolrDocument solrDocument = (SolrDocument) iter.next();
+    			Map<String, Object> fieldMap = solrDocument.getFieldValueMap();
+    			Set<String> retrievedKeys = fieldMap.keySet();
+    			
+    			//for each key, find the correct category, and create a CategorisedProperties instance
+    			for(String propertyName: retrievedKeys){
+    				
+    			    Category category = Category.getCategoryForProperty(propertyName);
+    				if(category!=null){
+    					
+	    				logger.info("Category:"+category.getName()+",  key: '"+propertyName+"', value:"+fieldMap.get(propertyName));
+    					
+	    				Object propertyValue =  fieldMap.get(propertyName);
+	    				
+	    				if(propertyValue instanceof List){
+	    					
+	    					List<Object> propertyValues = (List) propertyValue;
+	    					for(Object singleValue: propertyValues){
+		    					OrderedPropertyDTO orderedPropertyDTO = createObjectProperty(
+										solrDocument, fieldMap, category, propertyName,
+										singleValue);
+		    	    			
+		    	    			orderedPropertyList.add(orderedPropertyDTO);
+	    					}
+	    					
+	    				} else {
+
+	    					OrderedPropertyDTO orderedPropertyDTO = createObjectProperty(
+									solrDocument, fieldMap, category,propertyName,
+									propertyValue);
+	    	    			
+	    	    			orderedPropertyList.add(orderedPropertyDTO);
+	    				}
+    				} else {
+    					logger.info("No category found for key: '"+propertyName+"', value:"+fieldMap.get(propertyName));	
+    				}
+       			}
+    		}
+    		
+    		//order properties by category and by order internal to category
+    		Collections.sort(orderedPropertyList, new Comparator<OrderedPropertyDTO>() {
+				@Override
+				public int compare(OrderedPropertyDTO o1, OrderedPropertyDTO o2) {
+					if(o1.getCategory().equals(o2.getCategory())){
+						Category category = o1.getCategory();
+						return category.getIndexInCategory(o1.getPropertyName()) - category.getIndexInCategory(o2.getPropertyName());
+					} else {
+						return o1.getCategory().getRank() - o2.getCategory().getRank();
+					}
+				}
+			});
+    	} catch (Exception e){
+    		logger.error(e.getMessage(),e);
+    	}
+		return orderedPropertyList;
+	}
+
+	/**
+	 * Create a Ordered Property.
+	 * 
+	 * @param solrDocument
+	 * @param fieldMap
+	 * @param category
+	 * @param propertyName
+	 * @param propertyValue
+	 * @return
+	 */
+	private OrderedPropertyDTO createObjectProperty(SolrDocument solrDocument,
+			Map<String, Object> fieldMap, Category category, String propertyName,
+			Object propertyValue) {
+		//create property
+		OrderedPropertyDTO orderedPropertyDTO = new OrderedPropertyDTO();
+		
+		//the ID of the infosource    			
+		
+		orderedPropertyDTO.setInfoSourceUrl(resolveSingleValue(solrDocument.getFieldValue("dc.source")));    			
+		
+		//a display name for the infosource    			
+		orderedPropertyDTO.setInfoSourceName(resolveSingleValue(fieldMap.get("dc.publisher")));
+
+		//the URL of the web page
+		orderedPropertyDTO.setSourceUrl(resolveSingleValue(fieldMap.get("dc.identifier")));
+		
+		//the title of the web page
+		orderedPropertyDTO.setSourceTitle(resolveSingleValue(fieldMap.get("dc.title")));
+		
+		orderedPropertyDTO.setCategory(category);
+		
+		orderedPropertyDTO.setPropertyName(propertyName);
+		
+		//call toString on object
+		orderedPropertyDTO.setPropertyValue(propertyValue.toString());
+		
+		return orderedPropertyDTO;
+	}    
+    
+	/**
+	 * Resolve a single value. 
+	 * 
+	 * @param fieldValue
+	 * @return
+	 */
+    private String resolveSingleValue(Object fieldValue) {
+    	if(fieldValue instanceof List){
+    		List<Object> values = (List)fieldValue;
+    		if(!values.isEmpty()){
+    			return values.get(0).toString();
+    		} else {
+    			return null;
+    		}
+    	}
+    	return fieldValue.toString();
+	}
+
+	/**
      * @see csiro.diasb.dao.FedoraDAO#getDocumentsForName(java.lang.String)
      */
     @Override
@@ -485,13 +616,9 @@ public class FedoraDAOImpl implements FedoraDAO {
      *
      * @return
      */
-    @Override
     public String getServerUrl() {
         return solrUrl;
     }
-    /* 
-     * Getters & Setters
-     */
     
     public CommonsHttpSolrServer getServer() {
         return server;
@@ -508,5 +635,4 @@ public class FedoraDAOImpl implements FedoraDAO {
     public  void setSolrUrl(String solrUrl) {
         this.solrUrl = solrUrl;
     }
-
 }

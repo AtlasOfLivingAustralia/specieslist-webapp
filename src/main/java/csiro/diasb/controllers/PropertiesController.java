@@ -15,6 +15,7 @@ import com.opensymphony.xwork2.ActionSupport;
 import csiro.diasb.dao.FedoraDAO;
 import csiro.diasb.datamodels.DocumentDTO;
 import csiro.diasb.datamodels.OrderedDocumentDTO;
+import csiro.diasb.datamodels.OrderedPropertyDTO;
 
 /**
  * A Simple controller for viewing the properties derived for a 
@@ -30,10 +31,12 @@ public class PropertiesController extends ActionSupport {
 	protected static final Logger logger = Logger.getLogger(PropertiesController.class);
     /** This should be set in show() requests */
     private String id;
+    private boolean propertiesOnly = false;
     private boolean sort = false;
 	private FedoraDAO fedoraDAO;
-	private List<DocumentDTO> properties;
+	private List<DocumentDTO> documents;
 	private List<OrderedDocumentDTO> orderedDocuments;
+	private List<OrderedPropertyDTO> orderedProperties;
 
 	/**
 	 * Required for REST plugin.
@@ -49,11 +52,15 @@ public class PropertiesController extends ActionSupport {
 	 * @return
 	 */
 	public HttpHeaders show() {
+		
 		List<String> sciNames = new ArrayList<String>();
 		sciNames.add(getId());
+		
 		logger.info("Searching with name:"+getId());
-		if(!sort){
-			this.properties = fedoraDAO.getDocumentsForName(sciNames);
+		if(propertiesOnly){
+			this.orderedProperties = fedoraDAO.getOrderedPropertiesForName(sciNames);
+		} else if(!sort){
+			this.documents = fedoraDAO.getDocumentsForName(sciNames);
 		} else {
 			this.orderedDocuments = fedoraDAO.getOrderedDocumentsForName(sciNames);
 		}
@@ -71,14 +78,6 @@ public class PropertiesController extends ActionSupport {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public List<DocumentDTO> getProperties() {
-		return properties;
-	}
-
-	public void setProperties(List<DocumentDTO> properties) {
-		this.properties = properties;
 	}
 
 	public FedoraDAO getFedoraDAO() {
@@ -99,5 +98,47 @@ public class PropertiesController extends ActionSupport {
 
 	public void setOrderedDocuments(List<OrderedDocumentDTO> orderedDocuments) {
 		this.orderedDocuments = orderedDocuments;
+	}
+
+	/**
+	 * @return the propertiesOnly
+	 */
+	public boolean isPropertiesOnly() {
+		return propertiesOnly;
+	}
+
+	/**
+	 * @param propertiesOnly the propertiesOnly to set
+	 */
+	public void setPropertiesOnly(boolean propertiesOnly) {
+		this.propertiesOnly = propertiesOnly;
+	}
+
+	/**
+	 * @return the documents
+	 */
+	public List<DocumentDTO> getDocuments() {
+		return documents;
+	}
+
+	/**
+	 * @param documents the documents to set
+	 */
+	public void setDocuments(List<DocumentDTO> documents) {
+		this.documents = documents;
+	}
+
+	/**
+	 * @return the orderedProperties
+	 */
+	public List<OrderedPropertyDTO> getOrderedProperties() {
+		return orderedProperties;
+	}
+
+	/**
+	 * @param orderedProperties the orderedProperties to set
+	 */
+	public void setOrderedProperties(List<OrderedPropertyDTO> orderedProperties) {
+		this.orderedProperties = orderedProperties;
 	}
 }
