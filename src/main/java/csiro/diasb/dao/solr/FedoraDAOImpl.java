@@ -113,7 +113,14 @@ public class FedoraDAOImpl implements FedoraDAO {
     			
     			SolrDocument solrDocument = (SolrDocument) iter.next();
     			Map<String, Object> fieldMap = solrDocument.getFieldValueMap();
+    			
     			Set<String> retrievedKeys = fieldMap.keySet();
+    			//FIXME 
+				String contentModel = (String) fieldMap.get("rdf.hasModel");
+				if(contentModel!=null && contentModel.endsWith("ImageContentModel")){
+					//dont add these properties to result set
+					continue;
+				}
     			
     			//for each key, find the correct category, and create a CategorisedProperties instance
     			for(String propertyName: retrievedKeys){
