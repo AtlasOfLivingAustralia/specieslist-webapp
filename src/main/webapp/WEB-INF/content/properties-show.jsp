@@ -29,14 +29,14 @@ table.datasheet td { border-right: 1px solid gray; border-top: 1px solid gray; t
      </thead>    
      <c:forEach items="${orderedProperties}" var="orderedProperty">
      <tr style="border: 1px solid gray;border-collapse: collapse; ">
-        <td>${orderedProperty.propertyName}</td>
+        <td>
+            <s:set var="propertyName">${orderedProperty.propertyName}</s:set>
+            <s:text name="%{propertyName}"/>
+        </td>
         <td>${orderedProperty.propertyValue}</td>
-     
         <td>${orderedProperty.category.name}</td>
-     
         <td>${orderedProperty.sourceUrl}</td>
         <td>${orderedProperty.sourceTitle}</td>
-     
         <td>${orderedProperty.infoSourceUrl}</td>
         <td>${orderedProperty.infoSourceName}</td>
      </tr>
