@@ -37,8 +37,8 @@
                             // Column definitions
                             var myColumnDefs = [
                                 //{key:"ContentModel", field:"contentModelLabel", label:"Type", sortable: true, minWidth: 100},
-                                {key:"dc3.title", field:"title", sortable:true, label:"Title", formatter:formatTitleUrl}, // , formatter:formatTitleUrl
-                                {key:"rdf.hasRankId", field:"rank", label:"Classification", sortable: true, minWidth: 100},
+                                {key:"dc3.title", field:"title", sortable:true, label:"Title", formatter:formatTitleUrl, width: 400}, // , formatter:formatTitleUrl
+                                {key:"rdf.hasRankId", field:"rank", label:"Classification", sortable: true, minWidth: 100,width: 200},
                                 {key:"score", field:"score", hidden:true, maxAutoWidth: 0}
                             ];
 

@@ -53,7 +53,7 @@ public class FedoraDAOImpl implements FedoraDAO {
     private CommonsHttpSolrServer server = null;
     /** URL of the SOLR servlet */
     protected String solrUrl = "http://diasbdev1-cbr.vm.csiro.au:8080/solr";  // http://localhost:8080/solr
-//    protected String solrUrl = "http://localhost:8080/solr";  // http://localhost:8080/solr
+    //protected String solrUrl = "http://localhost:8080/solr";  // http://localhost:8080/solr
 
     /**
      * Constructor - set the server field
@@ -479,7 +479,16 @@ public class FedoraDAOImpl implements FedoraDAO {
 
         return this.server;
     }
-
+    
+    /**
+     * @see csiro.diasb.dao.FedoraDAO#getServerUrl()
+     *
+     * @return
+     */
+    @Override
+    public String getServerUrl() {
+        return solrUrl;
+    }
     /* 
      * Getters & Setters
      */
@@ -499,4 +508,5 @@ public class FedoraDAOImpl implements FedoraDAO {
     public  void setSolrUrl(String solrUrl) {
         this.solrUrl = solrUrl;
     }
+
 }

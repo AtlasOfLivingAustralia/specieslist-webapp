@@ -69,4 +69,10 @@ public interface FedoraDAO {
      * @return
      */
     public List<ImageDTO> getImagesForScientificNames(List<String> scientificNames);
+    /**
+     * Temporary method/hack to set the URL in one place - TODO move into property file
+     *
+     * @return the SOLR URL
+     */
+    public String getServerUrl();
 }

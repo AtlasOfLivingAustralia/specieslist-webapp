@@ -129,6 +129,7 @@ public class SpeciesController extends ActionSupport {
             pid = id;
             taxonConcept = fedoraDAO.getTaxonConceptForIdentifier(pid);
         }
+        logger.info("TC title = " + taxonConcept.getTitle());
 
         // Obtains the content of the RDF properties of the Fedora Digital object.
         FcGetDsContent fcGetDs = null;

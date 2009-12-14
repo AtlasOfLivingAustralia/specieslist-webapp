@@ -13,7 +13,7 @@
         <script type="text/javascript" src="${pageContext.request.contextPath}/fancybox/jquery.fancybox-1.2.6.pack.js"></script>
         <script type="text/javascript">
             //var scientificNameId, scientificName;
-            var solrServer = "diasbdev1-cbr.vm.csiro.au:8080"; // TODO: read from properties file
+            var solrServer = "${fedoraDAO.serverUrl}"; // TODO: read from properties file
 
             $(document).ready(function() {
                 $("a.popup").fancybox({
@@ -57,15 +57,20 @@
                 // convert lsid link text to TC title via SOLR
                 $("a.lsidLink").each(function() {
                     var link = $(this);
+                    var lsid = link.text();
                     //link.text("foo");
-                    var uri = encodeURIComponent(filterQuery(link.text()));
+                    var uri = encodeURIComponent(filterQuery(lsid));
                     var query = "q=dc.identifier:"+uri+" AND ContentModel:ala.TaxonConceptContentModel&wt=json&rows=1&indent=true&json.wrf=?"
-                    $.getJSON("http://"+solrServer+"/solr/select?"+query, function(data){
+                    $.getJSON(solrServer+"/select?"+query, function(data){
                         if (data.response.numFound > 0) {
                             var doc = data.response.docs[0];
                             var title = doc['dc.title'];
                             var rank = doc.Rank;
                             link.text(title+" ("+rank+")");
+                            link.css("display","inline");
+                        } else {
+                            link.text("[name not known]");
+                            link.attr("title", lsid);
                             link.css("display","inline");
                         }
                     });
@@ -190,14 +195,29 @@
             </div>
         </s:if>
         <s:else>
+            <c:set var="taxonConceptTitle">
+                <c:choose>
+                    <c:when test="${fn:length(taxonNames) > 0}">${taxonNames[0].nameComplete}</c:when>
+                    <c:otherwise>${taxonConcept.title}</c:otherwise>
+                </c:choose>
+            </c:set>
+            <s:set name="taxonConceptTitle">${taxonConceptTitle}</s:set>
+            <c:set var="taxonConceptRank">
+                <c:choose>
+                    <c:when test="${!empty taxonConcept}">${taxonConcept.rank}</c:when>
+                    <c:when test="${fn:length(taxonNames) > 0}">${taxonNames[0].rank}</c:when>
+                    <c:otherwise>(rank not known)</c:otherwise>
+                </c:choose>
+            </c:set>
+            <s:set name="taxonConceptRank">${taxonConceptRank}</s:set>
             <s:set name="sciNameFormatted">
                 <c:choose>
-                    <c:when test="${fn:containsIgnoreCase(taxonNames[0].rank,'species')}"><i>${taxonNames[0].nameComplete}</i></c:when>
-                    <c:when test="${fn:containsIgnoreCase(taxonNames[0].rank,'genus')}"><i>${taxonNames[0].nameComplete}</i></c:when>
-                    <c:otherwise>${taxonNames[0].nameComplete}</c:otherwise>
+                    <c:when test="${fn:containsIgnoreCase(taxonConceptRank,'species')}"><i>${taxonConceptTitle}</i></c:when>
+                    <c:when test="${fn:containsIgnoreCase(taxonConceptRank,'genus')}"><i>${taxonConceptTitle}</i></c:when>
+                    <c:otherwise>${taxonConceptTitle}</c:otherwise>
                 </c:choose>
             </s:set>
-            <s:set name="authorship">${fn:substringAfter(taxonNames[0].title, taxonNames[0].nameComplete)}</s:set>
+            <c:set var="authorship">${fn:substringAfter(taxonNames[0].title, taxonNames[0].nameComplete)}</c:set>
             <div id="speciesHeader">
                 <s:if test="%{!images.isEmpty()}">
                     <div id="speciesPhoto">
@@ -209,7 +229,7 @@
                     <table class="noBorders" style="max-width:90%;margin:0;">
                         <tr>
                             <td>Classification:</td>
-                            <td><s:text name="rank.%{taxonConcept.rank}" /></td>
+                            <td><s:text name="rank.%{taxonConceptRank}" /></td>
                         </tr>
                         <c:if test="${fn:length(authorship) > 0}"><tr>
                             <td>Authorship:</td>
@@ -241,16 +261,12 @@
                     <div id="LSID_icon"><a href="#lsidText" id="lsid"><img src="${pageContext.request.contextPath}/images/lsid.png"/></a></div>
                 </div>
                 <div id="toc">
-                    <p style="margin-bottom: 5px;"><b>Show me information on:   </b> (click to jump to)</p>
+                    <p style="margin-bottom: 5px;"><b>Jump to: </b></p>
                     <ul>
-                        
-                        <s:if test="%{!taxonNames.isEmpty()}"><li><a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}?sort=true" class="popup">
-                            Harvested Properties Table</a></li></s:if>
-                        <s:if test="%{!images.isEmpty()}"><li><a href="#images">Images</a></li></s:if>
-                        <s:if test="%{!htmlPages.isEmpty()}"><li><a href="#htmlpages">HTML Pages</a></li></s:if>
-                        <%--<li><a href="#properties">Properties</a></li>--%>
+                        <c:if test="${fn:length(orderedDocuments) > 0}"><li><a href="#properties">Information from Other Sources</a></li></c:if>
                         <li id="portalBookmark"><a href="#portal">Distribution Map</a></li>
-                        
+                        <s:if test="%{!images.isEmpty()}"><li><a href="#images">Images</a></li></s:if>
+                        <%--<s:if test="%{!htmlPages.isEmpty()}"><li><a href="#htmlpages">HTML Pages</a></li></s:if>--%>
                     </ul>
                 </div>
             </div>
@@ -281,54 +297,54 @@
                 </table>
             </s:if>
 
-
-            <div id="harvestedInfo">
-                <h4 class="divider">Information from other sources<a name="properties">&nbsp;</a></h4>
-                <c:forEach items="${orderedDocuments}" var="orderedDocument">
-                    <div style="border:1px solid gray; padding:10px; margin:10px;">
-                        <h3>${orderedDocument.infoSourceName}</h3>
-                        <h4><a href="${orderedDocument.sourceUrl}">${orderedDocument.sourceTitle}</a></h4>
-                        <c:forEach var="categorisedProperties" items="${orderedDocument.categorisedProperties}">
-                            <c:if test="${categorisedProperties.category.name!='Taxonomic' && categorisedProperties.category.name!='Media'}">
-                                <h5>${categorisedProperties.category.name}</h5>
-                                <table>
-                                    <c:forEach var="entry" items="${categorisedProperties.propertyMap}">
-                                        <tr>
-                                            <td>${entry.key}</td>
-                                            <td>${entry.value}</td>
-                                        </tr>
-                                    </c:forEach>
-                                </table>
-                            </c:if>
-                            <c:if test="${categorisedProperties.category.name=='Media'}">
-                                <h5>${categorisedProperties.category.name}</h5>
-                                <table>
-                                    <tr>
-                                        <c:forEach var="entry" items="${categorisedProperties.propertyMap}">
-                                            <c:if test="${fn:startsWith(entry.value,'http://')}">
-                                                <td><img src ="${entry.value}"/></td>
+                <c:if test="${fn:length(orderedDocuments) > 0}">
+                <div id="harvestedInfo">
+                    <h4 class="divider">Information from Other Sources<a name="properties">&nbsp;</a>
+                        <a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}?sort=true" class="popup">&beta;</a></h4>
+                    <c:forEach items="${orderedDocuments}" var="orderedDocument">
+                        <div id="harvestedProperties">
+                            <p id="sourceTitle">${orderedDocument.infoSourceName} &ndash; <a href="${orderedDocument.sourceUrl}">${orderedDocument.sourceTitle}</a></p>
+                            <table class="propertyTable">
+                                <c:forEach var="categorisedProperties" items="${orderedDocument.categorisedProperties}">
+                                    <c:if test="${categorisedProperties.category.name!='Taxonomic' && categorisedProperties.category.name!='Media'}">
+                                        <%--<p>${categorisedProperties.category.name}</p>--%>
+                                            <c:forEach var="entry" items="${categorisedProperties.propertyMap}">
+                                                <c:if test="${fn:length(entry.value) > 1}">
+                                                    <tr><s:set var="entryKey">${entry.key}</s:set>
+                                                        <td class="propertyName"><s:text name="%{entryKey}"/></td>
+                                                        <td>${entry.value}</td>
+                                                    </tr>
                                                 </c:if>
-                                        </c:forEach>
-                                    </tr>
-                                </table>
-                            </c:if>
-                        </c:forEach>
-                    </div>
-                </c:forEach>
-            </div>
-
+                                            </c:forEach>
+                                    </c:if>
+                                </c:forEach>
+                            </table>
+                                <%--<c:if test="${categorisedProperties.category.name=='Media'}">
+                                    <h5>${categorisedProperties.category.name}</h5>
+                                    <table>
+                                        <tr>
+                                            <c:forEach var="entry" items="${categorisedProperties.propertyMap}">
+                                                <c:if test="${fn:startsWith(entry.value,'http://')}">
+                                                    <td><img src ="${entry.value}"/></td>
+                                                    </c:if>
+                                            </c:forEach>
+                                        </tr>
+                                    </table>
+                                </c:if>--%>
+                        </div>
+                    </c:forEach>
+                </div>
+            </c:if>
 
             <div id="portalInfo">
                 <h4 class="divider">Distribution Map (generated from specimen & observation occurrence data)<a name="portal">&nbsp;</a></h4>
                 <ul>
-                    <%--<li><a href="#" id="portalLink" target="_blank">View the "<s:property value="sciNameFormatted" escape="false"/>"
-                          species page</a> on the ALA Portal</li>--%>
                     <li>Number of occurrences of ${sciNameFormatted}: <span id="occurrenceCount"></span></li>
-                    <li><a href="#" id="occurrenceTableLink">View table of all occurrence records for ${sciNameFormatted}</a></li>
+                    <li><a href="#" id="occurrenceTableLink">View table of all occurrence records
+                            for ${sciNameFormatted}</a></li>
                 </ul>
                 <div id="mappanel"></div>
                 <div style="float:right;font-size:11px;width:550px;">
-                    <%--<p style="margin:4px;">Occurrences per cell</p>--%>
                     <table id="cellCountsLegend">
                         <tr>
                           <td style="background-color:#333; color:white; text-align:right;">Occurrences per cell:&nbsp;</td>
@@ -339,14 +355,6 @@
                           <td style="width:60px;background-color:#ff3300;">250&ndash;499</td>
                           <td style="width:60px;background-color:#cc0000;">500+</td>
                         </tr>
-                        <%--<tr style="text-align: center;">
-                          <td>1&ndash;9</td>
-                          <td>10&ndash;49</td>
-                          <td>50&ndash;99</td>
-                          <td>100&ndash;249</td>
-                          <td>250&ndash;499</td>
-                          <td>500&ndash;&infin;</td>
-                        </tr>--%>
                     </table>
                 </div>
 
@@ -375,7 +383,35 @@
                 </table>
             </s:if>
 
-
+            <%-- HTML Pages --%>
+            <%--<s:if test="%{!htmlPages.isEmpty()}"><a name="htmlpages">&nbsp;</a>
+                <h4 class="divider">HTML Pages</h4>
+                <table class ="propertyTable">
+                    <!-- Table headings. -->
+                    <tr>
+                        <th>Title</th>
+                        <th>Properties</th>
+                        <th>Source</th>
+                    </tr>
+                    <!-- Dynamic table content. -->
+                    <s:iterator value="htmlPages">
+                        <tr>
+                            <td><a href="${url}">${title}</a></td>
+                            <td>
+                                <table class="rdfProperties">
+                                    <s:iterator value="rdfProperties" var="prop">
+                                    <tr>
+                                        <td>${prop.key}</td>
+                                        <td>${prop.value}</td>
+                                    </tr>
+                                    </s:iterator>
+                                </table>
+                            </td>
+                            <td><a href="http://${source}" target="_blank"><s:text name="source.%{source}"/></a></td>
+                        </tr>
+                    </s:iterator>
+                </table>
+            </s:if>--%>
 
 <%--            <a name="properties">&nbsp;</a>
             <h4 class="divider">Properties</h4>
