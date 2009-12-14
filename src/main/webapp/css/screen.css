@@ -334,6 +334,7 @@ table.propertyTable {
     width: 100%;
     border-left: 1px solid #DDD;
     border-right: 1px solid #DDD !important;
+    font-size: 90%;
 }
 .propertyTable th {
     background-color: #DDD;

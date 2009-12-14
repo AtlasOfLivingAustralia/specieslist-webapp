@@ -104,6 +104,7 @@ public class SpeciesController extends ActionSupport {
     private String responseMessage = "";
     private String propertyName = "rdf.hasModel";
     private String solrQuery = "ala_TaxonConceptContentModel";
+    private String solrServerUrl = "";
     
     /**
      * Entry point to the controller from /AlaHarvester/taxa/<pid>
@@ -130,7 +131,7 @@ public class SpeciesController extends ActionSupport {
             taxonConcept = fedoraDAO.getTaxonConceptForIdentifier(pid);
         }
         logger.info("TC title = " + taxonConcept.getTitle());
-
+        solrServerUrl = fedoraDAO.getServerUrl();
         // Obtains the content of the RDF properties of the Fedora Digital object.
         FcGetDsContent fcGetDs = null;
         try {
@@ -519,5 +520,13 @@ public class SpeciesController extends ActionSupport {
 	public void setOrderedDocuments(List<OrderedDocumentDTO> orderedDocuments) {
 		this.orderedDocuments = orderedDocuments;
 	}
+
+    public String getSolrServerUrl() {
+        return solrServerUrl;
+    }
+
+    public void setSolrServerUrl(String solrServerUrl) {
+        this.solrServerUrl = solrServerUrl;
+    }
 
 }

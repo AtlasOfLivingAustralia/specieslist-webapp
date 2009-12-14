@@ -32,14 +32,7 @@
 			<version>2.1.6</version>
 		</dependency>
 
-        <!-- JSTL -->		
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-            <version>1.1.2</version>
-        </dependency>
-
-		<!-- JUnit 4 execution. -->
+                <!-- JUnit 4 execution. -->
 		<dependency>
 			<groupId>org.apache.maven.surefire</groupId>
 			<artifactId>surefire-junit4</artifactId>
@@ -83,6 +76,13 @@
 			<version>2.0</version>
 			<scope>provided</scope>
 		</dependency>
+                
+                <!-- JSTL -->
+                <dependency>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>jstl</artifactId>
+                    <version>1.1.2</version>
+                </dependency>
 
 		<dependency>
 			<groupId>javax.xml</groupId>
@@ -152,12 +152,6 @@
 			<groupId>org.apache.struts</groupId>
 			<artifactId>struts2-sitemesh-plugin</artifactId>
 			<version>2.1.6</version>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.2</version>
 		</dependency>
 
 		<dependency>
@@ -320,10 +314,11 @@
 	</repositories>
 
 	<properties>
-		<netbeans.hint.deploy.server>Tomcat60</netbeans.hint.deploy.server>
+		<netbeans.hint.deploy.server>Tomcat55</netbeans.hint.deploy.server>
 	</properties>
 
 </project>
+
 
 
 

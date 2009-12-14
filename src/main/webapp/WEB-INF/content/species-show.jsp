@@ -13,7 +13,7 @@
         <script type="text/javascript" src="${pageContext.request.contextPath}/fancybox/jquery.fancybox-1.2.6.pack.js"></script>
         <script type="text/javascript">
             //var scientificNameId, scientificName;
-            var solrServer = "${fedoraDAO.serverUrl}"; // TODO: read from properties file
+            var solrServer = "${solrServerUrl}";//"http://localhost:8080/solr"; "${solrServerUrl}"// TODO: read from properties file
 
             $(document).ready(function() {
                 $("a.popup").fancybox({
@@ -300,14 +300,14 @@
                 <c:if test="${fn:length(orderedDocuments) > 0}">
                 <div id="harvestedInfo">
                     <h4 class="divider">Information from Other Sources<a name="properties">&nbsp;</a>
-                        <a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}?sort=true" class="popup">&beta;</a></h4>
+                        <a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}?sort=true" class="popup">&loz;</a></h4>
                     <c:forEach items="${orderedDocuments}" var="orderedDocument">
                         <div id="harvestedProperties">
-                            <p id="sourceTitle">${orderedDocument.infoSourceName} &ndash; <a href="${orderedDocument.sourceUrl}">${orderedDocument.sourceTitle}</a></p>
+                            <p id="sourceTitle">${orderedDocument.infoSourceName} &ndash; <a href="${orderedDocument.sourceUrl}">${orderedDocument.sourceTitle} </a></p>
                             <table class="propertyTable">
                                 <c:forEach var="categorisedProperties" items="${orderedDocument.categorisedProperties}">
-                                    <c:if test="${categorisedProperties.category.name!='Taxonomic' && categorisedProperties.category.name!='Media'}">
-                                        <%--<p>${categorisedProperties.category.name}</p>--%>
+                                    <c:if test="${categorisedProperties.category.name!='0Taxonomic' && categorisedProperties.category.name!='Media'}">
+                                        <!--<p>${categorisedProperties.category.name}</p>-->
                                             <c:forEach var="entry" items="${categorisedProperties.propertyMap}">
                                                 <c:if test="${fn:length(entry.value) > 1}">
                                                     <tr><s:set var="entryKey">${entry.key}</s:set>
@@ -319,18 +319,6 @@
                                     </c:if>
                                 </c:forEach>
                             </table>
-                                <%--<c:if test="${categorisedProperties.category.name=='Media'}">
-                                    <h5>${categorisedProperties.category.name}</h5>
-                                    <table>
-                                        <tr>
-                                            <c:forEach var="entry" items="${categorisedProperties.propertyMap}">
-                                                <c:if test="${fn:startsWith(entry.value,'http://')}">
-                                                    <td><img src ="${entry.value}"/></td>
-                                                    </c:if>
-                                            </c:forEach>
-                                        </tr>
-                                    </table>
-                                </c:if>--%>
                         </div>
                     </c:forEach>
                 </div>
