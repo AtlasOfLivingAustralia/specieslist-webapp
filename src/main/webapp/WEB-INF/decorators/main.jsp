@@ -49,9 +49,8 @@
             <div id="footer" class="span-24 prepend-top append-bottom last">
                 <div id="copy">&nbsp;&copy;2009 <a href="mailto:info@ala.org.au">Atlas of Living Australia</a></div>
                 <ul class="tabs">
-                    <li><a href="${pageContext.request.contextPath}/search/RI">RI Search</a></li>
-                    <li><a href="${pageContext.request.contextPath}/harvest/setup">Harvest</a></li>
-                    <li><a href="${pageContext.request.contextPath}/glossary">Glossary</a></li>
+                    <li><a href="${pageContext.request.contextPath}/about">About the ALA</a></li>
+                    <li><a href="${pageContext.request.contextPath}/contact">Contact Us</a></li>
                 </ul>
             </div>
         </div>

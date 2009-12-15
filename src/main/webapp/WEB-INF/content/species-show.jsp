@@ -33,6 +33,16 @@
                     'frameHeight' : 100
                 });
 
+                $('a.hideShow').click(
+                    function(e) {
+                        e.preventDefault(); //Cancel the link behavior
+                        var num = $(this).text();
+                        var otherNum = (num == 1) ? 2 : 1;
+                        $("#view"+otherNum).slideUp();
+                        $("#view"+num).slideDown();
+                    }
+                );
+                
                 // Lookup portal for species info
                 $.getJSON("http://data.ala.org.au/search/scientificNames/%22${taxonNames[0].nameComplete}%22/json?callback=?", function(data){
                     //alert("inspecting JSON data: " + data);
@@ -191,8 +201,15 @@
                     <s:submit value="Search"/>
                 </s:form>
                 <p>
-                <p>Examples: <a href='${pageContext.request.contextPath}/species/?propertyValue="Pogona+barbata"'>&quot;Pogona barbata&quot;</a></p>
+                <p>Examples:<br/><a href='${pageContext.request.contextPath}/species/?propertyValue="Pogona+barbata"'>&quot;Pogona barbata&quot;</a><br/>
+                    <a href='${pageContext.request.contextPath}/species/?propertyValue="Argyropelecus+gigas"'>&quot;Argyropelecus gigas&quot;</a><br/>
+                    <a href='${pageContext.request.contextPath}/species/?propertyValue="Podargus+strigoides"'>&quot;Podargus strigoides&quot;</a><br/>
+                    <a href='${pageContext.request.contextPath}/species/?propertyValue="Glossopsitta+concinna"'>&quot;Glossopsitta concinna&quot;</a><br/>
+                </p>
             </div>
+            <script type="text/javascript">
+                $("#menuSearch").hide();
+            </script>
         </s:if>
         <s:else>
             <c:set var="taxonConceptTitle">
@@ -228,27 +245,27 @@
                     <h2>${sciNameFormatted}</h2>
                     <table class="noBorders" style="max-width:90%;margin:0;">
                         <tr>
-                            <td>Classification:</td>
+                            <td class="propertyName">Classification:</td>
                             <td><s:text name="rank.%{taxonConceptRank}" /></td>
                         </tr>
                         <c:if test="${fn:length(authorship) > 0}"><tr>
-                            <td>Authorship:</td>
+                            <td class="propertyName">Authorship:</td>
                             <td>${authorship}</td>
                         </tr></c:if>
                         <c:if test="${fn:length(taxonConcept.parentTaxa) > 0}"><tr>
-                                <td>Parent <s:if test="%{taxonConcept.parentTaxa.size() > 1}">Taxa</s:if><s:else>Taxon</s:else>:</td>
+                                <td class="propertyName">Parent <s:if test="%{taxonConcept.parentTaxa.size() > 1}">Taxa</s:if><s:else>Taxon</s:else>:</td>
                             <td><s:iterator value="taxonConcept.parentTaxa" var="parent">
                                 <a href="show?guid=${parent}" class="lsidLink">${parent}</a><br/>
                             </s:iterator></td>
                         </tr></c:if>
                         <c:if test="${fn:length(taxonConcept.childTaxa) > 0}"><tr>
-                            <td>Child <s:if test="%{taxonConcept.childTaxa.size() > 1}">Taxa</s:if><s:else>Taxon</s:else>:</td>
+                            <td class="propertyName">Child <s:if test="%{taxonConcept.childTaxa.size() > 1}">Taxa</s:if><s:else>Taxon</s:else>:</td>
                             <td><s:iterator value="taxonConcept.childTaxa" var="child">
                                 <a href="show?guid=${child}" class="lsidLink">${child}</a><br/>
                             </s:iterator></td>
                         </tr></c:if>
                         <tr>
-                            <td>Source:</td>
+                            <td class="propertyName">Source:</td>
                             <td><a href="<s:text name="source.%{taxonConcept.source}.url" />" target="_blank"><s:text name="source.%{taxonConcept.source}" /></a></td>
                         </tr>
                     </table>
@@ -297,17 +314,21 @@
                 </table>
             </s:if>
 
-                <c:if test="${fn:length(orderedDocuments) > 0}">
+                <c:if test="${fn:length(orderedDocuments) > 0 && fn:length(orderedProperties) > 0}">
                 <div id="harvestedInfo">
                     <h4 class="divider">Information from Other Sources<a name="properties">&nbsp;</a>
-                        <a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}?sort=true" class="popup">&loz;</a></h4>
-                    <c:forEach items="${orderedDocuments}" var="orderedDocument">
-                        <div id="harvestedProperties">
-                            <p id="sourceTitle">${orderedDocument.infoSourceName} &ndash; <a href="${orderedDocument.sourceUrl}">${orderedDocument.sourceTitle} </a></p>
-                            <table class="propertyTable">
-                                <c:forEach var="categorisedProperties" items="${orderedDocument.categorisedProperties}">
-                                    <c:if test="${categorisedProperties.category.name!='0Taxonomic' && categorisedProperties.category.name!='Media'}">
-                                        <!--<p>${categorisedProperties.category.name}</p>-->
+                        (Alternative View: <a href="#view1" class="hideShow">1</a>
+                        <a href="#view2" class="hideShow">2</a>
+                        <a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}?sort=true" class="popup">raw</a>)
+                    </h4>
+                    <div id="view1">
+                        <c:forEach items="${orderedDocuments}" var="orderedDocument">
+                            <div id="harvestedProperties">
+                                <p id="sourceTitle">${orderedDocument.infoSourceName} &ndash; <a href="${orderedDocument.sourceUrl}">${orderedDocument.sourceTitle} </a></p>
+                                <table class="propertyTable">
+                                    <c:forEach var="categorisedProperties" items="${orderedDocument.categorisedProperties}">
+                                        <c:if test="${categorisedProperties.category.name!='0Taxonomic' && categorisedProperties.category.name!='Media'}">
+                                            <!--<p>${categorisedProperties.category.name}</p>-->
                                             <c:forEach var="entry" items="${categorisedProperties.propertyMap}">
                                                 <c:if test="${fn:length(entry.value) > 1}">
                                                     <tr><s:set var="entryKey">${entry.key}</s:set>
@@ -316,20 +337,50 @@
                                                     </tr>
                                                 </c:if>
                                             </c:forEach>
-                                    </c:if>
+                                        </c:if>
+                                    </c:forEach>
+                                </table>
+                            </div>
+                        </c:forEach>
+                    </div>
+                    <div id="view2">
+                        <%--<div id="harvestedProperties">--%>
+                            <table class="propertyTable">
+                                <tr>
+                                    <th>Property</th>
+                                    <th>Value</th>
+                                    <th>Source</th>
+                                </tr>
+                                <c:forEach items="${orderedProperties}" var="orderedProperty">
+                                    <tr>
+                                        <td class="propertyName">
+                                            <s:set var="propertyName2">${orderedProperty.propertyName}</s:set>
+                                            <s:text name="%{propertyName2}"/>
+                                        </td>
+                                        <td>${orderedProperty.propertyValue}</td>
+                                        <td><a href="${orderedProperty.sourceUrl}" target="_blank">${orderedProperty.infoSourceName} : ${orderedProperty.sourceTitle}</a></td>
+                                        <%--<td>${orderedProperty.category.name}</td>
+                                        <td>${orderedProperty.sourceUrl}</td>
+                                        <td>${orderedProperty.sourceTitle}</td>
+                                        <td>${orderedProperty.infoSourceUrl}</td>
+                                        <td>${orderedProperty.infoSourceName}</td>--%>
+                                    </tr>
                                 </c:forEach>
                             </table>
-                        </div>
-                    </c:forEach>
+                        <%--</div>--%>
+                    </div>
                 </div>
             </c:if>
 
             <div id="portalInfo">
                 <h4 class="divider">Distribution Map (generated from specimen & observation occurrence data)<a name="portal">&nbsp;</a></h4>
                 <ul>
-                    <li>Number of occurrences of ${sciNameFormatted}: <span id="occurrenceCount"></span></li>
+                    <%--<li>Number of occurrences of ${sciNameFormatted}: <span id="occurrenceCount"></span></li>--%>
                     <li><a href="#" id="occurrenceTableLink">View table of all occurrence records
-                            for ${sciNameFormatted}</a></li>
+                            for ${sciNameFormatted}</a> (total number of records: <span id="occurrenceCount"></span>)</li>
+                    <li>States with occurrences of ${sciNameFormatted}:</li>
+                    <li>Biogeographical Regions with occurrences of ${sciNameFormatted}:</li>
+                    <li>Local Government Areas with occurrences of ${sciNameFormatted}:</li>
                 </ul>
                 <div id="mappanel"></div>
                 <div style="float:right;font-size:11px;width:550px;">

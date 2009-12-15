@@ -29,6 +29,7 @@ import csiro.diasb.fedora.FcGetDsContent;
 import csiro.diasb.datamodels.AlaSourcedPropertiesData;
 import csiro.diasb.datamodels.HtmlPageDTO;
 import csiro.diasb.datamodels.OrderedDocumentDTO;
+import csiro.diasb.datamodels.OrderedPropertyDTO;
 import csiro.diasb.datamodels.TaxonConceptDTO;
 import csiro.diasb.fedora.FacetQuery;
 import csiro.diasb.fedora.SolrSearch;
@@ -94,6 +95,7 @@ public class SpeciesController extends ActionSupport {
     private List<ImageDTO> images = null;
     private List<HtmlPageDTO> htmlPages = null;
     private List<OrderedDocumentDTO> orderedDocuments = null;
+    private List<OrderedPropertyDTO> orderedProperties;
     
     //  private static final Logger classLogger =
     //  Logger.getLogger(TaxaController.class.getName());
@@ -263,6 +265,7 @@ public class SpeciesController extends ActionSupport {
         }
 
         this.orderedDocuments  = fedoraDAO.getOrderedDocumentsForName(scientificNames);
+        this.orderedProperties = fedoraDAO.getOrderedPropertiesForName(scientificNames);
         
         //now look for attributed properties
         String propXMLDataString = "";
@@ -527,6 +530,14 @@ public class SpeciesController extends ActionSupport {
 
     public void setSolrServerUrl(String solrServerUrl) {
         this.solrServerUrl = solrServerUrl;
+    }
+
+    public List<OrderedPropertyDTO> getOrderedProperties() {
+        return orderedProperties;
+    }
+
+    public void setOrderedProperties(List<OrderedPropertyDTO> orderedProperties) {
+        this.orderedProperties = orderedProperties;
     }
 
 }
