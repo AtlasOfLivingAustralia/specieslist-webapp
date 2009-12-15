@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -37,6 +37,7 @@ import csiro.diasb.datamodels.HtmlPageDTO;
 import csiro.diasb.datamodels.ImageDTO;
 import csiro.diasb.datamodels.OrderedDocumentDTO;
 import csiro.diasb.datamodels.OrderedPropertyDTO;
+import csiro.diasb.datamodels.SourceDTO;
 import csiro.diasb.datamodels.TaxonConceptDTO;
 import csiro.diasb.datamodels.TaxonNameDTO;
 
@@ -132,24 +133,30 @@ public class FedoraDAOImpl implements FedoraDAO {
     					
 	    				Object propertyValue =  fieldMap.get(propertyName);
 	    				
+	    				SourceDTO sourceDTO = new SourceDTO(); 
+	    				
+	    				sourceDTO.setInfoSourceUrl(resolveSingleValue(solrDocument.getFieldValue("dc.source")));    			
+	    				
+	    				//a display name for the infosource    			
+	    				sourceDTO.setInfoSourceName(resolveSingleValue(fieldMap.get("dc.publisher")));
+
+	    				//the URL of the web page
+	    				sourceDTO.setSourceUrl(resolveSingleValue(fieldMap.get("dc.identifier")));
+	    				
+	    				//the title of the web page
+	    				sourceDTO.setSourceTitle(resolveSingleValue(fieldMap.get("dc.title")));
+	    				
 	    				if(propertyValue instanceof List){
-	    					
 	    					List<Object> propertyValues = (List) propertyValue;
 	    					for(Object singleValue: propertyValues){
-		    					OrderedPropertyDTO orderedPropertyDTO = createObjectProperty(
-										solrDocument, fieldMap, category, propertyName,
-										singleValue);
-		    	    			
-		    	    			orderedPropertyList.add(orderedPropertyDTO);
+	    						addOrderedProperty(orderedPropertyList,
+										propertyName, category, propertyValue,
+										sourceDTO);
 	    					}
-	    					
 	    				} else {
-
-	    					OrderedPropertyDTO orderedPropertyDTO = createObjectProperty(
-									solrDocument, fieldMap, category,propertyName,
-									propertyValue);
-	    	    			
-	    	    			orderedPropertyList.add(orderedPropertyDTO);
+    						addOrderedProperty(orderedPropertyList,
+									propertyName, category, propertyValue,
+									sourceDTO);
 	    				}
     				} else {
     					logger.info("No category found for key: '"+propertyName+"', value:"+fieldMap.get(propertyName));	
@@ -176,6 +183,52 @@ public class FedoraDAOImpl implements FedoraDAO {
 	}
 
 	/**
+	 * Add the property to the list or find an existing property with the same value and
+	 * update the list of sources.
+	 * 
+	 * @param orderedPropertyList
+	 * @param propertyName
+	 * @param category
+	 * @param propertyValue
+	 * @param sourceDTO
+	 */
+	private void addOrderedProperty(List<OrderedPropertyDTO> orderedPropertyList, String propertyName,
+			Category category, Object propertyValue, SourceDTO sourceDTO) {
+		//check for empty strings
+		String propValue = StringUtils.trimToNull(propertyValue.toString());
+		if(propValue!=null){
+			OrderedPropertyDTO orderedPropertyDTO = retrieveProperty(orderedPropertyList, propertyName, propValue);
+			if(orderedPropertyDTO==null){
+				//not retrieved, so create a new one
+				orderedPropertyDTO = createObjectProperty(sourceDTO, category, propertyName,propValue);
+				orderedPropertyList.add(orderedPropertyDTO);
+			} else {
+				orderedPropertyDTO.getSources().add(sourceDTO);
+			}
+		}
+	}
+
+	/**
+	 * Retrieves the property from the list if it exists
+	 * 
+	 * @param orderedPropertyList
+	 * @param propertyName
+	 * @param propValue
+	 * @return
+	 */
+	private OrderedPropertyDTO retrieveProperty(
+			List<OrderedPropertyDTO> orderedPropertyList, String propertyName,
+			String propValue) {
+		
+		for(OrderedPropertyDTO orderedProperty: orderedPropertyList){
+			if(orderedProperty.getPropertyName().equalsIgnoreCase(propertyName)
+					&& orderedProperty.getPropertyValue().equalsIgnoreCase(propValue))
+				return orderedProperty;
+		}
+		return null;
+	}
+
+	/**
 	 * Create a Ordered Property.
 	 * 
 	 * @param solrDocument
@@ -185,30 +238,16 @@ public class FedoraDAOImpl implements FedoraDAO {
 	 * @param propertyValue
 	 * @return
 	 */
-	private OrderedPropertyDTO createObjectProperty(SolrDocument solrDocument,
-			Map<String, Object> fieldMap, Category category, String propertyName,
+	private OrderedPropertyDTO createObjectProperty(SourceDTO sourceDTO, Category category, String propertyName,
 			Object propertyValue) {
 		//create property
 		OrderedPropertyDTO orderedPropertyDTO = new OrderedPropertyDTO();
 		
 		//the ID of the infosource    			
-		
-		orderedPropertyDTO.setInfoSourceUrl(resolveSingleValue(solrDocument.getFieldValue("dc.source")));    			
-		
-		//a display name for the infosource    			
-		orderedPropertyDTO.setInfoSourceName(resolveSingleValue(fieldMap.get("dc.publisher")));
 
-		//the URL of the web page
-		orderedPropertyDTO.setSourceUrl(resolveSingleValue(fieldMap.get("dc.identifier")));
-		
-		//the title of the web page
-		orderedPropertyDTO.setSourceTitle(resolveSingleValue(fieldMap.get("dc.title")));
-		
+		orderedPropertyDTO.getSources().add(sourceDTO);
 		orderedPropertyDTO.setCategory(category);
-		
 		orderedPropertyDTO.setPropertyName(propertyName);
-		
-		//call toString on object
 		orderedPropertyDTO.setPropertyValue(propertyValue.toString());
 		
 		return orderedPropertyDTO;

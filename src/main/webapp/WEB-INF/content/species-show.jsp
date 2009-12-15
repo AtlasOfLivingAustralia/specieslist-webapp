@@ -358,7 +358,11 @@
                                             <s:text name="%{propertyName2}"/>
                                         </td>
                                         <td>${orderedProperty.propertyValue}</td>
-                                        <td><a href="${orderedProperty.sourceUrl}" target="_blank">${orderedProperty.infoSourceName} : ${orderedProperty.sourceTitle}</a></td>
+                                        <td>
+                                            <c:forEach items="${orderedProperty.sources}" var="source">
+                                            <a href="${source.sourceUrl}" target="_blank">${source.infoSourceName}</a><br/>
+                                            </c:forEach>
+                                        </td>
                                         <%--<td>${orderedProperty.category.name}</td>
                                         <td>${orderedProperty.sourceUrl}</td>
                                         <td>${orderedProperty.sourceTitle}</td>
