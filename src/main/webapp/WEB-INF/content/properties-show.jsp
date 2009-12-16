@@ -22,10 +22,7 @@ table.datasheet td { border-right: 1px solid gray; border-top: 1px solid gray; t
         <th>Property name</th>
         <th>Property value</th>
         <th>Category</th>      
-        <th>Source URL</th>
-        <th>Source Title</th>
-        <th>Infosource URL</th>
-        <th>Infosource Name</th>
+        <th>Source/th>
      </thead>    
      <c:forEach items="${orderedProperties}" var="orderedProperty">
      <tr style="border: 1px solid gray;border-collapse: collapse; ">
@@ -35,10 +32,12 @@ table.datasheet td { border-right: 1px solid gray; border-top: 1px solid gray; t
         </td>
         <td>${orderedProperty.propertyValue}</td>
         <td>${orderedProperty.category.name}</td>
-        <td>${orderedProperty.sourceUrl}</td>
-        <td>${orderedProperty.sourceTitle}</td>
-        <td>${orderedProperty.infoSourceUrl}</td>
-        <td>${orderedProperty.infoSourceName}</td>
+        <td>
+            <c:forEach items="${orderedProperty.sources}" var="source">
+                ${source.infoSourceName}<br/>
+                ${source.sourceTitle}
+            </c:forEach>
+        </td>
      </tr>
     </c:forEach>
     </table>
