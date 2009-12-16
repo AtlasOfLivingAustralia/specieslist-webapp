@@ -17,7 +17,7 @@
 
   <!-- For Struts 2 REST plug-in -->
   <constant name="struts.convention.action.suffix" value="Controller"/>
-  <constant name="struts.convention.action.mapAllMatches" value="true"/>
+  <constant name="struts.convention.action.mapAllMatches" value="false"/>
   <constant name="struts.convention.default.parent.package" value="rest-default"/>
   <!-- guice integration -->
   <constant name="struts.objectFactory" value="guice" />

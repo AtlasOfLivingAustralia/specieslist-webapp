@@ -24,7 +24,8 @@ public class SourceDTO {
 	 * @param infoSourceName the infoSourceName to set
 	 */
 	public void setInfoSourceName(String infoSourceName) {
-		this.infoSourceName = infoSourceName;
+		if (infoSourceName == null) infoSourceName = "Source Name Null"; // TODO: remove when data is clean
+        this.infoSourceName = infoSourceName;
 	}
 	/**
 	 * @return the infoSourceUrl

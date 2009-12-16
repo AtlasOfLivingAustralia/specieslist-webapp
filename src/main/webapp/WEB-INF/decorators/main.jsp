@@ -39,7 +39,7 @@
                     <li class="<s:if test="%{#pageName == 'home'}">active</s:if> first"><a href="${pageContext.request.contextPath}/">Home</a></li>
                     <%--<li class="<s:if test="%{#pageName == 'search'}">active</s:if>"><a href="${pageContext.request.contextPath}/datastream">Show&nbsp;All</a></li>--%>
                     <li class="<s:if test="%{#pageName == 'species'}">active</s:if>"><a href="${pageContext.request.contextPath}/species/search">Explore Species</a></li>
-                    <li class="<s:if test="%{#pageName == 'maps'}">active</s:if>"><a href="${pageContext.request.contextPath}/maps">Explore maps</a></li>
+                    <li class="<s:if test="%{#pageName == 'maps'}">active</s:if>"><a href="http://ec2-174-129-123-151.compute-1.amazonaws.com/webportal/">Explore maps</a></li>
                     <li class="<s:if test="%{#pageName == 'datasets'}">active</s:if> last"><a href="${pageContext.request.contextPath}/datasets">Explore Rich Datasets</a></li>
                 </ul>                
             </div>

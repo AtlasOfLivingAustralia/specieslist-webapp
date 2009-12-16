@@ -30,9 +30,10 @@
                 $("a#lsid").fancybox({
                     'hideOnContentClick' : false,
                     'frameWidth' : 600,
-                    'frameHeight' : 100
+                    'frameHeight' : 150
                 });
 
+                $("#view2").hide();
                 $('a.hideShow').click(
                     function(e) {
                         e.preventDefault(); //Cancel the link behavior
@@ -61,6 +62,12 @@
                         $("#portalInfo").slideDown();
                         loadMap(scientificName,scientificNameId);
                         //loadSpeciesRdf(scientificNameUrl);
+                    } else {
+                        // no records - check for other sections and if none then remove the "jumpt to" text
+                        var tocListItems = $("div#toc ul").children();
+                        if (tocListItems.length < 2) {
+                            $("div#toc").hide();
+                        }
                     }
                 });
 
@@ -96,30 +103,6 @@
                 return data;
             }
 
-            /**
-             * Perform AJAX request for RDF version of portal Species page
-             * parse list of datasets and georegions and inject values
-             * into pageDOM.
-             *
-             * Won't work without proxy due to cross domain security restriction
-             */
-            function loadSpeciesRdf(speciesPageUrl) {
-                alert("Ajax request for: " + speciesPageUrl);
-                $.ajax({
-                    type: "GET",
-                    url: speciesPageUrl,
-                    data: "schema=rdf",
-                    datatype: "xml",
-                    success: function(xml){
-                        alert( "Data Saved: " + xml );
-                        $(xml).find("dataset:occurrencesCollectionSet").each(function() {
-                            var name = $(this).find("dc:title").text();
-                            var url = $(this).find("coll:Collection").attr("rdf:about");
-                            alert("DataSet name: "+name+"; URI: "+url);
-                        });
-                    }
-                });
-            }
         </script>
         <script type="text/javascript" src="http://extjs.cachefly.net/builds/ext-cdn-771.js"></script>
         <link rel="stylesheet" type="text/css" href="http://extjs.cachefly.net/ext-2.2.1/resources/css/ext-all.css" />
@@ -202,9 +185,13 @@
                 </s:form>
                 <p>
                 <p>Examples:<br/><a href='${pageContext.request.contextPath}/species/?propertyValue="Pogona+barbata"'>&quot;Pogona barbata&quot;</a><br/>
+                    <a href='${pageContext.request.contextPath}/species/?propertyValue="Hypertropha+chlaenota"'>&quot;Hypertropha chlaenota&quot;</a><br/>
                     <a href='${pageContext.request.contextPath}/species/?propertyValue="Argyropelecus+gigas"'>&quot;Argyropelecus gigas&quot;</a><br/>
                     <a href='${pageContext.request.contextPath}/species/?propertyValue="Podargus+strigoides"'>&quot;Podargus strigoides&quot;</a><br/>
                     <a href='${pageContext.request.contextPath}/species/?propertyValue="Glossopsitta+concinna"'>&quot;Glossopsitta concinna&quot;</a><br/>
+                    <a href='${pageContext.request.contextPath}/species/?propertyValue="Hippotion+scrofa"'>&quot;Hippotion scrofa&quot;</a><br/>
+                    <a href='${pageContext.request.contextPath}/species/?propertyValue=Asplenium+australasicum'>&quot;Asplenium australasicum&quot;</a><br/>
+                    <a href='${pageContext.request.contextPath}/species/?propertyValue=Malacorhynchus+membranaceus'>&quot;Malacorhynchus membranaceus&quot;</a><br/>
                 </p>
             </div>
             <script type="text/javascript">
@@ -238,7 +225,7 @@
             <div id="speciesHeader">
                 <s:if test="%{!images.isEmpty()}">
                     <div id="speciesPhoto">
-                        <img src="${images[0].photoSourceUrl}" width="250px" alt="species photo"/>
+                        <img src="${images[0].photoSourceUrl}" style="max-width:250px;max-height:280px;" alt="species photo"/>
                     </div>
                 </s:if>
                 <div id="speciesTitle">
@@ -273,19 +260,23 @@
                         <b><a href="http://lsids.sourceforge.net/" target="_blank">Life Science Identifier (LSID):</a></b>
                         <%--<input type="text" size="50" value="${taxonConcept.guid}"/>--%>
                         <p style="margin: 10px 0;"><a href="http://lsid.tdwg.org/summary/${taxonConcept.guid}" target="_blank">${taxonConcept.guid}</a></p>
+                        <p style="font-size: 12px;">LSIDs are persistent, location-independent,resource identifiers for uniquely naming biologically
+                             significant resources including species names, concepts, occurrences, genes or proteins,
+                             or data objects that encode information about them. To put it simply,
+                            LSIDs are a way to identify and locate pieces of biological information on the web. </p>
                     </div>
                     <%--<div id="LSID_icon"><a href="show?guid=${taxonConcept.guid}" onclick="prompt('Life Science Identifier (LSID):','${taxonConcept.guid}');"><img src="${pageContext.request.contextPath}/images/lsid.png"/></a></div>--%>
                     <div id="LSID_icon"><a href="#lsidText" id="lsid"><img src="${pageContext.request.contextPath}/images/lsid.png"/></a></div>
                 </div>
-                <div id="toc">
+                <%--<div id="toc">
                     <p style="margin-bottom: 5px;"><b>Jump to: </b></p>
                     <ul>
                         <c:if test="${fn:length(orderedDocuments) > 0}"><li><a href="#properties">Information from Other Sources</a></li></c:if>
                         <li id="portalBookmark"><a href="#portal">Distribution Map</a></li>
                         <s:if test="%{!images.isEmpty()}"><li><a href="#images">Images</a></li></s:if>
-                        <%--<s:if test="%{!htmlPages.isEmpty()}"><li><a href="#htmlpages">HTML Pages</a></li></s:if>--%>
+                        <s:if test="%{!htmlPages.isEmpty()}"><li><a href="#htmlpages">HTML Pages</a></li></s:if>
                     </ul>
-                </div>
+                </div>--%>
             </div>
             <div style="clear: both;"></div>
 
@@ -316,12 +307,12 @@
 
                 <c:if test="${fn:length(orderedDocuments) > 0 && fn:length(orderedProperties) > 0}">
                 <div id="harvestedInfo">
-                    <h4 class="divider">Information from Other Sources<a name="properties">&nbsp;</a>
-                        (Alternative View: <a href="#view1" class="hideShow">1</a>
-                        <a href="#view2" class="hideShow">2</a>
+                    <h4 class="divider" style="">Information from Other Sources<a name="properties"></a></h4>
+                    <div style="float:right;width:20%;margin-top:-30px;text-align:right;">(Alternative View: <a href="#view1" class="hideShow">1</a> |
+                        <a href="#view2" class="hideShow">2</a> | 
                         <a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}?sort=true" class="popup">raw</a>)
-                    </h4>
-                    <div id="view1">
+                    </div>
+                    <div id="view2">
                         <c:forEach items="${orderedDocuments}" var="orderedDocument">
                             <div id="harvestedProperties">
                                 <p id="sourceTitle">${orderedDocument.infoSourceName} &ndash; <a href="${orderedDocument.sourceUrl}">${orderedDocument.sourceTitle} </a></p>
@@ -343,7 +334,7 @@
                             </div>
                         </c:forEach>
                     </div>
-                    <div id="view2">
+                    <div id="view1">
                         <%--<div id="harvestedProperties">--%>
                             <table class="propertyTable">
                                 <tr>
@@ -352,16 +343,35 @@
                                     <th>Source</th>
                                 </tr>
                                 <c:forEach items="${orderedProperties}" var="orderedProperty">
-                                    <tr>
+                                    <tr class="${orderedProperty.category.name}">
                                         <td class="propertyName">
                                             <s:set var="propertyName2">${orderedProperty.propertyName}</s:set>
                                             <s:text name="%{propertyName2}"/>
                                         </td>
-                                        <td>${orderedProperty.propertyValue}</td>
                                         <td>
-                                            <c:forEach items="${orderedProperty.sources}" var="source">
-                                            <a href="${source.sourceUrl}" target="_blank">${source.infoSourceName}</a><br/>
-                                            </c:forEach>
+                                             <c:choose>
+                                                <c:when test="${fn:startsWith(orderedProperty.propertyValue, 'http')}">
+                                                    <a href="${orderedProperty.propertyValue}" target="_blank">${orderedProperty.propertyValue}</a>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    ${orderedProperty.propertyValue}
+                                                </c:otherwise>
+                                             </c:choose>
+                                        </td>
+                                        <td style="white-space: nowrap;">
+                                            <%--<c:choose>
+                                                <c:when test="${fn:length(orderedProperty.sources) > 1}">
+                                                    <ul class="compact">
+                                                    --%><c:forEach items="${orderedProperty.sources}" var="source">
+                                                        <%--<li>--%><a href="${source.sourceUrl}" target="_blank">${source.infoSourceName}</a><br/><%--</li>--%>
+                                                    </c:forEach>
+                                                    <%--</ul>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <a href="${orderedProperty.sources[0].sourceUrl}" target="_blank">${orderedProperty.sources[0].infoSourceName}</a>
+                                                </c:otherwise>
+                                            </c:choose>--%>
+                                            
                                         </td>
                                         <%--<td>${orderedProperty.category.name}</td>
                                         <td>${orderedProperty.sourceUrl}</td>
@@ -377,15 +387,26 @@
             </c:if>
 
             <div id="portalInfo">
-                <h4 class="divider">Distribution Map (generated from specimen & observation occurrence data)<a name="portal">&nbsp;</a></h4>
-                <ul>
-                    <%--<li>Number of occurrences of ${sciNameFormatted}: <span id="occurrenceCount"></span></li>--%>
-                    <li><a href="#" id="occurrenceTableLink">View table of all occurrence records
-                            for ${sciNameFormatted}</a> (total number of records: <span id="occurrenceCount"></span>)</li>
-                    <li>States with occurrences of ${sciNameFormatted}:</li>
-                    <li>Biogeographical Regions with occurrences of ${sciNameFormatted}:</li>
-                    <li>Local Government Areas with occurrences of ${sciNameFormatted}:</li>
-                </ul>
+                <h4 class="divider">Distribution Map <a name="portal">&nbsp;</a></h4>
+                <div id="left">
+                    <p>Species density layer generated from specimen & observation occurrence data</p>
+                    <ul>
+                        <%--<li>Number of occurrences of ${sciNameFormatted}: <span id="occurrenceCount"></span></li>--%>
+                        <li><a href="#" id="occurrenceTableLink">View table of all occurrence records
+                                for ${sciNameFormatted}</a></li>
+                        <li>Total number of records: <span id="occurrenceCount"></span></li>
+                        <li>Breakdown by Regions</li>
+                        <ul style="list-style-type: circle;">
+                            <li>States:
+
+                            </li>
+                            <li>Local Government Areas:
+                            </li>
+                            <li>Biogeographical Regions:
+                            </li>
+                        </ul>
+                    </ul>
+                </div>
                 <div id="mappanel"></div>
                 <div style="float:right;font-size:11px;width:550px;">
                     <table id="cellCountsLegend">
@@ -456,18 +477,15 @@
                 </table>
             </s:if>--%>
 
-<%--            <a name="properties">&nbsp;</a>
+<!--            <a name="properties">&nbsp;</a>
             <h4 class="divider">Properties</h4>
             <table class ="propertyTable" style="display:none;">
-                <!-- Table headings. -->
                 <tr>
                     <th>Property</th>
                     <th>Value</th>
                     <th>Harvested</th>
                     <th>Source</th>
                 </tr>
-
-                <!-- Dynamic table content. -->
                 <s:iterator value="objProperties">
                     <tr>
                         <td><s:property value="relationship" /></td>
@@ -484,7 +502,8 @@
                     </tr>
                 </s:iterator>
             </table>
-            <br />
+            <br /> -->
+            <%--
             <s:if test="%{taxonConcept != null}">
                 <h4 class="divider">Taxon Concept Properties</h4>
                 <table class ="propertyTable">

@@ -138,7 +138,7 @@ public class FedoraDAOImpl implements FedoraDAO {
 	    				sourceDTO.setInfoSourceUrl(resolveSingleValue(solrDocument.getFieldValue("dc.source")));    			
 	    				
 	    				//a display name for the infosource    			
-	    				sourceDTO.setInfoSourceName(resolveSingleValue(fieldMap.get("dc.publisher")));
+	    				sourceDTO.setInfoSourceName(resolveSingleValue(fieldMap.get("dc.publisher"))); 
 
 	    				//the URL of the web page
 	    				sourceDTO.setSourceUrl(resolveSingleValue(fieldMap.get("dc.identifier")));
@@ -267,7 +267,8 @@ public class FedoraDAOImpl implements FedoraDAO {
     		} else {
     			return null;
     		}
-    	}if(fieldValue!=null){
+    	}
+        if (fieldValue!=null){
     		return fieldValue.toString();
     	}
     	return null;

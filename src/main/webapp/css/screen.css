@@ -53,7 +53,7 @@ a {
     text-decoration: none;
 }
 p {
-    margin:0 0 1.0em;
+    margin:0 0 0.8em;
 }
 td, th  {
     vertical-align: top;
@@ -167,6 +167,21 @@ td.propertyName {
     min-width: 10%;
     color: #676767;
 }
+div#harvestedInfo tr.Taxonomic td:first-child {
+    /*border-left: 3px solid #F68D77;*/
+}
+div#harvestedInfo tr.Status {
+
+}
+div#harvestedInfo tr.Media {
+    /*background-color: #CBDAF0;*/
+}
+div#harvestedInfo tr.Names {
+
+}
+div#harvestedInfo tr.Geospatial {
+    /*background-color: #FCD9D1;*/
+}
 #searchBox {
     width: 40%;
     margin-top: 40px;
@@ -181,7 +196,7 @@ td.propertyName {
 #portalInfo, #portalBookmark {
     display: none;
 }
-#portalInfo ul {
+#portalInfo > div#left {
     width: 350px;
     float: left;
 }
@@ -219,6 +234,12 @@ table.rdfProperties tr td:first-child {
     padding-left: 3px;
 }
 #toc ul {
+    list-style-type: circle;
+}
+ul.compact {
+    margin: 0 0 0 1.2em;
+    padding-left: 3px;
+    white-space: nowrap;
     list-style-type: circle;
 }
 /* top menu */
