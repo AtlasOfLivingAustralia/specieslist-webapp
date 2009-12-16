@@ -378,7 +378,7 @@ public class FedoraDAOImpl implements FedoraDAO {
     			
     			orderedDocument.setCategorisedProperties(catPropertiesList);
     			
-    			if(orderedDocument.getDocumentType()!=null && !orderedDocument.getDocumentType().endsWith("ImageContentModel")){
+    			if(orderedDocument.getDocumentType()==null || !orderedDocument.getDocumentType().endsWith("ImageContentModel")){
     				orderedDocumentList.add(orderedDocument);
     			}
     		}
