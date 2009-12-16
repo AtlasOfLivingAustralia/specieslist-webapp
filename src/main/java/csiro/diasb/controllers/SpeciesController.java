@@ -258,15 +258,15 @@ public class SpeciesController extends ActionSupport {
                 scientificNames.add(tn.getNameComplete());
             }
             images = fedoraDAO.getImagesForScientificNames(scientificNames);
-            htmlPages = fedoraDAO.getHtmlPagesForScientificNames(scientificNames);
-            logger.info("htmlpage for " + scientificName + " found " + htmlPages.size() + " pages.");
+            //htmlPages = fedoraDAO.getHtmlPagesForScientificNames(scientificNames);
+            //logger.info("htmlpage for " + scientificName + " found " + htmlPages.size() + " pages.");
             // TODO references as well
             if (images.size() > 0) logger.info("image 1: "+images.get(0));
         }
 
         this.orderedDocuments  = fedoraDAO.getOrderedDocumentsForName(scientificNames);
         this.orderedProperties = fedoraDAO.getOrderedPropertiesForName(scientificNames);
-        
+        logger.info("orderedProperties size = " + orderedProperties.size());
         //now look for attributed properties
         String propXMLDataString = "";
         try {

@@ -43,7 +43,7 @@
                     <li class="<s:if test="%{#pageName == 'datasets'}">active</s:if> last"><a href="${pageContext.request.contextPath}/datasets">Explore Rich Datasets</a></li>
                 </ul>                
             </div>
-            <div id="body">
+            <div id="body" class="yui-skin-sam">
                 <decorator:body />
             </div>
             <div id="footer" class="span-24 prepend-top append-bottom last">

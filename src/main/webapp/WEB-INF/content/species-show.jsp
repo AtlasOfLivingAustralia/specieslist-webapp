@@ -11,6 +11,12 @@
         <title>ALA Biodiversity Information Explorer: ${tcTitle}</title>
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
         <script type="text/javascript" src="${pageContext.request.contextPath}/fancybox/jquery.fancybox-1.2.6.pack.js"></script>
+        <%--<script type="text/javascript" src="${pageContext.request.contextPath}/js/jquery.galleriffic.js"></script>--%>
+        <!-- Combo-handled YUI CSS files: -->
+        <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.8.0r4/build/tabview/assets/skins/sam/tabview.css">
+        <!-- Combo-handled YUI JS files: -->
+        <script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.0r4/build/yahoo-dom-event/yahoo-dom-event.js&2.8.0r4/build/element/element-min.js&2.8.0r4/build/tabview/tabview-min.js"></script>
+
         <script type="text/javascript">
             //var scientificNameId, scientificName;
             var solrServer = "${solrServerUrl}";//"http://localhost:8080/solr"; "${solrServerUrl}"// TODO: read from properties file
@@ -92,6 +98,44 @@
                         }
                     });
                 });
+
+                $(".divider").hide();
+
+                // Gallerific JQuery image gallery
+                <%--jQuery(document).ready(function($) {
+                    var gallery = $('#thumbs').galleriffic({
+                        delay:                     3000, // in milliseconds
+                        numThumbs:                 10, // The number of thumbnails to show page
+                        preloadAhead:              20, // Set to -1 to preload all images
+                        enableTopPager:            false,
+                        enableBottomPager:         true,
+                        maxPagesToShow:            7,  // The maximum number of pages to display in either the top or bottom pager
+                        imageContainerSel:         '', // The CSS selector for the element within which the main slideshow image should be rendered
+                        controlsContainerSel:      '', // The CSS selector for the element within which the slideshow controls should be rendered
+                        captionContainerSel:       '', // The CSS selector for the element within which the captions should be rendered
+                        loadingContainerSel:       '', // The CSS selector for the element within which should be shown when an image is loading
+                        renderSSControls:          true, // Specifies whether the slideshow's Play and Pause links should be rendered
+                        renderNavControls:         true, // Specifies whether the slideshow's Next and Previous links should be rendered
+                        playLinkText:              'Play',
+                        pauseLinkText:             'Pause',
+                        prevLinkText:              'Previous',
+                        nextLinkText:              'Next',
+                        nextPageLinkText:          'Next &rsaquo;',
+                        prevPageLinkText:          '&lsaquo; Prev',
+                        enableHistory:             false, // Specifies whether the url's hash and the browser's history cache should update when the current slideshow image changes
+                        enableKeyboardNavigation:  true, // Specifies whether keyboard navigation is enabled
+                        autoStart:                 false, // Specifies whether the slideshow should be playing or paused when the page first loads
+                        syncTransitions:           false, // Specifies whether the out and in transitions occur simultaneously or distinctly
+                        defaultTransitionDuration: 1000, // If using the default transitions, specifies the duration of the transitions
+                        onSlideChange:             undefined, // accepts a delegate like such: function(prevIndex, nextIndex) { ... }
+                        onTransitionOut:           undefined, // accepts a delegate like such: function(slide, caption, isSync, callback) { ... }
+                        onTransitionIn:            undefined, // accepts a delegate like such: function(slide, caption, isSync) { ... }
+                        onPageTransitionOut:       undefined, // accepts a delegate like such: function(callback) { ... }
+                        onPageTransitionIn:        undefined, // accepts a delegate like such: function() { ... }
+                        onImageAdded:              undefined, // accepts a delegate like such: function(imageData, $li) { ... }
+                        onImageRemoved:            undefined  // accepts a delegate like such: function(imageData, $li) { ... }
+                    });
+                });--%>
             });
 
             /**
@@ -101,6 +145,27 @@
                 data = data.replace(/\:/g, "\\:");
                 data = data.replace(/\-/g, "\\-");
                 return data;
+            }
+
+            //$("ul.yui-nav").hide();
+            var tabView = new YAHOO.widget.TabView('tabs');
+            
+            // function to load YUI tabs
+            function showTabs() {
+                $("ul.yui-nav").show();
+                $("#yui-box").addClass("yui-content");
+                $(".divider").hide();
+                tabView = new YAHOO.widget.TabView('tabs');
+            }
+
+            function hideTabs() {
+                $("ul.yui-nav").hide();
+                $("#harvestedInfo").show();
+                $("#portalInfo").show();
+                $("#images").show();
+                $(".divider").show();
+                $("#yui-box").removeClass("yui-content");
+                tabView = null;
             }
 
         </script>
@@ -224,8 +289,8 @@
             <c:set var="authorship">${fn:substringAfter(taxonNames[0].title, taxonNames[0].nameComplete)}</c:set>
             <div id="speciesHeader">
                 <s:if test="%{!images.isEmpty()}">
-                    <div id="speciesPhoto">
-                        <img src="${images[0].photoSourceUrl}" style="max-width:250px;max-height:280px;" alt="species photo"/>
+                    <div id="speciesPhoto" class="cropBig">
+                        <img src="${images[0].photoSourceUrl}" style="/*max-width:250px;max-height:280px;*/" width="300"  alt="species photo"/>
                     </div>
                 </s:if>
                 <div id="speciesTitle">
@@ -278,7 +343,14 @@
                     </ul>
                 </div>--%>
             </div>
-            <div style="clear: both;"></div>
+            <%--<div style="clear: both;"></div>--%>
+    <div id="tabs" class="yui-navset" style="clear: both;">
+        <ul class="yui-nav">
+            <li class="selected"><a href="#harvestedInfo"><em>Information from Other Sources</em></a></li>
+            <li><a href="#portalInfo"><em>Distribution Map</em></a></li>
+            <li><a href="#images"><em>Images</em></a></li>
+        </ul>
+        <div id="yui-box" class="yui-content">
 
             <s:if test="%{taxonNames.size() > 1}"><a name="names">&nbsp;</a>
                 <h4 class="divider">Names</h4>
@@ -305,10 +377,11 @@
                 </table>
             </s:if>
 
+                
+            <div id="harvestedInfo">
                 <c:if test="${fn:length(orderedDocuments) > 0 && fn:length(orderedProperties) > 0}">
-                <div id="harvestedInfo">
                     <h4 class="divider" style="">Information from Other Sources<a name="properties"></a></h4>
-                    <div style="float:right;width:20%;margin-top:-30px;text-align:right;">(Alternative View: <a href="#view1" class="hideShow">1</a> |
+                    <div style="float:right;width:20%;margin-top:-35px;text-align:right;">(Alternative View: <a href="#view1" class="hideShow">1</a> |
                         <a href="#view2" class="hideShow">2</a> | 
                         <a href="${pageContext.request.contextPath}/properties/${taxonNames[0].nameComplete}?sort=true" class="popup">raw</a>)
                     </div>
@@ -350,6 +423,9 @@
                                         </td>
                                         <td>
                                              <c:choose>
+                                                <c:when test="${fn:startsWith(orderedProperty.propertyValue, 'http') && orderedProperty.propertyName == 'rdf.hasImageUrl'}">
+                                                    <a href="${orderedProperty.propertyValue}" target="_blank" class="popup" title="${taxonConceptTitle}">${orderedProperty.propertyValue}</a>
+                                                </c:when>
                                                 <c:when test="${fn:startsWith(orderedProperty.propertyValue, 'http')}">
                                                     <a href="${orderedProperty.propertyValue}" target="_blank">${orderedProperty.propertyValue}</a>
                                                 </c:when>
@@ -383,8 +459,8 @@
                             </table>
                         <%--</div>--%>
                     </div>
-                </div>
-            </c:if>
+                </c:if>
+            </div>
 
             <div id="portalInfo">
                 <h4 class="divider">Distribution Map <a name="portal">&nbsp;</a></h4>
@@ -426,27 +502,55 @@
             </div>
 
             <s:if test="%{!images.isEmpty()}">
-                <h4 class="divider">Images<a name="images">&nbsp;</a></h4>
-                <table class ="propertyTable">
-                    <!-- Table headings. -->
-                    <tr>
-                        <th>Title</th>
-                        <th>Desciption</th>
-                        <th>Source</th>
-                        <th>Thumbnail</th>
-                    </tr>
-                    <!-- Dynamic table content. -->
-                    <s:iterator value="images">
-                        <tr>
-                            <td><a href="${photoPage}" target="_blank">${title}</a></td>
-                            <td>${description}</td>
-                            <td><a href="http://${source}" target="_blank"><s:text name="source.%{source}"/></a></td>
-                            <td><a href="${photoSourceUrl}" class="image" target="_blank" title="${title}"><img src="${photoSourceUrl}" height="55"/></a></td>
-                        </tr>
-                    </s:iterator>
-                </table>
-            </s:if>
+                <div id="images">
+                    <h4 class="divider">Images<a name="images">&nbsp;</a></h4>
+                    <%--<div id="gallery" class="content">
+                        <div id="controls" class="controls"></div>
+                        <div class="slideshow-container">
+                                <div id="loading" class="loader"></div>
+                                <div id="slideshow" class="slideshow"></div>
+                        </div>
+                        <div id="caption" class="caption-container"></div>
+                    </div>
+                    <div id="thumbs" class="navigation">
 
+                        <ul class="thumbs noscript">
+                            <c:forEach items="${images}" var="image">
+                            <li>
+                                <a class="thumb" name="optionalCustomIdentifier" href="${image.photoSourceUrl}" title="${image.title}">
+                                    <img src="${image.photoSourceUrl}" alt="${image.title}" width="75" height="75"/>
+                                </a>
+                                <div class="caption">${image.description}</div>
+                            </li>
+                            </c:forEach>
+                        </ul>
+                    </div>
+                    <div style="clear: both;"></div>--%>
+
+                    <table class ="propertyTable">
+                        <!-- Table headings. -->
+                        <tr>
+                            <th>Title</th>
+                            <th>Desciption</th>
+                            <th>Source</th>
+                            <th>Thumbnail</th>
+                        </tr>
+                        <!-- Dynamic table content. -->
+                        <s:iterator value="images">
+                            <tr>
+                                <td><a href="${photoPage}" target="_blank">${title}</a></td>
+                                <td>${description}</td>
+                                <td><a href="http://${source}" target="_blank"><s:text name="source.%{source}"/></a></td>
+                                <td class="crop">
+                                    <a href="${photoSourceUrl}" class="image" target="_blank" title="${title}"><img src="${photoSourceUrl}" width="120" /></a>
+                                </td>
+                            </tr>
+                        </s:iterator>
+                    </table>
+                </div>
+            </s:if>
+        </div>
+    </div>
             <%-- HTML Pages --%>
             <%--<s:if test="%{!htmlPages.isEmpty()}"><a name="htmlpages">&nbsp;</a>
                 <h4 class="divider">HTML Pages</h4>
@@ -550,6 +654,10 @@
                     </tr>
                 </table>
             </s:if>--%>
+            <div style="width:40%;float:right;text-align:right;margin-top: 10px;">
+                <a href="#" onClick="showTabs();">show tabs</a> --
+                <a href="#" onClick="hideTabs();">hide tabs</a>
+            </div>
         </s:else>
     </body>
 </html>
