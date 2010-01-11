@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="bie-debug" version="2.4"
+	xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	
+	<display-name>BIE - Profiler Debug</display-name>
+
+	<servlet>
+		<servlet-name>ajaxTree</servlet-name>
+		<servlet-class>org.ala.web.AjaxTreeServlet</servlet-class>
+	</servlet>
+	
+  <servlet>
+    <servlet-name>query</servlet-name>
+    <servlet-class>org.ala.web.QueryServlet</servlet-class>
+  </servlet>	
+
+	<servlet-mapping>
+		<servlet-name>ajaxTree</servlet-name>
+		<url-pattern>/ajaxTree</url-pattern>
+	</servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>query</servlet-name>
+    <url-pattern>/query</url-pattern>
+  </servlet-mapping>
+
+</web-app>
