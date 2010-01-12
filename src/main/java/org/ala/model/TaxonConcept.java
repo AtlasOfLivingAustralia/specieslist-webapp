@@ -12,6 +12,7 @@ public class TaxonConcept {
 	public String publishedInCitation;
 	public String publishedIn;
 	public boolean hasChildren;
+	
 	/**
 	 * @return the guid
 	 */

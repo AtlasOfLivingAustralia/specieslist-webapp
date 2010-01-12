@@ -34,6 +34,13 @@ public class QueryServlet extends HttpServlet{
 			try {
 				TaxonConceptDao tcDao = new TaxonConceptDao();
 				List<TaxonConcept> tcs = tcDao.getByScientificName(query, 100);
+				if(tcs==null || tcs.isEmpty()){
+					TaxonConcept tc = tcDao.getByGuid(query);
+					if(tc!=null){
+						tcs.add(tc);
+					}
+				} 
+					
 				req.setAttribute("taxonConcepts", tcs);
 				
 				//Servlet JSP communication

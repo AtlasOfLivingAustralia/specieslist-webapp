@@ -15,6 +15,11 @@
     <servlet-class>org.ala.web.QueryServlet</servlet-class>
   </servlet>	
 
+  <servlet>
+    <servlet-name>taxon</servlet-name>
+    <servlet-class>org.ala.web.TaxonConceptServlet</servlet-class>
+  </servlet>  
+
 	<servlet-mapping>
 		<servlet-name>ajaxTree</servlet-name>
 		<url-pattern>/ajaxTree</url-pattern>
@@ -25,4 +30,9 @@
     <url-pattern>/query</url-pattern>
   </servlet-mapping>
 
+  <servlet-mapping>
+    <servlet-name>taxon</servlet-name>
+    <url-pattern>/taxon</url-pattern>
+  </servlet-mapping>
+  
 </web-app>

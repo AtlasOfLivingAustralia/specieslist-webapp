@@ -47,6 +47,7 @@ public class LoadDBPediaData {
     	int failedSync = 0;
     	
     	try {
+    		String genus = null;
     		String currentSubject = null;
 			Rank currentLowestRank = null;
 			String scientificName = null;
@@ -67,7 +68,8 @@ public class LoadDBPediaData {
 	    			triples.add(triple);
 	    		} else {
 	    			//sync to hbase
-	    			boolean success = syncTriples(table, Integer.toString(documentId), triples, scientificName, currentLowestRank);
+	    			//boolean success = syncTriples(table, Integer.toString(documentId), triples, scientificName, currentLowestRank);
+	    			boolean success = syncTriples(table, Integer.toString(documentId), triples, genus, scientificName, currentLowestRank);
 	    			if(success) 
 	    				successfulSync++; 
 	    			else 
@@ -76,6 +78,7 @@ public class LoadDBPediaData {
 	    			triples = new ArrayList<String[]>();
 	    			triples.add(triple);
 					scientificName = null;
+					genus = null;
 					currentLowestRank = null;
 					currentSubject = subject;
 					documentId++;
@@ -104,25 +107,11 @@ public class LoadDBPediaData {
 				if("scientificName".equalsIgnoreCase(predicate)){
 					scientificName = object;
 				}
-	    		
-//	    		String[] taxonConcept = p.split(record);
-//	    		i++;
-//	    		if(i%10000==0){
-//	    			System.out.println("count: "+i);
-//	    		}
-//	    		if(taxonConcept.length==6){
-//		        	BatchUpdate batchUpdate = new BatchUpdate(taxonConcept[0]);
-//		        	addFieldValue(batchUpdate, "tc:hasName", taxonConcept, 1);
-//		        	addFieldValue(batchUpdate, "tc:hasAuthor", taxonConcept, 2);
-//		        	addFieldValue(batchUpdate, "tc:hasAuthorYear", taxonConcept, 3);
-//		        	addFieldValue(batchUpdate, "tc:publishedInCitation", taxonConcept, 4);
-//		        	addFieldValue(batchUpdate, "tc:publishedIn", taxonConcept, 5);
-//		        	table.commit(batchUpdate);
-//	    		} else {
-//	    			System.err.println(i+" - missing fields ");
-//	    		}
+				
+				if("genus".equalsIgnoreCase(predicate)){
+					genus = object;
+				}				
 	    	}
-//	    	table.flushCommits();
 	    	long finish = System.currentTimeMillis();
 	    	System.out.println("loaded dbpedia data in: "+(((finish-start)/1000)/60)+" minutes.");
 	    	System.out.println("sync'd: "+successfulSync+", failed:" +failedSync);
@@ -142,15 +131,15 @@ public class LoadDBPediaData {
 	 * @param currentLowestRank
 	 */
 	private static boolean syncTriples(HTable table, String documentId, List<String[]> triples,
-			String scientificName, org.ala.hbase.Rank currentLowestRank) throws Exception {
+			String genus, String scientificName, org.ala.hbase.Rank currentLowestRank) throws Exception {
 		
-		if(triples.isEmpty())
+		if(triples.isEmpty() || scientificName==null)
 			return false;
 
 		scientificName = scientificName.replaceAll("\"", "");
 		
 		//find a concept to add the triples to
-		String id = findConceptIDForName(scientificName);
+		String id = findConceptIDForName(genus, scientificName);
 		
 		if(id==null){
 //			System.err.println("Unable to match name: "+scientificName);
@@ -163,9 +152,9 @@ public class LoadDBPediaData {
 		BatchUpdate batchUpdate = new BatchUpdate(id);
 		
 		String guid = triples.get(0)[0];
-		batchUpdate.put("raw:html:"+documentId+":URI", Bytes.toBytes(guid));
-		batchUpdate.put("raw:html:"+documentId+":source", Bytes.toBytes("Wikipedia"));
-		batchUpdate.put("raw:html:"+documentId+":licence", Bytes.toBytes("Creative Commons"));
+		batchUpdate.put("raw:dbpedia:"+documentId+":URI", Bytes.toBytes(guid));
+		batchUpdate.put("raw:dbpedia:"+documentId+":source", Bytes.toBytes("Wikipedia"));
+		batchUpdate.put("raw:dbpedia:"+documentId+":licence", Bytes.toBytes("Creative Commons"));
 		
 		for(String[] triple: triples){
 			
@@ -193,7 +182,7 @@ public class LoadDBPediaData {
 			//rendering could use a hashmap of infosources for rendering RDF/XML report
 			
 			//FIXME NOT HANDLING REPEATED PREDICATES
-			batchUpdate.put("raw:html:"+documentId+":"+triple[1], Bytes.toBytes(triple[2]));
+			batchUpdate.put("raw:dbpedia:"+documentId+":"+triple[1], Bytes.toBytes(triple[2]));
 		}
 		table.commit(batchUpdate);
 		return true;
@@ -206,11 +195,11 @@ public class LoadDBPediaData {
 	 * @return
 	 * @throws Exception
 	 */
-	public static String findConceptIDForName(String scientificName) throws Exception {
+	public static String findConceptIDForName(String genus, String scientificName) throws Exception {
 		try {
 			IndexSearcher is = new IndexSearcher("/data/lucene/taxonConcept");
 			QueryParser qp  = new QueryParser("scientificName", new KeywordAnalyzer());			
-			Query q = qp.parse("\""+scientificName+"\"");
+			Query q = qp.parse("\""+scientificName.toLowerCase()+"\"");
 			
 			TopDocs topDocs = is.search(q, 20);
 			
