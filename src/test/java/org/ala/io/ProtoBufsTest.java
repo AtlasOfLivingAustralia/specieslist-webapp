@@ -1,5 +1,6 @@
 package org.ala.io;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
@@ -35,11 +36,13 @@ public class ProtoBufsTest extends TestCase {
 		CommonNames commonNames = builder.build();
 		
 		//serialise to file
-		FileOutputStream fOut = new FileOutputStream("/tmp/test.txt");
+		File tmpFile = File.createTempFile("test", ".txt");
+		
+		FileOutputStream fOut = new FileOutputStream(tmpFile);
 		commonNames.writeTo(fOut);
 		
 		//read the protobufs from file
-		FileInputStream fIn = new FileInputStream("/tmp/test.txt");
+		FileInputStream fIn = new FileInputStream(tmpFile);
 		CommonNamesProto.CommonNames deserialisedCommonNames = CommonNamesProto.CommonNames.parseFrom(fIn);
 		System.out.println(deserialisedCommonNames.getNamesCount());
 		
@@ -57,7 +60,8 @@ public class ProtoBufsTest extends TestCase {
 			.build();			
 		
 		deserialisedCommonNames = deserialisedCommonNames.toBuilder().addNames(cn3).build();
-		fOut = new FileOutputStream("/tmp/test.txt");
+		tmpFile = File.createTempFile("test", ".txt");
+		fOut = new FileOutputStream(tmpFile);
 		deserialisedCommonNames.writeTo(fOut);
 	}
 }
