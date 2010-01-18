@@ -2,7 +2,6 @@ package org.ala.hbase;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.ala.dao.TaxonConceptDao;
 import org.ala.model.CommonName;
@@ -12,7 +11,6 @@ import org.ala.util.TabReader;
 
 public class LoadTaxonConceptData {
 
-	static final Pattern pipeDelimited = Pattern.compile(">>>");
 	/**
 	 * @param args
 	 */
@@ -53,7 +51,7 @@ public class LoadTaxonConceptData {
     			if(keyValue[2].endsWith("HasSynonym")){
     				TaxonConcept synonym = tcDao.getByGuid(keyValue[1]);
     				if(synonym!=null){
-    					tcDao.addSynonym(keyValue[0], synonym.guid, synonym.nameString);
+    					tcDao.addSynonym(keyValue[0], synonym);
     					j++;
     				}
     			}
@@ -63,7 +61,7 @@ public class LoadTaxonConceptData {
     				//from-to-rel
     				TaxonConcept tc = tcDao.getByGuid(keyValue[1]);
     				if(tc!=null){
-    					tcDao.addChildTaxon(keyValue[0], tc.guid, tc.nameString);
+    					tcDao.addChildTaxon(keyValue[0], tc);
     				} else {
     					System.err.println("Unable to add child - No concept for :"+keyValue[1]);
     				}
@@ -75,7 +73,7 @@ public class LoadTaxonConceptData {
 //    				tcDao.addOverlapsWith();
     				TaxonConcept tc = tcDao.getByGuid(keyValue[1]);
     				if(tc!=null){
-    					tcDao.addParentTaxon(keyValue[0], tc.guid, tc.nameString);
+    					tcDao.addParentTaxon(keyValue[0], tc);
     				} else {
     					System.err.println("Unable to add parent - No concept for :"+keyValue[1]);
     				}
@@ -85,7 +83,6 @@ public class LoadTaxonConceptData {
 //    			http://rs.tdwg.org/ontology/voc/TaxonConcept#Overlaps        
 //    			http://rs.tdwg.org/ontology/voc/TaxonConcept#IsHybridParentOf
 //    			http://rs.tdwg.org/ontology/voc/TaxonConcept#IsHybridChildOf     			
-    			
 /*    			
 		    	doc.add(new Field("fromTaxon", keyValue[0], Store.YES, Index.ANALYZED));
 		    	doc.add(new Field("toTaxon", keyValue[1], Store.YES, Index.ANALYZED));
@@ -96,7 +93,6 @@ public class LoadTaxonConceptData {
     	tr.close();
 		long finish = System.currentTimeMillis();
     	System.out.println(i+" loaded relationships, added "+j+" synonyms. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
-		
 	}
 	
 	private static void loadTaxonNames() throws Exception {
@@ -106,9 +102,7 @@ public class LoadTaxonConceptData {
     	int i = 0;
     	int j = 0;
     	while((record = tr.readNext())!=null){
-//    		if(++i % 1000==0) 
-//    			System.out.println(i+" names processed");
-    		
+    		i++;
     		if(record.length!=8){
     			System.out.println("truncated record: "+record);
     			continue;
@@ -130,7 +124,7 @@ public class LoadTaxonConceptData {
     			tcDao.addTaxonName(tc.guid, tn);
     		}
     	}
-    	System.out.println("Finished. "+j+" names added to concept records.");
+    	System.out.println(i+" lines read. "+j+" names added to concept records.");
 	}
 
 	private static void loadTaxonConcepts() throws Exception {

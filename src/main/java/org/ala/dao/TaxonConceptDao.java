@@ -2,6 +2,7 @@ package org.ala.dao;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,8 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.BooleanClause.Occur;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 /**
  * Prototype quality Dao
  * 
@@ -52,6 +55,40 @@ public class TaxonConceptDao {
 		
 		HBaseConfiguration config = new HBaseConfiguration();
     	this.tcTable = new HTable(config, "taxonConcept");
+	}
+	
+	/**
+	 * Support for the A-S-P-O simple method of adding data.
+	 * 
+	 * @param guid
+	 * @param infoSourceId
+	 * @param documentId
+	 * @param predicate
+	 * @param value
+	 */
+	public void addLiteralValue(String guid, String infoSourceId, String documentId, String predicate, String value) throws Exception {
+		BatchUpdate batchUpdate = new BatchUpdate(guid);
+		batchUpdate.put("raw:"+infoSourceId+":"+documentId+":"+predicate, Bytes.toBytes(value));
+		tcTable.commit(batchUpdate);
+	}
+	
+	/**
+	 * Support for the A-S-P-O simple method of adding data.
+	 * 
+	 * @param guid
+	 * @param infoSourceId
+	 * @param documentId
+	 * @param predicate
+	 * @param value
+	 */	
+	public void addLiteralValues(String guid, String infoSourceId, String documentId, Map<String, Object> values) throws Exception {
+		BatchUpdate batchUpdate = new BatchUpdate(guid);
+		Iterator<String> keys = values.keySet().iterator();
+		while(keys.hasNext()){
+			String key = keys.next();
+			batchUpdate.put("raw:"+infoSourceId+":"+documentId+":"+key, Bytes.toBytes(guid));
+		}
+		tcTable.commit(batchUpdate);
 	}
 
 	public boolean isVernacularConcept(String guid) throws Exception {
@@ -112,156 +149,90 @@ public class TaxonConceptDao {
 		tcTable.getRow(guid).put(("raw:"+infoSourceId+documentId+propertyName).getBytes(), new Cell(value, System.currentTimeMillis()));
 	}
 
+	/**
+	 * Retrieve the synonyms for the Taxon Concept with the supplied guid.
+	 * 
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
 	public List<TaxonConcept> getSynonymsFor(String guid) throws Exception {
-		
-		List<TaxonConcept> tcs = new ArrayList<TaxonConcept>();
-		
-		//check existing synonyms
 		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
-		if(row==null){
-			System.err.println("Unable to find row for: "+guid);
-			return tcs;
-		}
-		
-		Set<byte[]> columns = row.keySet();
-		
-		//add the synonym if not already there
-		for(byte[] column: columns){
-			String colString = new String(column);
-			if(colString.matches("tc:hasSynonym:[0-9]{1,}:guid")){
-				
-				//remove the property name
-				String nameStringColName = colString.replaceAll(":guid", ":nameString");
-				
-				//compare contents
-				Cell guidCell = row.get(colString);
-				Cell nameStringCell = row.get(nameStringColName);				
-				
-				TaxonConcept tc = new TaxonConcept();
-				tc.guid = new String(guidCell.getValue());
-				tc.nameString = new String(nameStringCell.getValue());
-				
-				tcs.add(tc);
-			}
-		}
-		return tcs;
+		Cell cell = row.get(Bytes.toBytes("tc:hasSynonym"));
+		ObjectMapper mapper = new ObjectMapper();
+		if(cell!=null){
+			byte[] value = cell.getValue();
+			return mapper.readValue(value, 0, value.length, new TypeReference<List<TaxonConcept>>(){});
+		} 
+		return new ArrayList<TaxonConcept>();		
 	}
 	
+	/**
+	 * Retrieve the child concepts for the Taxon Concept with the supplied guid.
+	 * 
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
 	public List<TaxonConcept> getChildConceptsFor(String guid) throws Exception {
-		
-		List<TaxonConcept> tcs = new ArrayList<TaxonConcept>();
-		
-		//check existing synonyms
 		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
-		if(row==null){
-			System.err.println("Unable to find row for: "+guid);
-			return tcs;
-		}
-		
-		Set<byte[]> columns = row.keySet();
-		
-		//add the synonym if not already there
-		for(byte[] column: columns){
-			String colString = new String(column);
-			if(colString.matches("tc:IsParentTaxonOf:[0-9]{1,}:guid")){
-				
-				//remove the property name
-				String nameStringColName = colString.replaceAll(":guid", ":nameString");
-				
-				//compare contents
-				Cell guidCell = row.get(colString);
-				Cell nameStringCell = row.get(nameStringColName);				
-				
-				TaxonConcept tc = new TaxonConcept();
-				tc.guid = new String(guidCell.getValue());
-				tc.nameString = new String(nameStringCell.getValue());
-				
-				tcs.add(tc);
-			}
-		}
-		return tcs;
+		Cell cell = row.get(Bytes.toBytes("tc:IsParentTaxonOf"));
+		ObjectMapper mapper = new ObjectMapper();
+		if(cell!=null){
+			byte[] value = cell.getValue();
+			return mapper.readValue(value, 0, value.length, new TypeReference<List<TaxonConcept>>(){});
+		} 
+		return new ArrayList<TaxonConcept>();
 	}	
-	
-	public List<TaxonConcept> getParentConceptsFor(String guid) throws Exception {
-		
-		List<TaxonConcept> tcs = new ArrayList<TaxonConcept>();
-		
-		//check existing synonyms
-		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
-		if(row==null){
-			System.err.println("Unable to find row for: "+guid);
-			return tcs;
-		}
-		
-		Set<byte[]> columns = row.keySet();
-		
-		//add the synonym if not already there
-		for(byte[] column: columns){
-			String colString = new String(column);
-			if(colString.matches("tc:IsChildTaxonOf:[0-9]{1,}:guid")){
-				
-				//remove the property name
-				String nameStringColName = colString.replaceAll(":guid", ":nameString");
-				
-				//compare contents
-				Cell guidCell = row.get(colString);
-				Cell nameStringCell = row.get(nameStringColName);				
-				
-				TaxonConcept tc = new TaxonConcept();
-				tc.guid = new String(guidCell.getValue());
-				tc.nameString = new String(nameStringCell.getValue());
-				
-				tcs.add(tc);
-			}
-		}
-		return tcs;
-	}		
-	
-	
-	public List<CommonName> getCommonNamesFor(String guid) throws Exception {
-		
-		List<CommonName> cns = new ArrayList<CommonName>();
-		
-		//check existing synonyms
-		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tn:")});
-		if(row==null){
-			System.err.println("Unable to find row for: "+guid);
-			return cns;
-		}
-		
-		Set<byte[]> columns = row.keySet();
-		
-		//add the synonym if not already there
-		for(byte[] column: columns){
-			String colString = new String(column);
-			System.out.println("column = "+colString);
-			if(colString.matches("tn:hasVernacularConcept:[a-z0-9\\-]{1,}:guid")){
-				
-				//remove the property name
-				String nameStringColName = colString.replaceAll(":guid", ":nameString");
-				
-				//compare contents
-				Cell guidCell = row.get(colString);
-				Cell nameStringCell = row.get(nameStringColName);				
-				
-				CommonName cn = new CommonName();
-				cn.guid = new String(guidCell.getValue());
-				cn.nameString = new String(nameStringCell.getValue());
-				System.out.println("cn.guid = "+cn.guid);
-				cns.add(cn);
-			}
-		}
-		
-		System.out.println("cns = "+cns.size());
-		
-		return cns;
-	}	
-	
 	
 	/**
-	 * tn:guid:propertyName
+	 * Retrieve the parent concepts for the Taxon Concept with the supplied guid.
+	 * 
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */	
+	public List<TaxonConcept> getParentConceptsFor(String guid) throws Exception {
+		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		Cell cell = row.get(Bytes.toBytes("tc:IsChildTaxonOf"));
+		ObjectMapper mapper = new ObjectMapper();
+		if(cell!=null){
+			byte[] value = cell.getValue();
+			return mapper.readValue(value, 0, value.length, new TypeReference<List<TaxonConcept>>(){});
+		} 
+		return new ArrayList<TaxonConcept>();
+	}		
+	
+	/**
+	 * Retrieve the common names for the Taxon Concept with the supplied guid.
+	 * 
+	 * @param guid
+	 * @return
+	 * @throws Exception
 	 */
-	public void create(TaxonConcept tc) throws Exception {
+	public List<CommonName> getCommonNamesFor(String guid) throws Exception {
+		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		Cell cell = row.get(Bytes.toBytes("tc:VernacularConcept"));
+		ObjectMapper mapper = new ObjectMapper();
+		if(cell!=null){
+			byte[] value = cell.getValue();
+			return mapper.readValue(value, 0, value.length, new TypeReference<List<CommonName>>(){});
+		} 
+		return new ArrayList<CommonName>();
+	}	
+	
+	/**
+	 * Store the following taxon concept
+	 * 
+	 * @param tc
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean create(TaxonConcept tc) throws Exception {
+		if(tc.guid==null){
+			throw new IllegalArgumentException("Supplied GUID for the Taxon Concept is null.");
+		}
+		
 		BatchUpdate batchUpdate = new BatchUpdate(tc.guid.getBytes());
 		putIfNotNull(batchUpdate, "tc:parentGuid", tc.parentGuid);
 		putIfNotNull(batchUpdate, "tc:nameGuid", tc.nameGuid);
@@ -271,7 +242,8 @@ public class TaxonConceptDao {
 		putIfNotNull(batchUpdate, "tc:publishedIn", tc.publishedIn);
 		putIfNotNull(batchUpdate, "tc:publishedInCitation", tc.publishedInCitation);
 		putIfNotNull(batchUpdate, "tc:acceptedConceptGuid", tc.acceptedConceptGuid);
-		tcTable.commit(batchUpdate);			
+		tcTable.commit(batchUpdate);	
+		return true;
 	}
 
 	/**
@@ -296,144 +268,101 @@ public class TaxonConceptDao {
 		tcTable.commit(batchUpdate);			
 	}
 	
-	public void addCommonName(String guid, CommonName cn) throws Exception {
-//		BatchUpdate batchUpdate = new BatchUpdate(Bytes.toBytes(guid));
-//		UUID uuid = UUID.randomUUID();
-//		putIfNotNull(batchUpdate, "tn:hasVernacularConcept:"+uuid+":guid", cn.guid); //FIXME
-//		putIfNotNull(batchUpdate, "tn:hasVernacularConcept:"+uuid+":nameString", cn.nameString);
-//		tcTable.commit(batchUpdate);			
-		
-		//check existing synonyms
-		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
-		if(row==null){
-			System.err.println("Unable to add common name to: "+guid+", name:"+cn.guid+",  common guid:"+cn.nameString);
-			return;
-		}
-		
-		Set<byte[]> columns = row.keySet();
-		
-		int matches = 0;
-		//add the synonym if not already there
-		for(byte[] column: columns){
-			String colString = new String(column);
-			if(colString.matches("tc:hasVernacularConcept:[a-z0-9\\-]{1,}:nameString")){
-				matches++;
-				//compare contents
-				Cell cell = row.get(column);
-				if(Bytes.toString(cell.getValue()).equals(cn.nameString)){
-					//return
-					//System.out.println("Synonym already added: "+synonymName);
-					return;
-				}
-			}
-		}
-		
-		//System.out.println("Synonym adding: "+synonymName+", to "+guid);
-		BatchUpdate batchUpdate = new BatchUpdate(Bytes.toBytes(guid));
-		putIfNotNull(batchUpdate, "tc:hasVernacularConcept:"+matches+":guid", cn.guid);
-		putIfNotNull(batchUpdate, "tc:hasVernacularConcept:"+matches+":nameString", cn.nameString);
-		tcTable.commit(batchUpdate);		
+	/**
+	 * Add this common name to the Taxon Concept.
+	 * 
+	 * @param guid
+	 * @param commonName
+	 * @throws Exception
+	 */
+	public void addCommonName(String guid, CommonName commonName) throws Exception {
+		storeComplexObject(guid, "tc:", "tc:VernacularConcept", commonName, new TypeReference<List<CommonName>>(){});
 	}	
 	
-	public void addSynonym(String guid, String synonymGuid, String synonymName) throws Exception {
-		//check existing synonyms
-		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
-		if(row==null){
-			System.err.println("Unable to add synonym to: "+guid+", synonymName:"+synonymName+",  synonymGuid:"+synonymGuid);
-			return;
+	/**
+	 * Store a complex object, handling duplicates in the list and sorting.
+	 * 
+	 * @param guid
+	 * @param columnFamily
+	 * @param columnName
+	 * @param object
+	 * @param typeReference
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	public boolean storeComplexObject(String guid, String columnFamily, String columnName, Comparable object, TypeReference typeReference) throws Exception {
+		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(columnFamily)});
+		Cell cell = row.get(Bytes.toBytes(columnName));
+		List objectList = null;
+		ObjectMapper mapper = new ObjectMapper();
+		if(cell!=null){
+			byte[] value = cell.getValue();
+			objectList = mapper.readValue(value, 0, value.length, typeReference);
+		} else {
+			objectList = new ArrayList();
 		}
 		
-		Set<byte[]> columns = row.keySet();
-		
-		int matches = 0;
-		//add the synonym if not already there
-		for(byte[] column: columns){
-			String colString = new String(column);
-			if(colString.matches("tc:hasSynonym:[a-z0-9\\-]{1,}:nameString")){
-				matches++;
-				//compare contents
-				Cell cell = row.get(column);
-				if(Bytes.toString(cell.getValue()).equals(synonymName)){
-					//return
-					//System.out.println("Synonym already added: "+synonymName);
-					return;
-				}
-			}
+		if(objectList.contains(object)){
+			int idx = objectList.indexOf(object);
+			//replace with this version
+			objectList.remove(idx);
+			objectList.add(object);
+		} else {
+			objectList.add(object);
 		}
 		
-		//System.out.println("Synonym adding: "+synonymName+", to "+guid);
+		//sort the common names
+		Collections.sort(objectList);
+		//save in HBase
 		BatchUpdate batchUpdate = new BatchUpdate(Bytes.toBytes(guid));
-		putIfNotNull(batchUpdate, "tc:hasSynonym:"+matches+":guid", synonymGuid);
-		putIfNotNull(batchUpdate, "tc:hasSynonym:"+matches+":nameString", synonymName);
-		tcTable.commit(batchUpdate);			
+		//serialise to json
+		String commonNamesAsJson = mapper.writeValueAsString(objectList); 
+		batchUpdate.put(columnName, Bytes.toBytes(commonNamesAsJson));
+		tcTable.commit(batchUpdate);
+		return true;			
+	}
+	
+	/**
+	 * Add a synonym to this concept.
+	 * 
+	 * @param guid
+	 * @param synonym
+	 * @throws Exception
+	 */
+	public void addSynonym(String guid, TaxonConcept synonym) throws Exception {
+		storeComplexObject(guid, "tc:", "tc:hasSynonym", synonym, new TypeReference<List<TaxonConcept>>(){});
 	}	
 	
-	public void addChildTaxon(String guid, String childGuid, String childName) throws Exception {
-		
-		//check existing synonyms
-		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
-		if(row==null){
-			System.err.println("Unable to add child taxon to: "+guid+", childName:"+childName+",  childGuid:"+childGuid);
-			return;
-		}
-		
-		Set<byte[]> columns = row.keySet();
-		int matches = 0;
-		
-		//add the synonyms already there ?
-		for(byte[] column: columns){
-			String colString = new String(column);
-			if(colString.matches("tc:IsParentTaxonOf:[a-z0-9\\-]{1,}:guid")){
-				matches++;
-				//compare contents
-				Cell cell = row.get(column);
-				if(Bytes.toString(cell.getValue()).equals(childGuid)){
-					//return
-					//System.out.println("Child already added: "+childName);
-					return;
-				}
-			}
-		}
-		
-		//System.out.println("Child adding: "+childName+", to "+guid);
-		BatchUpdate batchUpdate = new BatchUpdate(Bytes.toBytes(guid));
-		putIfNotNull(batchUpdate, "tc:IsParentTaxonOf:"+matches+":guid", childGuid);
-		putIfNotNull(batchUpdate, "tc:IsParentTaxonOf:"+matches+":nameString", childName);
-		tcTable.commit(batchUpdate);			
+	/**
+	 * Add a child taxon to this concept.
+	 * 
+	 * @param guid
+	 * @param childConcept
+	 * @throws Exception
+	 */
+	public void addChildTaxon(String guid, TaxonConcept childConcept) throws Exception {
+		storeComplexObject(guid, "tc:", "tc:IsParentTaxonOf", childConcept, new TypeReference<List<TaxonConcept>>(){});
 	}	
 	
-	public void addParentTaxon(String guid, String parentGuid, String parentName) throws Exception {
-		
-		//check existing synonyms
-		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
-		if(row==null){
-			System.err.println("Unable to add parent taxon to: "+guid+", parentName:"+parentName+",  parentGuid:"+parentGuid);
-			return;
-		}
-		Set<byte[]> columns = row.keySet();
-		int matches = 0;
-		//add the synonyms already there ?
-		for(byte[] column: columns){
-			String colString = new String(column);
-			if(colString.matches("tc:IsChildTaxonOf:[a-z0-9\\-]{1,}:guid")){
-				matches++;
-				//compare contents
-				Cell cell = row.get(column);
-				if(Bytes.toString(cell.getValue()).equals(parentGuid)){
-					//return
-					//System.out.println("Parent already added: "+parentName);
-					return;
-				}
-			}
-		}
-		
-		//System.out.println("Parent adding: "+parentName+", to "+guid);
-		BatchUpdate batchUpdate = new BatchUpdate(Bytes.toBytes(guid));
-		putIfNotNull(batchUpdate, "tc:IsChildTaxonOf:"+matches+":guid", parentGuid);
-		putIfNotNull(batchUpdate, "tc:IsChildTaxonOf:"+matches+":nameString", parentName);
-		tcTable.commit(batchUpdate);			
+	/**
+	 * Add a parent taxon to this concept.
+	 * 
+	 * @param guid
+	 * @param parentConcept
+	 * @throws Exception
+	 */
+	public void addParentTaxon(String guid, TaxonConcept parentConcept) throws Exception {
+		storeComplexObject(guid, "tc:", "tc:IsChildTaxonOf", parentConcept, new TypeReference<List<TaxonConcept>>(){});
 	}		
 	
+	/**
+	 * Add field update to the batch if the supplied value is not null.
+	 * 
+	 * @param batchUpdate
+	 * @param fieldName
+	 * @param value
+	 */
 	private void putIfNotNull(BatchUpdate batchUpdate, String fieldName, String value) {
 		value = StringUtils.trimToNull(value);
 		if(value!=null){
@@ -454,7 +383,6 @@ public class TaxonConceptDao {
 	}	
 	
 	public String getRDFfor(String guid) throws Exception {
-	
 		return null;
 	}
 	
@@ -464,7 +392,6 @@ public class TaxonConceptDao {
 		if(rowResult==null){
 			return null;
 		}
-		
 		TaxonConcept tc = new TaxonConcept();
 		tc.guid = guid;
 		tc.author = DaoUtils.getField(rowResult, "tc:author");
@@ -476,6 +403,13 @@ public class TaxonConceptDao {
 		return tc;
 	}
 	
+	/**
+	 * Retrieve the Taxon Name for the supplied GUID.
+	 * 
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
 	public TaxonName getTaxonNameFor(String guid) throws Exception {
 		
 		RowResult rowResult = tcTable.getRow(guid.getBytes());
@@ -509,10 +443,17 @@ public class TaxonConceptDao {
 		}
 		
 		//sort by key
-		
 		return properties;
 	}
-
+	
+	/**
+	 * Search for taxon concept with the following scientific name.
+	 * 
+	 * @param scientificName
+	 * @param limit
+	 * @return
+	 * @throws Exception
+	 */
 	public List<TaxonConcept> getByScientificName(String scientificName, int limit) throws Exception {
 
 		scientificName = StringUtils.trimToNull(scientificName).toLowerCase();
@@ -541,18 +482,17 @@ public class TaxonConceptDao {
 	}
 
 	public List<TaxonConcept> getByNameGuid(String nameGuid, int limit) throws Exception {
-		//FIXME Quickly becoming inconsistent - field names of lucene indexes need to match other properties
-		return searchIndexBy("tc:hasName", nameGuid, limit); 
+		return searchTaxonConceptIndexBy("tc:hasName", nameGuid, limit); 
 	}
 
 	public List<TaxonConcept> getByParentGuid(String parentGuid, int limit) throws Exception {
 		if(parentGuid==null){
 			parentGuid = "NULL";
 		}
-		return searchIndexBy("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsChildTaxonOf", parentGuid, limit);
+		return searchTaxonConceptIndexBy("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsChildTaxonOf", parentGuid, limit);
 	}
 	
-	private List<TaxonConcept> searchIndexBy(String columnName, String value, int limit)
+	private List<TaxonConcept> searchTaxonConceptIndexBy(String columnName, String value, int limit)
 			throws IOException, CorruptIndexException {
 		Query query = new TermQuery(new Term(columnName, value));				
 		TopDocs topDocs = tcIdxSearcher.search(query, limit);
@@ -564,7 +504,6 @@ public class TaxonConceptDao {
 		return tcs;
 	}
 	
-
 	private TaxonConcept createTaxonConceptFromIndex(Document doc) {
 		TaxonConcept taxonConcept = new TaxonConcept();
 		taxonConcept.guid = doc.get("guid");
@@ -575,5 +514,20 @@ public class TaxonConceptDao {
 		taxonConcept.hasChildren = (fields==null || fields.length==0) ? false : true;
 		
 		return taxonConcept;
+	}
+
+	/**
+	 * Delete the TaxonConcept for the supplied guid
+	 * 
+	 * @param guid
+	 * @return true if a delete was performed
+	 * @throws Exception
+	 */
+	public boolean delete(String guid) throws Exception {
+		if(tcTable.exists(Bytes.toBytes(guid))){
+			tcTable.deleteAll(Bytes.toBytes(guid));
+			return true;
+		}
+		return false;
 	}	
 }

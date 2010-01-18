@@ -9,6 +9,8 @@ public class TaxonName {
 	public String publishedInCitation; //lsid
 	public String nomenclaturalCode;
 	public String typificationString;
+	public String infoSourceId;
+	public String documentId;
 	/**
 	 * @return the guid
 	 */
@@ -92,5 +94,29 @@ public class TaxonName {
 	 */
 	public void setTypificationString(String typificationString) {
 		this.typificationString = typificationString;
+	}
+	/**
+	 * @return the infoSourceId
+	 */
+	public String getInfoSourceId() {
+		return infoSourceId;
+	}
+	/**
+	 * @param infoSourceId the infoSourceId to set
+	 */
+	public void setInfoSourceId(String infoSourceId) {
+		this.infoSourceId = infoSourceId;
+	}
+	/**
+	 * @return the documentId
+	 */
+	public String getDocumentId() {
+		return documentId;
+	}
+	/**
+	 * @param documentId the documentId to set
+	 */
+	public void setDocumentId(String documentId) {
+		this.documentId = documentId;
 	}
 }

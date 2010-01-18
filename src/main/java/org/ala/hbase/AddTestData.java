@@ -23,7 +23,7 @@ public class AddTestData {
     	//add dublin core properties for this page
     	batchUpdate.put("dc:source", Bytes.toBytes("Reptiles Down Under"));
     	batchUpdate.put("dc:title", Bytes.toBytes("Animal details - Inland bearded dragon - Pogona vitticeps | ReptilesDownUnder.com"));
-    	batchUpdate.put("dc:rights", Bytes.toBytes("All content © Stewart Macdonald, unless specified otherwise."));
+    	batchUpdate.put("dc:rights", Bytes.toBytes("All content Stewart Macdonald, unless specified otherwise."));
     	
     	//add extracted properties 
     	batchUpdate.put("raw:hasFamily", Bytes.toBytes("Dragons (Agamidae)"));

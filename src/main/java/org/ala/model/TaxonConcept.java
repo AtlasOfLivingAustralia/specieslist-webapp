@@ -1,7 +1,8 @@
 package org.ala.model;
 
-public class TaxonConcept {
+public class TaxonConcept implements Comparable<TaxonConcept>{
 
+	/** Every taxonconcept should have a guid of some sort */
 	public String guid;
 	public String parentGuid;
 	public String acceptedConceptGuid;
@@ -12,7 +13,32 @@ public class TaxonConcept {
 	public String publishedInCitation;
 	public String publishedIn;
 	public boolean hasChildren;
-	
+	public String infoSourceId;
+	public String documentId;	
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if(obj!=null && obj instanceof TaxonConcept){
+			TaxonConcept tc = (TaxonConcept) obj;
+			if(tc.getGuid()!=null && guid!=null){
+				return tc.getGuid().equals(guid);
+			}
+		}
+		return false;
+	}	
+	/**
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(TaxonConcept tc) {
+		if(tc==null || tc.getNameString()==null || nameString==null){
+			return -1;
+		}
+		return tc.getNameString().compareTo(nameString);
+	}	
 	/**
 	 * @return the guid
 	 */
@@ -132,5 +158,29 @@ public class TaxonConcept {
 	 */
 	public void setAcceptedConceptGuid(String acceptedConceptGuid) {
 		this.acceptedConceptGuid = acceptedConceptGuid;
+	}
+	/**
+	 * @return the infoSourceId
+	 */
+	public String getInfoSourceId() {
+		return infoSourceId;
+	}
+	/**
+	 * @param infoSourceId the infoSourceId to set
+	 */
+	public void setInfoSourceId(String infoSourceId) {
+		this.infoSourceId = infoSourceId;
+	}
+	/**
+	 * @return the documentId
+	 */
+	public String getDocumentId() {
+		return documentId;
+	}
+	/**
+	 * @param documentId the documentId to set
+	 */
+	public void setDocumentId(String documentId) {
+		this.documentId = documentId;
 	}
 }
