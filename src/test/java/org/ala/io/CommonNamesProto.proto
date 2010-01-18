@@ -1,0 +1,14 @@
+option java_package = "org.ala.io";
+
+message CommonNames {
+
+  message CommonName {
+    optional string guid = 1;
+    required string nameString = 2;
+    optional string locality = 3;
+    optional string documentId = 4;
+    optional string infoSourceId = 5;
+  }
+
+  repeated CommonName names = 4;
+}
