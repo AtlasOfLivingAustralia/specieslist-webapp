@@ -3,6 +3,7 @@ package org.ala.dao;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.TreeMap;
 import org.ala.model.CommonName;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
+import org.ala.model.Triple;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
@@ -33,9 +35,12 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.type.TypeReference;
+import org.gbif.ecat.model.ParsedName;
+import org.gbif.ecat.parser.NameParser;
 /**
- * Prototype quality Dao
+ * Prototype quality Dao in need of refactoring.
  * 
  * @author Dave Martin
  */
@@ -282,6 +287,8 @@ public class TaxonConceptDao {
 	/**
 	 * Store a complex object, handling duplicates in the list and sorting.
 	 * 
+	 * TODO this is generic DAO logic. Move to separate util code.
+	 * 
 	 * @param guid
 	 * @param columnFamily
 	 * @param columnName
@@ -296,6 +303,8 @@ public class TaxonConceptDao {
 		Cell cell = row.get(Bytes.toBytes(columnName));
 		List objectList = null;
 		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(SerializationConfig.Feature.WRITE_NULL_PROPERTIES, false);
+		
 		if(cell!=null){
 			byte[] value = cell.getValue();
 			objectList = mapper.readValue(value, 0, value.length, typeReference);
@@ -382,10 +391,13 @@ public class TaxonConceptDao {
 		}
 	}	
 	
-	public String getRDFfor(String guid) throws Exception {
-		return null;
-	}
-	
+	/**
+	 * Retrieve the taxon concept by guid.
+	 * 
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
 	public TaxonConcept getByGuid(String guid) throws Exception {
 
 		RowResult rowResult = tcTable.getRow(guid.getBytes());
@@ -426,6 +438,14 @@ public class TaxonConceptDao {
 		return tn;
 	}
 
+	/**
+	 * Retrieve all properties for this row as a Map. Useful for debug
+	 * interfaces only.
+	 * 
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
 	public Map<String, String> getPropertiesFor(String guid) throws Exception {
 		RowResult rowResult = tcTable.getRow(guid.getBytes());
 		if(rowResult==null){
@@ -480,11 +500,84 @@ public class TaxonConceptDao {
 		
 		return tcs;
 	}
-
+	
+	/**
+	 * Get TaxonConcept GUID by genus and scientific name.
+	 * 
+	 * @param scientificName
+	 * @return
+	 * @throws Exception
+	 */
+	public static String findConceptIDForName(String genus, String scientificName) throws Exception {
+		try {
+			String searchName = scientificName;
+			//change A. bus to Aus bus
+			if(genus!=null){
+				NameParser np = new NameParser();
+				ParsedName parsedName = np.parse(scientificName);
+				if(parsedName!=null){
+					if(parsedName.isBinomial()){
+						searchName = genus +" "+ parsedName.getSpecificEpithet();
+					}
+				}
+			}
+			
+			IndexSearcher is = new IndexSearcher("/data/lucene/taxonConcept");
+			QueryParser qp  = new QueryParser("scientificName", new KeywordAnalyzer());			
+			Query q = qp.parse("\""+searchName.toLowerCase()+"\"");
+			
+			TopDocs topDocs = is.search(q, 20);
+			
+			for(ScoreDoc scoreDoc: topDocs.scoreDocs){
+				Document doc = is.doc(scoreDoc.doc);
+//				Field hasSynonym = doc.getField("http://rs.tdwg.org/ontology/voc/TaxonConcept#HasSynonym");
+//				if(hasSynonym!=null){
+//					System.out.println("Returning synonym");
+//					return hasSynonym.stringValue();
+//				}
+//				Field hasVernacular = doc.getField("http://rs.tdwg.org/ontology/voc/TaxonConcept#HasVernacular");
+//				if(hasVernacular!=null){
+//					System.out.println("Returning vernacular");
+//					return hasVernacular.stringValue();
+//				}
+//				Field isCongruentTo = doc.getField("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsCongruentTo");
+//				if(isCongruentTo!=null){
+//					System.out.println("Returning congruent");
+//					return isCongruentTo.stringValue();
+//				}
+//			System.out.println("Doc Id: "+scoreDoc.doc);
+//			System.out.println("Guid: "+doc.getField("guid").stringValue());
+//			System.out.println("Name: "+doc.getField("scientificName").stringValue());
+//			System.out.println("Raw name: "+doc.getField("scientificNameRaw").stringValue());
+//			System.out.println("#################################");
+				return doc.getField("guid").stringValue();
+			}
+		} catch (Exception e) {
+			System.err.println("Problem searching with:"+scientificName+" : "+e.getMessage());
+		}		
+		return null;
+	}	
+	
+	/**
+	 * Retrieve a list of concepts associated with this name guid.
+	 *  
+	 * @param nameGuid
+	 * @param limit
+	 * @return
+	 * @throws Exception
+	 */
 	public List<TaxonConcept> getByNameGuid(String nameGuid, int limit) throws Exception {
 		return searchTaxonConceptIndexBy("tc:hasName", nameGuid, limit); 
 	}
 
+	/**
+	 * Retrieve a list of concepts with the supplied parent guid.
+	 * 
+	 * @param parentGuid
+	 * @param limit
+	 * @return
+	 * @throws Exception
+	 */
 	public List<TaxonConcept> getByParentGuid(String parentGuid, int limit) throws Exception {
 		if(parentGuid==null){
 			parentGuid = "NULL";
@@ -492,6 +585,16 @@ public class TaxonConceptDao {
 		return searchTaxonConceptIndexBy("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsChildTaxonOf", parentGuid, limit);
 	}
 	
+	/**
+	 * Search the index with the supplied value targetting a specific column.
+	 * 
+	 * @param columnName
+	 * @param value
+	 * @param limit
+	 * @return
+	 * @throws IOException
+	 * @throws CorruptIndexException
+	 */
 	private List<TaxonConcept> searchTaxonConceptIndexBy(String columnName, String value, int limit)
 			throws IOException, CorruptIndexException {
 		Query query = new TermQuery(new Term(columnName, value));				
@@ -504,6 +607,12 @@ public class TaxonConceptDao {
 		return tcs;
 	}
 	
+	/**
+	 * Populate a TaxonConcept from the data in the lucene index.
+	 * 
+	 * @param doc
+	 * @return
+	 */
 	private TaxonConcept createTaxonConceptFromIndex(Document doc) {
 		TaxonConcept taxonConcept = new TaxonConcept();
 		taxonConcept.guid = doc.get("guid");
@@ -529,5 +638,66 @@ public class TaxonConceptDao {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * 
+	 * @param triples
+	 * @throws Exception
+	 */
+	public boolean syncTriples(String infoSourceId, String documentId, List<Triple> triples) throws Exception {
+
+		String scientificName = null;
+		String genus = null;
+		String family = null;
+		String order = null;
+		
+		//iterate through triples and find scientific names and genus
+		for(Triple triple: triples){
+			
+			String predicate = triple.predicate.substring(triple.predicate.indexOf("}")+1);
+			
+			if("hasOrder".equals(predicate)){
+				order = triple.object;
+			}
+			if("hasFamily".equals(predicate)){
+				family = triple.object;
+			}
+			if("hasGenus".equals(predicate)){
+				genus = triple.object;
+			}
+			if("hasScientificName".equals(predicate)){
+				scientificName = triple.object;
+			}
+		}
+		
+		if(scientificName==null 
+				&& genus==null
+				&& family==null
+				&& order==null){
+			System.err.println("No classification found");
+		}
+		
+		String guid = findConceptIDForName(genus, scientificName);
+		if(guid!=null){
+			
+			Map<String, Object> properties = new HashMap<String,Object>();
+			
+			for(Triple triple: triples){
+				properties.put(triple.predicate, triple.object);
+			}
+			
+			addLiteralValues(guid, infoSourceId, documentId, properties);
+			
+			return true;
+		} else {
+			return false;
+		}
+		
+		//split into separate triples
+		
+		//find the hasScientificName, hasGenus triple
+		
+		//lookup concept
 	}	
 }

@@ -3,15 +3,27 @@ package org.ala.io;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.ala.model.CommonName;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-
+/**
+ * JUnit tests for testing Jackson functionality.
+ * 
+ * @author Dave Martin
+ */
 public class JacksonTest extends TestCase {
 
+	public void testJackson2() throws Exception {
+		String json = "{\"sitemap\":\"http://www2.ala.org.au/sitemaps/abrsfloraozonline/siteMap.txt\"}";
+		ObjectMapper mapper = new ObjectMapper();
+		Map<String,String> result = mapper.readValue(json, new TypeReference<Map<String,String>>() { });
+		assertEquals(result.get("sitemap"), "http://www2.ala.org.au/sitemaps/abrsfloraozonline/siteMap.txt");
+	}
+	
 	public void testJackson() throws Exception {
 		
 		CommonName cn1 = new CommonName();

@@ -3,7 +3,6 @@ package org.ala.hbase;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.HColumnDescriptor.CompressionType;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 
 /**
@@ -22,22 +21,22 @@ public class InitHBase
     		hBaseAdmin.disableTable("taxonConcept");
     		hBaseAdmin.deleteTable("taxonConcept");
     	}
-    	if(hBaseAdmin.tableExists("taxonName")){
-    		hBaseAdmin.disableTable("taxonName");
-    		hBaseAdmin.deleteTable("taxonName");
-    	}
-    	if(hBaseAdmin.tableExists("publication")){
-    		hBaseAdmin.disableTable("publication");
-    		hBaseAdmin.deleteTable("publication");
-    	}
-    	if(hBaseAdmin.tableExists("document")){
-    		hBaseAdmin.disableTable("document");
-    		hBaseAdmin.deleteTable("document");
-    	}
-    	if(hBaseAdmin.tableExists("image")){
-    		hBaseAdmin.disableTable("image");
-    		hBaseAdmin.deleteTable("image");
-    	}
+//    	if(hBaseAdmin.tableExists("taxonName")){
+//    		hBaseAdmin.disableTable("taxonName");
+//    		hBaseAdmin.deleteTable("taxonName");
+//    	}
+//    	if(hBaseAdmin.tableExists("publication")){
+//    		hBaseAdmin.disableTable("publication");
+//    		hBaseAdmin.deleteTable("publication");
+//    	}
+//    	if(hBaseAdmin.tableExists("document")){
+//    		hBaseAdmin.disableTable("document");
+//    		hBaseAdmin.deleteTable("document");
+//    	}
+//    	if(hBaseAdmin.tableExists("image")){
+//    		hBaseAdmin.disableTable("image");
+//    		hBaseAdmin.deleteTable("image");
+//    	}
     	
 //    	//create taxon concept table
     	HTableDescriptor htd = new HTableDescriptor("taxonConcept");
@@ -53,16 +52,16 @@ public class InitHBase
     	hBaseAdmin.createTable(htd);
 //    	
 //    	//create taxon name table
-    	htd = new HTableDescriptor("taxonName");
-    	htd.addFamily(new HColumnDescriptor("tn:"));
-    	hBaseAdmin.createTable(htd);
+//    	htd = new HTableDescriptor("taxonName");
+//    	htd.addFamily(new HColumnDescriptor("tn:"));
+//    	hBaseAdmin.createTable(htd);
 
     	//create taxon name table
-    	htd = new HTableDescriptor("document");
-    	htd.addFamily(new HColumnDescriptor("loc:"));
-    	htd.addFamily(new HColumnDescriptor("raw:".getBytes(),Integer.MAX_VALUE, HColumnDescriptor.CompressionType.NONE,false,false,Integer.MAX_VALUE,Integer.MAX_VALUE,false));
-    	htd.addFamily(new HColumnDescriptor("triples:".getBytes(), Integer.MAX_VALUE, CompressionType.NONE,false,false,Integer.MAX_VALUE,Integer.MAX_VALUE,false));
-    	hBaseAdmin.createTable(htd);    	
+//    	htd = new HTableDescriptor("document");
+//    	htd.addFamily(new HColumnDescriptor("loc:"));
+//    	htd.addFamily(new HColumnDescriptor("raw:".getBytes(),Integer.MAX_VALUE, HColumnDescriptor.CompressionType.NONE,false,false,Integer.MAX_VALUE,Integer.MAX_VALUE,false));
+//    	htd.addFamily(new HColumnDescriptor("triples:".getBytes(), Integer.MAX_VALUE, CompressionType.NONE,false,false,Integer.MAX_VALUE,Integer.MAX_VALUE,false));
+//    	hBaseAdmin.createTable(htd);    	
     	
 //    	HTable table = new HTable(config, "taxonConcept");
 //    	BatchUpdate batchUpdate = new BatchUpdate("myRow");

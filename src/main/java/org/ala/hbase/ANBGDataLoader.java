@@ -9,27 +9,40 @@ import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.util.TabReader;
 
-public class LoadTaxonConceptData {
+/**
+ * This class loads data from exported ANBG dump files into the HBase table
+ * "taxonConcept" after they have been preprocessed by a Scala script.
+ * 
+ * It makes use of lucene indexes for lookups of concepts.
+ * 
+ * @author David Martin
+ */
+public class ANBGDataLoader {
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		
-		//tc:hasName "urn:lsid"
-		//tc:nameString	"Aus bus"
-		//tc:hasVernacularConcept "urn:lsid"
-		//tc:hasVernacularConcept:hasName	"Dusada"
 		System.out.println("Starting ANBG load....");
 		long start = System.currentTimeMillis();
-    	loadTaxonConcepts();
-    	loadTaxonNames(); // includes rank information
-    	loadVernacularConcepts();
-    	loadRelationships();
+    	ANBGDataLoader loader = new ANBGDataLoader();
+    	loader.load();
     	long finish = System.currentTimeMillis();
     	System.out.println("Data loaded in: "+((finish-start)/60000)+" minutes.");
 	}
+	
+	public void load() throws Exception {
+    	loadTaxonConcepts();
+    	loadTaxonNames(); // includes rank information
+    	loadVernacularConcepts();
+    	loadRelationships();		
+	}
 
+	/**
+	 * Add the relationships to the taxon concepts.
+	 * 
+	 * @throws Exception
+	 */
 	private static void loadRelationships() throws Exception {
 		
 		System.out.println("Starting to load synonyms, parents, children");
@@ -95,6 +108,11 @@ public class LoadTaxonConceptData {
     	System.out.println(i+" loaded relationships, added "+j+" synonyms. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
 	}
 	
+	/**
+	 * Load the taxon names
+	 * 
+	 * @throws Exception
+	 */
 	private static void loadTaxonNames() throws Exception {
 		TabReader tr = new TabReader("/data/taxonNames.txt");
     	String[] record = null;
@@ -127,6 +145,11 @@ public class LoadTaxonConceptData {
     	System.out.println(i+" lines read. "+j+" names added to concept records.");
 	}
 
+	/**
+	 * Load the taxon concepts into the profiler
+	 * 
+	 * @throws Exception
+	 */
 	private static void loadTaxonConcepts() throws Exception {
 		
 		TabReader tr = new TabReader("/data/taxonConcepts.txt");
@@ -176,6 +199,11 @@ public class LoadTaxonConceptData {
     	}
 	}
 	
+	/**
+	 * Load the vernacular concepts
+	 * 
+	 * @throws Exception
+	 */
 	private static void loadVernacularConcepts() throws Exception {
 		
 		TabReader tr = new TabReader("/data/taxonConcepts.txt");

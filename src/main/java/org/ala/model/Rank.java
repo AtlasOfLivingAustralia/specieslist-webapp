@@ -13,7 +13,7 @@
  * rights and limitations under the License.
  ***************************************************************************/
 
-package org.ala.hbase;
+package org.ala.model;
 
 import java.util.EnumSet;
 import java.util.HashMap;
