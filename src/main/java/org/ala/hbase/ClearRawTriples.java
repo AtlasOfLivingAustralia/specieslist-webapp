@@ -29,12 +29,8 @@ public class ClearRawTriples {
     	Iterator<RowResult> iter = scanner.iterator();
     	int i=0;
     	while(iter.hasNext()){
-    		
     		RowResult rowResult = iter.next();
-    		
-    		rowResult.
-    		
-    		byte[] row = iter.next().getRow();
+    		byte[] row = rowResult.getRow();
     		tcTable.deleteFamily(row, Bytes.toBytes("raw:"));
     		System.out.println(++i + " " + (new String(row)));
     	}
