@@ -85,15 +85,24 @@ public class TaxonConceptDao {
 	 * @param documentId
 	 * @param predicate
 	 * @param value
+	 * 
+	 * @return true if successfully added
 	 */	
-	public void addLiteralValues(String guid, String infoSourceId, String documentId, Map<String, Object> values) throws Exception {
+	public boolean addLiteralValues(String guid, String infoSourceId, String documentId, Map<String, Object> values) throws Exception {
+		
+		if(!tcTable.exists(Bytes.toBytes(guid))){
+			System.err.println("Warning: unable to find row for GUID: "+guid);
+			return false;
+		}
+		
 		BatchUpdate batchUpdate = new BatchUpdate(guid);
 		Iterator<String> keys = values.keySet().iterator();
 		while(keys.hasNext()){
 			String key = keys.next();
-			batchUpdate.put("raw:"+infoSourceId+":"+documentId+":"+key, Bytes.toBytes(guid));
+			batchUpdate.put("raw:"+infoSourceId+":"+documentId+":"+key, Bytes.toBytes(values.get(key).toString()));
 		}
 		tcTable.commit(batchUpdate);
+		return true;
 	}
 
 	public boolean isVernacularConcept(String guid) throws Exception {
@@ -687,6 +696,7 @@ public class TaxonConceptDao {
 				properties.put(triple.predicate, triple.object);
 			}
 			
+			System.out.println("Adding content to: "+guid+", using scientific name: "+scientificName+", genus: "+genus);
 			addLiteralValues(guid, infoSourceId, documentId, properties);
 			
 			return true;

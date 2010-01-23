@@ -53,10 +53,12 @@ public class RepoDataLoader {
 				filesRead++;
 				List<Triple> triples = N3Utils.readN3Triples(new FileReader(currentFile), true);
 				//sync these triples
-				tcDao.syncTriples("0", "0", triples);
+//				/../../infosource-id/document-id div 1000/document-id/rdf
+				String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
+				String documentId = currentFile.getParentFile().getName();
+				tcDao.syncTriples(infosourceId, documentId, triples);
 			}
 		}
-		
 		return filesRead;
 	}
 }

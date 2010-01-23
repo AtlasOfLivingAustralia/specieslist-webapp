@@ -18,14 +18,14 @@ import org.ala.model.Rank;
  * 
  * @author Dave Martin
  */
-public class N3DataLoader {
+public class NTripleDataLoader {
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
     	FileReader fr = new FileReader(new File("/data/dbpedia.txt"));
-    	N3DataLoader loader = new N3DataLoader();
+    	NTripleDataLoader loader = new NTripleDataLoader();
     	loader.load(fr);
 	}
 
