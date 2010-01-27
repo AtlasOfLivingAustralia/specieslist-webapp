@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 import org.ala.model.Triple;
 
-public class N3Utils {
+public class NTriplesUtils {
 
 	static final Pattern tabPattern = Pattern.compile("\t");
 	
@@ -18,13 +18,13 @@ public class N3Utils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static List<Triple> readN3Triples(Reader reader, boolean stopOnSubjectChange) throws Exception {
+	public static List<Triple> readNTriples(Reader reader, boolean stopOnSubjectChange) throws Exception {
 		BufferedReader br =  new BufferedReader(reader);
 		List<Triple> triples = new ArrayList<Triple>();
 		String line = "";
 		String currentSubject = null;
 		while((line = br.readLine())!=null){
-			br.mark(1000);
+			br.mark(1000); //FIXME arbitrarily chosen
 			String[] triple = tabPattern.split(line);
 			if(triple.length>=3){
 				if(currentSubject==null || triple[0].equals(currentSubject)){
