@@ -7,6 +7,7 @@ import org.ala.dao.TaxonConceptDao;
 import org.ala.model.CommonName;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
+import org.ala.util.LoadUtils;
 import org.ala.util.TabReader;
 
 /**
@@ -31,11 +32,17 @@ public class ANBGDataLoader {
     	System.out.println("Data loaded in: "+((finish-start)/60000)+" minutes.");
 	}
 	
+	/**
+	 * Load the profile data for taxon concepts. This takes around
+	 * 90 mins on my laptop to run over all the ANBG data.
+	 * 
+	 * @throws Exception
+	 */
 	public void load() throws Exception {
     	loadTaxonConcepts();
     	loadTaxonNames(); // includes rank information
     	loadVernacularConcepts();
-    	loadRelationships();		
+    	loadRelationships();
 	}
 
 	/**
@@ -46,6 +53,7 @@ public class ANBGDataLoader {
 	private static void loadRelationships() throws Exception {
 		
 		System.out.println("Starting to load synonyms, parents, children");
+		
 		TaxonConceptDao tcDao = new TaxonConceptDao();
 		
     	long start = System.currentTimeMillis();
@@ -152,6 +160,7 @@ public class ANBGDataLoader {
 	 */
 	private static void loadTaxonConcepts() throws Exception {
 		
+		LoadUtils loadUtils = new LoadUtils();
 		TabReader tr = new TabReader("/data/taxonConcepts.txt");
 		TaxonConceptDao tcDao = new TaxonConceptDao();
     	String[] record = null;
@@ -168,7 +177,7 @@ public class ANBGDataLoader {
 	    		}
 	    		if(record.length==9){
 	    			
-	    			boolean isVernacular = tcDao.isVernacularConcept(record[0]);
+	    			boolean isVernacular = loadUtils.isVernacularConcept(record[0]);
 	    			if(!isVernacular){
 		    			TaxonConcept tc = new TaxonConcept();
 		    			tc.guid = record[0];
@@ -206,6 +215,7 @@ public class ANBGDataLoader {
 	 */
 	private static void loadVernacularConcepts() throws Exception {
 		
+		LoadUtils loadUtils = new LoadUtils();
 		TabReader tr = new TabReader("/data/taxonConcepts.txt");
 		TaxonConceptDao tcDao = new TaxonConceptDao();
     	String[] record = null;
@@ -216,7 +226,7 @@ public class ANBGDataLoader {
 	    		i++;
 	    		if(record.length==9){
 	    			
-	    			boolean isVernacular = tcDao.isVernacularConcept(record[0]);
+	    			boolean isVernacular = loadUtils.isVernacularConcept(record[0]);
 	    			if(isVernacular){
 	    				CommonName cn = new CommonName();
 		    			cn.guid = record[0];
@@ -228,9 +238,8 @@ public class ANBGDataLoader {
 //		    			tc.publishedIn = record[6];
 //		    			tc.acceptedConceptGuid = record[8];
 		    			
-		    			List<String> guids = tcDao.getIsVernacularConceptFor(record[0]);
+		    			List<String> guids = loadUtils.getIsVernacularConceptFor(record[0]);
 		    			for(String guid: guids){
-//		    				System.out.println("adding common name to: "+guid+", name:"+cn.nameString);
 		    				tcDao.addCommonName(guid, cn);
 		    			}
 	    			}

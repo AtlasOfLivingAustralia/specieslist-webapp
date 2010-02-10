@@ -5,9 +5,11 @@ import java.io.FileReader;
 import java.util.Iterator;
 import java.util.List;
 
-import org.ala.dao.NTriplesUtils;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.model.Triple;
+import org.ala.util.DublinCoreUtils;
+import org.ala.util.NTriplesUtils;
+import org.ala.util.TurtleUtils;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -18,13 +20,16 @@ import org.apache.commons.io.FileUtils;
  */
 public class RepoDataLoader {
 
+	protected static String repositoryDir = "/data/bie";
+	protected boolean useTurtle = true;
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
 		RepoDataLoader loader = new RepoDataLoader();
 		long start = System.currentTimeMillis();
-		int filesRead = loader.load("/data/bie");	
+		int filesRead = loader.load(repositoryDir); //FIX ME - move to config
     	long finish = System.currentTimeMillis();
     	System.out.println(filesRead+" files scanned/loaded in: "+((finish-start)/60000)+" minutes "+((finish-start)/1000)+" seconds.");
 	}
@@ -51,12 +56,20 @@ public class RepoDataLoader {
 			File currentFile = fileIterator.next();
 			if(currentFile.getName().equals("rdf")){
 				filesRead++;
-				List<Triple> triples = NTriplesUtils.readNTriples(new FileReader(currentFile), true);
+				
+				//read the dublin core in the same directory - determine if its an image
+				FileReader reader = new FileReader(currentFile);
+				List<Triple> triples = null;
+				if(useTurtle){
+					triples = TurtleUtils.readTurtle(reader, true);
+				} else {
+					triples = NTriplesUtils.readNTriples(reader, true);
+				}
 				//sync these triples
 //				/../../infosource-id/document-id div 1000/document-id/rdf
 				String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
 				String documentId = currentFile.getParentFile().getName();
-				tcDao.syncTriples(infosourceId, documentId, triples);
+				tcDao.syncTriples(infosourceId, documentId, triples, currentFile.getParentFile().getAbsolutePath());
 			}
 		}
 		return filesRead;

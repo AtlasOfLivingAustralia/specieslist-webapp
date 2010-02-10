@@ -1,20 +1,18 @@
 package org.ala.model;
 
-public class TaxonConcept implements Comparable<TaxonConcept>{
+public class TaxonConcept extends AttributableObject{
 
 	/** Every taxonconcept should have a guid of some sort */
 	public String guid;
 	public String parentGuid;
 	public String acceptedConceptGuid;
-	public String nameGuid;
+	public String nameGuid; //one to many
 	public String nameString;
 	public String author;
 	public String authorYear;
 	public String publishedInCitation;
 	public String publishedIn;
 	public boolean hasChildren;
-	public String infoSourceId;
-	public String documentId;	
 
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
@@ -28,17 +26,7 @@ public class TaxonConcept implements Comparable<TaxonConcept>{
 			}
 		}
 		return false;
-	}	
-	/**
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	@Override
-	public int compareTo(TaxonConcept tc) {
-		if(tc==null || tc.getNameString()==null || nameString==null){
-			return -1;
-		}
-		return tc.getNameString().compareTo(nameString);
-	}	
+	}
 	/**
 	 * @return the guid
 	 */

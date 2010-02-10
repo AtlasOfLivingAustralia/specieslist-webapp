@@ -1,12 +1,14 @@
 package org.ala.model;
-
-public class CommonName implements Comparable<CommonName>{
+/**
+ * Model object for a Common Name.
+ * 
+ * @author Dave Martin
+ */
+public class CommonName extends AttributableObject {
 
 	/** Nullable GUID for this common name */
 	public String guid; 
 	public String nameString;
-	public String infoSourceId;
-	public String documentId;
 
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
@@ -15,26 +17,18 @@ public class CommonName implements Comparable<CommonName>{
 	public boolean equals(Object obj) {
 		if(obj!=null && obj instanceof CommonName){
 			CommonName tc = (CommonName) obj;
-			if(tc.getNameString()!=null && nameString!=null){
-				if(tc.getGuid().equals(guid)){
-					if(documentId!=null && tc.getDocumentId()!=null){
-						return documentId.equals(tc.getDocumentId());
-					}
+			if(tc.getNameString()!=null && nameString!=null && nameString.equalsIgnoreCase(nameString)){
+				//compare guids if not null
+				if(tc.getGuid()!=null && guid!=null){
+					return tc.getGuid().equals(guid);
+				}
+				if(documentId!=null && tc.getDocumentId()!=null){
+					return documentId.equals(tc.getDocumentId());
 				}
 			}
 		}
 		return false;
-	}	
-	
-	/**
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	@Override
-	public int compareTo(CommonName cn) {
-		if(cn==null || this.getNameString()==null || cn.getNameString()==null)
-			return -1;
-		return getNameString().compareTo(cn.getNameString());
-	}	
+	}
 	
 	/**
 	 * @return the guid
@@ -59,29 +53,5 @@ public class CommonName implements Comparable<CommonName>{
 	 */
 	public void setNameString(String nameString) {
 		this.nameString = nameString;
-	}
-	/**
-	 * @return the infoSourceId
-	 */
-	public String getInfoSourceId() {
-		return infoSourceId;
-	}
-	/**
-	 * @param infoSourceId the infoSourceId to set
-	 */
-	public void setInfoSourceId(String infoSourceId) {
-		this.infoSourceId = infoSourceId;
-	}
-	/**
-	 * @return the documentId
-	 */
-	public String getDocumentId() {
-		return documentId;
-	}
-	/**
-	 * @param documentId the documentId to set
-	 */
-	public void setDocumentId(String documentId) {
-		this.documentId = documentId;
 	}
 }

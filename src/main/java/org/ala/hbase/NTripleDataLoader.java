@@ -5,16 +5,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.ala.dao.TaxonConceptDao;
-import org.ala.model.Rank;
+import org.ala.model.Triple;
 
 /**
- * Used to load in a RDF N3 data extract into the profiler. 
+ * Used to load in a RDF N-Triple data extract into the profiler. 
+ * 
+ * FIXME Should make use of Sesame's openrdf n-triple reading API.
  * 
  * @author Dave Martin
  */
@@ -24,7 +24,13 @@ public class NTripleDataLoader {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-    	FileReader fr = new FileReader(new File("/data/dbpedia.txt"));
+		
+		String defaultFilePath = "/data/dbpedia.txt";
+		String filePath = null;
+		if(args.length==0){
+			filePath = defaultFilePath;
+		}
+    	FileReader fr = new FileReader(new File(filePath));
     	NTripleDataLoader loader = new NTripleDataLoader();
     	loader.load(fr);
 	}
@@ -38,140 +44,69 @@ public class NTripleDataLoader {
 	 */
 	public void load(Reader reader) throws Exception {
 		TaxonConceptDao tcDao = new TaxonConceptDao();
-		Pattern p = Pattern.compile("\t");    	
+		Pattern p = Pattern.compile("\t");
     	BufferedReader br = new BufferedReader(reader);
     	String record = null;
     	long start = System.currentTimeMillis();
-    	int i=0;
+    	int lineNumber = 0;
     	int successfulSync = 0;
     	int failedSync = 0;
     	
+    	final String documentId = "0"; //fake doc id
+    	final String infoSourceId = "0"; //fake info source id
+    	
     	try {
-    		String genus = null;
     		String currentSubject = null;
-			Rank currentLowestRank = null;
-			String scientificName = null;
-    		List<String[]> triples = new ArrayList<String[]>();
-    		int documentId = 0; //fake doc id
+    		List<Triple> triples = new ArrayList<Triple>();
+    		
+    		
+    		
 	    	while((record = br.readLine())!=null){
 	    		
 	    		//split into subject, predicate, object ignoring any extra columns
-	    		String[] triple = p.split(record);
-	    		if(triple.length>=3)
+	    		String[] tripleAsArray = p.split(record);
+	    		if(tripleAsArray.length>=3)
 	    			continue;
 	    		
-	    		String subject = triple[0];
+	    		//create triple
+	    		Triple triple = new Triple(tripleAsArray[0],tripleAsArray[1],tripleAsArray[2]);
+	    		
 	    		if(currentSubject==null){
-	    			currentSubject = subject;
+	    			currentSubject = triple.subject;
 	    			triples.add(triple);
-	    		} else if(subject.equals(currentSubject)){
+	    		} else if(triple.subject.equals(currentSubject)){
+	    			//if subject unchanged, add to list
 	    			triples.add(triple);
 	    		} else {
-	    			//sync to hbase
-	    			//boolean success = syncTriples(table, Integer.toString(documentId), triples, scientificName, currentLowestRank);
-	    			boolean success = syncTriples(tcDao, Integer.toString(documentId), triples, genus, scientificName, currentLowestRank);
+	    			//subject has changed - sync to hbase
+	    			boolean success = tcDao.syncTriples(infoSourceId, documentId, triples, null);
 	    			if(success) 
 	    				successfulSync++; 
 	    			else 
 	    				failedSync++;
 	    			
-	    			triples = new ArrayList<String[]>();
+	    			triples = new ArrayList<Triple>();
 	    			triples.add(triple);
-					scientificName = null;
-					genus = null;
-					currentLowestRank = null;
-					currentSubject = subject;
-					documentId++;
+					currentSubject = triple.subject;
 	    		}
-	    		
-	    		String predicate = triple[1];
-	    		String object = triple[2];
-	    		
-				//if this is a taxonomic field, it may tell us if we what rank we have 
-				if(predicate.startsWith("has")){
-					predicate = predicate.substring(3);
-				}
-				Rank rank = Rank.getForName(predicate.toLowerCase());
-				//is current line indicating species page ?
-				if(rank!=null){
-					if(currentLowestRank==null){
-						currentLowestRank = rank;
-						scientificName = object;
-					} else if(rank.getId()>currentLowestRank.getId()){
-						currentLowestRank = rank;
-						scientificName = object;
-					}
-				}
-				
-				//scientificName wont be matched by Rank.getForName
-				if("scientificName".equalsIgnoreCase(predicate)){
-					scientificName = object;
-				}
-				
-				if("genus".equalsIgnoreCase(predicate)){
-					genus = object;
-				}				
 	    	}
 	    	
+	    	//sync the remaining batch
 	    	if(!triples.isEmpty()){
-				boolean success = syncTriples(tcDao, Integer.toString(documentId), triples, genus, scientificName, currentLowestRank);
+				boolean success = tcDao.syncTriples(infoSourceId, documentId, triples, null);
 				if(success) 
 					successfulSync++; 
 				else 
-					failedSync++;	    	
+					failedSync++;
 	    	}
 	    	
 	    	long finish = System.currentTimeMillis();
-	    	System.out.println("loaded dbpedia data in: "+(((finish-start)/1000)/60)+" minutes.");
-	    	System.out.println("sync'd: "+successfulSync+", failed:" +failedSync);
+	    	System.out.println("Loaded dbpedia data in: "+(((finish-start)/1000)/60)+" minutes.");
+	    	System.out.println("Sync'd: "+successfulSync+", Failed to sync:" +failedSync);
 	    	
     	} catch (Exception e){
-    		System.err.println(i+" error on line");
+    		System.err.println(lineNumber+" error on line");
     		e.printStackTrace();
     	}
-	}
-
-	/**
-	 * Sync these triples to HBase.
-	 * 
-	 * @param table
-	 * @param triples
-	 * @param scientificName
-	 * @param currentLowestRank
-	 */
-	private static boolean syncTriples(TaxonConceptDao tcDao, String documentId, List<String[]> triples,
-			String genus, String scientificName, org.ala.model.Rank currentLowestRank) throws Exception {
-		
-		if(triples.isEmpty() || scientificName==null)
-			return false;
-
-		scientificName = scientificName.replaceAll("\"", "");
-		
-		//find a concept to add the triples to
-		String id = tcDao.findConceptIDForName(genus, scientificName);
-		
-		if(id==null){
-//			System.err.println("Unable to match name: "+scientificName);
-			return false;
-		}
-		
-		System.out.println("Adding info for: "+scientificName+", guid: "+id+", subject:"+triples.get(0)[0]);
-		
-		Map<String,Object> kvs = new HashMap<String,Object>();
-		
-		//add properties to existing taxon concept entry
-		String guid = triples.get(0)[0];
-		
-		kvs.put("URI", guid);
-		kvs.put("source", "Wikipedia");
-		kvs.put("licence", "Creative Commons");
-		
-		for(String[] triple: triples){
-			//FIXME NOT HANDLING REPEATED PREDICATES
-			kvs.put(triple[1], triple[2]);
-		}
-		
-		tcDao.addLiteralValues(guid, "dbpedia", documentId, kvs);
-		return true;
 	}
 }

@@ -10,6 +10,11 @@
 	<description>
 	 This is prototype quality code for loading and testing HBase with RDF data. 
 	</description>
+	<properties>
+		<!-- This project uses UTF8 for Regular Expressions -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<openrdf.sesame.version>2.2</openrdf.sesame.version>
+	</properties>
 	<dependencies>
 		<!-- ECAT-COMMON - name parsing capabilities -->
 		<dependency>
@@ -43,7 +48,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!-- Jackson -->
+    <dependency>
+      <groupId>ala</groupId>
+      <artifactId>bie-repository</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <!-- Jackson -->
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-core-asl</artifactId>
@@ -104,6 +114,17 @@
 			<artifactId>hadoop-tools</artifactId> <version>0.20.1</version>
 			</dependency>
 		-->
+		<!-- SL4j -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.5.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.4.3</version>
+		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
@@ -164,6 +185,32 @@
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- SESAME -->
+		<dependency>
+			<groupId>org.openrdf.sesame</groupId>
+			<artifactId>sesame-rio-rdfxml</artifactId>
+			<version>${openrdf.sesame.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openrdf.sesame</groupId>
+			<artifactId>sesame-rio-api</artifactId>
+			<version>${openrdf.sesame.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openrdf.sesame</groupId>
+			<artifactId>sesame-rio-ntriples</artifactId>
+			<version>${openrdf.sesame.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openrdf.sesame</groupId>
+			<artifactId>sesame-rio-n3</artifactId>
+			<version>${openrdf.sesame.version}</version>
+		</dependency>
+    <dependency>
+      <groupId>org.openrdf.sesame</groupId>
+      <artifactId>sesame-rio-turtle</artifactId>
+      <version>${openrdf.sesame.version}</version>
+    </dependency>
 	</dependencies>
 	<repositories>
 		<!-- ALA repository  -->

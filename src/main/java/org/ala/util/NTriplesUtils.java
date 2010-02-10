@@ -1,4 +1,4 @@
-package org.ala.dao;
+package org.ala.util;
 
 import java.io.BufferedReader;
 import java.io.Reader;

@@ -43,6 +43,12 @@ public class TaxonConceptServlet extends HttpServlet{
 				req.setAttribute("commonNames", tcDao.getCommonNamesFor(guid));
 				req.setAttribute("childConcepts", tcDao.getParentConceptsFor(guid));
 				req.setAttribute("parentConcepts", tcDao.getChildConceptsFor(guid));
+				req.setAttribute("images", tcDao.getImages(guid));
+				req.setAttribute("pestStatuses", tcDao.getPestStatuses(guid));
+				req.setAttribute("conservationStatuses", tcDao.getConservationStatuses(guid));
+				
+				//add literal properties 
+				
 				RequestDispatcher reqDispatcher = getServletConfig().getServletContext().getRequestDispatcher("/taxonConcept.jsp");
 				reqDispatcher.forward(req,resp);
 			}
