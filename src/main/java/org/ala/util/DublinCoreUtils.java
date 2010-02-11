@@ -27,9 +27,17 @@ import org.gbif.file.CSVReader;
  */
 public class DublinCoreUtils {
 
+	/**
+	 * Retrieve the content type (mime type) for the supplied directory path.
+	 * e.g. by reading the file /data/bie/1/1/dc
+	 * 
+	 * @param repositoryDir
+	 * @return
+	 * @throws Exception
+	 */
 	public static String getContentType(String repositoryDir) throws Exception {
 		
-		String filePath = repositoryDir+File.separator+"dc";
+		String filePath = repositoryDir+File.separator+FileType.DC.toString();
 		File file = new File(filePath);
 		if(!file.exists()){
 			return null;

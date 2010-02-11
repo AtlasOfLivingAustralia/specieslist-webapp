@@ -1,6 +1,24 @@
+/***************************************************************************
+ * Copyright (C) 2010 Atlas of Living Australia
+ * All Rights Reserved.
+ *
+ * The contents of this file are subject to the Mozilla Public
+ * License Version 1.1 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of
+ * the License at http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS
+ * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ ***************************************************************************/
 package org.ala.model;
-
-public class TaxonName extends AttributableObject {
+/**
+ * Simple POJO for a taxon name. Closely mirrors the TDWG ontology (as of 2009).
+ *
+ * @author Dave Martin (David.Martin@csiro.au)
+ */
+public class TaxonName extends AttributableObject implements Comparable<TaxonName>{
 
 	public String guid;
 	public String nameComplete;
@@ -9,6 +27,18 @@ public class TaxonName extends AttributableObject {
 	public String publishedInCitation; //lsid
 	public String nomenclaturalCode;
 	public String typificationString;
+	
+	/**
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(TaxonName o) {
+		//check the infosources
+		if(o.getNameComplete()!=null && nameComplete!=null){
+			return nameComplete.compareTo(o.getNameComplete());
+		}
+		return -1;
+	}	
 	/**
 	 * @return the guid
 	 */

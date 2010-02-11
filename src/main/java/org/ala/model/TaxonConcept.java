@@ -1,6 +1,24 @@
+/***************************************************************************
+ * Copyright (C) 2010 Atlas of Living Australia
+ * All Rights Reserved.
+ *
+ * The contents of this file are subject to the Mozilla Public
+ * License Version 1.1 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of
+ * the License at http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS
+ * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ ***************************************************************************/
 package org.ala.model;
-
-public class TaxonConcept extends AttributableObject{
+/**
+ * Simple POJO for a taxon concept.
+ *
+ * @author Dave Martin (David.Martin@csiro.au)
+ */
+public class TaxonConcept extends AttributableObject implements Comparable<TaxonConcept>{
 
 	/** Every taxonconcept should have a guid of some sort */
 	public String guid;
@@ -14,6 +32,18 @@ public class TaxonConcept extends AttributableObject{
 	public String publishedIn;
 	public boolean hasChildren;
 
+	/**
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(TaxonConcept o) {
+		//check the infosources
+		if(o.getNameString()!=null && nameString!=null){
+			return nameString.compareTo(o.getNameString());
+		}
+		return -1;
+	}	
+	
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */

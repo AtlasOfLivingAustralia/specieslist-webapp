@@ -9,7 +9,11 @@ taglib
 <link rel="stylesheet" href="/bie-hbase/css/default.css" />
 </head>
 <body>
-<h1>${taxonConcept.nameString} - <a href="taxon?debug=true&guid=${taxonConcept.guid}">debug</a></h1>
+<h1>${taxonConcept.nameString} 
+  - 
+  <a href="taxon?debug=true&guid=${taxonConcept.guid}">debug</a>
+  <span style="float:right;"><a href ="/bie-hbase/">HOME</a></span>
+</h1>
 <table>
 	<tr>
 		<td>Author</td>
@@ -90,6 +94,43 @@ taglib
 		</c:forEach>
 	</table>
 </c:if>
+
+
+<c:if test="${not empty images}">
+  <h3>Images</h3>
+  <table>
+    <c:forEach items="${images}" var="image">
+      <tr>
+        <td><img src="${fn:replace(image.repoLocation, '/data/bie/', 'http://localhost/repository/')}"/></td>
+      </tr>
+    </c:forEach>
+  </table>
+</c:if>
+
+<c:if test="${not empty pestStatuses}">
+  <h3>Pest Status</h3>
+  <table>
+    <c:forEach items="${pestStatuses}" var="status">
+      <tr>
+        <td>Status</td>
+        <td>${status.status}</td>
+      </tr>
+    </c:forEach>
+  </table>
+</c:if>
+
+<c:if test="${not empty conservationStatuses}">
+  <h3>Conservation Status</h3>
+  <table>
+    <c:forEach items="${conservationStatuses}" var="status">
+      <tr>
+        <td>Status</td>
+        <td>${status.status}</td>
+      </tr>
+    </c:forEach>
+  </table>
+</c:if>
+
 
 </body>
 </html>

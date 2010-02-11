@@ -1,3 +1,17 @@
+/***************************************************************************
+ * Copyright (C) 2010 Atlas of Living Australia
+ * All Rights Reserved.
+ *
+ * The contents of this file are subject to the Mozilla Public
+ * License Version 1.1 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of
+ * the License at http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS
+ * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ ***************************************************************************/
 package org.ala.hbase;
 
 import java.util.ArrayList;
@@ -14,7 +28,11 @@ import org.ala.util.TabReader;
  * This class loads data from exported ANBG dump files into the HBase table
  * "taxonConcept" after they have been preprocessed by a Scala script.
  * 
- * It makes use of lucene indexes for lookups of concepts.
+ * It makes use of lucene indexes for lookups of concepts, to add synonyms
+ * and parent/child relationships.
+ * 
+ * This is currently filtering vernacular concepts and congruent 
+ * concepts (favouring the "fromTaxon" in the relationship).
  * 
  * @author David Martin
  */
@@ -98,7 +116,7 @@ public class ANBGDataLoader {
     				} else {
     					System.err.println("Unable to add parent - No concept for :"+keyValue[1]);
     				}
-    			}    			
+    			}
     			
 //    			http://rs.tdwg.org/ontology/voc/TaxonConcept#Includes        
 //    			http://rs.tdwg.org/ontology/voc/TaxonConcept#Overlaps        
@@ -123,6 +141,7 @@ public class ANBGDataLoader {
 	 */
 	private static void loadTaxonNames() throws Exception {
 		TabReader tr = new TabReader("/data/taxonNames.txt");
+		LoadUtils loadUtils = new LoadUtils();
     	String[] record = null;
     	TaxonConceptDao tcDao = new TaxonConceptDao();
     	int i = 0;
@@ -132,9 +151,9 @@ public class ANBGDataLoader {
     		if(record.length!=8){
     			System.out.println("truncated record: "+record);
     			continue;
-    		}    		
+    		}
     		
-    		List<TaxonConcept> tcs = tcDao.getByNameGuid(record[0], 100);
+    		List<TaxonConcept> tcs = loadUtils.getByNameGuid(record[0], 100);
     		TaxonName tn = new TaxonName();
     		tn.guid = record[0];
     		tn.nameComplete = record[2];
@@ -178,7 +197,10 @@ public class ANBGDataLoader {
 	    		if(record.length==9){
 	    			
 	    			boolean isVernacular = loadUtils.isVernacularConcept(record[0]);
-	    			if(!isVernacular){
+	    			boolean isCongruent = loadUtils.isCongruentConcept(record[0]);
+	    			
+	    			//dont add vernacular or congruent concepts
+	    			if(!isVernacular && !isCongruent){
 		    			TaxonConcept tc = new TaxonConcept();
 		    			tc.guid = record[0];
 		    			tc.nameGuid = record[1];

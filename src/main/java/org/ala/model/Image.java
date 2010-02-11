@@ -15,11 +15,11 @@
 package org.ala.model;
 
 /**
- * 
+ * Simple POJO representing an image within the system. 
  *
  * @author Dave Martin (David.Martin@csiro.au)
  */
-public class Image extends AttributableObject {
+public class Image extends AttributableObject implements Comparable<Image>{
 
 	protected String guid;
 	protected String contentType;
@@ -60,5 +60,14 @@ public class Image extends AttributableObject {
 	 */
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
+	}
+	@Override
+	public int compareTo(Image o) {
+		
+		//check the infosources
+		if(o.getRepoLocation()!=null && repoLocation!=null){
+			return o.getRepoLocation().compareTo(repoLocation);
+		}
+		return -1;	
 	}
 }
