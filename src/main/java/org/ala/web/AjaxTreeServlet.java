@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ala.dao.TaxonConceptDao;
-import org.ala.model.TaxonConcept;
+import org.ala.dto.SearchTaxonConceptDTO;
 /**
  * Debug servlet for the HBase generated profiles.
  *
@@ -49,7 +49,7 @@ public class AjaxTreeServlet extends HttpServlet{
 		
 		try {
 			TaxonConceptDao tcDao = new TaxonConceptDao();
-			List<TaxonConcept> tcs = tcDao.getByParentGuid(guid, 1000);
+			List<SearchTaxonConceptDTO> tcs = tcDao.getByParentGuid(guid, 1000);
 			req.setAttribute("taxonConcepts", tcs);
 			
 			//Servlet JSP communication

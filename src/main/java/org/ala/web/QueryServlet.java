@@ -24,8 +24,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ala.dao.TaxonConceptDao;
+import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.model.TaxonConcept;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 /**
  * Debug query servlet that uses the lucene indicies.
  *
@@ -34,6 +36,7 @@ import org.apache.commons.lang.StringUtils;
 public class QueryServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 6560363824981541478L;
+	protected Logger logger = Logger.getLogger(QueryServlet.class);
 
 	/**
 	 * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
@@ -45,20 +48,13 @@ public class QueryServlet extends HttpServlet{
 		String query = StringUtils.trimToNull(req.getParameter("q"));
 		String guid = StringUtils.trimToNull(req.getParameter("guid"));
 		
-		System.out.println("Query: "+query);
-		System.out.println("Guid: "+guid);
+		logger.debug("Query: "+query);
+		logger.debug("Guid: "+guid);
 		
 		if(query!=null){
 			try {
 				TaxonConceptDao tcDao = new TaxonConceptDao();
-				List<TaxonConcept> tcs = tcDao.getByScientificName(query, 100);
-				if(tcs==null || tcs.isEmpty()){
-					TaxonConcept tc = tcDao.getByGuid(query);
-					if(tc!=null){
-						tcs.add(tc);
-					}
-				} 
-					
+				List<SearchTaxonConceptDTO> tcs = tcDao.findByScientificName(query, 100);
 				req.setAttribute("taxonConcepts", tcs);
 				
 				//Servlet JSP communication
@@ -66,7 +62,7 @@ public class QueryServlet extends HttpServlet{
 				reqDispatcher.forward(req,resp);
 			} catch (Exception e) {
 				throw new ServletException(e.getMessage(), e);
-			}			
+			}
 			
 		} else if(guid!=null){
 			try {
@@ -80,7 +76,7 @@ public class QueryServlet extends HttpServlet{
 				reqDispatcher.forward(req,resp);
 			} catch (Exception e) {
 				throw new ServletException(e.getMessage(), e);
-			}			
+			}
 		}
 	}
 }

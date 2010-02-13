@@ -21,11 +21,11 @@ function query(){
     	$("<td>").addClass("tableCell").text(data[i].id).appendTo(trow);
     	var link = $("<a>").attr("href","taxon?guid="+data[i].id).text(data[i].text);
     	$("<td>").addClass("tableCell").append(link).appendTo(trow);
+
+    	$("<td>").addClass("tableCell").text(data[i].commonName).appendTo(trow);
+    	
     	$("#resultsTable").append(trow);
     }
-
-
-    
    });
 }
 
@@ -48,8 +48,6 @@ function query(){
   
   <div id="detail">
     <h3 id="detailString"></h3>
-  
   </div>
-  
 </body>
 </html>

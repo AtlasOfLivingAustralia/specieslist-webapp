@@ -5,34 +5,34 @@ taglib
 	prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <html>
 <head>
-<title>${taxonConcept.nameString}</title>
+<title>${extendedTaxonConcept.taxonConcept.nameString}</title>
 <link rel="stylesheet" href="/bie-hbase/css/default.css" />
 </head>
 <body>
-<h1>${taxonConcept.nameString} 
+<h1>${extendedTaxonConcept.taxonConcept.nameString} 
   - 
-  <a href="taxon?debug=true&guid=${taxonConcept.guid}">debug</a>
+  <a href="taxon?debug=true&guid=${extendedTaxonConcept.taxonConcept.guid}">debug</a>
   <span style="float:right;"><a href ="/bie-hbase/">HOME</a></span>
 </h1>
 <table>
 	<tr>
 		<td>Author</td>
-		<td>${taxonConcept.author}</td>
+		<td>${extendedTaxonConcept.taxonConcept.author}</td>
 	</tr>
 	<tr>
 		<td>Year</td>
-		<td>${taxonConcept.authorYear}</td>
+		<td>${extendedTaxonConcept.taxonConcept.authorYear}</td>
 	</tr>
 	<tr>
 		<td>Published</td>
-		<td>${taxonConcept.publishedIn}</td>
+		<td>${extendedTaxonConcept.taxonConcept.publishedIn}</td>
 	</tr>
 </table>
 
 <c:if test="${not empty commonNames}">
   <h3>Common names</h3>
   <table>
-    <c:forEach items="${commonNames}" var="commonName">
+    <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
       <tr>
         <td>Common name</td>
         <td>${commonName.nameString}</td>
@@ -43,7 +43,7 @@ taglib
 
 <h3>Parent concepts</h3>
 <table>
-	<c:forEach items="${parentConcepts}" var="parentConcept">
+	<c:forEach items="${extendedTaxonConcept.parentConcepts}" var="parentConcept">
 		<tr>
 			<td>Scientific name</td>
 			<td><a href="taxon?guid=${parentConcept.guid}">${parentConcept.nameString}</a></td>
@@ -55,26 +55,26 @@ taglib
 <table>
 	<tr>
 		<td>Scientific name</td>
-		<td>${taxonName.nameComplete}</td>
+		<td>${extendedTaxonConcept.taxonName.nameComplete}</td>
 	</tr>
 	<tr>
 		<td>Author</td>
-		<td>${taxonName.authorship}</td>
+		<td>${extendedTaxonConcept.taxonName.authorship}</td>
 	</tr>
 	<tr>
 		<td>Rank</td>
-		<td>${taxonName.rankString}</td>
+		<td>${extendedTaxonConcept.taxonName.rankString}</td>
 	</tr>
 	<tr>
 		<td>Typification</td>
-		<td>${taxonName.typificationString}</td>
+		<td>${extendedTaxonConcept.taxonName.typificationString}</td>
 	</tr>
 </table>
 
-<c:if test="${not empty synonyms}">
-	<h3>Synonyms</h3>
+<c:if test="${not empty extendedTaxonConcept.synonyms}">
+	<h3>Synonyms (${fn:length(extendedTaxonConcept.synonyms)})</h3>
 	<table>
-		<c:forEach items="${synonyms}" var="synonym">
+		<c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym">
 			<tr>
 				<td>Scientific name</td>
 				<td><a href="taxon?guid=${synonym.guid}">${synonym.nameString}</a></td>
@@ -83,10 +83,10 @@ taglib
 	</table>
 </c:if>
 
-<c:if test="${not empty childConcepts}">
-	<h3>Child concepts</h3>
+<c:if test="${not empty extendedTaxonConcept.childConcepts}">
+	<h3>Child concepts (${fn:length(extendedTaxonConcept.childConcepts)})</h3>
 	<table>
-		<c:forEach items="${childConcepts}" var="childConcept">
+		<c:forEach items="${extendedTaxonConcept.childConcepts}" var="childConcept">
 			<tr>
 				<td>Scientific name</td>
 				<td><a href="taxon?guid=${childConcept.guid}">${childConcept.nameString}</a></td>
@@ -96,10 +96,10 @@ taglib
 </c:if>
 
 
-<c:if test="${not empty images}">
-  <h3>Images</h3>
+<c:if test="${not empty extendedTaxonConcept.images}">
+  <h3>Images (${fn:length(extendedTaxonConcept.images)})</h3>
   <table>
-    <c:forEach items="${images}" var="image">
+    <c:forEach items="${extendedTaxonConcept.images}" var="image">
       <tr>
         <td><img src="${fn:replace(image.repoLocation, '/data/bie/', 'http://localhost/repository/')}"/></td>
       </tr>
@@ -107,10 +107,10 @@ taglib
   </table>
 </c:if>
 
-<c:if test="${not empty pestStatuses}">
-  <h3>Pest Status</h3>
+<c:if test="${not empty extendedTaxonConcept.pestStatuses}">
+  <h3>Pest Status (${fn:length(extendedTaxonConcept.pestStatuses)})</h3>
   <table>
-    <c:forEach items="${pestStatuses}" var="status">
+    <c:forEach items="${extendedTaxonConcept.pestStatuses}" var="status">
       <tr>
         <td>Status</td>
         <td>${status.status}</td>
@@ -119,10 +119,10 @@ taglib
   </table>
 </c:if>
 
-<c:if test="${not empty conservationStatuses}">
-  <h3>Conservation Status</h3>
+<c:if test="${not empty extendedTaxonConcept.conservationStatuses}">
+  <h3>Conservation Status (${fn:length(extendedTaxonConcept.conservationStatuses)})</h3>
   <table>
-    <c:forEach items="${conservationStatuses}" var="status">
+    <c:forEach items="${extendedTaxonConcept.conservationStatuses}" var="status">
       <tr>
         <td>Status</td>
         <td>${status.status}</td>

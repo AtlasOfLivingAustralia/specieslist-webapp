@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.ala.dto.ExtendedTaxonConceptDTO;
+import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.lucene.LuceneUtils;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
@@ -143,7 +145,7 @@ public class TaxonConceptDao {
 		while(keys.hasNext()){
 			String predicate = keys.next();
 			
-			//remove the base URL, to make the column header more succicient
+			//FIXMEremove the base URL, to make the column header more succicient
 			URI uri = new URI(predicate);
 			String fragment = uri.getFragment();
 			if(fragment==null){
@@ -166,6 +168,11 @@ public class TaxonConceptDao {
 	 */
 	public List<TaxonConcept> getSynonymsFor(String guid) throws Exception {
 		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		return getSynonyms(row);
+	}
+
+	private List<TaxonConcept> getSynonyms(RowResult row) throws IOException,
+			JsonParseException, JsonMappingException {
 		Cell cell = row.get(Bytes.toBytes(SYNONYM_COL));
 		return getTaxonConceptsFrom(cell);
 	}
@@ -179,6 +186,11 @@ public class TaxonConceptDao {
 	 */
 	public List<Image> getImages(String guid) throws Exception {
 		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		return getImages(row);
+	}
+
+	private List<Image> getImages(RowResult row) throws IOException,
+			JsonParseException, JsonMappingException {
 		Cell cell = row.get(Bytes.toBytes(IMAGE_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if(cell!=null){
@@ -197,6 +209,11 @@ public class TaxonConceptDao {
 	 */
 	public List<PestStatus> getPestStatuses(String guid) throws Exception {
 		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		return getPestStatus(row);
+	}
+
+	private List<PestStatus> getPestStatus(RowResult row) throws IOException,
+			JsonParseException, JsonMappingException {
 		Cell cell = row.get(Bytes.toBytes(PEST_STATUS_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if(cell!=null){
@@ -215,6 +232,11 @@ public class TaxonConceptDao {
 	 */
 	public List<ConservationStatus> getConservationStatuses(String guid) throws Exception {
 		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		return getConservationStatus(row);
+	}
+
+	private List<ConservationStatus> getConservationStatus(RowResult row)
+			throws IOException, JsonParseException, JsonMappingException {
 		Cell cell = row.get(Bytes.toBytes(CONSERVATION_STATUS_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if(cell!=null){
@@ -271,7 +293,12 @@ public class TaxonConceptDao {
 	 */
 	public List<TaxonConcept> getChildConceptsFor(String guid) throws Exception {
 		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
-		Cell cell = row.get(Bytes.toBytes(PARENT_COL));
+		return getChildConcepts(row);
+	}
+
+	private List<TaxonConcept> getChildConcepts(RowResult row)
+			throws IOException, JsonParseException, JsonMappingException {
+		Cell cell = row.get(Bytes.toBytes(CHILD_COL));
 		return getTaxonConceptsFrom(cell);
 	}
 	
@@ -284,7 +311,12 @@ public class TaxonConceptDao {
 	 */	
 	public List<TaxonConcept> getParentConceptsFor(String guid) throws Exception {
 		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
-		Cell cell = row.get(Bytes.toBytes(CHILD_COL));
+		return getParentConcepts(row);
+	}
+
+	private List<TaxonConcept> getParentConcepts(RowResult row)
+			throws IOException, JsonParseException, JsonMappingException {
+		Cell cell = row.get(Bytes.toBytes(PARENT_COL));
 		return getTaxonConceptsFrom(cell);
 	}		
 	
@@ -297,6 +329,11 @@ public class TaxonConceptDao {
 	 */
 	public List<CommonName> getCommonNamesFor(String guid) throws Exception {
 		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		return getCommonNames(row);
+	}
+
+	private List<CommonName> getCommonNames(RowResult row) throws IOException,
+			JsonParseException, JsonMappingException {
 		Cell cell = row.get(Bytes.toBytes(VERNACULAR_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if(cell!=null){
@@ -456,7 +493,7 @@ public class TaxonConceptDao {
 		for(TaxonConcept tc: taxonConcepts){
 			create(tc);
 		}
-	}	
+	}
 	
 	/**
 	 * Retrieve the taxon concept by guid.
@@ -466,7 +503,6 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public TaxonConcept getByGuid(String guid) throws Exception {
-
 		RowResult rowResult = tcTable.getRow(guid.getBytes());
 		if(rowResult==null){
 			return null;
@@ -474,6 +510,41 @@ public class TaxonConceptDao {
 		return getTaxonConcept(guid, rowResult);
 	}
 
+	/**
+	 * Retrieve the entire profile data for a taxon concept by guid.
+	 * 
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	public ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid) throws Exception {
+
+		RowResult row = tcTable.getRow(guid.getBytes());
+		if(row==null){
+			return null;
+		}
+		ExtendedTaxonConceptDTO etc = new ExtendedTaxonConceptDTO();
+		
+		//populate the dto
+		etc.setTaxonConcept(getTaxonConcept(guid, row));
+		etc.setTaxonName(getTaxonName(row));
+		etc.setSynonyms(getSynonyms(row));
+		etc.setCommonNames(getCommonNames(row));
+		etc.setChildConcepts(getChildConcepts(row));
+		etc.setParentConcepts(getParentConcepts(row));
+		etc.setPestStatuses(getPestStatus(row));
+		etc.setConservationStatuses(getConservationStatus(row));
+		etc.setImages(getImages(row));
+		
+		//add taxonomic properties
+		
+		//add descriptive data
+		
+		//add geospatial data
+		
+		return etc;
+	}	
+	
 	/**
 	 * Create a taxon concept from the row result.
 	 * 
@@ -503,14 +574,17 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public TaxonName getTaxonNameFor(String guid) throws Exception {
-		
 		RowResult rowResult = tcTable.getRow(guid.getBytes());
 		if(rowResult==null){
 			return null;
-		}		
-		
+		}
+		return getTaxonName(rowResult);
+	}
+
+	private TaxonName getTaxonName(RowResult rowResult) {
 		TaxonName tn = new TaxonName();
 		tn.guid = HBaseDaoUtils.getField(rowResult, "tn:guid");
+		tn.authorship = HBaseDaoUtils.getField(rowResult, "tn:authorship");
 		tn.nameComplete = HBaseDaoUtils.getField(rowResult, "tn:nameComplete");
 		tn.nomenclaturalCode = HBaseDaoUtils.getField(rowResult, "tn:nomenclaturalCode");
 		tn.rankString = HBaseDaoUtils.getField(rowResult, "tn:rankString");
@@ -554,11 +628,11 @@ public class TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<TaxonConcept> getByScientificName(String input, int limit) throws Exception {
+	public List<SearchTaxonConceptDTO> findByScientificName(String input, int limit) throws Exception {
 
 		input = StringUtils.trimToNull(input);
 		if(input==null){
-			return new ArrayList<TaxonConcept>();
+			return new ArrayList<SearchTaxonConceptDTO>();
 		}
 		input = input.toLowerCase();
 		
@@ -577,7 +651,7 @@ public class TaxonConceptDao {
 		TopDocs topDocs = tcIdxSearcher.search(scientificNameQuery, limit);
 		System.out.println("Total hits: "+topDocs.totalHits);
 		
-		List<TaxonConcept> tcs = new ArrayList<TaxonConcept>();
+		List<SearchTaxonConceptDTO> tcs = new ArrayList<SearchTaxonConceptDTO>();
 		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
 			Document doc = tcIdxSearcher.doc(scoreDoc.doc);
 			tcs.add(createTaxonConceptFromIndex(doc));
@@ -652,11 +726,11 @@ public class TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<TaxonConcept> getByParentGuid(String parentGuid, int limit) throws Exception {
+	public List<SearchTaxonConceptDTO> getByParentGuid(String parentGuid, int limit) throws Exception {
 		if(parentGuid==null){
 			parentGuid = "NULL";
 		}
-		return searchTaxonConceptIndexBy("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsChildTaxonOf", parentGuid, limit);
+		return searchTaxonConceptIndexBy("parentGuid", parentGuid, limit);
 	}
 	
 	/**
@@ -669,12 +743,12 @@ public class TaxonConceptDao {
 	 * @throws IOException
 	 * @throws CorruptIndexException
 	 */
-	private List<TaxonConcept> searchTaxonConceptIndexBy(String columnName, String value, int limit)
+	private List<SearchTaxonConceptDTO> searchTaxonConceptIndexBy(String columnName, String value, int limit)
 			throws Exception {
 		Query query = new TermQuery(new Term(columnName, value));
 		IndexSearcher tcIdxSearcher = getTcIdxSearcher();
 		TopDocs topDocs = tcIdxSearcher.search(query, limit);
-		List<TaxonConcept> tcs = new ArrayList<TaxonConcept>();
+		List<SearchTaxonConceptDTO> tcs = new ArrayList<SearchTaxonConceptDTO>();
 		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
 			Document doc = tcIdxSearcher.doc(scoreDoc.doc);
 			tcs.add(createTaxonConceptFromIndex(doc));
@@ -705,13 +779,18 @@ public class TaxonConceptDao {
 	 * @param doc
 	 * @return
 	 */
-	private TaxonConcept createTaxonConceptFromIndex(Document doc) {
-		TaxonConcept taxonConcept = new TaxonConcept();
-		taxonConcept.guid = doc.get("guid");
-		taxonConcept.parentGuid = doc.get("parentGuid");
-		taxonConcept.nameString = doc.get("scientificNameRaw");
+	private SearchTaxonConceptDTO createTaxonConceptFromIndex(Document doc) {
+		SearchTaxonConceptDTO taxonConcept = new SearchTaxonConceptDTO();
+		taxonConcept.setGuid(doc.get("guid"));
+		taxonConcept.setParentGuid(doc.get("parentGuid"));
+		taxonConcept.setNameString(doc.get("scientificNameRaw"));
 		String hasChildrenAsString = doc.get("hasChildren");
-		taxonConcept.hasChildren = Boolean.parseBoolean(hasChildrenAsString);
+		String[] commonNames = doc.getValues("commonName");
+		if(commonNames.length>0){
+			taxonConcept.setCommonName(commonNames[0]);
+		}
+		
+		taxonConcept.setHasChildren(Boolean.parseBoolean(hasChildrenAsString));
 		return taxonConcept;
 	}
 
@@ -917,7 +996,7 @@ public class TaxonConceptDao {
     			LuceneUtils.addScientificNameToIndex(doc, taxonConcept.nameString);
 	    		
 	    		if(taxonConcept.parentGuid!=null){
-	    			doc.add(new Field("parentGuid", taxonConcept.parentGuid, Store.YES, Index.NO));
+	    			doc.add(new Field("parentGuid", taxonConcept.parentGuid, Store.YES, Index.ANALYZED));
 	    		}
 	    		
 	    		for(TaxonConcept tc: synonyms){

@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ala.dao.TaxonConceptDao;
+import org.apache.log4j.Logger;
 
 /**
  * Serves all the details associated with a taxon concept.
@@ -33,7 +34,7 @@ import org.ala.dao.TaxonConceptDao;
 public class TaxonConceptServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 6560363824981541478L;
-
+	protected Logger logger = Logger.getLogger(TaxonConceptServlet.class);
 	/**
 	 * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
@@ -42,10 +43,9 @@ public class TaxonConceptServlet extends HttpServlet{
 			throws ServletException, IOException {
 		
 		String guid = req.getParameter("guid");
-		
 		String debug = req.getParameter("debug");
 		
-		System.out.println("Guid: "+guid);
+		logger.debug("Retrieving concept with guid: "+guid);
 		try {
 			if(debug!=null){
 				TaxonConceptDao tcDao = new TaxonConceptDao();
@@ -55,16 +55,22 @@ public class TaxonConceptServlet extends HttpServlet{
 				RequestDispatcher reqDispatcher = getServletConfig().getServletContext().getRequestDispatcher("/debug.jsp");
 				reqDispatcher.forward(req,resp);
 			} else {
+				
+				//TODO inject me
 				TaxonConceptDao tcDao = new TaxonConceptDao();
-				req.setAttribute("taxonConcept", tcDao.getByGuid(guid));
-				req.setAttribute("taxonName", tcDao.getTaxonNameFor(guid));
-				req.setAttribute("synonyms", tcDao.getSynonymsFor(guid));
-				req.setAttribute("commonNames", tcDao.getCommonNamesFor(guid));
-				req.setAttribute("childConcepts", tcDao.getParentConceptsFor(guid));
-				req.setAttribute("parentConcepts", tcDao.getChildConceptsFor(guid));
-				req.setAttribute("images", tcDao.getImages(guid));
-				req.setAttribute("pestStatuses", tcDao.getPestStatuses(guid));
-				req.setAttribute("conservationStatuses", tcDao.getConservationStatuses(guid));
+				
+				req.setAttribute("extendedTaxonConcept",tcDao.getExtendedTaxonConceptByGuid(guid));
+				
+				
+//				req.setAttribute("taxonConcept", tcDao.getByGuid(guid));
+//				req.setAttribute("taxonName", tcDao.getTaxonNameFor(guid));
+//				req.setAttribute("synonyms", tcDao.getSynonymsFor(guid));
+//				req.setAttribute("commonNames", tcDao.getCommonNamesFor(guid));
+//				req.setAttribute("childConcepts", tcDao.getParentConceptsFor(guid));
+//				req.setAttribute("parentConcepts", tcDao.getChildConceptsFor(guid));
+//				req.setAttribute("images", tcDao.getImages(guid));
+//				req.setAttribute("pestStatuses", tcDao.getPestStatuses(guid));
+//				req.setAttribute("conservationStatuses", tcDao.getConservationStatuses(guid));
 				
 				//add literal properties 
 				
