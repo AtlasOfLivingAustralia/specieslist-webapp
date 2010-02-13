@@ -33,11 +33,23 @@ public class TabReader {
 	Pattern p = Pattern.compile("\t");
 	BufferedReader br;
 	
+	/**
+	 * Initialise suppling the absolute file path.
+	 * 
+	 * @param filePath the absolute file path
+	 * @throws Exception
+	 */
 	public TabReader(String filePath) throws Exception{
     	FileReader fr = new FileReader(new File(filePath));
     	this.br = new BufferedReader(fr);
 	}
 	
+	/**
+	 * Read next line, and tokenise.
+	 * 
+	 * @return null if eof
+	 * @throws Exception
+	 */
 	public String[] readNext() throws Exception{
 		String line = br.readLine();
 		if(line==null)

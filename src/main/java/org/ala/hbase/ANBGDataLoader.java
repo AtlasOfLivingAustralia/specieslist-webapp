@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.ala.dao.TaxonConceptDao;
+import org.ala.lucene.CreateLoadingIndex;
 import org.ala.model.CommonName;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
@@ -29,10 +30,13 @@ import org.ala.util.TabReader;
  * "taxonConcept" after they have been preprocessed by a Scala script.
  * 
  * It makes use of lucene indexes for lookups of concepts, to add synonyms
- * and parent/child relationships.
+ * and parent/child relationships. These indexes are generated using 
+ * <code>CreateLoadingIndex</code>
  * 
  * This is currently filtering vernacular concepts and congruent 
  * concepts (favouring the "fromTaxon" in the relationship).
+ * 
+ * @see CreateLoadingIndex
  * 
  * @author David Martin
  */
