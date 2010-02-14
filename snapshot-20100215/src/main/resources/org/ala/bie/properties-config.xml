@@ -1,0 +1,3 @@
+<beans>
+    <context:property-placeholder location="classpath:/org/ala/bie/bie.properties"/>
+</beans>
