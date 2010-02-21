@@ -421,7 +421,7 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public void addPestStatus(String guid, PestStatus pestStatus) throws Exception {
-		HBaseDaoUtils.storeComplexObject(tcTable, guid, "tc:", PEST_STATUS_COL, pestStatus, new TypeReference<List<ConservationStatus>>(){});
+		HBaseDaoUtils.storeComplexObject(tcTable, guid, "tc:", PEST_STATUS_COL, pestStatus, new TypeReference<List<PestStatus>>(){});
 	}
 	
 	/**
