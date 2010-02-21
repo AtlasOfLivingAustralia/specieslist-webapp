@@ -76,8 +76,8 @@ taglib
 	<table>
 		<c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym">
 			<tr>
-				<td>Scientific name</td>
-				<td><a href="taxon?guid=${synonym.guid}">${synonym.nameString}</a></td>
+				<td style="width: 30%;"><a href="taxon?guid=${synonym.guid}">${synonym.nameString}</a></td>
+				<td>${synonym.publishedIn}</td>
 			</tr>
 		</c:forEach>
 	</table>
