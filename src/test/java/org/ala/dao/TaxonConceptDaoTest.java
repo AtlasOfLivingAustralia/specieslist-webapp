@@ -31,7 +31,7 @@ public class TaxonConceptDaoTest extends TestCase {
 		
 		TaxonConcept synonym2 = new TaxonConcept();
 		synonym2.guid = "urn:lsid:afd:taxon:125";
-		synonym2.nameString = "Sarcophilus satanius";
+		synonym2.nameString = "Sarcophilus laniarius";
 		tcDao.addSynonym("urn:lsid:afd:taxon:123", synonym2);		
 		
 		//refresh local
