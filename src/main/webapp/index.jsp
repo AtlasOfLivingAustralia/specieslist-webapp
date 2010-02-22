@@ -1,8 +1,8 @@
 <html>
 <head>
 <title>BIE - Profiler Index - Debug tool</title>
-<link rel="stylesheet" href="/bie-hbase/css/default.css" />
-<script src="/bie-hbase/js/jquery.js" type="text/javascript"></script>
+<link rel="stylesheet" href="/bie-hbase/static/css/default.css" />
+<script src="/bie-hbase/static/js/jquery.js" type="text/javascript"></script>
 <script><!--
 
 function query(){

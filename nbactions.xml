@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>build-with-dependencies</actionName>
+            <basedir>..</basedir>
+            <reactor>also-make</reactor>
+            <goals>
+                <goal>install</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>CUSTOM-Jetty run</actionName>
+            <displayName>Jetty run</displayName>
+            <properties>
+                <jetty.port>8888</jetty.port>
+                <maven.skip.test>true</maven.skip.test>
+            </properties>
+            <goals>
+                <goal>jetty:run</goal>
+            </goals>
+        </action>
+    </actions>

@@ -123,4 +123,18 @@ public class TaxonName extends AttributableObject implements Comparable<TaxonNam
 	public void setTypificationString(String typificationString) {
 		this.typificationString = typificationString;
 	}
+    /**
+     * Custom getter field to output human readable form of rank
+     *
+     * @return the rankLabel
+     */
+    public String getRankLabel() {
+        String rankLabel = null;
+        try {
+            rankLabel = Rank.getForField(rankString).getName();
+        } catch (Exception e) {
+            rankLabel = rankString;
+        }
+        return rankLabel;
+    }
 }

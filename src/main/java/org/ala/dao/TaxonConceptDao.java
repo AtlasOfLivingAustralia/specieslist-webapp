@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.ala.dto.ExtendedTaxonConceptDTO;
+import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.lucene.LuceneUtils;
 import org.ala.model.CommonName;
@@ -59,6 +60,7 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.codehaus.jackson.JsonParseException;
@@ -67,6 +69,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.gbif.ecat.model.ParsedName;
 import org.gbif.ecat.parser.NameParser;
+import org.springframework.stereotype.Component;
 /**
  * Prototype quality Dao in need of refactoring.
  * 
@@ -74,6 +77,7 @@ import org.gbif.ecat.parser.NameParser;
  * 
  * @author Dave Martin
  */
+@Component
 public class TaxonConceptDao {
 	
 	/** The location for the lucene index */
@@ -654,12 +658,50 @@ public class TaxonConceptDao {
 		List<SearchTaxonConceptDTO> tcs = new ArrayList<SearchTaxonConceptDTO>();
 		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
 			Document doc = tcIdxSearcher.doc(scoreDoc.doc);
-			tcs.add(createTaxonConceptFromIndex(doc));
+			tcs.add(createTaxonConceptFromIndex(doc,scoreDoc.score));
 		}
 		System.out.println("TaxonConcepts returned: "+tcs.size());
 		
 		return tcs;
 	}
+
+    public SearchResultsDTO findByScientificName(String input, Integer startIndex, Integer pageSize,
+            String sortField, String sortDirection) throws Exception {
+
+        input = StringUtils.trimToNull(input);
+		if(input==null){
+			return new SearchResultsDTO();
+		}
+		input = input.toLowerCase();
+
+		QueryParser qp  = new QueryParser("scientificName", new KeywordAnalyzer());
+		Query scientificNameQuery = qp.parse("\""+input+"\"");
+
+		qp  = new QueryParser("commonName", new KeywordAnalyzer());
+		Query commonNameQuery = qp.parse("\""+input+"\"");
+
+		Query guidQuery = new TermQuery(new Term("guid", input));
+
+		scientificNameQuery = scientificNameQuery.combine(new Query[]{scientificNameQuery,guidQuery, commonNameQuery});
+        
+		IndexSearcher tcIdxSearcher1 = getTcIdxSearcher();
+
+		//TopDocs topDocs = tcIdxSearcher1.search(scientificNameQuery, pageSize);
+        TopDocs topDocs = tcIdxSearcher1.search(scientificNameQuery, null, pageSize, Sort.RELEVANCE);
+		System.out.println("Total hits: "+topDocs.totalHits);
+
+		List<SearchTaxonConceptDTO> tcs = new ArrayList<SearchTaxonConceptDTO>();
+		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
+			Document doc = tcIdxSearcher1.doc(scoreDoc.doc);
+			tcs.add(createTaxonConceptFromIndex(doc, scoreDoc.score));
+		}
+
+        SearchResultsDTO searchResults = new SearchResultsDTO(tcs);
+        searchResults.setTotalRecords(topDocs.totalHits);
+        searchResults.setStartIndex(startIndex);
+
+        return searchResults;
+    }
 	
 	/**
 	 * Get TaxonConcept GUID by genus and scientific name.
@@ -751,7 +793,7 @@ public class TaxonConceptDao {
 		List<SearchTaxonConceptDTO> tcs = new ArrayList<SearchTaxonConceptDTO>();
 		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
 			Document doc = tcIdxSearcher.doc(scoreDoc.doc);
-			tcs.add(createTaxonConceptFromIndex(doc));
+			tcs.add(createTaxonConceptFromIndex(doc, scoreDoc.score));
 		}	
 		return tcs;
 	}
@@ -779,7 +821,7 @@ public class TaxonConceptDao {
 	 * @param doc
 	 * @return
 	 */
-	private SearchTaxonConceptDTO createTaxonConceptFromIndex(Document doc) {
+	private SearchTaxonConceptDTO createTaxonConceptFromIndex(Document doc, float score) {
 		SearchTaxonConceptDTO taxonConcept = new SearchTaxonConceptDTO();
 		taxonConcept.setGuid(doc.get("guid"));
 		taxonConcept.setParentGuid(doc.get("parentGuid"));
@@ -789,7 +831,8 @@ public class TaxonConceptDao {
 		if(commonNames.length>0){
 			taxonConcept.setCommonName(commonNames[0]);
 		}
-		
+
+		taxonConcept.setScore(score);
 		taxonConcept.setHasChildren(Boolean.parseBoolean(hasChildrenAsString));
 		return taxonConcept;
 	}
@@ -996,7 +1039,7 @@ public class TaxonConceptDao {
     			LuceneUtils.addScientificNameToIndex(doc, taxonConcept.nameString);
 	    		
 	    		if(taxonConcept.parentGuid!=null){
-	    			doc.add(new Field("parentGuid", taxonConcept.parentGuid, Store.YES, Index.ANALYZED));
+	    			doc.add(new Field("parentGuid", taxonConcept.parentGuid, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
 	    		}
 	    		
 	    		for(TaxonConcept tc: synonyms){
@@ -1009,6 +1052,10 @@ public class TaxonConceptDao {
 	    				doc.add(new Field("commonName", cn.nameString.toLowerCase(), Store.YES, Index.ANALYZED));
 	    			}
 	    		}
+
+//                if () {
+//
+//                }
 	    		
     			doc.add(new Field("hasChildren", Boolean.toString(!children.isEmpty()), Store.YES, Index.NO));
 	    		

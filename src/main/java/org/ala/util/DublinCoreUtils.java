@@ -18,7 +18,7 @@ import java.io.File;
 import java.io.FileReader;
 
 import org.ala.repository.Predicates;
-import org.gbif.file.CSVReader;
+import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Utilities for extracting information from the dublin core files.

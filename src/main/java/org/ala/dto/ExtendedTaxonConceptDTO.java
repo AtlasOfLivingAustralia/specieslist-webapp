@@ -39,6 +39,7 @@ public class ExtendedTaxonConceptDTO {
 	protected List<PestStatus> pestStatuses;
 	protected List<ConservationStatus> conservationStatuses;
 	protected List<Image> images;
+
 	/**
 	 * @return the taxonConcept
 	 */

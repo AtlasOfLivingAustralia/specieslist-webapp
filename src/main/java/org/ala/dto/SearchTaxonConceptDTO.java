@@ -28,6 +28,7 @@ public class SearchTaxonConceptDTO {
 	protected String acceptedConceptGuid;
 	protected String acceptedConceptName;
 	protected boolean hasChildren;
+    protected Float score;
 	/**
 	 * @return the guid
 	 */
@@ -112,4 +113,12 @@ public class SearchTaxonConceptDTO {
 	public void setHasChildren(boolean hasChildren) {
 		this.hasChildren = hasChildren;
 	}
+
+    public Float getScore() {
+        return score;
+    }
+
+    public void setScore(Float score) {
+        this.score = score;
+    }
 }

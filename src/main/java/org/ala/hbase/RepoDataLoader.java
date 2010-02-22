@@ -71,18 +71,22 @@ public class RepoDataLoader {
 				filesRead++;
 				
 				//read the dublin core in the same directory - determine if its an image
-				FileReader reader = new FileReader(currentFile);
-				List<Triple> triples = null;
-				if(useTurtle){
-					triples = TurtleUtils.readTurtle(reader, true);
-				} else {
-					triples = NTriplesUtils.readNTriples(reader, true);
-				}
-				//sync these triples
+				try {
+                    FileReader reader = new FileReader(currentFile);
+                    List<Triple> triples = null;
+                    if (useTurtle) {
+                        triples = TurtleUtils.readTurtle(reader, true);
+                    } else {
+                        triples = NTriplesUtils.readNTriples(reader, true);
+                    }
+                    //sync these triples
 //				/../../infosource-id/document-id div 1000/document-id/rdf
-				String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
-				String documentId = currentFile.getParentFile().getName();
-				tcDao.syncTriples(infosourceId, documentId, triples, currentFile.getParentFile().getAbsolutePath());
+                    String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
+                    String documentId = currentFile.getParentFile().getName();
+                    tcDao.syncTriples(infosourceId, documentId, triples, currentFile.getParentFile().getAbsolutePath());
+                } catch (Exception exception) {
+                    System.out.println("Error reading triple: "+exception.getMessage());
+                }
 			}
 		}
 		return filesRead;
