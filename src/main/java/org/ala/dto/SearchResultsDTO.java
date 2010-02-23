@@ -7,6 +7,7 @@ package org.ala.dto;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
@@ -29,7 +30,7 @@ public class SearchResultsDTO {
     /** Status code to be set by Controller (e.g. OK) */
     private String status;
     /** List of results from search */
-    private Collection<SearchTaxonConceptDTO> taxonConcepts;
+    private List<SearchTaxonConceptDTO> taxonConcepts;
     /** List of facet results from search */
     //private Collection<FacetResultDTO> facetResults;
     /** SOLR query response following search */
@@ -41,7 +42,7 @@ public class SearchResultsDTO {
      * @param searchResults
      * @param facetResults
      */
-    public SearchResultsDTO(Collection<SearchTaxonConceptDTO> searchResults) {
+    public SearchResultsDTO(List<SearchTaxonConceptDTO> searchResults) {
         this.taxonConcepts = searchResults;
         //this.facetResults = facetResults;
     }
@@ -108,11 +109,11 @@ public class SearchResultsDTO {
         this.status = status;
     }
 
-    public Collection<SearchTaxonConceptDTO> getTaxonConcepts() {
+    public List<SearchTaxonConceptDTO> getTaxonConcepts() {
         return taxonConcepts;
     }
 
-    public void setTaxonConcepts(Collection<SearchTaxonConceptDTO> taxonConcepts) {
+    public void setTaxonConcepts(List<SearchTaxonConceptDTO> taxonConcepts) {
         this.taxonConcepts = taxonConcepts;
     }
 

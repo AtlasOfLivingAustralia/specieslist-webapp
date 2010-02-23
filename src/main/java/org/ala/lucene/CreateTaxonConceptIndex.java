@@ -14,7 +14,10 @@
  ***************************************************************************/
 package org.ala.lucene;
 
+
 import org.ala.dao.TaxonConceptDao;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * Creates a basic lucene index for the taxon concepts.
@@ -24,7 +27,9 @@ import org.ala.dao.TaxonConceptDao;
 public class CreateTaxonConceptIndex {
 
 	public static void main(String[] args) throws Exception {
-		TaxonConceptDao tcDao = new TaxonConceptDao();
+		//TaxonConceptDao tcDao = new TaxonConceptDao();
+        ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:spring.xml");
+        TaxonConceptDao tcDao = (TaxonConceptDao) context.getBean(TaxonConceptDao.class);
 		tcDao.createIndex();
 	}
 }

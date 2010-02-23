@@ -29,6 +29,8 @@ public class SearchTaxonConceptDTO {
 	protected String acceptedConceptName;
 	protected boolean hasChildren;
     protected Float score;
+    protected String rank;
+    protected int rankId;
 	/**
 	 * @return the guid
 	 */
@@ -120,5 +122,21 @@ public class SearchTaxonConceptDTO {
 
     public void setScore(Float score) {
         this.score = score;
+    }
+
+    public String getRank() {
+        return rank;
+    }
+
+    public void setRank(String rank) {
+        this.rank = rank;
+    }
+
+    public int getRankId() {
+        return rankId;
+    }
+
+    public void setRankId(int rankId) {
+        this.rankId = rankId;
     }
 }

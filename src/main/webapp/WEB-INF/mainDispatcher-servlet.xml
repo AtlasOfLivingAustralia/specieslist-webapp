@@ -75,5 +75,8 @@
         <property name="maxWait" value="30000"/>
         <property name="poolPreparedStatements" value="true"/>
     </bean>
-
+    <!-- BoBo Lucene add-on for facet browsing -->
+    <!--<bean id="rank" class="com.browseengine.bobo.facets.impl.SimpleFacetHandler">
+        <constructor-arg value="rankId" />
+    </bean>-->
 </beans>

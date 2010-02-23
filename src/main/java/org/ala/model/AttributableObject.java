@@ -17,8 +17,10 @@ package org.ala.model;
 public class AttributableObject {
 
 	//attribution
-	public String infoSourceId;
-	public String documentId;
+	protected String infoSourceId;
+	protected String documentId;
+    protected String infoSourceName;
+    protected String infoSourceURL;
 
 	/**
 	 * @return the infoSourceId

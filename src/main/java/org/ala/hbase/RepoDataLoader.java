@@ -83,6 +83,13 @@ public class RepoDataLoader {
 //				/../../infosource-id/document-id div 1000/document-id/rdf
                     String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
                     String documentId = currentFile.getParentFile().getName();
+
+                    //read dublin core
+
+                    //read dc:source (infosource URL), dc:publisher (infosource name), document ID, infsource ID
+
+                    // tcDao.syncTriples(infosourceId, documentId, dcSource, dcPublisher, triples, currentFile.getParentFile().getAbsolutePath());
+
                     tcDao.syncTriples(infosourceId, documentId, triples, currentFile.getParentFile().getAbsolutePath());
                 } catch (Exception exception) {
                     System.out.println("Error reading triple: "+exception.getMessage());

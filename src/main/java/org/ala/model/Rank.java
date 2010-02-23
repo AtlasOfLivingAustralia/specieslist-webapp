@@ -34,6 +34,7 @@ public enum Rank {
     SUBORD      (4200, "subord", "suborder"),
     ORD         (4000, "ord", "order"),
     PHYL_DIV    (2000, "phyl_div", "phylum/division"),
+    SUBPHYL_DIV (2200, "subphyl_div", "subphylum/subdivision"),
     SUBSER      (6900, "subser", "subseries"),
     SUBTRIB     (5700, "subtrib", "subtribe"),
     SUBSP_AGGR  (6975, "subsp_aggr", "subspecies aggregate"),
@@ -58,7 +59,13 @@ public enum Rank {
     INFRAORD    (4350, "infraord", "infraorder"),
     REG         (1000, "reg", "kingdom"),
     CL          (3000, "cl", "class"),
-    SUBPHYL_DIV (2200, "subphyl_div", "subphylum/subdivision");
+    // non standard rank values encountered while indexing...
+    DIVISION    (2000, "division", "phylum/division"),        
+    SUBDIVISION (2200, "subdivision", "subphylum/subdivision"),
+    COHORT      (2400, "cohort", "Cohort"),
+    SECTION     (6600, "section", "section"),
+    INCERTAE_SEDIS (5999, "incertae sedis", "Incertae Sedis (uncertain rank)"),
+    SP_INQUIRENDA  (5999, "species inquirenda", "Species Inquirenda (doubtful identity)"),;
 
     private Integer id;   // used to sort by classification order
     private String field; // string used in database

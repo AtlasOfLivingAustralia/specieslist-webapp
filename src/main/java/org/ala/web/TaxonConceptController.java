@@ -157,6 +157,7 @@ public class TaxonConceptController {
 
         SearchResultsDTO searchResults = tcDao.findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
         model.addAttribute("searchResults", searchResults);
+        System.out.println("searchResults: "+searchResults.getTaxonConcepts().size());
         logger.debug("query = "+query);
 //        SolrResultsDTO solrResults = fedoraDAO.getFullTextSearchResults(query, filterQueryChecked, startIndex, pageSize, sortField, sortDirection);
         if (searchResults.getTaxonConcepts().size() == 1) {

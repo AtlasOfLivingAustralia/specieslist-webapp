@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
@@ -33,6 +34,7 @@ import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
 import org.ala.model.Image;
 import org.ala.model.PestStatus;
+import org.ala.model.Rank;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.model.Triple;
@@ -47,7 +49,10 @@ import org.apache.hadoop.hbase.io.BatchUpdate;
 import org.apache.hadoop.hbase.io.Cell;
 import org.apache.hadoop.hbase.io.RowResult;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.KeywordAnalyzer;
+import org.apache.lucene.analysis.SimpleAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
@@ -91,6 +96,7 @@ public class TaxonConceptDao {
 	public static final String IMAGE_COL = "tc:hasImage";
 	public static final String CHILD_COL = "tc:IsChildTaxonOf";
 	public static final String PARENT_COL = "tc:IsParentTaxonOf";
+    public static final String TAXON_NAME_COL = "tc:hasTaxonName";
 
 	protected IndexSearcher tcIdxSearcher;
 	
@@ -633,38 +639,21 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public List<SearchTaxonConceptDTO> findByScientificName(String input, int limit) throws Exception {
-
-		input = StringUtils.trimToNull(input);
-		if(input==null){
-			return new ArrayList<SearchTaxonConceptDTO>();
-		}
-		input = input.toLowerCase();
-		
-		QueryParser qp  = new QueryParser("scientificName", new KeywordAnalyzer());
-		Query scientificNameQuery = qp.parse("\""+input+"\"");
-		
-		qp  = new QueryParser("commonName", new KeywordAnalyzer());
-		Query commonNameQuery = qp.parse("\""+input+"\"");
-		
-		Query guidQuery = new TermQuery(new Term("guid", input));
-		
-		scientificNameQuery = scientificNameQuery.combine(new Query[]{scientificNameQuery,guidQuery, commonNameQuery});
-		
-		IndexSearcher tcIdxSearcher = getTcIdxSearcher();
-		
-		TopDocs topDocs = tcIdxSearcher.search(scientificNameQuery, limit);
-		System.out.println("Total hits: "+topDocs.totalHits);
-		
-		List<SearchTaxonConceptDTO> tcs = new ArrayList<SearchTaxonConceptDTO>();
-		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
-			Document doc = tcIdxSearcher.doc(scoreDoc.doc);
-			tcs.add(createTaxonConceptFromIndex(doc,scoreDoc.score));
-		}
-		System.out.println("TaxonConcepts returned: "+tcs.size());
-		
-		return tcs;
+        SearchResultsDTO sr = findByScientificName(input, 0, limit, null, null);
+        return sr.getTaxonConcepts();
 	}
 
+    /**
+     * Search for taxon concept with the following scientific name
+     *
+     * @param input
+     * @param startIndex
+     * @param pageSize
+     * @param sortField
+     * @param sortDirection
+     * @return
+     * @throws Exception
+     */
     public SearchResultsDTO findByScientificName(String input, Integer startIndex, Integer pageSize,
             String sortField, String sortDirection) throws Exception {
 
@@ -677,28 +666,48 @@ public class TaxonConceptDao {
 		QueryParser qp  = new QueryParser("scientificName", new KeywordAnalyzer());
 		Query scientificNameQuery = qp.parse("\""+input+"\"");
 
-		qp  = new QueryParser("commonName", new KeywordAnalyzer());
+		qp  = new QueryParser("commonName", new SimpleAnalyzer());
 		Query commonNameQuery = qp.parse("\""+input+"\"");
 
 		Query guidQuery = new TermQuery(new Term("guid", input));
 
-		scientificNameQuery = scientificNameQuery.combine(new Query[]{scientificNameQuery,guidQuery, commonNameQuery});
+		scientificNameQuery = scientificNameQuery.combine(new Query[]{scientificNameQuery, guidQuery, commonNameQuery});
         
 		IndexSearcher tcIdxSearcher1 = getTcIdxSearcher();
+        
+        boolean direction = false;
+        if (sortDirection!=null && !sortDirection.isEmpty() && sortDirection.equalsIgnoreCase("desc")) {
+            direction = true;
+        }
+
+        Sort sort = new Sort();
+        if (sortField!=null && !sortField.isEmpty() && !sortField.equalsIgnoreCase("score")) {
+            sort.setSort(sortField, direction);
+        } else {
+            sort = Sort.RELEVANCE;
+        }
 
 		//TopDocs topDocs = tcIdxSearcher1.search(scientificNameQuery, pageSize);
-        TopDocs topDocs = tcIdxSearcher1.search(scientificNameQuery, null, pageSize, Sort.RELEVANCE);
+        TopDocs topDocs = tcIdxSearcher1.search(scientificNameQuery, null, startIndex+pageSize, sort); // TODO ues sortField here
 		System.out.println("Total hits: "+topDocs.totalHits);
 
 		List<SearchTaxonConceptDTO> tcs = new ArrayList<SearchTaxonConceptDTO>();
-		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
-			Document doc = tcIdxSearcher1.doc(scoreDoc.doc);
-			tcs.add(createTaxonConceptFromIndex(doc, scoreDoc.score));
+        
+		// for (ScoreDoc scoreDoc: topDocs.scoreDocs) {
+        for (int i = 0; i < topDocs.scoreDocs.length; i++) {
+            if (i >= startIndex) {
+                ScoreDoc scoreDoc = topDocs.scoreDocs[i];
+                Document doc = tcIdxSearcher1.doc(scoreDoc.doc);
+                tcs.add(createTaxonConceptFromIndex(doc, scoreDoc.score));
+            }
 		}
 
         SearchResultsDTO searchResults = new SearchResultsDTO(tcs);
         searchResults.setTotalRecords(topDocs.totalHits);
         searchResults.setStartIndex(startIndex);
+        searchResults.setStatus("OK");
+        searchResults.setSort(sortField);
+        searchResults.setDir(sortDirection);
 
         return searchResults;
     }
@@ -832,8 +841,14 @@ public class TaxonConceptDao {
 			taxonConcept.setCommonName(commonNames[0]);
 		}
 
-		taxonConcept.setScore(score);
 		taxonConcept.setHasChildren(Boolean.parseBoolean(hasChildrenAsString));
+        taxonConcept.setScore(score);
+        taxonConcept.setRank(doc.get("rank"));
+        try {
+            taxonConcept.setRankId(Integer.parseInt(doc.get("rankId")));
+        } catch (NumberFormatException numberFormatException) {
+        }
+
 		return taxonConcept;
 	}
 
@@ -1001,7 +1016,9 @@ public class TaxonConceptDao {
     	FileUtils.forceMkdir(file);
     	
     	//Analyzer analyzer = new KeywordAnalyzer(); - works for exact matches
-    	KeywordAnalyzer analyzer = new KeywordAnalyzer();		
+    	//KeywordAnalyzer analyzer = new KeywordAnalyzer();
+        Analyzer analyzer = new StandardAnalyzer();
+
     	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
 		
     	Scanner scanner = tcTable.getScanner(new String[]{"tc:"});
@@ -1015,7 +1032,9 @@ public class TaxonConceptDao {
 
     		//get taxon concept details
     		TaxonConcept taxonConcept = getTaxonConcept(guid, rowResult);
-    		
+            
+            // get taxon name
+            TaxonName taxonName = getTaxonNameFor(guid);
     		//get synonyms
     		Cell synonymsCell = rowResult.get(Bytes.toBytes(SYNONYM_COL));
     		List<TaxonConcept> synonyms = getTaxonConceptsFrom(synonymsCell);
@@ -1047,15 +1066,36 @@ public class TaxonConceptDao {
 	    				doc.add(new Field("synonym", tc.nameString.toLowerCase(), Store.YES, Index.ANALYZED));
 	    			}
 	    		}
+
+                //StringBuffer cnStr = new StringBuffer();
+                TreeSet<String> commonNameSet = new TreeSet<String>();
+
 	    		for(CommonName cn: commonNames){
 	    			if(cn.nameString!=null){
-	    				doc.add(new Field("commonName", cn.nameString.toLowerCase(), Store.YES, Index.ANALYZED));
+	    				commonNameSet.add(cn.nameString.toLowerCase());
+                        //doc.add(new Field("commonName", cn.nameString.toLowerCase(), Store.YES, Index.ANALYZED));
+                        //cnStr.append(cn.nameString.toLowerCase() + " ");
 	    			}
 	    		}
 
-//                if () {
-//
-//                }
+                if (commonNameSet.size() > 0) {
+                    String commonNamesConcat = StringUtils.deleteWhitespace(StringUtils.join(commonNameSet, " "));
+                    doc.add(new Field("commonNameSort", commonNamesConcat, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+                    doc.add(new Field("commonName", StringUtils.join(commonNameSet, " "), Store.YES, Index.ANALYZED));
+                }
+
+                if (taxonName.getRankString()!=null) {
+                    try {
+                        Rank rank = Rank.getForField(taxonName.getRankString().toLowerCase());
+                        doc.add(new Field("rank", rank.getName(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+                        doc.add(new Field("rankId", rank.getId().toString(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+                    } catch (Exception e) {
+                        System.err.println("Rank not found: "+taxonName.getRankString()+" - "+e.getMessage());
+                        // assign to Rank.TAXSUPRAGEN so that sorting still works reliably
+                        doc.add(new Field("rank", Rank.TAXSUPRAGEN.getName(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+                        doc.add(new Field("rankId", Rank.TAXSUPRAGEN.getId().toString(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+                    }
+                }
 	    		
     			doc.add(new Field("hasChildren", Boolean.toString(!children.isEmpty()), Store.YES, Index.NO));
 	    		
@@ -1066,7 +1106,7 @@ public class TaxonConceptDao {
 	    		iw.commit();
 	    	}
 	    	
-    		System.out.println(++i + " " + guid);
+    		if (i%100==0) System.out.println(i + " " + guid);
     	}
     	
     	iw.commit();

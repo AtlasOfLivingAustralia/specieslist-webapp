@@ -14,6 +14,8 @@
  ***************************************************************************/
 package org.ala.lucene;
 
+import java.util.ArrayList;
+import java.util.TreeSet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
@@ -26,7 +28,8 @@ import org.gbif.ecat.parser.NameParser;
  * @author Dave Martin (David.Martin@csiro.au)
  */
 public class LuceneUtils {
-
+    private static final String SCI_NAME = "scientificName";
+    private static final String SCI_NAME_RAW = "scientificNameRaw";
 	/**
 	 * Adds a scientific name to the lucene index in multiple forms to increase
 	 * chances of matches
@@ -44,22 +47,31 @@ public class LuceneUtils {
 		if(scientificName!=null){
 			normalized = scientificName.replaceFirst("\\([A-Za-z]{1,}\\) ", "");
 		}
+
 		ParsedName parsedName = nameParser.parseIgnoreAuthors(normalized);
+        // store scientific name values in a set before adding to Lucene so we don't get duplicates
+        TreeSet<String> sciNames = new TreeSet<String>();
+
     	if(parsedName!=null){
     		if(parsedName.isBinomial()){
     			//add multiple versions
-    			doc.add(new Field("scientificName", parsedName.buildAbbreviatedCanonicalName().toLowerCase(), Store.YES, Index.ANALYZED));
-    			doc.add(new Field("scientificName", parsedName.buildAbbreviatedFullName().toLowerCase(), Store.YES, Index.ANALYZED));
+                sciNames.add(parsedName.buildAbbreviatedCanonicalName().toLowerCase());
+                sciNames.add(parsedName.buildAbbreviatedFullName().toLowerCase());
     		}
-    		//add lowercased version
-    		doc.add(new Field("scientificName", parsedName.buildCanonicalName().toLowerCase(), Store.YES, Index.ANALYZED));
+
+            //add lowercased version
+            sciNames.add(parsedName.buildCanonicalName().toLowerCase());
+            // add to Lucene
+            for (String sciName : sciNames) {
+                doc.add(new Field(SCI_NAME, sciName, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+            }
     	} else {
     		//add lowercased version if name parser failed			    		
-	    	doc.add(new Field("scientificName", normalized.toLowerCase(), Store.YES, Index.ANALYZED));
+	    	doc.add(new Field(SCI_NAME, normalized.toLowerCase(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
     	}
     	
     	if(scientificName!=null){
-    		doc.add(new Field("scientificNameRaw", scientificName, Store.YES, Index.NO));
+    		doc.add(new Field(SCI_NAME_RAW, scientificName, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
     	}
 	}
 }
