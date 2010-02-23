@@ -21,7 +21,11 @@ package org.ala.model;
  */
 public class PestStatus extends AttributableObject implements Comparable<PestStatus> {
 
+	/** The status - using a controlled vocabulary */
 	protected String status;
+	/** The system supplying the status e.g. IUCN */
+	protected String system;
+	/** The region where this status is valid. e.g. New South Wales */
 	protected String region;
 	
 	@Override

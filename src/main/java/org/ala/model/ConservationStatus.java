@@ -13,10 +13,18 @@
  * rights and limitations under the License.
  ***************************************************************************/
 package org.ala.model;
-
+/**
+ * Conservation status for a species. 
+ *
+ * @author Dave Martin (David.Martin@csiro.au)
+ */
 public class ConservationStatus extends AttributableObject implements Comparable<ConservationStatus> {
-
+	
+	/** The conservation status - using a controlled vocabulary */
 	protected String status;
+	/** The system supplying the status e.g. IUCN */
+	protected String system;
+	/** The region where this status is valid. e.g. New South Wales */
 	protected String region;
 	
 	/**
@@ -50,5 +58,17 @@ public class ConservationStatus extends AttributableObject implements Comparable
 			return o.getStatus().compareTo(status);
 		}
 		return -1;
+	}
+	/**
+	 * @return the system
+	 */
+	public String getSystem() {
+		return system;
+	}
+	/**
+	 * @param system the system to set
+	 */
+	public void setSystem(String system) {
+		this.system = system;
 	}
 }
