@@ -29,6 +29,7 @@ public class CreateTaxonConceptIndex {
 	public static void main(String[] args) throws Exception {
 		//TaxonConceptDao tcDao = new TaxonConceptDao();
         ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:spring.xml");
+        // TODO: fix so that xml file is read from this project and not bie-repository's classpath
         TaxonConceptDao tcDao = (TaxonConceptDao) context.getBean(TaxonConceptDao.class);
 		tcDao.createIndex();
 	}

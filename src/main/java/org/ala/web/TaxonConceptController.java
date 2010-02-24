@@ -64,7 +64,7 @@ public class TaxonConceptController {
     @Inject
     private final DocumentDAO documentDAO = null;
     /** Name of view for site home page */
-    private String HOME_PAGE = "foo1";  // testing injection of view name from properties file using property-override
+    private String HOME_PAGE = "homePage";
     /** Name of view for search page */
     private final String SPECIES_SEARCH = "speciesSearchForm";
     /** Name of view for list of taxa */
@@ -75,16 +75,6 @@ public class TaxonConceptController {
     private final String SPECIES_ERROR = "speciesError";
     /** Logger initialisation */
     private final static Logger logger = Logger.getLogger(TaxonConceptController.class);
-
-//    /**
-//     * Contructor to inject DAO instance
-//     *
-//     * @param fedoraDAO the FedoraDAO to inject
-//     */
-//    @Inject
-//    public TaxonConceptController(RepositoryDAO fedoraDAO) {
-//        this.fedoraDAO = fedoraDAO;
-//    }
 
     /**
 	 * Custom handler for the welcome view.
@@ -140,14 +130,6 @@ public class TaxonConceptController {
         if (query == null) {
             return SPECIES_SEARCH;
         }
-
-        
-        //req.setAttribute("taxonConcepts", tcs);
-
-        //Servlet JSP communication
-        //RequestDispatcher reqDispatcher = getServletConfig().getServletContext().getRequestDispatcher("/ajaxTree.jsp");
-        //reqDispatcher.forward(req,resp);
-
         
         String queryJsEscaped = StringEscapeUtils.escapeJavaScript(query);
         model.addAttribute("query", query);
@@ -157,9 +139,8 @@ public class TaxonConceptController {
 
         SearchResultsDTO searchResults = tcDao.findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
         model.addAttribute("searchResults", searchResults);
-        System.out.println("searchResults: "+searchResults.getTaxonConcepts().size());
         logger.debug("query = "+query);
-//        SolrResultsDTO solrResults = fedoraDAO.getFullTextSearchResults(query, filterQueryChecked, startIndex, pageSize, sortField, sortDirection);
+
         if (searchResults.getTaxonConcepts().size() == 1) {
             List taxonConcepts = (List) searchResults.getTaxonConcepts();
             SearchTaxonConceptDTO res = (SearchTaxonConceptDTO) taxonConcepts.get(0);
@@ -180,70 +161,15 @@ public class TaxonConceptController {
      */ 
     @RequestMapping(value = "/species/{guid}", method = RequestMethod.GET)
     public String showSpecies(@PathVariable("guid") String guid, Model model) throws Exception {
-        // SOLR server URL lookup via DAO (via bie.properties)
-//        String solrServerUrl = fedoraDAO.getServerUrl();
-//        model.addAttribute("solrServerUrl", solrServerUrl);
-//
-//        // get the taxon concept
-//        TaxonConceptDTO taxonConcept = fedoraDAO.getTaxonConceptForIdentifier(guid);
-//        model.addAttribute("taxonConcept", taxonConcept);
-//        //logger.info("taxonConcept "+ id + " info: " + taxonConcept);
-//        if (taxonConcept == null) {
-//            model.addAttribute("errorMessage", "The requested Taxon was not found.");
-//            return SPECIES_ERROR;
-//        }
-//
-//        // Get the taxon names
-//        List<String> taxonNameGuids = new ArrayList<String>();
-//        taxonNameGuids.add(taxonConcept.getTaxonNameGuid());
-//        List<TaxonNameDTO> taxonNames = fedoraDAO.getTaxonNamesForUrns(taxonNameGuids);
-//        model.addAttribute("taxonNames", taxonNames);
-//
-//        // Get list of images
-//        List<String> scientificNames = new ArrayList<String>();
-//        List<ImageDTO> images = null;
-//        for (TaxonNameDTO tn : taxonNames) {
-//            scientificNames.add(tn.getNameComplete());
-//        }
-//        images = fedoraDAO.getImagesForScientificNames(scientificNames);
-//        model.addAttribute("images", images);
-//
-//        // Get the ordered documents & properties
-//        List<OrderedDocumentDTO> orderedDocuments  = fedoraDAO.getOrderedDocumentsForName(scientificNames);
-//        model.addAttribute("orderedDocuments", orderedDocuments);
-//        List<OrderedPropertyDTO> orderedProperties = fedoraDAO.getOrderedPropertiesForName(scientificNames);
-//        model.addAttribute("orderedProperties", orderedProperties);
         String debug = null;
 
-        if(debug!=null){
+        if (debug!=null) {
             TaxonConceptDao tcDao = new TaxonConceptDao();
             Map<String,String> properties = tcDao.getPropertiesFor(guid);
-            //req.setAttribute("properties", properties);
-            //Servlet JSP communication
-            //RequestDispatcher reqDispatcher = getServletConfig().getServletContext().getRequestDispatcher("/debug.jsp");
-            //reqDispatcher.forward(req,resp);
         } else {
-
-            //TODO inject me
-            //TaxonConceptDao tcDao = new TaxonConceptDao();
-            //req.setAttribute("extendedTaxonConcept",tcDao.getExtendedTaxonConceptByGuid(guid));
+            // hbase lookup for TC guid
             logger.info("Retrieving concept with guid: "+guid);
             model.addAttribute("extendedTaxonConcept", tcDao.getExtendedTaxonConceptByGuid(guid));
-
-//				req.setAttribute("taxonConcept", tcDao.getByGuid(guid));
-//				req.setAttribute("taxonName", tcDao.getTaxonNameFor(guid));
-//				req.setAttribute("synonyms", tcDao.getSynonymsFor(guid));
-//				req.setAttribute("commonNames", tcDao.getCommonNamesFor(guid));
-//				req.setAttribute("childConcepts", tcDao.getParentConceptsFor(guid));
-//				req.setAttribute("parentConcepts", tcDao.getChildConceptsFor(guid));
-//				req.setAttribute("images", tcDao.getImages(guid));
-//				req.setAttribute("pestStatuses", tcDao.getPestStatuses(guid));
-//				req.setAttribute("conservationStatuses", tcDao.getConservationStatuses(guid));
-
-            //add literal properties
-
-            //RequestDispatcher reqDispatcher = getServletConfig().getServletContext().getRequestDispatcher("/taxonConcept.jsp");
-            //reqDispatcher.forward(req,resp);
         }
 
         return SPECIES_SHOW;
@@ -300,10 +226,6 @@ public class TaxonConceptController {
     public String getHOME_PAGE() {
         return HOME_PAGE;
     }
-
-//    public RepositoryDAO getFedoraDAO() {
-//        return fedoraDAO;
-//    }
 
     public String getSPECIES_LIST() {
         return SPECIES_LIST;

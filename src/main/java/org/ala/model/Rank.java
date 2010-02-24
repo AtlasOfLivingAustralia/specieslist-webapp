@@ -77,7 +77,7 @@ public enum Rank {
     private static final Map<Integer,Rank> idLookup
           = new HashMap<Integer,Rank>();
     private static final Map<String,Rank> nameLookup
-    = new HashMap<String,Rank>();    
+          = new HashMap<String,Rank>();
 
     static {
          for (Rank rank : EnumSet.allOf(Rank.class)) {

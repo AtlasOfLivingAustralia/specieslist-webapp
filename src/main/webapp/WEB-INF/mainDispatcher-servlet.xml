@@ -59,22 +59,6 @@
 	<constructor-arg value="text/html" />
     </bean>
 
-    <context:property-override location="classpath:bie.properties"/>
-
-    <!-- load properties file into the context -->
-    <context:property-placeholder location="classpath:repository.properties"/>
-    <!-- data source -->
-    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="driverClassName" value="${jdbc.driver}"/>
-        <property name="url" value="${jdbc.url}"/>
-        <property name="username" value="${jdbc.username}"/>
-        <property name="password" value="${jdbc.password}"/>
-        <property name="initialSize" value="1"/>
-        <property name="maxActive" value="25"/>
-        <property name="maxIdle" value="10"/>
-        <property name="maxWait" value="30000"/>
-        <property name="poolPreparedStatements" value="true"/>
-    </bean>
     <!-- BoBo Lucene add-on for facet browsing -->
     <!--<bean id="rank" class="com.browseengine.bobo.facets.impl.SimpleFacetHandler">
         <constructor-arg value="rankId" />

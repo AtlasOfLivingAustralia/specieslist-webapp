@@ -6,6 +6,16 @@
 
     <display-name>BIE - Profiler Debug</display-name>
 
+    <!-- For spring context initialisation -->
+    <context-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath*:spring.xml</param-value>
+    </context-param>
+
+    <listener>
+            <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
     <servlet>
         <servlet-name>ajaxTree</servlet-name>
         <servlet-class>org.ala.web.AjaxTreeServlet</servlet-class>
