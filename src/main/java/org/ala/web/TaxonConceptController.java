@@ -16,7 +16,9 @@ package org.ala.web;
 
 import java.util.List;
 import java.util.Map;
+
 import javax.inject.Inject;
+
 import org.ala.dao.DocumentDAO;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.dto.ExtendedTaxonConceptDTO;
@@ -26,8 +28,6 @@ import org.ala.model.Document;
 import org.ala.repository.Predicates;
 import org.ala.util.RepositoryFileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
