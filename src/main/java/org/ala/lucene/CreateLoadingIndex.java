@@ -32,7 +32,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
-import org.gbif.ecat.parser.NameParser;
 
 /**
  * Create a simple lucene index for Taxon Concept GUID lookups
@@ -56,7 +55,7 @@ public class CreateLoadingIndex {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		loadRelationships();		
+		loadRelationships();
 		loadTaxonConcepts();
 	}
 
@@ -121,8 +120,6 @@ public class CreateLoadingIndex {
     	IndexSearcher is = new IndexSearcher(REL_INDEX_DIR);
     	
     	int i = 0;
-    	
-    	NameParser nameParser = new NameParser();
     	
     	//names files to index
     	TabReader tr = new TabReader("/data/taxonConcepts.txt");
