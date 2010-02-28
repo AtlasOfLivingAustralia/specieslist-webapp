@@ -24,6 +24,7 @@ import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.util.LoadUtils;
 import org.ala.util.TabReader;
+import org.apache.log4j.Logger;
 
 /**
  * This class loads data from exported ANBG dump files into the HBase table
@@ -41,17 +42,19 @@ import org.ala.util.TabReader;
  * @author David Martin
  */
 public class ANBGDataLoader {
+	
+	protected static Logger logger  = Logger.getLogger(ANBGDataLoader.class);
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		System.out.println("Starting ANBG load....");
+		logger.info("Starting ANBG load....");
 		long start = System.currentTimeMillis();
     	ANBGDataLoader loader = new ANBGDataLoader();
     	loader.load();
     	long finish = System.currentTimeMillis();
-    	System.out.println("Data loaded in: "+((finish-start)/60000)+" minutes.");
+    	logger.info("Data loaded in: "+((finish-start)/60000)+" minutes.");
 	}
 	
 	/**
@@ -74,7 +77,7 @@ public class ANBGDataLoader {
 	 */
 	private static void loadRelationships() throws Exception {
 		
-		System.out.println("Starting to load synonyms, parents, children");
+		logger.info("Starting to load synonyms, parents, children");
 		
 		TaxonConceptDao tcDao = new TaxonConceptDao();
 		
@@ -89,7 +92,7 @@ public class ANBGDataLoader {
     			i++;
     			//add the relationship to the "toTaxon"
         		if(++i % 1000==0) 
-        			System.out.println(i+" relationships processed");
+        			logger.info(i+" relationships processed");
     			
     			if(keyValue[2].endsWith("HasSynonym")){
     				TaxonConcept synonym = tcDao.getByGuid(keyValue[1]);
@@ -106,7 +109,7 @@ public class ANBGDataLoader {
     				if(tc!=null){
     					tcDao.addChildTaxon(keyValue[0], tc);
     				} else {
-    					System.err.println("Unable to add child - No concept for :"+keyValue[1]);
+    					logger.warn("Unable to add child - No concept for :"+keyValue[1]);
     				}
     				
 //    				tcDao.addOverlapsWith();
@@ -118,7 +121,7 @@ public class ANBGDataLoader {
     				if(tc!=null){
     					tcDao.addParentTaxon(keyValue[0], tc);
     				} else {
-    					System.err.println("Unable to add parent - No concept for :"+keyValue[1]);
+    					logger.warn("Unable to add parent - No concept for :"+keyValue[1]);
     				}
     			}
     			
@@ -135,7 +138,7 @@ public class ANBGDataLoader {
 		}
     	tr.close();
 		long finish = System.currentTimeMillis();
-    	System.out.println(i+" loaded relationships, added "+j+" synonyms. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
+    	logger.info(i+" loaded relationships, added "+j+" synonyms. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
 	}
 	
 	/**
@@ -153,7 +156,7 @@ public class ANBGDataLoader {
     	while((record = tr.readNext())!=null){
     		i++;
     		if(record.length!=8){
-    			System.out.println("truncated record: "+record);
+    			logger.info("truncated record: "+record);
     			continue;
     		}
     		
@@ -166,6 +169,9 @@ public class ANBGDataLoader {
     		tn.publishedInCitation = record[5];
     		tn.nomenclaturalCode = record[6];
     		tn.typificationString = record[7];
+    		
+    		
+    		
 
     		//add this taxon name to each taxon concept
     		for(TaxonConcept tc: tcs){
@@ -173,7 +179,7 @@ public class ANBGDataLoader {
     			tcDao.addTaxonName(tc.guid, tn);
     		}
     	}
-    	System.out.println(i+" lines read. "+j+" names added to concept records.");
+    	logger.info(i+" lines read. "+j+" names added to concept records.");
 	}
 
 	/**
@@ -218,7 +224,7 @@ public class ANBGDataLoader {
 		    			j++;
 	    			}
 	    		} else {
-	    			System.err.println(i+" - missing fields: "+record.length+" record:"+record);
+	    			logger.error(i+" - missing fields: "+record.length+" record:"+record);
 	    		}
 	    	}
 	    	
@@ -227,9 +233,9 @@ public class ANBGDataLoader {
 			tcBatch.clear();
 	    	
 	    	long finish = System.currentTimeMillis();
-	    	System.out.println(i+" lines read, "+j+" loaded taxon concepts in: "+(((finish-start)/1000)/60)+" minutes.");
+	    	logger.info(i+" lines read, "+j+" loaded taxon concepts in: "+(((finish-start)/1000)/60)+" minutes.");
     	} catch (Exception e){
-    		System.err.println(i+" error on line");
+    		logger.error(i+" error on line");
     		e.printStackTrace();
     	}
 	}
@@ -270,14 +276,14 @@ public class ANBGDataLoader {
 		    			}
 	    			}
 	    		} else {
-	    			System.err.println(i+" - missing fields: "+record.length+" record:"+record);
+	    			logger.error(i+" - missing fields: "+record.length+" record:"+record);
 	    		}
 	    	}
 	    	
 	    	long finish = System.currentTimeMillis();
-	    	System.out.println("loaded taxon concepts in: "+(((finish-start)/1000)/60)+" minutes.");
+	    	logger.info("loaded taxon concepts in: "+(((finish-start)/1000)/60)+" minutes.");
     	} catch (Exception e){
-    		System.err.println(i+" error on line");
+    		logger.error(i+" error on line", e);
     		e.printStackTrace();
     	}
 	}	
