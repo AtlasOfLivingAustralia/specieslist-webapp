@@ -9,7 +9,7 @@
     <!-- For spring context initialisation -->
     <context-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>classpath*:spring.xml</param-value>
+            <param-value>classpath*:spring-profiler.xml,classpath:spring.xml,</param-value>
     </context-param>
 
     <listener>
