@@ -39,6 +39,7 @@ import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.model.Triple;
 import org.ala.util.DublinCoreUtils;
+import org.ala.util.FileType;
 import org.ala.util.MimeType;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -49,6 +50,7 @@ import org.apache.hadoop.hbase.io.BatchUpdate;
 import org.apache.hadoop.hbase.io.Cell;
 import org.apache.hadoop.hbase.io.RowResult;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.analysis.SimpleAnalyzer;
@@ -85,6 +87,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class TaxonConceptDao {
 	
+	protected static Logger logger = Logger.getLogger(TaxonConceptDao.class);
+	
 	/** The location for the lucene index */
 	public static final String TC_INDEX_DIR = "/data/lucene/taxonConcept";
 	
@@ -94,10 +98,14 @@ public class TaxonConceptDao {
 	public static final String CONSERVATION_STATUS_COL = "tc:hasConservationStatus";
 	public static final String PEST_STATUS_COL = "tc:hasPestStatus";
 	public static final String IMAGE_COL = "tc:hasImage";
-	public static final String CHILD_COL = "tc:IsChildTaxonOf";
-	public static final String PARENT_COL = "tc:IsParentTaxonOf";
+	public static final String IS_CHILD_COL_OF = "tc:IsChildTaxonOf";
+	public static final String IS_PARENT_COL_OF = "tc:IsParentTaxonOf";
     public static final String TAXON_NAME_COL = "tc:hasTaxonName";
 
+    public static final String TC_COL_FAMILY = "tc:";
+    public static final String RAW_COL_FAMILY = "raw:";
+    
+    
 	protected IndexSearcher tcIdxSearcher;
 	
 	protected HTable tcTable;
@@ -128,7 +136,7 @@ public class TaxonConceptDao {
 	 */
 	public void addLiteralValue(String guid, String infoSourceId, String documentId, String predicate, String value) throws Exception {
 		BatchUpdate batchUpdate = new BatchUpdate(guid);
-		batchUpdate.put("raw:"+infoSourceId+":"+documentId+":"+predicate, Bytes.toBytes(value));
+		batchUpdate.put(RAW_COL_FAMILY+infoSourceId+":"+documentId+":"+predicate, Bytes.toBytes(value));
 		tcTable.commit(batchUpdate);
 	}
 	
@@ -146,7 +154,7 @@ public class TaxonConceptDao {
 	public boolean addLiteralValues(String guid, String infoSourceId, String documentId, Map<String, Object> values) throws Exception {
 		
 		if(!tcTable.exists(Bytes.toBytes(guid))){
-			System.err.println("Warning: unable to find row for GUID: "+guid);
+			logger.error("Warning: unable to find row for GUID: "+guid);
 			return false;
 		}
 		
@@ -163,7 +171,7 @@ public class TaxonConceptDao {
 				fragment = fragment.replace("/", "");
 			}
 			
-			batchUpdate.put("raw:"+infoSourceId+":"+documentId+":"+fragment, Bytes.toBytes(values.get(predicate).toString()));
+			batchUpdate.put(RAW_COL_FAMILY+infoSourceId+":"+documentId+":"+fragment, Bytes.toBytes(values.get(predicate).toString()));
 		}
 		tcTable.commit(batchUpdate);
 		return true;
@@ -177,7 +185,7 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public List<TaxonConcept> getSynonymsFor(String guid) throws Exception {
-		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
 		return getSynonyms(row);
 	}
 
@@ -195,7 +203,7 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public List<Image> getImages(String guid) throws Exception {
-		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
 		return getImages(row);
 	}
 
@@ -218,7 +226,7 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public List<PestStatus> getPestStatuses(String guid) throws Exception {
-		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
 		return getPestStatus(row);
 	}
 
@@ -241,7 +249,7 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public List<ConservationStatus> getConservationStatuses(String guid) throws Exception {
-		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
 		return getConservationStatus(row);
 	}
 
@@ -302,13 +310,13 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public List<TaxonConcept> getChildConceptsFor(String guid) throws Exception {
-		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
 		return getChildConcepts(row);
 	}
 
 	private List<TaxonConcept> getChildConcepts(RowResult row)
 			throws IOException, JsonParseException, JsonMappingException {
-		Cell cell = row.get(Bytes.toBytes(CHILD_COL));
+		Cell cell = row.get(Bytes.toBytes(IS_CHILD_COL_OF));
 		return getTaxonConceptsFrom(cell);
 	}
 	
@@ -320,13 +328,13 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */	
 	public List<TaxonConcept> getParentConceptsFor(String guid) throws Exception {
-		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
 		return getParentConcepts(row);
 	}
 
 	private List<TaxonConcept> getParentConcepts(RowResult row)
 			throws IOException, JsonParseException, JsonMappingException {
-		Cell cell = row.get(Bytes.toBytes(PARENT_COL));
+		Cell cell = row.get(Bytes.toBytes(IS_PARENT_COL_OF));
 		return getTaxonConceptsFrom(cell);
 	}		
 	
@@ -338,7 +346,7 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public List<CommonName> getCommonNamesFor(String guid) throws Exception {
-		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
 		return getCommonNames(row);
 	}
 
@@ -409,7 +417,7 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public void addCommonName(String guid, CommonName commonName) throws Exception {
-		HBaseDaoUtils.storeComplexObject(tcTable, guid, "tc:", VERNACULAR_COL, commonName, new TypeReference<List<CommonName>>(){});
+		HBaseDaoUtils.storeComplexObject(tcTable, guid, TC_COL_FAMILY, VERNACULAR_COL, commonName, new TypeReference<List<CommonName>>(){});
 	}
 	
 	/**
@@ -420,7 +428,7 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public void addConservationStatus(String guid, ConservationStatus conservationStatus) throws Exception {
-		HBaseDaoUtils.storeComplexObject(tcTable, guid, "tc:", CONSERVATION_STATUS_COL, conservationStatus, new TypeReference<List<ConservationStatus>>(){});
+		HBaseDaoUtils.storeComplexObject(tcTable, guid, TC_COL_FAMILY, CONSERVATION_STATUS_COL, conservationStatus, new TypeReference<List<ConservationStatus>>(){});
 	}
 	
 	/**
@@ -431,7 +439,7 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public void addPestStatus(String guid, PestStatus pestStatus) throws Exception {
-		HBaseDaoUtils.storeComplexObject(tcTable, guid, "tc:", PEST_STATUS_COL, pestStatus, new TypeReference<List<PestStatus>>(){});
+		HBaseDaoUtils.storeComplexObject(tcTable, guid, TC_COL_FAMILY, PEST_STATUS_COL, pestStatus, new TypeReference<List<PestStatus>>(){});
 	}
 	
 	/**
@@ -442,7 +450,7 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public void addImage(String guid, Image image) throws Exception {
-		HBaseDaoUtils.storeComplexObject(tcTable, guid, "tc:", IMAGE_COL, image, new TypeReference<List<Image>>(){});
+		HBaseDaoUtils.storeComplexObject(tcTable, guid, TC_COL_FAMILY, IMAGE_COL, image, new TypeReference<List<Image>>(){});
 	}
 		
 	
@@ -454,7 +462,7 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public void addSynonym(String guid, TaxonConcept synonym) throws Exception {
-		HBaseDaoUtils.storeComplexObject(tcTable, guid, "tc:", SYNONYM_COL, synonym, new TypeReference<List<TaxonConcept>>(){});
+		HBaseDaoUtils.storeComplexObject(tcTable, guid, TC_COL_FAMILY, SYNONYM_COL, synonym, new TypeReference<List<TaxonConcept>>(){});
 	}	
 	
 	/**
@@ -465,7 +473,7 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public void addChildTaxon(String guid, TaxonConcept childConcept) throws Exception {
-		HBaseDaoUtils.storeComplexObject(tcTable, guid, "tc:", PARENT_COL, childConcept, new TypeReference<List<TaxonConcept>>(){});
+		HBaseDaoUtils.storeComplexObject(tcTable, guid, TC_COL_FAMILY, IS_PARENT_COL_OF, childConcept, new TypeReference<List<TaxonConcept>>(){});
 	}	
 	
 	/**
@@ -476,7 +484,7 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public void addParentTaxon(String guid, TaxonConcept parentConcept) throws Exception {
-		HBaseDaoUtils.storeComplexObject(tcTable, guid, "tc:", CHILD_COL, parentConcept, new TypeReference<List<TaxonConcept>>(){});
+		HBaseDaoUtils.storeComplexObject(tcTable, guid, TC_COL_FAMILY, IS_CHILD_COL_OF, parentConcept, new TypeReference<List<TaxonConcept>>(){});
 	}		
 	
 	/**
@@ -689,7 +697,7 @@ public class TaxonConceptDao {
 
 		//TopDocs topDocs = tcIdxSearcher1.search(scientificNameQuery, pageSize);
         TopDocs topDocs = tcIdxSearcher1.search(scientificNameQuery, null, startIndex+pageSize, sort); // TODO ues sortField here
-		System.out.println("Total hits: "+topDocs.totalHits);
+		logger.debug("Total hits: "+topDocs.totalHits);
 
 		List<SearchTaxonConceptDTO> tcs = new ArrayList<SearchTaxonConceptDTO>();
         
@@ -743,28 +751,28 @@ public class TaxonConceptDao {
 				Document doc = is.doc(scoreDoc.doc);
 //				Field hasSynonym = doc.getField("http://rs.tdwg.org/ontology/voc/TaxonConcept#HasSynonym");
 //				if(hasSynonym!=null){
-//					System.out.println("Returning synonym");
+//					logger.debug("Returning synonym");
 //					return hasSynonym.stringValue();
 //				}
 //				Field hasVernacular = doc.getField("http://rs.tdwg.org/ontology/voc/TaxonConcept#HasVernacular");
 //				if(hasVernacular!=null){
-//					System.out.println("Returning vernacular");
+//					logger.debug("Returning vernacular");
 //					return hasVernacular.stringValue();
 //				}
 //				Field isCongruentTo = doc.getField("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsCongruentTo");
 //				if(isCongruentTo!=null){
-//					System.out.println("Returning congruent");
+//					logger.debug("Returning congruent");
 //					return isCongruentTo.stringValue();
 //				}
-//			System.out.println("Doc Id: "+scoreDoc.doc);
-//			System.out.println("Guid: "+doc.getField("guid").stringValue());
-//			System.out.println("Name: "+doc.getField("scientificName").stringValue());
-//			System.out.println("Raw name: "+doc.getField("scientificNameRaw").stringValue());
-//			System.out.println("#################################");
+//			logger.debug("Doc Id: "+scoreDoc.doc);
+//			logger.debug("Guid: "+doc.getField("guid").stringValue());
+//			logger.debug("Name: "+doc.getField("scientificName").stringValue());
+//			logger.debug("Raw name: "+doc.getField("scientificNameRaw").stringValue());
+//			logger.debug("#################################");
 				return doc.getField("guid").stringValue();
 			}
 		} catch (Exception e) {
-			System.err.println("Problem searching with:"+scientificName+" : "+e.getMessage());
+			logger.error("Problem searching with:"+scientificName+" : "+e.getMessage());
 		}		
 		return null;
 	}	
@@ -818,7 +826,7 @@ public class TaxonConceptDao {
 		if(this.tcIdxSearcher==null){
 	    	File file = new File(TC_INDEX_DIR);
 	    	if(file.exists()){
-	    		this.tcIdxSearcher = new IndexSearcher("/data/lucene/taxonConcept");
+	    		this.tcIdxSearcher = new IndexSearcher(TC_INDEX_DIR);
 	    	}
 		}
 		return this.tcIdxSearcher;
@@ -877,15 +885,20 @@ public class TaxonConceptDao {
 	public boolean syncTriples(String infoSourceId, String documentId, List<Triple> triples, String filePath) throws Exception {
 
 		String scientificName = null;
+		String species = null;
 		String genus = null;
 		String family = null;
 		String order = null;
+		String kingdom = null;
 		
 		//iterate through triples and find scientific names and genus
 		for(Triple triple: triples){
 			
 			String predicate = triple.predicate.substring(triple.predicate.lastIndexOf("#")+1);
-			
+
+			if(predicate.endsWith("hasKingdom")){
+				kingdom = triple.object;
+			}
 			if(predicate.endsWith("hasOrder")){
 				order = triple.object;
 			}
@@ -895,19 +908,25 @@ public class TaxonConceptDao {
 			if(predicate.endsWith("hasGenus")){
 				genus = triple.object;
 			}
+			if(predicate.endsWith("hasSpecies")){
+				species = triple.object;
+			}
 			if(predicate.endsWith("hasScientificName")){
 				scientificName = triple.object;
 			}
 		}
 		
-		if(scientificName==null 
+		if(scientificName==null
+				&& species==null
 				&& genus==null
 				&& family==null
 				&& order==null){
-			System.err.println("No classification found");
+			logger.error("No classification found");
 			return false; //we have nothing to work with, so give up
 		}
 		
+		//FIXME - this should be replaced with improved sci name lookup coming out of the 
+		//checklistbank works
 		String guid = findConceptIDForName(genus, scientificName);
 		
 		if(guid!=null){
@@ -958,14 +977,17 @@ public class TaxonConceptDao {
 				if(contentType!=null && MimeType.getImageMimeTypes().contains(contentType)){
 					Image image = new Image();
 					image.setContentType(contentType);
-					image.setRepoLocation(filePath+File.separator+"raw"+MimeType.getFileExtension(contentType));
+					image.setRepoLocation(filePath
+							+File.separator
+							+FileType.RAW.getFilename()
+							+MimeType.getFileExtension(contentType));
 					image.setInfoSourceId(infoSourceId);
 					image.setDocumentId(documentId);
 					addImage(guid, image);
 				}
 			}
 			
-			System.out.println("Adding content to: "+guid+", using scientific name: "+scientificName+", genus: "+genus);
+			logger.debug("Adding content to: "+guid+", using scientific name: "+scientificName+", genus: "+genus);
 			addLiteralValues(guid, infoSourceId, documentId, properties);
 			
 			return true;
@@ -983,22 +1005,22 @@ public class TaxonConceptDao {
 	 */
 	public void clearRawProperties() throws Exception {
 		
-    	Scanner scanner = tcTable.getScanner(new String[]{"tc:"});
+    	Scanner scanner = tcTable.getScanner(new String[]{TC_COL_FAMILY});
     	Iterator<RowResult> iter = scanner.iterator();
     	int i=0;
     	while(iter.hasNext()){
     		RowResult rowResult = iter.next();
     		byte[] row = rowResult.getRow();
-    		tcTable.deleteFamily(row, Bytes.toBytes("raw:"));
+    		tcTable.deleteFamily(row, Bytes.toBytes(RAW_COL_FAMILY));
     		tcTable.deleteAllByRegex(new String(row), CONSERVATION_STATUS_COL);
     		tcTable.deleteAllByRegex(new String(row), PEST_STATUS_COL);
     		tcTable.deleteAllByRegex(new String(row), IMAGE_COL);
     		tcTable.deleteAllByRegex(new String(row), "tc:[0-9]{1,}:[0-9]{1,}hasScientificName");
     		
-    		System.out.println(++i + " " + (new String(row)));
+    		logger.debug(++i + " " + (new String(row)));
     	}
-    	System.out.println("Raw triples cleared");
-	}	
+    	logger.debug("Raw triples cleared");
+	}
 	
 	/**
 	 * Create a index to support searching.
@@ -1021,7 +1043,7 @@ public class TaxonConceptDao {
 
     	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
 		
-    	Scanner scanner = tcTable.getScanner(new String[]{"tc:"});
+    	Scanner scanner = tcTable.getScanner(new String[]{TC_COL_FAMILY});
     	Iterator<RowResult> iter = scanner.iterator();
     	int i=0;
     	while(iter.hasNext()){
@@ -1035,7 +1057,8 @@ public class TaxonConceptDao {
             
             // get taxon name
             TaxonName taxonName = getTaxonNameFor(guid);
-    		//get synonyms
+
+            //get synonyms
     		Cell synonymsCell = rowResult.get(Bytes.toBytes(SYNONYM_COL));
     		List<TaxonConcept> synonyms = getTaxonConceptsFrom(synonymsCell);
     		
@@ -1043,7 +1066,7 @@ public class TaxonConceptDao {
     		Cell commonNamesCell = rowResult.get(Bytes.toBytes(VERNACULAR_COL));
     		List<CommonName> commonNames = getCommonNamesFrom(commonNamesCell);
     		
-    		Cell childrenCell = rowResult.get(Bytes.toBytes(CHILD_COL));
+    		Cell childrenCell = rowResult.get(Bytes.toBytes(IS_CHILD_COL_OF));
     		List<TaxonConcept> children = getTaxonConceptsFrom(childrenCell);
     		
     		//create the lucene doc
@@ -1090,7 +1113,7 @@ public class TaxonConceptDao {
                         doc.add(new Field("rank", rank.getName(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
                         doc.add(new Field("rankId", rank.getId().toString(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
                     } catch (Exception e) {
-                        System.err.println("Rank not found: "+taxonName.getRankString()+" - "+e.getMessage());
+                        logger.error("Rank not found: "+taxonName.getRankString()+" - "+e.getMessage());
                         // assign to Rank.TAXSUPRAGEN so that sorting still works reliably
                         doc.add(new Field("rank", Rank.TAXSUPRAGEN.getName(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
                         doc.add(new Field("rankId", Rank.TAXSUPRAGEN.getId().toString(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
@@ -1106,13 +1129,13 @@ public class TaxonConceptDao {
 	    		iw.commit();
 	    	}
 	    	
-    		if (i%100==0) System.out.println(i + " " + guid);
+    		if (i%100==0) logger.debug(i + " " + guid);
     	}
     	
     	iw.commit();
     	iw.close();
     	
     	long finish = System.currentTimeMillis();
-    	System.out.println("Index created in: "+((finish-start)/1000)+" seconds.");
+    	logger.info("Index created in: "+((finish-start)/1000)+" seconds.");
 	}
 }
