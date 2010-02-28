@@ -7,19 +7,8 @@
            http://www.springframework.org/schema/context
            http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
-<!--     Scan source files for annotations for DI
+    <!--  Scan source files for annotations for DI -->
     <context:component-scan base-package="org.ala"/>
--->
-    <!-- data source - NOTE: values over-ridden in bie.properties -->
-    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="initialSize" value="1"/>
-        <property name="maxActive" value="25"/>
-        <property name="maxIdle" value="10"/>
-        <property name="maxWait" value="30000"/>
-        <property name="poolPreparedStatements" value="true"/>
-    </bean>
-
     <!-- Over-ride bean properties - including dataSource configs -->
     <context:property-override location="classpath:bie.properties"/>
-
 </beans>
