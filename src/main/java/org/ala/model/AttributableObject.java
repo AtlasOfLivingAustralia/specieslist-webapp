@@ -22,6 +22,29 @@ public class AttributableObject {
     protected String infoSourceName;
     protected String infoSourceURL;
 
+    /**
+	 * Custom equals method to use documentId for uniqueness
+     *
+     * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if(obj!=null && obj instanceof Image){
+			Image img = (Image) obj;
+			if(img.getDocumentId()!=null && documentId!=null){
+				return img.getDocumentId().equals(documentId);
+			}
+		}
+		return false;
+	}
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 17 * hash + (this.documentId != null ? this.documentId.hashCode() : 0);
+        return hash;
+    }
+
 	/**
 	 * @return the infoSourceId
 	 */
@@ -49,4 +72,33 @@ public class AttributableObject {
 	public void setDocumentId(String documentId) {
 		this.documentId = documentId;
 	}
+
+    /**
+     * @return the infoSourceName
+     */
+    public String getInfoSourceName() {
+        return infoSourceName;
+    }
+
+    /**
+     * @param infoSourceName the infoSourceName to set
+     */
+    public void setInfoSourceName(String infoSourceName) {
+        this.infoSourceName = infoSourceName;
+    }
+
+    /**
+     * @return the infoSourceURL
+     */
+    public String getInfoSourceURL() {
+        return infoSourceURL;
+    }
+
+    /**
+     *
+     * @param infoSourceURL
+     */
+    public void setInfoSourceURL(String infoSourceURL) {
+        this.infoSourceURL = infoSourceURL;
+    }
 }

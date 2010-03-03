@@ -22,6 +22,7 @@ import org.ala.model.Image;
 import org.ala.model.PestStatus;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
+import org.ala.model.SimpleProperty;
 /**
  * A DTO that encapsulates all the information required to present a 
  * profile of a species. This is a heavy weight DTO.
@@ -38,6 +39,7 @@ public class ExtendedTaxonConceptDTO {
 	protected List<TaxonConcept> parentConcepts;
 	protected List<PestStatus> pestStatuses;
 	protected List<ConservationStatus> conservationStatuses;
+    protected List<SimpleProperty> textProperties;
 	protected List<Image> images;
 
 	/**
@@ -149,4 +151,16 @@ public class ExtendedTaxonConceptDTO {
 	public void setImages(List<Image> images) {
 		this.images = images;
 	}
+    /**
+     * @return the textProperties
+     */
+    public List<SimpleProperty> getTextProperties() {
+        return textProperties;
+    }
+    /**
+     * @param textProperties the textProperties to set
+     */
+    public void setTextProperties(List<SimpleProperty> textProperties) {
+        this.textProperties = textProperties;
+    }
 }

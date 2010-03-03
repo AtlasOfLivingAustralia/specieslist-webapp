@@ -37,6 +37,7 @@ import org.ala.model.PestStatus;
 import org.ala.model.Rank;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
+import org.ala.model.SimpleProperty;
 import org.ala.model.Triple;
 import org.ala.util.DublinCoreUtils;
 import org.ala.util.FileType;
@@ -86,7 +87,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class TaxonConceptDao {
-	
+
 	protected static Logger logger = Logger.getLogger(TaxonConceptDao.class);
 	
 	/** The location for the lucene index */
@@ -101,6 +102,7 @@ public class TaxonConceptDao {
 	public static final String IS_CHILD_COL_OF = "tc:IsChildTaxonOf";
 	public static final String IS_PARENT_COL_OF = "tc:IsParentTaxonOf";
     public static final String TAXON_NAME_COL = "tc:hasTaxonName";
+    public static final String TEXT_PROPERTY_COL = "tc:hasTextProperty";
 
     public static final String TC_COL_FAMILY = "tc:";
     public static final String RAW_COL_FAMILY = "raw:";
@@ -257,7 +259,7 @@ public class TaxonConceptDao {
 
 	private List<PestStatus> getPestStatus(RowResult row) throws IOException,
 			JsonParseException, JsonMappingException {
-		Cell cell = row.get(Bytes.toBytes(PEST_STATUS_COL));
+        Cell cell = row.get(Bytes.toBytes(PEST_STATUS_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if(cell!=null){
 			byte[] value = cell.getValue();
@@ -384,7 +386,30 @@ public class TaxonConceptDao {
 			return mapper.readValue(value, 0, value.length, new TypeReference<List<CommonName>>(){});
 		} 
 		return new ArrayList<CommonName>();
-	}	
+	}
+
+    /**
+	 * Retrieve the text properties for the Taxon Concept with the supplied guid.
+	 *
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	public List<SimpleProperty> getTextPropertiesFor(String guid) throws Exception {
+		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		return getTextProperties(row);
+	}
+
+	private List<SimpleProperty> getTextProperties(RowResult row) throws IOException,
+			JsonParseException, JsonMappingException {
+		Cell cell = row.get(Bytes.toBytes(TEXT_PROPERTY_COL));
+		ObjectMapper mapper = new ObjectMapper();
+		if(cell!=null){
+			byte[] value = cell.getValue();
+			return mapper.readValue(value, 0, value.length, new TypeReference<List<SimpleProperty>>(){});
+		}
+		return new ArrayList<SimpleProperty>();
+	}
 	
 	/**
 	 * Store the following taxon concept
@@ -510,7 +535,18 @@ public class TaxonConceptDao {
 	 */
 	public void addParentTaxon(String guid, TaxonConcept parentConcept) throws Exception {
 		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_CHILD_COL_OF, parentConcept, new TypeReference<List<TaxonConcept>>(){});
-	}		
+	}
+
+    /**
+	 * Add a text property to this concept.
+	 *
+	 * @param guid
+	 * @param parentConcept
+	 * @throws Exception
+	 */
+	public void addTextProperty(String guid, SimpleProperty textProperty) throws Exception {
+		HBaseDaoUtils.storeComplexObject(tcTable, guid, "tc:", TEXT_PROPERTY_COL, textProperty, new TypeReference<List<SimpleProperty>>(){});
+	}
 	
 	/**
 	 * Add field update to the batch if the supplied value is not null.
@@ -578,6 +614,7 @@ public class TaxonConceptDao {
 		etc.setPestStatuses(getPestStatus(row));
 		etc.setConservationStatuses(getConservationStatus(row));
 		etc.setImages(getImages(row));
+        etc.setTextProperties(getTextProperties(row));
 		
 		//add taxonomic properties
 		
@@ -907,7 +944,8 @@ public class TaxonConceptDao {
 	 * @param triples
 	 * @throws Exception
 	 */
-	public boolean syncTriples(String infoSourceId, String documentId, List<Triple> triples, String filePath) throws Exception {
+	public boolean syncTriples(String infoSourceId, String documentId, String dcSource,
+            String dcPublisher,List<Triple> triples, String filePath) throws Exception {
 
 		String scientificName = null;
 		String species = null;
@@ -967,6 +1005,8 @@ public class TaxonConceptDao {
 					commonName.setNameString(triple.object);
 					commonName.setInfoSourceId(infoSourceId);
 					commonName.setDocumentId(documentId);
+                    commonName.setInfoSourceName(dcPublisher);
+                    commonName.setInfoSourceURL(dcSource);
 					addCommonName(guid, commonName);
 					
 				} else if(triple.predicate.endsWith("hasConservationStatus")){
@@ -977,6 +1017,8 @@ public class TaxonConceptDao {
 					conservationStatus.setStatus(triple.object);
 					conservationStatus.setInfoSourceId(infoSourceId);
 					conservationStatus.setDocumentId(documentId);
+                    conservationStatus.setInfoSourceName(dcPublisher);
+                    conservationStatus.setInfoSourceURL(dcSource);
 					addConservationStatus(guid, conservationStatus);
 					
 				} else if(triple.predicate.endsWith("hasPestStatus")){
@@ -987,11 +1029,24 @@ public class TaxonConceptDao {
 					pestStatus.setStatus(triple.object);
 					pestStatus.setInfoSourceId(infoSourceId);
 					pestStatus.setDocumentId(documentId);
+                    pestStatus.setInfoSourceName(dcPublisher);
+                    pestStatus.setInfoSourceURL(dcSource);
 					addPestStatus(guid, pestStatus);
 					
-				} else {
-					properties.put(triple.predicate, triple.object);
-				}
+                //} else if (triple.predicate.endsWith("Text")) {
+                } else {    
+
+                    SimpleProperty simpleProperty = new SimpleProperty();
+                    simpleProperty.setName(triple.predicate);
+                    simpleProperty.setValue(triple.object);
+                    simpleProperty.setInfoSourceName(dcPublisher);
+                    simpleProperty.setInfoSourceURL(dcSource);
+                    addTextProperty(guid, simpleProperty);
+
+                }
+//                } else {
+//					properties.put(triple.predicate, triple.object);
+//				}
 			}
 			
 			//retrieve the content type
@@ -1008,6 +1063,8 @@ public class TaxonConceptDao {
 							+MimeType.getFileExtension(contentType));
 					image.setInfoSourceId(infoSourceId);
 					image.setDocumentId(documentId);
+                    image.setInfoSourceName(dcPublisher);
+                    image.setInfoSourceURL(dcSource);
 					addImage(guid, image);
 				}
 			}

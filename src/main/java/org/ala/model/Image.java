@@ -24,8 +24,8 @@ public class Image extends AttributableObject implements Comparable<Image>{
 	protected String guid;
 	protected String contentType;
 	protected String repoLocation;
-	
-	/**
+
+    /**
 	 * @return the guid
 	 */
 	public String getGuid() {

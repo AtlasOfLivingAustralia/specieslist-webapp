@@ -12,8 +12,8 @@
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/fancybox/jquery.fancybox-1.2.6.pack.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.easing.1.3.js"></script>
-        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-galleryview-2.0/jquery.galleryview-2.0.js"></script>
-        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-galleryview-2.0/jquery.timers-1.1.2.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-galleryview-1.1/jquery.galleryview-1.1.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-galleryview-1.1/jquery.timers-1.1.2.js"></script>
         <%--<script type="text/javascript" src="${pageContext.request.contextPath}/js/jquery.galleriffic.js"></script>--%>
         <!-- Combo-handled YUI CSS files: -->
         <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.8.0r4/build/tabview/assets/skins/sam/tabview.css">
@@ -140,10 +140,10 @@
                  );
 
                  $('#photos').galleryView({
-                    panel_width: 640,
-                    panel_height: 480,
-                    frame_width: 126,
-                    frame_height: 100
+                    panel_width: 500,
+                    panel_height: 400,
+                    frame_width: 99,
+                    frame_height: 99
                     <%--filmstrip_size: 4,
                     frame_width: 100,
                     frame_height: 100,
@@ -363,9 +363,9 @@
         </div>
         <div id="tabs" class="yui-navset" style="clear: both;">
             <ul class="yui-nav">
-                <li><a href="#harvestedInfo"><em>Information from Other Sources</em></a></li>
+                <li class="selected"><a href="#harvestedInfo"><em>Information</em></a></li>
                 <li><a href="#portalInfo"><em>Distribution Map</em></a></li>
-                <li class="selected"><a href="#images"><em>Images</em></a></li>
+                <li><a href="#images"><em>Images</em></a></li>
             </ul>
             <div id="yui-box" class="yui-content">
                 <!-- Other taxon names (usually empty) -->
@@ -400,6 +400,20 @@
                 </c:if>
                 <!-- Harvested Info -->
                 <div id="harvestedInfo">
+                    <c:if test="${fn:length(extendedTaxonConcept.textProperties) > 0}">
+                        <table class="propertyTable">
+                            <tr>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                            <c:forEach var="textProperty" items="${extendedTaxonConcept.textProperties}">
+                                <tr>
+                                    <td class="propertyName"><fmt:message key="${fn:substringAfter(textProperty.name, '#')}"/></td>
+                                    <td>${textProperty.value}</td>
+                                </tr>
+                            </c:forEach>
+                        </table>
+                    </c:if>
                     <c:if test="${fn:length(orderedDocuments) > 0 && fn:length(orderedProperties) > 0}">
                         <h4 class="divider" style="">Information from Other Sources<a name="properties"></a></h4>
                         <%--<div style="float:right;width:20%;margin-top:-35px;text-align:right;">(Alternative View: <a href="#view1" class="hideShow">1</a> |
@@ -563,9 +577,16 @@
                             </c:forEach>
                         </table>
                         <div id="photos" class="galleryview">
+                        <c:forEach var="image" items="${extendedTaxonConcept.images}">
+                            <div class="panel">
+                                <img src="http://localhost${fn:replace(image.repoLocation, "/data/bie", "/repository")}" /> 
+                                <div class="panel-overlay">
+                                </div>
+                            </div>
+                        </c:forEach>
                           <ul class="filmstrip">
                               <c:forEach var="image" items="${extendedTaxonConcept.images}">
-                                   <li><a target="_blank" href="http://localhost${fn:replace(image.repoLocation, "/data/bie", "/repository")}" class="image" id="${image.documentId}"><img src="http://localhost${fn:replace(image.repoLocation, "/data/bie", "/repository")}" alt="" title="" /></a></li>
+                                   <li><img src="${pageContext.request.contextPath}/species/images/${image.documentId}.jpg" alt="" title="" /></li>
                               </c:forEach>
                           </ul>
                         </div>

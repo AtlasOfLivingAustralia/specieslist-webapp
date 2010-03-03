@@ -93,7 +93,7 @@ public class NTripleDataLoader {
 	    			triples.add(triple);
 	    		} else {
 	    			//subject has changed - sync to hbase
-	    			boolean success = tcDao.syncTriples(infoSourceId, documentId, triples, null);
+	    			boolean success = tcDao.syncTriples(infoSourceId, documentId, null, null, triples, null);
 	    			if(success) 
 	    				successfulSync++; 
 	    			else 
@@ -107,7 +107,7 @@ public class NTripleDataLoader {
 	    	
 	    	//sync the remaining batch
 	    	if(!triples.isEmpty()){
-				boolean success = tcDao.syncTriples(infoSourceId, documentId, triples, null);
+				boolean success = tcDao.syncTriples(infoSourceId, documentId, null, null, triples, null);
 				if(success) 
 					successfulSync++; 
 				else 

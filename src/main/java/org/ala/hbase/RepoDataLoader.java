@@ -16,14 +16,23 @@ package org.ala.hbase;
 
 import java.io.File;
 import java.io.FileReader;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import javax.inject.Inject;
+
+import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
+import org.ala.model.InfoSource;
 import org.ala.model.Triple;
 import org.ala.util.NTriplesUtils;
 import org.ala.util.TurtleUtils;
 import org.apache.commons.io.FileUtils;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Component;
 
 /**
  * Data Loader that scans through a BIE repository, find triples
@@ -31,17 +40,24 @@ import org.apache.commons.io.FileUtils;
  * 
  * @author Dave Martin
  */
+@Component
 public class RepoDataLoader {
 
 	protected static String repositoryDir = "/data/bie";
 	protected boolean useTurtle = true;
+    protected Map<Integer, InfoSource> infoSourceMap;
+    @Inject
+    protected InfoSourceDAO infoSourceDAO;
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		RepoDataLoader loader = new RepoDataLoader();
+		//RepoDataLoader loader = new RepoDataLoader();
+        ApplicationContext context = new ClassPathXmlApplicationContext(new String[]{"classpath*:spring-profiler.xml", "classpath:spring.xml"});
+        RepoDataLoader loader = (RepoDataLoader) context.getBean(RepoDataLoader.class);
 		long start = System.currentTimeMillis();
+        loader.loadInfoSources();
 		int filesRead = loader.load(repositoryDir); //FIX ME - move to config
     	long finish = System.currentTimeMillis();
     	System.out.println(filesRead+" files scanned/loaded in: "+((finish-start)/60000)+" minutes "+((finish-start)/1000)+" seconds.");
@@ -59,6 +75,8 @@ public class RepoDataLoader {
 		
 		//initialise DAO 
 		TaxonConceptDao tcDao = new TaxonConceptDao();
+
+        //load a cahce of infsourceid->name map
 		
 		int filesRead = 0;
 		
@@ -87,10 +105,11 @@ public class RepoDataLoader {
                     //read dublin core
 
                     //read dc:source (infosource URL), dc:publisher (infosource name), document ID, infsource ID
-
-                    // tcDao.syncTriples(infosourceId, documentId, dcSource, dcPublisher, triples, currentFile.getParentFile().getAbsolutePath());
-
-                    tcDao.syncTriples(infosourceId, documentId, triples, currentFile.getParentFile().getAbsolutePath());
+                    InfoSource infoSource = infoSourceMap.get(Integer.getInteger(infosourceId));
+                    String dcSource = infoSource.getWebsiteUrl();
+                    String dcPublisher = infoSource.getName();
+                    tcDao.syncTriples(infosourceId, documentId, dcSource, dcPublisher, triples, currentFile.getParentFile().getAbsolutePath());
+                    //tcDao.syncTriples(infosourceId, documentId, triples, currentFile.getParentFile().getAbsolutePath());
                 } catch (Exception exception) {
                     System.out.println("Error reading triple: "+exception.getMessage());
                 }
@@ -98,4 +117,23 @@ public class RepoDataLoader {
 		}
 		return filesRead;
 	}
+
+    /**
+     * Initialise the info source map
+     *
+     * @return infoSourceMap
+     */
+    protected Map<Integer, InfoSource> loadInfoSources() {
+        Map<Integer, InfoSource> infoSourceMap = new HashMap<Integer, InfoSource>();
+
+        if (infoSourceDAO!=null) {
+            List<Integer> allIds = infoSourceDAO.getIdsforAll();
+            
+            for (Integer id : allIds) {
+                infoSourceMap.put(id, infoSourceDAO.getById(id));
+            }
+        }
+        System.out.println("loaded infoSource map: "+infoSourceMap.size());
+        return infoSourceMap;
+    }
 }
