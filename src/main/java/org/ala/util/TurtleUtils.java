@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.ala.model.Triple;
+import org.apache.log4j.Logger;
 import org.openrdf.model.Statement;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.helpers.RDFHandlerBase;
@@ -32,6 +33,8 @@ import org.openrdf.rio.turtle.TurtleParser;
 public class TurtleUtils {
 
 	public static final String defaultUriBase = "http://ala.org.au/ontology/ALA#";
+	
+	protected static Logger logger = Logger.getLogger(TurtleUtils.class);
 	
 	/**
 	 * Read the triples from turtle. At this stage these triple *should* be flat in
@@ -52,6 +55,9 @@ public class TurtleUtils {
 			public void handleStatement(Statement st)
 					throws RDFHandlerException {
 				Triple triple = new Triple(st.getSubject().stringValue(), st.getPredicate().stringValue(), st.getObject().stringValue());
+				if(logger.isTraceEnabled()){
+					logger.trace(st.getSubject().stringValue()+ "\t"+  st.getPredicate().stringValue() + "\t"+  st.getObject().stringValue());
+				}
 				triples.add(triple);
 			}
 		});

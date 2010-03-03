@@ -18,11 +18,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.ala.util.TurtleUtils;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.io.BatchUpdate;
 import org.apache.hadoop.hbase.io.Cell;
 import org.apache.hadoop.hbase.io.RowResult;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.type.TypeReference;
@@ -33,6 +35,8 @@ import org.codehaus.jackson.type.TypeReference;
  * @author Dave Martin (David.Martin@csiro.au)
  */
 public class HBaseDaoUtils {
+	
+	protected static Logger logger = Logger.getLogger(HBaseDaoUtils.class);
 
 	/**
 	 * Store a complex object, handling duplicates in the list and sorting.
@@ -48,6 +52,11 @@ public class HBaseDaoUtils {
 	@SuppressWarnings("unchecked")
 	public static boolean storeComplexObject(HTable htable, String guid, String columnFamily, String columnName, Comparable object, TypeReference typeReference) throws Exception {
 		RowResult row = htable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(columnFamily)});
+		if(row==null){
+			logger.error("Unable to find the row for guid: "+guid);
+			return false;
+		}
+		
 		Cell cell = row.get(Bytes.toBytes(columnName));
 		List objectList = null;
 		ObjectMapper mapper = new ObjectMapper();

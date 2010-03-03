@@ -22,6 +22,7 @@ import org.ala.dao.VocabularyDAO;
 import org.ala.model.ConservationStatus;
 import org.ala.model.PestStatus;
 import org.ala.model.Term;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,6 +35,8 @@ import org.springframework.stereotype.Component;
 @Component("vocabulary")
 public class VocabularyImpl implements Vocabulary {
 
+	protected static Logger logger = Logger.getLogger(VocabularyImpl.class);
+	
 	@Inject
 	private VocabularyDAO vocabularyDao;
 
@@ -49,6 +52,11 @@ public class VocabularyImpl implements Vocabulary {
 			return terms.get(0);
 		}
 		if(terms.size()>1){
+			logger.error("Multiple vocabulary terms matched for infosource ["
+					+infosourceId
+					+"] with raw value"
+					+ rawValue
+					+". Please check the Returning null....");
 //			throw new Exception();
 		}
 		return null;

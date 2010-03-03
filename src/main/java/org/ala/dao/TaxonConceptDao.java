@@ -25,6 +25,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
+
+import javax.inject.Inject;
 
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
@@ -42,6 +45,7 @@ import org.ala.model.Triple;
 import org.ala.util.DublinCoreUtils;
 import org.ala.util.FileType;
 import org.ala.util.MimeType;
+import org.ala.vocabulary.Vocabulary;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -85,9 +89,9 @@ import org.springframework.stereotype.Component;
  * 
  * @author Dave Martin
  */
-@Component
+@Component("taxonConceptDao")
 public class TaxonConceptDao {
-
+	
 	protected static Logger logger = Logger.getLogger(TaxonConceptDao.class);
 	
 	/** The location for the lucene index */
@@ -107,6 +111,10 @@ public class TaxonConceptDao {
     public static final String TC_COL_FAMILY = "tc:";
     public static final String RAW_COL_FAMILY = "raw:";
     
+    static Pattern abbreviatedCanonical = Pattern.compile("([A-Z]\\. )([a-zA-ZÏËÖÜÄÉÈČÁÀÆŒïëöüäåéèčáàæœóú]{1,})");
+    
+    @Inject
+    protected Vocabulary vocabulary;
     
 	protected IndexSearcher tcIdxSearcher;
 	
@@ -259,7 +267,7 @@ public class TaxonConceptDao {
 
 	private List<PestStatus> getPestStatus(RowResult row) throws IOException,
 			JsonParseException, JsonMappingException {
-        Cell cell = row.get(Bytes.toBytes(PEST_STATUS_COL));
+		Cell cell = row.get(Bytes.toBytes(PEST_STATUS_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if(cell!=null){
 			byte[] value = cell.getValue();
@@ -396,7 +404,7 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public List<SimpleProperty> getTextPropertiesFor(String guid) throws Exception {
-		RowResult row = tcTable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
+		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
 		return getTextProperties(row);
 	}
 
@@ -545,7 +553,7 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public void addTextProperty(String guid, SimpleProperty textProperty) throws Exception {
-		HBaseDaoUtils.storeComplexObject(tcTable, guid, "tc:", TEXT_PROPERTY_COL, textProperty, new TypeReference<List<SimpleProperty>>(){});
+		HBaseDaoUtils.storeComplexObject(getTable(), guid, "tc:", TEXT_PROPERTY_COL, textProperty, new TypeReference<List<SimpleProperty>>(){});
 	}
 	
 	/**
@@ -731,16 +739,22 @@ public class TaxonConceptDao {
 		if(input==null){
 			return new SearchResultsDTO();
 		}
+		
+		//lower case everything
 		input = input.toLowerCase();
 
+		//construct the query for scientific name
 		QueryParser qp  = new QueryParser("scientificName", new KeywordAnalyzer());
 		Query scientificNameQuery = qp.parse("\""+input+"\"");
 
+		//construct the query for scientific name
 		qp  = new QueryParser("commonName", new SimpleAnalyzer());
 		Query commonNameQuery = qp.parse("\""+input+"\"");
 
+		//include a query against the GUID
 		Query guidQuery = new TermQuery(new Term("guid", input));
 
+		//combine the query terms
 		scientificNameQuery = scientificNameQuery.combine(new Query[]{scientificNameQuery, guidQuery, commonNameQuery});
         
 		IndexSearcher tcIdxSearcher1 = getTcIdxSearcher();
@@ -785,17 +799,22 @@ public class TaxonConceptDao {
 	/**
 	 * Get TaxonConcept GUID by genus and scientific name.
 	 * 
+	 * TODO replace this with the indexes generated from ChecklistBank
+	 * 
 	 * @param scientificName
 	 * @return
 	 * @throws Exception
 	 */
-	public String findConceptIDForName(String genus, String scientificName) throws Exception {
+	public String findConceptIDForName(String kingdom, String genus, String scientificName) throws Exception {
 		try {
 			String searchName = scientificName;
-			//change A. bus to Aus bus
-			if(genus!=null){
+
+			//change A. bus to Aus bus if it is abbreviated
+			if(abbreviatedCanonical.matcher(scientificName).matches() && genus!=null){
 				NameParser np = new NameParser();
+				
 				ParsedName parsedName = np.parse(scientificName);
+				
 				if(parsedName!=null){
 					if(parsedName.isBinomial()){
 						searchName = genus +" "+ parsedName.getSpecificEpithet();
@@ -804,7 +823,7 @@ public class TaxonConceptDao {
 			}
 			
 			IndexSearcher is = getTcIdxSearcher();
-			QueryParser qp  = new QueryParser("scientificName", new KeywordAnalyzer());			
+			QueryParser qp  = new QueryParser("scientificName", new KeywordAnalyzer());
 			Query q = qp.parse("\""+searchName.toLowerCase()+"\"");
 			
 			TopDocs topDocs = is.search(q, 20);
@@ -990,13 +1009,20 @@ public class TaxonConceptDao {
 		
 		//FIXME - this should be replaced with improved sci name lookup coming out of the 
 		//checklistbank works
-		String guid = findConceptIDForName(genus, scientificName);
+		
+		String guid = findConceptIDForName(kingdom, genus, scientificName);
+		//if null try with the species name
+		if(guid==null){
+			guid = findConceptIDForName(kingdom, genus, species);
+		}
 		
 		if(guid!=null){
 			
 			Map<String, Object> properties = new HashMap<String,Object>();
 			
 			for(Triple triple: triples){
+				
+				logger.trace(triple.predicate);
 				
 				//check here for predicates of complex objects
 				if(triple.predicate.endsWith("hasCommonName")){
@@ -1013,25 +1039,35 @@ public class TaxonConceptDao {
 					
 					//FIXME At this stage we need to do a vocabulary lookup to rationalise the 
 					// conservation status
-					ConservationStatus conservationStatus = new ConservationStatus();
-					conservationStatus.setStatus(triple.object);
-					conservationStatus.setInfoSourceId(infoSourceId);
-					conservationStatus.setDocumentId(documentId);
-                    conservationStatus.setInfoSourceName(dcPublisher);
-                    conservationStatus.setInfoSourceURL(dcSource);
-					addConservationStatus(guid, conservationStatus);
+					
+					ConservationStatus cs = vocabulary.getConservationStatusFor(Integer.parseInt(infoSourceId), triple.object);
+					if(cs==null){
+						ConservationStatus conservationStatus = new ConservationStatus();
+						conservationStatus.setStatus(triple.object);
+					}
+
+					cs.setInfoSourceId(infoSourceId);
+					cs.setDocumentId(documentId);
+                    cs.setInfoSourceName(dcPublisher);
+                    cs.setInfoSourceURL(dcSource);
+					addConservationStatus(guid, cs);
 					
 				} else if(triple.predicate.endsWith("hasPestStatus")){
 
 					//FIXME At this stage we need to do a vocabulary lookup to rationalise the 
 					// pest status
-					PestStatus pestStatus = new PestStatus();
-					pestStatus.setStatus(triple.object);
-					pestStatus.setInfoSourceId(infoSourceId);
-					pestStatus.setDocumentId(documentId);
-                    pestStatus.setInfoSourceName(dcPublisher);
-                    pestStatus.setInfoSourceURL(dcSource);
-					addPestStatus(guid, pestStatus);
+					
+					PestStatus ps = vocabulary.getPestStatusFor(Integer.parseInt(infoSourceId), triple.object);
+					if(ps==null){
+						PestStatus pestStatus = new PestStatus();
+						pestStatus.setStatus(triple.object);
+					}
+					
+					ps.setInfoSourceId(infoSourceId);
+					ps.setDocumentId(documentId);
+                    ps.setInfoSourceName(dcPublisher);
+                    ps.setInfoSourceURL(dcSource);
+					addPestStatus(guid, ps);
 					
                 //} else if (triple.predicate.endsWith("Text")) {
                 } else {    
@@ -1219,5 +1255,12 @@ public class TaxonConceptDao {
     	
     	long finish = System.currentTimeMillis();
     	logger.info("Index created in: "+((finish-start)/1000)+" seconds.");
+	}
+
+	/**
+	 * @param vocabulary the vocabulary to set
+	 */
+	public void setVocabulary(Vocabulary vocabulary) {
+		this.vocabulary = vocabulary;
 	}
 }

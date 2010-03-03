@@ -30,6 +30,7 @@ import org.ala.model.Triple;
 import org.ala.util.NTriplesUtils;
 import org.ala.util.TurtleUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Component;
@@ -45,9 +46,12 @@ public class RepoDataLoader {
 
 	protected static String repositoryDir = "/data/bie";
 	protected boolean useTurtle = true;
-    protected Map<Integer, InfoSource> infoSourceMap;
+	@Inject
+	protected TaxonConceptDao taxonConceptDao = null;
+	protected Map<Integer, InfoSource> infoSourceMap;
     @Inject
     protected InfoSourceDAO infoSourceDAO;
+	protected static Logger logger = Logger.getLogger(RepoDataLoader.class);
 	
 	/**
 	 * @param args
@@ -71,12 +75,7 @@ public class RepoDataLoader {
 	 * @throws Exception
 	 */
 	private int load(String filePath) throws Exception {
-		System.out.println("Scanning directory: "+filePath);
-		
-		//initialise DAO 
-		TaxonConceptDao tcDao = new TaxonConceptDao();
-
-        //load a cahce of infsourceid->name map
+		logger.info("Scanning directory: "+filePath);
 		
 		int filesRead = 0;
 		
@@ -105,13 +104,16 @@ public class RepoDataLoader {
                     //read dublin core
 
                     //read dc:source (infosource URL), dc:publisher (infosource name), document ID, infsource ID
-                    InfoSource infoSource = infoSourceMap.get(Integer.getInteger(infosourceId));
+
+                    // tcDao.syncTriples(infosourceId, documentId, dcSource, dcPublisher, triples, currentFile.getParentFile().getAbsolutePath());
+                    //read dc:source (infosource URL), dc:publisher (infosource name), document ID, infsource ID
+                    InfoSource infoSource = infoSourceMap.get(new Integer(infosourceId));
                     String dcSource = infoSource.getWebsiteUrl();
                     String dcPublisher = infoSource.getName();
-                    tcDao.syncTriples(infosourceId, documentId, dcSource, dcPublisher, triples, currentFile.getParentFile().getAbsolutePath());
+                    taxonConceptDao.syncTriples(infosourceId, documentId, dcSource, dcPublisher, triples, currentFile.getParentFile().getAbsolutePath());
                     //tcDao.syncTriples(infosourceId, documentId, triples, currentFile.getParentFile().getAbsolutePath());
-                } catch (Exception exception) {
-                    System.out.println("Error reading triple: "+exception.getMessage());
+                } catch (Exception e) {
+                    logger.error("Error reading triple: "+e.getMessage(), e);
                 }
 			}
 		}
@@ -123,8 +125,8 @@ public class RepoDataLoader {
      *
      * @return infoSourceMap
      */
-    protected Map<Integer, InfoSource> loadInfoSources() {
-        Map<Integer, InfoSource> infoSourceMap = new HashMap<Integer, InfoSource>();
+    protected void loadInfoSources() {
+        this.infoSourceMap = new HashMap<Integer, InfoSource>();
 
         if (infoSourceDAO!=null) {
             List<Integer> allIds = infoSourceDAO.getIdsforAll();
@@ -133,7 +135,13 @@ public class RepoDataLoader {
                 infoSourceMap.put(id, infoSourceDAO.getById(id));
             }
         }
-        System.out.println("loaded infoSource map: "+infoSourceMap.size());
-        return infoSourceMap;
+        logger.info("loaded infoSource map: "+infoSourceMap.size());
     }
+
+	/**
+	 * @param taxonConceptDao the taxonConceptDao to set
+	 */
+	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
+		this.taxonConceptDao = taxonConceptDao;
+	}
 }
