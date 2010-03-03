@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.ala.util.TurtleUtils;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.io.BatchUpdate;
 import org.apache.hadoop.hbase.io.Cell;
@@ -41,12 +40,15 @@ public class HBaseDaoUtils {
 	/**
 	 * Store a complex object, handling duplicates in the list and sorting.
 	 * 
+	 * Duplicate handling is dependent on the complex objects overriding
+	 * Object.equals in a sensible manner for a specific type of object.
+	 * 
 	 * @param guid
 	 * @param columnFamily
 	 * @param columnName
 	 * @param object
 	 * @param typeReference
-	 * @return
+	 * @return true if the object was stored, false otherwise
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
@@ -78,7 +80,7 @@ public class HBaseDaoUtils {
 			objectList.add(object);
 		}
 		
-		//sort the common names
+		//sort the objects
 		Collections.sort(objectList);
 		//save in HBase
 		BatchUpdate batchUpdate = new BatchUpdate(Bytes.toBytes(guid));
