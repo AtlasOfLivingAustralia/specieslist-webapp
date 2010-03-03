@@ -29,10 +29,10 @@ public class AttributableObject {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if(obj!=null && obj instanceof Image){
-			Image img = (Image) obj;
-			if(img.getDocumentId()!=null && documentId!=null){
-				return img.getDocumentId().equals(documentId);
+		if(obj!=null && obj instanceof AttributableObject){
+			AttributableObject attrObj = (AttributableObject) obj;
+			if(attrObj.getDocumentId()!=null && documentId!=null){
+				return attrObj.getDocumentId().equals(documentId);
 			}
 		}
 		return false;
