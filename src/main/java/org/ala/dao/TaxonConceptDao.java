@@ -456,6 +456,10 @@ public class TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public void addTaxonName(String guid, TaxonName tn) throws Exception {
+		RowResult row = getTable().getRow(Bytes.toBytes(guid));
+		if(row==null){
+			logger.error("Unable to locate a row to add taxon name to for guid: "+guid);
+		}
 		BatchUpdate batchUpdate = new BatchUpdate(Bytes.toBytes(guid));
 		putIfNotNull(batchUpdate, "tn:guid", tn.guid);
 		putIfNotNull(batchUpdate, "tn:nameComplete", tn.nameComplete);
