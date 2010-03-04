@@ -24,6 +24,25 @@ public class Image extends AttributableObject implements Comparable<Image>{
 	protected String guid;
 	protected String contentType;
 	protected String repoLocation;
+    /** The title of the resource contributing the property */
+    protected String title;
+    /** The title of the identifier (URI) contributing the property */
+    protected String identifier;
+
+    /**
+     * Compare to method
+     *
+     * @param o
+     * @return
+     */
+    @Override
+	public int compareTo(Image o) {
+		//check the infosources
+		if(o.getRepoLocation()!=null && repoLocation!=null){
+			return o.getRepoLocation().compareTo(repoLocation);
+		}
+		return -1;
+	}
 
     /**
 	 * @return the guid
@@ -61,13 +80,39 @@ public class Image extends AttributableObject implements Comparable<Image>{
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
 	}
-	@Override
-	public int compareTo(Image o) {
-		
-		//check the infosources
-		if(o.getRepoLocation()!=null && repoLocation!=null){
-			return o.getRepoLocation().compareTo(repoLocation);
-		}
-		return -1;	
-	}
+    /**
+     * Get the value of title
+     *
+     * @return the value of title
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Set the value of title
+     *
+     * @param title new value of title
+     */
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    /**
+     * Get the value of identifier
+     *
+     * @return the value of identifier
+     */
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    /**
+     * Set the value of identifier
+     *
+     * @param identifier new value of identifier
+     */
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
 }

@@ -142,8 +142,8 @@
                  $('#photos').galleryView({
                     panel_width: 500,
                     panel_height: 400,
-                    frame_width: 99,
-                    frame_height: 99
+                    frame_width: 100,
+                    frame_height: 100
                     <%--filmstrip_size: 4,
                     frame_width: 100,
                     frame_height: 100,
@@ -405,12 +405,16 @@
                             <tr>
                                 <th></th>
                                 <th></th>
+                                <th></th>
                             </tr>
                             <c:forEach var="textProperty" items="${extendedTaxonConcept.textProperties}">
-                                <tr>
-                                    <td class="propertyName"><fmt:message key="${fn:substringAfter(textProperty.name, '#')}"/></td>
-                                    <td>${textProperty.value}</td>
-                                </tr>
+                                <c:if test="${fn:endsWith(textProperty.name, 'Text')}">
+                                    <tr>
+                                        <td style="font-weight: bold;"><fmt:message key="${fn:substringAfter(textProperty.name, '#')}"/></td>
+                                        <td>${textProperty.value}</td>
+                                        <td><a href="${textProperty.identifier}" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></td>
+                                    </tr>
+                                </c:if>
                             </c:forEach>
                         </table>
                     </c:if>
@@ -578,15 +582,16 @@
                         </table>
                         <div id="photos" class="galleryview">
                         <c:forEach var="image" items="${extendedTaxonConcept.images}">
-                            <div class="panel">
+                            <div class="panel" style="text-align: center;">
                                 <img src="http://localhost${fn:replace(image.repoLocation, "/data/bie", "/repository")}" /> 
                                 <div class="panel-overlay">
+                                    Source: <a href="${image.infoSourceURL}" target="_blank">${image.infoSourceName}</a>
                                 </div>
                             </div>
                         </c:forEach>
                           <ul class="filmstrip">
                               <c:forEach var="image" items="${extendedTaxonConcept.images}">
-                                   <li><img src="${pageContext.request.contextPath}/species/images/${image.documentId}.jpg" alt="" title="" /></li>
+                                   <li><img src="${pageContext.request.contextPath}/species/images/${image.documentId}.jpg" alt="${image.infoSourceName}" title="${image.infoSourceName}" /></li>
                               </c:forEach>
                           </ul>
                         </div>

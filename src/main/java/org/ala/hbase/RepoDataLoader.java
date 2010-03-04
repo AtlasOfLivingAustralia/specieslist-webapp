@@ -26,8 +26,11 @@ import javax.inject.Inject;
 
 import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
+import org.ala.model.Document;
 import org.ala.model.InfoSource;
 import org.ala.model.Triple;
+import org.ala.repository.Predicates;
+import org.ala.util.RepositoryFileUtils;
 import org.ala.util.TurtleUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -47,10 +50,12 @@ public class RepoDataLoader {
 	protected static String repositoryDir = "/data/bie";
 	protected boolean useTurtle = true;
 	@Inject
-	protected TaxonConceptDao taxonConceptDao = null;
+	protected TaxonConceptDao taxonConceptDao;
 	protected Map<Integer, InfoSource> infoSourceMap;
     @Inject
     protected InfoSourceDAO infoSourceDAO;
+    @Inject
+    RepositoryFileUtils repoFileUtils;
 	protected static Logger logger = Logger.getLogger(RepoDataLoader.class);
 	
 	/**
@@ -103,14 +108,17 @@ public class RepoDataLoader {
                     		//sync these triples
     	                    String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
     	                    String documentId = currentFile.getParentFile().getName();
-    	
+                            
     	                    //retrieve the publisher and source from the infosource
     	                    InfoSource infoSource = infoSourceMap.get(new Integer(infosourceId));
     	                    String dcSource = infoSource.getWebsiteUrl();
     	                    String dcPublisher = infoSource.getName();
-    	                    
+    	                    Document document = new Document();
+                            document.setInfoSourceId(new Integer(infosourceId));
+                            document.setInfoSourceName(dcPublisher);
+                            document.setInfoSourceUri(dcSource);
     	                    //sync the triples to BIE profiles
-    	                    taxonConceptDao.syncTriples(infosourceId, documentId, dcSource, dcPublisher, splitBySubject, currentFile.getParentFile().getAbsolutePath());
+    	                    taxonConceptDao.syncTriples(infosourceId, documentId, document, splitBySubject, currentFile.getParentFile().getAbsolutePath());
     	                    
     	                    //clear list
     	                    splitBySubject.clear();
@@ -120,9 +128,23 @@ public class RepoDataLoader {
                     	
                     	splitBySubject.add(triple);
                     }
+                    
+                    String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
+                    String documentId = currentFile.getParentFile().getName();
+                    // Read dublin core
+                    Document document = readDcFile(currentFile);
+                    // Added info source data to the Document via info source Map
+                    InfoSource infoSource = infoSourceMap.get(new Integer(infosourceId));
+                    document.setInfoSourceId(infoSource.getId());
+                    document.setInfoSourceName(infoSource.getName());
+                    document.setInfoSourceUri(infoSource.getWebsiteUrl());
+                    // Sync the triples and associated DC data
+                    taxonConceptDao.syncTriples(infosourceId, documentId, document, triples, currentFile.getParentFile().getAbsolutePath());
+
                 } catch (Exception e) {
                     logger.error("Error reading triples from file: '"+currentFile.getName() +"', "+e.getMessage(), e);
                 }
+                logger.debug("finished syncing file: "+currentFile.getAbsolutePath());
 			}
 		}
 		return filesRead;
@@ -130,8 +152,6 @@ public class RepoDataLoader {
 
     /**
      * Initialise the info source map
-     *
-     * @return infoSourceMap
      */
     protected void loadInfoSources() {
         this.infoSourceMap = new HashMap<Integer, InfoSource>();
@@ -144,10 +164,43 @@ public class RepoDataLoader {
         logger.info("loaded infoSource map: "+infoSourceMap.size());
     }
 
-	/**
+    /**
+     * Read dc file and populate a Document with values from file
+     *
+     * @param currentFile
+     * @return doc the Docuement to return
+     */
+    private Document readDcFile(File currentFile) {
+        Document doc = new Document();
+        String rdfFileName = currentFile.getAbsolutePath();
+        String dcFileName = rdfFileName.replaceFirst("rdf", "dc");
+        File dcfile = new File(dcFileName);
+        List<String[]> dcContents = new ArrayList<String[]>();
+        
+        try {
+            dcContents = repoFileUtils.readRepositoryFile(dcfile);
+
+            for (String[] line : dcContents) {
+                // expect 2 element String array (key, value)
+                if (line[0].equalsIgnoreCase(Predicates.DC_IDENTIFIER.toString())) {
+                    doc.setIdentifier(line[1]);
+                } else if (line[0].equalsIgnoreCase(Predicates.DC_TITLE.toString())) {
+                    doc.setTitle(line[1]);
+                }
+            }
+        } catch (Exception ex) {
+            logger.error("Cannot open dc file: "+dcFileName+" - "+ex.getMessage());
+        }
+
+        return doc;
+    }
+
+    /**
 	 * @param taxonConceptDao the taxonConceptDao to set
 	 */
 	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
 		this.taxonConceptDao = taxonConceptDao;
 	}
+
+
 }

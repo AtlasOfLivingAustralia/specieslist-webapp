@@ -967,8 +967,8 @@ public class TaxonConceptDao {
 	 * @param triples
 	 * @throws Exception
 	 */
-	public boolean syncTriples(String infoSourceId, String documentId, String dcSource,
-            String dcPublisher,List<Triple> triples, String filePath) throws Exception {
+	public boolean syncTriples(String infoSourceId, String documentId, org.ala.model.Document document,
+            List<Triple> triples, String filePath) throws Exception {
 
 		String scientificName = null;
 		String species = null;
@@ -976,6 +976,18 @@ public class TaxonConceptDao {
 		String family = null;
 		String order = null;
 		String kingdom = null;
+
+        String dcSource = null;
+        String dcPublisher = null;
+        String dcIdentifier = null;
+        String dcTitle = null;
+
+        if (document!=null) {
+            dcPublisher = document.getInfoSourceName();
+            dcSource = document.getInfoSourceUri();
+            dcIdentifier = document.getIdentifier();
+            dcTitle = document.getTitle();
+        }
 		
 		//iterate through triples and find scientific names and genus
 		for(Triple triple: triples){
@@ -1081,6 +1093,8 @@ public class TaxonConceptDao {
                     simpleProperty.setValue(triple.object);
                     simpleProperty.setInfoSourceName(dcPublisher);
                     simpleProperty.setInfoSourceURL(dcSource);
+                    simpleProperty.setTitle(dcTitle);
+                    simpleProperty.setIdentifier(dcIdentifier);
                     addTextProperty(guid, simpleProperty);
 
                 }
@@ -1105,6 +1119,8 @@ public class TaxonConceptDao {
 					image.setDocumentId(documentId);
                     image.setInfoSourceName(dcPublisher);
                     image.setInfoSourceURL(dcSource);
+                    image.setIdentifier(dcIdentifier);
+                    image.setTitle(dcTitle);
 					addImage(guid, image);
 				}
 			}
