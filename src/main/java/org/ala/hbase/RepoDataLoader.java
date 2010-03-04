@@ -135,10 +135,8 @@ public class RepoDataLoader {
      */
     protected void loadInfoSources() {
         this.infoSourceMap = new HashMap<Integer, InfoSource>();
-
         if (infoSourceDAO!=null) {
             List<Integer> allIds = infoSourceDAO.getIdsforAll();
-            
             for (Integer id : allIds) {
                 infoSourceMap.put(id, infoSourceDAO.getById(id));
             }
