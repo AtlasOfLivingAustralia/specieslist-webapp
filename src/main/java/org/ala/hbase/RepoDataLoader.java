@@ -29,6 +29,7 @@ import org.ala.dao.TaxonConceptDao;
 import org.ala.model.Document;
 import org.ala.model.InfoSource;
 import org.ala.model.Triple;
+import org.ala.util.FileType;
 import org.ala.repository.Predicates;
 import org.ala.util.RepositoryFileUtils;
 import org.ala.util.TurtleUtils;
@@ -89,7 +90,7 @@ public class RepoDataLoader {
 		Iterator<File> fileIterator = FileUtils.iterateFiles(file, null, true);
 		while(fileIterator.hasNext()){
 			File currentFile = fileIterator.next();
-			if(currentFile.getName().equals("rdf")){
+			if(currentFile.getName().equals(FileType.RDF.toString())){
 				filesRead++;
 				
 				//read the dublin core in the same directory - determine if its an image
@@ -100,58 +101,61 @@ public class RepoDataLoader {
                     String currentSubject = null;
                     List<Triple> splitBySubject = new ArrayList<Triple>();
                     
+                    //iterate through triple, splitting the triples by subject
                     for(Triple triple: triples){
                     
                     	if(currentSubject==null){
                     		currentSubject = triple.subject;
                     	} else if(!currentSubject.equals(triple.subject)){
                     		//sync these triples
-    	                    String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
-    	                    String documentId = currentFile.getParentFile().getName();
-                            
-    	                    //retrieve the publisher and source from the infosource
-    	                    InfoSource infoSource = infoSourceMap.get(new Integer(infosourceId));
-    	                    String dcSource = infoSource.getWebsiteUrl();
-    	                    String dcPublisher = infoSource.getName();
-    	                    Document document = new Document();
-                            document.setInfoSourceId(new Integer(infosourceId));
-                            document.setInfoSourceName(dcPublisher);
-                            document.setInfoSourceUri(dcSource);
-    	                    //sync the triples to BIE profiles
-    	                    taxonConceptDao.syncTriples(infosourceId, documentId, document, splitBySubject, currentFile.getParentFile().getAbsolutePath());
-    	                    
+                    		sync(currentFile, triples);
     	                    //clear list
     	                    splitBySubject.clear();
     	                    splitBySubject.add(triple);
     	                    currentSubject = triple.subject;
                     	}
-                    	
                     	splitBySubject.add(triple);
                     }
-                    
-                    String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
-                    String documentId = currentFile.getParentFile().getName();
-                    // Read dublin core
-                    Document document = readDcFile(currentFile);
-                    // Added info source data to the Document via info source Map
-                    InfoSource infoSource = infoSourceMap.get(new Integer(infosourceId));
-                    document.setInfoSourceId(infoSource.getId());
-                    document.setInfoSourceName(infoSource.getName());
-                    document.setInfoSourceUri(infoSource.getWebsiteUrl());
-                    // Sync the triples and associated DC data
-                    taxonConceptDao.syncTriples(infosourceId, documentId, document, triples, currentFile.getParentFile().getAbsolutePath());
 
+                    //sort out the buffer
+                    if(!splitBySubject.isEmpty()){
+                    	sync(currentFile, triples);
+                    }
+                    
                 } catch (Exception e) {
                     logger.error("Error reading triples from file: '"+currentFile.getName() +"', "+e.getMessage(), e);
                 }
-                logger.debug("finished syncing file: "+currentFile.getAbsolutePath());
 			}
 		}
 		return filesRead;
 	}
 
+	/**
+	 * Synchronize triples to database.
+	 * 
+	 * @param currentFile
+	 * @param triples
+	 * @throws Exception
+	 */
+	private void sync(File currentFile, List<Triple> triples) throws Exception {
+		String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
+		String documentId = currentFile.getParentFile().getName();
+		// Read dublin core
+		// Added info source data to the Document via info source Map
+		InfoSource infoSource = infoSourceMap.get(new Integer(infosourceId));
+		Document document = readDcFile(currentFile);
+		document.setId(Integer.parseInt(documentId));
+		document.setInfoSourceId(infoSource.getId());
+		document.setInfoSourceName(infoSource.getName());
+		document.setInfoSourceUri(infoSource.getWebsiteUrl());
+		// Sync the triples and associated DC data
+		taxonConceptDao.syncTriples(infosourceId, document, triples, currentFile.getParentFile().getAbsolutePath());
+	}
+
     /**
      * Initialise the info source map
+     *
+     * @return infoSourceMap
      */
     protected void loadInfoSources() {
         this.infoSourceMap = new HashMap<Integer, InfoSource>();
@@ -201,6 +205,4 @@ public class RepoDataLoader {
 	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
 		this.taxonConceptDao = taxonConceptDao;
 	}
-
-
 }

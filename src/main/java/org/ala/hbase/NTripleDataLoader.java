@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.ala.dao.TaxonConceptDao;
+import org.ala.model.Document;
 import org.ala.model.Triple;
 
 /**
@@ -92,8 +93,11 @@ public class NTripleDataLoader {
 	    			//if subject unchanged, add to list
 	    			triples.add(triple);
 	    		} else {
+	    			
+	    			Document doc = new Document();
+	    			doc.setId(Integer.parseInt(documentId));
 	    			//subject has changed - sync to hbase
-	    			boolean success = tcDao.syncTriples(infoSourceId, documentId, null, triples, null);
+	    			boolean success = tcDao.syncTriples(infoSourceId, doc, triples, null);
 	    			if(success) 
 	    				successfulSync++; 
 	    			else 
@@ -107,7 +111,9 @@ public class NTripleDataLoader {
 	    	
 	    	//sync the remaining batch
 	    	if(!triples.isEmpty()){
-				boolean success = tcDao.syncTriples(infoSourceId, documentId, null, triples, null);
+    			Document doc = new Document();
+    			doc.setId(Integer.parseInt(documentId));
+				boolean success = tcDao.syncTriples(infoSourceId, doc, triples, null);
 				if(success) 
 					successfulSync++; 
 				else 

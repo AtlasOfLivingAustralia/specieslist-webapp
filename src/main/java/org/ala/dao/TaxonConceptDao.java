@@ -38,11 +38,10 @@ import org.ala.model.ConservationStatus;
 import org.ala.model.Image;
 import org.ala.model.PestStatus;
 import org.ala.model.Rank;
+import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
-import org.ala.model.SimpleProperty;
 import org.ala.model.Triple;
-import org.ala.util.DublinCoreUtils;
 import org.ala.util.FileType;
 import org.ala.util.MimeType;
 import org.ala.vocabulary.Vocabulary;
@@ -967,7 +966,7 @@ public class TaxonConceptDao {
 	 * @param triples
 	 * @throws Exception
 	 */
-	public boolean syncTriples(String infoSourceId, String documentId, org.ala.model.Document document,
+	public boolean syncTriples(String infoSourceId, org.ala.model.Document document,
             List<Triple> triples, String filePath) throws Exception {
 
 		String scientificName = null;
@@ -1046,7 +1045,7 @@ public class TaxonConceptDao {
 					CommonName commonName = new CommonName();
 					commonName.setNameString(triple.object);
 					commonName.setInfoSourceId(infoSourceId);
-					commonName.setDocumentId(documentId);
+					commonName.setDocumentId(Integer.toString(document.getId()));
                     commonName.setInfoSourceName(dcPublisher);
                     commonName.setInfoSourceURL(dcSource);
 					addCommonName(guid, commonName);
@@ -1063,7 +1062,7 @@ public class TaxonConceptDao {
 					}
 
 					cs.setInfoSourceId(infoSourceId);
-					cs.setDocumentId(documentId);
+					cs.setDocumentId(Integer.toString(document.getId()));
                     cs.setInfoSourceName(dcPublisher);
                     cs.setInfoSourceURL(dcSource);
 					addConservationStatus(guid, cs);
@@ -1080,7 +1079,7 @@ public class TaxonConceptDao {
 					}
 					
 					ps.setInfoSourceId(infoSourceId);
-					ps.setDocumentId(documentId);
+					ps.setDocumentId(Integer.toString(document.getId()));
                     ps.setInfoSourceName(dcPublisher);
                     ps.setInfoSourceURL(dcSource);
 					addPestStatus(guid, ps);
@@ -1105,18 +1104,17 @@ public class TaxonConceptDao {
 			
 			//retrieve the content type
 			if(filePath!=null){
-				String contentType = DublinCoreUtils.getContentType(filePath);
 				
 				//is it an image ???
-				if(contentType!=null && MimeType.getImageMimeTypes().contains(contentType)){
+				if(document!=null && document.getMimeType()!=null && MimeType.getImageMimeTypes().contains(document.getMimeType())){
 					Image image = new Image();
-					image.setContentType(contentType);
+					image.setContentType(document.getMimeType());
 					image.setRepoLocation(filePath
 							+File.separator
 							+FileType.RAW.getFilename()
-							+MimeType.getFileExtension(contentType));
+							+MimeType.getFileExtension(document.getMimeType()));
 					image.setInfoSourceId(infoSourceId);
-					image.setDocumentId(documentId);
+					image.setDocumentId(Integer.toString(document.getId()));
                     image.setInfoSourceName(dcPublisher);
                     image.setInfoSourceURL(dcSource);
                     image.setIdentifier(dcIdentifier);
@@ -1126,7 +1124,7 @@ public class TaxonConceptDao {
 			}
 			
 			logger.debug("Adding content to: "+guid+", using scientific name: "+scientificName+", genus: "+genus);
-			addLiteralValues(guid, infoSourceId, documentId, properties);
+			addLiteralValues(guid, infoSourceId,Integer.toString(document.getId()), properties);
 			
 			return true;
 		} else {
