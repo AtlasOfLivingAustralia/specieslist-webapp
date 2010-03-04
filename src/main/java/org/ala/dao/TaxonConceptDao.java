@@ -1046,8 +1046,8 @@ public class TaxonConceptDao {
 					
 					ConservationStatus cs = vocabulary.getConservationStatusFor(Integer.parseInt(infoSourceId), triple.object);
 					if(cs==null){
-						ConservationStatus conservationStatus = new ConservationStatus();
-						conservationStatus.setStatus(triple.object);
+						cs = new ConservationStatus();
+						cs.setStatus(triple.object);
 					}
 
 					cs.setInfoSourceId(infoSourceId);
@@ -1063,8 +1063,8 @@ public class TaxonConceptDao {
 					
 					PestStatus ps = vocabulary.getPestStatusFor(Integer.parseInt(infoSourceId), triple.object);
 					if(ps==null){
-						PestStatus pestStatus = new PestStatus();
-						pestStatus.setStatus(triple.object);
+						ps = new PestStatus();
+						ps.setStatus(triple.object);
 					}
 					
 					ps.setInfoSourceId(infoSourceId);
