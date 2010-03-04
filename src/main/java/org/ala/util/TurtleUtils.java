@@ -21,6 +21,7 @@ import java.util.List;
 import org.ala.model.Triple;
 import org.apache.log4j.Logger;
 import org.openrdf.model.Statement;
+import org.openrdf.rio.ParseLocationListener;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 import org.openrdf.rio.turtle.TurtleParser;
@@ -45,12 +46,13 @@ public class TurtleUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static List<Triple> readTurtle(Reader reader, boolean stopOnSubjectChange) throws Exception {
+	public static List<Triple> readTurtle(Reader reader) throws Exception {
 		
 		final List<Triple> triples = new ArrayList<Triple>();
 		final TurtleParser parser = new TurtleParser();
 		 
 		parser.setRDFHandler(new RDFHandlerBase(){
+			
 			@Override
 			public void handleStatement(Statement st)
 					throws RDFHandlerException {
@@ -61,6 +63,7 @@ public class TurtleUtils {
 				triples.add(triple);
 			}
 		});
+		
 		parser.setVerifyData(true);
 		parser.parse(reader,defaultUriBase);
 		return triples;

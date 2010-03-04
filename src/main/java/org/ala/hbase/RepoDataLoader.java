@@ -16,6 +16,7 @@ package org.ala.hbase;
 
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -27,7 +28,6 @@ import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.model.InfoSource;
 import org.ala.model.Triple;
-import org.ala.util.NTriplesUtils;
 import org.ala.util.TurtleUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -90,30 +90,38 @@ public class RepoDataLoader {
 				//read the dublin core in the same directory - determine if its an image
 				try {
                     FileReader reader = new FileReader(currentFile);
-                    List<Triple> triples = null;
-                    if (useTurtle) {
-                        triples = TurtleUtils.readTurtle(reader, true);
-                    } else {
-                        triples = NTriplesUtils.readNTriples(reader, true);
+                    List<Triple> triples = TurtleUtils.readTurtle(reader);
+                    
+                    String currentSubject = null;
+                    List<Triple> splitBySubject = new ArrayList<Triple>();
+                    
+                    for(Triple triple: triples){
+                    
+                    	if(currentSubject==null){
+                    		currentSubject = triple.subject;
+                    	} else if(!currentSubject.equals(triple.subject)){
+                    		//sync these triples
+    	                    String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
+    	                    String documentId = currentFile.getParentFile().getName();
+    	
+    	                    //retrieve the publisher and source from the infosource
+    	                    InfoSource infoSource = infoSourceMap.get(new Integer(infosourceId));
+    	                    String dcSource = infoSource.getWebsiteUrl();
+    	                    String dcPublisher = infoSource.getName();
+    	                    
+    	                    //sync the triples to BIE profiles
+    	                    taxonConceptDao.syncTriples(infosourceId, documentId, dcSource, dcPublisher, splitBySubject, currentFile.getParentFile().getAbsolutePath());
+    	                    
+    	                    //clear list
+    	                    splitBySubject.clear();
+    	                    splitBySubject.add(triple);
+    	                    currentSubject = triple.subject;
+                    	}
+                    	
+                    	splitBySubject.add(triple);
                     }
-                    //sync these triples
-//				/../../infosource-id/document-id div 1000/document-id/rdf
-                    String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
-                    String documentId = currentFile.getParentFile().getName();
-
-                    //read dublin core
-
-                    //read dc:source (infosource URL), dc:publisher (infosource name), document ID, infsource ID
-
-                    // tcDao.syncTriples(infosourceId, documentId, dcSource, dcPublisher, triples, currentFile.getParentFile().getAbsolutePath());
-                    //read dc:source (infosource URL), dc:publisher (infosource name), document ID, infsource ID
-                    InfoSource infoSource = infoSourceMap.get(new Integer(infosourceId));
-                    String dcSource = infoSource.getWebsiteUrl();
-                    String dcPublisher = infoSource.getName();
-                    taxonConceptDao.syncTriples(infosourceId, documentId, dcSource, dcPublisher, triples, currentFile.getParentFile().getAbsolutePath());
-                    //tcDao.syncTriples(infosourceId, documentId, triples, currentFile.getParentFile().getAbsolutePath());
                 } catch (Exception e) {
-                    logger.error("Error reading triple: "+e.getMessage(), e);
+                    logger.error("Error reading triples from file: '"+currentFile.getName() +"', "+e.getMessage(), e);
                 }
 			}
 		}
