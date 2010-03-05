@@ -43,6 +43,7 @@ public class SearchResultsDTO {
     //private Collection<FacetResultDTO> facetResults;
     /** SOLR query response following search */
     //private QueryResponse qr;
+    private String query;
 
     /**
      * Constructor with 2 args
@@ -123,5 +124,13 @@ public class SearchResultsDTO {
 
     public void setTaxonConcepts(List<SearchTaxonConceptDTO> taxonConcepts) {
         this.taxonConcepts = taxonConcepts;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
     }
 }

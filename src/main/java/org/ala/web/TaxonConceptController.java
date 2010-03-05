@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
@@ -41,8 +40,8 @@ import org.ala.model.Document;
 import org.ala.repository.Predicates;
 import org.ala.util.MimeType;
 import org.ala.util.RepositoryFileUtils;
+import org.ala.util.StatusType;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -78,6 +77,9 @@ public class TaxonConceptController {
     private final String SPECIES_SHOW = "speciesShow";
      /** Name of view for a show "error" page */
     private final String SPECIES_ERROR = "speciesError";
+    /** Name of view for list of pest/conservation status */
+    private final String STATUS_LIST = "statusList";
+    
     /** Logger initialisation */
     private final static Logger logger = Logger.getLogger(TaxonConceptController.class);
 
@@ -166,17 +168,8 @@ public class TaxonConceptController {
      */ 
     @RequestMapping(value = "/species/{guid}", method = RequestMethod.GET)
     public String showSpecies(@PathVariable("guid") String guid, Model model) throws Exception {
-        String debug = null;
-
-        if (debug!=null) {
-            TaxonConceptDao tcDao = new TaxonConceptDao();
-            Map<String,String> properties = tcDao.getPropertiesFor(guid);
-        } else {
-            // hbase lookup for TC guid
-            logger.info("Retrieving concept with guid: "+guid); 
-            model.addAttribute("extendedTaxonConcept", tcDao.getExtendedTaxonConceptByGuid(guid));
-        }
-
+        logger.debug("Retrieving concept with guid: "+guid+".");
+        model.addAttribute("extendedTaxonConcept", tcDao.getExtendedTaxonConceptByGuid(guid));
         return SPECIES_SHOW;
     }
 
@@ -190,7 +183,6 @@ public class TaxonConceptController {
     @RequestMapping(value = "/species/{guid}.json", method = RequestMethod.GET)
     public ExtendedTaxonConceptDTO showSpeciesJson(@PathVariable("guid") String guid) throws Exception {
         logger.info("Retrieving concept with guid: "+guid);
-        //model.addAttribute("extendedTaxonConcept", tcDao.getExtendedTaxonConceptByGuid(guid));
         return tcDao.getExtendedTaxonConceptByGuid(guid);
     }
 
@@ -257,6 +249,57 @@ public class TaxonConceptController {
         }
 
 	}
+
+    /**
+     * Pest / Conservation status list
+     *
+     * @param statusStr
+     * @param model
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/species/status/{status}", method = RequestMethod.GET)
+    public String listStatus(@PathVariable("status") String statusStr, Model model) throws Exception {
+        StatusType statusType = StatusType.getForStatusType(statusStr);
+        if (statusType==null) {
+            return "redirect:/error.jsp";
+        }
+        model.addAttribute("statusType", statusType);
+        SearchResultsDTO searchResults = tcDao.findAllByStatus(statusType, 0, 10, "score", "asc");// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
+        model.addAttribute("searchResults", searchResults);
+        return STATUS_LIST;
+    }
+
+    /**
+     * Pest / Conservation status JSON (for yui datatable)
+     *
+     * @param statusStr
+     * @param startIndex
+     * @param pageSize
+     * @param sortField
+     * @param sortDirection
+     * @param model
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/species/status/{status}.json", method = RequestMethod.GET)
+    public SearchResultsDTO listStatusJson(@PathVariable("status") String statusStr,
+            @RequestParam(value="startIndex", required=false, defaultValue="0") Integer startIndex,
+            @RequestParam(value="results", required=false, defaultValue ="10") Integer pageSize,
+            @RequestParam(value="sort", required=false, defaultValue="score") String sortField,
+            @RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
+            Model model) throws Exception {
+
+        StatusType statusType = StatusType.getForStatusType(statusStr);
+        SearchResultsDTO searchResults = null;
+
+        if (statusType!=null) {
+            searchResults = tcDao.findAllByStatus(statusType, startIndex, pageSize, sortField, sortDirection);// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
+        }
+        
+        return searchResults;
+    }
+
 
     /**
      * Thumbnail image generator, taken from

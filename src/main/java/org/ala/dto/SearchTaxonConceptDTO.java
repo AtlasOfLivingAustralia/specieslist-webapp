@@ -31,6 +31,8 @@ public class SearchTaxonConceptDTO {
     protected Float score;
     protected String rank;
     protected int rankId;
+    protected String pestStatus;
+    protected String conservationStatus;
 	/**
 	 * @return the guid
 	 */
@@ -138,5 +140,21 @@ public class SearchTaxonConceptDTO {
 
     public void setRankId(int rankId) {
         this.rankId = rankId;
+    }
+
+    public String getConservationStatus() {
+        return conservationStatus;
+    }
+
+    public void setConservationStatus(String conservationStatus) {
+        this.conservationStatus = conservationStatus;
+    }
+
+    public String getPestStatus() {
+        return pestStatus;
+    }
+
+    public void setPestStatus(String pestStatus) {
+        this.pestStatus = pestStatus;
     }
 }

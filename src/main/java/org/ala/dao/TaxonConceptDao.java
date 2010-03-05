@@ -44,6 +44,7 @@ import org.ala.model.TaxonName;
 import org.ala.model.Triple;
 import org.ala.util.FileType;
 import org.ala.util.MimeType;
+import org.ala.util.StatusType;
 import org.ala.vocabulary.Vocabulary;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -64,10 +65,15 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.IndexWriter.MaxFieldLength;
+import org.apache.lucene.index.TermEnum;
+import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -335,6 +341,8 @@ public class TaxonConceptDao {
 		} 
 		return new ArrayList<CommonName>();
 	}
+
+
 	
 	/**
 	 * Retrieve the child concepts for the Taxon Concept with the supplied guid.
@@ -759,35 +767,52 @@ public class TaxonConceptDao {
 
 		//combine the query terms
 		scientificNameQuery = scientificNameQuery.combine(new Query[]{scientificNameQuery, guidQuery, commonNameQuery});
-        
-		IndexSearcher tcIdxSearcher1 = getTcIdxSearcher();
-        
+        // run the search
+        SearchResultsDTO searchResults = sortPageSearch(scientificNameQuery, startIndex, pageSize, sortField, sortDirection);
+
+        return searchResults;
+    }
+
+    /**
+     * Perform Lucene search with params for sorting and paging
+     *
+     * @param searchQuery
+     * @param startIndex
+     * @param pageSize
+     * @param sortDirection
+     * @param sortField
+     * @return
+     * @throws IOException
+     * @throws Exception
+     */
+    private SearchResultsDTO sortPageSearch(Query searchQuery, Integer startIndex, Integer pageSize,
+            String sortField, String sortDirection) throws IOException, Exception {
+        IndexSearcher tcIdxSearcher1 = getTcIdxSearcher();
         boolean direction = false;
-        if (sortDirection!=null && !sortDirection.isEmpty() && sortDirection.equalsIgnoreCase("desc")) {
+
+        if (sortDirection != null && !sortDirection.isEmpty() && sortDirection.equalsIgnoreCase("desc")) {
             direction = true;
         }
-
+        
         Sort sort = new Sort();
-        if (sortField!=null && !sortField.isEmpty() && !sortField.equalsIgnoreCase("score")) {
+
+        if (sortField != null && !sortField.isEmpty() && !sortField.equalsIgnoreCase("score")) {
             sort.setSort(sortField, direction);
         } else {
             sort = Sort.RELEVANCE;
         }
 
-		//TopDocs topDocs = tcIdxSearcher1.search(scientificNameQuery, pageSize);
-        TopDocs topDocs = tcIdxSearcher1.search(scientificNameQuery, null, startIndex+pageSize, sort); // TODO ues sortField here
-		logger.debug("Total hits: "+topDocs.totalHits);
+        TopDocs topDocs = tcIdxSearcher1.search(searchQuery, null, startIndex + pageSize, sort); // TODO ues sortField here
+        logger.debug("Total hits: " + topDocs.totalHits);
+        List<SearchTaxonConceptDTO> tcs = new ArrayList<SearchTaxonConceptDTO>();
 
-		List<SearchTaxonConceptDTO> tcs = new ArrayList<SearchTaxonConceptDTO>();
-        
-		// for (ScoreDoc scoreDoc: topDocs.scoreDocs) {
         for (int i = 0; i < topDocs.scoreDocs.length; i++) {
             if (i >= startIndex) {
                 ScoreDoc scoreDoc = topDocs.scoreDocs[i];
                 Document doc = tcIdxSearcher1.doc(scoreDoc.doc);
                 tcs.add(createTaxonConceptFromIndex(doc, scoreDoc.score));
             }
-		}
+        }
 
         SearchResultsDTO searchResults = new SearchResultsDTO(tcs);
         searchResults.setTotalRecords(topDocs.totalHits);
@@ -795,8 +820,45 @@ public class TaxonConceptDao {
         searchResults.setStatus("OK");
         searchResults.setSort(sortField);
         searchResults.setDir(sortDirection);
-
+        searchResults.setQuery(searchQuery.toString());
+        
         return searchResults;
+    }
+
+    /**
+     * Find all TCs with a pest/conservation status (any value)
+     *
+     * @param statusType
+     * @param startIndex
+     * @param pageSize
+     * @param sortField
+     * @param sortDirection
+     * @return
+     * @throws ParseException
+     * @throws Exception
+     */
+    public SearchResultsDTO findAllByStatus(StatusType statusType, Integer startIndex, Integer pageSize,
+            String sortField, String sortDirection) throws ParseException, Exception {
+        List<TermQuery> statusTerms = new ArrayList<TermQuery>();
+        IndexSearcher tcIdxSearcher1 = getTcIdxSearcher();
+        TermEnum terms = tcIdxSearcher1.getIndexReader().terms(new Term(statusType.toString(), ""));
+        
+        while (statusType.toString().equals(terms.term().field())) {
+            statusTerms.add(new TermQuery(new Term(statusType.toString(), terms.term().text())));
+            if (!terms.next()) {
+                break;
+            } 
+        }
+
+        String query = StringUtils.join(statusTerms, " ");
+        System.out.println("query = "+query+".");
+        BooleanQuery searchQuery = new BooleanQuery();
+
+        for (TermQuery tq : statusTerms) {
+            searchQuery.add(tq, BooleanClause.Occur.SHOULD);
+        }
+
+        return sortPageSearch(searchQuery, startIndex, pageSize, sortField, sortDirection);
     }
 	
 	/**
@@ -938,8 +1000,11 @@ public class TaxonConceptDao {
         taxonConcept.setRank(doc.get("rank"));
         try {
             taxonConcept.setRankId(Integer.parseInt(doc.get("rankId")));
-        } catch (NumberFormatException numberFormatException) {
+        } catch (NumberFormatException ex) {
+            logger.error("Error parsing rankId: "+ex.getMessage());
         }
+        taxonConcept.setPestStatus(doc.get(StatusType.PEST.toString()));
+        taxonConcept.setConservationStatus(doc.get(StatusType.CONSERVATION.toString()));
 
 		return taxonConcept;
 	}
@@ -1104,7 +1169,7 @@ public class TaxonConceptDao {
 			
 			//retrieve the content type
 			if(filePath!=null){
-				
+
 				//is it an image ???
 				if(document!=null && document.getMimeType()!=null && MimeType.getImageMimeTypes().contains(document.getMimeType())){
 					Image image = new Image();
@@ -1204,7 +1269,9 @@ public class TaxonConceptDao {
     		
     		Cell childrenCell = rowResult.get(Bytes.toBytes(IS_CHILD_COL_OF));
     		List<TaxonConcept> children = getTaxonConceptsFrom(childrenCell);
-    		
+
+            List<ConservationStatus> conservationStatuses = getConservationStatus(rowResult);
+    		List<PestStatus> pestStatuses = getPestStatus(rowResult);
     		//create the lucene doc
     		
     		//TODO this index should also include nub ids
@@ -1225,6 +1292,14 @@ public class TaxonConceptDao {
 	    				doc.add(new Field("synonym", tc.nameString.toLowerCase(), Store.YES, Index.ANALYZED));
 	    			}
 	    		}
+
+                for (ConservationStatus cs : conservationStatuses) {
+                    doc.add(new Field("conservationStatus", cs.getStatus(), Store.YES, Index.ANALYZED));
+                }
+
+                for (PestStatus ps : pestStatuses) {
+                    doc.add(new Field("pestStatus", ps.getStatus(), Store.YES, Index.ANALYZED));
+                }
 
                 //StringBuffer cnStr = new StringBuffer();
                 TreeSet<String> commonNameSet = new TreeSet<String>();

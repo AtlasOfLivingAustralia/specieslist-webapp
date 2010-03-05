@@ -408,7 +408,7 @@
                                 <th></th>
                             </tr>
                             <c:forEach var="textProperty" items="${extendedTaxonConcept.textProperties}">
-                                <c:if test="${fn:endsWith(textProperty.name, 'Text')}">
+                                <c:if test="${fn:endsWith(textProperty.name, 'Text') || fn:endsWith(textProperty.name, 'Status')}">
                                     <tr>
                                         <td style="font-weight: bold;"><fmt:message key="${fn:substringAfter(textProperty.name, '#')}"/></td>
                                         <td>${textProperty.value}</td>

@@ -190,6 +190,8 @@ public class RepoDataLoader {
                     doc.setIdentifier(line[1]);
                 } else if (line[0].equalsIgnoreCase(Predicates.DC_TITLE.toString())) {
                     doc.setTitle(line[1]);
+                } else if (line[0].equalsIgnoreCase(Predicates.DC_FORMAT.toString())) {
+                    doc.setMimeType(line[1]);
                 }
             }
         } catch (Exception ex) {
