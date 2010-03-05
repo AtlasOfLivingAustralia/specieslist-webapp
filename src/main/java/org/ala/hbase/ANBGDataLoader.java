@@ -156,11 +156,12 @@ public class ANBGDataLoader {
     	while((record = tr.readNext())!=null){
     		i++;
     		if(record.length!=8){
-    			logger.info("truncated record: "+record);
+    			logger.info("truncated at line "+i+"record: "+record);
     			continue;
     		}
     		
     		List<TaxonConcept> tcs = loadUtils.getByNameGuid(record[0], 100);
+    		
     		TaxonName tn = new TaxonName();
     		tn.guid = record[0];
     		tn.nameComplete = record[2];
@@ -170,13 +171,13 @@ public class ANBGDataLoader {
     		tn.nomenclaturalCode = record[6];
     		tn.typificationString = record[7];
     		
-    		
-    		
-
     		//add this taxon name to each taxon concept
     		for(TaxonConcept tc: tcs){
     			j++;
-    			tcDao.addTaxonName(tc.guid, tn);
+        		boolean isVernacular = loadUtils.isVernacularConcept(tc.guid);
+    			if(!isVernacular){
+    				tcDao.addTaxonName(tc.guid, tn);
+    			}
     		}
     	}
     	logger.info(i+" lines read. "+j+" names added to concept records.");
@@ -191,6 +192,8 @@ public class ANBGDataLoader {
 		
 		LoadUtils loadUtils = new LoadUtils();
 		TabReader tr = new TabReader("/data/taxonConcepts.txt");
+//		TabReader tr = new TabReader("/data/taxonConceptsSmall.txt");
+		
 		TaxonConceptDao tcDao = new TaxonConceptDao();
     	String[] record = null;
     	List<TaxonConcept> tcBatch = new ArrayList<TaxonConcept>();
@@ -207,10 +210,11 @@ public class ANBGDataLoader {
 	    		if(record.length==9){
 	    			
 	    			boolean isVernacular = loadUtils.isVernacularConcept(record[0]);
-	    			boolean isCongruent = loadUtils.isCongruentConcept(record[0]);
+//	    			boolean isCongruent = loadUtils.isCongruentConcept(record[0]);
 	    			
 	    			//dont add vernacular or congruent concepts
-	    			if(!isVernacular && !isCongruent){
+//	    			if(!isVernacular && !isCongruent){
+	    			if(!isVernacular){
 		    			TaxonConcept tc = new TaxonConcept();
 		    			tc.guid = record[0];
 		    			tc.nameGuid = record[1];
@@ -224,7 +228,7 @@ public class ANBGDataLoader {
 		    			j++;
 	    			}
 	    		} else {
-	    			logger.error(i+" - missing fields: "+record.length+" record:"+record);
+	    			logger.error(i+" - missing fields: "+record.length+" fields:"+record);
 	    		}
 	    	}
 	    	
