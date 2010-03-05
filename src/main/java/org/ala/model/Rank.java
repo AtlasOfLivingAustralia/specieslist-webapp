@@ -28,48 +28,48 @@ import java.util.Map;
  * @author "Nick dos Remedios <Nick.dosRemedios@csiro.au>"
  */
 public enum Rank {
-    SER         (6800, "ser", "series"),
-    VAR         (8010, "var", "variety"),
-    SUBSECT     (6700, "subsect", "subsection"),
-    SUBORD      (4200, "subord", "suborder"),
-    ORD         (4000, "ord", "order"),
-    PHYL_DIV    (2000, "phyl_div", "phylum/division"),
-    SUBPHYL_DIV (2200, "subphyl_div", "subphylum/subdivision"),
-    SUBSER      (6900, "subser", "subseries"),
-    SUBTRIB     (5700, "subtrib", "subtribe"),
-    SUBSP_AGGR  (6975, "subsp_aggr", "subspecies aggregate"),
-    SUPERTRIB   (5700, "supertrib", "supertribe"),
-    SUBVAR      (8015, "subvar", "subvariety"),
-    SECT        (6600, "sect", "section"),
-    SSP         (8000, "ssp", "subspecies"), // ?
-    TAXSUPRAGEN (5999, "taxsupragen", "suprageneric tax. of undefined rank"),
-    SUPERFAM    (4500, "superfam", "superfamily"),
-    NUL         (9999, "null", "(rank not specified)"),  // NULL is reserved word
-    GEN         (6000, "gen", "genus"),
-    SP          (7000, "sp", "species"),
-    INFRACL     (3350, "infracl", "infraclass"),
-    SUBGEN      (6500, "subgen", "subgenus"),
-    SUPERCL     (2800, "supercl", "superclass"),
-    TRIB        (5600, "trib", "tribe"),
-    CV          (8050, "cv", "cultivar"),
-    FAM         (5000, "fam", "family"),
-    SUBFAM      (5500, "subfam", "subfamily"),
-    SUBCL       (3200, "subcl", "subclass"),
-    SUPERORD    (4200, "superord", "superorder"),
-    INFRAORD    (4350, "infraord", "infraorder"),
-    REG         (1000, "reg", "kingdom"),
-    CL          (3000, "cl", "class"),
+    SER         (6800, "series", "ser"),
+    VAR         (8010, "variety","var"),
+    SUBSECT     (6700, "subsection", "subsect"),
+    SUBORD      (4200, "suborder","subord"),
+    ORD         (4000, "order", "ord"),
+    PHYL_DIV    (2000, "phylum/division", "phyl_div"),
+    SUBPHYL_DIV (2200, "subphylum/subdivision", "subphyl_div"),
+    SUBSER      (6900, "subseries","subser"),
+    SUBTRIB     (5700, "subtribe", "subtrib"),
+    SUBSP_AGGR  (6975, "subspecies aggregate", "subsp_aggr"),
+    SUPERTRIB   (5700, "supertribe", "supertrib"),
+    SUBVAR      (8015, "subvariety", "subvar"),
+    SECT        (6600, "section", "sect"),
+    SSP         (8000, "subspecies", "ssp", "subsp"), // ?
+    TAXSUPRAGEN (5999, "suprageneric tax. of undefined rank", "taxsupragen"),
+    SUPERFAM    (4500, "superfamily", "superfam"),
+    NUL         (9999, "(rank not specified)","null"),  // NULL is reserved word
+    GEN         (6000, "genus", "gen"),
+    SP          (7000, "species", "sp"),
+    INFRACL     (3350, "infraclass", "infracl"),
+    SUBGEN      (6500, "subgenus","subgen"),
+    SUPERCL     (2800, "superclass", "supercl"),
+    TRIB        (5600, "tribe","trib"),
+    CV          (8050, "cultivar", "cv"),
+    FAM         (5000, "family","fam"),
+    SUBFAM      (5500, "subfamily", "subfam"),
+    SUBCL       (3200, "subclass", "subcl"),
+    SUPERORD    (4200, "superorder", "superord"),
+    INFRAORD    (4350, "infraorder", "infraord"),
+    REG         (1000, "kingdom", "reg"),
+    CL          (3000, "class", "cl"),
     // non standard rank values encountered while indexing...
-    DIVISION    (2000, "division", "phylum/division"),        
-    SUBDIVISION (2200, "subdivision", "subphylum/subdivision"),
-    COHORT      (2400, "cohort", "Cohort"),
+    DIVISION    (2000, "phylum/division", "division"),
+    SUBDIVISION (2200, "subphylum/subdivision", "subdivision"),
+    COHORT      (2400, "cohort", "cohort"),
     SECTION     (6600, "section", "section"),
-    INCERTAE_SEDIS (5999, "incertae sedis", "Incertae Sedis (uncertain rank)"),
-    SP_INQUIRENDA  (5999, "species inquirenda", "Species Inquirenda (doubtful identity)"),;
+    INCERTAE_SEDIS (5999, "Incertae Sedis (uncertain rank)", "incertae sedis"),
+    SP_INQUIRENDA  (5999, "Species Inquirenda (doubtful identity)", "species inquirenda");
 
     private Integer id;   // used to sort by classification order
-    private String field; // string used in database
     private String name;  // human-readable version
+    private String[] fields; // string used in database
 
     // Allow reverse-lookup (based on http://www.ajaxonomy.com/2007/java/making-the-most-of-java-50-enum-tricks)
     private static final Map<String,Rank> fieldLookup
@@ -81,7 +81,9 @@ public enum Rank {
 
     static {
          for (Rank rank : EnumSet.allOf(Rank.class)) {
-             fieldLookup.put(rank.getField(), rank);
+        	 for(String field: rank.getFields()){
+        		 fieldLookup.put(field, rank);
+        	 }
              idLookup.put(rank.getId(), rank);
              nameLookup.put(rank.getName(), rank);
          }
@@ -91,18 +93,18 @@ public enum Rank {
      * Constructor for setting the 'value'
      * @param field value as String
      */
-    private Rank(Integer id, String field, String name) {
+    private Rank(Integer id, String name, String ... fields) {
         this.id = id;
-        this.field = field;
+        this.fields = fields;
         this.name = name;
     }
 
-    public String getField() {
-        return field;
+    public String[] getFields() {
+        return fields;
     }
 
-    public void setField(String field) {
-        this.field = field;
+    public void setFields(String[] fields) {
+        this.fields = fields;
     }
 
     public Integer getId() {
