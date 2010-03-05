@@ -341,8 +341,6 @@ public class TaxonConceptDao {
 		} 
 		return new ArrayList<CommonName>();
 	}
-
-
 	
 	/**
 	 * Retrieve the child concepts for the Taxon Concept with the supplied guid.
@@ -466,6 +464,7 @@ public class TaxonConceptDao {
 		RowResult row = getTable().getRow(Bytes.toBytes(guid));
 		if(row==null){
 			logger.error("Unable to locate a row to add taxon name to for guid: "+guid);
+			return;
 		}
 		BatchUpdate batchUpdate = new BatchUpdate(Bytes.toBytes(guid));
 		putIfNotNull(batchUpdate, "tn:guid", tn.guid);
