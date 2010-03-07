@@ -14,7 +14,13 @@
  ***************************************************************************/
 package org.ala.model;
 
-public class AttributableObject {
+/**
+ * A model object that provides some backlinks for attribution
+ * of source. This class is intended to be subclassed
+ *
+ * @author Dave Martin (David.Martin@csiro.au)
+ */
+public abstract class AttributableObject {
 
 	//attribution
 	protected String infoSourceId;

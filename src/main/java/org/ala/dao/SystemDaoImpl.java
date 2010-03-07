@@ -1,3 +1,17 @@
+/***************************************************************************
+ * Copyright (C) 2010 Atlas of Living Australia
+ * All Rights Reserved.
+ *
+ * The contents of this file are subject to the Mozilla Public
+ * License Version 1.1 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of
+ * the License at http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS
+ * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ ***************************************************************************/
 package org.ala.dao;
 
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -5,13 +19,17 @@ import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.log4j.Logger;
-
+/**
+ * HBase implementation if the SystemDao.
+ *
+ * @author Dave Martin (David.Martin@csiro.au)
+ */
 public class SystemDaoImpl implements SystemDao {
 
 	protected static Logger logger = Logger.getLogger(SystemDaoImpl.class);
 	
-	/* (non-Javadoc)
-	 * @see org.ala.dao.ISystemDao#init()
+	/**
+	 * @see org.ala.dao.SystemDao#init()
 	 */
 	public void init() throws Exception {
     	logger.info("Initialising HBase");
@@ -71,6 +89,4 @@ public class SystemDaoImpl implements SystemDao {
     	
     	logger.info("Schema setup complete.");
 	}
-	
-	
 }

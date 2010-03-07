@@ -21,7 +21,6 @@ import java.util.List;
 import org.ala.model.Triple;
 import org.apache.log4j.Logger;
 import org.openrdf.model.Statement;
-import org.openrdf.rio.ParseLocationListener;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 import org.openrdf.rio.turtle.TurtleParser;
