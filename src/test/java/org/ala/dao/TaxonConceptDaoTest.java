@@ -10,7 +10,7 @@ public class TaxonConceptDaoTest extends TestCase {
 
 	public void testAddSynonym() throws Exception {
 		
-		TaxonConceptDao tcDao = new TaxonConceptDao();
+		TaxonConceptDao tcDao = new TaxonConceptDaoImpl();
 		tcDao.delete("urn:lsid:afd:taxon:123");
 		
 		TaxonConcept tc = new TaxonConcept();

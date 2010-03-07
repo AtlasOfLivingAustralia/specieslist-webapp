@@ -24,14 +24,15 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
+import org.ala.dao.InfoSourceDAO;
 import org.ala.model.Document;
 import org.ala.model.InfoSource;
 import org.ala.model.Triple;
 import org.ala.util.FileType;
 import org.ala.repository.Predicates;
 import org.ala.util.RepositoryFileUtils;
+import org.ala.util.SpringUtils;
 import org.ala.util.TurtleUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -48,29 +49,30 @@ import org.springframework.stereotype.Component;
 @Component
 public class RepoDataLoader {
 
+	protected static Logger logger = Logger.getLogger(RepoDataLoader.class);
+	
 	protected static String repositoryDir = "/data/bie";
-	protected boolean useTurtle = true;
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
 	protected Map<Integer, InfoSource> infoSourceMap;
     @Inject
     protected InfoSourceDAO infoSourceDAO;
     @Inject
-    RepositoryFileUtils repoFileUtils;
-	protected static Logger logger = Logger.getLogger(RepoDataLoader.class);
+    protected RepositoryFileUtils repoFileUtils;
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
 		//RepoDataLoader loader = new RepoDataLoader();
-        ApplicationContext context = new ClassPathXmlApplicationContext(new String[]{"classpath*:spring-profiler.xml", "classpath:spring.xml"});
+        ApplicationContext context = SpringUtils.getContext();
         RepoDataLoader loader = (RepoDataLoader) context.getBean(RepoDataLoader.class);
 		long start = System.currentTimeMillis();
         loader.loadInfoSources();
 		int filesRead = loader.load(repositoryDir); //FIX ME - move to config
     	long finish = System.currentTimeMillis();
     	System.out.println(filesRead+" files scanned/loaded in: "+((finish-start)/60000)+" minutes "+((finish-start)/1000)+" seconds.");
+    	System.exit(1);
 	}
 
 	/**
@@ -95,6 +97,8 @@ public class RepoDataLoader {
 				
 				//read the dublin core in the same directory - determine if its an image
 				try {
+					logger.debug("Reading file: "+currentFile.getAbsolutePath());
+					
                     FileReader reader = new FileReader(currentFile);
                     List<Triple> triples = TurtleUtils.readTurtle(reader);
                     
@@ -108,7 +112,7 @@ public class RepoDataLoader {
                     		currentSubject = triple.subject;
                     	} else if(!currentSubject.equals(triple.subject)){
                     		//sync these triples
-                    		sync(currentFile, triples);
+                    		sync(currentFile, splitBySubject);
     	                    //clear list
     	                    splitBySubject.clear();
     	                    splitBySubject.add(triple);
@@ -148,8 +152,9 @@ public class RepoDataLoader {
 		document.setInfoSourceId(infoSource.getId());
 		document.setInfoSourceName(infoSource.getName());
 		document.setInfoSourceUri(infoSource.getWebsiteUrl());
+		document.setFilePath(currentFile.getParentFile().getAbsolutePath());
 		// Sync the triples and associated DC data
-		taxonConceptDao.syncTriples(infosourceId, document, triples, currentFile.getParentFile().getAbsolutePath());
+		taxonConceptDao.syncTriples(document, triples);
 	}
 
     /**

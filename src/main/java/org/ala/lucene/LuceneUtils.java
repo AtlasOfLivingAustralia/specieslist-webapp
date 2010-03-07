@@ -14,8 +14,8 @@
  ***************************************************************************/
 package org.ala.lucene;
 
-import java.util.ArrayList;
 import java.util.TreeSet;
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
@@ -28,8 +28,8 @@ import org.gbif.ecat.parser.NameParser;
  * @author Dave Martin (David.Martin@csiro.au)
  */
 public class LuceneUtils {
-    private static final String SCI_NAME = "scientificName";
-    private static final String SCI_NAME_RAW = "scientificNameRaw";
+    public static final String SCI_NAME = "scientificName";
+    public static final String SCI_NAME_RAW = "scientificNameRaw";
 	/**
 	 * Adds a scientific name to the lucene index in multiple forms to increase
 	 * chances of matches

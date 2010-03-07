@@ -1,4 +1,4 @@
-/* *************************************************************************
+/**************************************************************************
  *  Copyright (C) 2009 Atlas of Living Australia
  *  All Rights Reserved.
  *
@@ -60,11 +60,12 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller("taxonConceptController")
 public class TaxonConceptController {
-    /** DAO bean for data access to repository */
-    //private final RepositoryDAO fedoraDAO;
+
+	/** Logger initialisation */
+    private final static Logger logger = Logger.getLogger(TaxonConceptController.class);
     @Inject
-    private final TaxonConceptDao tcDao = null;
-    /** DAO bean for access to repostory document table */
+    private TaxonConceptDao taxonConceptDao = null;
+    /** DAO bean for access to repository document table */
     @Inject
     private final DocumentDAO documentDAO = null;
     /** Name of view for site home page */
@@ -80,9 +81,6 @@ public class TaxonConceptController {
     /** Name of view for list of pest/conservation status */
     private final String STATUS_LIST = "statusList";
     
-    /** Logger initialisation */
-    private final static Logger logger = Logger.getLogger(TaxonConceptController.class);
-
     /**
 	 * Custom handler for the welcome view.
 	 * <p>
@@ -94,8 +92,8 @@ public class TaxonConceptController {
      */
 	@RequestMapping("/")
 	public String homePageHandler() {
-		//return HOME_PAGE;
-        return "redirect:/index.jsp";
+		return HOME_PAGE;
+//        return "redirect:/index.jsp";
 	}
 
     /**
@@ -144,7 +142,7 @@ public class TaxonConceptController {
         String filterQueryChecked = (filterQuery == null) ? "" : filterQuery;
         model.addAttribute("facetQuery", filterQueryChecked);
 
-        SearchResultsDTO searchResults = tcDao.findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
+        SearchResultsDTO searchResults = taxonConceptDao.findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
         model.addAttribute("searchResults", searchResults);
         logger.debug("query = "+query);
 
@@ -169,7 +167,7 @@ public class TaxonConceptController {
     @RequestMapping(value = "/species/{guid}", method = RequestMethod.GET)
     public String showSpecies(@PathVariable("guid") String guid, Model model) throws Exception {
         logger.debug("Retrieving concept with guid: "+guid+".");
-        model.addAttribute("extendedTaxonConcept", tcDao.getExtendedTaxonConceptByGuid(guid));
+        model.addAttribute("extendedTaxonConcept", taxonConceptDao.getExtendedTaxonConceptByGuid(guid));
         return SPECIES_SHOW;
     }
 
@@ -183,7 +181,7 @@ public class TaxonConceptController {
     @RequestMapping(value = "/species/{guid}.json", method = RequestMethod.GET)
     public ExtendedTaxonConceptDTO showSpeciesJson(@PathVariable("guid") String guid) throws Exception {
         logger.info("Retrieving concept with guid: "+guid);
-        return tcDao.getExtendedTaxonConceptByGuid(guid);
+        return taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
     }
 
     /**
@@ -265,7 +263,7 @@ public class TaxonConceptController {
             return "redirect:/error.jsp";
         }
         model.addAttribute("statusType", statusType);
-        SearchResultsDTO searchResults = tcDao.findAllByStatus(statusType, 0, 10, "score", "asc");// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
+        SearchResultsDTO searchResults = taxonConceptDao.findAllByStatus(statusType, 0, 10, "score", "asc");// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
         model.addAttribute("searchResults", searchResults);
         return STATUS_LIST;
     }
@@ -294,7 +292,7 @@ public class TaxonConceptController {
         SearchResultsDTO searchResults = null;
 
         if (statusType!=null) {
-            searchResults = tcDao.findAllByStatus(statusType, startIndex, pageSize, sortField, sortDirection);// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
+            searchResults = taxonConceptDao.findAllByStatus(statusType, startIndex, pageSize, sortField, sortDirection);// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
         }
         
         return searchResults;
@@ -439,32 +437,10 @@ public class TaxonConceptController {
         return scaled2;
     }
 
-
-     /*
-     * Getter methods
-     */
-
-    public String getHOME_PAGE() {
-        return HOME_PAGE;
-    }
-
-    public String getSPECIES_LIST() {
-        return SPECIES_LIST;
-    }
-
-    public String getSPECIES_SEARCH() {
-        return SPECIES_SEARCH;
-    }
-
-    public String getSPECIES_SHOW() {
-        return SPECIES_SHOW;
-    }
-
-    public String getSPECIES_ERROR() {
-        return SPECIES_ERROR;
-    }
-
-    public void setHOME_PAGE(String HOME_PAGE) {
-        this.HOME_PAGE = HOME_PAGE;
-    }
+	/**
+	 * @param taxonConceptDao the taxonConceptDao to set
+	 */
+	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
+		this.taxonConceptDao = taxonConceptDao;
+	}
 }

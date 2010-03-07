@@ -17,14 +17,21 @@ package org.ala.hbase;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.lucene.CreateLoadingIndex;
 import org.ala.model.CommonName;
+import org.ala.model.InfoSource;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.util.LoadUtils;
+import org.ala.util.SpringUtils;
 import org.ala.util.TabReader;
 import org.apache.log4j.Logger;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 /**
  * This class loads data from exported ANBG dump files into the HBase table
@@ -41,20 +48,27 @@ import org.apache.log4j.Logger;
  * 
  * @author David Martin
  */
+@Component("anbgDataLoader")
 public class ANBGDataLoader {
 	
 	protected static Logger logger  = Logger.getLogger(ANBGDataLoader.class);
-
+	@Inject
+	protected InfoSourceDAO infoSourceDAO;
+	@Inject
+	protected TaxonConceptDao taxonConceptDao;
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
 		logger.info("Starting ANBG load....");
 		long start = System.currentTimeMillis();
-    	ANBGDataLoader loader = new ANBGDataLoader();
+        ApplicationContext context = SpringUtils.getContext();
+        ANBGDataLoader loader = (ANBGDataLoader) context.getBean(ANBGDataLoader.class);
     	loader.load();
     	long finish = System.currentTimeMillis();
     	logger.info("Data loaded in: "+((finish-start)/60000)+" minutes.");
+    	System.exit(1);
 	}
 	
 	/**
@@ -75,15 +89,15 @@ public class ANBGDataLoader {
 	 * 
 	 * @throws Exception
 	 */
-	private static void loadRelationships() throws Exception {
+	private void loadRelationships() throws Exception {
 		
 		logger.info("Starting to load synonyms, parents, children");
 		
-		TaxonConceptDao tcDao = new TaxonConceptDao();
+		LoadUtils loadUtils = new LoadUtils();
 		
     	long start = System.currentTimeMillis();
     	//add the relationships
-    	TabReader tr = new TabReader("/data/relationships.txt");
+    	TabReader tr = new TabReader("/data/bie-staging/anbg/relationships.txt");
     	String[] keyValue = null;
 		int i = 0;
 		int j = 0;
@@ -94,20 +108,41 @@ public class ANBGDataLoader {
         		if(++i % 1000==0) 
         			logger.info(i+" relationships processed");
     			
+        		//add the synonym information to the accepted concept
     			if(keyValue[2].endsWith("HasSynonym")){
-    				TaxonConcept synonym = tcDao.getByGuid(keyValue[1]);
+    				TaxonConcept synonym = loadUtils.getByGuid(keyValue[1],1);
     				if(synonym!=null){
-    					tcDao.addSynonym(keyValue[0], synonym);
+    					taxonConceptDao.addSynonym(keyValue[0], synonym);
     					j++;
     				}
     			}
 
+        		//add the synonym information to the accepted concept
+    			if(keyValue[2].endsWith("IsCongruentTo")){
+    				
+    				//currently AFD/APNI seems to organised so that
+    				// the accepted concepts are marked as congruent to others...hence 
+    				TaxonConcept congruentTc = loadUtils.getByGuid(keyValue[1], 1);
+    				if(congruentTc!=null){
+        				//get the congruent object from the loading indicies
+        				TaxonConcept acceptedConcept = taxonConceptDao.getByGuid(keyValue[0]);
+        				
+        				if(!congruentTc.getNameString().equals(acceptedConcept.getNameString())){
+        					taxonConceptDao.addIsCongruentTo(keyValue[0], congruentTc);
+        					j++;
+        				} else {
+        					logger.debug("Avoiding adding congruent taxon with same name:"+acceptedConcept.getNameString()+", "+keyValue[1]);
+        				}
+    				}
+    			}
+
+        		//add the child information to the accepted concept
     			if(keyValue[2].endsWith("IsChildTaxonOf")){
     				
     				//from-to-rel
-    				TaxonConcept tc = tcDao.getByGuid(keyValue[1]);
+    				TaxonConcept tc = taxonConceptDao.getByGuid(keyValue[1]);
     				if(tc!=null){
-    					tcDao.addChildTaxon(keyValue[0], tc);
+    					taxonConceptDao.addParentTaxon(keyValue[0], tc);
     				} else {
     					logger.warn("Unable to add child - No concept for :"+keyValue[1]);
     				}
@@ -115,20 +150,21 @@ public class ANBGDataLoader {
 //    				tcDao.addOverlapsWith();
     			}
     			
+        		//add the parent information to the accepted concept
     			if(keyValue[2].endsWith("IsParentTaxonOf")){
 //    				tcDao.addOverlapsWith();
-    				TaxonConcept tc = tcDao.getByGuid(keyValue[1]);
+    				TaxonConcept tc = taxonConceptDao.getByGuid(keyValue[1]);
     				if(tc!=null){
-    					tcDao.addParentTaxon(keyValue[0], tc);
+    					taxonConceptDao.addChildTaxon(keyValue[0], tc);
     				} else {
     					logger.warn("Unable to add parent - No concept for :"+keyValue[1]);
     				}
     			}
     			
-//    			http://rs.tdwg.org/ontology/voc/TaxonConcept#Includes        
-//    			http://rs.tdwg.org/ontology/voc/TaxonConcept#Overlaps        
+//    			http://rs.tdwg.org/ontology/voc/TaxonConcept#Includes
+//    			http://rs.tdwg.org/ontology/voc/TaxonConcept#Overlaps
 //    			http://rs.tdwg.org/ontology/voc/TaxonConcept#IsHybridParentOf
-//    			http://rs.tdwg.org/ontology/voc/TaxonConcept#IsHybridChildOf     			
+//    			http://rs.tdwg.org/ontology/voc/TaxonConcept#IsHybridChildOf
 /*    			
 		    	doc.add(new Field("fromTaxon", keyValue[0], Store.YES, Index.ANALYZED));
 		    	doc.add(new Field("toTaxon", keyValue[1], Store.YES, Index.ANALYZED));
@@ -146,16 +182,18 @@ public class ANBGDataLoader {
 	 * 
 	 * @throws Exception
 	 */
-	private static void loadTaxonNames() throws Exception {
-		TabReader tr = new TabReader("/data/taxonNames.txt");
+	private void loadTaxonNames() throws Exception {
+		
+		logger.info("Starting to load taxon names");
+		
+		TabReader tr = new TabReader("/data/bie-staging/anbg/taxonNames.txt");
 		LoadUtils loadUtils = new LoadUtils();
     	String[] record = null;
-    	TaxonConceptDao tcDao = new TaxonConceptDao();
     	int i = 0;
     	int j = 0;
     	while((record = tr.readNext())!=null){
     		i++;
-    		if(record.length!=8){
+    		if(record.length<8){
     			logger.info("truncated at line "+i+"record: "+record);
     			continue;
     		}
@@ -174,9 +212,12 @@ public class ANBGDataLoader {
     		//add this taxon name to each taxon concept
     		for(TaxonConcept tc: tcs){
     			j++;
-        		boolean isVernacular = loadUtils.isVernacularConcept(tc.guid);
-    			if(!isVernacular){
-    				tcDao.addTaxonName(tc.guid, tn);
+//        		boolean isVernacular = loadUtils.isVernacularConcept(tc.guid);
+    			if(addTaxonToProfile(loadUtils, tc.guid)){
+    				//some of these name additions will fail, where the concept
+    				//is not an accepted concept and is congruent to another
+    				//we have not added the concept to the profile - hence the lookup will fail
+    				taxonConceptDao.addTaxonName(tc.guid, tn);
     			}
     		}
     	}
@@ -188,13 +229,18 @@ public class ANBGDataLoader {
 	 * 
 	 * @throws Exception
 	 */
-	private static void loadTaxonConcepts() throws Exception {
+	private void loadTaxonConcepts() throws Exception {
+		
+		logger.info("Starting load of taxon concepts...");
 		
 		LoadUtils loadUtils = new LoadUtils();
-		TabReader tr = new TabReader("/data/taxonConcepts.txt");
-//		TabReader tr = new TabReader("/data/taxonConceptsSmall.txt");
+		TabReader tr = new TabReader("/data/bie-staging/anbg/taxonConcepts.txt");
+//		TabReader tr = new TabReader("/data/bie-staging/anbg/taxonConceptsSmall.txt");
 		
-		TaxonConceptDao tcDao = new TaxonConceptDao();
+		InfoSource afd = infoSourceDAO.getByUri("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/home");
+		InfoSource apc = infoSourceDAO.getByUri("http://www.anbg.gov.au/chah/apc/");
+		InfoSource apni = infoSourceDAO.getByUri("http://www.anbg.gov.au/apni/");
+		
     	String[] record = null;
     	List<TaxonConcept> tcBatch = new ArrayList<TaxonConcept>();
     	long start = System.currentTimeMillis();
@@ -204,17 +250,22 @@ public class ANBGDataLoader {
 	    	while((record = tr.readNext())!=null){
 	    		i++;
 	    		if(i%1000==0){
-	    			tcDao.create(tcBatch);
+	    			taxonConceptDao.create(tcBatch);
 	    			tcBatch.clear();
 	    		}
 	    		if(record.length==9){
+
+	    			// if its congruent to another concept dont add it
+	    			// if its a synonym for another concept dont add it
 	    			
-	    			boolean isVernacular = loadUtils.isVernacularConcept(record[0]);
-//	    			boolean isCongruent = loadUtils.isCongruentConcept(record[0]);
+	    			
+	    			//if its congruent to another concept and it isnt an accepted
+	    			//concept, then dont add it
+//	    			boolean toAdd = isCongruent && !isAccepted ? false : true;
 	    			
 	    			//dont add vernacular or congruent concepts
 //	    			if(!isVernacular && !isCongruent){
-	    			if(!isVernacular){
+	    			if(addTaxonToProfile(loadUtils, record[0])){
 		    			TaxonConcept tc = new TaxonConcept();
 		    			tc.guid = record[0];
 		    			tc.nameGuid = record[1];
@@ -224,16 +275,40 @@ public class ANBGDataLoader {
 		    			tc.publishedInCitation = record[5];
 		    			tc.publishedIn = record[6];
 		    			tc.acceptedConceptGuid = record[8];
+		    			
+		    			//remove and use a infosource lookup
+//		    			if("AFD".equals(accepted)){
+//		    				tc.setInfoSourceId(Integer.toString(afd.getId()));
+//		    				tc.setInfoSourceName(afd.getName());
+//		    				tc.setInfoSourceURL(afd.getWebsiteUrl());
+//		    			} else 
+		    			String accepted = loadUtils.isAcceptedConcept(record[0]);
+		    			if("APC".equals(accepted)){
+		    				tc.setInfoSourceId(Integer.toString(apc.getId()));
+		    				tc.setInfoSourceName(apc.getName());
+		    				tc.setInfoSourceURL(apc.getWebsiteUrl());
+		    			} else if(record[0].contains("apni")){
+		    				tc.setInfoSourceId(Integer.toString(apni.getId()));
+		    				tc.setInfoSourceName(apni.getName());
+		    				tc.setInfoSourceURL(apni.getWebsiteUrl());
+		    			} else if(record[0].contains("afd")){
+		    				tc.setInfoSourceId(Integer.toString(afd.getId()));
+		    				tc.setInfoSourceName(afd.getName());
+		    				tc.setInfoSourceURL(afd.getWebsiteUrl());
+		    			}
 		    			tcBatch.add(tc);
 		    			j++;
-	    			}
+	    			} 
+//	    			else {
+//	    				logger.debug("Skipping "+record[0]+", as vernacular:"+isVernacular+", iscongruent: "+isCongruent+", isAccepted:"+isAccepted+", source:"+record[9]);
+//	    			}
 	    		} else {
 	    			logger.error(i+" - missing fields: "+record.length+" fields:"+record);
 	    		}
 	    	}
 	    	
 	    	//add the remainder
-			tcDao.create(tcBatch);
+	    	taxonConceptDao.create(tcBatch);
 			tcBatch.clear();
 	    	
 	    	long finish = System.currentTimeMillis();
@@ -245,15 +320,31 @@ public class ANBGDataLoader {
 	}
 	
 	/**
+	 * A check to see if the supplied taxon should be added to the profiler
+	 * 
+	 * @param loadUtils
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean addTaxonToProfile(LoadUtils loadUtils, String guid) throws Exception {
+		boolean isVernacular = loadUtils.isVernacularConcept(guid);
+		boolean isCongruentTo = loadUtils.isCongruentConcept(guid);
+		boolean isSynonymFor = loadUtils.isSynonymFor(guid);
+		return !isVernacular && !isCongruentTo && !isSynonymFor;
+	}
+	
+	/**
 	 * Load the vernacular concepts
 	 * 
 	 * @throws Exception
 	 */
-	private static void loadVernacularConcepts() throws Exception {
+	private void loadVernacularConcepts() throws Exception {
+		
+		logger.info("Starting load of common names...");
 		
 		LoadUtils loadUtils = new LoadUtils();
-		TabReader tr = new TabReader("/data/taxonConcepts.txt");
-		TaxonConceptDao tcDao = new TaxonConceptDao();
+		TabReader tr = new TabReader("/data/bie-staging/anbg/taxonConcepts.txt");
     	String[] record = null;
     	long start = System.currentTimeMillis();
     	int i=0;
@@ -276,7 +367,7 @@ public class ANBGDataLoader {
 		    			
 		    			List<String> guids = loadUtils.getIsVernacularConceptFor(record[0]);
 		    			for(String guid: guids){
-		    				tcDao.addCommonName(guid, cn);
+		    				taxonConceptDao.addCommonName(guid, cn);
 		    			}
 	    			}
 	    		} else {
@@ -290,5 +381,19 @@ public class ANBGDataLoader {
     		logger.error(i+" error on line", e);
     		e.printStackTrace();
     	}
+	}
+
+	/**
+	 * @param infoSourceDAO the infoSourceDAO to set
+	 */
+	public void setInfoSourceDAO(InfoSourceDAO infoSourceDAO) {
+		this.infoSourceDAO = infoSourceDAO;
+	}
+
+	/**
+	 * @param taxonConceptDao the taxonConceptDao to set
+	 */
+	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
+		this.taxonConceptDao = taxonConceptDao;
 	}	
 }

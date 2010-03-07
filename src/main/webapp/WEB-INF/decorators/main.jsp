@@ -37,7 +37,7 @@
                 <ul class="tabs">
                     <li class="<c:if test="${pageName == 'home'}">active</c:if> first"><a href="${pageContext.request.contextPath}/">Home</a></li>
                     <li class="<c:if test="${pageName == 'species'}">active</c:if>"><a href="${pageContext.request.contextPath}/species/search">Explore Species</a></li>
-                    <li class="<c:if test="${pageName == 'maps'}">active</c:if>"><a href="http://ec2-174-129-123-151.compute-1.amazonaws.com/webportal/">Explore maps</a></li>
+                    <li class="<c:if test="${pageName == 'maps'}">active</c:if>"><a href="http://ec2-174-129-53-185.compute-1.amazonaws.com/webportal/">Explore maps</a></li>
                     <li class="<c:if test="${pageName == 'datasets'}">active</c:if> last"><a href="${pageContext.request.contextPath}/datasets">Explore Rich Datasets</a></li>
                 </ul>                
             </div>

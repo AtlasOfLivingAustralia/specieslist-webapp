@@ -28,7 +28,7 @@
                             myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSON;
                             myDataSource.responseSchema = {
                                 resultsList: "searchResults.taxonConcepts",
-                                fields: ["guid","nameString","commonName","rank", "rankId", "score"],
+                                fields: ["guid","nameString","acceptedConceptName","commonName","rank", "rankId", "score"],
 
                                 metaFields: {
                                     totalRecords: "searchResults.totalRecords",
@@ -41,9 +41,10 @@
                             // Column definitions
                             var myColumnDefs = [
                                 //{key:"ContentModel", field:"contentModelLabel", label:"Type", sortable: true, minWidth: 100},
-                                {key:"scientificNameRaw", field:"nameString", sortable:true, label:"Title", formatter:formatTitleUrl, width: 350}, // , formatter:formatTitleUrl
-                                {key:"commonNameSort", field:"commonName", sortable:true, label:"Common Name"},
-                                {key:"rankId", field:"rank", label:"Classification", sortable: true}, // , minWidth: 100,width: 200
+                                {key:"scientificNameRaw", field:"nameString", sortable:true, label:"Scientific name", formatter:formatTitleUrl, width: 350}, // , formatter:formatTitleUrl
+                                {key:"acceptedConceptName", field:"acceptedConceptName", sortable:false, label:"is synonym for", width: 350},
+                                {key:"commonNameSort", field:"commonName", sortable:true, label:"Common name"},
+                                {key:"rankId", field:"rank", label:"Rank", sortable: true}, // , minWidth: 100,width: 200
                                 {key:"score", field:"score", hidden:true, maxAutoWidth: 0}
                             ];
 

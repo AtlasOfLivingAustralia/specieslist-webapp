@@ -51,7 +51,7 @@ public class IndexTest {
 				System.out.println("---------------------------------------------");
 				input = StringUtils.trimToNull(input).toLowerCase();
 //				IndexSearcher is = new IndexSearcher("/data/lucene/taxonConcept");
-				IndexSearcher is = new IndexSearcher("/data/lucene/loading/taxonConcept");
+				IndexSearcher is = new IndexSearcher("/data/lucene/taxonConcept");
 				
 				QueryParser qp  = new QueryParser("scientificName", new KeywordAnalyzer());
 				Query scientificNameQuery = qp.parse("\""+input+"\"");

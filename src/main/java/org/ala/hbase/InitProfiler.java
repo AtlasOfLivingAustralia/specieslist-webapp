@@ -14,24 +14,22 @@
  ***************************************************************************/
 package org.ala.hbase;
 
-import org.ala.dao.TaxonConceptDao;
-import org.ala.util.SpringUtils;
-import org.springframework.context.ApplicationContext;
+import org.ala.dao.SystemDao;
+import org.ala.dao.SystemDaoImpl;
+import org.apache.log4j.Logger;
 
 /**
- * Remove the properties associated with the concepts in the system.
- * 
- * @author Dave Martin
+ * Initialise a HBase instance.
  */
-public class ClearRawTriples {
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) throws Exception {
-		ApplicationContext context = SpringUtils.getContext();
-		TaxonConceptDao taxonConceptDao = (TaxonConceptDao) context.getBean(TaxonConceptDao.class);
-		taxonConceptDao.clearRawProperties();
+public class InitProfiler {
+	
+	protected static Logger logger = Logger.getLogger(InitProfiler.class);
+	
+	public static void main( String[] args ) throws Exception {
+		logger.info("Initialise profiler...");
+		SystemDao systemDao = new SystemDaoImpl();
+		systemDao.init();
+		logger.info("Initialise completed.");
 		System.exit(1);
-	}
+    }
 }

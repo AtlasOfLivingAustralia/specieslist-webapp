@@ -177,28 +177,4 @@ public class TaxonConcept extends AttributableObject implements Comparable<Taxon
 	public void setAcceptedConceptGuid(String acceptedConceptGuid) {
 		this.acceptedConceptGuid = acceptedConceptGuid;
 	}
-	/**
-	 * @return the infoSourceId
-	 */
-	public String getInfoSourceId() {
-		return infoSourceId;
-	}
-	/**
-	 * @param infoSourceId the infoSourceId to set
-	 */
-	public void setInfoSourceId(String infoSourceId) {
-		this.infoSourceId = infoSourceId;
-	}
-	/**
-	 * @return the documentId
-	 */
-	public String getDocumentId() {
-		return documentId;
-	}
-	/**
-	 * @param documentId the documentId to set
-	 */
-	public void setDocumentId(String documentId) {
-		this.documentId = documentId;
-	}
 }

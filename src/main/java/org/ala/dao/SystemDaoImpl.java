@@ -1,32 +1,20 @@
-/***************************************************************************
- * Copyright (C) 2010 Atlas of Living Australia
- * All Rights Reserved.
- *
- * The contents of this file are subject to the Mozilla Public
- * License Version 1.1 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of
- * the License at http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS
- * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * rights and limitations under the License.
- ***************************************************************************/
-package org.ala.hbase;
+package org.ala.dao;
 
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.log4j.Logger;
 
-/**
- * Initialise a HBase instance.
- */
-public class InitHBase 
-{
-    public static void main( String[] args ) throws Exception {
+public class SystemDaoImpl implements SystemDao {
 
-    	System.out.println("Initialising HBase");
+	protected static Logger logger = Logger.getLogger(SystemDaoImpl.class);
+	
+	/* (non-Javadoc)
+	 * @see org.ala.dao.ISystemDao#init()
+	 */
+	public void init() throws Exception {
+    	logger.info("Initialising HBase");
     	
     	HBaseConfiguration config = new HBaseConfiguration();
     	HBaseAdmin hBaseAdmin = new HBaseAdmin(config);
@@ -81,6 +69,8 @@ public class InitHBase
 //    	batchUpdate.put("names:nameGUID", Bytes.toBytes("urn:lsid:afd.name:123"));
 //    	table.commit(batchUpdate);
     	
-    	System.out.println("Schema setup complete.");
-    }
+    	logger.info("Schema setup complete.");
+	}
+	
+	
 }

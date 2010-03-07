@@ -346,7 +346,7 @@
                         <td class="propertyName">Source:</td>
                         <td>
                             <%--<a href="<fmt:message key="source.${taxonConcept.source}.url" />" target="_blank"><fmt:message key="source.${taxonConcept.source}" /></a>--%>
-                            ${extendedTaxonConcept.taxonConcept.infoSourceId}
+                            <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}">${extendedTaxonConcept.taxonConcept.infoSourceName}</a>
                         </td>
                     </tr>
                 </table>

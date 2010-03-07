@@ -25,6 +25,8 @@ import java.util.regex.Pattern;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.model.Document;
 import org.ala.model.Triple;
+import org.ala.util.SpringUtils;
+import org.springframework.context.ApplicationContext;
 
 /**
  * Used to load in a RDF N-Triple data extract into the profiler. 
@@ -35,6 +37,8 @@ import org.ala.model.Triple;
  */
 public class NTripleDataLoader {
 
+	protected TaxonConceptDao taxonConceptDao;
+	
 	/**
 	 * @param args
 	 */
@@ -47,6 +51,8 @@ public class NTripleDataLoader {
 		}
     	FileReader fr = new FileReader(new File(filePath));
     	NTripleDataLoader loader = new NTripleDataLoader();
+    	ApplicationContext context = SpringUtils.getContext();
+    	loader.taxonConceptDao = (TaxonConceptDao) context.getBean(TaxonConceptDao.class);
     	loader.load(fr);
 	}
 
@@ -58,7 +64,6 @@ public class NTripleDataLoader {
 	 * @throws Exception
 	 */
 	public void load(Reader reader) throws Exception {
-		TaxonConceptDao tcDao = new TaxonConceptDao();
 		Pattern p = Pattern.compile("\t");
     	BufferedReader br = new BufferedReader(reader);
     	String record = null;
@@ -73,8 +78,6 @@ public class NTripleDataLoader {
     	try {
     		String currentSubject = null;
     		List<Triple> triples = new ArrayList<Triple>();
-    		
-    		
     		
 	    	while((record = br.readLine())!=null){
 	    		
@@ -96,8 +99,9 @@ public class NTripleDataLoader {
 	    			
 	    			Document doc = new Document();
 	    			doc.setId(Integer.parseInt(documentId));
+	    			doc.setInfoSourceId(Integer.parseInt(infoSourceId));
 	    			//subject has changed - sync to hbase
-	    			boolean success = tcDao.syncTriples(infoSourceId, doc, triples, null);
+	    			boolean success = taxonConceptDao.syncTriples(doc, triples);
 	    			if(success) 
 	    				successfulSync++; 
 	    			else 
@@ -113,7 +117,8 @@ public class NTripleDataLoader {
 	    	if(!triples.isEmpty()){
     			Document doc = new Document();
     			doc.setId(Integer.parseInt(documentId));
-				boolean success = tcDao.syncTriples(infoSourceId, doc, triples, null);
+    			doc.setInfoSourceId(Integer.parseInt(infoSourceId));
+				boolean success = taxonConceptDao.syncTriples(doc, triples);
 				if(success) 
 					successfulSync++; 
 				else 

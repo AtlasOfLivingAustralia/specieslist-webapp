@@ -82,7 +82,7 @@
                     myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSON;
                     myDataSource.responseSchema = {
                         resultsList: "searchResultsDTO.taxonConcepts",
-                        fields: ["guid","nameString","commonName","rank", "rankId", "${statusType.value}" , "score"],
+                        fields: ["guid","nameString","acceptedConceptName", "commonName","rank", "rankId", "${statusType.value}" , "score"],
 
                         metaFields: {
                             totalRecords: "searchResultsDTO.totalRecords",
@@ -96,8 +96,9 @@
                     var myColumnDefs = [
                         //{key:"ContentModel", field:"contentModelLabel", label:"Type", sortable: true, minWidth: 100},
                         {key:"scientificNameRaw", field:"nameString", sortable:true, label:"Scientific Name", formatter:formatTitleUrl}, //, width: 350 , formatter:formatTitleUrl
+                        {key:"acceptedConceptName", field:"acceptedConceptName", sortable:false, label:"acceptedConceptName"},
                         {key:"commonNameSort", field:"commonName", sortable:true, label:"Common Name"},
-                        {key:"rankId", field:"rank", label:"Classification", sortable: true}, // , minWidth: 100,width: 200
+                        {key:"rankId", field:"rank", label:"Rank", sortable: true}, // , minWidth: 100,width: 200
                         {key:"${statusType.value}", field:"${statusType.value}", sortable:true, label:"${statusType.displayName}"},
                         {key:"score", field:"score", hidden:true, maxAutoWidth: 0}
                     ];

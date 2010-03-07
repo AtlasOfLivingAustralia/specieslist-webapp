@@ -4,7 +4,7 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
     version="2.4" id="bie-debug">
 
-    <display-name>BIE - Profiler Debug</display-name>
+    <display-name>BIE</display-name>
 
     <!-- For spring context initialisation -->
     <context-param>
@@ -15,36 +15,6 @@
     <listener>
             <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
-
-    <servlet>
-        <servlet-name>ajaxTree</servlet-name>
-        <servlet-class>org.ala.web.AjaxTreeServlet</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>query</servlet-name>
-        <servlet-class>org.ala.web.QueryServlet</servlet-class>
-    </servlet>	
-
-    <servlet>
-        <servlet-name>taxon</servlet-name>
-        <servlet-class>org.ala.web.TaxonConceptServlet</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>ajaxTree</servlet-name>
-        <url-pattern>/ajaxTree</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>query</servlet-name>
-        <url-pattern>/query</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>taxon</servlet-name>
-        <url-pattern>/taxon</url-pattern>
-    </servlet-mapping>
     
     <servlet>
         <servlet-name>Resources</servlet-name>
