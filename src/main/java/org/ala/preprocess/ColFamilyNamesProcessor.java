@@ -45,7 +45,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import au.com.bytecode.opencsv.CSVReader;
 /**
  * This class converts a dump file of scientific family names
- * to family common names taken from Catalogue of Life 2009.
+ * taken from Catalogue of Life 2009 to RDF that can be pulled into the
+ * BIE profiler.
  *
  * This class creates a dublin core file and rdf turtle file
  * of this information so that it can be imported into the BIE profiles.
@@ -73,6 +74,10 @@ public class ColFamilyNamesProcessor {
 		p.process();
 	}
 
+	/**
+	 * Pulls the raw files into the repository and convert to RDF.
+	 * @throws Exception
+	 */
 	private void process() throws Exception {
 		
 		//preprocess the tab file into turtle format
@@ -86,6 +91,18 @@ public class ColFamilyNamesProcessor {
 				"http://www.catalogueoflife.org/");
 	}
 
+	/**
+	 * Process a single file.
+	 * 
+	 * @param filePath
+	 * @param uri
+	 * @param publisher
+	 * @param source
+	 * @throws FileNotFoundException
+	 * @throws Exception
+	 * @throws IOException
+	 * @throws RDFHandlerException
+	 */
 	private void processFile(String filePath, String uri, String publisher, String source)
 			throws FileNotFoundException, Exception, IOException,
 			RDFHandlerException {
@@ -139,6 +156,18 @@ public class ColFamilyNamesProcessor {
 		rdfDos.getOutputStream().close();
 	}
 
+	/**
+	 * Copy the raw file into the repository.
+	 * 
+	 * @param filePath
+	 * @param uri
+	 * @param infosourceUri
+	 * @param mimeType
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws Exception
+	 * @throws IOException
+	 */
 	private int copyRawFileToRepo(String filePath, String uri, String infosourceUri, String mimeType)
 			throws FileNotFoundException, Exception, IOException {
 		InfoSource infoSource = infoSourceDAO.getByUri(infosourceUri);
