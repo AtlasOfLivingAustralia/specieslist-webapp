@@ -20,6 +20,7 @@ import java.util.Map;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
+import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
 import org.ala.model.Image;
@@ -381,4 +382,21 @@ public interface TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public Map<String, String> getPropertiesFor(String guid) throws Exception;
+
+	/**
+	 * Add a classification to this taxon.
+	 * 
+	 * @param guid
+	 * @param classification
+	 */
+	public void addClassification(String guid, Classification classification) throws Exception;
+	
+	/**
+	 * Retrieve the classifications associated with this taxon.
+	 * 
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Classification> getClassifications(String guid) throws Exception;
 }

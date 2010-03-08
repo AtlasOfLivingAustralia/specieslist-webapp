@@ -50,6 +50,8 @@ import au.com.bytecode.opencsv.CSVReader;
  *
  * This class creates a dublin core file and rdf turtle file
  * of this information so that it can be imported into the BIE profiles.
+ * 
+ * This should be ran with the JVM options "-Xmx1g -Xms1g"
  *
  * @author Dave Martin (David.Martin@csiro.au)
  */

@@ -41,7 +41,6 @@ public class TurtleUtils {
 	 * nature i.e. no nested triples.
 	 * 
 	 * @param reader
-	 * @param stopOnSubjectChange
 	 * @return
 	 * @throws Exception
 	 */

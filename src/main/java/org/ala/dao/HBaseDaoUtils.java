@@ -55,7 +55,7 @@ public class HBaseDaoUtils {
 	public static boolean storeComplexObject(HTable htable, String guid, String columnFamily, String columnName, Comparable object, TypeReference typeReference) throws Exception {
 		RowResult row = htable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(columnFamily)});
 		if(row==null){
-			logger.error("Unable to find the row for guid: "+guid);
+			logger.error("Unable to find the row for guid: "+guid+". Unable to add object to "+columnName);
 			return false;
 		}
 		

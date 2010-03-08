@@ -76,8 +76,6 @@ public class TaxonConceptController {
     private final String SPECIES_LIST = "speciesList";
     /** Name of view for a single taxon */
     private final String SPECIES_SHOW = "speciesShow";
-     /** Name of view for a show "error" page */
-    private final String SPECIES_ERROR = "speciesError";
     /** Name of view for list of pest/conservation status */
     private final String STATUS_LIST = "statusList";
     

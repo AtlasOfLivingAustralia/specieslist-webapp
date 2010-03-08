@@ -31,6 +31,7 @@ import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.lucene.LuceneUtils;
+import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
 import org.ala.model.Image;
@@ -108,6 +109,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	private static final String IS_CHILD_COL_OF = "tc:IsChildTaxonOf";
 	private static final String IS_PARENT_COL_OF = "tc:IsParentTaxonOf";
     private static final String TEXT_PROPERTY_COL = "tc:hasTextProperty";
+    private static final String CLASSIFICATION_COL = "tc:hasClassification";
 
     private static final String TC_COL_FAMILY = "tc:";
     private static final String RAW_COL_FAMILY = "raw:";
@@ -501,7 +503,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.ITaxonConceptDao#addTextProperty(java.lang.String, org.ala.model.SimpleProperty)
 	 */
 	public void addTextProperty(String guid, SimpleProperty textProperty) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, "tc:", TEXT_PROPERTY_COL, textProperty, new TypeReference<List<SimpleProperty>>(){});
+		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, TEXT_PROPERTY_COL, textProperty, new TypeReference<List<SimpleProperty>>(){});
 	}
 	
 	/**
@@ -911,6 +913,28 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#addClassification(java.lang.String, org.ala.model.Classification)
+	 */
+	@Override
+	public void addClassification(String guid, Classification classification) throws Exception {
+		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, CLASSIFICATION_COL, classification, new TypeReference<List<Classification>>(){});
+	}
+	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getClassifications(java.lang.String)
+	 */
+	public List<Classification> getClassifications(String guid) throws Exception {
+		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
+		Cell cell = row.get(Bytes.toBytes(CLASSIFICATION_COL));
+		ObjectMapper mapper = new ObjectMapper();
+		if(cell!=null){
+			byte[] value = cell.getValue();
+			return mapper.readValue(value, 0, value.length, new TypeReference<List<Classification>>(){});
+		} 
+		return new ArrayList<Classification>();
 	}
 
 	/**
