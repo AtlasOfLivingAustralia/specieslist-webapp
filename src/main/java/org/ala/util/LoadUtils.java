@@ -127,8 +127,8 @@ public class LoadUtils {
 		taxonConcept.parentGuid = doc.get("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsChildTaxonOf");
 		taxonConcept.nameString = doc.get(LuceneUtils.SCI_NAME_RAW);
 		
-		Field[] fields = doc.getFields("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsParentTaxonOf");
-		taxonConcept.hasChildren = (fields==null || fields.length==0) ? false : true;
+//		Field[] fields = doc.getFields("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsParentTaxonOf");
+//		taxonConcept.hasChildren = (fields==null || fields.length==0) ? false : true;
 		
 		return taxonConcept;
 	}
