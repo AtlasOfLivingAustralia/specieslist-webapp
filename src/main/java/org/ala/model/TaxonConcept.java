@@ -30,7 +30,7 @@ public class TaxonConcept extends AttributableObject implements Comparable<Taxon
 	public String authorYear;
 	public String publishedInCitation;
 	public String publishedIn;
-	public boolean hasChildren;
+//	public boolean hasChildren;
 
 	/**
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
@@ -81,18 +81,18 @@ public class TaxonConcept extends AttributableObject implements Comparable<Taxon
 	public void setParentGuid(String parentGuid) {
 		this.parentGuid = parentGuid;
 	}
-	/**
-	 * @return the hasChildren
-	 */
-	public boolean isHasChildren() {
-		return hasChildren;
-	}
-	/**
-	 * @param hasChildren the hasChildren to set
-	 */
-	public void setHasChildren(boolean hasChildren) {
-		this.hasChildren = hasChildren;
-	}
+//	/**
+//	 * @return the hasChildren
+//	 */
+//	public boolean isHasChildren() {
+//		return hasChildren;
+//	}
+//	/**
+//	 * @param hasChildren the hasChildren to set
+//	 */
+//	public void setHasChildren(boolean hasChildren) {
+//		this.hasChildren = hasChildren;
+//	}
 	/**
 	 * @return the nameGuid
 	 */
