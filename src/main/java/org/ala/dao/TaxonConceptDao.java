@@ -24,6 +24,7 @@ import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
 import org.ala.model.Image;
+import org.ala.model.OccurrencesInRegion;
 import org.ala.model.PestStatus;
 import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
@@ -156,7 +157,7 @@ public interface TaxonConceptDao {
 	 * Add this conservation status to the Taxon Concept.
 	 * 
 	 * @param guid
-	 * @param commonName
+	 * @param conservationStatus
 	 * @throws Exception
 	 */
 	public void addConservationStatus(String guid,
@@ -166,17 +167,27 @@ public interface TaxonConceptDao {
 	 * Add this pest status to the Taxon Concept.
 	 * 
 	 * @param guid
-	 * @param commonName
+	 * @param pestStatus
 	 * @throws Exception
 	 */
 	public void addPestStatus(String guid, PestStatus pestStatus)
 			throws Exception;
 
 	/**
-	 * Add this pest status to the Taxon Concept.
+	 * Add this occurrences in region to the Taxon Concept.
 	 * 
 	 * @param guid
-	 * @param commonName
+	 * @param occurrencesInRegion
+	 * @throws Exception
+	 */
+	public void addOccurrencesInRegion(String guid, OccurrencesInRegion occurrencesInRegion) 
+			throws Exception;
+
+	/**
+	 * Add this image to the Taxon Concept.
+	 * 
+	 * @param guid
+	 * @param image
 	 * @throws Exception
 	 */
 	public void addImage(String guid, Image image) throws Exception;
@@ -399,4 +410,12 @@ public interface TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public List<Classification> getClassifications(String guid) throws Exception;
+	
+	/**
+	 * Sets a new Lucene IndexSearcher for the supplied index directory.
+	 * 
+	 * @param indexDir the location of the lucene index
+	 * @throws Exception
+	 */
+	public void setLuceneIndexLocation(String indexDir) throws Exception;
 }

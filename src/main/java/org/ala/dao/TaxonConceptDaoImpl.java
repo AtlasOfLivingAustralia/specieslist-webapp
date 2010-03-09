@@ -35,6 +35,7 @@ import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
 import org.ala.model.Image;
+import org.ala.model.OccurrencesInRegion;
 import org.ala.model.PestStatus;
 import org.ala.model.Rank;
 import org.ala.model.SimpleProperty;
@@ -105,6 +106,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	private static final String VERNACULAR_COL = "tc:VernacularConcept";
 	private static final String CONSERVATION_STATUS_COL = "tc:hasConservationStatus";
 	private static final String PEST_STATUS_COL = "tc:hasPestStatus";
+	private static final String OCCURRENCES_IN_REGION_COL = "tc:hasOccurrencesInRegion";
 	private static final String IMAGE_COL = "tc:hasImage";
 	private static final String IS_CHILD_COL_OF = "tc:IsChildTaxonOf";
 	private static final String IS_PARENT_COL_OF = "tc:IsParentTaxonOf";
@@ -453,6 +455,17 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	public void addPestStatus(String guid, PestStatus pestStatus) throws Exception {
 		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, PEST_STATUS_COL, pestStatus, new TypeReference<List<PestStatus>>(){});
+	}
+	
+	/**
+	 * Add this region occurrences to the Taxon Concept.
+	 * 
+	 * @param guid
+	 * @param pestStatus
+	 * @throws Exception
+	 */
+	public void addOccurrencesInRegion(String guid, OccurrencesInRegion region) throws Exception {
+		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, OCCURRENCES_IN_REGION_COL, region, new TypeReference<List<OccurrencesInRegion>>(){});
 	}
 	
 	/**
@@ -1295,5 +1308,20 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	public void setVocabulary(Vocabulary vocabulary) {
 		this.vocabulary = vocabulary;
+	}
+	
+	/**
+	 * Sets a new Lucene IndexSearcher for the supplied index directory.
+	 * 
+	 * @param indexDir the location of the lucene index
+	 * @throws IOException 
+	 * @throws CorruptIndexException 
+	 */
+	public void setLuceneIndexLocation(String indexDir)
+			throws CorruptIndexException, IOException {
+		File file = new File(indexDir);
+		if (file.exists()) {
+			this.tcIdxSearcher = new IndexSearcher(indexDir);
+		}
 	}
 }
