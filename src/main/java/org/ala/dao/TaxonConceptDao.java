@@ -43,7 +43,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Retrieve the synonyms for the Taxon Concept with the supplied guid.
-	 * 
+	 *
 	 * @param guid
 	 * @return
 	 * @throws Exception
@@ -53,7 +53,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Retrieve the images associated with this taxon concept.
-	 * 
+	 *
 	 * @param guid
 	 * @return
 	 * @throws Exception
@@ -62,7 +62,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Retrieve the pest status associated with this taxon concept.
-	 * 
+	 *
 	 * @param guid
 	 * @return
 	 * @throws Exception
@@ -72,7 +72,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Retrieve the conservation status associated with this taxon concept.
-	 * 
+	 *
 	 * @param guid
 	 * @return
 	 * @throws Exception
@@ -82,7 +82,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Retrieve the child concepts for the Taxon Concept with the supplied guid.
-	 * 
+	 *
 	 * @param guid
 	 * @return
 	 * @throws Exception
@@ -92,7 +92,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Retrieve the parent concepts for the Taxon Concept with the supplied guid.
-	 * 
+	 *
 	 * @param guid
 	 * @return
 	 * @throws Exception
@@ -102,7 +102,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Retrieve the common names for the Taxon Concept with the supplied guid.
-	 * 
+	 *
 	 * @param guid
 	 * @return
 	 * @throws Exception
@@ -122,9 +122,9 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Store the following taxon concept
-	 * 
+	 *
 	 * FIXME Switch to using a single column for TaxonConcept
-	 * 
+	 *
 	 * @param tc
 	 * @return
 	 * @throws Exception
@@ -133,9 +133,9 @@ public interface TaxonConceptDao {
 
 	/**
 	 * What about multiple taxon names for each taxon concept???
-	 * 
+	 *
 	 * FIXME Switch to using a single column for TaxonName(s)
-	 * 
+	 *
 	 * @param guid
 	 * @param tn
 	 * @throws Exception
@@ -145,7 +145,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Add this common name to the Taxon Concept.
-	 * 
+	 *
 	 * @param guid
 	 * @param commonName
 	 * @throws Exception
@@ -155,7 +155,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Add this conservation status to the Taxon Concept.
-	 * 
+	 *
 	 * @param guid
 	 * @param conservationStatus
 	 * @throws Exception
@@ -165,7 +165,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Add this pest status to the Taxon Concept.
-	 * 
+	 *
 	 * @param guid
 	 * @param pestStatus
 	 * @throws Exception
@@ -175,7 +175,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Add this occurrences in region to the Taxon Concept.
-	 * 
+	 *
 	 * @param guid
 	 * @param occurrencesInRegion
 	 * @throws Exception
@@ -194,7 +194,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Add a synonym to this concept.
-	 * 
+	 *
 	 * @param guid
 	 * @param synonym
 	 * @throws Exception
@@ -210,7 +210,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Add a child taxon to this concept.
-	 * 
+	 *
 	 * @param guid
 	 * @param childConcept
 	 * @throws Exception
@@ -220,7 +220,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Add a parent taxon to this concept.
-	 * 
+	 *
 	 * @param guid
 	 * @param parentConcept
 	 * @throws Exception
@@ -240,7 +240,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Create a batch of taxon concepts.
-	 * 
+	 *
 	 * @param taxonConcepts
 	 * @throws Exception
 	 */
@@ -249,7 +249,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Retrieve the taxon concept by guid.
-	 * 
+	 *
 	 * @param guid
 	 * @return
 	 * @throws Exception
@@ -258,7 +258,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Retrieve the entire profile data for a taxon concept by guid.
-	 * 
+	 *
 	 * @param guid
 	 * @return
 	 * @throws Exception
@@ -268,7 +268,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Retrieve the Taxon Name for the supplied GUID.
-	 * 
+	 *
 	 * @param guid
 	 * @return
 	 * @throws Exception
@@ -277,7 +277,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Search for taxon concept with the following scientific name.
-	 * 
+	 *
 	 * @param scientificName
 	 * @param limit
 	 * @return
@@ -319,9 +319,9 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Get TaxonConcept GUID by genus and scientific name.
-	 * 
+	 *
 	 * TODO replace this with the indexes generated from ChecklistBank
-	 * 
+	 *
 	 * @param scientificName
 	 * @return
 	 * @throws Exception
@@ -331,7 +331,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Retrieve a list of concepts with the supplied parent guid.
-	 * 
+	 *
 	 * @param parentGuid
 	 * @param limit
 	 * @return
@@ -342,7 +342,7 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Delete the TaxonConcept for the supplied guid
-	 * 
+	 *
 	 * @param guid
 	 * @return true if a delete was performed
 	 * @throws Exception
@@ -351,10 +351,10 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Synchronises these triples to a taxon concept in hbase.
-	 * 
+	 *
 	 * @return true if we where able to add these properties to an existing
 	 * taxon. False otherwise
-	 * 
+	 *
 	 * @param infosourceId the infosource supplying the triples
 	 * @param document the document supplying the triples
 	 * @param triples the triples to add
@@ -366,16 +366,16 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Clear the associated properties from each taxon concept.
-	 * 
+	 *
 	 * Clear the triples in the "raw:" column family.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void clearRawProperties() throws Exception;
 
 	/**
 	 * Create a index to support searching.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void createIndex() throws Exception;
@@ -384,10 +384,10 @@ public interface TaxonConceptDao {
 	 * @param vocabulary the vocabulary to set
 	 */
 	public void setVocabulary(Vocabulary vocabulary);
-	
+
 	/**
 	 * Retrieve the raw properties
-	 * 
+	 *
 	 * @param guid
 	 * @return
 	 * @throws Exception
@@ -396,15 +396,15 @@ public interface TaxonConceptDao {
 
 	/**
 	 * Add a classification to this taxon.
-	 * 
+	 *
 	 * @param guid
 	 * @param classification
 	 */
 	public void addClassification(String guid, Classification classification) throws Exception;
-	
+
 	/**
 	 * Retrieve the classifications associated with this taxon.
-	 * 
+	 *
 	 * @param guid
 	 * @return
 	 * @throws Exception

@@ -585,6 +585,8 @@
                             <div class="panel" style="text-align: center;">
                                 <img src="http://localhost${fn:replace(image.repoLocation, "/data/bie", "/repository")}" /> 
                                 <div class="panel-overlay">
+                                    Title: <a href="${image.identifier}" target="_blank">${image.title}</a>
+                                    <br/>
                                     Source: <a href="${image.infoSourceURL}" target="_blank">${image.infoSourceName}</a>
                                 </div>
                             </div>

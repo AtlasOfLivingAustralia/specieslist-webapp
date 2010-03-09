@@ -120,6 +120,8 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     
     @Inject
     protected Vocabulary vocabulary;
+    @Inject
+    protected VocabularyDAO vocabularyDAO;
     
 	protected IndexSearcher tcIdxSearcher;
 	
@@ -757,25 +759,27 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
     public SearchResultsDTO findAllByStatus(StatusType statusType, Integer startIndex, Integer pageSize,
             String sortField, String sortDirection) throws ParseException, Exception {
-        List<TermQuery> statusTerms = new ArrayList<TermQuery>();
-        IndexSearcher tcIdxSearcher1 = getTcIdxSearcher();
-        TermEnum terms = tcIdxSearcher1.getIndexReader().terms(new Term(statusType.toString(), ""));
-        
-        while (statusType.toString().equals(terms.term().field())) {
-            statusTerms.add(new TermQuery(new Term(statusType.toString(), terms.term().text())));
-            if (!terms.next()) {
-                break;
-            } 
-        }
+//        List<TermQuery> statusTerms = new ArrayList<TermQuery>();
+//        IndexSearcher tcIdxSearcher1 = getTcIdxSearcher();
+//        TermEnum terms = tcIdxSearcher1.getIndexReader().terms(new Term(statusType.toString(), ""));
+//
+//        while (statusType.toString().equals(terms.term().field())) {
+//            statusTerms.add(new TermQuery(new Term(statusType.toString(), terms.term().text())));
+//            if (!terms.next()) {
+//                break;
+//            }
+//        }
 
-        String query = StringUtils.join(statusTerms, " ");
-        System.out.println("query = "+query+".");
+        List<String> statusTerms = vocabularyDAO.getTermsForStatusType(statusType);
+
+        String query = StringUtils.join(statusTerms, "|");
+        System.out.println(statusType+" query = "+query+".");
         BooleanQuery searchQuery = new BooleanQuery();
 
-        for (TermQuery tq : statusTerms) {
-            searchQuery.add(tq, BooleanClause.Occur.SHOULD);
+        for (String st : statusTerms) {
+            searchQuery.add(new TermQuery(new Term(statusType.toString(), st)), BooleanClause.Occur.SHOULD);
         }
-
+        System.out.println("search query = "+searchQuery.toString());
         return sortPageSearch(searchQuery, startIndex, pageSize, sortField, sortDirection);
     }
 	
@@ -1161,6 +1165,10 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		
 		long start = System.currentTimeMillis();
 		
+        List<String> pestTerms = vocabularyDAO.getTermsForStatusType(StatusType.PEST);
+        List<String> consTerms = vocabularyDAO.getTermsForStatusType(StatusType.CONSERVATION);
+        
+		
     	File file = new File(TC_INDEX_DIR);
     	if(file.exists()){
     		FileUtils.forceDelete(file);
@@ -1215,7 +1223,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     		Document doc = new Document();
     		if(taxonConcept.nameString!=null){
     			
-    			doc.add(new Field("guid", taxonConcept.guid, Store.YES, Index.NO));
+    			doc.add(new Field("guid", taxonConcept.guid, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
     			
     			//add multiple forms of the scientific name to the index
     			LuceneUtils.addScientificNameToIndex(doc, taxonConcept.nameString);
@@ -1224,8 +1232,23 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	    			doc.add(new Field("parentGuid", taxonConcept.parentGuid, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
 	    		}
 	    		
-	    		
-                //add common names
+                for (ConservationStatus cs : conservationStatuses) {
+                    for (String csTerm : consTerms) {
+                        if (cs.getStatus().toLowerCase().contains(csTerm.toLowerCase())) {
+                            doc.add(new Field("conservationStatus", csTerm, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+                        }
+                    }
+                }
+
+                for (PestStatus ps : pestStatuses) {
+                    for (String psTerm : pestTerms) {
+                        if (ps.getStatus().toLowerCase().contains(psTerm.toLowerCase())) {
+                            doc.add(new Field("pestStatus", psTerm, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+                        }
+                    }
+                }
+
+                //StringBuffer cnStr = new StringBuffer();
                 TreeSet<String> commonNameSet = new TreeSet<String>();
 	    		for(CommonName cn: commonNames){
 	    			if(cn.nameString!=null){

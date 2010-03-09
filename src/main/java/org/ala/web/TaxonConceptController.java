@@ -183,7 +183,7 @@ public class TaxonConceptController {
     }
 
     /**
-     * JSON web service to return details for a repository document
+     * JSON web service (AJAX) to return details for a repository document
      *
      * @param documentId
      * @return
