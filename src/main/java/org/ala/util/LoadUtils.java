@@ -150,7 +150,7 @@ public class LoadUtils {
 		query.add(toTaxonQuery, Occur.MUST);
 		query.add(relQuery, Occur.MUST);
 		
-		TopDocs topDocs = relIdxSearcher.search(query, 1);
+		TopDocs topDocs = getRelIdxSearcher().search(query, 1);
 		return topDocs.scoreDocs.length>0;
 	}
 	
