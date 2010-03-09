@@ -24,6 +24,7 @@ import org.ala.dao.TaxonConceptDao;
 import org.ala.lucene.CreateLoadingIndex;
 import org.ala.model.CommonName;
 import org.ala.model.InfoSource;
+import org.ala.model.OccurrencesInRegion;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.util.LoadUtils;
@@ -57,6 +58,14 @@ public class ANBGDataLoader {
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
 	
+	private static final String LUCENE_LOADING_TAXON_CONCEPT = "/data/lucene/loading/taxonConcept";
+	private static final String TAXON_CONCEPTS = "/data/bie-staging/anbg/taxonConcepts.txt";
+	private static final String TAXON_NAMES = "/data/bie-staging/anbg/taxonNames.txt";
+	private static final String RELATIONSHIPS = "/data/bie-staging/anbg/relationships.txt";
+	private static final String FAMILY_REGION_OCCURRENCE = "/data/bie-staging/family_region_occurrence.txt";
+	private static final String GENUS_REGION_OCCURRENCE = "/data/bie-staging/genus_region_occurrence.txt";
+	private static final String SPECIES_REGION_OCCURRENCE = "/data/bie-staging/species_region_occurrence.txt";
+	
 	/**
 	 * @param args
 	 */
@@ -82,6 +91,7 @@ public class ANBGDataLoader {
     	loadTaxonNames(); // includes rank information
     	loadVernacularConcepts();
     	loadRelationships();
+    	loadRegionOccurrences();
 	}
 
 	/**
@@ -97,7 +107,7 @@ public class ANBGDataLoader {
 		
     	long start = System.currentTimeMillis();
     	//add the relationships
-    	TabReader tr = new TabReader("/data/bie-staging/anbg/relationships.txt");
+    	TabReader tr = new TabReader(RELATIONSHIPS);
     	String[] keyValue = null;
 		int i = 0;
 		int j = 0;
@@ -186,7 +196,7 @@ public class ANBGDataLoader {
 		
 		logger.info("Starting to load taxon names");
 		
-		TabReader tr = new TabReader("/data/bie-staging/anbg/taxonNames.txt");
+		TabReader tr = new TabReader(TAXON_NAMES);
 		LoadUtils loadUtils = new LoadUtils();
     	String[] record = null;
     	int i = 0;
@@ -234,7 +244,7 @@ public class ANBGDataLoader {
 		logger.info("Starting load of taxon concepts...");
 		
 		LoadUtils loadUtils = new LoadUtils();
-		TabReader tr = new TabReader("/data/bie-staging/anbg/taxonConcepts.txt");
+		TabReader tr = new TabReader(TAXON_CONCEPTS);
 //		TabReader tr = new TabReader("/data/bie-staging/anbg/taxonConceptsSmall.txt");
 		
 		InfoSource afd = infoSourceDAO.getByUri("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/home");
@@ -344,7 +354,7 @@ public class ANBGDataLoader {
 		logger.info("Starting load of common names...");
 		
 		LoadUtils loadUtils = new LoadUtils();
-		TabReader tr = new TabReader("/data/bie-staging/anbg/taxonConcepts.txt");
+		TabReader tr = new TabReader(TAXON_CONCEPTS);
     	String[] record = null;
     	long start = System.currentTimeMillis();
     	int i=0;
@@ -396,4 +406,61 @@ public class ANBGDataLoader {
 	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
 		this.taxonConceptDao = taxonConceptDao;
 	}	
+	
+	/**
+	 * @throws Exception
+	 */
+	private void loadRegionOccurrences() throws Exception {
+		loadRegions(SPECIES_REGION_OCCURRENCE);
+    	loadRegions(GENUS_REGION_OCCURRENCE);
+    	loadRegions(FAMILY_REGION_OCCURRENCE);
+	}
+
+	/**
+	 * @param regionDatFile
+	 * @throws Exception
+	 */
+	private void loadRegions(String regionDatFile) throws Exception {
+		logger.info("Starting to load region occurrences from " + regionDatFile);
+		
+		taxonConceptDao.setLuceneIndexLocation(LUCENE_LOADING_TAXON_CONCEPT);
+		
+    	long start = System.currentTimeMillis();
+    	
+    	// add the taxon concept regions and occurrences
+    	TabReader tr = new TabReader(regionDatFile);
+    	String[] values = null;
+		int i = 0;
+		String previousScientificName = null;
+		String guid = null;
+		while ((values = tr.readNext()) != null) {
+    		if (values.length == 5) {
+    			String currentScientificName = values[1];
+    			String regionName = values[3];
+    			String occurrences = values[4];
+    			
+    			if (!currentScientificName.equalsIgnoreCase(previousScientificName)) {
+    				guid = taxonConceptDao.findConceptIDForName(null, null, currentScientificName.toLowerCase());
+        			if (guid == null) {
+        				logger.warn("Unable to find taxon concept for '" + currentScientificName);
+        			} else {
+        				logger.debug("Loading region occurrences for '" + currentScientificName + "'");
+        			}
+    				previousScientificName = currentScientificName;
+    			}
+    			if (guid != null) {
+    				OccurrencesInRegion region = new OccurrencesInRegion(regionName, Integer.parseInt(occurrences));
+    				logger.trace("Adding guid=" + guid + " SciName=" + currentScientificName + " Region=" + regionName + " Occs=" + occurrences);
+    				taxonConceptDao.addOccurrencesInRegion(guid, region);
+    				i++;
+    			}
+    		} else {
+    			logger.error("Incorrect number of fields in tab file - " + regionDatFile);
+    		}
+		}
+    	tr.close();
+		long finish = System.currentTimeMillis();
+		logger.info(i+" region occurrences loaded. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
+	}
+
 }
