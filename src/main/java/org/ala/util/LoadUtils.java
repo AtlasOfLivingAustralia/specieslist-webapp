@@ -36,6 +36,7 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Searcher;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -55,16 +56,11 @@ public class LoadUtils {
 	public static final String ACC_INDEX_DIR = BASE_DIR+"accepted";
 	static Pattern p = Pattern.compile("\t");
 	
-	protected IndexSearcher tcIdxSearcher;
-	protected IndexSearcher relIdxSearcher;
-	protected IndexSearcher accIdxSearcher;
+	private IndexSearcher tcIdxSearcher;
+	private IndexSearcher relIdxSearcher;
+	private IndexSearcher accIdxSearcher;
 	
-	public LoadUtils() throws Exception {
-		//FIXME move to dependency injection
-		this.tcIdxSearcher = new IndexSearcher(TC_INDEX_DIR);
-		this.relIdxSearcher = new IndexSearcher(REL_INDEX_DIR);
-		this.accIdxSearcher = new IndexSearcher(ACC_INDEX_DIR);
-	}
+	public LoadUtils() throws Exception {}
 	
 	/**
 	 * Retrieve a list of concepts associated with this name guid.
@@ -106,15 +102,22 @@ public class LoadUtils {
 	private List<TaxonConcept> searchTaxonConceptIndexBy(String columnName, String value, int limit)
 			throws Exception {
 		Query query = new TermQuery(new Term(columnName, value));
-		TopDocs topDocs = tcIdxSearcher.search(query, limit);
+		TopDocs topDocs = getTcIdxSearcher().search(query, limit);
 		List<TaxonConcept> tcs = new ArrayList<TaxonConcept>();
 		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
-			Document doc = tcIdxSearcher.doc(scoreDoc.doc);
+			Document doc = getTcIdxSearcher().doc(scoreDoc.doc);
 			tcs.add(createTaxonConceptFromIndex(doc));
 		}	
 		return tcs;
 	}
 	
+	private Searcher getTcIdxSearcher() throws Exception {
+		if(this.tcIdxSearcher==null){
+			this.tcIdxSearcher = new IndexSearcher(TC_INDEX_DIR);
+		}
+		return this.tcIdxSearcher;
+	}
+
 	/**
 	 * Populate a TaxonConcept from the data in the lucene index.
 	 * 
@@ -166,13 +169,30 @@ public class LoadUtils {
 		query.add(toTaxonQuery, Occur.MUST);
 		query.add(relQuery, Occur.MUST);
 		
-		TopDocs topDocs = relIdxSearcher.search(query, 20);
+		TopDocs topDocs = getRelIdxSearcher().search(query, 20);
 		List<String> guids = new ArrayList<String>();
 		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
 			Document doc = relIdxSearcher.doc(scoreDoc.doc);
 			guids.add(doc.get("fromTaxon"));
 		}
 		return guids;
+	}
+
+	/*
+		this.tcIdxSearcher = new IndexSearcher(TC_INDEX_DIR);
+		this.accIdxSearcher = new IndexSearcher(ACC_INDEX_DIR);
+		this.relIdxSearcher = new IndexSearcher(REL_INDEX_DIR);
+
+	 * 
+	 */
+	
+	
+	private Searcher getRelIdxSearcher() throws Exception {
+		//FIXME move to dependency injection
+		if(this.relIdxSearcher==null){
+			this.relIdxSearcher = new IndexSearcher(REL_INDEX_DIR);
+		}
+		return this.relIdxSearcher;
 	}
 
 	/**
@@ -190,7 +210,7 @@ public class LoadUtils {
 //		query.add(toTaxonQuery, Occur.MUST);
 //		query.add(relQuery, Occur.MUST);
 		
-		TopDocs topDocs = accIdxSearcher.search(guidQuery, 1);
+		TopDocs topDocs = getAccIdxSearcher().search(guidQuery, 1);
 		if(topDocs.scoreDocs.length>0){
 			Document doc = accIdxSearcher.doc(topDocs.scoreDocs[0].doc);
 			return doc.get("authority");
@@ -201,6 +221,13 @@ public class LoadUtils {
 //		return topDocs.scoreDocs[0];
 	}
 	
+	private Searcher getAccIdxSearcher() throws Exception {
+		if(this.accIdxSearcher==null){
+			this.accIdxSearcher = new IndexSearcher(ACC_INDEX_DIR);
+		}
+		return this.accIdxSearcher;
+	}
+
 	/**
 	 * Is this concept congruent to another and the "toTaxon" in the relationship
 	 * as supplied by ANBG?
@@ -216,7 +243,7 @@ public class LoadUtils {
 		query.add(toTaxonQuery, Occur.MUST);
 		query.add(relQuery, Occur.MUST);
 		
-		TopDocs topDocs = relIdxSearcher.search(query, 1);
+		TopDocs topDocs = getRelIdxSearcher().search(query, 1);
 		return topDocs.scoreDocs.length>0;
 	}
 	
@@ -228,7 +255,7 @@ public class LoadUtils {
 		query.add(toTaxonQuery, Occur.MUST);
 		query.add(relQuery, Occur.MUST);
 		
-		TopDocs topDocs = relIdxSearcher.search(query, 1);
+		TopDocs topDocs = getRelIdxSearcher().search(query, 1);
 		return topDocs.scoreDocs.length>0;
 	}
 	
