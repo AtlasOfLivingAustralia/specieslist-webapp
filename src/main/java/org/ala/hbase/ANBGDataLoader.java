@@ -137,7 +137,9 @@ public class ANBGDataLoader {
         				//get the congruent object from the loading indicies
         				TaxonConcept acceptedConcept = taxonConceptDao.getByGuid(keyValue[0]);
         				
-        				if(!congruentTc.getNameString().equals(acceptedConcept.getNameString())){
+        				if (acceptedConcept==null) {
+                            logger.error("acceptedConcept is null for guid: "+keyValue[0]);
+                        } else if (!congruentTc.getNameString().equals(acceptedConcept.getNameString())) {
         					taxonConceptDao.addIsCongruentTo(keyValue[0], congruentTc);
         					j++;
         				} else {
