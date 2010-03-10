@@ -67,7 +67,6 @@ import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
@@ -120,8 +119,6 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     
     @Inject
     protected Vocabulary vocabulary;
-    @Inject
-    protected VocabularyDAO vocabularyDAO;
     
 	protected IndexSearcher tcIdxSearcher;
 	
@@ -770,7 +767,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 //            }
 //        }
 
-        List<String> statusTerms = vocabularyDAO.getTermsForStatusType(statusType);
+        List<String> statusTerms = vocabulary.getTermsForStatusType(statusType);
 
         String query = StringUtils.join(statusTerms, "|");
         System.out.println(statusType+" query = "+query+".");
@@ -1165,9 +1162,8 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		
 		long start = System.currentTimeMillis();
 		
-        List<String> pestTerms = vocabularyDAO.getTermsForStatusType(StatusType.PEST);
-        List<String> consTerms = vocabularyDAO.getTermsForStatusType(StatusType.CONSERVATION);
-        
+        List<String> pestTerms = vocabulary.getTermsForStatusType(StatusType.PEST);
+        List<String> consTerms = vocabulary.getTermsForStatusType(StatusType.CONSERVATION);
 		
     	File file = new File(TC_INDEX_DIR);
     	if(file.exists()){
@@ -1325,13 +1321,6 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		    }
 		}
 	}
-
-	/**
-	 * @see org.ala.dao.ITaxonConceptDao#setVocabulary(org.ala.vocabulary.Vocabulary)
-	 */
-	public void setVocabulary(Vocabulary vocabulary) {
-		this.vocabulary = vocabulary;
-	}
 	
 	/**
 	 * Sets a new Lucene IndexSearcher for the supplied index directory.
@@ -1346,5 +1335,12 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		if (file.exists()) {
 			this.tcIdxSearcher = new IndexSearcher(indexDir);
 		}
+	}
+
+	/**
+	 * @see org.ala.dao.ITaxonConceptDao#setVocabulary(org.ala.vocabulary.Vocabulary)
+	 */
+	public void setVocabulary(Vocabulary vocabulary) {
+		this.vocabulary = vocabulary;
 	}
 }

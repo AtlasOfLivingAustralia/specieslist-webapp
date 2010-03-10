@@ -16,8 +16,8 @@ package org.ala.lucene;
 
 
 import org.ala.dao.TaxonConceptDao;
+import org.ala.util.SpringUtils;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * Creates a basic lucene index for the taxon concepts.
@@ -27,9 +27,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class CreateTaxonConceptIndex {
 
 	public static void main(String[] args) throws Exception {
-		//TaxonConceptDao tcDao = new TaxonConceptDao();
-        ApplicationContext context = new ClassPathXmlApplicationContext(new String[]{"classpath*:spring-profiler.xml", "classpath:spring.xml"});
-        // TODO: fix so that xml file is read from this project and not bie-repository's classpath
+        ApplicationContext context = SpringUtils.getContext();
         TaxonConceptDao tcDao = (TaxonConceptDao) context.getBean(TaxonConceptDao.class);
 		tcDao.createIndex();
 	}

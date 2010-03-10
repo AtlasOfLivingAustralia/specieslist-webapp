@@ -24,20 +24,19 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.ala.dao.TaxonConceptDao;
 import org.ala.dao.InfoSourceDAO;
+import org.ala.dao.TaxonConceptDao;
 import org.ala.model.Document;
 import org.ala.model.InfoSource;
 import org.ala.model.Triple;
-import org.ala.util.FileType;
 import org.ala.repository.Predicates;
+import org.ala.util.FileType;
 import org.ala.util.RepositoryFileUtils;
 import org.ala.util.SpringUtils;
 import org.ala.util.TurtleUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Component;
 
 /**

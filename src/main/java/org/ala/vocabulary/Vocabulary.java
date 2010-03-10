@@ -14,9 +14,12 @@
  ***************************************************************************/
 package org.ala.vocabulary;
 
+import java.util.List;
+
 import org.ala.model.ConservationStatus;
 import org.ala.model.PestStatus;
 import org.ala.model.Term;
+import org.ala.util.StatusType;
 
 /**
  * An interface for accessing vocabularies
@@ -26,6 +29,14 @@ import org.ala.model.Term;
 public interface Vocabulary {
 
 	/**
+	 * Retrieve a list of preferred terms for the supplied status type.
+	 * 
+	 * @param statusType
+	 * @return
+	 */
+	 List<String> getTermsForStatusType(StatusType statusType);
+	
+	/**
 	 * Perform a lookup on a simple relational database and return the preferred term 
 	 * 
 	 * @param infosourceId
@@ -33,7 +44,7 @@ public interface Vocabulary {
 	 * @param rawValue
 	 * @return
 	 */
-	public Term findPreferredTerm(int infosourceId, String predicate, String rawValue);
+	Term findPreferredTerm(int infosourceId, String predicate, String rawValue);
 	
 	/**
 	 * Retrieve the conservation status associated with this string.
@@ -42,7 +53,7 @@ public interface Vocabulary {
 	 * @param rawValue
 	 * @return the conservation status object, null if no terms have been found that match
 	 */
-	public ConservationStatus getConservationStatusFor(int infosourceId, String rawValue);
+	ConservationStatus getConservationStatusFor(int infosourceId, String rawValue);
 	
 	/**
 	 * Retrieve the pest status associated with this string
@@ -51,5 +62,5 @@ public interface Vocabulary {
 	 * @param rawValue
 	 * @return the pest status object, null if no terms have been found that match
 	 */
-	public PestStatus getPestStatusFor(int infosourceId, String rawValue);
+	PestStatus getPestStatusFor(int infosourceId, String rawValue);
 }

@@ -22,6 +22,7 @@ import org.ala.dao.VocabularyDAO;
 import org.ala.model.ConservationStatus;
 import org.ala.model.PestStatus;
 import org.ala.model.Term;
+import org.ala.util.StatusType;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -61,7 +62,7 @@ public class VocabularyImpl implements Vocabulary {
 		}
 		return null;
 	}	
-	
+
 	/**
 	 * @see org.ala.vocabulary.Vocabulary#getConservationStatusFor(int, java.lang.String)
 	 */
@@ -112,6 +113,14 @@ public class VocabularyImpl implements Vocabulary {
 			}
 		}
 		return pestStatus;
+	}
+
+	/**
+	 * @see org.ala.vocabulary.Vocabulary#getTermsForStatusType(org.ala.util.StatusType)
+	 */
+	@Override
+	public List<String> getTermsForStatusType(StatusType statusType) {
+		return vocabularyDao.getTermsForStatusType(statusType);
 	}	
 	
 	
@@ -179,11 +188,4 @@ public class VocabularyImpl implements Vocabulary {
 //
 //		return preferredTermObj;
 //	}
-
-	/**
-	 * @param documentDao the documentDao to set
-	 */
-	public void setVocabularyDao(VocabularyDAO vocabularyDao) {
-		this.vocabularyDao = vocabularyDao;
-	}
 }
