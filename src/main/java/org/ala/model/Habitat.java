@@ -14,62 +14,50 @@
  ***************************************************************************/
 package org.ala.model;
 
+
 /**
- * Simple POJO for occurrences in a region
+ * Simple POJO to represent the habitat of a taxon
  * 
  * @author Peter Flemming (peter.flemming@csiro.au)
  */
-public class OccurrencesInRegion extends AttributableObject implements Comparable<OccurrencesInRegion> {
-
-	protected String name;
-	protected int occurrences;
+public class Habitat extends AttributableObject implements Comparable<Habitat> {
 
 	/**
-	 * @param guid
-	 * @param name
-	 * @param occurrences
+	 * These are the current habitats derived from IRMNG.
+	 * 
+	 * M  = Known marine (including brackish)
+	 * MN = Known marine & known nonmarine
+	 * N  = Known nonmarine only (includes freshwater, terrestrial etc.)
 	 */
-	public OccurrencesInRegion(String name, int occurrences) {
+	protected String status;
+	
+	/**
+	 * @param status
+	 */
+	public Habitat(String status) {
 		super();
-		this.name = name;
-		this.occurrences = occurrences;
+		this.status = status;
 	}
 
 	/**
 	 * Default constructor
 	 */
-	public OccurrencesInRegion() {
+	public Habitat() {
 		super();
 	}
 
 	/**
-	 * @return the name
+	 * @return the status
 	 */
-	public String getName() {
-		return name;
+	public String getStatus() {
+		return this.status;
 	}
 
 	/**
-	 * @param name
-	 *            the name to set
+	 * @param status the status to set
 	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	/**
-	 * @return the occurrences
-	 */
-	public int getOccurrences() {
-		return occurrences;
-	}
-
-	/**
-	 * @param occurrences
-	 *            the occurrences to set
-	 */
-	public void setOccurrences(int occurrences) {
-		this.occurrences = occurrences;
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	/*
@@ -78,9 +66,9 @@ public class OccurrencesInRegion extends AttributableObject implements Comparabl
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	@Override
-	public int compareTo(OccurrencesInRegion o) {
-		if (o.getName() != null && name != null) {
-			return name.compareTo(o.getName());
+	public int compareTo(Habitat o) {
+		if (o.getStatus() != null && this.status != null) {
+			return this.status.compareTo(o.getStatus());
 		}
 		return -1;
 	}
@@ -93,7 +81,7 @@ public class OccurrencesInRegion extends AttributableObject implements Comparabl
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((this.name == null) ? 0 : this.name.hashCode());
+				+ ((this.status == null) ? 0 : this.status.hashCode());
 		return result;
 	}
 
@@ -108,11 +96,11 @@ public class OccurrencesInRegion extends AttributableObject implements Comparabl
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		OccurrencesInRegion other = (OccurrencesInRegion) obj;
-		if (this.name == null) {
-			if (other.name != null)
+		Habitat other = (Habitat) obj;
+		if (this.status == null) {
+			if (other.getStatus() != null)
 				return false;
-		} else if (!this.name.equals(other.name))
+		} else if (!this.status.equals(other.getStatus()))
 			return false;
 		return true;
 	}
