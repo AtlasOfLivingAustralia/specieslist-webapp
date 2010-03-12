@@ -23,8 +23,10 @@ import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
+import org.ala.model.ExtantStatus;
+import org.ala.model.Habitat;
 import org.ala.model.Image;
-import org.ala.model.OccurrencesInRegion;
+import org.ala.model.Region;
 import org.ala.model.PestStatus;
 import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
@@ -80,6 +82,26 @@ public interface TaxonConceptDao {
 	public List<ConservationStatus> getConservationStatuses(String guid)
 			throws Exception;
 
+	/**
+	 * Retrieve the extant status associated with this taxon concept.
+	 *
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	public ExtantStatus getExtantStatus(String guid)
+			throws Exception;
+
+	/**
+	 * Retrieve the habitat associated with this taxon concept.
+	 *
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Habitat> getHabitats(String guid)
+			throws Exception;
+	
 	/**
 	 * Retrieve the child concepts for the Taxon Concept with the supplied guid.
 	 *
@@ -174,13 +196,33 @@ public interface TaxonConceptDao {
 			throws Exception;
 
 	/**
-	 * Add this occurrences in region to the Taxon Concept.
+	 * Add this extant status to the Taxon Concept.
 	 *
 	 * @param guid
-	 * @param occurrencesInRegion
+	 * @param extantStatus
 	 * @throws Exception
 	 */
-	public void addOccurrencesInRegion(String guid, OccurrencesInRegion occurrencesInRegion) 
+	public void addExtantStatus(String guid, ExtantStatus extantStatus)
+			throws Exception;
+
+	/**
+	 * Add this habitat to the Taxon Concept.
+	 *
+	 * @param guid
+	 * @param habitat
+	 * @throws Exception
+	 */
+	public void addHabitat(String guid, Habitat habitat) 
+			throws Exception;
+
+	/**
+	 * Add this region to the Taxon Concept.
+	 *
+	 * @param guid
+	 * @param region
+	 * @throws Exception
+	 */
+	public void addRegion(String guid, Region region) 
 			throws Exception;
 
 	/**

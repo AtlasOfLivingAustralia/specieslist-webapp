@@ -34,8 +34,10 @@ import org.ala.lucene.LuceneUtils;
 import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
+import org.ala.model.ExtantStatus;
+import org.ala.model.Habitat;
 import org.ala.model.Image;
-import org.ala.model.OccurrencesInRegion;
+import org.ala.model.Region;
 import org.ala.model.PestStatus;
 import org.ala.model.Rank;
 import org.ala.model.SimpleProperty;
@@ -105,7 +107,9 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	private static final String VERNACULAR_COL = "tc:VernacularConcept";
 	private static final String CONSERVATION_STATUS_COL = "tc:hasConservationStatus";
 	private static final String PEST_STATUS_COL = "tc:hasPestStatus";
-	private static final String OCCURRENCES_IN_REGION_COL = "tc:hasOccurrencesInRegion";
+	private static final String REGION_COL = "tc:hasRegion";
+	private static final String EXTANT_STATUS_COL = "tc:hasExtantStatus";
+	private static final String HABITAT_COL = "tc:hasHabitat";
 	private static final String IMAGE_COL = "tc:hasImage";
 	private static final String IS_CHILD_COL_OF = "tc:IsChildTaxonOf";
 	private static final String IS_PARENT_COL_OF = "tc:IsParentTaxonOf";
@@ -457,14 +461,14 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
-	 * Add this region occurrences to the Taxon Concept.
+	 * Add this region to the Taxon Concept.
 	 * 
 	 * @param guid
-	 * @param pestStatus
+	 * @param region
 	 * @throws Exception
 	 */
-	public void addOccurrencesInRegion(String guid, OccurrencesInRegion region) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, OCCURRENCES_IN_REGION_COL, region, new TypeReference<List<OccurrencesInRegion>>(){});
+	public void addRegion(String guid, Region region) throws Exception {
+		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, REGION_COL, region, new TypeReference<List<Region>>(){});
 	}
 	
 	/**
@@ -1351,5 +1355,41 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	public void setVocabulary(Vocabulary vocabulary) {
 		this.vocabulary = vocabulary;
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getExtantStatus(java.lang.String)
+	 */
+	@Override
+	public ExtantStatus getExtantStatus(String guid) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getHabitats(java.lang.String)
+	 */
+	@Override
+	public List<Habitat> getHabitats(String guid) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#addExtantStatus(java.lang.String, org.ala.model.ExtantStatus)
+	 */
+	@Override
+	public void addExtantStatus(String guid, ExtantStatus extantStatus)
+			throws Exception {
+		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, EXTANT_STATUS_COL, extantStatus, new TypeReference<List<ExtantStatus>>() {});
+		
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#addHabitat(java.lang.String, org.ala.model.Habitat)
+	 */
+	@Override
+	public void addHabitat(String guid, Habitat habitat) throws Exception {
+		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, HABITAT_COL, habitat, new TypeReference<List<Habitat>>() {});
 	}
 }
