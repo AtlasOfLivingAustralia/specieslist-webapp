@@ -160,17 +160,17 @@
 			<artifactId>lucene-core</artifactId>
 			<version>2.9.2</version>
 		</dependency>
-                <!-- SOLR -->
-                <dependency>
-                    <artifactId>solr-core</artifactId>
-                    <groupId>org.apache.solr</groupId>
-                    <version>1.4.0</version>
-                </dependency>
-                <dependency>
-                    <artifactId>solr-solrj</artifactId>
-                    <groupId>org.apache.solr</groupId>
-                    <version>1.4.0</version>
-                </dependency>
+		<!-- SOLR -->
+		<dependency>
+			<artifactId>solr-core</artifactId>
+			<groupId>org.apache.solr</groupId>
+			<version>1.4.0</version>
+		</dependency>
+		<dependency>
+			<artifactId>solr-solrj</artifactId>
+			<groupId>org.apache.solr</groupId>
+			<version>1.4.0</version>
+		</dependency>
 		<!-- Sun's Servlet API -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -332,7 +332,7 @@
 		</repository>
 	</repositories>
 	<build>
-		<finalName>bie-debug</finalName>
+		<finalName>bie-hbase</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -354,14 +354,19 @@
 				</configuration>
 			</plugin>
 			<plugin>
-		        <artifactId>maven-assembly-plugin</artifactId>
-		        <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-		        </configuration>
-            </plugin>
-			
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<configuration>
+					<outputFile>classpath.txt</outputFile>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
