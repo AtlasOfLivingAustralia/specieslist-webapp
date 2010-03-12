@@ -17,7 +17,10 @@ package org.ala.hbase;
 import javax.inject.Inject;
 
 import org.ala.dao.TaxonConceptDao;
-import org.ala.model.OccurrencesInRegion;
+import org.ala.model.ExtantStatus;
+import org.ala.model.Habitat;
+import org.ala.model.Region;
+import org.ala.util.LoadUtils;
 import org.ala.util.SpringUtils;
 import org.ala.util.TabReader;
 import org.apache.log4j.Logger;
@@ -34,9 +37,13 @@ public class BioCacheLoader {
 	
 	protected static Logger logger  = Logger.getLogger(BioCacheLoader.class);
 	
-	private static final String FAMILY_REGION_OCCURRENCE = "/data/bie-staging/biocache/family_region_occurrence.txt";
-	private static final String GENUS_REGION_OCCURRENCE = "/data/bie-staging/biocache/genus_region_occurrence.txt";
-	private static final String SPECIES_REGION_OCCURRENCE = "/data/bie-staging/biocache/species_region_occurrence.txt";
+	private static final String FAMILY_REGION_OCCURRENCE = "/data/bie-staging/biocache/family_region.txt";
+	private static final String GENUS_REGION_OCCURRENCE = "/data/bie-staging/biocache/genus_region.txt";
+	private static final String SPECIES_REGION_OCCURRENCE = "/data/bie-staging/biocache/species_region.txt";
+	
+	private static final String IRMNG_FAMILY_DATA = "/data/bie-staging/irmng/family_list.txt";
+	private static final String IRMNG_GENUS_DATA = "/data/bie-staging/irmng/genus_list.txt";
+	private static final String IRMNG_SPECIES_DATA = "/data/bie-staging/irmng/species_list.txt";
 	
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
@@ -51,9 +58,15 @@ public class BioCacheLoader {
 	 * @throws Exception
 	 */
 	private void load() throws Exception {
-		loadRegions(FAMILY_REGION_OCCURRENCE);
-		loadRegions(GENUS_REGION_OCCURRENCE);
-		loadRegions(SPECIES_REGION_OCCURRENCE);
+		taxonConceptDao.setLuceneIndexLocation(LoadUtils.BASE_DIR + "taxonConcept");
+		
+//		loadRegions(FAMILY_REGION_OCCURRENCE);
+//		loadRegions(GENUS_REGION_OCCURRENCE);
+//		loadRegions(SPECIES_REGION_OCCURRENCE);
+		
+		loadIrmngData(IRMNG_FAMILY_DATA);
+		loadIrmngData(IRMNG_GENUS_DATA);
+		loadIrmngData(IRMNG_SPECIES_DATA);
 	}
 
 	/**
@@ -65,31 +78,33 @@ public class BioCacheLoader {
 		
     	long start = System.currentTimeMillis();
     	
-    	// add the taxon concept regions and occurrences
+    	// add the taxon concept regions
     	TabReader tr = new TabReader(regionDatFile);
     	String[] values = null;
 		int i = 0;
-		String previousScientificName = null;
 		String guid = null;
+		String previousScientificName = null;
 		while ((values = tr.readNext()) != null) {
-    		if (values.length == 5) {
+    		if (values.length == 6) {
     			String currentScientificName = values[1];
-    			String regionName = values[3];
-    			String occurrences = values[4];
+    			String regionType = values[2];
+    			String regionId = values[3];
+    			String regionName = values[4];
+    			String occurrences = values[5];
     			
     			if (!currentScientificName.equalsIgnoreCase(previousScientificName)) {
     				guid = taxonConceptDao.findConceptIDForName(null, null, currentScientificName.toLowerCase());
         			if (guid == null) {
-        				logger.warn("Unable to find taxon concept for '" + currentScientificName);
+        				logger.warn("Unable to find taxon concept for '" + currentScientificName + "'");
         			} else {
         				logger.debug("Loading region occurrences for '" + currentScientificName + "'");
         			}
     				previousScientificName = currentScientificName;
     			}
     			if (guid != null) {
-    				OccurrencesInRegion region = new OccurrencesInRegion(regionName, Integer.parseInt(occurrences));
-    				logger.trace("Adding guid=" + guid + " SciName=" + currentScientificName + " Region=" + regionName + " Occs=" + occurrences);
-    				taxonConceptDao.addOccurrencesInRegion(guid, region);
+    				Region region = new Region(regionId, regionName, regionType, Integer.parseInt(occurrences));
+    				logger.trace("Adding guid=" + guid + " SciName=" + currentScientificName + " Region=" + regionName + " Type=" + regionType + " Occs=" + occurrences);
+    				taxonConceptDao.addRegion(guid, region);
     				i++;
     			}
     		} else {
@@ -99,6 +114,49 @@ public class BioCacheLoader {
     	tr.close();
 		long finish = System.currentTimeMillis();
 		logger.info(i+" region occurrences loaded. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
+	}
+
+	private void loadIrmngData(String irmngDataFile) throws Exception {
+		logger.info("Starting to load IRMNG data from " + irmngDataFile);
+		
+    	long start = System.currentTimeMillis();
+    	
+    	// add the taxon concept regions
+    	TabReader tr = new TabReader(irmngDataFile);
+    	String[] values = null;
+		int i = 0;
+		String guid = null;
+		String previousScientificName = null;
+		while ((values = tr.readNext()) != null) {
+    		if (values.length == 5) {
+    			String currentScientificName = values[1];
+    			String extantCode = values[3];
+    			String habitatCode = values[4];
+    			
+    			if (!currentScientificName.equalsIgnoreCase(previousScientificName)) {
+    				guid = taxonConceptDao.findConceptIDForName(null, null, currentScientificName.toLowerCase());
+        			if (guid == null) {
+        				logger.warn("Unable to find taxon concept for '" + currentScientificName + "'");
+        			} else {
+        				logger.debug("Loading IRMNG data for '" + currentScientificName + "'");
+        			}
+    				previousScientificName = currentScientificName;
+    			}
+    			if (guid != null) {
+    				ExtantStatus extantStatus = new ExtantStatus(extantCode);
+    				Habitat habitat = new Habitat(habitatCode);
+    				logger.trace("Adding guid=" + guid + " SciName=" + currentScientificName + " Extant=" + extantCode + " Habitat=" + habitatCode);
+    				taxonConceptDao.addExtantStatus(guid, extantStatus);
+    				taxonConceptDao.addHabitat(guid, habitat);
+    				i++;
+    			}
+    		} else {
+    			logger.error("Incorrect number of fields in tab file - " + irmngDataFile);
+    		}
+		}
+    	tr.close();
+		long finish = System.currentTimeMillis();
+		logger.info(i+" IRMNG records loaded. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
 	}
 
 	/**
