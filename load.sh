@@ -1,8 +1,8 @@
 echo "running processing $('date')"
 
-mvn clean install jar:jar -npu -o -Dmaven.test.skip=true
+mvn clean install jar:jar -Dmaven.test.skip=true
 
-mvn dependency:build-classpath -npu -o
+mvn dependency:build-classpath
 
 export CLASSPATH=target/bie-hbase.jar:$(cat classpath.txt)
 
