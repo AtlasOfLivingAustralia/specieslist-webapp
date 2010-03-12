@@ -373,14 +373,14 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 
     /**
-	 * @see org.ala.dao.ITaxonConceptDao#getTextPropertiesFor(java.lang.String)
+	 * @see org.ala.dao.ITaxonConceptDao#getSimplePropertiesFor(java.lang.String)
 	 */
-	public List<SimpleProperty> getTextPropertiesFor(String guid) throws Exception {
+	public List<SimpleProperty> getSimplePropertiesFor(String guid) throws Exception {
 		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
-		return getTextProperties(row);
+		return getSimpleProperties(row);
 	}
 
-	private List<SimpleProperty> getTextProperties(RowResult row) throws IOException,
+	private List<SimpleProperty> getSimpleProperties(RowResult row) throws IOException,
 			JsonParseException, JsonMappingException {
 		Cell cell = row.get(Bytes.toBytes(TEXT_PROPERTY_COL));
 		ObjectMapper mapper = new ObjectMapper();
@@ -573,7 +573,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		etc.setPestStatuses(getPestStatus(row));
 		etc.setConservationStatuses(getConservationStatus(row));
 		etc.setImages(getImages(row));
-        etc.setTextProperties(getTextProperties(row));
+        etc.setTextProperties(getSimpleProperties(row));
 		
 		//add taxonomic properties
 		
@@ -1075,10 +1075,11 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
                     ps.setInfoSourceURL(dcSource);
 					addPestStatus(guid, ps);
 					
-                //} else if (triple.predicate.endsWith("Text")) {
+                } else if (triple.predicate.endsWith("hasImagePageUrl")) {
+                    // do nothing but prevent getting caught next - added further down
                 } else {    
 
-                	//FIXME - this feels mighty unscalable...
+                	// FIXME - this feels mighty unscalable...
                 	// essentially we are putting all other field values in one very 
                 	// large cell
                 	// if this becomes a performance problem we should split
@@ -1213,6 +1214,10 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     		//add conservation and pest status'
             List<ConservationStatus> conservationStatuses = getConservationStatus(rowResult);
     		List<PestStatus> pestStatuses = getPestStatus(rowResult);
+
+            //add text properties
+            List<SimpleProperty> simpleProperties = getSimpleProperties(rowResult);
+            
     		//create the lucene doc
     		
     		//TODO this index should also include nub ids
@@ -1231,7 +1236,9 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
                 for (ConservationStatus cs : conservationStatuses) {
                     for (String csTerm : consTerms) {
                         if (cs.getStatus().toLowerCase().contains(csTerm.toLowerCase())) {
-                            doc.add(new Field("conservationStatus", csTerm, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+                            Field f = new Field("conservationStatus", csTerm, Store.YES, Index.NOT_ANALYZED);
+                            f.setBoost(0.6f);
+                            doc.add(f);
                         }
                     }
                 }
@@ -1239,8 +1246,19 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
                 for (PestStatus ps : pestStatuses) {
                     for (String psTerm : pestTerms) {
                         if (ps.getStatus().toLowerCase().contains(psTerm.toLowerCase())) {
-                            doc.add(new Field("pestStatus", psTerm, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+                            Field f = new Field("pestStatus", psTerm, Store.YES, Index.NOT_ANALYZED);
+                            f.setBoost(0.6f);
+                            doc.add(f);
                         }
+                    }
+                }
+
+                for (SimpleProperty sp : simpleProperties) {
+                    // index *Text properties
+                    if (sp.getName().endsWith("Text")) {
+                        Field textField = new Field("simpleText", sp.getValue(), Store.YES, Index.ANALYZED);
+                        textField.setBoost(0.4f);
+                        doc.add(textField);
                     }
                 }
 
@@ -1277,15 +1295,6 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	    			}
 	    		}
 	    		
-
-                for (ConservationStatus cs : conservationStatuses) {
-                    doc.add(new Field("conservationStatus", cs.getStatus(), Store.YES, Index.ANALYZED));
-                }
-
-                for (PestStatus ps : pestStatuses) {
-                    doc.add(new Field("pestStatus", ps.getStatus(), Store.YES, Index.ANALYZED));
-                }
-
                 addRankToIndex(taxonName, doc);
 	    		
     			doc.add(new Field("hasChildren", Boolean.toString(!children.isEmpty()), Store.YES, Index.NO));
@@ -1304,7 +1313,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     	iw.close();
     	
     	long finish = System.currentTimeMillis();
-    	logger.info("Index created in: "+((finish-start)/1000)+" seconds.");
+    	logger.info("Index created in: "+((finish-start)/1000)+" seconds with "+ i +" documents");
 	}
 
 	private void addRankToIndex(TaxonName taxonName, Document doc) {

@@ -14,7 +14,9 @@
  ***************************************************************************/
 package org.ala.dto;
 
+import java.util.Collection;
 import java.util.List;
+import org.apache.solr.client.solrj.response.QueryResponse;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -40,9 +42,9 @@ public class SearchResultsDTO {
     /** List of results from search */
     private List<SearchTaxonConceptDTO> taxonConcepts;
     /** List of facet results from search */
-    //private Collection<FacetResultDTO> facetResults;
+    private Collection<FacetResultDTO> facetResults;
     /** SOLR query response following search */
-    //private QueryResponse qr;
+    private QueryResponse qr;
     private String query;
 
     /**
@@ -132,5 +134,23 @@ public class SearchResultsDTO {
 
     public void setQuery(String query) {
         this.query = query;
+    }
+
+    @JsonIgnore
+    public Collection<FacetResultDTO> getFacetResults() {
+        return facetResults;
+    }
+
+    public void setFacetResults(Collection<FacetResultDTO> facetResults) {
+        this.facetResults = facetResults;
+    }
+
+    @JsonIgnore
+    public QueryResponse getQr() {
+        return qr;
+    }
+
+    public void setQr(QueryResponse qr) {
+        this.qr = qr;
     }
 }

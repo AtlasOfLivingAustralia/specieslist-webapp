@@ -33,6 +33,7 @@ import javax.media.jai.RenderedImageAdapter;
 
 import org.ala.dao.DocumentDAO;
 import org.ala.dao.TaxonConceptDao;
+import org.ala.dao.TaxonConceptDaoImplSolr;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
@@ -54,7 +55,7 @@ import org.springframework.web.servlet.ModelAndView;
 /**
  * Main controller for the BIE site
  *
- * If this class gets too big or complex then split into mulitple Controllers.
+ * TODO: If this class gets too big or complex then split into mulitple Controllers.
  *
  * @author "Nick dos Remedios <Nick.dosRemedios@csiro.au>"
  */
@@ -64,10 +65,12 @@ public class TaxonConceptController {
 	/** Logger initialisation */
     private final static Logger logger = Logger.getLogger(TaxonConceptController.class);
     @Inject
-    private TaxonConceptDao taxonConceptDao = null;
+    private TaxonConceptDao taxonConceptDao;
     /** DAO bean for access to repository document table */
     @Inject
-    private final DocumentDAO documentDAO = null;
+    private DocumentDAO documentDAO;
+    @Inject
+    private TaxonConceptDaoImplSolr tcDaoSolr;
     /** Name of view for site home page */
     private String HOME_PAGE = "homePage";
     /** Name of view for search page */
@@ -91,7 +94,6 @@ public class TaxonConceptController {
 	@RequestMapping("/")
 	public String homePageHandler() {
 		return HOME_PAGE;
-//        return "redirect:/index.jsp";
 	}
 
     /**
@@ -121,7 +123,7 @@ public class TaxonConceptController {
      * @param model
      * @return view name
      */
-    @RequestMapping(value = "/species/search*", method = RequestMethod.GET)
+    @RequestMapping(value = "/species/lucenesearch*", method = RequestMethod.GET)
     public String searchSpecies(
             @RequestParam(value="q", required=false) String query,
             @RequestParam(value="fq", required=false) String filterQuery,
@@ -141,6 +143,55 @@ public class TaxonConceptController {
         model.addAttribute("facetQuery", filterQueryChecked);
 
         SearchResultsDTO searchResults = taxonConceptDao.findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
+        model.addAttribute("searchResults", searchResults);
+        logger.debug("query = "+query);
+
+        if (searchResults.getTaxonConcepts().size() == 1) {
+            List taxonConcepts = (List) searchResults.getTaxonConcepts();
+            SearchTaxonConceptDTO res = (SearchTaxonConceptDTO) taxonConcepts.get(0);
+            String guid = res.getGuid();
+            //return "redirect:/species/" + guid;
+        }
+
+        return SPECIES_LIST;
+    }
+
+    /**
+     * Map to a /search URI - perform a full-text SOLR search
+     * Note: adding .json to URL will result in JSON output and
+     * adding .xml will result in XML output.
+     *
+     * @param query
+     * @param filterQuery
+     * @param startIndex
+     * @param pageSize
+     * @param sortField
+     * @param sortDirection
+     * @param model
+     * @return view name
+     */
+    @RequestMapping(value = "/species/search*", method = RequestMethod.GET)
+    public String solrSearchSpecies(
+            @RequestParam(value="q", required=false) String query,
+            @RequestParam(value="fq", required=false) String filterQuery,
+            @RequestParam(value="startIndex", required=false, defaultValue="0") Integer startIndex,
+            @RequestParam(value="results", required=false, defaultValue ="10") Integer pageSize,
+            @RequestParam(value="sort", required=false, defaultValue="score") String sortField,
+            @RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
+            Model model) throws Exception {
+        if (query == null) {
+            return SPECIES_SEARCH;
+        }
+
+        String queryJsEscaped = StringEscapeUtils.escapeJavaScript(query);
+        model.addAttribute("query", query);
+        model.addAttribute("queryJsEscaped", queryJsEscaped);
+        String filterQueryChecked = (filterQuery == null) ? "" : filterQuery;
+        model.addAttribute("facetQuery", filterQueryChecked);
+
+        //TaxonConceptDaoImplSolr tcDao = new TaxonConceptDaoImplSolr();
+
+        SearchResultsDTO searchResults = tcDaoSolr.findByScientificName(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
         model.addAttribute("searchResults", searchResults);
         logger.debug("query = "+query);
 
@@ -250,18 +301,23 @@ public class TaxonConceptController {
      * Pest / Conservation status list
      *
      * @param statusStr
+     * @param filterQuery 
      * @param model
      * @return
      * @throws Exception
      */
     @RequestMapping(value = "/species/status/{status}", method = RequestMethod.GET)
-    public String listStatus(@PathVariable("status") String statusStr, Model model) throws Exception {
+    public String listStatus(
+            @PathVariable("status") String statusStr,
+            @RequestParam(value="fq", required=false) String filterQuery,
+            Model model) throws Exception {
         StatusType statusType = StatusType.getForStatusType(statusStr);
         if (statusType==null) {
             return "redirect:/error.jsp";
         }
         model.addAttribute("statusType", statusType);
-        SearchResultsDTO searchResults = taxonConceptDao.findAllByStatus(statusType, 0, 10, "score", "asc");// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
+        model.addAttribute("filterQuery", filterQuery);
+        SearchResultsDTO searchResults = tcDaoSolr.findAllByStatus(statusType, filterQuery,  0, 10, "score", "asc");// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
         model.addAttribute("searchResults", searchResults);
         return STATUS_LIST;
     }
@@ -270,6 +326,7 @@ public class TaxonConceptController {
      * Pest / Conservation status JSON (for yui datatable)
      *
      * @param statusStr
+     * @param filterQuery 
      * @param startIndex
      * @param pageSize
      * @param sortField
@@ -280,6 +337,7 @@ public class TaxonConceptController {
      */
     @RequestMapping(value = "/species/status/{status}.json", method = RequestMethod.GET)
     public SearchResultsDTO listStatusJson(@PathVariable("status") String statusStr,
+            @RequestParam(value="fq", required=false) String filterQuery,
             @RequestParam(value="startIndex", required=false, defaultValue="0") Integer startIndex,
             @RequestParam(value="results", required=false, defaultValue ="10") Integer pageSize,
             @RequestParam(value="sort", required=false, defaultValue="score") String sortField,
@@ -290,7 +348,7 @@ public class TaxonConceptController {
         SearchResultsDTO searchResults = null;
 
         if (statusType!=null) {
-            searchResults = taxonConceptDao.findAllByStatus(statusType, startIndex, pageSize, sortField, sortDirection);// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
+            searchResults = tcDaoSolr.findAllByStatus(statusType, filterQuery, startIndex, pageSize, sortField, sortDirection);// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
         }
         
         return searchResults;

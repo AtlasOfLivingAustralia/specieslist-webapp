@@ -21,14 +21,15 @@
         <%--</s:form>--%>
         </form>
         <p>
-        <p>Examples:<br/><a href='${pageContext.request.contextPath}/species/search?q="Pogona+barbata"'>&quot;Pogona barbata&quot;</a><br/>
-            <a href='${pageContext.request.contextPath}/species/search?q="Hypertropha+chlaenota"'>&quot;Hypertropha chlaenota&quot;</a><br/>
-            <a href='${pageContext.request.contextPath}/species/search?q="Argyropelecus+gigas"'>&quot;Argyropelecus gigas&quot;</a><br/>
-            <a href='${pageContext.request.contextPath}/species/search?q="Podargus+strigoides"'>&quot;Podargus strigoides&quot;</a><br/>
-            <a href='${pageContext.request.contextPath}/species/search?q="Glossopsitta+concinna"'>&quot;Glossopsitta concinna&quot;</a><br/>
-            <a href='${pageContext.request.contextPath}/species/search?q="Hippotion+scrofa"'>&quot;Hippotion scrofa&quot;</a><br/>
-            <a href='${pageContext.request.contextPath}/species/search?q=Asplenium+australasicum'>&quot;Asplenium australasicum&quot;</a><br/>
-            <a href='${pageContext.request.contextPath}/species/search?q=Malacorhynchus+membranaceus'>&quot;Malacorhynchus membranaceus&quot;</a><br/>
+        <p>Examples:<br/><a href='${pageContext.request.contextPath}/species/search?q=Pogona+barbata'>Pogona barbata</a> (Eastern Bearded Dragon)<br/>
+            <a href='${pageContext.request.contextPath}/species/search?q=Hypertropha+chlaenota'>Hypertropha chlaenota</a> (Moth - GELECHIOIDEA family)<br/>
+            <a href='${pageContext.request.contextPath}/species/search?q=Pygoscelis+adeliae'>Pygoscelis adeliae</a> (Adelie Penguin)<br/>
+            <a href='${pageContext.request.contextPath}/species/search?q=Argyropelecus+gigas'>Argyropelecus gigas</a> (Giant Hatchetfish)<br/>
+            <a href='${pageContext.request.contextPath}/species/search?q=Podargus+strigoides'>Podargus strigoides</a> (Tawny Frogmouth)<br/>
+            <a href='${pageContext.request.contextPath}/species/search?q=Glossopsitta+concinna'>Glossopsitta concinna</a> (Musk Lorikeet)<br/>
+            <a href='${pageContext.request.contextPath}/species/search?q=Hippotion+scrofa'>Hippotion scrofa</a> (Scrofa Hawk Moth)<br/>
+            <%--<a href='${pageContext.request.contextPath}/species/search?q=Asplenium+australasicum'>Asplenium australasicum</a><br/>--%>
+            <a href='${pageContext.request.contextPath}/species/search?q=Malacorhynchus+membranaceus'>Malacorhynchus membranaceus</a> (Pink-eared Duck)<br/>
         </p>
     </div>
     <script type="text/javascript">

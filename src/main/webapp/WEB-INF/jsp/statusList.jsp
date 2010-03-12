@@ -13,52 +13,54 @@
     <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.8.0r4/build/fonts/fonts-min.css&2.8.0r4/build/base/base-min.css&2.8.0r4/build/paginator/assets/skins/sam/paginator.css&2.8.0r4/build/datatable/assets/skins/sam/datatable.css">
     <!-- Combo-handled YUI JS files: -->
     <script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.0r4/build/yahoo/yahoo-debug.js&2.8.0r4/build/event/event-debug.js&2.8.0r4/build/connection/connection-debug.js&2.8.0r4/build/datasource/datasource-debug.js&2.8.0r4/build/dom/dom-debug.js&2.8.0r4/build/element/element-debug.js&2.8.0r4/build/paginator/paginator-debug.js&2.8.0r4/build/datatable/datatable-debug.js&2.8.0r4/build/history/history-debug.js&2.8.0r4/build/json/json-debug.js&2.8.0r4/build/logger/logger-debug.js"></script>
-    <script type="text/javascript">
-        var contentModelMap = {};
-    </script>
     <title>${statusType.displayName} List</title>
 </head>
 <body>
     <h1>${statusType.displayName} List</h1>
     <c:if test="${empty searchResults.taxonConcepts}"><p>Search for <span style="font-weight: bold"><c:out value="${query}"/></span> did not match any documents</p></c:if>
     <c:if test="${not empty searchResults.taxonConcepts}">
-        <%--<div id="facetBar">
-            <h4>Refine your results:</h4>
-            <ul id="navlist">
-                <c:if test="${not empty query}"><c:set var="queryParam">q=<c:out value="${query}" escapeXml="true"/></c:set></c:if>
-                <c:forEach var="facetResult" items="${searchResults.facetResults}">
-                    <li><span class="FieldName"><fmt:message key="facet.${facetResult.fieldName}"/></span></li>
-                    <ul id="subnavlist">
-                        <c:forEach var="fieldResult" items="${facetResult.fieldResult}">
-                            <li id="subactive">
-                                <script type="text/javascript">
-                                    // Add the document type's display names to a JS Map (used for catching bookmarked state)
-                                    contentModelMap['${fieldResult.label}'] = '<fmt:message key="fedora.${fieldResult.label}"/>';
-                                </script>
-                                <a href="${pageContext.request.contextPath}/species/search?fq=${facetResult.fieldName}:${fieldResult.label}&${queryParam}">
-                                    <fmt:message key="rank.${fieldResult.label}"/> (${fieldResult.count})</a>
-                            </li>
-                        </c:forEach>
-                    </ul>
-                </c:forEach>
-            </ul>
-        <br/>
-        <c:if test="${not empty facetQuery}">
+        <div id="facetBar">
+            <c:if test="${fn:length(filterQuery) < 1}">
+                <h4>Restrict by:</h4>
+                <ul id="navlist">
+                    <c:if test="${not empty query}"><c:set var="queryParam">q=<c:out value="${query}" escapeXml="true"/></c:set></c:if>
+                    <c:forEach var="facetResult" items="${searchResults.facetResults}">
+                        <c:if test="${fn:containsIgnoreCase(statusType.value, facetResult.fieldName) && fn:length(filterQuery) < 1}">
+                            <li><span class="FieldName"><fmt:message key="facet.${facetResult.fieldName}"/></span></li>
+                            <ul id="subnavlist">
+                                <c:forEach var="fieldResult" items="${facetResult.fieldResult}">
+                                    <%-- test to see if the current facet search is also a listed facet link --%>
+                                    <c:if test="${!fn:containsIgnoreCase(filterQuery, fieldResult.label)}">
+                                        <li id="subactive">
+                                            <a href="?fq=${facetResult.fieldName}:${fieldResult.label}&${queryParam}">
+                                                <fmt:message key="${fieldResult.label}"/> (${fieldResult.count})</a>
+                                        </li>
+                                    </c:if>
+                                </c:forEach>
+                            </ul>
+                        </c:if>
+                    </c:forEach>
+                </ul>
+            </c:if>
+            <br/>
+        <c:if test="${not empty filterQuery}">
             <div id="removeFacet">
                 <h4>Displaying subset of results, restricted to: <span id="facetName">
-                        <fmt:message key="rank.${fn:substringAfter(facetQuery, 'Rank:')}"/></span></h4>
-                <p>&bull; <a href="../species/search?<c:out value="${queryParam}"/>">Return to full result list</a></p>
+                        <fmt:message key="${fn:substringAfter(filterQuery, ':')}"/></span></h4>
+                <p>&bull; <a href="?<c:out value="${queryParam}"/>">Return to full result list</a></p>
             </div>
         </c:if>
-        </div>--%>
+        </div>
         <div id="content" class="yui-skin-sam">
-            <div class="datatable-summary" style="width:100%;">Taxa with ${statusType.displayName}:
-                <c:out value="${searchResults.totalRecords}"/> record<c:if test="${searchResults.totalRecords > 1}">s</c:if></div>
+            <div class="datatable-summary" style="width:640px;">Taxa with ${statusType.displayName}
+                <c:if test="${fn:length(filterQuery) > 0}"> - ${fn:substringAfter(filterQuery, ':')}</c:if>: 
+                <c:out value="${searchResults.totalRecords}"/> record<c:if test="${searchResults.totalRecords > 1}">s</c:if>
+            </div>
 
             <iframe id="yui-history-iframe" src="<c:url value='/static/css/blank.html'/>"></iframe>
             <input id="yui-history-field" type="hidden">
             <div id="dt-pag-head"></div>
-            <div id="results" style="width:100%;"></div>
+            <div id="results" style="/*width:100%;*/"></div>
             <div id="dt-pag-nav"></div>
             <c:set var="pageSize">20</c:set>
             <script type="text/javascript">
@@ -78,7 +80,7 @@
                         elCell.innerHTML = "<a href='" + "${pageContext.request.contextPath}/species/" + oRecord.getData("guid") + "' title='view record details'>" + cellContent + "</a>";
                     };
 
-                    myDataSource = new YAHOO.util.DataSource("${pageContext.request.contextPath}/species/status/${statusType.value}.json?");
+                    myDataSource = new YAHOO.util.DataSource("${pageContext.request.contextPath}/species/status/${statusType.value}.json?fq=${filterQuery}&");
                     myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSON;
                     myDataSource.responseSchema = {
                         resultsList: "searchResultsDTO.taxonConcepts",
@@ -96,7 +98,7 @@
                     var myColumnDefs = [
                         //{key:"ContentModel", field:"contentModelLabel", label:"Type", sortable: true, minWidth: 100},
                         {key:"scientificNameRaw", field:"nameString", sortable:true, label:"Scientific Name", formatter:formatTitleUrl}, //, width: 350 , formatter:formatTitleUrl
-                        {key:"acceptedConceptName", field:"acceptedConceptName", sortable:false, label:"Accepted Name"},
+                        //{key:"acceptedConceptName", field:"acceptedConceptName", sortable:false, label:"Accepted Name"},
                         {key:"commonNameSort", field:"commonName", sortable:true, label:"Common Name"},
                         {key:"rankId", field:"rank", label:"Rank", sortable: true}, // , minWidth: 100,width: 200
                         {key:"${statusType.value}", field:"${statusType.value}", sortable:false, label:"${statusType.displayName}"},
@@ -115,7 +117,7 @@
                         nextPageLinkLabel: "<span>Next Page</span>",
                         previousPageLinkLabel: "<span>Previous Page</span>",
                         //rowsPerPageOptions: [10,20,50,100],
-                        template : "<div style='text-align:center;width:950px;'> {PreviousPageLink} {PageLinks} {NextPageLink} </div>", //"{CurrentPageReport} {PageLinks}",
+                        template : "<div style='text-align:center;width:640px;'> {PreviousPageLink} {PageLinks} {NextPageLink} </div>", //"{CurrentPageReport} {PageLinks}",
                         pageReportTemplate : "<strong>{totalRecords} records.</strong>"
                     });
                     

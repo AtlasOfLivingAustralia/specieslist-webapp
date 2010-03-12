@@ -117,7 +117,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<SimpleProperty> getTextPropertiesFor(String guid)
+	public List<SimpleProperty> getSimplePropertiesFor(String guid)
 			throws Exception;
 
 	/**

@@ -33,6 +33,7 @@ public class SearchTaxonConceptDTO {
     protected int rankId;
     protected String pestStatus;
     protected String conservationStatus;
+    protected String highlight;
 	/**
 	 * @return the guid
 	 */
@@ -156,5 +157,13 @@ public class SearchTaxonConceptDTO {
 
     public void setPestStatus(String pestStatus) {
         this.pestStatus = pestStatus;
+    }
+
+    public String getHighlight() {
+        return highlight;
+    }
+
+    public void setHighlight(String highlight) {
+        this.highlight = highlight;
     }
 }

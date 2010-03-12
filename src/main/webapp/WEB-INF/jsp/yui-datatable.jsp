@@ -2,13 +2,12 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<c:set var="pageSize">15</c:set>
+<c:set var="pageSize">20</c:set>
                   <script type="text/javascript">
-                        var query, propertyName, facetQuery, myDataTable;
+                        var query, facetQuery, myDataTable;
 
-                        function loadDatatable(thisPropertyName, thisQuery, thisFacetQuery) {
+                        function loadDatatable(thisQuery, thisFacetQuery) {
                             // use global variables if not passed in as args
-                            thisPropertyName = (!thisPropertyName) ? propertyName : thisPropertyName;
                             thisQuery = (!thisQuery) ? query : thisQuery;
                             thisFacetQuery = (!thisFacetQuery) ? "" : thisFacetQuery;
 
@@ -24,11 +23,11 @@
                                 elCell.innerHTML = "<a href='" + "${pageContext.request.contextPath}/species/" + oRecord.getData("guid") + "' title='view record details'>" + cellContent + "</a>";
                             };
 
-                            myDataSource = new YAHOO.util.DataSource("${pageContext.request.contextPath}/species/search.json?q="+thisQuery+"&fq="+thisFacetQuery+"&");
+                            myDataSource = new YAHOO.util.DataSource(window.location.pathname+".json?q="+thisQuery+"&fq="+thisFacetQuery+"&");
                             myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSON;
                             myDataSource.responseSchema = {
                                 resultsList: "searchResults.taxonConcepts",
-                                fields: ["guid","nameString","acceptedConceptName","commonName","rank", "rankId", "score"],
+                                fields: ["guid","nameString","acceptedConceptName","commonName","rank", "rankId", "highlight", "score"],
 
                                 metaFields: {
                                     totalRecords: "searchResults.totalRecords",
@@ -41,9 +40,10 @@
                             // Column definitions
                             var myColumnDefs = [
                                 //{key:"ContentModel", field:"contentModelLabel", label:"Type", sortable: true, minWidth: 100},
-                                {key:"scientificNameRaw", field:"nameString", sortable:true, label:"Scientific name", formatter:formatTitleUrl, width: 350}, // , formatter:formatTitleUrl
-                                {key:"acceptedConceptName", field:"acceptedConceptName", sortable:false, label:"is synonym for", width: 350},
+                                {key:"scientificNameRaw", field:"nameString", sortable:true, label:"Scientific name", formatter:formatTitleUrl}, // width: 350 , formatter:formatTitleUrl
+                                //{key:"acceptedConceptName", field:"acceptedConceptName", sortable:false, label:"is synonym for", width: 350},
                                 {key:"commonNameSort", field:"commonName", sortable:true, label:"Common name"},
+                                {key:"highlight", field:"highlight", sortable:false, label:"Snippet"},
                                 {key:"rankId", field:"rank", label:"Rank", sortable: true}, // , minWidth: 100,width: 200
                                 {key:"score", field:"score", hidden:true, maxAutoWidth: 0}
                             ];

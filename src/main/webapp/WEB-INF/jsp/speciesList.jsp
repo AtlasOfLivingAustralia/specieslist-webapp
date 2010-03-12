@@ -14,7 +14,14 @@
     <!-- Combo-handled YUI JS files: -->
     <script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.0r4/build/yahoo/yahoo-debug.js&2.8.0r4/build/event/event-debug.js&2.8.0r4/build/connection/connection-debug.js&2.8.0r4/build/datasource/datasource-debug.js&2.8.0r4/build/dom/dom-debug.js&2.8.0r4/build/element/element-debug.js&2.8.0r4/build/paginator/paginator-debug.js&2.8.0r4/build/datatable/datatable-debug.js&2.8.0r4/build/history/history-debug.js&2.8.0r4/build/json/json-debug.js&2.8.0r4/build/logger/logger-debug.js"></script>
     <script type="text/javascript">
-        var contentModelMap = {};
+        $(document).ready(function() {
+            var facetLinksSize = $("ul#subnavlist li").size();
+            if (facetLinksSize == 0) {
+                // Hide an empty facet link list
+                $("#facetBar > h4").hide();
+                $("#facetBar #navlist").hide();
+            }
+        });
     </script>
     <title>Species Search</title>
 </head>
@@ -22,35 +29,36 @@
     <h1>Species Search Results</h1>
     <c:if test="${empty searchResults.taxonConcepts}"><p>Search for <span style="font-weight: bold"><c:out value="${query}"/></span> did not match any documents</p></c:if>
     <c:if test="${not empty searchResults.taxonConcepts}">
-        <%--<div id="facetBar">
-            <h4>Refine your results:</h4>
-            <ul id="navlist">
-                <c:if test="${not empty query}"><c:set var="queryParam">q=<c:out value="${query}" escapeXml="true"/></c:set></c:if>
-                <c:forEach var="facetResult" items="${searchResults.facetResults}">
-                    <li><span class="FieldName"><fmt:message key="facet.${facetResult.fieldName}"/></span></li>
-                    <ul id="subnavlist">
-                        <c:forEach var="fieldResult" items="${facetResult.fieldResult}">
-                            <li id="subactive">
-                                <script type="text/javascript">
-                                    // Add the document type's display names to a JS Map (used for catching bookmarked state)
-                                    contentModelMap['${fieldResult.label}'] = '<fmt:message key="fedora.${fieldResult.label}"/>';
-                                </script>
-                                <a href="${pageContext.request.contextPath}/species/search?fq=${facetResult.fieldName}:${fieldResult.label}&${queryParam}">
-                                    <fmt:message key="rank.${fieldResult.label}"/> (${fieldResult.count})</a>
-                            </li>
-                        </c:forEach>
-                    </ul>
-                </c:forEach>
-            </ul>
-        <br/>
-        <c:if test="${not empty facetQuery}">
-            <div id="removeFacet">
-                <h4>Displaying subset of results, restricted to: <span id="facetName">
-                        <fmt:message key="rank.${fn:substringAfter(facetQuery, 'Rank:')}"/></span></h4>
-                <p>&bull; <a href="../species/search?<c:out value="${queryParam}"/>">Return to full result list</a></p>
+            <div id="facetBar">
+                <h4>Refine your results:</h4>
+                <ul id="navlist">
+                    <c:if test="${not empty query}"><c:set var="queryParam">q=<c:out value="${query}" escapeXml="true"/></c:set></c:if>
+                    <c:forEach var="facetResult" items="${searchResults.facetResults}">
+                        <c:if test="${!fn:containsIgnoreCase(facetQuery, facetResult.fieldResult[0].label)}">
+                            <li><span class="FieldName"><fmt:message key="facet.${facetResult.fieldName}"/></span></li>
+                            <ul id="subnavlist">
+                                <c:forEach var="fieldResult" items="${facetResult.fieldResult}">
+                                    <%-- test to see if the current facet search is also a listed facet link --%>
+                                    <%--<c:if test="${!fn:containsIgnoreCase(facetQuery, fieldResult.label)}">--%>
+                                        <li id="subactive">
+                                            <a href="?fq=${facetResult.fieldName}:${fieldResult.label}&${queryParam}">
+                                                <fmt:message key="${facetResult.fieldName}.${fieldResult.label}"/> (${fieldResult.count})</a>
+                                        </li>
+                                    <%--</c:if>--%>
+                                </c:forEach>
+                            </ul>
+                        </c:if>
+                    </c:forEach>
+                </ul>
+            <br/>
+            <c:if test="${not empty facetQuery}">
+                <div id="removeFacet">
+                    <h4>Displaying subset of results, restricted to: <span id="facetName">
+                            <fmt:message key="rank.${fn:substringAfter(facetQuery, 'rank:')}"/></span></h4>
+                    <p>&bull; <a href="?<c:out value="${queryParam}"/>">Return to full result list</a></p>
+                </div>
+            </c:if>
             </div>
-        </c:if>
-        </div>--%>
         <div id="content" class="yui-skin-sam">
             <div class="datatable-summary">Search for <a href="?q=<c:out value='${query}'/>"><c:out value="${query}"/></a> 
                 returned <c:out value="${searchResults.totalRecords}"/> record<c:if test="${searchResults.totalRecords > 1}">s</c:if></div>
@@ -65,18 +73,13 @@
                 var searchQuery = '${queryJsEscaped}';
                 
                 if (searchQuery) {
-                    propertyName = "";
                     query = escape(searchQuery); // escape(this.utf8_encode(searchQuery));
                 } else {
-                    propertyName = "${propertyName}";
                     query = "${solrQuery}";
                 }
 
-                //var fq = "${facetQuery}";
-                //var ids = fq.split("=");
-                //facetQuery = ids[1];
                 facetQuery = "${facetQuery}";
-                loadDatatable(propertyName, query, facetQuery);
+                loadDatatable(query, facetQuery);
             </script>
         </div>
     </c:if>
