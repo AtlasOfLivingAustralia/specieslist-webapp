@@ -186,12 +186,19 @@ p > a.showHideLink {
     margin: 0;
 }
 #searchBox {
-    width: 40%;
+    width: 500px;
+    float: left;
     margin-top: 40px;
     margin-bottom: 20px;
     margin-left: auto;
     margin-right: auto;
     text-align: center;
+}
+#listsBox {
+    width: 400px;
+    float: right;
+    margin-top: 40px;
+    margin-bottom: 20px;
 }
 #searchBox input {
     font-size: 100%;
@@ -425,6 +432,17 @@ h4.divider {
     margin-top: 15px;
 }
 
+#exampleSeaches a {
+    font-style: italic;
+}
+
+table.datasets {
+    width:750px;
+}
+
+table.datasets td:first-child {
+    width: 75%;
+}
 /* YUI modifications */
 div.yui-dt > table {
     width: 100%;

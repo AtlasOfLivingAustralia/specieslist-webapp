@@ -197,6 +197,22 @@
 			<artifactId>javax.inject</artifactId>
 			<version>1</version>
 		</dependency>
+                <!-- Sun's Java Advance Imaging API -->
+                <dependency>
+                    <groupId>javax.media</groupId>
+                    <artifactId>jai-core</artifactId>
+                    <version>1.1.3</version>
+                </dependency>
+                <dependency>
+                    <groupId>javax.media</groupId>
+                    <artifactId>jai-codec</artifactId>
+                    <version>1.1.3</version>
+                </dependency>
+                <dependency>
+                    <groupId>javax.media</groupId>
+                    <artifactId>jai-imageio</artifactId>
+                    <version>1.1</version>
+                </dependency>
 		<!-- JSON -->
 		<dependency>
 			<groupId>atg</groupId>

@@ -1,4 +1,4 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+    <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -418,6 +418,41 @@
                             </c:forEach>
                         </table>
                     </c:if>
+                    <c:if test="${fn:length(extendedTaxonConcept.conservationStatuses) > 0 || fn:length(extendedTaxonConcept.pestStatuses) > 0}">
+                        <table class="propertyTable">
+                            <tr>
+                                <th></th>
+                                <%--<th></th>--%>
+                                <th></th>
+                            </tr>
+                            <c:forEach var="status" items="${extendedTaxonConcept.conservationStatuses}">
+                                <%--<c:if test="${fn:endsWith(textProperty.name, 'Status')}">--%>
+                                    <tr>
+                                        <td style="font-weight: inherit;"><b>Conservation Status</b>: ${fn:toLowerCase(status.status)}</td>
+                                        <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
+                                    </tr>
+                                <%--</c:if>--%>
+                            </c:forEach>
+                        <%--</table>
+                    </c:if>
+                    <c:if test="${fn:length(extendedTaxonConcept.pestStatuses) > 0}">
+                        <table class="propertyTable">
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>--%>
+                            <c:forEach var="status" items="${extendedTaxonConcept.pestStatuses}">
+                                <%--<c:if test="${fn:endsWith(textProperty.name, 'Status')}">--%>
+                                    <tr>
+                                        <td style="font-weight: inherit;"><b>Pest Status</b>: ${status.status}</td>
+                                        <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
+                                    </tr>
+                                <%--</c:if>--%>
+                            </c:forEach>
+                        </table>
+                    </c:if>
+
                     <c:if test="${fn:length(orderedDocuments) > 0 && fn:length(orderedProperties) > 0}">
                         <h4 class="divider" style="">Information from Other Sources<a name="properties"></a></h4>
                         <%--<div style="float:right;width:20%;margin-top:-35px;text-align:right;">(Alternative View: <a href="#view1" class="hideShow">1</a> |
