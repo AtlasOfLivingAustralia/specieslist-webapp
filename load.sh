@@ -1,33 +1,33 @@
-echo "running processing $('date')"
+echo "LOAD : running processing $('date')"
 
 mvn clean install jar:jar -Dmaven.test.skip=true
 
 mvn dependency:build-classpath
 
-export CLASSPATH=target/bie-hbase.jar:$(cat classpath.txt)
+export CLASSPATH=.:target/bie-hbase.jar:$(cat classpath.txt)
 
-echo "initialising HBase $('date')"
+echo "LOAD : initialising HBase $('date')"
 java -classpath $CLASSPATH org.ala.hbase.InitProfiler
 
-echo "creating loading indicies $('date')"
+echo "LOAD : creating loading indicies $('date')"
 java -classpath $CLASSPATH org.ala.lucene.CreateLoadingIndex
 
-echo "running ANBG data load $('date')"
+echo "LOAD : running ANBG data load $('date')"
 java -classpath $CLASSPATH org.ala.hbase.ANBGDataLoader
 
-echo "running Col Names Processing $('date')"
+echo "LOAD : running Col Names Processing $('date')"
 java -classpath $CLASSPATH org.ala.preprocess.ColFamilyNamesProcessor
 
-echo "running Repository Data Loader $('date')"
+echo "LOAD : running Repository Data Loader $('date')"
 java -classpath $CLASSPATH org.ala.hbase.RepoDataLoader
 
-echo "running Bio Cache Loader $('date')"
+echo "LOAD : running Bio Cache Loader $('date')"
 java -classpath $CLASSPATH org.ala.hbase.BioCacheLoader
 
-echo "running DwC Classification Loader $('date')"
+echo "LOAD : running DwC Classification Loader $('date')"
 java -classpath $CLASSPATH org.ala.hbase.DwcClassificationLoader
 
-echo "running Create Taxon Concept Index $('date')"
+echo "LOAD : running Create Taxon Concept Index $('date')"
 java -classpath $CLASSPATH org.ala.lucene.CreateTaxonConceptIndex
 
-echo "processing complete at $('date')"
+echo "LOAD : processing complete at $('date')"
