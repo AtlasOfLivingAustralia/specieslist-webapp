@@ -37,7 +37,7 @@ public class CreateLoadingIndex {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		logger.info("Starting the creating of temporary loading indicies...");
+		logger.info("Starting the creation of temporary loading indicies...");
 		LoadUtils l = new LoadUtils();
 		logger.info("Loading relationships...");
 		l.loadRelationships();
