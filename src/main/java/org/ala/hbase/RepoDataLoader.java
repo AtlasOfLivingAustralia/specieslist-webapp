@@ -100,6 +100,8 @@ public class RepoDataLoader {
 					
                     FileReader reader = new FileReader(currentFile);
                     List<Triple> triples = TurtleUtils.readTurtle(reader);
+                    //close the reader
+                    reader.close();
                     
                     String currentSubject = null;
                     List<Triple> splitBySubject = new ArrayList<Triple>();
