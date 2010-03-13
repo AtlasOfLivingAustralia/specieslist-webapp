@@ -20,7 +20,6 @@ import org.ala.dao.TaxonConceptDao;
 import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
 import org.ala.model.Region;
-import org.ala.util.LoadUtils;
 import org.ala.util.SpringUtils;
 import org.ala.util.TabReader;
 import org.apache.log4j.Logger;
@@ -58,11 +57,11 @@ public class BioCacheLoader {
 	 * @throws Exception
 	 */
 	private void load() throws Exception {
-		taxonConceptDao.setLuceneIndexLocation(LoadUtils.BASE_DIR + "taxonConcept");
+//		taxonConceptDao.setLuceneIndexLocation(LoadUtils.BASE_DIR + "taxonConcept");
 		
-//		loadRegions(FAMILY_REGION_OCCURRENCE);
-//		loadRegions(GENUS_REGION_OCCURRENCE);
-//		loadRegions(SPECIES_REGION_OCCURRENCE);
+		loadRegions(FAMILY_REGION_OCCURRENCE);
+		loadRegions(GENUS_REGION_OCCURRENCE);
+		loadRegions(SPECIES_REGION_OCCURRENCE);
 		
 		loadIrmngData(IRMNG_FAMILY_DATA);
 		loadIrmngData(IRMNG_GENUS_DATA);
