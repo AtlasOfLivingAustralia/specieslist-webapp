@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 import org.ala.lucene.LuceneUtils;
 import org.ala.model.TaxonConcept;
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -49,6 +50,8 @@ import org.apache.lucene.search.BooleanClause.Occur;
  */
 public class LoadUtils {
 
+	protected static Logger logger = Logger.getLogger(LoadUtils.class);
+	
 	public static final String BIE_STAGING_DIR = "/data/bie-staging/";
 	public static final String BASE_DIR = "/data/lucene/loading/";
 	public static final String TC_INDEX_DIR = BASE_DIR+"taxonConcept";
@@ -291,7 +294,7 @@ public class LoadUtils {
 			}
 	    	tr.close();
 			long finish = System.currentTimeMillis();
-	    	System.out.println(i+" loaded accepted guids, Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
+	    	logger.info(i+" loaded accepted guids, Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
 		} finally {
 			iw.close();
 		}
@@ -330,7 +333,7 @@ public class LoadUtils {
 			}
 	    	tr.close();
 			long finish = System.currentTimeMillis();
-	    	System.out.println(i+" loaded relationships, Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
+	    	logger.info(i+" loaded relationships, Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
 		} finally {
 			iw.close();
 		}
@@ -385,7 +388,7 @@ public class LoadUtils {
     	iw.close();
     	
     	long finish = System.currentTimeMillis();
-    	System.out.println(i+" indexed taxon concepts in: "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
+    	logger.info(i+" indexed taxon concepts in: "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
 	}
 
 //	/**
