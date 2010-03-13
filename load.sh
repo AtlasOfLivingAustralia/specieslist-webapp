@@ -19,7 +19,7 @@ echo "LOAD : running Col Names Processing $('date')"
 java -classpath $CLASSPATH org.ala.preprocess.ColFamilyNamesProcessor
 
 echo "LOAD : running Repository Data Loader $('date')"
-java -classpath $CLASSPATH org.ala.hbase.RepoDataLoader
+java -classpath $CLASSPATH -Xmx1g -Xms1g org.ala.hbase.RepoDataLoader
 
 echo "LOAD : running Bio Cache Loader $('date')"
 java -classpath $CLASSPATH org.ala.hbase.BioCacheLoader
