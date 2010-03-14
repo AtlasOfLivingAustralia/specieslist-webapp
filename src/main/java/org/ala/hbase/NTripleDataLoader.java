@@ -44,7 +44,7 @@ public class NTripleDataLoader {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		String defaultFilePath = "/data/dbpedia.txt";
+		String defaultFilePath = "/data/bie-staging/dbpedia/dbpedia.txt";
 		String filePath = null;
 		if(args.length==0){
 			filePath = defaultFilePath;
