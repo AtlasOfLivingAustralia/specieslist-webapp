@@ -17,6 +17,7 @@ package org.ala.dao;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -577,7 +578,10 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		etc.setPestStatuses(getPestStatus(row));
 		etc.setConservationStatuses(getConservationStatus(row));
 		etc.setImages(getImages(row));
-        etc.setTextProperties(getSimpleProperties(row));
+        // sort the list of SimpleProperties for display in UI
+        List<SimpleProperty> simpleProperties = getSimpleProperties(row);
+        Collections.sort(simpleProperties);
+        etc.setSimpleProperties(simpleProperties);
 		
 		//add taxonomic properties
 		
@@ -1222,14 +1226,16 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
             //add text properties
             List<SimpleProperty> simpleProperties = getSimpleProperties(rowResult);
             
-    		//create the lucene doc
-    		
+    		// save all infosource ids to add in a Set to index at the end
+    		TreeSet<String> infoSourceIds = new TreeSet<String>();
+            
     		//TODO this index should also include nub ids
     		Document doc = new Document();
+            
     		if(taxonConcept.nameString!=null){
     			
     			doc.add(new Field("guid", taxonConcept.guid, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
-    			
+    			infoSourceIds.add(taxonConcept.getInfoSourceId());
     			//add multiple forms of the scientific name to the index
     			LuceneUtils.addScientificNameToIndex(doc, taxonConcept.nameString);
 	    		
@@ -1243,6 +1249,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
                             Field f = new Field("conservationStatus", csTerm, Store.YES, Index.NOT_ANALYZED);
                             f.setBoost(0.6f);
                             doc.add(f);
+                            infoSourceIds.add(cs.getInfoSourceId());
                         }
                     }
                 }
@@ -1253,6 +1260,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
                             Field f = new Field("pestStatus", psTerm, Store.YES, Index.NOT_ANALYZED);
                             f.setBoost(0.6f);
                             doc.add(f);
+                            infoSourceIds.add(ps.getInfoSourceId());
                         }
                     }
                 }
@@ -1263,6 +1271,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
                         Field textField = new Field("simpleText", sp.getValue(), Store.YES, Index.ANALYZED);
                         textField.setBoost(0.4f);
                         doc.add(textField);
+                        infoSourceIds.add(sp.getInfoSourceId());
                     }
                 }
 
@@ -1271,6 +1280,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	    		for(CommonName cn: commonNames){
 	    			if(cn.nameString!=null){
 	    				commonNameSet.add(cn.nameString.toLowerCase());
+                        if (cn.getInfoSourceId()!=null) infoSourceIds.add(cn.getInfoSourceId());
                         //doc.add(new Field("commonName", cn.nameString.toLowerCase(), Store.YES, Index.ANALYZED));
                         //cnStr.append(cn.nameString.toLowerCase() + " ");
 	    			}
@@ -1296,12 +1306,15 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	                    addRankToIndex(taxonName, synonymDoc);
 	    				//add the synonym as a separate document
 	    				iw.addDocument(synonymDoc, analyzer);
+                        if (synonym.getInfoSourceId()!=null) infoSourceIds.add(synonym.getInfoSourceId()); // getting NPE
 	    			}
 	    		}
 	    		
                 addRankToIndex(taxonName, doc);
 	    		
     			doc.add(new Field("hasChildren", Boolean.toString(!children.isEmpty()), Store.YES, Index.NO));
+                
+                doc.add(new Field("dataset", StringUtils.join(infoSourceIds, " "), Store.YES, Index.ANALYZED_NO_NORMS));
 	    		
 		    	//add to index
 		    	iw.addDocument(doc, analyzer);

@@ -12,51 +12,54 @@
 <body>
     <h1>Dataset List</h1>
     <c:if test="${not empty infoSourcesSet1}">
-        <h3>Taxonomic datasets</h3>
+        <h3>&bull; Taxonomic datasets</h3>
         <table class="datasets">
             <tr>
                 <th>Dataset Name</th>
+                <th>View species</th>
                 <th>Number of documents</th>
             </tr>
             <c:forEach var="dataset" items="${infoSourcesSet1}">
                 <tr>
                     <td><a href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a></td>
-                    <td>###</td>
+                    <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}">view list</a></td>
+                    <td>${dataset.documentCount}</td>
                 </tr>
             </c:forEach>
-            
         </table>
     </c:if>
     <c:if test="${not empty infoSourcesSet3}">
-        <h3>Image Libraries</h3>
+        <h3>&bull; Image Libraries</h3>
         <table class="datasets">
             <tr>
                 <th>Dataset Name</th>
-                <th>Number of documents</th>
+                <th>Species</th>
+                <th>Images indexed</th>
             </tr>
             <c:forEach var="dataset" items="${infoSourcesSet3}">
                 <tr>
                     <td><a href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a></td>
-                    <td>###</td>
+                    <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}">view list</a></td>
+                    <td>${dataset.documentCount}</td>
                 </tr>
             </c:forEach>
-
         </table>
     </c:if>
     <c:if test="${not empty infoSourcesSet2}">
-        <h3>External Websites</h3>
+        <h3>&bull; External Websites</h3>
         <table class="datasets">
             <tr>
                 <th>Dataset Name</th>
-                <th>Number of documents</th>
+                <th>Species</th>
+                <th>Pages indexed</th>
             </tr>
             <c:forEach var="dataset" items="${infoSourcesSet2}">
                 <tr>
                     <td><a href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a></td>
-                    <td>###</td>
+                    <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}">view list</a></td>
+                    <td>${dataset.documentCount}</td>
                 </tr>
             </c:forEach>
-
         </table>
     </c:if>
 </body>

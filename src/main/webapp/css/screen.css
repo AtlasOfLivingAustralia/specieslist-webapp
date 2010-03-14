@@ -190,8 +190,8 @@ p > a.showHideLink {
     float: left;
     margin-top: 40px;
     margin-bottom: 20px;
-    margin-left: auto;
-    margin-right: auto;
+    /*margin-left: auto;
+    margin-right: auto;*/
     text-align: center;
 }
 #listsBox {
@@ -437,11 +437,12 @@ h4.divider {
 }
 
 table.datasets {
-    width:750px;
+    width: 750px;
+    margin-left: 15px;
 }
 
 table.datasets td:first-child {
-    width: 75%;
+    width: 60%;
 }
 /* YUI modifications */
 div.yui-dt > table {

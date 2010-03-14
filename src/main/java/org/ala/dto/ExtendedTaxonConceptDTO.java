@@ -39,7 +39,7 @@ public class ExtendedTaxonConceptDTO {
 	protected List<TaxonConcept> parentConcepts;
 	protected List<PestStatus> pestStatuses;
 	protected List<ConservationStatus> conservationStatuses;
-    protected List<SimpleProperty> textProperties;
+    protected List<SimpleProperty> simpleProperties;
 	protected List<Image> images;
 
 	/**
@@ -121,8 +121,8 @@ public class ExtendedTaxonConceptDTO {
 		return pestStatuses;
 	}
 	/**
-	 * @param pestStatus the pestStatus to set
-	 */
+     * @param pestStatuses
+     */
 	public void setPestStatuses(List<PestStatus> pestStatuses) {
 		this.pestStatuses = pestStatuses;
 	}
@@ -152,15 +152,15 @@ public class ExtendedTaxonConceptDTO {
 		this.images = images;
 	}
     /**
-     * @return the textProperties
+     * @return the simpleProperties
      */
-    public List<SimpleProperty> getTextProperties() {
-        return textProperties;
+    public List<SimpleProperty> getSimpleProperties() {
+        return simpleProperties;
     }
     /**
-     * @param textProperties the textProperties to set
+     * @param simpleProperties the simpleProperties to set
      */
-    public void setTextProperties(List<SimpleProperty> textProperties) {
-        this.textProperties = textProperties;
+    public void setSimpleProperties(List<SimpleProperty> simpleProperty) {
+        this.simpleProperties = simpleProperty;
     }
 }

@@ -16,7 +16,7 @@
         <h3>Search for Species and Taxa</h3>
         <%--<s:form action="/species/" namespace="search" method="GET" theme="simple">--%>
         <form method="GET">
-            <input name="q" size="30"/>
+            <input name="q" size="30"/>&nbsp;
             <input type="submit" value="Search"/>
         <%--</s:form>--%>
         </form>

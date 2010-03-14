@@ -316,6 +316,12 @@ public class TaxonConceptController {
         return searchResults;
     }
 
+    /**
+     * List of data sets
+     *
+     * @param model
+     * @return view name
+     */
     @RequestMapping(value = "/species/datasets", method = RequestMethod.GET)
     public String listDatasets (Model model)  {
         List<InfoSource> infoSourcesSet1 = infoSourceDAO.getByDatasetType(1);

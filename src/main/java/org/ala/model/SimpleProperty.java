@@ -14,6 +14,9 @@
  ***************************************************************************/
 package org.ala.model;
 
+import org.ala.repository.Predicates;
+import org.apache.log4j.Logger;
+
 /**
  * Bean representing a simple harvested property (key value pair), where the property name is
  * from a controlled vocabulary (see {@see org.ala.repository.Predicates})
@@ -21,7 +24,8 @@ package org.ala.model;
  * @author "Nick dos Remedios <Nick.dosRemedios@csiro.au>"
  */
 public class SimpleProperty extends AttributableObject implements Comparable<SimpleProperty> {
-
+    /** logger */
+    private final static Logger logger = Logger.getLogger(SimpleProperty.class);
 	/** The property name - using a controlled vocabulary ({@see org.ala.repository.Predicates}) */
 	protected String name;
 	/** The property value supplying the name e.g. IUCN */
@@ -59,10 +63,14 @@ public class SimpleProperty extends AttributableObject implements Comparable<Sim
 	
 	@Override
 	public int compareTo(SimpleProperty o) {
-		//
-		if(o.getValue()!=null && value!=null){
-			return o.getValue().compareTo(value);
-		}
+		/* convert name to a Predicates Enum type and use the category field to sort */
+        try {
+            Integer thisCat = Predicates.getForPredicate(this.name).getCategory();
+            Integer otherCat = Predicates.getForPredicate(o.getName()).getCategory();
+            return thisCat.compareTo(otherCat);
+        } catch (Exception e) {
+            logger.error("Could not find the Predicates enum constant for either: "+name+" or "+o.getName(), e);
+        }
 		return -1;
 	}
 

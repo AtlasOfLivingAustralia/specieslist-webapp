@@ -286,9 +286,9 @@
             </c:choose>
         </c:set>
         <div id="speciesHeader">
-            <c:if test="${fn:length(images) > 0}">
+            <c:if test="${fn:length(extendedTaxonConcept.images) > 0}">
                 <div id="speciesPhoto" class="cropBig">
-                    <img src="${images[0].photoSourceUrl}" style="/*max-width:250px;max-height:280px;*/" width="300"  alt="species photo"/>
+                    <img src="http://localhost${fn:replace(extendedTaxonConcept.images[0].repoLocation, "/data/bie", "/repository")}" style="/*max-width:250px;max-height:280px;*/" width="300"  alt="species photo"/>
                 </div>
             </c:if>
             <div id="speciesTitle">
@@ -400,19 +400,19 @@
                 </c:if>
                 <!-- Harvested Info -->
                 <div id="harvestedInfo">
-                    <c:if test="${fn:length(extendedTaxonConcept.textProperties) > 0}">
+                    <c:if test="${fn:length(extendedTaxonConcept.simpleProperties) > 0}">
                         <table class="propertyTable">
                             <tr>
                                 <th></th>
                                 <th></th>
                                 <th></th>
                             </tr>
-                            <c:forEach var="textProperty" items="${extendedTaxonConcept.textProperties}">
-                                <c:if test="${fn:endsWith(textProperty.name, 'Text') || fn:endsWith(textProperty.name, 'Status')}">
+                            <c:forEach var="simpleProperty" items="${extendedTaxonConcept.simpleProperties}">
+                                <c:if test="${fn:endsWith(simpleProperty.name, 'Text') || fn:endsWith(simpleProperty.name, 'Status')}">
                                     <tr>
-                                        <td style="font-weight: bold;"><fmt:message key="${fn:substringAfter(textProperty.name, '#')}"/></td>
-                                        <td>${textProperty.value}</td>
-                                        <td><a href="${textProperty.identifier}" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></td>
+                                        <td style="font-weight: bold;"><fmt:message key="${fn:substringAfter(simpleProperty.name, '#')}"/></td>
+                                        <td>${simpleProperty.value}</td>
+                                        <td><a href="${simpleProperty.identifier}" target="_blank" title="${simpleProperty.title}">${simpleProperty.infoSourceName}</a></td>
                                     </tr>
                                 </c:if>
                             </c:forEach>
@@ -426,7 +426,7 @@
                                 <th></th>
                             </tr>
                             <c:forEach var="status" items="${extendedTaxonConcept.conservationStatuses}">
-                                <%--<c:if test="${fn:endsWith(textProperty.name, 'Status')}">--%>
+                                <%--<c:if test="${fn:endsWith(simpleProperty.name, 'Status')}">--%>
                                     <tr>
                                         <td style="font-weight: inherit;"><b>Conservation Status</b>: ${fn:toLowerCase(status.status)}</td>
                                         <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
@@ -443,7 +443,7 @@
                                 <th></th>
                             </tr>--%>
                             <c:forEach var="status" items="${extendedTaxonConcept.pestStatuses}">
-                                <%--<c:if test="${fn:endsWith(textProperty.name, 'Status')}">--%>
+                                <%--<c:if test="${fn:endsWith(simpleProperty.name, 'Status')}">--%>
                                     <tr>
                                         <td style="font-weight: inherit;"><b>Pest Status</b>: ${status.status}</td>
                                         <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
