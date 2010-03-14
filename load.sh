@@ -30,4 +30,7 @@ java -classpath $CLASSPATH org.ala.hbase.DwcClassificationLoader
 echo "LOAD : running Create Taxon Concept Index $('date')"
 java -classpath $CLASSPATH org.ala.lucene.CreateTaxonConceptIndex
 
+echo "LOAD : running Create thumbnails $('date')"
+java -classpath $CLASSPATH org.ala.util.GenerateThumbnails /data/bie
+
 echo "LOAD : processing complete at $('date')"
