@@ -462,14 +462,14 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
-	 * Add this region to the Taxon Concept.
+	 * Add list of regions to the Taxon Concept.
 	 * 
 	 * @param guid
 	 * @param region
 	 * @throws Exception
 	 */
-	public void addRegion(String guid, Region region) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, REGION_COL, region, new TypeReference<List<Region>>(){});
+	public void addRegions(String guid, List<Region> regions) throws Exception {
+		HBaseDaoUtils.putComplexObject(getTable(), guid, TC_COL_FAMILY, REGION_COL, regions);
 	}
 	
 	/**
@@ -1374,9 +1374,20 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getExtantStatus(java.lang.String)
 	 */
 	@Override
-	public ExtantStatus getExtantStatus(String guid) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public List<ExtantStatus> getExtantStatuses(String guid) throws Exception {
+		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
+		return getExtantStatus(row);
+	}
+
+	private List<ExtantStatus> getExtantStatus(RowResult row) throws IOException,
+			JsonParseException, JsonMappingException {
+		Cell cell = row.get(Bytes.toBytes(EXTANT_STATUS_COL));
+		ObjectMapper mapper = new ObjectMapper();
+		if(cell!=null){
+			byte[] value = cell.getValue();
+			return mapper.readValue(value, 0, value.length, new TypeReference<List<ExtantStatus>>(){});
+		} 
+		return new ArrayList<ExtantStatus>();
 	}
 
 	/**
@@ -1384,8 +1395,19 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	@Override
 	public List<Habitat> getHabitats(String guid) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
+		return getHabitat(row);
+	}
+
+	private List<Habitat> getHabitat(RowResult row) throws IOException,
+			JsonParseException, JsonMappingException {
+		Cell cell = row.get(Bytes.toBytes(HABITAT_COL));
+		ObjectMapper mapper = new ObjectMapper();
+		if(cell!=null){
+			byte[] value = cell.getValue();
+			return mapper.readValue(value, 0, value.length, new TypeReference<List<Habitat>>(){});
+		} 
+		return new ArrayList<Habitat>();
 	}
 
 	/**
@@ -1395,7 +1417,6 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public void addExtantStatus(String guid, ExtantStatus extantStatus)
 			throws Exception {
 		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, EXTANT_STATUS_COL, extantStatus, new TypeReference<List<ExtantStatus>>() {});
-		
 	}
 
 	/**
@@ -1404,5 +1425,25 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	@Override
 	public void addHabitat(String guid, Habitat habitat) throws Exception {
 		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, HABITAT_COL, habitat, new TypeReference<List<Habitat>>() {});
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getRegions(java.lang.String)
+	 */
+	@Override
+	public List<Region> getRegions(String guid) throws Exception {
+		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
+		return getRegion(row);
+	}
+
+	private List<Region> getRegion(RowResult row) throws IOException,
+			JsonParseException, JsonMappingException {
+		Cell cell = row.get(Bytes.toBytes(REGION_COL));
+		ObjectMapper mapper = new ObjectMapper();
+		if(cell!=null){
+			byte[] value = cell.getValue();
+			return mapper.readValue(value, 0, value.length, new TypeReference<List<Region>>(){});
+		} 
+		return new ArrayList<Region>();
 	}
 }
