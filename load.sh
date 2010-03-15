@@ -19,7 +19,7 @@ echo "LOAD : running Col Names Processing $('date')"
 java -classpath $CLASSPATH org.ala.preprocess.ColFamilyNamesProcessor
 
 echo "LOAD : running Repository Data Loader $('date')"
-java -classpath $CLASSPATH -Xmx1g -Xms1g org.ala.hbase.RepoDataLoader
+java -Xmx1g -Xms1g -classpath $CLASSPATH -Xmx1g -Xms1g org.ala.hbase.RepoDataLoader
 
 echo "LOAD : running Bio Cache Loader $('date')"
 java -classpath $CLASSPATH org.ala.hbase.BioCacheLoader
@@ -29,8 +29,5 @@ java -classpath $CLASSPATH org.ala.hbase.DwcClassificationLoader
 
 echo "LOAD : running Create Taxon Concept Index $('date')"
 java -classpath $CLASSPATH org.ala.lucene.CreateTaxonConceptIndex
-
-echo "LOAD : running Create thumbnails $('date')"
-java -classpath $CLASSPATH org.ala.util.GenerateThumbnails /data/bie
 
 echo "LOAD : processing complete at $('date')"
