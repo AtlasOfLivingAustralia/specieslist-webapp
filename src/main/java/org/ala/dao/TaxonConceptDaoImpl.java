@@ -378,14 +378,14 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 
     /**
-	 * @see org.ala.dao.ITaxonConceptDao#getSimplePropertiesFor(java.lang.String)
+	 * @see org.ala.dao.ITaxonConceptDao#getTextPropertiesFor(java.lang.String)
 	 */
-	public List<SimpleProperty> getSimplePropertiesFor(String guid) throws Exception {
+	public List<SimpleProperty> getTextPropertiesFor(String guid) throws Exception {
 		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
-		return getSimpleProperties(row);
+		return getTextProperties(row);
 	}
 
-	private List<SimpleProperty> getSimpleProperties(RowResult row) throws IOException,
+	private List<SimpleProperty> getTextProperties(RowResult row) throws IOException,
 			JsonParseException, JsonMappingException {
 		Cell cell = row.get(Bytes.toBytes(TEXT_PROPERTY_COL));
 		ObjectMapper mapper = new ObjectMapper();
@@ -579,7 +579,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		etc.setConservationStatuses(getConservationStatus(row));
 		etc.setImages(getImages(row));
         // sort the list of SimpleProperties for display in UI
-        List<SimpleProperty> simpleProperties = getSimpleProperties(row);
+        List<SimpleProperty> simpleProperties = getTextProperties(row);
         Collections.sort(simpleProperties);
         etc.setSimpleProperties(simpleProperties);
 		
@@ -1224,7 +1224,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     		List<PestStatus> pestStatuses = getPestStatus(rowResult);
 
             //add text properties
-            List<SimpleProperty> simpleProperties = getSimpleProperties(rowResult);
+            List<SimpleProperty> simpleProperties = getTextProperties(rowResult);
             
     		// save all infosource ids to add in a Set to index at the end
     		TreeSet<String> infoSourceIds = new TreeSet<String>();
