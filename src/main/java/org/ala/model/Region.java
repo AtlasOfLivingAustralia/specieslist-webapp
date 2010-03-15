@@ -43,6 +43,20 @@ public class Region extends AttributableObject implements Comparable<Region> {
 	}
 
 	/**
+	 * @return the regionId
+	 */
+	public String getRegionId() {
+		return this.regionId;
+	}
+
+	/**
+	 * @param regionId the regionId to set
+	 */
+	public void setRegionId(String regionId) {
+		this.regionId = regionId;
+	}
+
+	/**
 	 * Default constructor
 	 */
 	public Region() {
