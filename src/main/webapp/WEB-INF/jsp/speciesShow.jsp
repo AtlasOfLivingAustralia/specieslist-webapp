@@ -400,19 +400,19 @@
                 </c:if>
                 <!-- Harvested Info -->
                 <div id="harvestedInfo">
-                    <c:if test="${fn:length(extendedTaxonConcept.simpleProperties) > 0}">
+                    <c:if test="${fn:length(extendedTaxonConcept.textProperties) > 0}">
                         <table class="propertyTable">
                             <tr>
                                 <th></th>
                                 <th></th>
                                 <th></th>
                             </tr>
-                            <c:forEach var="simpleProperty" items="${extendedTaxonConcept.simpleProperties}">
-                                <c:if test="${fn:endsWith(simpleProperty.name, 'Text') || fn:endsWith(simpleProperty.name, 'Status')}">
+                            <c:forEach var="textProperty" items="${extendedTaxonConcept.textProperties}">
+                                <c:if test="${fn:endsWith(textProperty.name, 'Text') || fn:endsWith(textProperty.name, 'Status')}">
                                     <tr>
-                                        <td style="font-weight: bold;"><fmt:message key="${fn:substringAfter(simpleProperty.name, '#')}"/></td>
-                                        <td>${simpleProperty.value}</td>
-                                        <td><a href="${simpleProperty.identifier}" target="_blank" title="${simpleProperty.title}">${simpleProperty.infoSourceName}</a></td>
+                                        <td style="font-weight: bold;"><fmt:message key="${fn:substringAfter(textProperty.name, '#')}"/></td>
+                                        <td>${textProperty.value}</td>
+                                        <td><a href="${textProperty.identifier}" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></td>
                                     </tr>
                                 </c:if>
                             </c:forEach>
