@@ -338,67 +338,6 @@ public class TaxonConceptController {
      *
      * @param image
      * @param maxSize
-     * @param interp
-     * @return
-     */
-    protected BufferedImage jaiScaleImage(BufferedImage image, int maxSize, boolean square, Interpolation interp) {
-        //System.out.println("JAI Scaling image to: " + maxSize);
-        PlanarImage pi = new RenderedImageAdapter(image);
-        int w = pi.getWidth();
-        int h = pi.getHeight();
-        float ratio = 0f;
-        float scaleFactor = 1.0f;
-        float cropBy = 0f; //maxSize / 2;
-        float cropX = 0f;
-        float cropY = 0f;
-
-        if (w > h) {
-            scaleFactor = ((float) maxSize / (float) w);
-            int tmp = (int) (maxSize / ((float) w / (float) h));
-            cropBy = (float) tmp; // forces rounding down of float
-            int croptTmp = (int) ((float) (w * scaleFactor) - cropBy) / 2;
-            cropX = (float) croptTmp;
-            System.out.println("cropBy: "+cropBy+"|"+w+"|"+cropX);
-        } else {
-            scaleFactor = ((float) maxSize / (float) h);
-            int tmp = (int) (maxSize / ((float) h / (float) w));
-            cropBy = (float) tmp; // forces rounding down of float
-            int croptTmp = (int) ((float) (h * scaleFactor) - cropBy) / 2;
-            cropY = (float) croptTmp;
-        }
-
-        // scale image
-        ParameterBlock pb = new ParameterBlock();
-        pb.addSource(pi);
-        pb.add(scaleFactor);
-        pb.add(scaleFactor);
-        pb.add(0f);
-        pb.add(0f);
-        pb.add(interp);
-        pi = JAI.create("scale", pb);
-        
-        if (square) {
-            // crop image to a square
-            int w1 = pi.getWidth();
-            int h1 = pi.getHeight();
-            ParameterBlockJAI params = new ParameterBlockJAI("crop");
-            params.addSource(pi);
-            params.setParameter("x", cropX);
-            params.setParameter("y", cropY); // new Integer(pi.getMinY()).floatValue()
-            params.setParameter("width", cropBy);
-            params.setParameter("height", cropBy);
-            pi = JAI.create("crop",params);
-        }
-        
-        return pi.getAsBufferedImage();
-    }
-
-    /**
-     * Thumbnail image generator, taken from
-     * http://www.hanhuy.com/pfn/java-image-thumbnail-comparison;jsessionid=ED2CFDFF9B3A32CB89F1A15656902B44?page=2
-     *
-     * @param image
-     * @param maxSize
      * @param hint
      * @return
      */
@@ -451,7 +390,6 @@ public class TaxonConceptController {
             cropBy = (float) tmp; // forces rounding down of float
             int croptTmp = (int) ((float) (w * scaleFactor) - cropBy) / 2;
             cropX = (float) croptTmp;
-            System.out.println("cropBy: " + cropBy + "|" + w + "|" + cropX);
         } else {
             scaleFactor = ((float) scale / (float) h);
             int tmp = (int) (scale / ((float) h / (float) w));
