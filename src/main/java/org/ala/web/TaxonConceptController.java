@@ -324,13 +324,8 @@ public class TaxonConceptController {
      */
     @RequestMapping(value = "/species/datasets", method = RequestMethod.GET)
     public String listDatasets (Model model)  {
-        List<InfoSource> infoSourcesSet1 = infoSourceDAO.getByDatasetType(1);
-        List<InfoSource> infoSourcesSet2 = infoSourceDAO.getByDatasetType(2);
-        List<InfoSource> infoSourcesSet3 = infoSourceDAO.getByDatasetType(3);
-
-        model.addAttribute("infoSourcesSet1", infoSourcesSet1);
-        model.addAttribute("infoSourcesSet2", infoSourcesSet2);
-        model.addAttribute("infoSourcesSet3", infoSourcesSet3);
+        List<InfoSource> infoSources = infoSourceDAO.getAllByDatasetType();
+        model.addAttribute("infoSources", infoSources);
 
         return DATASET_LIST;
     }

@@ -442,7 +442,7 @@ table.datasets {
 }
 
 table.datasets td:first-child {
-    width: 60%;
+    width: 70%;
 }
 /* YUI modifications */
 div.yui-dt > table {
