@@ -89,7 +89,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public ExtantStatus getExtantStatus(String guid)
+	public List<ExtantStatus> getExtantStatuses(String guid)
 			throws Exception;
 
 	/**
@@ -461,11 +461,4 @@ public interface TaxonConceptDao {
 	 */
 	public List<Classification> getClassifications(String guid) throws Exception;
 	
-	/**
-	 * Sets a new Lucene IndexSearcher for the supplied index directory.
-	 * 
-	 * @param indexDir the location of the lucene index
-	 * @throws Exception
-	 */
-	public void setLuceneIndexLocation(String indexDir) throws Exception;
 }
