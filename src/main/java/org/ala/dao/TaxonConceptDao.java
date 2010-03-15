@@ -102,6 +102,14 @@ public interface TaxonConceptDao {
 	public List<Habitat> getHabitats(String guid)
 			throws Exception;
 	
+    /**
+     * Retreive the region(s) associated with this taxon concept.
+     * @param guid
+     * @return
+     * @throws Exception
+     */
+    public List<Region> getRegions(String guid) throws Exception;
+    
 	/**
 	 * Retrieve the child concepts for the Taxon Concept with the supplied guid.
 	 *
@@ -216,13 +224,13 @@ public interface TaxonConceptDao {
 			throws Exception;
 
 	/**
-	 * Add this region to the Taxon Concept.
+	 * Add this list of regions to the Taxon Concept.
 	 *
 	 * @param guid
-	 * @param region
+	 * @param regions
 	 * @throws Exception
 	 */
-	public void addRegion(String guid, Region region) 
+	public void addRegions(String guid, List<Region> regions) 
 			throws Exception;
 
 	/**
