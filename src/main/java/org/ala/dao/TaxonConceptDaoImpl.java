@@ -38,6 +38,7 @@ import org.ala.model.ConservationStatus;
 import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
 import org.ala.model.Image;
+import org.ala.model.Reference;
 import org.ala.model.Region;
 import org.ala.model.PestStatus;
 import org.ala.model.Rank;
@@ -116,6 +117,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	private static final String IS_PARENT_COL_OF = "tc:IsParentTaxonOf";
     private static final String TEXT_PROPERTY_COL = "tc:hasTextProperty";
     private static final String CLASSIFICATION_COL = "tc:hasClassification";
+    private static final String REFERENCE_COL = "tc:hasReference";
 
     private static final String TC_COL_FAMILY = "tc:";
     private static final String RAW_COL_FAMILY = "raw:";
@@ -1346,6 +1348,13 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		        doc.add(new Field("rankId", Rank.TAXSUPRAGEN.getId().toString(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
 		    }
 		}
+	}
+	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#addReference(org.ala.model.Reference)
+	 */
+	public void addReference(String guid, Reference reference) throws Exception {
+		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, REFERENCE_COL, reference, new TypeReference<List<Reference>>() {});
 	}
 	
 	/**

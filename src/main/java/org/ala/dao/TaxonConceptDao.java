@@ -26,6 +26,7 @@ import org.ala.model.ConservationStatus;
 import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
 import org.ala.model.Image;
+import org.ala.model.Reference;
 import org.ala.model.Region;
 import org.ala.model.PestStatus;
 import org.ala.model.SimpleProperty;
@@ -461,4 +462,11 @@ public interface TaxonConceptDao {
 	 */
 	public List<Classification> getClassifications(String guid) throws Exception;
 	
+	/**
+	 * Adds a (literature) reference to this taxon.
+	 * 
+	 * @param reference
+	 */
+	public void addReference(String guid, Reference reference) throws Exception;
+
 }
