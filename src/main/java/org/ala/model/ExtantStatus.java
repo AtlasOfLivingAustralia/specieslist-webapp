@@ -59,6 +59,22 @@ public class ExtantStatus extends AttributableObject implements Comparable<Extan
 	public void setStatus(String status) {
 		this.status = status;
 	}
+	
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		if (this.status.equalsIgnoreCase("E")) {
+			return "Extant";
+		} else if (this.status.equalsIgnoreCase("F")) {
+			return "Fossil";
+		} else if (this.status.equalsIgnoreCase("EF")) {
+			return "Extand and Fossil";
+		} else {
+			return "???";
+		}
+	}
 
 	/*
 	 * (non-Javadoc)

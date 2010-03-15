@@ -60,6 +60,22 @@ public class Habitat extends AttributableObject implements Comparable<Habitat> {
 		this.status = status;
 	}
 
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		if (this.status.equalsIgnoreCase("M")) {
+			return "Marine";
+		} else if (this.status.equalsIgnoreCase("N")) {
+			return "Non-marine";
+		} else if (this.status.equalsIgnoreCase("MN")) {
+			return "Marine and Non-marine";
+		} else {
+			return "???";
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
