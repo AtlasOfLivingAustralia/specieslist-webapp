@@ -5,4 +5,5 @@ select t.TitleID, t.FullTitle, t.ShortTitle, i.ItemID, p.PageID, pn.NameConfirme
 from BHL.dbo.Item i
 inner join BHL.dbo.Title t ON i.PrimaryTitleID = t.TitleID
 inner join BHL.dbo.Page p ON p.ItemID = i.ItemID
-inner join BHL.dbo.PageName pn  ON p.PageID = pn.PageID;
+inner join BHL.dbo.PageName pn  ON p.PageID = pn.PageID
+order by i.ItemID, pn.NameConfirmed, p.PageID;
