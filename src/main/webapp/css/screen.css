@@ -204,7 +204,7 @@ p > a.showHideLink {
     font-size: 100%;
 }
 #portalInfo, #portalBookmark {
-    display: none;
+    /*display: none;*/
 }
 #portalInfo > div#left {
     width: 350px;
@@ -353,7 +353,7 @@ ul.compact {
 /* Facet links */
 #facetBar {
     float: right;
-    width: 280px;
+    width: 200px;
     padding: 10px;
     margin-top: -16px;
 }
@@ -424,7 +424,7 @@ table.propertyTable {
 }
 div#results {
     margin-top: 20px;
-    width: 640px;
+    width: 720px;
 }
 h4.divider {
     border-top: 2px solid #DDD;
@@ -519,7 +519,7 @@ div#content div.yui-pg-container span.yui-pg-next {
 }
 div.datatable-summary {
     width: 635px;
-    text-align: center;
+    /*text-align: center;*/
     margin-top: -6px;
     margin-bottom: -14px;
 }

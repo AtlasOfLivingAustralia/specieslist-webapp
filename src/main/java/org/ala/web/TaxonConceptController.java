@@ -140,6 +140,7 @@ public class TaxonConceptController {
             @RequestParam(value="results", required=false, defaultValue ="10") Integer pageSize,
             @RequestParam(value="sort", required=false, defaultValue="score") String sortField,
             @RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
+            @RequestParam(value="title", required=false, defaultValue ="Species Search Results") String title,
             Model model) throws Exception {
         if (query == null) {
             return SPECIES_SEARCH;
@@ -148,6 +149,7 @@ public class TaxonConceptController {
         String queryJsEscaped = StringEscapeUtils.escapeJavaScript(query);
         model.addAttribute("query", query);
         model.addAttribute("queryJsEscaped", queryJsEscaped);
+        model.addAttribute("title", StringEscapeUtils.escapeJavaScript(title));
         String filterQueryChecked = (filterQuery == null) ? "" : filterQuery;
         model.addAttribute("facetQuery", filterQueryChecked);
 

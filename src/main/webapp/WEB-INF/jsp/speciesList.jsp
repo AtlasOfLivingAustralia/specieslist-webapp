@@ -26,7 +26,7 @@
     <title>Species Search</title>
 </head>
 <body>
-    <h1>Species Search Results</h1>
+    <h1>${title}</h1>
     <c:if test="${empty searchResults.taxonConcepts}"><p>Search for <span style="font-weight: bold"><c:out value="${query}"/></span> did not match any documents</p></c:if>
     <c:if test="${not empty searchResults.taxonConcepts}">
             <div id="facetBar">

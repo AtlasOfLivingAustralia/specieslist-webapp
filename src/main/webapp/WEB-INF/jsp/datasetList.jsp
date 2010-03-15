@@ -23,7 +23,7 @@
                 <c:if test="${fn:contains(dataset.datasetType, '1')}">
                     <tr>
                         <td><a href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a></td>
-                        <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}">view list</a></td>
+                        <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">view list</a></td>
                         <td><c:if test="${dataset.documentCount == 0}">N/A</c:if><c:if test="${dataset.documentCount != 0}">${dataset.documentCount}</c:if></td>
                     </tr>
                 </c:if>
@@ -42,7 +42,7 @@
                 <c:if test="${fn:contains(dataset.datasetType, '3')}">
                     <tr>
                         <td><a href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a></td>
-                        <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}">view list</a></td>
+                        <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">view list</a></td>
                         <td>${dataset.documentCount}</td>
                     </tr>
                 </c:if>
@@ -61,7 +61,7 @@
                 <c:if test="${fn:contains(dataset.datasetType, '2')}">
                     <tr>
                         <td><a href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a></td>
-                        <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}">view list</a></td>
+                        <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">view list</a></td>
                         <td>${dataset.documentCount}</td>
                     </tr>
                 </c:if>

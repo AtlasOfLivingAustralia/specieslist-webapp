@@ -40,7 +40,7 @@
                             // Column definitions
                             var myColumnDefs = [
                                 //{key:"ContentModel", field:"contentModelLabel", label:"Type", sortable: true, minWidth: 100},
-                                {key:"scientificNameRaw", field:"nameString", sortable:true, label:"Scientific name", formatter:formatTitleUrl}, // width: 350 , formatter:formatTitleUrl
+                                {key:"scientificNameRaw", field:"nameString", sortable:true, label:"Scientific name", formatter:formatTitleUrl, width: 300}, // width: 350 , formatter:formatTitleUrl
                                 //{key:"acceptedConceptName", field:"acceptedConceptName", sortable:false, label:"is synonym for", width: 350},
                                 {key:"commonNameSort", field:"commonName", sortable:true, label:"Common name"},
                                 {key:"highlight", field:"highlight", sortable:false, label:"Snippet"},

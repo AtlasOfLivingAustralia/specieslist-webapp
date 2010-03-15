@@ -68,7 +68,7 @@
                         $("#occurrenceCount").html(occurrenceCount);
                         $("a#occurrenceTableLink").attr("href", occurrenceTableUrl);
                         $("#portalBookmark").fadeIn();
-                        $("#portalInfo").slideDown();
+                        //$("#portalInfo").slideDown();
                         loadMap(scientificName,scientificNameId);
                         //loadSpeciesRdf(scientificNameUrl);
                     } else {
@@ -363,9 +363,13 @@
         </div>
         <div id="tabs" class="yui-navset" style="clear: both;">
             <ul class="yui-nav">
-                <li class="selected"><a href="#harvestedInfo"><em>Information</em></a></li>
+                <c:if test="${fn:length(extendedTaxonConcept.simpleProperties) > 0}">
+                    <li class="selected"><a href="#harvestedInfo"><em>Information</em></a></li>
+                </c:if>
                 <li><a href="#portalInfo"><em>Distribution Map</em></a></li>
-                <li><a href="#images"><em>Images</em></a></li>
+                <c:if test="${fn:length(extendedTaxonConcept.images) > 0}">
+                    <li><a href="#images"><em>Images</em></a></li>
+                </c:if>
             </ul>
             <div id="yui-box" class="yui-content">
                 <!-- Other taxon names (usually empty) -->
@@ -400,24 +404,6 @@
                 </c:if>
                 <!-- Harvested Info -->
                 <div id="harvestedInfo">
-                    <c:if test="${fn:length(extendedTaxonConcept.textProperties) > 0}">
-                        <table class="propertyTable">
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                            </tr>
-                            <c:forEach var="textProperty" items="${extendedTaxonConcept.textProperties}">
-                                <c:if test="${fn:endsWith(textProperty.name, 'Text') || fn:endsWith(textProperty.name, 'Status')}">
-                                    <tr>
-                                        <td style="font-weight: bold;"><fmt:message key="${fn:substringAfter(textProperty.name, '#')}"/></td>
-                                        <td>${textProperty.value}</td>
-                                        <td><a href="${textProperty.identifier}" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></td>
-                                    </tr>
-                                </c:if>
-                            </c:forEach>
-                        </table>
-                    </c:if>
                     <c:if test="${fn:length(extendedTaxonConcept.conservationStatuses) > 0 || fn:length(extendedTaxonConcept.pestStatuses) > 0}">
                         <table class="propertyTable">
                             <tr>
@@ -429,7 +415,7 @@
                                 <%--<c:if test="${fn:endsWith(simpleProperty.name, 'Status')}">--%>
                                     <tr>
                                         <td style="font-weight: inherit;"><b>Conservation Status</b>: ${fn:toLowerCase(status.status)}</td>
-                                        <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
+                                        <td>Source: <a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
                                     </tr>
                                 <%--</c:if>--%>
                             </c:forEach>
@@ -446,87 +432,31 @@
                                 <%--<c:if test="${fn:endsWith(simpleProperty.name, 'Status')}">--%>
                                     <tr>
                                         <td style="font-weight: inherit;"><b>Pest Status</b>: ${status.status}</td>
-                                        <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
+                                        <td>Source: <a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
                                     </tr>
                                 <%--</c:if>--%>
                             </c:forEach>
                         </table>
                     </c:if>
-
-                    <c:if test="${fn:length(orderedDocuments) > 0 && fn:length(orderedProperties) > 0}">
-                        <h4 class="divider" style="">Information from Other Sources<a name="properties"></a></h4>
-                        <%--<div style="float:right;width:20%;margin-top:-35px;text-align:right;">(Alternative View: <a href="#view1" class="hideShow">1</a> |
-                            <a href="#view2" class="hideShow">2</a>)
-                        </div>--%>
-                        <div id="view2">
-                            <c:forEach items="${orderedDocuments}" var="orderedDocument">
-                                <div id="harvestedProperties">
-                                    <p id="sourceTitle">${orderedDocument.infoSourceName} &ndash; <a href="${orderedDocument.sourceUrl}">${orderedDocument.sourceTitle} </a></p>
-                                    <table class="propertyTable">
-                                        <c:forEach var="categorisedProperties" items="${orderedDocument.categorisedProperties}">
-                                            <c:if test="${categorisedProperties.category.name!='0Taxonomic' && categorisedProperties.category.name!='Media'}">
-                                                <!--<p>${categorisedProperties.category.name}</p>-->
-                                                <c:forEach var="entry" items="${categorisedProperties.propertyMap}">
-                                                    <c:if test="${fn:length(entry.value) > 1}">
-                                                        <tr><%--<s:set var="entryKey">${entry.key}</s:set>--%>
-                                                        <td class="propertyName"><fmt:message key="${entry.key}"/></td>
-                                                            <td>${entry.value}</td>
-                                                        </tr>
-                                                    </c:if>
-                                                </c:forEach>
-                                            </c:if>
-                                        </c:forEach>
-                                    </table>
-                                </div>
-                            </c:forEach>
-                        </div>
-                        <div id="view1">
-                            <div id="harvestedProperties">
-                                <table class="propertyTable">
+                    <c:if test="${fn:length(extendedTaxonConcept.simpleProperties) > 0}">
+                        <table class="propertyTable">
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                            <c:forEach var="textProperty" items="${extendedTaxonConcept.simpleProperties}">
+                                <c:if test="${fn:endsWith(textProperty.name, 'Text') || fn:endsWith(textProperty.name, 'Status')}">
                                     <tr>
-                                        <th>Property</th>
-                                        <th>Value</th>
-                                        <th>Source</th>
+                                        <td style="font-weight: bold;"><fmt:message key="${fn:substringAfter(textProperty.name, '#')}"/></td>
+                                        <td>${textProperty.value}</td>
+                                        <td><a href="${textProperty.identifier}" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></td>
                                     </tr>
-                                    <c:forEach items="${orderedProperties}" var="orderedProperty">
-                                        <tr class="${orderedProperty.category.name}">
-                                            <td class="propertyName">
-                                                <%--<s:set var="propertyName2">${orderedProperty.propertyName}</s:set>--%>
-                                                <fmt:message key="${orderedProperty.propertyName}"/>
-                                            </td>
-                                            <td>
-                                                 <c:choose>
-                                                    <c:when test="${fn:startsWith(orderedProperty.propertyValue, 'http') && orderedProperty.propertyName == 'rdf.hasImageUrl'}">
-                                                        <a href="${orderedProperty.propertyValue}" target="_blank" class="popup" title="${taxonConceptTitle}">${orderedProperty.propertyValue}</a>
-                                                    </c:when>
-                                                    <c:when test="${fn:startsWith(orderedProperty.propertyValue, 'http')}">
-                                                        <a href="${orderedProperty.propertyValue}" target="_blank">${orderedProperty.propertyValue}</a>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        ${orderedProperty.propertyValue}
-                                                    </c:otherwise>
-                                                 </c:choose>
-                                            </td>
-                                            <td style="white-space: nowrap;">
-                                                <c:choose>
-                                                    <c:when test="${fn:length(orderedProperty.sources) > 1}">
-                                                        <ul class="compact">
-                                                        <c:forEach items="${orderedProperty.sources}" var="source">
-                                                            <li><a href="${source.sourceUrl}" target="_blank">${source.infoSourceName}</a><br/></li>
-                                                        </c:forEach>
-                                                        </ul>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <a href="${orderedProperty.sources[0].sourceUrl}" target="_blank">${orderedProperty.sources[0].infoSourceName}</a>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </td>
-                                        </tr>
-                                    </c:forEach>
-                                </table>
-                            </div>
-                        </div>
+                                </c:if>
+                            </c:forEach>
+                        </table>
                     </c:if>
+
                 </div>
                 <!-- Map -->
                 <div id="portalInfo">
@@ -571,56 +501,12 @@
                 <c:if test="${fn:length(extendedTaxonConcept.images) > 0}">
                     <div id="images">
                         <h4 class="divider">Images<a name="images">&nbsp;</a></h4>
-                        <%--<div id="gallery" class="content">
-                            <div id="controls" class="controls"></div>
-                            <div class="slideshow-container">
-                                    <div id="loading" class="loader"></div>
-                                    <div id="slideshow" class="slideshow"></div>
-                            </div>
-                            <div id="caption" class="caption-container"></div>
-                        </div>
-                        <div id="thumbs" class="navigation">
-
-                            <ul class="thumbs noscript">
-                                <c:forEach items="${images}" var="image">
-                                <li>
-                                    <a class="thumb" name="optionalCustomIdentifier" href="${image.photoSourceUrl}" title="${image.title}">
-                                        <img src="${image.photoSourceUrl}" alt="${image.title}" width="75" height="75"/>
-                                    </a>
-                                    <div class="caption">${image.description}</div>
-                                </li>
-                                </c:forEach>
-                            </ul>
-                        </div>
-                        <div style="clear: both;"></div>--%>
-
-                        <table class ="propertyTable" style="display: none">
-                            <!-- Table headings. -->
-                            <tr>
-                                <th>Title</th>
-                                <%--<th>Desciption</th>--%>
-                                <th>Source</th>
-                                <th>Thumbnail</th>
-                            </tr>
-                            <!-- Dynamic table content. -->
-                            <c:forEach var="image" items="${extendedTaxonConcept.images}">
-                                <tr>
-                                    <td><a href="title" class="docId" target="_blank" title="${image.documentId}">${image.documentId}</a></td>
-                                    <%--<td>${image.description}</td>--%>
-                                    <td><a href="source" class="docId" target="_blank" title="${image.documentId}">${image.documentId}</a>
-                                    </td>
-                                    <td class="crop">
-                                        <a href="http://localhost${fn:replace(image.repoLocation, "/data/bie", "/repository")}" class="image" target="_blank" title="<%--${image.title}--%>"><img src="http://localhost${fn:replace(image.repoLocation, "/data/bie", "/repository")}" width="120" /></a>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </table>
-                        <div id="photos" class="galleryview">
-                        <c:forEach var="image" items="${extendedTaxonConcept.images}">
+                         <div id="photos" class="galleryview">
+                        <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
                             <div class="panel" style="text-align: center;">
-                                <img src="http://localhost${fn:replace(image.repoLocation, "/data/bie", "/repository")}" /> 
+                                <img src="http://${pageContext.request.serverName}:80${fn:replace(image.repoLocation, "/data/bie", "/repository")}" />
                                 <div class="panel-overlay">
-                                    Title: <a href="${image.identifier}" target="_blank">${image.title}</a>
+                                    Image ${status.count}: <a href="${image.identifier}" target="_blank">${image.title}</a>
                                     <br/>
                                     Source: <a href="${image.infoSourceURL}" target="_blank">${image.infoSourceName}</a>
                                 </div>
