@@ -172,14 +172,14 @@ public class ExtendedTaxonConceptDTO {
 	/**
 	 * @return the regions
 	 */
-	public List<Region> getRegions() {
-		return this.regions;
+	public List<RegionTypeDTO> getRegionTypes() {
+		return this.regionTypes;
 	}
 	/**
 	 * @param regions the regions to set
 	 */
-	public void setRegions(List<Region> regions) {
-		this.regions = regions;
+	public void setRegionTypes(List<RegionTypeDTO> regionTypes) {
+		this.regionTypes = regionTypes;
 	}
 	/**
 	 * @return the extantStatusus
