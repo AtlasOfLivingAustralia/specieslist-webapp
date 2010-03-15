@@ -18,8 +18,11 @@ import java.util.List;
 
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
+import org.ala.model.ExtantStatus;
+import org.ala.model.Habitat;
 import org.ala.model.Image;
 import org.ala.model.PestStatus;
+import org.ala.model.Region;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.model.SimpleProperty;
@@ -41,6 +44,9 @@ public class ExtendedTaxonConceptDTO {
 	protected List<ConservationStatus> conservationStatuses;
     protected List<SimpleProperty> simpleProperties;
 	protected List<Image> images;
+	protected List<ExtantStatus> extantStatusus;
+	protected List<Habitat> habitats;
+	protected List<RegionTypeDTO> regionTypes;
 
 	/**
 	 * @return the taxonConcept
@@ -163,4 +169,41 @@ public class ExtendedTaxonConceptDTO {
     public void setSimpleProperties(List<SimpleProperty> simpleProperty) {
         this.simpleProperties = simpleProperty;
     }
+	/**
+	 * @return the regions
+	 */
+	public List<Region> getRegions() {
+		return this.regions;
+	}
+	/**
+	 * @param regions the regions to set
+	 */
+	public void setRegions(List<Region> regions) {
+		this.regions = regions;
+	}
+	/**
+	 * @return the extantStatusus
+	 */
+	public List<ExtantStatus> getExtantStatusus() {
+		return this.extantStatusus;
+	}
+	/**
+	 * @param extantStatusus the extantStatusus to set
+	 */
+	public void setExtantStatusus(List<ExtantStatus> extantStatusus) {
+		this.extantStatusus = extantStatusus;
+	}
+	/**
+	 * @return the habitats
+	 */
+	public List<Habitat> getHabitats() {
+		return this.habitats;
+	}
+	/**
+	 * @param habitats the habitats to set
+	 */
+	public void setHabitats(List<Habitat> habitats) {
+		this.habitats = habitats;
+	}
+
 }
