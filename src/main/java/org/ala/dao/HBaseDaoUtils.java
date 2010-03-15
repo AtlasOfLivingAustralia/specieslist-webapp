@@ -92,6 +92,38 @@ public class HBaseDaoUtils {
 	}
 	
 	/**
+	 * Writes a cell to hbase. Note that any previous data for the cell is over written.
+	 * 
+	 * @param htable
+	 * @param guid
+	 * @param columnFamily
+	 * @param columnName
+	 * @param listOfObjects
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	public static boolean putComplexObject(HTable htable, String guid, String columnFamily, String columnName, List listOfObjects) throws Exception {
+		RowResult row = htable.getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(columnFamily)});
+		if(row==null){
+			logger.error("Unable to find the row for guid: "+guid+". Unable to put column object to "+columnName);
+			return false;
+		}
+		
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(SerializationConfig.Feature.WRITE_NULL_PROPERTIES, false);
+		
+		//save in HBase
+		BatchUpdate batchUpdate = new BatchUpdate(Bytes.toBytes(guid));
+
+		//serialise to json
+		String commonNamesAsJson = mapper.writeValueAsString(listOfObjects); 
+		batchUpdate.put(columnName, Bytes.toBytes(commonNamesAsJson));
+		htable.commit(batchUpdate);
+		return true;
+	}
+	
+	/**
 	 * Retrieve the value for this column handling the possibility
 	 * the column doesnt exist.
 	 * 
