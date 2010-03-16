@@ -14,6 +14,7 @@
  ***************************************************************************/
 package org.ala.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.ala.model.Region;
@@ -26,9 +27,21 @@ import org.ala.model.Region;
 public class RegionTypeDTO {
 
 	protected String regionType;
-	protected String occurrencesInRegionType;
+	protected int occurrencesInRegionType;
 	protected List<Region> regions;
 	
+	/**
+	 * Constructor
+	 * 
+	 * @param regionType
+	 */
+	public RegionTypeDTO(String regionType) {
+		super();
+		this.regionType = regionType;
+		this.occurrencesInRegionType = 0;
+		this.regions = new ArrayList<Region>();
+	}
+
 	/**
 	 * @return the regionType
 	 */
@@ -44,13 +57,13 @@ public class RegionTypeDTO {
 	/**
 	 * @return the occurrencesInRegionType
 	 */
-	public String getOccurrencesInRegionType() {
+	public int getOccurrencesInRegionType() {
 		return this.occurrencesInRegionType;
 	}
 	/**
 	 * @param occurrencesInRegionType the occurrencesInRegionType to set
 	 */
-	public void setOccurrencesInRegionType(String occurrencesInRegionType) {
+	public void setOccurrencesInRegionType(int occurrencesInRegionType) {
 		this.occurrencesInRegionType = occurrencesInRegionType;
 	}
 	/**
