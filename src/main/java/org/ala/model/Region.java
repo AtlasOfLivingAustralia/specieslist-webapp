@@ -14,6 +14,14 @@
  ***************************************************************************/
 package org.ala.model;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.ala.dto.RegionTypeDTO;
+
 
 /**
  * Simple POJO to represent a geographical region for a taxon
@@ -107,6 +115,35 @@ public class Region extends AttributableObject implements Comparable<Region> {
 		this.occurrences = occurrences;
 	}
 
+	/**
+	 * Creates a list of region lists grouped by region type.
+	 * 
+	 * @param regions
+	 * @return List of RegionTypeDTOs
+	 */
+	public static List<RegionTypeDTO> getRegionsByType(List<Region> regions) {
+		Map<String, RegionTypeDTO> regionMap = new TreeMap<String, RegionTypeDTO>();
+		
+		for (Region region : regions) {
+			RegionTypeDTO regionType;
+			if (regionMap.containsKey(region.getType())) {
+			    regionType = regionMap.get(region.getType());
+			} else {
+				regionType = new RegionTypeDTO(region.getType());
+			}
+			regionType.getRegions().add(region);
+			regionType.setOccurrencesInRegionType(regionType.getOccurrencesInRegionType() + region.getOccurrences());
+		}
+		
+		List<RegionTypeDTO> regionTypes = new ArrayList<RegionTypeDTO>();
+
+		for (Map.Entry<String, RegionTypeDTO> entry : regionMap.entrySet()) {
+	        regionTypes.add(entry.getValue());
+	    }
+
+		return regionTypes;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
