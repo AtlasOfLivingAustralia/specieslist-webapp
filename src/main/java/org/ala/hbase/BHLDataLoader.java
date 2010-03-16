@@ -68,23 +68,24 @@ public class BHLDataLoader {
     	String[] values = null;
 		int i = 0;
 		Reference r = null;
-		String scientificName = null;
+		
 		while ((values = tr.readNext()) != null) {
     		if (values.length == 7) {
     			
-    			//if the itemID changes or the scientific name changes,
-    			//the we sync to profiles
-    			if(r==null || !r.getIdentifier().equals(values[3]) || !scientificName.equals(values[5])){
+    			//if the itemID changes or the scientific name changes, then sync to profiles
+    			if(r==null || !r.getIdentifier().equals(values[3]) || !r.getScientificName().equals(values[5])){
     				
     				if(r!=null){
     					//sync profile
-    	    			String guid = taxonConceptDao.findConceptIDForName(null, null, scientificName);
+    	    			String guid = taxonConceptDao.findConceptIDForName(null, null, r.getScientificName());
     	    			if(guid!=null){
-    	    				logger.debug("Add reference to " + guid+" for document with id: "+r.getIdentifier()+", scientificName: "+scientificName);
+    	    				logger.debug("Add reference to " + guid
+    	    						+" for document with id: "+r.getIdentifier()
+    	    						+", scientificName: "+r.getScientificName());
     	    				taxonConceptDao.addReference(guid, r);
     	    				i++;
     	    			} else {
-    	    				logger.debug("Unable to find concept for name: " + scientificName);
+    	    				logger.debug("Unable to find concept for name: " + r.getScientificName());
     	    			}
     				}
     				//set the last identifier
@@ -92,8 +93,7 @@ public class BHLDataLoader {
         			r.setTitle(values[1]);
         			r.setIdentifier(values[3]);
         			r.getPageIdentifiers().add(values[4]);
-        			r.setScientificName(scientificName);
-        			scientificName = values[5];
+        			r.setScientificName(values[5]);
     			} else {
     				r.getPageIdentifiers().add(values[4]);
     			}
