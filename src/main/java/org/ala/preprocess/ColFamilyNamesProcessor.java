@@ -21,6 +21,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -130,22 +131,28 @@ public class ColFamilyNamesProcessor {
 		
 		final RDFWriter rdfWriter = new TurtleWriter(new OutputStreamWriter(rdfDos.getOutputStream()));
 		rdfWriter.startRDF();
+		Pattern p = Pattern.compile(",");
 		
 		String subject = MappingUtils.getSubject();
 		while((fields = csvr.readNext())!=null){
 			if(fields.length==NO_OF_COLUMNS){
-				BNode bnode = new BNodeImpl(subject);
-				rdfWriter.handleStatement(new StatementImpl(bnode, 
-						new URIImpl(Predicates.COMMON_NAME.toString()), 
-						new LiteralImpl(fields[0])));
 				
-				rdfWriter.handleStatement(new StatementImpl(bnode, 
-						new URIImpl(Predicates.SCIENTIFIC_NAME.toString()), 
-						new LiteralImpl(fields[1])));
-				
-				rdfWriter.handleStatement(new StatementImpl(bnode, 
-						new URIImpl(Predicates.KINGDOM.toString()), 
-						new LiteralImpl(fields[0])));
+				String[] commonNames = p.split(fields[0]);
+				for(String commonName: commonNames){
+					subject = MappingUtils.getNextSubject(subject);
+					BNode bnode = new BNodeImpl(subject);
+					rdfWriter.handleStatement(new StatementImpl(bnode, 
+							new URIImpl(Predicates.COMMON_NAME.toString()), 
+							new LiteralImpl(commonName.trim())));
+					
+					rdfWriter.handleStatement(new StatementImpl(bnode, 
+							new URIImpl(Predicates.SCIENTIFIC_NAME.toString()), 
+							new LiteralImpl(fields[1])));
+					
+					rdfWriter.handleStatement(new StatementImpl(bnode, 
+							new URIImpl(Predicates.KINGDOM.toString()), 
+							new LiteralImpl(fields[2])));
+				}
 			} else {
 				logger.warn("Error reading from file. Was expecting "+NO_OF_COLUMNS+", got "+fields.length);
 			}
