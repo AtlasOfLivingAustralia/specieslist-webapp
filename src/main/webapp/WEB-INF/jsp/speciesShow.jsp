@@ -140,7 +140,7 @@
                  );
 
                  $('#photos').galleryView({
-                    panel_width: 500,
+                    panel_width: 640,
                     panel_height: 400,
                     frame_width: 100,
                     frame_height: 100
@@ -288,7 +288,7 @@
         <div id="speciesHeader">
             <c:if test="${fn:length(extendedTaxonConcept.images) > 0}">
                 <div id="speciesPhoto" class="cropBig">
-                    <img src="http://localhost${fn:replace(extendedTaxonConcept.images[0].repoLocation, "/data/bie", "/repository")}" style="/*max-width:250px;max-height:280px;*/" width="300"  alt="species photo"/>
+                    <img src="http://${pageContext.request.serverName}:80${fn:replace(extendedTaxonConcept.images[0].repoLocation, "/data/bie", "/repository")}" style="/*max-width:250px;max-height:280px;*/" width="300"  alt="species photo"/>
                 </div>
             </c:if>
             <div id="speciesTitle">
@@ -504,9 +504,15 @@
                          <div id="photos" class="galleryview">
                         <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
                             <div class="panel" style="text-align: center;">
-                                <img src="http://${pageContext.request.serverName}:80${fn:replace(image.repoLocation, "/data/bie", "/repository")}" />
+                                <a href="${image.identifier}" title="View original image" target="_blank">
+                                    <img src="http://${pageContext.request.serverName}:80${fn:replace(image.repoLocation, "/data/bie", "/repository")}" class="galleryImage"/>
+                                </a>
                                 <div class="panel-overlay">
-                                    Image ${status.count}: <a href="${image.identifier}" target="_blank">${image.title}</a>
+                                    <c:set var="title">
+                                        <c:if test="${fn:length(image.title) > 0}">${image.title}</c:if>
+                                        <c:if test="${fn:length(image.title) < 1}">[no title]</c:if>
+                                    </c:set>
+                                        Image ${status.count}: <a href="${image.identifier}" target="_blank">${title}</a>
                                     <br/>
                                     Source: <a href="${image.infoSourceURL}" target="_blank">${image.infoSourceName}</a>
                                 </div>

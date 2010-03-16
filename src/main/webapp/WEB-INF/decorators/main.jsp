@@ -24,6 +24,7 @@
                 <div id="menuSearch">
                     <form action="${pageContext.request.contextPath}/species/search" method="GET">
                         <input name="q" id="q" <c:if test="${not empty query}">value="<c:out value="${query}"/>"</c:if> type="text" size="25"/>
+                        <input type="hidden" name="title"/>
                         <input type="submit" value="Search"/>
                     </form>
                 </div>

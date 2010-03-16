@@ -285,6 +285,11 @@ ul.compact {
     top:0px;*/
     margin-left:-30px;
 }
+
+img.galleryImage {
+    max-height: 400px;
+    max-width: 640px;
+}
 /* top menu */
 #topmenu .tabs {
     border-bottom: 0px solid #ddd;
