@@ -88,7 +88,7 @@ public class ANBGDataLoader {
     	loadTaxonNames(); // includes rank information
     	loadVernacularConcepts();
     	loadRelationships();
-//    	loadPublications();
+    	loadPublications();
 	}
 
 	private void loadPublications() throws Exception {
