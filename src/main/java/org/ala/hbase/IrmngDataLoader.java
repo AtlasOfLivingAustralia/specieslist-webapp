@@ -89,10 +89,21 @@ public class IrmngDataLoader {
     				previousScientificName = currentScientificName;
     			}
     			if (guid != null) {
+    				
     				List<ExtantStatus> extantStatusList = new ArrayList<ExtantStatus>();
-    				extantStatusList.add(new ExtantStatus(extantCode));
+    				ExtantStatus e = new ExtantStatus(extantCode);
+    				e.setInfoSourceId("4");
+    				e.setInfoSourceName("IRMNG");
+    				e.setInfoSourceURL("http://www.cmar.csiro.au/datacentre/irmng/");
+    				extantStatusList.add(e);
+    				
     				List<Habitat> habitatList = new ArrayList<Habitat>();
-    				habitatList.add(new Habitat(habitatCode));
+    				Habitat h = new Habitat(habitatCode);
+    				h.setInfoSourceId("4");
+    				h.setInfoSourceName("IRMNG");
+    				h.setInfoSourceURL("http://www.cmar.csiro.au/datacentre/irmng/");
+    				habitatList.add(h);
+    				
     				logger.trace("Adding guid=" + guid + " SciName=" + currentScientificName + " Extant=" + extantCode + " Habitat=" + habitatCode);
     				taxonConceptDao.addExtantStatus(guid, extantStatusList);
     				taxonConceptDao.addHabitat(guid, habitatList);
