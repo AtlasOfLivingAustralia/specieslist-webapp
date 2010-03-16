@@ -22,7 +22,7 @@
 
         <script type="text/javascript">
             //var scientificNameId, scientificName;
-            var solrServer = "${solrServerUrl}"; // 
+            var solrServer = "${solrServerUrl}"; //
 
             $(document).ready(function() {
                 $("a.popup").fancybox({
@@ -357,9 +357,7 @@
         </div>
         <div id="tabs" class="yui-navset" style="clear: both;">
             <ul class="yui-nav">
-                <c:if test="${fn:length(extendedTaxonConcept.simpleProperties) > 0}">
-                    <li class="selected"><a href="#harvestedInfo"><em>Information</em></a></li>
-                </c:if>
+                <li class="selected"><a href="#harvestedInfo"><em>Information</em></a></li>
                 <li><a href="#names"><em>Names</em></a></li>
                 <li><a href="#literature"><em>Literature</em></a></li>
                 <li><a href="#portalInfo"><em>Distribution Map</em></a></li>
@@ -458,27 +456,46 @@
                 </div>
                 <!--Literature-->
                 <div id="literature">
-                    
+                    <table class="propertyTable">
+                        <tr><th colspan="2"></th></tr>
+                        <c:forEach items="${extendedTaxonConcept.references}" var="reference">
+                            <tr>
+                                <td>${reference.title}</td>
+                                <td><a href="http://www.biodiversitylibrary.org/item/${reference.identifier}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
+                            </tr>
+                        </c:forEach>
+                    </table>
                 </div>
                 <!-- Map -->
                 <div id="portalInfo">
                     <div id="left">
                         <p>Species density layer generated from specimen & observation occurrence data</p>
                         <ul>
-                            <li>Number of occurrences of ${sciNameFormatted}: <span id="occurrenceCount"></span></li>
+                            <li>Total occurrences: <span id="occurrenceCount"></span></li>
                             <li><a href="#" id="occurrenceTableLink">View table of all occurrence records
-                                    for ${sciNameFormatted}</a></li>
+                                    <%--for ${sciNameFormatted}--%></a></li>
                             <%--<li>Total number of records: <span id="occurrenceCount"></span></li>--%>
                             <li>Breakdown by Regions</li>
-                            <ul style="list-style-type: circle;">
-                                <li>States:
-
-                                </li>
-                                <li>Local Government Areas:
-                                </li>
-                                <li>Biogeographical Regions:
-                                </li>
-                            </ul>
+                            <c:forEach var="regionType" items="${extendedTaxonConcept.regionTypes}">
+                                <c:if test="${fn:containsIgnoreCase(regionType.regionType, 'state') || fn:containsIgnoreCase(regionType.regionType, 'territory')}">
+                                    <b>${regionType.regionType}</b>
+                                    <ul style="list-style-type: circle;">
+                                        <c:forEach var="region" items="${regionType.regions}">
+                                            <li>${region.name}: ${region.occurrences}</li>
+                                        </c:forEach>
+                                    </ul>
+                                </c:if>
+                            </c:forEach>
+                            <c:forEach var="regionType" items="${extendedTaxonConcept.regionTypes}">
+                                <c:if test="${fn:containsIgnoreCase(regionType.regionType, 'ibra') || fn:containsIgnoreCase(regionType.regionType, 'imcra')}">
+                                    <b>${regionType.regionType}</b>
+                                    <ul style="list-style-type: circle;">
+                                        <c:forEach var="region" items="${regionType.regions}">
+                                            <li>${region.name}: ${region.occurrences}</li>
+                                        </c:forEach>
+                                    </ul>
+                                </c:if>
+                            </c:forEach>
                         </ul>
                     </div>
                     <div id="mappanel"></div>
