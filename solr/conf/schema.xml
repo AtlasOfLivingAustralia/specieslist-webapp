@@ -438,7 +438,7 @@
    <field name="rankId" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
    <field name="hasChildren" type="string" indexed="false" stored="true" />
    <field name="simpleText" type="text" indexed="true" stored="true" multiValued="true" omitNorms="false" />
-   <field name="dataset" type="string" indexed="true" stored="true" required="false" omitNorms="true" multiValued="true" />
+   <field name="dataset" type="text" indexed="true" stored="true" required="false" omitNorms="true" multiValued="true" />
    <!-- end of BIE Lucene Fields -->
 
    <!-- catchall field, containing all other searchable text fields (implemented
