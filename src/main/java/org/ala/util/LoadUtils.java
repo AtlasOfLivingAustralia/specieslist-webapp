@@ -90,7 +90,6 @@ public class LoadUtils {
 		Query query = new TermQuery(new Term("publicationGuid", publicationGuid));
 		TopDocs topDocs = getTcIdxSearcher().search(query, limit);
 		List<String> guids = new ArrayList<String>();
-		List<TaxonConcept> tcs = new ArrayList<TaxonConcept>();
 		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
 			Document doc = getTcIdxSearcher().doc(scoreDoc.doc);
 			guids.add(doc.get("guid"));
