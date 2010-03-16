@@ -15,7 +15,6 @@
 package org.ala.model;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -130,9 +129,11 @@ public class Region extends AttributableObject implements Comparable<Region> {
 			    regionType = regionMap.get(region.getType());
 			} else {
 				regionType = new RegionTypeDTO(region.getType());
+				regionMap.put(region.getType(), regionType);
 			}
 			regionType.getRegions().add(region);
 			regionType.setOccurrencesInRegionType(regionType.getOccurrencesInRegionType() + region.getOccurrences());
+			
 		}
 		
 		List<RegionTypeDTO> regionTypes = new ArrayList<RegionTypeDTO>();
