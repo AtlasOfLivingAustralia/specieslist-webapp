@@ -26,15 +26,15 @@ import org.ala.model.ConservationStatus;
 import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
 import org.ala.model.Image;
+import org.ala.model.PestStatus;
+import org.ala.model.Publication;
 import org.ala.model.Reference;
 import org.ala.model.Region;
-import org.ala.model.PestStatus;
 import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.model.Triple;
 import org.ala.util.StatusType;
-import org.ala.vocabulary.Vocabulary;
 import org.apache.lucene.queryParser.ParseException;
 /**
  * Interface for creating, changing and searching taxon concept
@@ -154,8 +154,6 @@ public interface TaxonConceptDao {
 	/**
 	 * Store the following taxon concept
 	 *
-	 * FIXME Switch to using a single column for TaxonConcept
-	 *
 	 * @param tc
 	 * @return
 	 * @throws Exception
@@ -165,13 +163,11 @@ public interface TaxonConceptDao {
 	/**
 	 * What about multiple taxon names for each taxon concept???
 	 *
-	 * FIXME Switch to using a single column for TaxonName(s)
-	 *
 	 * @param guid
 	 * @param tn
 	 * @throws Exception
 	 */
-	public void addTaxonName(String guid, TaxonName tn)
+	public boolean addTaxonName(String guid, TaxonName tn)
 			throws Exception;
 
 	/**
@@ -181,7 +177,7 @@ public interface TaxonConceptDao {
 	 * @param commonName
 	 * @throws Exception
 	 */
-	public void addCommonName(String guid, CommonName commonName)
+	public boolean addCommonName(String guid, CommonName commonName)
 			throws Exception;
 
 	/**
@@ -191,7 +187,7 @@ public interface TaxonConceptDao {
 	 * @param conservationStatus
 	 * @throws Exception
 	 */
-	public void addConservationStatus(String guid,
+	public boolean addConservationStatus(String guid,
 			ConservationStatus conservationStatus) throws Exception;
 
 	/**
@@ -201,7 +197,7 @@ public interface TaxonConceptDao {
 	 * @param pestStatus
 	 * @throws Exception
 	 */
-	public void addPestStatus(String guid, PestStatus pestStatus)
+	public boolean addPestStatus(String guid, PestStatus pestStatus)
 			throws Exception;
 
 	/**
@@ -211,7 +207,7 @@ public interface TaxonConceptDao {
 	 * @param extantStatus
 	 * @throws Exception
 	 */
-	public void addExtantStatus(String guid, ExtantStatus extantStatus)
+	public boolean addExtantStatus(String guid, ExtantStatus extantStatus)
 			throws Exception;
 
 	/**
@@ -221,7 +217,7 @@ public interface TaxonConceptDao {
 	 * @param habitat
 	 * @throws Exception
 	 */
-	public void addHabitat(String guid, Habitat habitat) 
+	public boolean addHabitat(String guid, Habitat habitat) 
 			throws Exception;
 
 	/**
@@ -231,7 +227,7 @@ public interface TaxonConceptDao {
 	 * @param regions
 	 * @throws Exception
 	 */
-	public void addRegions(String guid, List<Region> regions) 
+	public boolean addRegions(String guid, List<Region> regions) 
 			throws Exception;
 
 	/**
@@ -241,7 +237,7 @@ public interface TaxonConceptDao {
 	 * @param image
 	 * @throws Exception
 	 */
-	public void addImage(String guid, Image image) throws Exception;
+	public boolean addImage(String guid, Image image) throws Exception;
 
 	/**
 	 * Add a synonym to this concept.
@@ -250,13 +246,17 @@ public interface TaxonConceptDao {
 	 * @param synonym
 	 * @throws Exception
 	 */
-	public void addSynonym(String guid, TaxonConcept synonym)
+	public boolean addSynonym(String guid, TaxonConcept synonym)
 			throws Exception;
 
-	public void addIsSynonymFor(String guid,
-			TaxonConcept acceptedConcept) throws Exception;
-
-	public void addIsCongruentTo(String guid, TaxonConcept congruent)
+	/**
+	 * Add a congruent concept.
+	 * 
+	 * @param guid
+	 * @param congruent
+	 * @throws Exception
+	 */
+	public boolean addIsCongruentTo(String guid, TaxonConcept congruent)
 			throws Exception;
 
 	/**
@@ -266,7 +266,7 @@ public interface TaxonConceptDao {
 	 * @param childConcept
 	 * @throws Exception
 	 */
-	public void addChildTaxon(String guid, TaxonConcept childConcept)
+	public boolean addChildTaxon(String guid, TaxonConcept childConcept)
 			throws Exception;
 
 	/**
@@ -276,7 +276,7 @@ public interface TaxonConceptDao {
 	 * @param parentConcept
 	 * @throws Exception
 	 */
-	public void addParentTaxon(String guid, TaxonConcept parentConcept)
+	public boolean addParentTaxon(String guid, TaxonConcept parentConcept)
 			throws Exception;
 
 	/**
@@ -286,7 +286,7 @@ public interface TaxonConceptDao {
 	 * @param parentConcept
 	 * @throws Exception
 	 */
-	public void addTextProperty(String guid,
+	public boolean addTextProperty(String guid,
 			SimpleProperty textProperty) throws Exception;
 
 	/**
@@ -432,11 +432,6 @@ public interface TaxonConceptDao {
 	public void createIndex() throws Exception;
 
 	/**
-	 * @param vocabulary the vocabulary to set
-	 */
-	public void setVocabulary(Vocabulary vocabulary);
-
-	/**
 	 * Retrieve the raw properties
 	 *
 	 * @param guid
@@ -451,7 +446,7 @@ public interface TaxonConceptDao {
 	 * @param guid
 	 * @param classification
 	 */
-	public void addClassification(String guid, Classification classification) throws Exception;
+	public boolean addClassification(String guid, Classification classification) throws Exception;
 
 	/**
 	 * Retrieve the classifications associated with this taxon.
@@ -467,6 +462,13 @@ public interface TaxonConceptDao {
 	 * 
 	 * @param reference
 	 */
-	public void addReference(String guid, Reference reference) throws Exception;
+	public boolean addReference(String guid, Reference reference) throws Exception;
 
+	/**
+	 * Add a publication to the profile.
+	 * 
+	 * @param guid
+	 * @param publication
+	 */
+	public boolean addPublication(String guid, Publication publication) throws Exception;
 }

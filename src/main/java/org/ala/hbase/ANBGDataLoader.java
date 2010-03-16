@@ -24,6 +24,7 @@ import org.ala.dao.TaxonConceptDao;
 import org.ala.lucene.CreateLoadingIndex;
 import org.ala.model.CommonName;
 import org.ala.model.InfoSource;
+import org.ala.model.Publication;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.util.LoadUtils;
@@ -60,6 +61,7 @@ public class ANBGDataLoader {
 	private static final String TAXON_CONCEPTS = "/data/bie-staging/anbg/taxonConcepts.txt";
 	private static final String TAXON_NAMES = "/data/bie-staging/anbg/taxonNames.txt";
 	private static final String RELATIONSHIPS = "/data/bie-staging/anbg/relationships.txt";
+	private static final String PUBLICATIONS = "/data/bie-staging/anbg/publications.txt";
 	
 	/**
 	 * @param args
@@ -86,6 +88,42 @@ public class ANBGDataLoader {
     	loadTaxonNames(); // includes rank information
     	loadVernacularConcepts();
     	loadRelationships();
+//    	loadPublications();
+	}
+
+	private void loadPublications() throws Exception {
+		logger.info("Starting to load taxon names");
+		
+		TabReader tr = new TabReader(PUBLICATIONS);
+		LoadUtils loadUtils = new LoadUtils();
+    	String[] record = null;
+    	int i = 0;
+    	int j = 0;
+    	while((record = tr.readNext())!=null){
+    		i++;
+    		if(record.length<5){
+    			logger.warn("truncated at line "+i+" record: "+record);
+    			continue;
+    		}
+    		
+    		List<String> tcs = loadUtils.getGuidsForPublicationGuid(record[0], 100);
+    		
+    		Publication p = new Publication();
+    		p.setGuid(record[0]);
+    		p.setTitle(record[1]);
+    		p.setAuthor(record[2]);
+    		p.setYear(record[3]);
+    		p.setPublicationType(record[4]);
+    		
+    		//add this taxon name to each taxon concept
+    		for(String tc: tcs){
+    			logger.debug("Adding publication to "+tc+" record: "+p.getGuid());
+   				boolean success = taxonConceptDao.addPublication(tc, p);
+   				if(success)
+   					j++;
+    		}
+    	}
+    	logger.info(i+" lines read. "+j+" publications added to concept records.");
 	}
 
 	/**

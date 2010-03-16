@@ -38,6 +38,7 @@ import org.ala.model.ConservationStatus;
 import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
 import org.ala.model.Image;
+import org.ala.model.Publication;
 import org.ala.model.Reference;
 import org.ala.model.Region;
 import org.ala.model.PestStatus;
@@ -118,6 +119,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     private static final String TEXT_PROPERTY_COL = "tc:hasTextProperty";
     private static final String CLASSIFICATION_COL = "tc:hasClassification";
     private static final String REFERENCE_COL = "tc:hasReference";
+    private static final String PUBLICATION_COL = "tc:hasPublication";
 
     private static final String TC_COL_FAMILY = "tc:";
     private static final String RAW_COL_FAMILY = "raw:";
@@ -399,6 +401,8 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
+	 * FIXME Switch to using a single column for TaxonConcept
+	 * 
 	 * @see org.ala.dao.ITaxonConceptDao#create(org.ala.model.TaxonConcept)
 	 */
 	public boolean create(TaxonConcept tc) throws Exception {
@@ -423,13 +427,15 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#addTaxonName(java.lang.String, org.ala.model.TaxonName)
+	 * FIXME Switch to using a single column for TaxonName(s)
+	 * 
+	 * @see org.ala.dao.TaxonConceptDao#addTaxonName(java.lang.String, org.ala.model.TaxonName)
 	 */
-	public void addTaxonName(String guid, TaxonName tn) throws Exception {
+	public boolean addTaxonName(String guid, TaxonName tn) throws Exception {
 		RowResult row = getTable().getRow(Bytes.toBytes(guid));
 		if(row==null){
 			logger.error("Unable to locate a row to add taxon name to for guid: "+guid);
-			return;
+			return false;
 		}
 		BatchUpdate batchUpdate = new BatchUpdate(Bytes.toBytes(guid));
 		putIfNotNull(batchUpdate, "tn:guid", tn.guid);
@@ -440,27 +446,28 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		putIfNotNull(batchUpdate, "tn:publishedInCitation", tn.publishedInCitation);
 		putIfNotNull(batchUpdate, "tn:rankString", tn.rankString);
 		getTable().commit(batchUpdate);
+		return true;
 	}
 	
 	/**
 	 * @see org.ala.dao.ITaxonConceptDao#addCommonName(java.lang.String, org.ala.model.CommonName)
 	 */
-	public void addCommonName(String guid, CommonName commonName) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, VERNACULAR_COL, commonName, new TypeReference<List<CommonName>>(){});
+	public boolean addCommonName(String guid, CommonName commonName) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, VERNACULAR_COL, commonName, new TypeReference<List<CommonName>>(){});
 	}
 	
 	/**
 	 * @see org.ala.dao.ITaxonConceptDao#addConservationStatus(java.lang.String, org.ala.model.ConservationStatus)
 	 */
-	public void addConservationStatus(String guid, ConservationStatus conservationStatus) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, CONSERVATION_STATUS_COL, conservationStatus, new TypeReference<List<ConservationStatus>>(){});
+	public boolean addConservationStatus(String guid, ConservationStatus conservationStatus) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, CONSERVATION_STATUS_COL, conservationStatus, new TypeReference<List<ConservationStatus>>(){});
 	}
 	
 	/**
 	 * @see org.ala.dao.ITaxonConceptDao#addPestStatus(java.lang.String, org.ala.model.PestStatus)
 	 */
-	public void addPestStatus(String guid, PestStatus pestStatus) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, PEST_STATUS_COL, pestStatus, new TypeReference<List<PestStatus>>(){});
+	public boolean addPestStatus(String guid, PestStatus pestStatus) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, PEST_STATUS_COL, pestStatus, new TypeReference<List<PestStatus>>(){});
 	}
 	
 	/**
@@ -470,59 +477,59 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @param region
 	 * @throws Exception
 	 */
-	public void addRegions(String guid, List<Region> regions) throws Exception {
-		HBaseDaoUtils.putComplexObject(getTable(), guid, TC_COL_FAMILY, REGION_COL, regions);
+	public boolean addRegions(String guid, List<Region> regions) throws Exception {
+		return HBaseDaoUtils.putComplexObject(getTable(), guid, TC_COL_FAMILY, REGION_COL, regions);
 	}
 	
 	/**
 	 * @see org.ala.dao.ITaxonConceptDao#addImage(java.lang.String, org.ala.model.Image)
 	 */
-	public void addImage(String guid, Image image) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IMAGE_COL, image, new TypeReference<List<Image>>(){});
+	public boolean addImage(String guid, Image image) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IMAGE_COL, image, new TypeReference<List<Image>>(){});
 	}
 		
 	
 	/**
 	 * @see org.ala.dao.ITaxonConceptDao#addSynonym(java.lang.String, org.ala.model.TaxonConcept)
 	 */
-	public void addSynonym(String guid, TaxonConcept synonym) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, SYNONYM_COL, synonym, new TypeReference<List<TaxonConcept>>(){});
+	public boolean addSynonym(String guid, TaxonConcept synonym) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, SYNONYM_COL, synonym, new TypeReference<List<TaxonConcept>>(){});
 	}	
 	
 	/**
 	 * @see org.ala.dao.ITaxonConceptDao#addIsSynonymFor(java.lang.String, org.ala.model.TaxonConcept)
 	 */
-	public void addIsSynonymFor(String guid, TaxonConcept acceptedConcept) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_SYNONYM_FOR_COL, acceptedConcept, new TypeReference<List<TaxonConcept>>(){});
+	public boolean addIsSynonymFor(String guid, TaxonConcept acceptedConcept) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_SYNONYM_FOR_COL, acceptedConcept, new TypeReference<List<TaxonConcept>>(){});
 	}
 	
 	/**
 	 * @see org.ala.dao.ITaxonConceptDao#addIsCongruentTo(java.lang.String, org.ala.model.TaxonConcept)
 	 */
-	public void addIsCongruentTo(String guid, TaxonConcept congruent) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_CONGRUENT_TO_COL, congruent, new TypeReference<List<TaxonConcept>>(){});
+	public boolean addIsCongruentTo(String guid, TaxonConcept congruent) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_CONGRUENT_TO_COL, congruent, new TypeReference<List<TaxonConcept>>(){});
 	}
 	
 	
 	/**
 	 * @see org.ala.dao.ITaxonConceptDao#addChildTaxon(java.lang.String, org.ala.model.TaxonConcept)
 	 */
-	public void addChildTaxon(String guid, TaxonConcept childConcept) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_PARENT_COL_OF, childConcept, new TypeReference<List<TaxonConcept>>(){});
+	public boolean addChildTaxon(String guid, TaxonConcept childConcept) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_PARENT_COL_OF, childConcept, new TypeReference<List<TaxonConcept>>(){});
 	}	
 	
 	/**
 	 * @see org.ala.dao.ITaxonConceptDao#addParentTaxon(java.lang.String, org.ala.model.TaxonConcept)
 	 */
-	public void addParentTaxon(String guid, TaxonConcept parentConcept) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_CHILD_COL_OF, parentConcept, new TypeReference<List<TaxonConcept>>(){});
+	public boolean addParentTaxon(String guid, TaxonConcept parentConcept) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_CHILD_COL_OF, parentConcept, new TypeReference<List<TaxonConcept>>(){});
 	}
 
     /**
 	 * @see org.ala.dao.ITaxonConceptDao#addTextProperty(java.lang.String, org.ala.model.SimpleProperty)
 	 */
-	public void addTextProperty(String guid, SimpleProperty textProperty) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, TEXT_PROPERTY_COL, textProperty, new TypeReference<List<SimpleProperty>>(){});
+	public boolean addTextProperty(String guid, SimpleProperty textProperty) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, TEXT_PROPERTY_COL, textProperty, new TypeReference<List<SimpleProperty>>(){});
 	}
 	
 	/**
@@ -633,6 +640,12 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		return getTaxonName(rowResult);
 	}
 
+	/**
+	 * Retrieve the Taxon Name from a row.
+	 * 
+	 * @param rowResult
+	 * @return
+	 */
 	private TaxonName getTaxonName(RowResult rowResult) {
 		TaxonName tn = new TaxonName();
 		tn.guid = HBaseDaoUtils.getField(rowResult, "tn:guid");
@@ -947,8 +960,8 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#addClassification(java.lang.String, org.ala.model.Classification)
 	 */
 	@Override
-	public void addClassification(String guid, Classification classification) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, CLASSIFICATION_COL, classification, new TypeReference<List<Classification>>(){});
+	public boolean addClassification(String guid, Classification classification) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, CLASSIFICATION_COL, classification, new TypeReference<List<Classification>>(){});
 	}
 	
 	/**
@@ -1357,8 +1370,15 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addReference(org.ala.model.Reference)
 	 */
-	public void addReference(String guid, Reference reference) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, REFERENCE_COL, reference, new TypeReference<List<Reference>>() {});
+	public boolean addReference(String guid, Reference reference) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, REFERENCE_COL, reference, new TypeReference<List<Reference>>() {});
+	}
+	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#addPublication(java.lang.String, org.ala.model.Publication)
+	 */
+	public boolean addPublication(String guid, Publication publication) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, PUBLICATION_COL, publication, new TypeReference<List<Publication>>(){});
 	}
 	
 	/**
@@ -1427,17 +1447,17 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#addExtantStatus(java.lang.String, org.ala.model.ExtantStatus)
 	 */
 	@Override
-	public void addExtantStatus(String guid, ExtantStatus extantStatus)
+	public boolean addExtantStatus(String guid, ExtantStatus extantStatus)
 			throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, EXTANT_STATUS_COL, extantStatus, new TypeReference<List<ExtantStatus>>() {});
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, EXTANT_STATUS_COL, extantStatus, new TypeReference<List<ExtantStatus>>() {});
 	}
 
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addHabitat(java.lang.String, org.ala.model.Habitat)
 	 */
 	@Override
-	public void addHabitat(String guid, Habitat habitat) throws Exception {
-		HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, HABITAT_COL, habitat, new TypeReference<List<Habitat>>() {});
+	public boolean addHabitat(String guid, Habitat habitat) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, HABITAT_COL, habitat, new TypeReference<List<Habitat>>() {});
 	}
 
 	/**

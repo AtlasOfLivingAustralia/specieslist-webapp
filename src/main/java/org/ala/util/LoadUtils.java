@@ -76,6 +76,27 @@ public class LoadUtils {
 	public List<TaxonConcept> getByNameGuid(String nameGuid, int limit) throws Exception {
 		return searchTaxonConceptIndexBy("nameGuid", nameGuid, limit); 
 	}	
+
+	/**
+	 * Retrieve guids for concepts associated with this publication id.
+	 *  
+	 * @param publicationGuid
+	 * @param limit
+	 * @return
+	 * @throws Exception
+	 */
+	public List<String> getGuidsForPublicationGuid(String publicationGuid, int limit) throws Exception {
+		
+		Query query = new TermQuery(new Term("publicationGuid", publicationGuid));
+		TopDocs topDocs = getTcIdxSearcher().search(query, limit);
+		List<String> guids = new ArrayList<String>();
+		List<TaxonConcept> tcs = new ArrayList<TaxonConcept>();
+		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
+			Document doc = getTcIdxSearcher().doc(scoreDoc.doc);
+			guids.add(doc.get("guid"));
+		}
+		return guids;
+	}	
 	
 	/**
 	 * Retrieve a list of concepts associated with this name guid.
@@ -372,6 +393,9 @@ public class LoadUtils {
     			Document doc = new Document();
 		    	doc.add(new Field("guid", keyValue[0], Store.YES, Index.ANALYZED));
 		    	doc.add(new Field("nameGuid", keyValue[1], Store.YES, Index.ANALYZED));
+		    	if(keyValue[5]!=null){
+		    		doc.add(new Field("publicationGuid", keyValue[5], Store.YES, Index.ANALYZED));
+		    	}
 		    	LuceneUtils.addScientificNameToIndex(doc, keyValue[2]);
 		    	
 		    	//add relationships between concepts

@@ -18,12 +18,39 @@ package org.ala.model;
  *
  * @author Dave Martin (David.Martin@csiro.au)
  */
-public class Publication extends AttributableObject {
+public class Publication extends AttributableObject implements Comparable<Publication> {
 
 	protected String guid;
 	protected String title;
 	protected String author;
 	protected String year;
+	protected String publicationType;
+	
+	/**
+	 * @see org.ala.model.AttributableObject#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if(obj!=null && obj instanceof Publication){
+			Publication pub = (Publication) obj;
+			if(pub.getGuid()!=null){
+				return pub.getGuid().equals(guid);
+			}
+			if(pub.getTitle()!=null){
+				return pub.getTitle().equalsIgnoreCase(title);
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public int compareTo(Publication o) {
+		if(o.getTitle()!=null){
+			o.getTitle().compareTo(o.getTitle());
+		}
+		return 0;
+	}
+	
 	/**
 	 * @return the guid
 	 */
@@ -71,5 +98,17 @@ public class Publication extends AttributableObject {
 	 */
 	public void setYear(String year) {
 		this.year = year;
+	}
+	/**
+	 * @return the publicationType
+	 */
+	public String getPublicationType() {
+		return publicationType;
+	}
+	/**
+	 * @param publicationType the publicationType to set
+	 */
+	public void setPublicationType(String publicationType) {
+		this.publicationType = publicationType;
 	}
 }
