@@ -1434,17 +1434,17 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#addExtantStatus(java.lang.String, org.ala.model.ExtantStatus)
 	 */
 	@Override
-	public boolean addExtantStatus(String guid, ExtantStatus extantStatus)
+	public boolean addExtantStatus(String guid, List<ExtantStatus> extantStatusList)
 			throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, EXTANT_STATUS_COL, extantStatus, new TypeReference<List<ExtantStatus>>() {});
+		return HBaseDaoUtils.putComplexObject(getTable(), guid, TC_COL_FAMILY, EXTANT_STATUS_COL, extantStatusList);
 	}
 
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addHabitat(java.lang.String, org.ala.model.Habitat)
 	 */
 	@Override
-	public boolean addHabitat(String guid, Habitat habitat) throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, HABITAT_COL, habitat, new TypeReference<List<Habitat>>() {});
+	public boolean addHabitat(String guid, List<Habitat> habitatList) throws Exception {
+		return HBaseDaoUtils.putComplexObject(getTable(), guid, TC_COL_FAMILY, HABITAT_COL, habitatList);
 	}
 
 	/**
