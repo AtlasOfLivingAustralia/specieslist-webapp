@@ -211,23 +211,23 @@ public interface TaxonConceptDao {
 			throws Exception;
 
 	/**
-	 * Add this extant status to the Taxon Concept.
+	 * Add extant status list to the Taxon Concept.
 	 *
 	 * @param guid
-	 * @param extantStatus
+	 * @param extantStatusList
 	 * @throws Exception
 	 */
-	public boolean addExtantStatus(String guid, ExtantStatus extantStatus)
+	public boolean addExtantStatus(String guid, List<ExtantStatus> extantStatusList)
 			throws Exception;
 
 	/**
-	 * Add this habitat to the Taxon Concept.
+	 * Add habitat list to the Taxon Concept.
 	 *
 	 * @param guid
-	 * @param habitat
+	 * @param habitatList
 	 * @throws Exception
 	 */
-	public boolean addHabitat(String guid, Habitat habitat) 
+	public boolean addHabitat(String guid, List<Habitat> habitatLSist) 
 			throws Exception;
 
 	/**
