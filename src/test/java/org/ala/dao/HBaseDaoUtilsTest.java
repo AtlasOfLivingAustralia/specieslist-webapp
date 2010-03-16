@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 public class HBaseDaoUtilsTest extends TestCase {
 
 	private static final String MACROPUS_RUFUS = "urn:lsid:biodiversity.org.au:afd.taxon:aa745ff0-c776-4d0e-851d-369ba0e6f537";
+	private static final String TAXON_ID = "taxonId";
 	private static final String REGION_TYPE = "regionType";
 	private static final String REGION_NAME = "regionName";
 	private static final String REGION_ID = "regionId";
@@ -24,7 +25,7 @@ public class HBaseDaoUtilsTest extends TestCase {
 
 	public void testPutComplexObject() throws Exception {
 		TaxonConceptDao tcDao = new TaxonConceptDaoImpl();
-		Region region = new Region(REGION_ID, REGION_NAME, REGION_TYPE, 20);
+		Region region = new Region(TAXON_ID, REGION_ID, REGION_NAME, REGION_TYPE, 20);
 		List<Region> regionsOut = new ArrayList<Region>();
 		regionsOut.add(region);
 		
