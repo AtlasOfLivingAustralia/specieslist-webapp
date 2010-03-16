@@ -81,6 +81,7 @@ public class BioCacheLoader {
 		List<Region> regions = new ArrayList<Region>();
 		while ((values = tr.readNext()) != null) {
     		if (values.length == 6) {
+    			String taxonId = values[0]; //FIXME this should later be replaced with the LSIDs
     			String currentScientificName = values[1];
     			String regionType = values[2];
     			String regionId = values[3];
@@ -104,7 +105,7 @@ public class BioCacheLoader {
     				previousScientificName = currentScientificName;
     			}
     			if (guid != null) {
-    				Region region = new Region(regionId, regionName, regionType, Integer.parseInt(occurrences));
+    				Region region = new Region(taxonId, regionId, regionName, regionType, Integer.parseInt(occurrences));
     				logger.trace("Adding guid=" + guid + " SciName=" + currentScientificName + " Region=" + regionName + " Type=" + regionType + " Occs=" + occurrences);
     				regions.add(region);
     				noOfRegions++;

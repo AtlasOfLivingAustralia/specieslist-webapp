@@ -29,6 +29,7 @@ import org.ala.dto.RegionTypeDTO;
  */
 public class Region extends AttributableObject implements Comparable<Region> {
 
+	protected String taxonId;
 	protected String regionId;
 	protected String regionName;
 	protected String regionType;
@@ -40,9 +41,10 @@ public class Region extends AttributableObject implements Comparable<Region> {
 	 * @param regionType
 	 * @param occurrences
 	 */
-	public Region(String regionId, String regionName,
+	public Region(String taxonId, String regionId, String regionName,
 			String regionType, int occurrences) {
 		super();
+		this.taxonId = taxonId;
 		this.regionId = regionId;
 		this.regionName = regionName;
 		this.regionType = regionType;
