@@ -32,6 +32,33 @@ public class Reference extends AttributableObject implements Comparable<Referenc
 	protected String identifier;
 	protected String scientificName;
 	protected List<String> pageIdentifiers = new ArrayList<String>();
+
+	/**
+	 * @see org.ala.model.AttributableObject#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if(obj!=null && obj instanceof Reference){
+			Reference r = (Reference) obj;
+			if(r.getTitle()!=null){
+				if(!r.getTitle().equalsIgnoreCase(title)){
+					return false;
+				}
+			}
+			if(r.getIdentifier()!=null){
+				if(!r.getIdentifier().equalsIgnoreCase(identifier)){
+					return false;
+				}
+			}
+			if(r.getScientificName()!=null){
+				if(!r.getScientificName().equalsIgnoreCase(scientificName)){
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 	
 	@Override
 	public int compareTo(Reference o) {
