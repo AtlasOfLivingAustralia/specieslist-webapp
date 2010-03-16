@@ -190,7 +190,7 @@ public class ExtendedTaxonConceptDTO {
 	/**
 	 * @param extantStatusus the extantStatusus to set
 	 */
-	public void setExtantStatusus(List<ExtantStatus> extantStatusus) {
+	public void setExtantStatuses(List<ExtantStatus> extantStatusus) {
 		this.extantStatusus = extantStatusus;
 	}
 	/**
