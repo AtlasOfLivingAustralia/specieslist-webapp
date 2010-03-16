@@ -294,6 +294,10 @@
             <div id="speciesTitle">
                 <h2>${fn:replace(extendedTaxonConcept.taxonConcept.nameString, extendedTaxonConcept.taxonName.nameComplete, sciNameFormatted)}</h2>
                 <table class="noBorders" style="max-width:90%;margin:0;">
+                    <c:if test="${fn:length(extendedTaxonConcept.commonNames) > 0}"><tr>
+                        <td class="propertyName">Common Name<c:if test="${fn:contains(commonNames, ',')}">s</c:if>:</td>
+                        <td>${commonNames}</td>
+                    </tr></c:if>
                     <tr>
                         <td class="propertyName">Classification:</td>
                         <td><fmt:message key="rank.${taxonConceptRank}" /></td>
@@ -320,28 +324,18 @@
                             </c:forEach>
                         </td>
                     </tr></c:if>
-                    <c:if test="${fn:length(extendedTaxonConcept.synonyms) > 0}"><tr>
+                    <%--<c:if test="${fn:length(extendedTaxonConcept.synonyms) > 0}"><tr>
                         <td class="propertyName">Synonyms:</td>
                         <td><div><c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym" varStatus="status">
-                                <%--<a href="<c:url value='/species/${synonym.guid}'/>">${synonym.nameString}</a><br/>--%>
+                                <a href="<c:url value='/species/${synonym.guid}'/>">${synonym.nameString}</a><br/>
                                 ${synonym.nameString}<br/>
                                 <c:if test="${status.count == 5}"></div><div class="showHide"></c:if>
-                                <%--<c:if test="${status.last}"></c:if>--%>
+                                <c:if test="${status.last}"></c:if>
                             </c:forEach>
                             </div>
                             <c:if test="${fn:length(extendedTaxonConcept.synonyms) > 5}"><div class="showHideDiv"><a href='#' class='showHideLink'></a></div></c:if>
                         </td>
-                    </tr></c:if>
-                    <c:if test="${fn:length(extendedTaxonConcept.commonNames) > 0}"><tr>
-                        <td class="propertyName">Common Names:</td>
-                        <td><div><c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName" varStatus="status">
-                                ${commonName.nameString}<br/>
-                                <c:if test="${status.count == 5}"></div><div class="showHide"></c:if>
-                            </c:forEach>
-                            </div>
-                        <c:if test="${fn:length(extendedTaxonConcept.commonNames) > 5}"><div class="showHideDiv"><a href='#' class='showHideLink'></a></div></c:if>
-                        </td>
-                    </tr></c:if>
+                    </tr></c:if>--%>
                     <tr>
                         <td class="propertyName">Source:</td>
                         <td>
@@ -366,42 +360,14 @@
                 <c:if test="${fn:length(extendedTaxonConcept.simpleProperties) > 0}">
                     <li class="selected"><a href="#harvestedInfo"><em>Information</em></a></li>
                 </c:if>
+                <li><a href="#names"><em>Names</em></a></li>
+                <li><a href="#literature"><em>Literature</em></a></li>
                 <li><a href="#portalInfo"><em>Distribution Map</em></a></li>
                 <c:if test="${fn:length(extendedTaxonConcept.images) > 0}">
                     <li><a href="#images"><em>Images</em></a></li>
                 </c:if>
             </ul>
             <div id="yui-box" class="yui-content">
-                <!-- Other taxon names (usually empty) -->
-                <c:if test="${fn:length(taxonNames) > 1}"><a name="names">&nbsp;</a>
-                    <h4 class="divider">Names</h4>
-                    <table class="propertyTable">
-                        <!-- Table headings. -->
-                        <tr>
-                            <th>Title</th>
-                            <th>Scientific&nbsp;Name</th>
-                            <th>Taxon&nbsp;Rank</th>
-                            <th>Source</th>
-                        </tr>
-                        <!-- Dynamic table content. -->
-                        <c:forEach items="${taxonNames}" var="tn">
-                            <tr>
-                                <td><a href="${tn.source}" target="_blank">${tn.title}</a></td>
-                                <td>
-                                    <c:choose>
-                                        <c:when test="${fn:contains(tn.nameComplete, 'Species') || fn:contains(tn.nameComplete, 'Genus')}"><i>${tn.nameComplete}</i></c:when>
-                                        <c:otherwise>${tn.nameComplete}</c:otherwise>
-                                    </c:choose>
-                                </td>
-                                <td>
-                                    <c:set var="rankMsg" value="${fn:replace(tn.rank, 'TaxonRank.', '')}"/>
-                                    <fmt:message key="${rankMsg}" />
-                                </td>
-                                <td>${tn.source}</td>
-                            </tr>
-                        </c:forEach>
-                    </table>
-                </c:if>
                 <!-- Harvested Info -->
                 <div id="harvestedInfo">
                     <c:if test="${fn:length(extendedTaxonConcept.conservationStatuses) > 0 || fn:length(extendedTaxonConcept.pestStatuses) > 0}">
@@ -419,19 +385,26 @@
                                     </tr>
                                 <%--</c:if>--%>
                             </c:forEach>
-                        <%--</table>
-                    </c:if>
-                    <c:if test="${fn:length(extendedTaxonConcept.pestStatuses) > 0}">
-                        <table class="propertyTable">
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                            </tr>--%>
                             <c:forEach var="status" items="${extendedTaxonConcept.pestStatuses}">
                                 <%--<c:if test="${fn:endsWith(simpleProperty.name, 'Status')}">--%>
                                     <tr>
                                         <td style="font-weight: inherit;"><b>Pest Status</b>: ${status.status}</td>
+                                        <td>Source: <a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
+                                    </tr>
+                                <%--</c:if>--%>
+                            </c:forEach>
+                            <c:forEach var="status" items="${extendedTaxonConcept.extantStatusus}">
+                                <%--<c:if test="${fn:endsWith(simpleProperty.name, 'Status')}">--%>
+                                    <tr>
+                                        <td style="font-weight: inherit;"><b>Extant Status</b>: <fmt:message key="status.${status.status}"/></td>
+                                        <td>Source: <a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
+                                    </tr>
+                                <%--</c:if>--%>
+                            </c:forEach>
+                            <c:forEach var="status" items="${extendedTaxonConcept.habitats}">
+                                <%--<c:if test="${fn:endsWith(simpleProperty.name, 'Status')}">--%>
+                                    <tr>
+                                        <td style="font-weight: inherit;"><b>Habitat Status</b>: <fmt:message key="habitat.${status.status}"/></td>
                                         <td>Source: <a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
                                     </tr>
                                 <%--</c:if>--%>
@@ -458,16 +431,44 @@
                     </c:if>
 
                 </div>
+                <!--Names-->
+                <div id="names">
+                    <table class="propertyTable">
+                        <tr><th colspan="3"></th></tr>
+                        <tr>
+                            <td style="font-weight: bold;">Accepted Name</td>
+                            <td>${extendedTaxonConcept.taxonConcept.nameString}</td>
+                            <td>Published in: ${extendedTaxonConcept.taxonConcept.publishedIn}</td>
+                        </tr>
+                        <c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym">
+                            <tr>
+                                <td style="font-weight: bold;">Synonym</td>
+                                <td>${synonym.nameString}</td>
+                                <td>Published in: ${synonym.publishedIn}</td>
+                            </tr>
+                        </c:forEach>
+                        <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
+                            <tr>
+                                <td style="font-weight: bold;">Common Name</td>
+                                <td>${commonName.nameString}</td>
+                                <td>Source: ${commonName.infoSourceName}</td>
+                            </tr>
+                        </c:forEach>
+                    </table>
+                </div>
+                <!--Literature-->
+                <div id="literature">
+                    
+                </div>
                 <!-- Map -->
                 <div id="portalInfo">
-                    <h4 class="divider">Distribution Map <a name="portal">&nbsp;</a></h4>
                     <div id="left">
                         <p>Species density layer generated from specimen & observation occurrence data</p>
                         <ul>
                             <li>Number of occurrences of ${sciNameFormatted}: <span id="occurrenceCount"></span></li>
                             <li><a href="#" id="occurrenceTableLink">View table of all occurrence records
                                     for ${sciNameFormatted}</a></li>
-                            <li>Total number of records: <span id="occurrenceCount"></span></li>
+                            <%--<li>Total number of records: <span id="occurrenceCount"></span></li>--%>
                             <li>Breakdown by Regions</li>
                             <ul style="list-style-type: circle;">
                                 <li>States:

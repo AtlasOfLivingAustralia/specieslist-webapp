@@ -50,7 +50,7 @@ public class TaxonConceptDaoImplSolr {//implements TaxonConceptDao {
     /** log4 j logger */
     private static final Logger logger = Logger.getLogger(TaxonConceptDaoImplSolr.class);
     /** SOLR home directory */
-    private static final String solrHome = "/data/solr";
+    private static final String SOLR_HOME = "/data/solr";
     /** SOLR server instance */
     private EmbeddedSolrServer server = null;
     @Inject
@@ -68,9 +68,9 @@ public class TaxonConceptDaoImplSolr {//implements TaxonConceptDao {
      * @return
      */
     protected void initSolrServer() {
-        if (this.server == null & solrHome != null) {
+        if (this.server == null & SOLR_HOME != null) {
             try {
-                System.setProperty("solr.solr.home", solrHome);
+                System.setProperty("solr.solr.home", SOLR_HOME);
                 CoreContainer.Initializer initializer = new CoreContainer.Initializer();
                 CoreContainer coreContainer = initializer.initialize();
                 server = new EmbeddedSolrServer(coreContainer, "");

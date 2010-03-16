@@ -21,6 +21,7 @@ import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -38,6 +39,7 @@ import org.ala.dao.TaxonConceptDaoImplSolr;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
+import org.ala.model.CommonName;
 import org.ala.model.Document;
 import org.ala.model.InfoSource;
 import org.ala.repository.Predicates;
@@ -45,6 +47,7 @@ import org.ala.util.MimeType;
 import org.ala.util.RepositoryFileUtils;
 import org.ala.util.StatusType;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -180,7 +183,9 @@ public class TaxonConceptController {
     @RequestMapping(value = "/species/{guid}", method = RequestMethod.GET)
     public String showSpecies(@PathVariable("guid") String guid, Model model) throws Exception {
         logger.debug("Retrieving concept with guid: "+guid+".");
-        model.addAttribute("extendedTaxonConcept", taxonConceptDao.getExtendedTaxonConceptByGuid(guid));
+        ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
+        model.addAttribute("extendedTaxonConcept", etc);
+        model.addAttribute("commonNames", getCommonNamesString(etc));
         return SPECIES_SHOW;
     }
 
@@ -416,6 +421,26 @@ public class TaxonConceptController {
 //        pi = JAI.create("crop", pb);
 //        BufferedImage scaled2 = pi.getAsBufferedImage();
         return scaled2;
+    }
+
+    /**
+     * Utility to pull out common names and remove duplicates, returning a string
+     *
+     * @param etc
+     * @return
+     */
+    private String getCommonNamesString(ExtendedTaxonConceptDTO etc) {
+        HashMap<String, String> cnMap = new HashMap<String, String>();
+        
+        for (CommonName cn : etc.getCommonNames()) {
+            String lcName = cn.getNameString().toLowerCase();
+            
+            if (!cnMap.containsKey(lcName)) {
+                cnMap.put(lcName, cn.getNameString());
+            }
+        }
+        
+        return StringUtils.join(cnMap.values(), ", ");
     }
 
 	/**
