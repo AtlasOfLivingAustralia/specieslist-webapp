@@ -27,6 +27,9 @@ java -Xmx1g -Xms1g -classpath $CLASSPATH -Xmx1g -Xms1g org.ala.hbase.RepoDataLoa
 echo "LOAD : running Bio Cache Loader $('date')"
 java -classpath $CLASSPATH org.ala.hbase.BioCacheLoader
 
+echo "LOAD : running Irmng Loader $('date')"
+java -classpath $CLASSPATH org.ala.hbase.IrmngDataLoader
+
 echo "LOAD : running Bio Cache Loader $('date')"
 java -classpath $CLASSPATH org.ala.hbase.BHLDataLoader
 
