@@ -580,7 +580,11 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		etc.setPestStatuses(getPestStatus(row));
 		etc.setConservationStatuses(getConservationStatus(row));
 		etc.setImages(getImages(row));
-        // sort the list of SimpleProperties for display in UI
+        etc.setExtantStatuses(getExtantStatus(row));
+        etc.setHabitats(getHabitat(row));
+        etc.setRegionTypes(Region.getRegionsByType(getRegion(row)));
+		
+		// sort the list of SimpleProperties for display in UI
         List<SimpleProperty> simpleProperties = getTextProperties(row);
         Collections.sort(simpleProperties);
         etc.setSimpleProperties(simpleProperties);
