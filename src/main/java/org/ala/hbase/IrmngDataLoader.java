@@ -14,6 +14,9 @@
  ***************************************************************************/
 package org.ala.hbase;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.ala.dao.TaxonConceptDao;
@@ -52,7 +55,7 @@ public class IrmngDataLoader {
 	 */
 	private void load() throws Exception {
 		// For testing
-//		taxonConceptDao.setLuceneIndexLocation(LoadUtils.BASE_DIR + "taxonConcept");
+//		((TaxonConceptDaoImpl) taxonConceptDao).setLuceneIndexLocation(LoadUtils.BASE_DIR + "taxonConcept");
 		
 		loadIrmngData(IRMNG_FAMILY_DATA);
 		loadIrmngData(IRMNG_GENUS_DATA);
@@ -86,11 +89,13 @@ public class IrmngDataLoader {
     				previousScientificName = currentScientificName;
     			}
     			if (guid != null) {
-    				ExtantStatus extantStatus = new ExtantStatus(extantCode);
-    				Habitat habitat = new Habitat(habitatCode);
+    				List<ExtantStatus> extantStatusList = new ArrayList<ExtantStatus>();
+    				extantStatusList.add(new ExtantStatus(extantCode));
+    				List<Habitat> habitatList = new ArrayList<Habitat>();
+    				habitatList.add(new Habitat(habitatCode));
     				logger.trace("Adding guid=" + guid + " SciName=" + currentScientificName + " Extant=" + extantCode + " Habitat=" + habitatCode);
-    				taxonConceptDao.addExtantStatus(guid, extantStatus);
-    				taxonConceptDao.addHabitat(guid, habitat);
+    				taxonConceptDao.addExtantStatus(guid, extantStatusList);
+    				taxonConceptDao.addHabitat(guid, habitatList);
     				i++;
     			}
     		} else {
