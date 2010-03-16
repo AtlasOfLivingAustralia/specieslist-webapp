@@ -226,7 +226,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 //	}
 
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#getSynonymsFor(java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#getSynonymsFor(java.lang.String)
 	 */
 	public List<TaxonConcept> getSynonymsFor(String guid) throws Exception {
 		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
@@ -240,7 +240,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#getImages(java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#getImages(java.lang.String)
 	 */
 	public List<Image> getImages(String guid) throws Exception {
 		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
@@ -259,7 +259,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#getPestStatuses(java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#getPestStatuses(java.lang.String)
 	 */
 	public List<PestStatus> getPestStatuses(String guid) throws Exception {
 		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
@@ -278,7 +278,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#getConservationStatuses(java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#getConservationStatuses(java.lang.String)
 	 */
 	public List<ConservationStatus> getConservationStatuses(String guid) throws Exception {
 		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
@@ -335,7 +335,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#getChildConceptsFor(java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#getChildConceptsFor(java.lang.String)
 	 */
 	public List<TaxonConcept> getChildConceptsFor(String guid) throws Exception {
 		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
@@ -349,7 +349,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#getParentConceptsFor(java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#getParentConceptsFor(java.lang.String)
 	 */	
 	public List<TaxonConcept> getParentConceptsFor(String guid) throws Exception {
 		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
@@ -363,7 +363,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}		
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#getCommonNamesFor(java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#getCommonNamesFor(java.lang.String)
 	 */
 	public List<CommonName> getCommonNamesFor(String guid) throws Exception {
 		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
@@ -382,7 +382,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 
     /**
-	 * @see org.ala.dao.ITaxonConceptDao#getTextPropertiesFor(java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#getTextPropertiesFor(java.lang.String)
 	 */
 	public List<SimpleProperty> getTextPropertiesFor(String guid) throws Exception {
 		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
@@ -403,7 +403,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	/**
 	 * FIXME Switch to using a single column for TaxonConcept
 	 * 
-	 * @see org.ala.dao.ITaxonConceptDao#create(org.ala.model.TaxonConcept)
+	 * @see org.ala.dao.TaxonConceptDao#create(org.ala.model.TaxonConcept)
 	 */
 	public boolean create(TaxonConcept tc) throws Exception {
 		if(tc.guid==null){
@@ -450,21 +450,21 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#addCommonName(java.lang.String, org.ala.model.CommonName)
+	 * @see org.ala.dao.TaxonConceptDao#addCommonName(java.lang.String, org.ala.model.CommonName)
 	 */
 	public boolean addCommonName(String guid, CommonName commonName) throws Exception {
 		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, VERNACULAR_COL, commonName, new TypeReference<List<CommonName>>(){});
 	}
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#addConservationStatus(java.lang.String, org.ala.model.ConservationStatus)
+	 * @see org.ala.dao.TaxonConceptDao#addConservationStatus(java.lang.String, org.ala.model.ConservationStatus)
 	 */
 	public boolean addConservationStatus(String guid, ConservationStatus conservationStatus) throws Exception {
 		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, CONSERVATION_STATUS_COL, conservationStatus, new TypeReference<List<ConservationStatus>>(){});
 	}
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#addPestStatus(java.lang.String, org.ala.model.PestStatus)
+	 * @see org.ala.dao.TaxonConceptDao#addPestStatus(java.lang.String, org.ala.model.PestStatus)
 	 */
 	public boolean addPestStatus(String guid, PestStatus pestStatus) throws Exception {
 		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, PEST_STATUS_COL, pestStatus, new TypeReference<List<PestStatus>>(){});
@@ -482,7 +482,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#addImage(java.lang.String, org.ala.model.Image)
+	 * @see org.ala.dao.TaxonConceptDao#addImage(java.lang.String, org.ala.model.Image)
 	 */
 	public boolean addImage(String guid, Image image) throws Exception {
 		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IMAGE_COL, image, new TypeReference<List<Image>>(){});
@@ -490,21 +490,21 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#addSynonym(java.lang.String, org.ala.model.TaxonConcept)
+	 * @see org.ala.dao.TaxonConceptDao#addSynonym(java.lang.String, org.ala.model.TaxonConcept)
 	 */
 	public boolean addSynonym(String guid, TaxonConcept synonym) throws Exception {
 		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, SYNONYM_COL, synonym, new TypeReference<List<TaxonConcept>>(){});
 	}	
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#addIsSynonymFor(java.lang.String, org.ala.model.TaxonConcept)
+	 * @see org.ala.dao.TaxonConceptDao#addIsSynonymFor(java.lang.String, org.ala.model.TaxonConcept)
 	 */
 	public boolean addIsSynonymFor(String guid, TaxonConcept acceptedConcept) throws Exception {
 		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_SYNONYM_FOR_COL, acceptedConcept, new TypeReference<List<TaxonConcept>>(){});
 	}
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#addIsCongruentTo(java.lang.String, org.ala.model.TaxonConcept)
+	 * @see org.ala.dao.TaxonConceptDao#addIsCongruentTo(java.lang.String, org.ala.model.TaxonConcept)
 	 */
 	public boolean addIsCongruentTo(String guid, TaxonConcept congruent) throws Exception {
 		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_CONGRUENT_TO_COL, congruent, new TypeReference<List<TaxonConcept>>(){});
@@ -512,21 +512,21 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#addChildTaxon(java.lang.String, org.ala.model.TaxonConcept)
+	 * @see org.ala.dao.TaxonConceptDao#addChildTaxon(java.lang.String, org.ala.model.TaxonConcept)
 	 */
 	public boolean addChildTaxon(String guid, TaxonConcept childConcept) throws Exception {
 		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_PARENT_COL_OF, childConcept, new TypeReference<List<TaxonConcept>>(){});
 	}	
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#addParentTaxon(java.lang.String, org.ala.model.TaxonConcept)
+	 * @see org.ala.dao.TaxonConceptDao#addParentTaxon(java.lang.String, org.ala.model.TaxonConcept)
 	 */
 	public boolean addParentTaxon(String guid, TaxonConcept parentConcept) throws Exception {
 		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_CHILD_COL_OF, parentConcept, new TypeReference<List<TaxonConcept>>(){});
 	}
 
     /**
-	 * @see org.ala.dao.ITaxonConceptDao#addTextProperty(java.lang.String, org.ala.model.SimpleProperty)
+	 * @see org.ala.dao.TaxonConceptDao#addTextProperty(java.lang.String, org.ala.model.SimpleProperty)
 	 */
 	public boolean addTextProperty(String guid, SimpleProperty textProperty) throws Exception {
 		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, TEXT_PROPERTY_COL, textProperty, new TypeReference<List<SimpleProperty>>(){});
@@ -547,7 +547,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#create(java.util.List)
+	 * @see org.ala.dao.TaxonConceptDao#create(java.util.List)
 	 */
 	public void create(List<TaxonConcept> taxonConcepts) throws Exception {
 		for(TaxonConcept tc: taxonConcepts){
@@ -556,7 +556,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#getByGuid(java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#getByGuid(java.lang.String)
 	 */
 	public TaxonConcept getByGuid(String guid) throws Exception {
 		RowResult rowResult = getTable().getRow(guid.getBytes());
@@ -567,7 +567,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#getExtendedTaxonConceptByGuid(java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#getExtendedTaxonConceptByGuid(java.lang.String)
 	 */
 	public ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid) throws Exception {
 
@@ -590,20 +590,14 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
         etc.setExtantStatuses(getExtantStatus(row));
         etc.setHabitats(getHabitat(row));
         etc.setRegionTypes(Region.getRegionsByType(getRegion(row)));
+        etc.setReferences(getReferences(row));
 		
 		// sort the list of SimpleProperties for display in UI
         List<SimpleProperty> simpleProperties = getTextProperties(row);
         Collections.sort(simpleProperties);
         etc.setSimpleProperties(simpleProperties);
-		
-		//add taxonomic properties
-		
-		//add descriptive data
-		
-		//add geospatial data
-		
 		return etc;
-	}	
+	}
 	
 	/**
 	 * Create a taxon concept from the row result.
@@ -630,7 +624,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}	
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#getTaxonNameFor(java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#getTaxonNameFor(java.lang.String)
 	 */
 	public TaxonName getTaxonNameFor(String guid) throws Exception {
 		RowResult rowResult = getTable().getRow(guid.getBytes());
@@ -686,7 +680,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#findByScientificName(java.lang.String, int)
+	 * @see org.ala.dao.TaxonConceptDao#findByScientificName(java.lang.String, int)
 	 */
 	public List<SearchTaxonConceptDTO> findByScientificName(String input, int limit) throws Exception {
         SearchResultsDTO sr = findByScientificName(input, 0, limit, null, null);
@@ -694,7 +688,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 
     /**
-	 * @see org.ala.dao.ITaxonConceptDao#findByScientificName(java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#findByScientificName(java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String)
 	 */
     public SearchResultsDTO findByScientificName(String input, Integer startIndex, Integer pageSize,
             String sortField, String sortDirection) throws Exception {
@@ -779,7 +773,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     }
 
     /**
-	 * @see org.ala.dao.ITaxonConceptDao#findAllByStatus(org.ala.util.StatusType, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#findAllByStatus(org.ala.util.StatusType, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String)
 	 */
     public SearchResultsDTO findAllByStatus(StatusType statusType, Integer startIndex, Integer pageSize,
             String sortField, String sortDirection) throws ParseException, Exception {
@@ -808,7 +802,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     }
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#findConceptIDForName(java.lang.String, java.lang.String, java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#findConceptIDForName(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	public String findConceptIDForName(String kingdom, String genus, String scientificName) throws Exception {
 		try {
@@ -864,7 +858,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}	
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#getByParentGuid(java.lang.String, int)
+	 * @see org.ala.dao.TaxonConceptDao#getByParentGuid(java.lang.String, int)
 	 */
 	public List<SearchTaxonConceptDTO> getByParentGuid(String parentGuid, int limit) throws Exception {
 		if(parentGuid==null){
@@ -946,7 +940,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#delete(java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#delete(java.lang.String)
 	 */
 	public boolean delete(String guid) throws Exception {
 		if(getTable().exists(Bytes.toBytes(guid))){
@@ -979,7 +973,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#syncTriples(org.ala.model.Document, java.util.List)
+	 * @see org.ala.dao.TaxonConceptDao#syncTriples(org.ala.model.Document, java.util.List)
 	 */
 	public boolean syncTriples(org.ala.model.Document document, List<Triple> triples) throws Exception {
 
@@ -1162,7 +1156,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#clearRawProperties()
+	 * @see org.ala.dao.TaxonConceptDao#clearRawProperties()
 	 */
 	public void clearRawProperties() throws Exception {
 		
@@ -1184,7 +1178,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#createIndex()
+	 * @see org.ala.dao.TaxonConceptDao#createIndex()
 	 */
 	public void createIndex() throws Exception {
 		
@@ -1397,13 +1391,6 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 
 	/**
-	 * @see org.ala.dao.ITaxonConceptDao#setVocabulary(org.ala.vocabulary.Vocabulary)
-	 */
-	public void setVocabulary(Vocabulary vocabulary) {
-		this.vocabulary = vocabulary;
-	}
-
-	/**
 	 * @see org.ala.dao.TaxonConceptDao#getExtantStatus(java.lang.String)
 	 */
 	@Override
@@ -1478,5 +1465,32 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 			return mapper.readValue(value, 0, value.length, new TypeReference<List<Region>>(){});
 		} 
 		return new ArrayList<Region>();
+	}
+	
+	/**
+	 * Retrieve the references for the concept with the supplied GUID.
+	 * 
+	 * @see org.ala.dao.TaxonConceptDao#getReferencesFor(java.lang.String)
+	 */
+	public List<Reference> getReferencesFor(String guid) throws Exception {
+		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
+		return getReferences(row);
+	}
+
+	private List<Reference> getReferences(RowResult row) throws Exception {
+		Cell cell = row.get(Bytes.toBytes(REFERENCE_COL));
+		ObjectMapper mapper = new ObjectMapper();
+		if(cell!=null){
+			byte[] value = cell.getValue();
+			return mapper.readValue(value, 0, value.length, new TypeReference<List<Reference>>(){});
+		} 
+		return new ArrayList<Reference>();
+	}
+	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#setVocabulary(org.ala.vocabulary.Vocabulary)
+	 */
+	public void setVocabulary(Vocabulary vocabulary) {
+		this.vocabulary = vocabulary;
 	}
 }

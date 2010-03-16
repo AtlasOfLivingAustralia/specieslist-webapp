@@ -22,10 +22,10 @@ import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
 import org.ala.model.Image;
 import org.ala.model.PestStatus;
-import org.ala.model.Region;
+import org.ala.model.Reference;
+import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
-import org.ala.model.SimpleProperty;
 /**
  * A DTO that encapsulates all the information required to present a 
  * profile of a species. This is a heavy weight DTO.
@@ -47,6 +47,7 @@ public class ExtendedTaxonConceptDTO {
 	protected List<ExtantStatus> extantStatusus;
 	protected List<Habitat> habitats;
 	protected List<RegionTypeDTO> regionTypes;
+	protected List<Reference> references;
 
 	/**
 	 * @return the taxonConcept
@@ -205,5 +206,16 @@ public class ExtendedTaxonConceptDTO {
 	public void setHabitats(List<Habitat> habitats) {
 		this.habitats = habitats;
 	}
-
+	/**
+	 * @return the references
+	 */
+	public List<Reference> getReferences() {
+		return references;
+	}
+	/**
+	 * @param references the references to set
+	 */
+	public void setReferences(List<Reference> references) {
+		this.references = references;
+	}
 }

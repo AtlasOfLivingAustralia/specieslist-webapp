@@ -151,6 +151,16 @@ public interface TaxonConceptDao {
 	public List<SimpleProperty> getTextPropertiesFor(String guid)
 			throws Exception;
 
+	
+	/**
+	 * Retrieve the references for this taxon concept.
+	 * 
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Reference> getReferencesFor(String guid) throws Exception;
+
 	/**
 	 * Store the following taxon concept
 	 *
