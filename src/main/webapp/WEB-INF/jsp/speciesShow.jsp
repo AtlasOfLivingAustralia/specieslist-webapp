@@ -140,10 +140,11 @@
                  );
 
                  $('#photos').galleryView({
-                    panel_width: 640,
+                    panel_width: 925,
                     panel_height: 400,
                     frame_width: 100,
-                    frame_height: 100
+                    frame_height: 100,
+                    border: 'none'
                     <%--filmstrip_size: 4,
                     frame_width: 100,
                     frame_height: 100,
@@ -287,21 +288,20 @@
         </c:set>
         <div id="speciesHeader">
             <c:if test="${fn:length(extendedTaxonConcept.images) > 0}">
-                <div id="speciesPhoto" class="cropBig">
-                    <img src="http://${pageContext.request.serverName}:80${fn:replace(extendedTaxonConcept.images[0].repoLocation, "/data/bie", "/repository")}" style="/*max-width:250px;max-height:280px;*/" width="300"  alt="species photo"/>
+                <div id="speciesPhoto" class="<%--cropBig--%>">
+                    <%--<img src="http://${pageContext.request.serverName}:80${fn:replace(extendedTaxonConcept.images[0].repoLocation, "/data/bie", "/repository")}" style="/*max-width:250px;max-height:280px;*/" width="300"  alt="species photo"/>--%>
+                    <img src="${pageContext.request.contextPath}/species/images/${extendedTaxonConcept.images[0].documentId}.jpg?scale=150" <%--width="300" --%> alt="species photo"/>
                 </div>
             </c:if>
             <div id="speciesTitle">
-                <h2>${fn:replace(extendedTaxonConcept.taxonConcept.nameString, extendedTaxonConcept.taxonName.nameComplete, sciNameFormatted)}</h2>
+                <h2>
+                    <span id="rankInTitle" class="show-60"><fmt:message key="rank.${taxonConceptRank}" />:</span>
+                    ${fn:replace(extendedTaxonConcept.taxonConcept.nameString, extendedTaxonConcept.taxonName.nameComplete, sciNameFormatted)}
+                </h2>
+                <div id="commonNames">
+                    ${commonNames}
+                </div>
                 <table class="noBorders" style="max-width:90%;margin:0;">
-                    <c:if test="${fn:length(extendedTaxonConcept.commonNames) > 0}"><tr>
-                        <td class="propertyName">Common Name<c:if test="${fn:contains(commonNames, ',')}">s</c:if>:</td>
-                        <td>${commonNames}</td>
-                    </tr></c:if>
-                    <tr>
-                        <td class="propertyName">Taxon Rank:</td>
-                        <td><fmt:message key="rank.${taxonConceptRank}" /></td>
-                    </tr>
                     <c:if test="${fn:length(extendedTaxonConcept.taxonName.authorship) > 100}"><tr>
                         <td class="propertyName">Authorship:</td>
                         <td>${extendedTaxonConcept.taxonName.authorship}</td>
@@ -324,58 +324,6 @@
                             </c:forEach>
                         </td>
                     </tr></c:if>
-                    <c:if test="${not empty extendedTaxonConcept.classification}"><tr>
-                        <c:set var="classfn" value="${extendedTaxonConcept.classification}"/>
-                        <td class="propertyName">Classification: </td>
-                        <td id="classification">
-                            <%--<c:if test="${not empty classfn.kingdom}">--%>
-                                Kingdom:&nbsp;<a href="${classfn.kingdomGuid}">${classfn.kingdom}</a>
-                                <c:if test="${!fn:containsIgnoreCase(classfn.kingdom, classfn.rank)}"> &rArr;</c:if>
-                            <%--</c:if>
-                            <c:if test="${not empty classfn.phylum}">--%>
-                                Phylum:&nbsp;<a href="${classfn.phylumGuid}">${classfn.phylum}</a>
-                                <c:if test="${!fn:containsIgnoreCase(classfn.phylum, classfn.rank)}"> &rArr;</c:if>
-                            <%--</c:if>
-                            <c:if test="${not empty classfn.clazz}">--%>
-                                Class:&nbsp;<a href="${classfn.clazzGuid}">${classfn.clazz}</a>
-                                <c:if test="${!fn:containsIgnoreCase(classfn.clazz, classfn.rank)}"> &rArr;</c:if>
-                            <%--</c:if>
-                            <c:if test="${not empty classfn.order}">--%>
-                                Order:&nbsp;<a href="${classfn.orderGuid}">${classfn.order}</a>
-                                <c:if test="${!fn:containsIgnoreCase(classfn.order, classfn.rank)}"> &rArr;</c:if>
-                            <%--</c:if>
-                            <c:if test="${not empty classfn.family}">--%>
-                                Family:&nbsp;<a href="${classfn.familyGuid}">${classfn.family}</a>
-                                <c:if test="${!fn:containsIgnoreCase(classfn.order, classfn.rank)}"> &rArr;</c:if>
-                            <%--</c:if>
-                            <c:if test="${not empty classfn.genus}">--%>
-                                Genus:&nbsp;<a href="${classfn.genusGuid}">${classfn.genus}</a>
-                                <c:if test="${!fn:containsIgnoreCase(classfn.genus, classfn.rank)}"> &rArr;</c:if>
-                            <%--</c:if>--%>
-                            <c:if test="${not empty classfn.species}">
-                                Species:&nbsp;<a href="${classfn.speciesGuid}">${classfn.species}</a>
-                                <c:if test="${!fn:containsIgnoreCase(classfn.species, classfn.rank)}"> &rArr;</c:if>
-                            </c:if>
-                            <c:if test="${fn:contains(classfn.rank, 'species')}"><%-- work around --%>
-                                Species:&nbsp;<a href="#">${extendedTaxonConcept.taxonName.nameComplete}</a>
-                            </c:if>
-                            <c:if test="${not empty classfn.subspecies}">
-                                Subspecies:&nbsp;<a href="${classfn.subspeciesGuid}">Subspecies ${classfn.subspecies}</a>
-                            </c:if>
-                        </td>
-                    </tr></c:if>
-                    <%--<c:if test="${fn:length(extendedTaxonConcept.synonyms) > 0}"><tr>
-                        <td class="propertyName">Synonyms:</td>
-                        <td><div><c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym" varStatus="status">
-                                <a href="<c:url value='/species/${synonym.guid}'/>">${synonym.nameString}</a><br/>
-                                ${synonym.nameString}<br/>
-                                <c:if test="${status.count == 5}"></div><div class="showHide"></c:if>
-                                <c:if test="${status.last}"></c:if>
-                            </c:forEach>
-                            </div>
-                            <c:if test="${fn:length(extendedTaxonConcept.synonyms) > 5}"><div class="showHideDiv"><a href='#' class='showHideLink'></a></div></c:if>
-                        </td>
-                    </tr></c:if>--%>
                     <tr>
                         <td class="propertyName">Source:</td>
                         <td>
@@ -395,122 +343,191 @@
                 <div id="LSID_icon"><a href="#lsidText" id="lsid"><img src="${pageContext.request.contextPath}/static/images/lsid.png"/></a></div>
             </div>
         </div>
-        <div id="tabs" class="yui-navset" style="clear: both;">
+        <div id="tabs" <%--class="yui-navset"--%> style="clear: both;">
             <ul class="yui-nav">
-                <li class="selected"><a href="#harvestedInfo"><em>Information</em></a></li>
-                <li><a href="#names"><em>Names</em></a></li>
-                <li><a href="#literature"><em>Literature</em></a></li>
+                <c:set var="tabIsFirst" value="false"/>
+                <c:if test="${not empty extendedTaxonConcept.conservationStatuses || fn:length(extendedTaxonConcept.pestStatuses) > 0 || fn:length(textProperties) > 0}">
+                    <li class="selected"><a href="#harvestedInfo"><em>Information</em></a></li>
+                    <c:set var="tabIsFirst" value="true"/>
+                </c:if>
+                <c:if test="${not empty extendedTaxonConcept.taxonConcept}">
+                    <li<c:if test="${tabIsFirst == 'false'}"> class="selected"</c:if>><a href="#names"><em>Names</em></a></li>
+                </c:if>
+                <c:if test="${not empty extendedTaxonConcept.classification}">
+                    <li><a href="#classification"><em>Classification</em></a></li>
+                </c:if>
+                <c:if test="${not empty extendedTaxonConcept.references}">
+                    <li><a href="#literature"><em>Literature</em></a></li>
+                </c:if>
                 <li><a href="#portalInfo"><em>Distribution Map</em></a></li>
                 <c:if test="${fn:length(extendedTaxonConcept.images) > 0}">
                     <li><a href="#images"><em>Images</em></a></li>
                 </c:if>
             </ul>
             <div id="yui-box" class="yui-content">
-                <!-- Harvested Info -->
-                <div id="harvestedInfo">
-                    <c:if test="${fn:length(extendedTaxonConcept.conservationStatuses) > 0 || fn:length(extendedTaxonConcept.pestStatuses) > 0}">
+                <c:if test="${fn:length(textProperties) > 0 || fn:length(extendedTaxonConcept.conservationStatuses) > 0 || fn:length(extendedTaxonConcept.pestStatuses) > 0}">
+                    <div id="harvestedInfo">
                         <table class="propertyTable">
                             <tr>
-                                <th></th>
-                                <%--<th></th>--%>
-                                <th></th>
+                                <th width="15%"></th>
+                                <th width="70%"></th>
+                                <th width="15%"></th>
                             </tr>
                             <c:forEach var="status" items="${extendedTaxonConcept.conservationStatuses}">
-                                <%--<c:if test="${fn:endsWith(simpleProperty.name, 'Status')}">--%>
-                                    <tr>
-                                        <td style="font-weight: inherit;"><b>Conservation Status</b>: ${fn:toLowerCase(status.status)}</td>
-                                        <td>Source: <a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
-                                    </tr>
-                                <%--</c:if>--%>
+                                <tr>
+                                    <td class="propertyNames">Conservation Status</td>
+                                    <td>${fn:toLowerCase(status.status)}</td>
+                                    <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
+                                </tr>
                             </c:forEach>
                             <c:forEach var="status" items="${extendedTaxonConcept.pestStatuses}">
-                                <%--<c:if test="${fn:endsWith(simpleProperty.name, 'Status')}">--%>
-                                    <tr>
-                                        <td style="font-weight: inherit;"><b>Pest Status</b>: ${status.status}</td>
-                                        <td>Source: <a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
-                                    </tr>
-                                <%--</c:if>--%>
+                                <tr>
+                                    <td class="propertyNames">Pest Status</td>
+                                    <td>${fn:toLowerCase(status.status)}</td>
+                                    <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
+                                </tr>
                             </c:forEach>
                             <c:forEach var="status" items="${extendedTaxonConcept.extantStatusus}">
-                                <%--<c:if test="${fn:endsWith(simpleProperty.name, 'Status')}">--%>
-                                    <tr>
-                                        <td style="font-weight: inherit;"><b>Extant Status</b>: <fmt:message key="status.${status.status}"/></td>
-                                        <td>Source: <a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
-                                    </tr>
-                                <%--</c:if>--%>
+                                <tr>
+                                    <td class="propertyNames">Extant Status</td>
+                                    <td>${fn:toLowerCase(status.status)}</td>
+                                    <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
+                                </tr>
                             </c:forEach>
                             <c:forEach var="status" items="${extendedTaxonConcept.habitats}">
-                                <%--<c:if test="${fn:endsWith(simpleProperty.name, 'Status')}">--%>
-                                    <tr>
-                                        <td style="font-weight: inherit;"><b>Habitat Status</b>: <fmt:message key="habitat.${status.status}"/></td>
-                                        <td>Source: <a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
-                                    </tr>
-                                <%--</c:if>--%>
+                                <tr>
+                                    <td class="propertyNames">Habitat Status</td>
+                                    <td><fmt:message key="habitat.${status.status}"/></td>
+                                    <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
+                                </tr>
+                            </c:forEach>
+                            <c:if test="${not empty textProperties}">
+                                <tr class="textProperty">
+                                    <td colspan="3" style="height:0;padding:0;"></td>
+                                </tr>
+                            </c:if>
+                            <c:forEach var="textProperty" items="${textProperties}">
+                                <tr>
+                                    <td class="propertyNames"><fmt:message key="${fn:substringAfter(textProperty.name, '#')}"/></td>
+                                    <td>${textProperty.value}</td>
+                                    <td><a href="${textProperty.identifier}" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></td>
+                                </tr>
                             </c:forEach>
                         </table>
-                    </c:if>
-                    <c:if test="${fn:length(extendedTaxonConcept.simpleProperties) > 0}">
+                    </div>
+                </c:if>
+                <c:if test="${not empty extendedTaxonConcept.taxonConcept}">
+                    <!--Names-->
+                    <div id="names">
                         <table class="propertyTable">
                             <tr>
-                                <th></th>
-                                <th></th>
-                                <th></th>
+                                <th width="15%"></th>
+                                <th width="70%"></th>
+                                <th width="15%"></th>
                             </tr>
-                            <c:forEach var="textProperty" items="${extendedTaxonConcept.simpleProperties}">
-                                <c:if test="${fn:endsWith(textProperty.name, 'Text') || fn:endsWith(textProperty.name, 'Status')}">
-                                    <tr>
-                                        <td style="font-weight: bold;"><fmt:message key="${fn:substringAfter(textProperty.name, '#')}"/></td>
-                                        <td>${textProperty.value}</td>
-                                        <td><a href="${textProperty.identifier}" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></td>
-                                    </tr>
-                                </c:if>
+                            <tr>
+                                <td class="propertyNames">Accepted Name</td>
+                                <td>${extendedTaxonConcept.taxonConcept.nameString}</td>
+                                <td>Published in: ${extendedTaxonConcept.taxonConcept.publishedIn}</td>
+                            </tr>
+                            <c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym">
+                                <tr>
+                                    <td class="propertyNames">Synonym</td>
+                                    <td>${synonym.nameString}</td>
+                                    <td>Published in: ${synonym.publishedIn}</td>
+                                </tr>
+                            </c:forEach>
+                            <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
+                                <tr>
+                                    <td class="propertyNames">Common Name</td>
+                                    <td>${commonName.nameString}</td>
+                                    <td>Source: ${commonName.infoSourceName}</td>
+                                </tr>
                             </c:forEach>
                         </table>
-                    </c:if>
-
-                </div>
-                <!--Names-->
-                <div id="names">
-                    <table class="propertyTable">
-                        <tr><th colspan="3"></th></tr>
-                        <tr>
-                            <td style="font-weight: bold;">Accepted Name</td>
-                            <td>${extendedTaxonConcept.taxonConcept.nameString}</td>
-                            <td>Published in: ${extendedTaxonConcept.taxonConcept.publishedIn}</td>
-                        </tr>
-                        <c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym">
+                    </div>
+                </c:if>
+                <c:if test="${not empty extendedTaxonConcept.classification}">
+                    <!-- Classification -->
+                    <div id="classification">
+                    <c:set var="classfn" value="${extendedTaxonConcept.classification}"/>
+                    <c:set var="rankId" value="7000"/><%-- FIXME: get via Rank enum --%>
+                        <table class="propertyTable">
                             <tr>
-                                <td style="font-weight: bold;">Synonym</td>
-                                <td>${synonym.nameString}</td>
-                                <td>Published in: ${synonym.publishedIn}</td>
+                                <th width="15%"></th>
+                                <th width="70%"></th>
+                                <th width="15%"></th>
                             </tr>
-                        </c:forEach>
-                        <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
+                        <c:if test="${rankId >= 1000}">
                             <tr>
-                                <td style="font-weight: bold;">Common Name</td>
-                                <td>${commonName.nameString}</td>
-                                <td>Source: ${commonName.infoSourceName}</td>
+                                <td>Kingdom
+                                <td><a href="${classfn.kingdomGuid}">${classfn.kingdom}</a></td>
                             </tr>
-                        </c:forEach>
-                    </table>
-                </div>
+                        </c:if>
+                        <c:if test="${rankId >= 2000}">
+                            <tr>
+                                <td>Phylum
+                                <td><a href="${classfn.phylumGuid}">${classfn.phylum}</a></td>
+                            </tr>
+                        </c:if>
+                        <c:if test="${rankId >= 3000}">
+                            <tr>
+                                <td>Class</td>
+                                <td><a href="${classfn.clazzGuid}">${classfn.clazz}</a></td>
+                            </tr>
+                        </c:if>
+                        <c:if test="${rankId >= 4000}">
+                            <tr>
+                                <td>Order</td>
+                                <td><a href="${classfn.orderGuid}">${classfn.order}</a></td>
+                            </tr>
+                        </c:if>
+                        <c:if test="${rankId >= 5000}">
+                            <tr>
+                                <td>Family</td>
+                                <td><a href="${classfn.familyGuid}">${classfn.family}</a></td>
+                            </tr>
+                        </c:if>
+                        <c:if test="${rankId >= 6000}">
+                            <tr>
+                                <td>Genus</td>
+                                <td><a href="${classfn.genusGuid}">${classfn.genus}</a></td>
+                            </tr>
+                        </c:if>
+                        <c:if test="${rankId >= 7000}">
+                            <tr>
+                                <td>Species</td>
+                                <td><a href="${classfn.speciesGuid}">${classfn.species}</a></td>
+                            </tr>
+                        </c:if>
+                        <c:if test="${rankId >= 8000}">
+                            <tr>
+                                <td>Subspecies</td>
+                                <td><a href="${classfn.subspeciesGuid}">${classfn.subspecies}</td>
+                            </tr>
+                        </c:if>
+                        </table>
+                    </div>
+                </c:if>
                 <!--Literature-->
-                <div id="literature">
-                    <table class="propertyTable">
-                        <tr>
-                            <th>Scientific Name</th>
-                            <th>Reference</th>
-                            <th>Source</th>
-                        </tr>
-                        <c:forEach items="${extendedTaxonConcept.references}" var="reference">
+                <c:if test="${not empty extendedTaxonConcept.references}">
+                    <div id="literature">
+                        <table class="propertyTable">
                             <tr>
-                                <td>${reference.scientificName}</td>
-                                <td>${reference.title}</td>
-                                <td><a href="http://www.biodiversitylibrary.org/item/${reference.identifier}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
+                                <th>Scientific Name</th>
+                                <th>Reference</th>
+                                <th>Source</th>
                             </tr>
-                        </c:forEach>
-                    </table>
-                </div>
+                            <c:forEach items="${extendedTaxonConcept.references}" var="reference">
+                                <tr>
+                                    <td>${reference.scientificName}</td>
+                                    <td>${reference.title}</td>
+                                    <td><a href="http://www.biodiversitylibrary.org/item/${reference.identifier}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
+                                </tr>
+                            </c:forEach>
+                        </table>
+                    </div>
+                </c:if>
                 <!-- Map -->
                 <div id="portalInfo">
                     <div id="left">
@@ -564,7 +581,7 @@
                 <c:if test="${fn:length(extendedTaxonConcept.images) > 0}">
                     <div id="images">
                         <h4 class="divider">Images<a name="images">&nbsp;</a></h4>
-                         <div id="photos" class="galleryview">
+                        <div id="photos" class="galleryview">
                         <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
                             <div class="panel" style="text-align: center;">
                                 <a href="${image.identifier}" title="View original image" target="_blank">

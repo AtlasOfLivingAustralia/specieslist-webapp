@@ -44,6 +44,7 @@ import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.Document;
 import org.ala.model.InfoSource;
+import org.ala.model.SimpleProperty;
 import org.ala.repository.Predicates;
 import org.ala.util.MimeType;
 import org.ala.util.RepositoryFileUtils;
@@ -190,6 +191,7 @@ public class TaxonConceptController {
         ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
         model.addAttribute("extendedTaxonConcept", etc);
         model.addAttribute("commonNames", getCommonNamesString(etc));
+        model.addAttribute("textProperties", filterSimpleProperties(etc));
         return SPECIES_SHOW;
     }
 
@@ -446,7 +448,20 @@ public class TaxonConceptController {
         
         return StringUtils.join(cnMap.values(), ", ");
     }
-    
+
+    private List<SimpleProperty> filterSimpleProperties(ExtendedTaxonConceptDTO etc) {
+        List<SimpleProperty> simpleProperties = etc.getSimpleProperties();
+        List<SimpleProperty> textProperties = new ArrayList<SimpleProperty>();
+
+        for (SimpleProperty sp : simpleProperties) {
+            if (sp.getName().endsWith("Text")) {
+                textProperties.add(sp);
+            }
+        }
+
+        return textProperties;
+    }
+
 	/**
 	 * @param taxonConceptDao the taxonConceptDao to set
 	 */
