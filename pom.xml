@@ -55,12 +55,44 @@
 			<groupId>ala</groupId>
 			<artifactId>bie-repository</artifactId>
 			<version>1.0-SNAPSHOT</version>
+      <exclusions>
+        <exclusion>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
+        </exclusion>
+      </exclusions>
 		</dependency>
 		<!-- DwC Archive Reader -->
 		<dependency>
 			<groupId>org.gbif</groupId>
 			<artifactId>dwc-archive</artifactId>
 			<version>1.1-SNAPSHOT</version>
+      <exclusions>
+        <exclusion>
+          <groupId>dom4j</groupId>
+          <artifactId>dom4j</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>xml-apis</groupId>
+          <artifactId>xml-apis</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>xerces</groupId>
+          <artifactId>xmlParserAPIs</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jdom</groupId>
+          <artifactId>jdom</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jaxen</groupId>
+          <artifactId>jaxen</artifactId>
+        </exclusion>
+      </exclusions>
 		</dependency>
 		<!-- Jackson -->
 		<dependency>
@@ -88,6 +120,7 @@
 			<scope>test</scope>
 		</dependency>
 		<!-- HBASE -->
+		<!-- 
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hbase</artifactId>
@@ -108,21 +141,32 @@
 			<artifactId>hadoop-tools</artifactId>
 			<version>0.19.2</version>
 		</dependency>
-		<!--
-
-			REVERTED BACK TO 0.19.3 as documentation for index tables not in sync
-			with 0.20.2 <dependency> <groupId>org.apache.hadoop</groupId>
-			<artifactId>hbase</artifactId> <version>0.20.2</version>
-			</dependency> <dependency> <groupId>org.apache.hadoop</groupId>
-			<artifactId>zookeeper</artifactId> <version>3.2.1</version>
-			</dependency> <dependency> <groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-core</artifactId> <version>0.20.1</version>
-			</dependency> <dependency> <groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-ant</artifactId> <version>0.20.1</version>
-			</dependency> <dependency> <groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-tools</artifactId> <version>0.20.1</version>
-			</dependency>
-		-->
+		 -->
+		<dependency>
+		  <groupId>org.apache.hadoop</groupId>
+			<artifactId>hbase</artifactId> 
+			<version>0.20.3</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.hadoop</groupId>
+			<artifactId>zookeeper</artifactId>
+			<version>3.2.1</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-core</artifactId>
+			<version>0.20.2</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-ant</artifactId>
+			<version>0.20.2</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-tools</artifactId> 
+			<version>0.20.2</version>
+		</dependency>
 		<!-- SL4j -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -192,7 +236,7 @@
 			<artifactId>jstl</artifactId>
 			<version>1.1.2</version>
 		</dependency>
-                <dependency>
+    <dependency>
 			<groupId>taglibs</groupId>
 			<artifactId>standard</artifactId>
 			<version>1.1.2</version>
@@ -407,4 +451,3 @@
 		</plugins>
 	</build>
 </project>
-
