@@ -171,7 +171,7 @@ public class TaxonConceptController {
             List taxonConcepts = (List) searchResults.getTaxonConcepts();
             SearchTaxonConceptDTO res = (SearchTaxonConceptDTO) taxonConcepts.get(0);
             String guid = res.getGuid();
-            return "redirect:/species/" + guid;
+            //return "redirect:/species/" + guid;
         }
 
         return SPECIES_LIST;
