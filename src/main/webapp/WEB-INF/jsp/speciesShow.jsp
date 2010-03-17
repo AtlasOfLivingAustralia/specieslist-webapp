@@ -390,7 +390,7 @@
                             <c:forEach var="status" items="${extendedTaxonConcept.extantStatusus}">
                                 <tr>
                                     <td class="propertyNames">Extant Status</td>
-                                    <td>${fn:toLowerCase(status.status)}</td>
+                                    <td><fmt:message key="status.${status.status}"/></td>
                                     <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
                                 </tr>
                             </c:forEach>
