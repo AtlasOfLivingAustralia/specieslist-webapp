@@ -299,7 +299,7 @@
                         <td>${commonNames}</td>
                     </tr></c:if>
                     <tr>
-                        <td class="propertyName">Classification:</td>
+                        <td class="propertyName">Taxon Rank:</td>
                         <td><fmt:message key="rank.${taxonConceptRank}" /></td>
                     </tr>
                     <c:if test="${fn:length(extendedTaxonConcept.taxonName.authorship) > 100}"><tr>
@@ -322,6 +322,46 @@
                         <td><c:forEach items="${extendedTaxonConcept.childConcepts}" var="child">
                                 <a href="<c:url value='/species/${child.guid}'/>">${child.nameString}</a><br/>
                             </c:forEach>
+                        </td>
+                    </tr></c:if>
+                    <c:if test="${not empty extendedTaxonConcept.classification}"><tr>
+                        <c:set var="classfn" value="${extendedTaxonConcept.classification}"/>
+                        <td class="propertyName">Classification: </td>
+                        <td id="classification">
+                            <%--<c:if test="${not empty classfn.kingdom}">--%>
+                                Kingdom:&nbsp;<a href="${classfn.kingdomGuid}">${classfn.kingdom}</a>
+                                <c:if test="${!fn:containsIgnoreCase(classfn.kingdom, classfn.rank)}"> &rArr;</c:if>
+                            <%--</c:if>
+                            <c:if test="${not empty classfn.phylum}">--%>
+                                Phylum:&nbsp;<a href="${classfn.phylumGuid}">${classfn.phylum}</a>
+                                <c:if test="${!fn:containsIgnoreCase(classfn.phylum, classfn.rank)}"> &rArr;</c:if>
+                            <%--</c:if>
+                            <c:if test="${not empty classfn.clazz}">--%>
+                                Class:&nbsp;<a href="${classfn.clazzGuid}">${classfn.clazz}</a>
+                                <c:if test="${!fn:containsIgnoreCase(classfn.clazz, classfn.rank)}"> &rArr;</c:if>
+                            <%--</c:if>
+                            <c:if test="${not empty classfn.order}">--%>
+                                Order:&nbsp;<a href="${classfn.orderGuid}">${classfn.order}</a>
+                                <c:if test="${!fn:containsIgnoreCase(classfn.order, classfn.rank)}"> &rArr;</c:if>
+                            <%--</c:if>
+                            <c:if test="${not empty classfn.family}">--%>
+                                Family:&nbsp;<a href="${classfn.familyGuid}">${classfn.family}</a>
+                                <c:if test="${!fn:containsIgnoreCase(classfn.order, classfn.rank)}"> &rArr;</c:if>
+                            <%--</c:if>
+                            <c:if test="${not empty classfn.genus}">--%>
+                                Genus:&nbsp;<a href="${classfn.genusGuid}">${classfn.genus}</a>
+                                <c:if test="${!fn:containsIgnoreCase(classfn.genus, classfn.rank)}"> &rArr;</c:if>
+                            <%--</c:if>--%>
+                            <c:if test="${not empty classfn.species}">
+                                Species:&nbsp;<a href="${classfn.speciesGuid}">${classfn.species}</a>
+                                <c:if test="${!fn:containsIgnoreCase(classfn.species, classfn.rank)}"> &rArr;</c:if>
+                            </c:if>
+                            <c:if test="${fn:contains(classfn.rank, 'species')}"><%-- work around --%>
+                                Species:&nbsp;<a href="#">${extendedTaxonConcept.taxonName.nameComplete}</a>
+                            </c:if>
+                            <c:if test="${not empty classfn.subspecies}">
+                                Subspecies:&nbsp;<a href="${classfn.subspeciesGuid}">Subspecies ${classfn.subspecies}</a>
+                            </c:if>
                         </td>
                     </tr></c:if>
                     <%--<c:if test="${fn:length(extendedTaxonConcept.synonyms) > 0}"><tr>
@@ -457,9 +497,14 @@
                 <!--Literature-->
                 <div id="literature">
                     <table class="propertyTable">
-                        <tr><th colspan="2"></th></tr>
+                        <tr>
+                            <th>Scientific Name</th>
+                            <th>Reference</th>
+                            <th>Source</th>
+                        </tr>
                         <c:forEach items="${extendedTaxonConcept.references}" var="reference">
                             <tr>
+                                <td>${reference.scientificName}</td>
                                 <td>${reference.title}</td>
                                 <td><a href="http://www.biodiversitylibrary.org/item/${reference.identifier}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
                             </tr>
