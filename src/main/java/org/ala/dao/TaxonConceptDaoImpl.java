@@ -139,7 +139,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public TaxonConceptDaoImpl() throws Exception {}
-	
+
 	/**
 	 * Initialise the connection to HBase
 	 * 
@@ -580,6 +580,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		//populate the dto
 		etc.setTaxonConcept(getTaxonConcept(guid, row));
 		etc.setTaxonName(getTaxonName(row));
+        etc.setClassification(getClassification(row));
 		etc.setSynonyms(getSynonyms(row));
 		etc.setCommonNames(getCommonNames(row));
 		etc.setChildConcepts(getChildConcepts(row));
@@ -963,14 +964,28 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	public List<Classification> getClassifications(String guid) throws Exception {
 		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
-		Cell cell = row.get(Bytes.toBytes(CLASSIFICATION_COL));
-		ObjectMapper mapper = new ObjectMapper();
-		if(cell!=null){
-			byte[] value = cell.getValue();
-			return mapper.readValue(value, 0, value.length, new TypeReference<List<Classification>>(){});
-		} 
-		return new ArrayList<Classification>();
+		return getClassificationsForRow(row);
 	}
+
+    private List<Classification> getClassificationsForRow(RowResult row) throws IOException {
+        Cell cell = row.get(Bytes.toBytes(CLASSIFICATION_COL));
+        ObjectMapper mapper = new ObjectMapper();
+        if (cell != null) {
+            byte[] value = cell.getValue();
+            return mapper.readValue(value, 0, value.length, new TypeReference<List<Classification>>() {
+            });
+        }
+        return new ArrayList<Classification>();
+    }
+
+    private Classification getClassification(RowResult row) throws IOException {
+        List<Classification> cs = getClassificationsForRow(row);
+        Classification c = null; // new Classification();
+        if (cs != null && cs.size() > 0) {
+            c = cs.get(0);
+        }
+        return c;
+    }
 
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#syncTriples(org.ala.model.Document, java.util.List)
@@ -1486,8 +1501,8 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		} 
 		return new ArrayList<Reference>();
 	}
-	
-	/**
+
+    /**
 	 * @see org.ala.dao.TaxonConceptDao#setVocabulary(org.ala.vocabulary.Vocabulary)
 	 */
 	public void setVocabulary(Vocabulary vocabulary) {

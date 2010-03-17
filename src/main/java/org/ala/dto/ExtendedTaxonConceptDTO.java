@@ -15,6 +15,7 @@
 package org.ala.dto;
 
 import java.util.List;
+import org.ala.model.Classification;
 
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
@@ -36,6 +37,7 @@ public class ExtendedTaxonConceptDTO {
 
 	protected TaxonConcept taxonConcept;
 	protected TaxonName taxonName;
+    protected Classification classification;
 	protected List<TaxonConcept> synonyms;
 	protected List<CommonName> commonNames;
 	protected List<TaxonConcept> childConcepts;
@@ -218,4 +220,12 @@ public class ExtendedTaxonConceptDTO {
 	public void setReferences(List<Reference> references) {
 		this.references = references;
 	}
+
+    public Classification getClassification() {
+        return classification;
+    }
+
+    public void setClassification(Classification classification) {
+        this.classification = classification;
+    }
 }
