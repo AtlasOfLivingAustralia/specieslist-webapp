@@ -100,7 +100,6 @@
 			<scope>test</scope>
 		</dependency>
 		<!-- HBASE -->
-		<!-- 
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hbase</artifactId>
@@ -121,7 +120,7 @@
 			<artifactId>hadoop-tools</artifactId>
 			<version>0.19.2</version>
 		</dependency>
-		 -->
+    <!-- 
 		<dependency>
 		  <groupId>org.apache.hadoop</groupId>
 			<artifactId>hbase</artifactId> 
@@ -147,6 +146,7 @@
 			<artifactId>hadoop-tools</artifactId> 
 			<version>0.20.2</version>
 		</dependency>
+		-->
 		<!-- SL4j -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
