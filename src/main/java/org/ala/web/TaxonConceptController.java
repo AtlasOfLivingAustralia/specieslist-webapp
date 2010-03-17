@@ -21,6 +21,7 @@ import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -39,6 +40,7 @@ import org.ala.dao.TaxonConceptDaoImplSolr;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
+import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.Document;
 import org.ala.model.InfoSource;
@@ -93,6 +95,8 @@ public class TaxonConceptController {
     private final String STATUS_LIST = "statusList";
     /** Name of view for list of datasets */
     private final String DATASET_LIST = "datasetList";
+    
+    private final String CLASSIFICATION_DELIMITER = " &rArr; ";
     
     /**
 	 * Custom handler for the welcome view.
@@ -166,7 +170,7 @@ public class TaxonConceptController {
             List taxonConcepts = (List) searchResults.getTaxonConcepts();
             SearchTaxonConceptDTO res = (SearchTaxonConceptDTO) taxonConcepts.get(0);
             String guid = res.getGuid();
-            //return "redirect:/species/" + guid;
+            return "redirect:/species/" + guid;
         }
 
         return SPECIES_LIST;
@@ -433,7 +437,7 @@ public class TaxonConceptController {
         HashMap<String, String> cnMap = new HashMap<String, String>();
         
         for (CommonName cn : etc.getCommonNames()) {
-            String lcName = cn.getNameString().toLowerCase();
+            String lcName = cn.getNameString().toLowerCase().trim();
             
             if (!cnMap.containsKey(lcName)) {
                 cnMap.put(lcName, cn.getNameString());
@@ -442,7 +446,7 @@ public class TaxonConceptController {
         
         return StringUtils.join(cnMap.values(), ", ");
     }
-
+    
 	/**
 	 * @param taxonConceptDao the taxonConceptDao to set
 	 */
