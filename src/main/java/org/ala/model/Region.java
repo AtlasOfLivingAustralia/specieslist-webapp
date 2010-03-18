@@ -191,4 +191,46 @@ public class Region extends AttributableObject implements Comparable<Region> {
 			return false;
 		return true;
 	}
+
+	/**
+	 * @return the taxonId
+	 */
+	public String getTaxonId() {
+		return taxonId;
+	}
+
+	/**
+	 * @param taxonId the taxonId to set
+	 */
+	public void setTaxonId(String taxonId) {
+		this.taxonId = taxonId;
+	}
+
+	/**
+	 * @return the regionName
+	 */
+	public String getRegionName() {
+		return regionName;
+	}
+
+	/**
+	 * @param regionName the regionName to set
+	 */
+	public void setRegionName(String regionName) {
+		this.regionName = regionName;
+	}
+
+	/**
+	 * @return the regionType
+	 */
+	public String getRegionType() {
+		return regionType;
+	}
+
+	/**
+	 * @param regionType the regionType to set
+	 */
+	public void setRegionType(String regionType) {
+		this.regionType = regionType;
+	}
 }
