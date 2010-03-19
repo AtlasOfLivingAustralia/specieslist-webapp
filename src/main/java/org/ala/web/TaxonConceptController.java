@@ -32,6 +32,7 @@ import javax.media.jai.JAI;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RenderedImageAdapter;
+import javax.servlet.http.HttpServletResponse;
 
 import org.ala.dao.DocumentDAO;
 import org.ala.dao.InfoSourceDAO;
@@ -244,13 +245,15 @@ public class TaxonConceptController {
      * @param scale
      * @param square
      * @param outputStream
+     * @param response
      * @throws IOException
      */
     @RequestMapping(value="/species/images/{documentId}.jpg", method = RequestMethod.GET)
 	public void thumbnailHandler(@PathVariable("documentId") int documentId, 
             @RequestParam(value="scale", required=false, defaultValue ="100") Integer scale,
             @RequestParam(value="square", required=false, defaultValue ="true") Boolean square,
-            OutputStream outputStream) throws IOException {
+            OutputStream outputStream,
+            HttpServletResponse response) throws IOException {
 		Document doc = documentDAO.getById(documentId);
 
         if (doc != null) {
@@ -266,7 +269,8 @@ public class TaxonConceptController {
             if (square) {
                 scaled = cropImage(scaled, scale);
             }
-            
+
+            response.setContentType("image/jpeg");
             ImageIO.write(scaled, "jpg", outputStream);
         }
 
