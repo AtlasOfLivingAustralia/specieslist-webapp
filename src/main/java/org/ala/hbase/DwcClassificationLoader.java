@@ -21,6 +21,8 @@ import java.util.Iterator;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.dao.TaxonConceptDaoImpl;
 import org.ala.model.Classification;
+import org.ala.model.Rank;
+import org.apache.log4j.Logger;
 import org.gbif.dwc.record.DarwinCoreRecord;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.text.Archive;
@@ -36,7 +38,7 @@ import org.gbif.dwc.text.UnsupportedArchiveException;
  * @author Dave Martin (David.Martin@csiro.au)
  */
 public class DwcClassificationLoader {
-
+    protected static Logger logger = Logger.getLogger(DwcClassificationLoader.class);
 	/**
 	 * @param args
 	 */
@@ -78,12 +80,20 @@ public class DwcClassificationLoader {
 				c.setGuid(dwc.getTaxonID());
 				c.setScientificName(dwc.getScientificName());
 				c.setRank(dwc.getTaxonRank());
-				c.setSpecies(dwc.getSpecificEpithet());
-				c.setGenus(dwc.getGenus());
-				c.setFamily(dwc.getFamily());
-				c.setOrder(dwc.getOrder());
-				c.setPhylum(dwc.getPhylum());
-				c.setKingdom(dwc.getKingdom());
+                c.setSpecies(dwc.getSpecificEpithet());
+                c.setGenus(dwc.getGenus());
+                c.setFamily(dwc.getFamily());
+                c.setOrder(dwc.getOrder());
+                c.setPhylum(dwc.getPhylum());
+                c.setKingdom(dwc.getKingdom());
+
+                // Attempt to set the rank Id via Rank enum
+                try {
+                    c.setRankId(Rank.getForName(dwc.getTaxonRank()).getId());
+                } catch (Exception e) {
+                    logger.warn("Could not set rankId for: "+dwc.getTaxonRank()+" in "+guid);
+                }
+                
 				taxonConceptDao.addClassification(guid, c);
 			}
 		}

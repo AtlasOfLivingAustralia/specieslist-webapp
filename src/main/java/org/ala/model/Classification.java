@@ -5,6 +5,7 @@ public class Classification extends AttributableObject implements Comparable<Cla
 	protected String guid;
 	protected String scientificName;
 	protected String rank;
+    protected Integer rankId;
 	protected String kingdom;
 	protected String kingdomGuid;
 	protected String phylum;
@@ -303,4 +304,17 @@ public class Classification extends AttributableObject implements Comparable<Cla
 	public void setRank(String rank) {
 		this.rank = rank;
 	}
+    /**
+     * @return the rankId
+     */
+    public Integer getRankId() {
+        return rankId;
+    }
+	/**
+	 * @param rankId the rankId to set
+	 */
+    public void setRankId(Integer rankId) {
+        this.rankId = rankId;
+    }
+    
 }

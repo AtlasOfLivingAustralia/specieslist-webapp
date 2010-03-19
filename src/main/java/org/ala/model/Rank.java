@@ -62,10 +62,13 @@ public enum Rank {
     CL          (3000, "class", "cl"),
     // non standard rank values encountered while indexing...
     DIVISION    (2000, "phylum/division", "division"),
+    PHYLUM      (2000, "phylum", "phylum"),
     SUBDIVISION (2200, "subphylum/subdivision", "subdivision"),
     COHORT      (2400, "cohort", "cohort"),
     SECTION     (6600, "section", "section"),
     INCERTAE_SEDIS (5999, "Incertae Sedis (uncertain rank)", "incertae sedis"),
+    UNRANKED    (9999, "unranked", "unranked"),
+    INFRASPECIFICNAME (5999, "infraspecificname", "infraspecific name"),
     SP_INQUIRENDA  (5999, "Species Inquirenda (doubtful identity)", "species inquirenda");
 
     private Integer id;   // used to sort by classification order
