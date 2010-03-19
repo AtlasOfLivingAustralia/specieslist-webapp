@@ -9,8 +9,8 @@
         <meta name="pageName" content="species" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>ALA Biodiversity Information Explorer: ${extendedTaxonConcept.taxonConcept.nameString}</title>
-        <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-        <script type="text/javascript" src="${pageContext.request.contextPath}/static/fancybox/jquery.fancybox-1.2.6.pack.js"></script>
+        <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/fancybox/jquery.fancybox-1.3.1.css" media="screen" />
+        <script type="text/javascript" src="${pageContext.request.contextPath}/static/fancybox/jquery.fancybox-1.3.1.pack.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.easing.1.3.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-galleryview-1.1/jquery.galleryview-1.1.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-galleryview-1.1/jquery.timers-1.1.2.js"></script>
@@ -26,20 +26,23 @@
 
             $(document).ready(function() {
                 $("a.popup").fancybox({
-                    'frameWidth' : 800,
-                    'frameHeight' : 500,
+                    'autoDimensions' : false,
+                    'width' : 800,
+                    'height' : 500,
                     'hideOnContentClick' : false
                 });
 
                 $("a.image").fancybox({
-                    'imageScale' : true,
+                    'autoScale' : true,
                     'hideOnContentClick' : false
                 });
 
                 $("a#lsid").fancybox({
                     'hideOnContentClick' : false,
-                    'frameWidth' : 600,
-                    'frameHeight' : 150
+                    'titleShow' : false,
+                    'autoDimensions' : false,
+                    'width' : 600,
+                    'height' : 150
                 });
 
                 $("#view2").hide();
@@ -290,7 +293,10 @@
             <c:if test="${fn:length(extendedTaxonConcept.images) > 0}">
                 <div id="speciesPhoto" class="<%--cropBig--%>">
                     <%--<img src="http://${pageContext.request.serverName}:80${fn:replace(extendedTaxonConcept.images[0].repoLocation, "/data/bie", "/repository")}" style="/*max-width:250px;max-height:280px;*/" width="300"  alt="species photo"/>--%>
-                    <img src="${pageContext.request.contextPath}/species/images/${extendedTaxonConcept.images[0].documentId}.jpg?scale=150" <%--width="300" --%> alt="species photo"/>
+                    <a href="http://${pageContext.request.serverName}:80${fn:replace(extendedTaxonConcept.images[0].repoLocation, "/data/bie", "/repository")}"
+                       title="${extendedTaxonConcept.images[0].title} - ${extendedTaxonConcept.images[0].infoSourceName}" class="image">
+                        <img src="${pageContext.request.contextPath}/species/images/${extendedTaxonConcept.images[0].documentId}.jpg?scale=160" <%--width="300" --%> alt="species photo"/>
+                    </a>
                 </div>
             </c:if>
             <div id="speciesTitle">
@@ -332,15 +338,20 @@
                         </td>
                     </tr>
                 </table>
-                <div id="lsidText" style="display:none;">
-                    <b><a href="http://lsids.sourceforge.net/" target="_blank">Life Science Identifier (LSID):</a></b>
-                    <p style="margin: 10px 0;"><a href="http://lsid.tdwg.org/summary/${extendedTaxonConcept.taxonConcept.guid}" target="_blank">${extendedTaxonConcept.taxonConcept.guid}</a></p>
-                    <p style="font-size: 12px;">LSIDs are persistent, location-independent,resource identifiers for uniquely naming biologically
-                         significant resources including species names, concepts, occurrences, genes or proteins,
-                         or data objects that encode information about them. To put it simply,
-                        LSIDs are a way to identify and locate pieces of biological information on the web. </p>
+                <div style="display:none;">
+                    <div id="lsidText">
+                        <b><a href="http://lsids.sourceforge.net/" target="_blank">Life Science Identifier (LSID):</a></b>
+                        <p style="margin: 10px 0;"><a href="http://lsid.tdwg.org/summary/${extendedTaxonConcept.taxonConcept.guid}" target="_blank">${extendedTaxonConcept.taxonConcept.guid}</a></p>
+                        <p style="font-size: 12px;">LSIDs are persistent, location-independent,resource identifiers for uniquely naming biologically
+                             significant resources including species names, concepts, occurrences, genes or proteins,
+                             or data objects that encode information about them. To put it simply,
+                            LSIDs are a way to identify and locate pieces of biological information on the web. </p>
+                    </div>
                 </div>
-                <div id="LSID_icon"><a href="#lsidText" id="lsid"><img src="${pageContext.request.contextPath}/static/images/lsid.png"/></a></div>
+                <div id="LSID_icon">
+                    <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" title="View JSON data for this taxon" id="json">JSON</a>
+                    <a href="#lsidText" id="lsid" title="LSID info"><img src="${pageContext.request.contextPath}/static/images/lsid.png"/></a>
+                </div>
             </div>
         </div>
         <div id="tabs" <%--class="yui-navset"--%> style="clear: both;">
@@ -376,14 +387,14 @@
                             <c:forEach var="status" items="${extendedTaxonConcept.conservationStatuses}">
                                 <tr>
                                     <td class="propertyNames">Conservation Status</td>
-                                    <td>${fn:toLowerCase(status.status)}</td>
+                                    <td>${status.status}</td>
                                     <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
                                 </tr>
                             </c:forEach>
                             <c:forEach var="status" items="${extendedTaxonConcept.pestStatuses}">
                                 <tr>
                                     <td class="propertyNames">Pest Status</td>
-                                    <td>${fn:toLowerCase(status.status)}</td>
+                                    <td>${status.status}</td>
                                     <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
                                 </tr>
                             </c:forEach>
@@ -451,7 +462,7 @@
                     <!-- Classification -->
                     <div id="classification">
                     <c:set var="classfn" value="${extendedTaxonConcept.classification}"/>
-                    <c:set var="rankId" value="7000"/><%-- FIXME: get via Rank enum --%>
+                    <c:set var="rankId" value="${classfn.rankId}"/>
                         <table class="propertyTable">
                             <tr>
                                 <th width="15%"></th>
@@ -461,49 +472,73 @@
                         <c:if test="${rankId >= 1000}">
                             <tr>
                                 <td>Kingdom
-                                <td><a href="${classfn.kingdomGuid}">${classfn.kingdom}</a></td>
+                                <td>
+                                    <c:if test="${not empty classfn.kingdom}"><a href="${classfn.kingdomGuid}">${classfn.kingdom}</a></c:if>
+                                    <c:if test="${empty classfn.kingdom && classfn.rankId == 1000}"><a href="">${classfn.scientificName}</a></c:if>
+                                </td>
                             </tr>
                         </c:if>
                         <c:if test="${rankId >= 2000}">
                             <tr>
                                 <td>Phylum
-                                <td><a href="${classfn.phylumGuid}">${classfn.phylum}</a></td>
+                                <td>
+                                    <c:if test="${not empty classfn.phylum}"><a href="${classfn.phylumGuid}">${classfn.phylum}</a></c:if>
+                                    <c:if test="${empty classfn.phylum && classfn.rankId == 2000}"><a href="">${classfn.scientificName}</a></c:if>
+                                </td>
                             </tr>
                         </c:if>
                         <c:if test="${rankId >= 3000}">
                             <tr>
                                 <td>Class</td>
-                                <td><a href="${classfn.clazzGuid}">${classfn.clazz}</a></td>
+                                <td>
+                                    <c:if test="${not empty classfn.clazz}"><a href="${classfn.clazzGuid}">${classfn.clazz}</a></c:if>
+                                    <c:if test="${empty classfn.clazz && classfn.rankId == 3000}"><a href="">${classfn.scientificName}</a></c:if>
+                                </td>
                             </tr>
                         </c:if>
                         <c:if test="${rankId >= 4000}">
                             <tr>
                                 <td>Order</td>
-                                <td><a href="${classfn.orderGuid}">${classfn.order}</a></td>
+                                <td>
+                                    <c:if test="${not empty classfn.order}"><a href="${classfn.orderGuid}">${classfn.order}</a></c:if>
+                                    <c:if test="${empty classfn.order && classfn.rankId == 4000}"><a href="">${classfn.scientificName}</a></c:if>
+                                </td>
                             </tr>
                         </c:if>
                         <c:if test="${rankId >= 5000}">
                             <tr>
                                 <td>Family</td>
-                                <td><a href="${classfn.familyGuid}">${classfn.family}</a></td>
+                                <td>
+                                    <c:if test="${not empty classfn.family}"><a href="${classfn.familyGuid}">${classfn.family}</a></c:if>
+                                    <c:if test="${empty classfn.family && classfn.rankId == 5000}"><a href="">${classfn.scientificName}</a></c:if>
+                                </td>
                             </tr>
                         </c:if>
                         <c:if test="${rankId >= 6000}">
                             <tr>
                                 <td>Genus</td>
-                                <td><a href="${classfn.genusGuid}">${classfn.genus}</a></td>
+                                <td>
+                                    <c:if test="${not empty classfn.genus}"><a href="${classfn.genusGuid}">${classfn.genus}</a></c:if>
+                                    <c:if test="${empty classfn.genus && classfn.rankId == 6000}"><a href="">${classfn.scientificName}</a></c:if>
+                                </td>
                             </tr>
                         </c:if>
                         <c:if test="${rankId >= 7000}">
                             <tr>
                                 <td>Species</td>
-                                <td><a href="${classfn.speciesGuid}">${classfn.species}</a></td>
+                                <td>
+                                    <c:if test="${not empty classfn.species}"><a href="${classfn.speciesGuid}">${classfn.species}</a></c:if>
+                                    <c:if test="${empty classfn.species && classfn.rankId == 7000}"><a href="">${classfn.scientificName}</a></c:if>
+                                </td>
                             </tr>
                         </c:if>
                         <c:if test="${rankId >= 8000}">
                             <tr>
                                 <td>Subspecies</td>
-                                <td><a href="${classfn.subspeciesGuid}">${classfn.subspecies}</td>
+                                <td>
+                                    <c:if test="${not empty classfn.subspecies}"><a href="${classfn.subspeciesGuid}">${classfn.subspecies}</a></c:if>
+                                    <c:if test="${empty classfn.subspecies && classfn.rankId == 8000}"><a href="">${classfn.scientificName}</a></c:if>
+                                </td>
                             </tr>
                         </c:if>
                         </table>

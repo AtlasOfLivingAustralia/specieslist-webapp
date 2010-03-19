@@ -38,8 +38,10 @@
                 <ul class="tabs">
                     <li class="<c:if test="${pageName == 'home'}">active</c:if> first"><a href="${pageContext.request.contextPath}/">Home</a></li>
                     <li class="<c:if test="${pageName == 'species'}">active</c:if>"><a href="${pageContext.request.contextPath}/species/search">Explore Species</a></li>
-                    <li class="<c:if test="${pageName == 'maps'}">active</c:if>"><a href="http://ec2-174-129-53-185.compute-1.amazonaws.com/webportal/">Explore maps</a></li>
-                    <li class="<c:if test="${pageName == 'datasets'}">active</c:if> last"><a href="${pageContext.request.contextPath}/datasets">Explore Rich Datasets</a></li>
+                    <!-- <li class="<c:if test="${pageName == 'maps'}">active</c:if> last"><a href="http://ec2-174-129-53-185.compute-1.amazonaws.com/webportal/">Explore maps</a></li> -->
+                    <li class="<c:if test="${pageName == 'datasets'}">active</c:if> "><a href="${pageContext.request.contextPath}/species/datasets">Datasets</a></li>
+                    <li class="<c:if test="${pageName == 'consStatus'}">active</c:if> "><a href="${pageContext.request.contextPath}/species/status/conservationStatus">Conservation Status List</a></li>
+                    <li class="<c:if test="${pageName == 'pestStatus'}">active</c:if> last"><a href="${pageContext.request.contextPath}/species/status/pestStatus">Pest Status List</a></li>
                 </ul>                
             </div>
             <div id="body" class="yui-skin-sam">
