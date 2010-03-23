@@ -290,16 +290,13 @@
             </c:choose>
         </c:set>
         <div id="speciesHeader">
-            <c:if test="${fn:length(extendedTaxonConcept.images) > 0}">
-                <div id="speciesPhoto" class="<%--cropBig--%>">
-                    <%--<img src="http://${pageContext.request.serverName}:80${fn:replace(extendedTaxonConcept.images[0].repoLocation, "/data/bie", "/repository")}" style="/*max-width:250px;max-height:280px;*/" width="300"  alt="species photo"/>--%>
-                    <a href="http://${pageContext.request.serverName}:80${fn:replace(extendedTaxonConcept.images[0].repoLocation, "/data/bie", "/repository")}"
-                       title="${extendedTaxonConcept.images[0].title} - ${extendedTaxonConcept.images[0].infoSourceName}" class="image">
-                        <img src="${pageContext.request.contextPath}/species/images/${extendedTaxonConcept.images[0].documentId}.jpg?scale=160" <%--width="300" --%> alt="species photo"/>
-                    </a>
-                </div>
-            </c:if>
             <div id="speciesTitle">
+                <c:if test="${fn:length(extendedTaxonConcept.images) > 0}">
+                    <a href="http://${pageContext.request.serverName}:80${fn:replace(extendedTaxonConcept.images[0].repoLocation, "/data/bie", "/repository")}"
+                           title="${extendedTaxonConcept.images[0].title} - ${extendedTaxonConcept.images[0].infoSourceName}" class="image">
+                        <div id="speciesPhoto" style="background-image:url(${pageContext.request.contextPath}/species/images/${extendedTaxonConcept.images[0].documentId}.jpg?scale=130)"></div>
+                    </a>
+                </c:if>
                 <h2>
                     <span id="rankInTitle" class="show-60"><fmt:message key="rank.${taxonConceptRank}" />:</span>
                     ${fn:replace(extendedTaxonConcept.taxonConcept.nameString, extendedTaxonConcept.taxonName.nameComplete, sciNameFormatted)}
@@ -331,7 +328,7 @@
                         </td>
                     </tr></c:if>
                     <tr>
-                        <td class="propertyName">Source:</td>
+                        <td class="propertyName" style="padding-bottom:20px;">Source:</td>
                         <td>
                             <%--<a href="<fmt:message key="source.${taxonConcept.source}.url" />" target="_blank"><fmt:message key="source.${taxonConcept.source}" /></a>--%>
                             <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}">${extendedTaxonConcept.taxonConcept.infoSourceName}</a>
@@ -349,8 +346,8 @@
                     </div>
                 </div>
                 <div id="LSID_icon">
-                    <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" title="View JSON data for this taxon" id="json">JSON</a>
                     <a href="#lsidText" id="lsid" title="LSID info"><img src="${pageContext.request.contextPath}/static/images/lsid.png"/></a>
+                    <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" title="View JSON data for this taxon" id="json">JSON</a>
                 </div>
             </div>
         </div>
@@ -476,6 +473,7 @@
                                     <c:if test="${not empty classfn.kingdom}"><a href="${classfn.kingdomGuid}">${classfn.kingdom}</a></c:if>
                                     <c:if test="${empty classfn.kingdom && classfn.rankId == 1000}"><a href="">${classfn.scientificName}</a></c:if>
                                 </td>
+                                <td><c:if test="${not empty classfn.infoSourceName && not empty classfn.infoSourceURL}"><a href="${classfn.infoSourceURL}">${classfn.infoSourceName}</a></c:if></td>
                             </tr>
                         </c:if>
                         <c:if test="${rankId >= 2000}">
@@ -485,6 +483,7 @@
                                     <c:if test="${not empty classfn.phylum}"><a href="${classfn.phylumGuid}">${classfn.phylum}</a></c:if>
                                     <c:if test="${empty classfn.phylum && classfn.rankId == 2000}"><a href="">${classfn.scientificName}</a></c:if>
                                 </td>
+                                <td><c:if test="${not empty classfn.infoSourceName && not empty classfn.infoSourceURL}"><a href="${classfn.infoSourceURL}">${classfn.infoSourceName}</a></c:if></td>
                             </tr>
                         </c:if>
                         <c:if test="${rankId >= 3000}">
@@ -494,6 +493,7 @@
                                     <c:if test="${not empty classfn.clazz}"><a href="${classfn.clazzGuid}">${classfn.clazz}</a></c:if>
                                     <c:if test="${empty classfn.clazz && classfn.rankId == 3000}"><a href="">${classfn.scientificName}</a></c:if>
                                 </td>
+                                <td><c:if test="${not empty classfn.infoSourceName && not empty classfn.infoSourceURL}"><a href="${classfn.infoSourceURL}">${classfn.infoSourceName}</a></c:if></td>
                             </tr>
                         </c:if>
                         <c:if test="${rankId >= 4000}">
@@ -503,6 +503,7 @@
                                     <c:if test="${not empty classfn.order}"><a href="${classfn.orderGuid}">${classfn.order}</a></c:if>
                                     <c:if test="${empty classfn.order && classfn.rankId == 4000}"><a href="">${classfn.scientificName}</a></c:if>
                                 </td>
+                                <td><c:if test="${not empty classfn.infoSourceName && not empty classfn.infoSourceURL}"><a href="${classfn.infoSourceURL}">${classfn.infoSourceName}</a></c:if></td>
                             </tr>
                         </c:if>
                         <c:if test="${rankId >= 5000}">
@@ -512,6 +513,7 @@
                                     <c:if test="${not empty classfn.family}"><a href="${classfn.familyGuid}">${classfn.family}</a></c:if>
                                     <c:if test="${empty classfn.family && classfn.rankId == 5000}"><a href="">${classfn.scientificName}</a></c:if>
                                 </td>
+                                <td><c:if test="${not empty classfn.infoSourceName && not empty classfn.infoSourceURL}"><a href="${classfn.infoSourceURL}">${classfn.infoSourceName}</a></c:if></td>
                             </tr>
                         </c:if>
                         <c:if test="${rankId >= 6000}">
@@ -521,6 +523,7 @@
                                     <c:if test="${not empty classfn.genus}"><a href="${classfn.genusGuid}">${classfn.genus}</a></c:if>
                                     <c:if test="${empty classfn.genus && classfn.rankId == 6000}"><a href="">${classfn.scientificName}</a></c:if>
                                 </td>
+                                <td><c:if test="${not empty classfn.infoSourceName && not empty classfn.infoSourceURL}"><a href="${classfn.infoSourceURL}">${classfn.infoSourceName}</a></c:if></td>
                             </tr>
                         </c:if>
                         <c:if test="${rankId >= 7000}">
@@ -530,6 +533,7 @@
                                     <c:if test="${not empty classfn.species}"><a href="${classfn.speciesGuid}">${classfn.species}</a></c:if>
                                     <c:if test="${empty classfn.species && classfn.rankId == 7000}"><a href="">${classfn.scientificName}</a></c:if>
                                 </td>
+                                <td><c:if test="${not empty classfn.infoSourceName && not empty classfn.infoSourceURL}"><a href="${classfn.infoSourceURL}">${classfn.infoSourceName}</a></c:if></td>
                             </tr>
                         </c:if>
                         <c:if test="${rankId >= 8000}">
@@ -539,6 +543,7 @@
                                     <c:if test="${not empty classfn.subspecies}"><a href="${classfn.subspeciesGuid}">${classfn.subspecies}</a></c:if>
                                     <c:if test="${empty classfn.subspecies && classfn.rankId == 8000}"><a href="">${classfn.scientificName}</a></c:if>
                                 </td>
+                                <td><c:if test="${not empty classfn.infoSourceName && not empty classfn.infoSourceURL}"><a href="${classfn.infoSourceURL}">${classfn.infoSourceName}</a></c:if></td>
                             </tr>
                         </c:if>
                         </table>
