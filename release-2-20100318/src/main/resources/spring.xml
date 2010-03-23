@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+  <!-- Scan source files for annotations for DI -->
+  <context:component-scan base-package="org.ala"/>
+  <!-- override bean fields with values from properties file -->
+  <context:property-override location="classpath:overrides.properties"/>
+  <!-- load properties file into the context -->
+  <context:property-placeholder location="classpath:repository.properties"/>
+
+  <!-- Also load properties into a messageSource bean for access in Java code -->
+  <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basename" value="repository"/>
+  </bean>
+
+  <!-- data source -->
+  <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${jdbc.driver}"/>
+    <property name="url" value="${jdbc.url}"/>
+    <property name="username" value="${jdbc.username}"/>
+    <property name="password" value="${jdbc.password}"/>
+    <property name="initialSize" value="1"/>
+    <property name="maxActive" value="25"/>
+    <property name="maxIdle" value="10"/>
+    <property name="maxWait" value="30000"/>
+    <property name="poolPreparedStatements" value="true"/>
+</bean>
+
+</beans>
