@@ -1,0 +1,385 @@
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Intranet Global Styles CSS
+Author: Harry Kontos, CSIRO IM&T
+Date Created: 2006-11-14
+Date Modified: 2008-12-04
+Some parts Copyright (c) 2006, Yahoo! Inc. All rights reserved.
+
+Contents
+	=> Global Tag Styles
+	=> Custom Classes
+	=> Pagemast (the bit where the page icon used to go)
+	=> Container Region (everything but the header and footer; reserved)
+	=> Subcontainer Region (everything but the header, pagemast and footer)
+	=> Content Region (main column for single- or multi-column pages)
+	=> Subsite Navigation (left column for pages with subsite navigation)
+	=> Right Column (optional 3rd column on right)
+	=> Footer
+	=> Colours
+	=> Miscellaneous Sizes (for text)
+	=> Styles for Legacy Look (simulating and supporting the old look)
+	=> Sidebar (Legacy Look How-To, Whats New etc.)
+	=> Alternating table rows (J.McG, comms)
+	=> Borders
+	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+/* __________ Global Tag Styles __________  */
+	
+body {
+	font:13px arial,verdana,sans-serif;font-size:small;font:x-small; /*Y!*/
+	color:#000;
+	background-color:#fff;
+	margin-top:0 !important;
+	margin-right:2%;
+	margin-bottom:0 !important;
+	margin-left:2%;
+	}
+
+html, body, h1, h2, h3, h4, h5, h6, div, p, ul, li, input, select, span, td, textarea {
+	font-family:arial,verdana,sans-serif;
+	}
+table {font-size:inherit;font:100%;} /*Y!*/
+pre, code {font:115% monospace;font-size:100%;} /*Y!*/
+
+a:link {color:#0099CC;} /* CSIRO blue */
+a:visited {color:#660066;}
+a:focus, a:hover {color:#C03; text-decoration:underline;}
+
+hr {color:#CCC; background-color:transparent; clear:both;} /* Only works in IE! */
+h1 {font-weight:100; color:#09C; font-size:235%;}
+h2 {font-weight:100; color:#09C; font-size:178%;}
+h3 {font-weight:100; color:#09C; font-size:155%;} /* was #09C, then #000 */
+h4 {font-weight:100; color:#09C; font-size:135%;} /* was #09C, then #000 */
+
+th {text-align:left;} /* Align all TH tags left instead of default center */
+
+/* __________ Custom Classes __________  */
+.siteheading {color:#999;}
+.sectionheading {color:#09C;} /* was #bed600, #0099CC */
+.catheading {font-size:85%; color:#0099CC; font-weight:bold;}
+
+.hidden, .hide, .invisible {display:none;}
+.pagetop {text-align:right;} /* links to top of page */
+li.nobullet {
+	list-style-type:none !important;
+	list-style-image:none !important;
+	} /* kill list item bullet but keep the indent */
+
+.alignright {text-align:right !important;}
+.aligncentre {text-align:center !important;}
+
+/* __________ Pagemast __________ */
+#ign_pagemast {margin:1em 1em 1em 0;}
+#ign_pagemast h1, #ign_pagemast h2, #ign_pagemast h3 {margin:0;}
+
+/* __________ Container Region __________ */
+#ign_container {} /* reserved for future use */
+
+/* __________ Subcontainer Region __________ */
+#ign_subcontainer {border-top:3px solid #b0cce9;} /* was #09C */
+
+/* __________ Content Region __________ */
+#ign_content {font-size:100%;} /* reset sizes */
+#ign_content.basic {width:75%;} /* avoid superwide lines of text on single- or double-column pages */
+#ign_content a:focus, #ign_content a:hover {color:#C03; text-decoration:underline;}
+#ign_content table, #ign_content td, #ign_content th {
+	border-collapse:collapse; empty-cells:show;
+	} /* collapse double borders (cellspace) and show empty cells without needing &nbsp; */
+
+/* __________ Subsite Navigation __________ */
+#ign_subnav { 
+	margin-right:1em;
+	font-size:92.5%; /* font-size = 12px */
+	}
+	
+	#ign_subnav p {color:#666;}
+	
+	#ign_subnav h2, #ign_subnav h3, #ign_subnav h4 {
+		margin-bottom:0;
+		color:#666;
+		font-size:150%;
+		font-weight:100;}
+		
+	#ign_subnav ul {
+		list-style-image:url("/intranet/images/bullet-arrow.gif");
+		margin-left:1em;
+		padding-left:0;
+		}
+	#ign_subnav li {margin-top:0.5em; margin-bottom:0.5em;} /* separate list items */
+	#ign_subnav ul ul {margin-top:0.25em; margin-bottom:0.25em;} /* to allow for nested lists */
+			
+	#ign_subnav a:link {color:#000; text-decoration:none;}
+	#ign_subnav a:visited {color:#000; text-decoration:none;}
+	#ign_subnav a:focus, #ign_subnav a:hover {color:#C03; text-decoration:underline;}
+	
+td#subnav {background-color:#F5F5F5; width:14em;} /* pale grey background and set width */
+	
+/* __________ Right Column __________ */
+#ign_right-column {width:auto; margin-left:0.5em; margin-right:0.5em;}
+	#ign_right-column h1, 
+	#ign_right-column h2, 
+	#ign_right-column h3,
+	#ign_right-column h4 {margin:0;color:#999;} /* control huge margins*/
+	
+	#ign_right-column ul {
+		list-style-image:url("/intranet/images/bullet-blue-square.gif");
+		margin-left:1em;
+		padding-left:0;
+		}
+
+	#ign_right-column ul ul {margin-top:0.25em;margin-bottom:0.25em;} /* to allow for nested lists */
+	#ign_right-column li {margin-bottom:0.5em;} /* create some space between list items */
+	#ign_right-column a:focus, #ign_right-column a:hover {color:#C03; text-decoration:underline;}
+
+td#right-column {background-color:#FAFBF4;} /* pale green background on the right column td */
+
+/* __________ Footer __________ */
+#ign_footer {
+	color:#000; background-color:#fff;
+	font-size:100%; /* reset size */
+	text-align:center; 
+	border-top:2px solid #b0cce9; /* was #9C0 */
+	padding-bottom:0.5em;
+	} 
+#ign_footer a {color:#0099CC; font-weight:normal; text-decoration:none;} /* CSIRO blue */
+#ign_footer a:focus, #ign_footer a:hover {color:#C03; font-weight:normal; text-decoration:underline;}
+#ign_footer_nav {font-size:92.5%;}
+#ign_copyright {font-size:85%;}
+
+/* ##################################################### */
+/* #################### COLOURS ######################## */ 
+/* ##################################################### */
+
+/* __________ CSIRO VI THEME COLOURS __________ */
+
+/* SOLID */
+.vi_bed600 {color:#bed600;} /* lime, primary palette */
+.vi_0099cc {color:#0099cc;} /* csiro blue, primary palette */
+.vi_000000 {color:#000000;} /* black, primary palette */
+.vi_999999 {color:#999999;} /* grey, primary palette */
+.vi_6699cc {color:#6699cc;} /* blue, secondary palette */
+.vi_cb5056 {color:#cb5056;} /* light red, secondary palette */
+.vi_74a18e {color:#74a18e;} /* green, secondary palette */
+.vi_ebab00 {color:#ebab00;} /* yellow, secondary palette */
+
+.vi_bg_bed600 {background-color:#bed600;} /* lime, primary palette */
+.vi_bg_0099cc {background-color:#0099cc;} /* csiro blue, primary palette */
+.vi_bg_000000 {background-color:#000000;} /* black, primary palette */
+.vi_bg_999999 {background-color:#999999;} /* grey, primary palette */
+.vi_bg_6699cc {background-color:#6699cc;} /* blue, secondary palette */
+.vi_bg_cb5056 {background-color:#cb5056;} /* light red, secondary palette */
+.vi_bg_74a18e {background-color:#74a18e;} /* green, secondary palette */
+.vi_bg_ebab00 {background-color:#ebab00;} /* yellow, secondary palette */
+
+/* A SHADE LIGHTER */
+.vi_e1eaa4 {color:#e1eaa4;} /* lime, primary palette */
+.vi_79c7e1 {color:#79c7e1;} /* csiro blue, primary palette */
+.vi_999999 {color:#999999;} /* black, primary palette */
+.vi_cccccc {color:#cccccc;} /* grey, primary palette */
+.vi_b0cce9 {color:#b0cce9;} /* blue, secondary palette */
+.vi_f3b6a6 {color:#f3b6a6;} /* light red, secondary palette */
+.vi_b7d0c6 {color:#b7d0c6;} /* green, secondary palette */
+.vi_f5d37a {color:#f5d37a;} /* yellow, secondary palette */
+
+.vi_bg_e1eaa4 {background-color:#e1eaa4;} /* lime, primary palette */
+.vi_bg_79c7e1 {background-color:#79c7e1;} /* csiro blue, primary palette */
+.vi_bg_999999 {background-color:#999999;} /* black, primary palette */
+.vi_bg_cccccc {background-color:#cccccc;} /* grey, primary palette */
+.vi_bg_b0cce9 {background-color:#b0cce9;} /* blue, secondary palette */
+.vi_bg_f3b6a6 {background-color:#f3b6a6;} /* light red, secondary palette */
+.vi_bg_b7d0c6 {background-color:#b7d0c6;} /* green, secondary palette */
+.vi_bg_f5d37a {background-color:#f5d37a;} /* yellow, secondary palette */
+
+/* __________ MISC FOREGROUND (TEXT) COLOURS __________ */
+.red {color:#C00;}
+.grey {color:#808080;}
+.blue {color:#36C;}
+.green {color:#099;}
+.pink {color:#F0F;}
+.purple {color:#909;}
+.white {color:#fff;}
+
+.maroon {color:maroon;}
+.orange {color:#ff9900;}
+.yellow {color:yellow;}
+.olive {color:olive;}
+.lime {color:lime;}
+.navy {color:navy;}
+.aqua {color:aqua;}
+.teal {color:teal;}
+.black {color:black;}
+.silver {color:silver;}
+
+.f5f5f5 {color:#F5F5F5;} /* grey shades */
+.f0f0f0 {color:#F0F0F0;} /* lighter */
+.ebebeb {color:#EBEBEB;}
+.e6e6e6 {color:#E6E6E6;}
+.e1e1e1 {color:#E1E1E1;}
+.dcdcdc {color:#DCDCDC;}
+.cccccc {color:#CCCCCC;}
+.c999999 {color:#999999;} /* darker */
+
+.darkred {color:#990000;} /* dark red */
+.darkorange {color:#CC6600;} /* dark orange */
+.darkgreen {color:#336600;} /* dark green */
+.darkblue {color:#003366;} /* dark blue */
+.darkyellow {color:#FFCC00;} /* dark yellow */
+.brown {color:#996600;} /* brown */
+
+/* __________ MISC BACKGROUND COLOURS __________ */
+.bg_red {background-color:#C00;}
+.bg_grey {background-color:#808080;}
+.bg_blue {background-color:#36C;}
+.bg_green {background-color:#099;}
+.bg_pink {background-color:#F0F;}
+.bg_purple {background-color:#909;}
+.bg_white {background-color:#fff;}
+
+.bg_maroon {background-color:maroon;}
+.bg_orange {background-color:#ff9900;}
+.bg_yellow {background-color:yellow;}
+.bg_olive {background-color:olive;}
+.bg_lime {background-color:lime;}
+.bg_navy {background-color:navy;}
+.bg_aqua {background-color:aqua;}
+.bg_teal {background-color:teal;}
+.bg_black {background-color:black;}
+.bg_silver {background-color:silver;}
+
+.bg_f5f5f5 {background-color:#F5F5F5;} /* grey shades */
+.bg_f0f0f0 {background-color:#F0F0F0;} /* lighter */
+.bg_ebebeb {background-color:#EBEBEB;}
+.bg_e6e6e6 {background-color:#E6E6E6;}
+.bg_e1e1e1 {background-color:#E1E1E1;}
+.bg_dcdcdc {background-color:#DCDCDC;}
+.bg_cccccc {background-color:#CCCCCC;}
+.bg_999999 {background-color:#999999;} /* darker */
+
+.bg_darkred {background-color:#990000;} /* dark red */
+.bg_darkorange {background-color:#CC6600;} /* dark orange */
+.bg_darkgreen {background-color:#336600;} /* dark green */
+.bg_darkblue {background-color:#003366;} /* dark blue */
+.bg_darkyellow {background-color:#FFCC00;} /* dark yellow */
+.bg_brown {background-color:#996600;} /* brown */
+
+
+/* __________ MISC TEXT SIZES __________ */
+.small {font-size:92.5%;}
+.xsmall {font-size:85%;}
+.xxsmall {font-size:77%;}
+.xxxsmall {font-size:69.5%;}
+
+
+/* __________ STYLES FOR LEGACY LOOK __________ */
+/* __________ (disabled to avoid confusing authors) __________ */
+/* .important {color:#C00;} */
+/* .example, .greens {color:#099;} */
+/* .note {color:#F0F;} */
+/* .handyhint {color:#909;} */
+/* .draft {font-style:italic; font-weight:bold; color:#F00;} */
+/* .linkdescription {font-style:italic;} */
+/* .subText {font-size:85%;} */
+/* .smallType {font-size:69.5%;} */
+/* __________________________________________________________ */
+
+
+/* __________ SIDEBAR __________ */
+div#sidebar td {background-color:#FEEBD0;} 
+
+div#sidebar th.blue {
+	text-align:left; 
+	color:#fff; 
+	background-color:#36C; 
+	font-size:85%;
+	font-weight:bold; 
+	}
+
+div#sidebar th.red {
+	text-align:left; 
+	color:#fff; 
+	background-color:#C00; 
+	font-size:85%;
+	font-weight:bold;
+	}
+
+div#sidebar th.purple {
+	text-align:left; 
+	color:#fff; 
+	background-color:#909; 
+	font-size:85%;
+	font-weight:bold; 
+	}
+
+div#sidebar ul li {list-style:disc;}
+
+/* TABLE LAYOUT USED FOR PEOPLEFINDER REPORTS (comms) */
+ 
+table.contactstable {border:1px solid #999; border-collapse:collapse;}
+table.contactstable ul {margin:0 0 0 1em; padding:0;}
+table.contactstable td {border:1px solid #999; vertical-align:top; padding:5px;}
+table.contactstable tr {background-color:#fff;}
+table.contactstable tr.alternate {background-color:#f5f5f5;}
+table.contactstable th {
+	border:1px solid #999;
+	vertical-align:top;
+	padding:5px;
+	background-color:#e1eaa4;
+	color:#000;
+	}
+
+/* SOLID BORDERS FOR BLOCK LEVEL ELEMENTS */
+
+.bordertop {border-top:1px solid #999;}
+.borderright {border-right:1px solid #999;}
+.borderbottom {border-bottom:1px solid #999;}
+.borderleft {border-left:1px solid #999;}
+.bordertopright {border-top:1px solid #999; border-right:1px solid #999;}
+.borderbottomright {border-bottom:1px solid #999; border-right:1px solid #999;}
+.borderbottomleft {border-bottom:1px solid #999; border-left:1px solid #999;}
+.bordertopleft {border-top:1px solid #999; border-left:1px solid #999;}
+.bordertopbottom {border-top:1px solid #999; border-bottom:1px solid #999;}
+.borderleftright {border-left:1px solid #999; border-right:1px solid #999;}
+.bordertopleftright {border-top:1px solid #999; border-left:1px solid #999; border-right:1px solid #999;}
+.bordertoprightbottom {border-top:1px solid #999; border-right:1px solid #999; border-bottom:1px solid #999;}
+.borderbottomleftright {border-bottom:1px solid #999; border-left:1px solid #999; border-right:1px solid #999;}
+.bordertopbottomleft {border-top:1px solid #999; border-bottom:1px solid #999; border-left:1px solid #999;}
+.border {border:1px solid #999;}
+
+/* DOTTED BORDERS FOR BLOCK LEVEL ELEMENTS */
+
+.dotbordertop {border-top:1px dotted #999;}
+.dotborderright {border-right:1px dotted #999;}
+.dotborderbottom {border-bottom:1px dotted #999;}
+.dotborderleft {border-left:1px dotted #999;}
+.dotbordertopright {border-top:1px dotted #999; border-right:1px dotted #999;}
+.dotborderbottomright {border-bottom:1px dotted #999; border-right:1px dotted #999;}
+.dotborderbottomleft {border-bottom:1px dotted #999; border-left:1px dotted #999;}
+.dotbordertopleft {border-top:1px dotted #999; border-left:1px dotted #999;}
+.dotbordertopbottom {border-top:1px dotted #999; border-bottom:1px dotted #999;}
+.dotborderleftright {border-left:1px dotted #999; border-right:1px dotted #999;}
+.dotbordertopleftright {border-top:1px dotted #999; border-left:1px dotted #999; border-right:1px dotted #999;}
+.dotbordertoprightbottom {border-top:1px dotted #999; border-right:1px dotted #999; border-bottom:1px dotted #999;}
+.dotborderbottomleftright {border-bottom:1px dotted #999; border-left:1px dotted #999; border-right:1px dotted #999;}
+.dotbordertopbottomleft {border-top:1px dotted #999; border-bottom:1px dotted #999; border-left:1px dotted #999;}
+.dotborder {border:1px dotted #999;}
+
+/* GREEN SOLID BORDERS FOR BLOCK LEVEL ELEMENTS, EXCEPT TABLES */
+
+.green_bordertop {border-top:1px solid #bed600;}
+.green_borderright {border-right:1px solid #bed600;}
+.green_borderbottom {border-bottom:1px solid #bed600;}
+.green_borderleft {border-left:1px solid #bed600;}
+.green_bordertopright {border-top:1px solid #bed600; border-right:1px solid #bed600;}
+.green_borderbottomright {border-bottom:1px solid #bed600; border-right:1px solid #bed600;}
+.green_borderbottomleft {border-bottom:1px solid #bed600; border-left:1px solid #bed600;}
+.green_bordertopleft {border-top:1px solid #bed600; border-left:1px solid #bed600;}
+.green_bordertopbottom {border-top:1px solid #bed600; border-bottom:1px solid #bed600;}
+.green_borderleftright {border-left:1px solid #bed600; border-right:1px solid #bed600;}
+.green_bordertopleftright {border-top:1px solid #bed600; border-left:1px solid #bed600; border-right:1px solid #bed600;}
+.green_bordertoprightbottom {border-top:1px solid #bed600; border-right:1px solid #bed600; border-bottom:1px solid #bed600;}
+.green_borderbottomleftright {border-bottom:1px solid #bed600; border-left:1px solid #bed600; border-right:1px solid #bed600;}
+.green_bordertopbottomleft {border-top:1px solid #bed600; border-bottom:1px solid #bed600; border-left:1px solid #bed600;}
+.green_border {border:1px solid #bed600;}
