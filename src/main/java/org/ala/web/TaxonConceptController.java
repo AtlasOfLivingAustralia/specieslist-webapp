@@ -14,11 +14,6 @@
  ***************************************************************************/
 package org.ala.web;
 
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.awt.image.renderable.ParameterBlock;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -27,27 +22,21 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.ParameterBlockJAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.RenderedImageAdapter;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ala.dao.DocumentDAO;
 import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
-import org.ala.dao.FulltextSearchDaoImplSolr;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
-import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.Document;
 import org.ala.model.InfoSource;
 import org.ala.model.SimpleProperty;
 import org.ala.repository.Predicates;
+import org.ala.util.ImageUtils;
 import org.ala.util.MimeType;
 import org.ala.util.RepositoryFileUtils;
 import org.ala.util.StatusType;
@@ -259,22 +248,20 @@ public class TaxonConceptController {
 
         if (doc != null) {
             // augment data with title from reading dc file
-            String fileName = doc.getFilePath()+"/raw"+MimeType.getForMimeType(doc.getMimeType()).getFileExtension();
-            BufferedImage original = ImageIO.read(new File(fileName));
+            MimeType mt = MimeType.getForMimeType(doc.getMimeType());
+            String fileName = doc.getFilePath()+"/raw"+mt.getFileExtension();
 
-            //BufferedImage scaled = jaiScaleImage(original, scale, square,
-            //    Interpolation.getInstance(Interpolation.INTERP_BICUBIC_2));
-
-            BufferedImage scaled = awtScaleImage(original, scale, Image.SCALE_SMOOTH);
+            ImageUtils iu = new ImageUtils();
+            iu.load(fileName);
 
             if (square) {
-                scaled = cropImage(scaled, scale);
+                iu.square();
             }
 
-            response.setContentType("image/jpeg");
-            ImageIO.write(scaled, "jpg", outputStream);
+            iu.smoothThumbnail(scale);
+            response.setContentType(mt.getMimeType());
+            ImageIO.write(iu.getModifiedImage(), mt.name(), outputStream);
         }
-
 	}
 
     /**
@@ -346,92 +333,6 @@ public class TaxonConceptController {
         model.addAttribute("infoSources", infoSources);
 
         return DATASET_LIST;
-    }
-
-    /**
-     * Thumbnail image generator, taken from
-     * http://www.hanhuy.com/pfn/java-image-thumbnail-comparison;jsessionid=ED2CFDFF9B3A32CB89F1A15656902B44?page=2
-     *
-     * @param image
-     * @param maxSize
-     * @param hint
-     * @return
-     */
-    BufferedImage awtScaleImage(BufferedImage image, int maxSize, int hint) {
-        //System.out.println("AWT Scaling image to: " + maxSize);
-        int w = image.getWidth();
-        int h = image.getHeight();
-        float scaleFactor = 1.0f;
-        
-        if (w > h) {
-            scaleFactor = ((float) maxSize / (float) h);
-        } else {
-            scaleFactor = ((float) maxSize / (float) w);
-        }
-        
-        w = (int)(w * scaleFactor);
-        h = (int)(h * scaleFactor);
-        // since this code can run both headless and in a graphics context
-        // we will just create a standard rgb image here and take the
-        // performance hit in a non-compatible image format if any
-        Image i = image.getScaledInstance(w, h, hint);
-        image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = image.createGraphics();
-        g.drawImage(i, null, null);
-        g.dispose();
-        i.flush();
-        return image;
-    }
-
-    /**
-     * Crop image to a square (Flickr-style)
-     *
-     * @param scaled
-     * @param scale
-     * @return
-     */
-    private BufferedImage cropImage(BufferedImage scaled, Integer scale) {
-        // crop image to a square
-        PlanarImage pi = new RenderedImageAdapter(scaled);
-        int w = pi.getWidth();
-        int h = pi.getHeight();
-        float ratio = 0f;
-        float scaleFactor = 1.0f;
-        float cropBy = 0f; 
-        float cropX = 0f;
-        float cropY = 0f;
-        if (w > h) {
-            scaleFactor = ((float) scale / (float) w);
-            int tmp = (int) (scale / ((float) w / (float) h));
-            cropBy = (float) tmp; // forces rounding down of float
-            int croptTmp = (int) ((float) (w * scaleFactor) - cropBy) / 2;
-            cropX = (float) croptTmp;
-        } else {
-            scaleFactor = ((float) scale / (float) h);
-            int tmp = (int) (scale / ((float) h / (float) w));
-            cropBy = (float) tmp; // forces rounding down of float
-            int croptTmp = (int) ((float) (h * scaleFactor) - cropBy) / 2;
-            cropY = (float) croptTmp;
-        }
-        ParameterBlockJAI params = new ParameterBlockJAI("crop");
-        params.addSource(pi);
-        params.setParameter("x", cropX);
-        params.setParameter("y", cropY); // new Integer(pi.getMinY()).floatValue()
-        params.setParameter("width", (float) scale);
-        params.setParameter("height", (float) scale);
-        pi = JAI.create("crop", params);
-        BufferedImage scaled2 = pi.getAsBufferedImage();
-
-//        ParameterBlock pb = new ParameterBlock();
-//        pb.addSource(pi);
-//        pb.add(cropX);
-//        pb.add(cropY);
-//        pb.add((float) scale);
-//        pb.add((float) scale);
-//        //pb.add(interp);
-//        pi = JAI.create("crop", pb);
-//        BufferedImage scaled2 = pi.getAsBufferedImage();
-        return scaled2;
     }
 
     /**
