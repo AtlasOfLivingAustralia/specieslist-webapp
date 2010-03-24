@@ -36,4 +36,7 @@ java -classpath $CLASSPATH org.ala.hbase.BHLDataLoader
 echo "LOAD : running DwC Classification Loader $('date')"
 java -classpath $CLASSPATH org.ala.hbase.DwcClassificationLoader
 
+echo "LOAD : running Re-Create Taxon Concept Index $('date')"
+java -classpath $CLASSPATH org.ala.lucene.CreateTaxonConceptIndex
+
 echo "LOAD : processing complete at $('date')"
