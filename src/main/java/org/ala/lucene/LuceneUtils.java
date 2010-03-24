@@ -15,6 +15,10 @@
 package org.ala.lucene;
 
 import java.util.TreeSet;
+import org.ala.model.Rank;
+import org.ala.model.TaxonName;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -30,17 +34,29 @@ import org.gbif.ecat.parser.NameParser;
 public class LuceneUtils {
     public static final String SCI_NAME = "scientificName";
     public static final String SCI_NAME_RAW = "scientificNameRaw";
+    public static final String SCI_NAME_TEXT = "scientificNameText";
+    private final static Logger logger = Logger.getLogger(LuceneUtils.class);
 	/**
 	 * Adds a scientific name to the lucene index in multiple forms to increase
 	 * chances of matches
 	 * 
 	 * @param doc
-	 * @param scientificName
+     * @param scientificName
+     * @param taxonRank
 	 */
-	public static void addScientificNameToIndex(Document doc, String scientificName){
+	public static void addScientificNameToIndex(Document doc, String scientificName, String taxonRank){
 		
 		NameParser nameParser = new NameParser();
+        Integer rankId = -1;
 		
+        if (taxonRank!=null) {
+            try {
+                Rank rank = Rank.getForField(taxonRank.toLowerCase());
+                rankId = rank.getId();
+            } catch (Exception e) {
+                logger.warn("Unknown rank string: " + taxonRank, e);
+            }
+        }
 		//remove the subgenus
 		String normalized = "";
 		
@@ -65,9 +81,25 @@ public class LuceneUtils {
             for (String sciName : sciNames) {
                 doc.add(new Field(SCI_NAME, sciName, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
             }
+
+            Float boost = 1f;
+            
+            if (rankId == 6000) {
+                // genus higher than species so it appears first
+                boost = 3f;
+            } else if (rankId == 7000) {
+                // species higher than subspecies so it appears first
+                boost = 2f;
+            }
+
+            Field f = new Field(SCI_NAME_TEXT, StringUtils.join(sciNames, " "), Store.YES, Index.ANALYZED);
+            f.setBoost(boost);
+            doc.add(f);
+            //doc.add(new Field(SCI_NAME_TEXT, StringUtils.join(sciNames, " "), Store.YES, Index.ANALYZED_NO_NORMS));
     	} else {
     		//add lowercased version if name parser failed			    		
 	    	doc.add(new Field(SCI_NAME, normalized.toLowerCase(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+            doc.add(new Field(SCI_NAME_TEXT, normalized.toLowerCase(), Store.YES, Index.ANALYZED));
     	}
     	
     	if(scientificName!=null){

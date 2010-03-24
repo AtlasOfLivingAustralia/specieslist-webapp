@@ -395,7 +395,7 @@ public class LoadUtils {
 		    	if(keyValue[5]!=null){
 		    		doc.add(new Field("publicationGuid", keyValue[5], Store.YES, Index.ANALYZED));
 		    	}
-		    	LuceneUtils.addScientificNameToIndex(doc, keyValue[2]);
+		    	LuceneUtils.addScientificNameToIndex(doc, keyValue[2], null);
 		    	
 		    	//add relationships between concepts
 //		    	addRels(is,keyValue[0], doc);

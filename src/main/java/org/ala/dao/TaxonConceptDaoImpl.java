@@ -1265,7 +1265,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     			doc.add(new Field("guid", taxonConcept.guid, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
     			infoSourceIds.add(taxonConcept.getInfoSourceId());
     			//add multiple forms of the scientific name to the index
-    			LuceneUtils.addScientificNameToIndex(doc, taxonConcept.nameString);
+    			LuceneUtils.addScientificNameToIndex(doc, taxonConcept.nameString, taxonName.getRankString());
 	    		
 	    		if(taxonConcept.parentGuid!=null){
 	    			doc.add(new Field("parentGuid", taxonConcept.parentGuid, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
@@ -1326,7 +1326,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	    				//add a new document for each synonym
 	    				Document synonymDoc = new Document();
 	    				synonymDoc.add(new Field("guid", taxonConcept.guid, Store.YES, Index.NO));
-	    				LuceneUtils.addScientificNameToIndex(synonymDoc, synonym.nameString);
+	    				LuceneUtils.addScientificNameToIndex(synonymDoc, synonym.nameString, null);
 	    				synonymDoc.add(new Field("acceptedConceptName", taxonConcept.nameString, Store.YES, Index.NO));
 	    				if(!commonNames.isEmpty()){
 	    					synonymDoc.add(new Field("commonNameSort", commonNames.get(0).nameString, Store.YES, Index.NO));

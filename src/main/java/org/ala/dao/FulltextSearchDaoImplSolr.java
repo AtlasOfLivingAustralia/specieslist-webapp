@@ -40,32 +40,31 @@ import org.apache.solr.core.CoreContainer;
 import org.springframework.stereotype.Component;
 
 /**
- * SOLR implementation of {@see org.ala.dao.TaxonConceptDao}. Used for searching against Lucene
+ * SOLR implementation of {@see org.ala.dao.FulltextSearchDao}. Used for searching against Lucene
  * indexes created by {@see org.ala.dao.TaxonConceptDaoImpl}.
  *
  * @author "Nick dos Remedios <Nick.dosRemedios@csiro.au>"
  */
-@Component("taxonConceptDaoImplSolr")
-public class TaxonConceptDaoImplSolr {//implements TaxonConceptDao {
+@Component("fulltextSearchDaoImplSolr")
+public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implements TaxonConceptDao {
     /** log4 j logger */
-    private static final Logger logger = Logger.getLogger(TaxonConceptDaoImplSolr.class);
+    private static final Logger logger = Logger.getLogger(FulltextSearchDaoImplSolr.class);
     /** SOLR home directory */
     private static final String SOLR_HOME = "/data/solr";
     /** SOLR server instance */
     private EmbeddedSolrServer server = null;
     @Inject
     protected Vocabulary vocabulary;
+    
     /**
      * Constructor to set the server field
      */
-    public TaxonConceptDaoImplSolr() {
+    public FulltextSearchDaoImplSolr() {
         //initSolrServer();
     }
 
     /**
      * Initialise the SOLR server instance
-     *
-     * @return
      */
     protected void initSolrServer() {
         if (this.server == null & SOLR_HOME != null) {
@@ -81,20 +80,20 @@ public class TaxonConceptDaoImplSolr {//implements TaxonConceptDao {
     }
 
     /**
-	 * @see org.ala.dao.ITaxonConceptDao#findByScientificName(java.lang.String, int)
+	 * @see org.ala.dao.FulltextSearchDao#findByScientificName(java.lang.String, int)
 	 */
-    //@Override
+    @Override
     public List<SearchTaxonConceptDTO> findByScientificName(String input, int limit) throws Exception {
         SearchResultsDTO sr = findByScientificName(input, null, 0, limit, null, null);
         return sr.getTaxonConcepts();
     }
 
     /**
-	 * @see org.ala.dao.ITaxonConceptDao#findByScientificName(java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String)
+	 * @see org.ala.dao.FulltextSearchDao#findByScientificName(java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String)
 	 */
-    //@Override
+    @Override
     public SearchResultsDTO findByScientificName(String query, String filterQuery, Integer startIndex, Integer pageSize, String sortField, String sortDirection) throws Exception {
-        SearchResultsDTO searchResults = null;
+        SearchResultsDTO searchResults = new SearchResultsDTO();
         //String filterQuery = null; // FIXME add another method paramater for this
 
         try {
@@ -109,13 +108,13 @@ public class TaxonConceptDaoImplSolr {//implements TaxonConceptDao {
             } else {
                 String cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
                 //queryString.append(ClientUtils.escapeQueryChars(query));
-                queryString.append("scientificName:"+cleanQuery);
+                queryString.append("scientificNameText:"+cleanQuery);
                 queryString.append(" OR commonName:"+cleanQuery);
                 queryString.append(" OR guid:"+cleanQuery);
                 queryString.append(" OR simpleText:"+cleanQuery);
             }
             searchResults = doSolrSearch(queryString.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
-
+            logger.info("search query: "+queryString.toString());
         } catch (SolrServerException ex) {
             logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
             searchResults.setStatus("ERROR"); // TODO also set a message field on this bean with the error message(?)
@@ -189,6 +188,10 @@ public class TaxonConceptDaoImplSolr {//implements TaxonConceptDao {
         return searchResults;
     }
 
+    /**
+     * @see org.ala.dao.FulltextSearchDao#findAllByStatus(org.ala.util.StatusType, java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String) 
+     */
+    @Override
     public SearchResultsDTO findAllByStatus(StatusType statusType, String filterQuery, Integer startIndex, Integer pageSize,
             String sortField, String sortDirection) throws Exception {
         SearchResultsDTO searchResults = null;

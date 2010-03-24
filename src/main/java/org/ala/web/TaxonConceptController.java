@@ -35,9 +35,10 @@ import javax.media.jai.RenderedImageAdapter;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ala.dao.DocumentDAO;
+import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
-import org.ala.dao.TaxonConceptDaoImplSolr;
+import org.ala.dao.FulltextSearchDaoImplSolr;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
@@ -81,7 +82,7 @@ public class TaxonConceptController {
     private DocumentDAO documentDAO;
     /** DAO bean for SOLR search queries */
     @Inject
-    private TaxonConceptDaoImplSolr tcDaoSolr;
+    private FulltextSearchDao searchDao;
     /** DAO bean for access to info sources */
     @Inject
     private InfoSourceDAO infoSourceDAO;
@@ -162,9 +163,9 @@ public class TaxonConceptController {
         String filterQueryChecked = (filterQuery == null) ? "" : filterQuery;
         model.addAttribute("facetQuery", filterQueryChecked);
 
-        //TaxonConceptDaoImplSolr tcDao = new TaxonConceptDaoImplSolr();
+        //FulltextSearchDaoImplSolr tcDao = new FulltextSearchDaoImplSolr();
 
-        SearchResultsDTO searchResults = tcDaoSolr.findByScientificName(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+        SearchResultsDTO searchResults = searchDao.findByScientificName(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
         model.addAttribute("searchResults", searchResults);
         logger.debug("query = "+query);
 
@@ -296,7 +297,7 @@ public class TaxonConceptController {
         }
         model.addAttribute("statusType", statusType);
         model.addAttribute("filterQuery", filterQuery);
-        SearchResultsDTO searchResults = tcDaoSolr.findAllByStatus(statusType, filterQuery,  0, 10, "score", "asc");// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
+        SearchResultsDTO searchResults = searchDao.findAllByStatus(statusType, filterQuery,  0, 10, "score", "asc");// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
         model.addAttribute("searchResults", searchResults);
         return STATUS_LIST;
     }
@@ -327,7 +328,7 @@ public class TaxonConceptController {
         SearchResultsDTO searchResults = null;
 
         if (statusType!=null) {
-            searchResults = tcDaoSolr.findAllByStatus(statusType, filterQuery, startIndex, pageSize, sortField, sortDirection);// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
+            searchResults = searchDao.findAllByStatus(statusType, filterQuery, startIndex, pageSize, sortField, sortDirection);// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
         }
         
         return searchResults;
@@ -453,6 +454,13 @@ public class TaxonConceptController {
         return StringUtils.join(cnMap.values(), ", ");
     }
 
+    /**
+     * Filter a list of SimpleProperty objects so that the resulting list only
+     * contains objects with a name ending in "Text". E.g. "hasDescriptionText".
+     *
+     * @param etc
+     * @return
+     */
     private List<SimpleProperty> filterSimpleProperties(ExtendedTaxonConceptDTO etc) {
         List<SimpleProperty> simpleProperties = etc.getSimpleProperties();
         List<SimpleProperty> textProperties = new ArrayList<SimpleProperty>();

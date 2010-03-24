@@ -23,10 +23,14 @@
             }
         });
     </script>
-    <title>Species Search</title>
+    <title>Species Search - ${query}</title>
 </head>
 <body>
-    <h1>${title}</h1>
+    <c:set var="pageTitle">
+        <c:if test="${not empty title}">${title}</c:if>
+        <c:if test="${empty title}">Species Search Results</c:if>
+    </c:set>
+    <h1>${pageTitle}</h1>
     <c:if test="${empty searchResults.taxonConcepts}"><p>Search for <span style="font-weight: bold"><c:out value="${query}"/></span> did not match any documents</p></c:if>
     <c:if test="${not empty searchResults.taxonConcepts}">
             <div id="facetBar">
