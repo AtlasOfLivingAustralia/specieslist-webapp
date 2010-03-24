@@ -69,7 +69,7 @@
        other than the default ./data under the Solr home.
        If replication is in use, this should match the replication configuration. -->
   <!-- <dataDir>${solr.data.dir:./solr/data}</dataDir> -->
-  <dataDir>${solr.data.dir:/data/solr</dataDir>
+  <dataDir>${solr.data.dir:/data/solr}</dataDir>
 
 
   <!-- WARNING: this <indexDefaults> section only provides defaults for index writers
