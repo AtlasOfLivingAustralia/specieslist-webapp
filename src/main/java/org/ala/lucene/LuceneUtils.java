@@ -15,11 +15,10 @@
 package org.ala.lucene;
 
 import java.util.TreeSet;
+
 import org.ala.model.Rank;
-import org.ala.model.TaxonName;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
@@ -50,12 +49,12 @@ public class LuceneUtils {
         Integer rankId = -1;
 		
         if (taxonRank!=null) {
-            try {
-                Rank rank = Rank.getForField(taxonRank.toLowerCase());
-                rankId = rank.getId();
-            } catch (Exception e) {
-                logger.warn("Unknown rank string: " + taxonRank, e);
-            }
+           Rank rank = Rank.getForField(taxonRank.toLowerCase());
+           if(rank!=null){     
+             rankId = rank.getId();
+           } else {
+             logger.warn("Unknown rank string: " + taxonRank);
+           }
         }
 		//remove the subgenus
 		String normalized = "";
@@ -84,13 +83,15 @@ public class LuceneUtils {
 
             Float boost = 1f;
             
-            if (rankId == 6000) {
-                // genus higher than species so it appears first
-                boost = 3f;
-            } else if (rankId == 7000) {
-                // species higher than subspecies so it appears first
-                boost = 2f;
-            }
+            if(rankId!=null){
+	            if (rankId == 6000) {
+    	            // genus higher than species so it appears first
+        	        boost = 3f;
+            	} else if (rankId == 7000) {
+                	// species higher than subspecies so it appears first
+	                boost = 2f;
+    	        }
+    	    }
 
             Field f = new Field(SCI_NAME_TEXT, StringUtils.join(sciNames, " "), Store.YES, Index.ANALYZED);
             f.setBoost(boost);
