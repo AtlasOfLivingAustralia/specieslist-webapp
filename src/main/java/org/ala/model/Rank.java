@@ -31,7 +31,7 @@ public enum Rank {
     SER         (6800, "series", "ser"),
     VAR         (8010, "variety","var"),
     SUBSECT     (6700, "subsection", "subsect"),
-    SUBORD      (4200, "suborder","subord"),
+    SUBORD      (4200, "suborder","subord", "subordo"),
     ORD         (4000, "order", "ord", "ordo"),
     PHYL_DIV    (2000, "phylum/division", "phyl_div", "phylum", "division"), //Division in botany
     SUBPHYL_DIV (2200, "subphylum/subdivision", "subphyl_div", "subphylum"),
@@ -42,7 +42,7 @@ public enum Rank {
     SUBVAR      (8015, "subvariety", "subvar"),
     SECT        (6600, "section", "sect"),
     SSP         (8000, "subspecies", "ssp", "subsp"), // ?
-    FORM        (8020, "form", "forma", "f", "f.","fm.", "fm"),
+    FORM        (8020, "form", "forma", "f", "f.","fm.", "fm", "[f.]", "form taxon"),
     TAXSUPRAGEN (5999, "suprageneric tax. of undefined rank", "taxsupragen"),
     SUPERFAM    (4500, "superfamily", "superfam"),
     NUL         (9999, "(rank not specified)","null"),  // NULL is reserved word
@@ -54,9 +54,9 @@ public enum Rank {
     TRIB        (5600, "tribe","trib"),
     CV          (8050, "cultivar", "cv"),
     FAM         (5000, "family","fam"),
-    SUBFAM      (5500, "subfamily", "subfam"),
+    SUBFAM      (5500, "subfamily", "subfam", "subf"),
     SUBCL       (3200, "subclass", "subcl"),
-    SUPERORD    (4200, "superorder", "superord"),
+    SUPERORD    (4200, "superorder", "superord", "superordo"),
     INFRAORD    (4350, "infraorder", "infraord"),
     REG         (1000, "kingdom", "reg"),
     CL          (3000, "class", "cl"),
