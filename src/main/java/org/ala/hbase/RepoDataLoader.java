@@ -89,6 +89,7 @@ public class RepoDataLoader {
 		logger.info("Scanning directory: "+filePath);
 		
 		int filesRead = 0;
+		int propertiesSynced = 0;
 		
 		//start scan
 		File file = new File(filePath);
@@ -100,8 +101,6 @@ public class RepoDataLoader {
 				
 				//read the dublin core in the same directory - determine if its an image
 				try {
-					logger.debug("Reading file: "+currentFile.getAbsolutePath());
-					
                     FileReader reader = new FileReader(currentFile);
                     List<Triple> triples = TurtleUtils.readTurtle(reader);
                     //close the reader
@@ -117,18 +116,26 @@ public class RepoDataLoader {
                     		currentSubject = triple.subject;
                     	} else if(!currentSubject.equals(triple.subject)){
                     		//sync these triples
-                    		sync(currentFile, splitBySubject);
+                    		boolean success = sync(currentFile, splitBySubject);
+                    		logger.debug("Read file: "+currentFile.getAbsolutePath()+", success: "+success);
+                        	if(success){
+                        		propertiesSynced++;
+                        	}
     	                    //clear list
     	                    splitBySubject.clear();
     	                    splitBySubject.add(triple);
     	                    currentSubject = triple.subject;
                     	}
                     	splitBySubject.add(triple);
+
                     }
 
                     //sort out the buffer
                     if(!splitBySubject.isEmpty()){
-                    	sync(currentFile, triples);
+                    	boolean success = sync(currentFile, triples);
+                    	if(success){
+                    		propertiesSynced++;
+                    	}
                     }
                     
                 } catch (Exception e) {
@@ -136,6 +143,7 @@ public class RepoDataLoader {
                 }
 			}
 		}
+		logger.info("Files read: "+filesRead+", files matched: "+propertiesSynced);
 		return filesRead;
 	}
 
@@ -146,7 +154,7 @@ public class RepoDataLoader {
 	 * @param triples
 	 * @throws Exception
 	 */
-	private void sync(File currentFile, List<Triple> triples) throws Exception {
+	private boolean sync(File currentFile, List<Triple> triples) throws Exception {
 		String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
 		String documentId = currentFile.getParentFile().getName();
 		// Read dublin core
@@ -159,7 +167,7 @@ public class RepoDataLoader {
 		document.setInfoSourceUri(infoSource.getWebsiteUrl());
 		document.setFilePath(currentFile.getParentFile().getAbsolutePath());
 		// Sync the triples and associated DC data
-		taxonConceptDao.syncTriples(document, triples);
+		return taxonConceptDao.syncTriples(document, triples);
 	}
 
     /**
