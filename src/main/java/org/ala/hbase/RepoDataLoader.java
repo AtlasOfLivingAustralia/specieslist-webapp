@@ -68,7 +68,11 @@ public class RepoDataLoader {
         RepoDataLoader loader = (RepoDataLoader) context.getBean(RepoDataLoader.class);
 		long start = System.currentTimeMillis();
         loader.loadInfoSources();
-		int filesRead = loader.load(repositoryDir); //FIX ME - move to config
+        String filePath = repositoryDir;
+        if(args.length==1){
+        	filePath=args[0];
+        }
+		int filesRead = loader.load(filePath); //FIX ME - move to config
     	long finish = System.currentTimeMillis();
     	System.out.println(filesRead+" files scanned/loaded in: "+((finish-start)/60000)+" minutes "+((finish-start)/1000)+" seconds.");
     	System.exit(1);
