@@ -10,16 +10,11 @@
     <meta name="pageName" content="species"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Species Search</title>
+
 </head>
 <body>
     <div id="searchBox">
         <h3>Search for Species and Taxa</h3>
-        <%--<s:form action="/species/" namespace="search" method="GET" theme="simple">--%>
-        <form method="GET">
-            <input name="q" size="30"/>&nbsp;
-            <input type="submit" value="Search"/>
-        <%--</s:form>--%>
-        </form>
         <p>
         <p id="exampleSeaches">Examples searches:<br/><a href='${pageContext.request.contextPath}/species/search?q=Pogona+barbata'>Pogona barbata</a> (Eastern Bearded Dragon)<br/>
             <a href='${pageContext.request.contextPath}/species/search?q=Hypertropha+chlaenota'>Hypertropha chlaenota</a> (Moth - GELECHIOIDEA family)<br/>
@@ -41,8 +36,5 @@
             <li><a href="${pageContext.request.contextPath}/species/status/pestStatus">Pest Status</li>
         </ul>
     </div>
-    <script type="text/javascript">
-        $("#menuSearch").hide();
-    </script>
 </body>
 </html>

@@ -17,6 +17,7 @@ package org.ala.lucene;
 
 import org.ala.dao.TaxonConceptDao;
 import org.ala.util.SpringUtils;
+import org.apache.lucene.store.FSDirectory;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -30,5 +31,11 @@ public class CreateTaxonConceptIndex {
         ApplicationContext context = SpringUtils.getContext();
         TaxonConceptDao tcDao = (TaxonConceptDao) context.getBean(TaxonConceptDao.class);
 		tcDao.createIndex();
+
+        // Create the autocomplete indexes
+        System.out.println("Creating autocomplete indexes...");
+        Autocompleter ac = new Autocompleter();
+        ac.reIndex(FSDirectory.getDirectory(tcDao.getIndexLocation(), null), "scientificName");
+        System.out.println("Finished creating autocomplete indexes...");
 	}
 }

@@ -226,7 +226,7 @@ p > a.showHideLink {
 #searchBox {
     width: 500px;
     float: left;
-    margin-top: 40px;
+    margin-top:10px;
     margin-bottom: 20px;
     /*margin-left: auto;
     margin-right: auto;*/
@@ -235,7 +235,7 @@ p > a.showHideLink {
 #listsBox {
     width: 400px;
     float: right;
-    margin-top: 40px;
+    margin-top: 10px;
     margin-bottom: 20px;
 }
 #searchBox input {

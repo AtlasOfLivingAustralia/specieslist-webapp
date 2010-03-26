@@ -16,6 +16,8 @@ package org.ala.web;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +33,7 @@ import org.ala.dao.TaxonConceptDao;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
+import org.ala.lucene.Autocompleter;
 import org.ala.model.CommonName;
 import org.ala.model.Document;
 import org.ala.model.InfoSource;
@@ -333,6 +336,32 @@ public class TaxonConceptController {
         model.addAttribute("infoSources", infoSources);
 
         return DATASET_LIST;
+    }
+
+    /**
+     * Autocomplete AJAX service for JQuery-autocomplete
+     *
+     * @param query
+     * @param response
+     */
+    @RequestMapping(value = "/species/terms", method = RequestMethod.GET)
+    public void listTerms(
+            @RequestParam(value="q", required=false) String query,
+            HttpServletResponse response) {
+        List<String> terms = new ArrayList<String>();
+        response.setContentType("text/plain");
+
+        try {
+            OutputStreamWriter os = new OutputStreamWriter(response.getOutputStream());
+            Autocompleter ac = new Autocompleter(); 
+            terms = ac.suggestTermsFor(query.toLowerCase().trim(), 10);
+            os.write(StringUtils.join(terms, "\n"));
+            os.flush();
+        } catch (IOException ex) {
+            logger.error("Problem running Autocompleter: "+ex.getMessage(), ex);
+        }
+
+        return;
     }
 
     /**

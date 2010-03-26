@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
+import org.ala.lucene.Autocompleter;
 import org.ala.lucene.LuceneUtils;
 import org.ala.model.Classification;
 import org.ala.model.CommonName;
@@ -83,6 +84,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.FSDirectory;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -1508,4 +1510,12 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public void setVocabulary(Vocabulary vocabulary) {
 		this.vocabulary = vocabulary;
 	}
+
+    /**
+     * @see org.ala.dao.TaxonConceptDao#getIndexLocation()
+     */
+    @Override
+    public String getIndexLocation() {
+        return TC_INDEX_DIR;
+    }
 }

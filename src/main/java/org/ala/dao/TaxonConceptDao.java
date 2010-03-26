@@ -481,4 +481,11 @@ public interface TaxonConceptDao {
 	 * @param publication
 	 */
 	public boolean addPublication(String guid, Publication publication) throws Exception;
+
+    /**
+     * Get the location of an index
+     *
+     * @return
+     */
+    public String getIndexLocation();
 }

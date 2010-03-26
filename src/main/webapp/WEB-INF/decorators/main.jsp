@@ -11,19 +11,26 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
     <head>
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js" type="text/javascript"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-autocomplete/jquery.autocomplete.js"></script>
+        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/static/js/jquery-autocomplete/jquery.autocomplete.css" charset="utf-8">
         <title><decorator:title default="ALA Biodiversity Harvester" /></title>
         <decorator:head />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/print.css" type="text/css" media="print" charset="utf-8">
         <!--[if IE]><link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/lib/ie.css" type="text/css" media="screen, projection" /><![endif]-->
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $("#q").autocomplete({ url: "${pageContext.request.contextPath}/species/terms", matchSubset: 0, minChars: 3});
+            });
+        </script>
     </head>
     <body>
         <div id="page">
             <div id="header">
                 <div id="menuSearch">
-                    <form action="${pageContext.request.contextPath}/species/search" method="GET">
-                        <input name="q" id="q" <c:if test="${not empty query}">value="<c:out value="${query}"/>"</c:if> type="text" size="25"/>
+                    <form action="${pageContext.request.contextPath}/species/search" method="GET" autocomplete="off">
+                        <input name="q" id="q" <c:if test="${not empty query}">value="<c:out value="${query}" />"</c:if> type="text" size="25"/>
                         <input type="hidden" name="title"/>
                         <input type="submit" value="Search"/>
                     </form>
