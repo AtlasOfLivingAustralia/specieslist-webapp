@@ -11,9 +11,9 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
     <head>
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
-        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-autocomplete/jquery.autocomplete.js"></script>
-        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/static/js/jquery-autocomplete/jquery.autocomplete.css" charset="utf-8">
+        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-ui-1.8.custom.min.js"></script>
+        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/smoothness/jquery-ui-1.8.custom.css" charset="utf-8">
         <title><decorator:title default="ALA Biodiversity Harvester" /></title>
         <decorator:head />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8">
@@ -21,7 +21,7 @@
         <!--[if IE]><link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/lib/ie.css" type="text/css" media="screen, projection" /><![endif]-->
         <script type="text/javascript">
             $(document).ready(function() {
-                $("#q").autocomplete({ url: "${pageContext.request.contextPath}/species/terms", matchSubset: 0, minChars: 3});
+                $("#q").autocomplete({ source: "${pageContext.request.contextPath}/species/terms", minLength: 2});
             });
         </script>
     </head>

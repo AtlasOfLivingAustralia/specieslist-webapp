@@ -591,3 +591,13 @@ td .yui-dt-liner {
     background: white;
     padding: 10px;
 }
+
+/* overr-ride JQuery CSS */
+ul.ui-widget {
+    font-size: 100%;
+    font-family:"Helvetica Neue",Arial,Helvetica,sans-serif;
+}
+
+.ui-menu .ui-menu-item a {
+    padding: 0.1em 0.4em;
+}

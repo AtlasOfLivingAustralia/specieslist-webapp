@@ -53,6 +53,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -109,7 +110,7 @@ public final class Autocompleter {
 
     public List<String> suggestTermsFor(String term, Integer maxHits) throws IOException {
         // get the top 5 terms for query
-        Query query = new TermQuery(new Term(GRAMMED_WORDS_FIELD, term));
+        Query query = new TermQuery(new Term(GRAMMED_WORDS_FIELD, ClientUtils.escapeQueryChars(term)));
         Sort sort = new Sort(COUNT_FIELD, true);
 
         TopDocs docs = autoCompleteSearcher.search(query, null, maxHits, sort);

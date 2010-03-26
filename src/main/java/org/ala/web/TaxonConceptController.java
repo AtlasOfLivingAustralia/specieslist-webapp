@@ -46,6 +46,7 @@ import org.ala.util.StatusType;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -346,17 +347,21 @@ public class TaxonConceptController {
      */
     @RequestMapping(value = "/species/terms", method = RequestMethod.GET)
     public void listTerms(
-            @RequestParam(value="q", required=false) String query,
+            @RequestParam(value="term", required=false) String query,
             HttpServletResponse response) {
-        List<String> terms = new ArrayList<String>();
-        response.setContentType("text/plain");
 
         try {
             OutputStreamWriter os = new OutputStreamWriter(response.getOutputStream());
-            Autocompleter ac = new Autocompleter(); 
+            Autocompleter ac = new Autocompleter();
+            List<String> terms = new ArrayList<String>();
+            List<String> jsonTerms = new ArrayList<String>();
             terms = ac.suggestTermsFor(query.toLowerCase().trim(), 10);
-            os.write(StringUtils.join(terms, "\n"));
-            os.flush();
+            // create JSON string using Jackson
+            ObjectMapper o = new ObjectMapper();
+            String json = o.writeValueAsString(terms);
+            response.setContentType("application/json");
+            os.write(json);
+            os.close();
         } catch (IOException ex) {
             logger.error("Problem running Autocompleter: "+ex.getMessage(), ex);
         }
