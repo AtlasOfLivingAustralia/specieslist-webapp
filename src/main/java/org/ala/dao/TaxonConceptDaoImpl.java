@@ -150,6 +150,8 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	private void init() throws Exception {
 		HBaseConfiguration config = new HBaseConfiguration();
     	this.tcTable = new HTable(config, "taxonConcept");
+    	this.tcTable.setAutoFlush(false);
+    	this.tcTable.setWriteBufferSize(1024*1024*12);
 	}
 	
 	/**
