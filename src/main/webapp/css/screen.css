@@ -92,9 +92,11 @@ td, th  {
     float: left;
     position: relative;
     background-color: #CBDAF0;
-    width: 934px; /*64%; 670px*/
-    padding: 6px;
-    padding-left: 10px;
+    background: url("bie-theme/images/ui-bg_gloss-wave_85_c9d9f1_500x100.png") repeat-x scroll 50% 0% #CBDAF0;
+    /*background-size: 100%;*/
+    border: 1px solid #A6C9E2;
+    width: 931px; /*64%; 670px*/
+    padding: 6px 6px 6px 10px;
     margin-bottom: 15px;
     -moz-border-radius: 8px;
     -webkit-border-radius: 8px;
@@ -200,10 +202,6 @@ td.propertyName {
     max-width: 20%;
     min-width: 10%;
     color: #676767;
-}
-table.propertyTable td:first-child  {
-    font-weight: bold;
-    text-align: right;
 }
 n tr.Taxonomic td:first-child {
     /*border-left: 3px solid #F68D77;*/
@@ -332,15 +330,16 @@ img.galleryImage {
 #topmenu .tabs {
     border-bottom: 0px solid #ddd;
     margin-left: 0px;
-    font-size: 12px;
+    font-size: 13px;
 }
 #topmenu .tabs li {
     margin-right: 1px;
 }
 #topmenu .tabs a {
     padding: 5px 15px;
-    background-color: #ddd;
-    color: #4b4c4e;
+    /*background-color: #ddd;*/
+    background: url("images/ui-bg_glass_75_cccccc_1x400.png") repeat-x scroll 50% 50% #DDDDDD;
+    color: #404142;
     text-decoration: none;
 }
 #topmenu .tabs li.first a {
@@ -356,10 +355,13 @@ img.galleryImage {
     -webkit-border-bottom-right-radius: 5px;
 }
 #topmenu .tabs li.active a {
-    background-color: #bbb;
+    /*background-color: #bbb;*/
+    background: url("images/ui-bg_glass_45_aaaaaa_1x400.png") repeat-x scroll 50% 50% #BBBBBB;
+    color: #262627;
 }
 #topmenu .tabs li a:hover, #topmenu .tabs li.active a:hover {
-    background-color: #4b4c4e;
+    /*background-color: #4b4c4e;*/
+    background: url("images/ui-bg_glass_30_4b4c4e_1x400.png") repeat-x scroll 50% 50% #4b4c4e;
     color: #fff;
 }
 #topmenu .tabs #searchTab {
@@ -442,23 +444,28 @@ div#body {
 }
 table.propertyTable {
     width: 100%;
-    border-left: 1px solid #DDD;
-    border-right: 1px solid #DDD !important;
+    /*border-left: 1px solid #DDD;
+    border-right: 1px solid #DDD !important;*/
     font-size: 90%;
 }
-.propertyTable th {
-    background-color: #DDD;
+table.propertyTable td:first-child  {
+    font-weight: bold;
+    text-align: right;
+}
+table.propertyTable th {
+    /*background-color: #DDD;
     border-right: 1px solid #FFF;
-    border-bottom: none;
+    border-bottom: none;*/
 }
-table.propertyTable {
-    width: 100%;
-    border-left: 1px solid #DDD;
-    border-right: 1px solid #DDD !important;
+table.propertyTable th {
+    border-bottom:4px solid #DDDDDD;
+    font-weight:bold;
 }
-.propertyTable th, .propertyTable td {
+table.propertyTable th, .propertyTable td {
     padding: 5px;
+    
 }
+
 .resultTable ul {
     margin: 0;
 }
@@ -600,4 +607,17 @@ ul.ui-widget {
 
 .ui-menu .ui-menu-item a {
     padding: 0.1em 0.4em;
+}
+
+.ui-tabs .ui-tabs-hide {
+     display: none;
+}
+
+em, dfn {
+    font-style:normal;
+}
+
+.ui-widget {
+    font-family:inherit;
+    font-size:inherit;
 }

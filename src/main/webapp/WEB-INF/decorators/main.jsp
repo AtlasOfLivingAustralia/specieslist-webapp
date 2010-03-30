@@ -11,10 +11,10 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
     <head>
+        <title><decorator:title default="ALA Biodiversity Harvester" /></title>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-1.4.2.min.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-ui-1.8.custom.min.js"></script>
-        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/smoothness/jquery-ui-1.8.custom.css" charset="utf-8">
-        <title><decorator:title default="ALA Biodiversity Harvester" /></title>
+        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bie-theme/jquery-ui-1.8.custom.css" charset="utf-8">
         <decorator:head />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/print.css" type="text/css" media="print" charset="utf-8">
@@ -35,7 +35,7 @@
                         <input type="submit" value="Search"/>
                     </form>
                 </div>
-                <div id="headerLogo"> 
+                <div id="headerLogo">
                     <a href="${pageContext.request.contextPath}/"><img src="${pageContext.request.contextPath}/static/images/ALA-logo-50px.gif" alt="ALA Logo" id="headerLogo" border="0"/></a>
                 </div>
                 <h1 id="headerTitle">Biodiversity Information Explorer</h1>

@@ -1,4 +1,4 @@
-    <%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -16,10 +16,10 @@
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-galleryview-1.1/jquery.timers-1.1.2.js"></script>
         <%--<script type="text/javascript" src="${pageContext.request.contextPath}/js/jquery.galleriffic.js"></script>--%>
         <!-- Combo-handled YUI CSS files: -->
-        <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.8.0r4/build/tabview/assets/skins/sam/tabview.css">
+<%--        <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.8.0r4/build/tabview/assets/skins/sam/tabview.css">
         <!-- Combo-handled YUI JS files: -->
         <script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.0r4/build/yahoo-dom-event/yahoo-dom-event.js&2.8.0r4/build/element/element-min.js&2.8.0r4/build/tabview/tabview-min.js"></script>
-
+--%>
         <script type="text/javascript">
             //var scientificNameId, scientificName;
             var solrServer = "${solrServerUrl}"; //
@@ -158,6 +158,13 @@
                     caption_text_color: 'black'--%>
                 });
 
+                /*
+                 * Enable Tabs
+                 */
+                $(function() {
+                    $("#tabs").tabs();
+                });
+
             });  // end document ready function
 
             /**
@@ -167,27 +174,6 @@
                 data = data.replace(/\:/g, "\\:");
                 data = data.replace(/\-/g, "\\-");
                 return data;
-            }
-
-            //$("ul.yui-nav").hide();
-            var tabView = new YAHOO.widget.TabView('tabs');
-
-            // function to load YUI tabs
-            function showTabs() {
-                $("ul.yui-nav").show();
-                $("#yui-box").addClass("yui-content");
-                $(".divider").hide();
-                tabView = new YAHOO.widget.TabView('tabs');
-            }
-
-            function hideTabs() {
-                $("ul.yui-nav").hide();
-                $("#harvestedInfo").show();
-                $("#portalInfo").show();
-                $("#images").show();
-                $(".divider").show();
-                $("#yui-box").removeClass("yui-content");
-                tabView = null;
             }
 
         </script>
@@ -351,8 +337,8 @@
                 </div>
             </div>
         </div>
-        <div id="tabs" <%--class="yui-navset"--%> style="clear: both;">
-            <ul class="yui-nav">
+        <div id="tabs" style="clear: both;">
+            <ul>
                 <c:set var="tabIsFirst" value="false"/>
                 <c:if test="${not empty extendedTaxonConcept.conservationStatuses || fn:length(extendedTaxonConcept.pestStatuses) > 0 || fn:length(textProperties) > 0}">
                     <li class="selected"><a href="#harvestedInfo"><em>Information</em></a></li>
