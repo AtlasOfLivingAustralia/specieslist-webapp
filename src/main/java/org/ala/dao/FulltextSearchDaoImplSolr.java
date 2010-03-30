@@ -100,7 +100,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
             
             // set the query
             StringBuffer queryString = new StringBuffer();
-            if (query.contains(":")) {
+            if (query.contains(":") && !query.startsWith("urn")) {
                 String[] bits = StringUtils.split(query, ":");
                 queryString.append(ClientUtils.escapeQueryChars(bits[0]));
                 queryString.append(":");
@@ -205,7 +205,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         }
 
         String queryString = StringUtils.join(searchTerms, " OR ");
-        System.out.println("search query = "+queryString);
+        logger.info("search query = "+queryString);
 
         try {
             searchResults = doSolrSearch(queryString, filterQuery, pageSize, startIndex, sortField, sortDirection);
@@ -251,7 +251,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 
             Map<String, List<String>> highlightVal = qr.getHighlighting().get(taxonConcept.getGuid());
             for (Map.Entry<String, List<String>> entry : highlightVal.entrySet()) {
-                System.out.println(taxonConcept.getGuid()+": "+entry.getKey() + " => " + StringUtils.join(entry.getValue(), "|"));
+                //System.out.println(taxonConcept.getGuid()+": "+entry.getKey() + " => " + StringUtils.join(entry.getValue(), "|"));
                 taxonConcept.setHighlight(StringUtils.join(entry.getValue(), " "));
             }
         }
