@@ -32,10 +32,8 @@
                 <ul class="tabs">
                     <li class="<c:if test="${pageName == 'home'}">active</c:if> first"><a href="${pageContext.request.contextPath}/">Home</a></li>
                     <li class="<c:if test="${pageName == 'species'}">active</c:if>"><a href="${pageContext.request.contextPath}/species/search">Explore Species</a></li>
-                    <!-- <li class="<c:if test="${pageName == 'maps'}">active</c:if> last"><a href="http://ec2-174-129-53-185.compute-1.amazonaws.com/webportal/">Explore maps</a></li> -->
-                    <li class="<c:if test="${pageName == 'datasets'}">active</c:if> "><a href="${pageContext.request.contextPath}/species/datasets">Datasets</a></li>
-                    <li class="<c:if test="${pageName == 'conservationStatus'}">active</c:if> "><a href="${pageContext.request.contextPath}/species/status/conservationStatus">Conservation Status List</a></li>
-                    <li class="<c:if test="${pageName == 'pestStatus'}">active</c:if> last"><a href="${pageContext.request.contextPath}/species/status/pestStatus">Pest Status List</a></li>
+                    <li class="<c:if test="${pageName == 'maps'}">active</c:if> "><a href="http://ec2-174-129-53-185.compute-1.amazonaws.com/webportal/">Explore Maps</a></li>
+                    <li class="<c:if test="${pageName == 'literature'}">active</c:if> last"><a href="${pageContext.request.contextPath}/literature">Explore Literature</a></li>
                 </ul>                
             </div>
             <div id="headerLogo">
@@ -43,9 +41,13 @@
             </div>
             <div id="header">
                 <div id="menuSearch">
-                    <span id="headerTitle">Biodiversity Information Explorer</span>
+                    <ul class="tabs"><%--Biodiversity Information Explorer--%>
+                        <li class="<c:if test="${pageName == 'datasets'}">active</c:if> "><a href="${pageContext.request.contextPath}/species/datasets">Datasets</a></li>
+                        <li class="<c:if test="${pageName == 'conservationStatus'}">active</c:if> "><a href="${pageContext.request.contextPath}/species/status/conservationStatus">Conservation Status List</a></li>
+                        <li class="<c:if test="${pageName == 'pestStatus'}">active</c:if> last"><a href="${pageContext.request.contextPath}/species/status/pestStatus">Pest Status List</a></li>
+                    </ul>
+                    <span id="searchHint">Find Australian Species: </span>
                     <form action="${pageContext.request.contextPath}/species/search" method="GET" autocomplete="off">
-                        <span id="searchHint">Search for Australian species: </span>
                         <input name="q" id="q" <c:if test="${not empty query}">value="<c:out value="${query}" />"</c:if> type="text" size="30"/>
                         <input type="hidden" name="title"/>
                         <input type="submit" value="Search"/>

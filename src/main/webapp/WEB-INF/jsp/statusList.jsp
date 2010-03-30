@@ -100,7 +100,7 @@
                         {key:"scientificNameRaw", field:"nameString", sortable:true, label:"Scientific Name", formatter:formatTitleUrl}, //, width: 350 , formatter:formatTitleUrl
                         //{key:"acceptedConceptName", field:"acceptedConceptName", sortable:false, label:"Accepted Name"},
                         {key:"commonNameSort", field:"commonName", sortable:true, label:"Common Name"},
-                        {key:"rankId", field:"rank", label:"Rank", sortable: true}, // , minWidth: 100,width: 200
+                        //{key:"rankId", field:"rank", label:"Rank", sortable: true}, // , minWidth: 100,width: 200
                         {key:"${statusType.value}", field:"${statusType.value}", sortable:false, label:"${statusType.displayName}"},
                         {key:"score", field:"score", hidden:true, maxAutoWidth: 0}
                     ];

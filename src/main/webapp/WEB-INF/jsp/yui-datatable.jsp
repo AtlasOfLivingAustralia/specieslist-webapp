@@ -20,7 +20,10 @@
                                 } else {
                                     cellContent = sData;
                                 }
-                                elCell.innerHTML = "<a href='" + "${pageContext.request.contextPath}/species/" + oRecord.getData("guid") + "' title='view record details'>" + cellContent + "</a>";
+                                elCell.innerHTML = "<a href='" + "${pageContext.request.contextPath}/species/"
+                                    + oRecord.getData("guid") + "' title='view record details'>"
+                                    + cellContent + "</a>"
+                                    + "<br/>" + oRecord.getData("highlight");
                             };
 
                             myDataSource = new YAHOO.util.DataSource(window.location.pathname+".json?q="+thisQuery+"&fq="+thisFacetQuery+"&");
@@ -40,10 +43,10 @@
                             // Column definitions
                             var myColumnDefs = [
                                 //{key:"ContentModel", field:"contentModelLabel", label:"Type", sortable: true, minWidth: 100},
-                                {key:"scientificNameRaw", field:"nameString", sortable:true, label:"Scientific name", formatter:formatTitleUrl, width: 300}, // width: 350 , formatter:formatTitleUrl
+                                {key:"scientificNameRaw", field:"nameString", sortable:true, label:"Scientific name", formatter:formatTitleUrl}, // width: 350 , formatter:formatTitleUrl
                                 //{key:"acceptedConceptName", field:"acceptedConceptName", sortable:false, label:"is synonym for", width: 350},
                                 {key:"commonNameSort", field:"commonName", sortable:true, label:"Common name"},
-                                {key:"highlight", field:"highlight", sortable:false, label:"Snippet"},
+                                //{key:"highlight", field:"highlight", sortable:false, label:"Snippet"},
                                 {key:"rankId", field:"rank", label:"Rank", sortable: true}, // , minWidth: 100,width: 200
                                 {key:"score", field:"score", hidden:true, maxAutoWidth: 0}
                             ];

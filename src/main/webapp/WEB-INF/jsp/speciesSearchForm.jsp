@@ -14,7 +14,7 @@
 </head>
 <body>
     <div id="searchBox">
-        <h3>Search for Species and Taxa</h3>
+        <h2>Search for Species and Taxa</h2>
         <p>
         <p id="exampleSeaches">Examples searches:<br/><a href='${pageContext.request.contextPath}/species/search?q=Pogona+barbata'>Pogona barbata</a> (Eastern Bearded Dragon)<br/>
             <a href='${pageContext.request.contextPath}/species/search?q=Hypertropha+chlaenota'>Hypertropha chlaenota</a> (Moth - GELECHIOIDEA family)<br/>
@@ -29,11 +29,11 @@
         </p>
     </div>
     <div id="listsBox">
-        <h3>Lists</h3>
+        <h2>Lists</h2>
         <ul>
-            <li><a href="${pageContext.request.contextPath}/species/datasets">Datasets</li>
-            <li><a href="${pageContext.request.contextPath}/species/status/conservationStatus">Conservation Status</li>
-            <li><a href="${pageContext.request.contextPath}/species/status/pestStatus">Pest Status</li>
+            <li><a href="${pageContext.request.contextPath}/species/datasets">Datasets</a></li>
+            <li><a href="${pageContext.request.contextPath}/species/status/conservationStatus">Conservation Status</a></li>
+            <li><a href="${pageContext.request.contextPath}/species/status/pestStatus">Pest Status</a></li>
         </ul>
     </div>
 </body>
