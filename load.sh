@@ -1,8 +1,10 @@
+start_time=$(date +%s)
+
 echo "LOAD : running processing $('date')"
 
-mvn clean install jar:jar -Dmaven.test.skip=true
+mvn clean install jar:jar -Dmaven.test.skip=true $1
 
-mvn dependency:build-classpath
+mvn dependency:build-classpath $1
 
 export CLASSPATH=.:target/bie-hbase.jar:$(cat classpath.txt)
 
@@ -40,3 +42,6 @@ echo "LOAD : running Re-Create Taxon Concept Index $('date')"
 java -classpath $CLASSPATH org.ala.lucene.CreateTaxonConceptIndex
 
 echo "LOAD : processing complete at $('date')"
+
+finish_time=$(date +%s)
+echo "LOAD : Time taken: $(( $((finish_time - start_time)) /3600 )) hours $(( $((finish_time - start_time)) /60 )) minutes."
