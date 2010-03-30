@@ -145,7 +145,8 @@ public class TaxonConceptController {
             @RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
             @RequestParam(value="title", required=false, defaultValue ="Species Search Results") String title,
             Model model) throws Exception {
-        if (query == null) {
+
+        if (query == null || query.isEmpty()) {
             return SPECIES_SEARCH;
         }
 

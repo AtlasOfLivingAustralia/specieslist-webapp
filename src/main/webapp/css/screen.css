@@ -61,29 +61,43 @@ td, th  {
 /* header */
 #header {
     margin: 6px 0 7px 0;
+    padding: 2px 8px;
+    width: 931px;
+    background: url("images/ui-bg_highlight-soft_75_cccccc_1x100.png") repeat-x scroll 50% 50% #CCCCCC;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
+    vertical-align:middle;
+}
+#header span {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #262627;
+    vertical-align:middle;
+}
+#header #searchHint {
+    font-size: 100%;
+    font-weight: bold;
 }
 #searchTab input[type="text"] {
     margin: 0;
 }
 #menuSearch {
-    float: right;
-    /*margin-top: 60px;*/
+    /*float: right;
+    margin-top: 60px;*/
     padding: 2px;
 }
-#page > #header > #menuSearch {
-    margin-top: 58px;
+#page > #header > #menuSearch form {
+    float: right;
+    margin-top: 1px;
+    /*margin-top: 58px;*/
 }
 #menuSearch input {
     font-size: inherit;
 }
-#headerTitle {
-    position: absolute;
-    top: 20px;
-    width: 40%;
-    margin-left: 280px;
-    font-size: 24px;
-    font-weight: normal;
-    color: #4b4c4e;
+
+#headerLogo  {
+    padding-top: 2px;
 }
 #headerLogo img {
     margin-left: -4px;
@@ -107,9 +121,56 @@ td, th  {
     color: #FF5D00;/*#F26649;*/
     font-size: 18px;
 }
-#rankInTitle {
-    
+
+/* top menu */
+#topmenu {
+    float: right;
+    margin:0;
+    margin-right: 10px;
+    padding:0;
 }
+#topmenu .tabs {
+    border-bottom: 0px solid #ddd;
+    margin-left: 0px;
+    font-size: 13px;
+}
+#topmenu .tabs li {
+    margin-right: 1px;
+}
+#topmenu .tabs a {
+    padding: 5px 15px;
+    /*background-color: #ddd;*/
+    background: url("images/ui-bg_glass_75_cccccc_1x400.png") repeat-x scroll 50% 50% #DDDDDD;
+    color: #404142;
+    text-decoration: none;
+}
+#topmenu .tabs li.first a {
+    /*-moz-border-radius-topleft: 5px;*/
+    -moz-border-radius-bottomleft: 5px;
+    /*-webkit-border-top-left-radius: 5px;*/
+    -webkit-border-bottom-left-radius: 5px;
+}
+#topmenu .tabs li.last a {
+    /*-moz-border-radius-topright: 5px;*/
+    -moz-border-radius-bottomright: 5px;
+    /*-webkit-border-top-right-radius: 5px;*/
+    -webkit-border-bottom-right-radius: 5px;
+}
+#topmenu .tabs li.active a {
+    /*background-color: #bbb;*/
+    background: url("images/ui-bg_glass_45_aaaaaa_1x400.png") repeat-x scroll 50% 50% #BBBBBB;
+    color: #262627;
+}
+#topmenu .tabs li a:hover, #topmenu .tabs li.active a:hover {
+    /*background-color: #4b4c4e;*/
+    background: url("images/ui-bg_glass_30_4b4c4e_1x400.png") repeat-x scroll 50% 50% #4b4c4e;
+    color: #fff;
+}
+#topmenu .tabs #searchTab {
+    background: #fff;
+    padding: 3px 10px;
+}
+
 .show-60 {
     -moz-opacity:.60;
     -ms-filter:"alpha(opacity=60)";
@@ -326,48 +387,6 @@ img.galleryImage {
     max-height: 400px;
     max-width: 640px;
 }
-/* top menu */
-#topmenu .tabs {
-    border-bottom: 0px solid #ddd;
-    margin-left: 0px;
-    font-size: 13px;
-}
-#topmenu .tabs li {
-    margin-right: 1px;
-}
-#topmenu .tabs a {
-    padding: 5px 15px;
-    /*background-color: #ddd;*/
-    background: url("images/ui-bg_glass_75_cccccc_1x400.png") repeat-x scroll 50% 50% #DDDDDD;
-    color: #404142;
-    text-decoration: none;
-}
-#topmenu .tabs li.first a {
-    -moz-border-radius-topleft: 5px;
-    -moz-border-radius-bottomleft: 5px;
-    -webkit-border-top-left-radius: 5px;
-    -webkit-border-bottom-left-radius: 5px;
-}
-#topmenu .tabs li.last a {
-    -moz-border-radius-topright: 5px;
-    -moz-border-radius-bottomright: 5px;
-    -webkit-border-top-right-radius: 5px;
-    -webkit-border-bottom-right-radius: 5px;
-}
-#topmenu .tabs li.active a {
-    /*background-color: #bbb;*/
-    background: url("images/ui-bg_glass_45_aaaaaa_1x400.png") repeat-x scroll 50% 50% #BBBBBB;
-    color: #262627;
-}
-#topmenu .tabs li a:hover, #topmenu .tabs li.active a:hover {
-    /*background-color: #4b4c4e;*/
-    background: url("images/ui-bg_glass_30_4b4c4e_1x400.png") repeat-x scroll 50% 50% #4b4c4e;
-    color: #fff;
-}
-#topmenu .tabs #searchTab {
-    background: #fff;
-    padding: 3px 10px;
-}
 
 /* footer */
 #footer {
@@ -440,7 +459,7 @@ span#facetName {
 }
 /* Misc changes to CSS */
 div#body {
-    margin: 20px 0 10px 0;
+    margin: 15px 0 10px 0;
 }
 table.propertyTable {
     width: 100%;
@@ -600,8 +619,8 @@ td .yui-dt-liner {
 }
 
 /* overr-ride JQuery CSS */
-ul.ui-widget {
-    font-size: 100%;
+ul.ui-tabs-nav {
+    font-size:90%;
     font-family:"Helvetica Neue",Arial,Helvetica,sans-serif;
 }
 

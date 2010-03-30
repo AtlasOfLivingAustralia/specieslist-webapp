@@ -27,19 +27,6 @@
     </head>
     <body>
         <div id="page">
-            <div id="header">
-                <div id="menuSearch">
-                    <form action="${pageContext.request.contextPath}/species/search" method="GET" autocomplete="off">
-                        <input name="q" id="q" <c:if test="${not empty query}">value="<c:out value="${query}" />"</c:if> type="text" size="25"/>
-                        <input type="hidden" name="title"/>
-                        <input type="submit" value="Search"/>
-                    </form>
-                </div>
-                <div id="headerLogo">
-                    <a href="${pageContext.request.contextPath}/"><img src="${pageContext.request.contextPath}/static/images/ALA-logo-50px.gif" alt="ALA Logo" id="headerLogo" border="0"/></a>
-                </div>
-                <h1 id="headerTitle">Biodiversity Information Explorer</h1>
-            </div>
             <div id="topmenu">
                 <c:set var="pageName"><decorator:getProperty property="meta.pageName"/></c:set>
                 <ul class="tabs">
@@ -50,6 +37,21 @@
                     <li class="<c:if test="${pageName == 'conservationStatus'}">active</c:if> "><a href="${pageContext.request.contextPath}/species/status/conservationStatus">Conservation Status List</a></li>
                     <li class="<c:if test="${pageName == 'pestStatus'}">active</c:if> last"><a href="${pageContext.request.contextPath}/species/status/pestStatus">Pest Status List</a></li>
                 </ul>                
+            </div>
+            <div id="headerLogo">
+                <a href="${pageContext.request.contextPath}/"><img src="${pageContext.request.contextPath}/static/images/ALA-logo-50px.gif" alt="ALA Logo" id="headerLogo" border="0"/></a>
+            </div>
+            <div id="header">
+                <div id="menuSearch">
+                    <span id="headerTitle">Biodiversity Information Explorer</span>
+                    <form action="${pageContext.request.contextPath}/species/search" method="GET" autocomplete="off">
+                        <span id="searchHint">Search for Australian species: </span>
+                        <input name="q" id="q" <c:if test="${not empty query}">value="<c:out value="${query}" />"</c:if> type="text" size="30"/>
+                        <input type="hidden" name="title"/>
+                        <input type="submit" value="Search"/>
+                    </form>
+                </div>
+                
             </div>
             <div id="body" class="yui-skin-sam">
                 <decorator:body />
