@@ -570,7 +570,7 @@
                                     <ul style="list-style-type: circle;">
                                         <c:forEach var="region" items="${regionType.regions}">
                                             <li>${region.name}:
-                                                <a href="http://data.ala.org.au/searchWithTable.htm?c[0].s=20&c[0].p=0&c[0].o=${region.taxonId}&c[1].s=36&c[1].p=0&c[1].o=${region.regionId}">${region.occurrences}</a>
+                                                <a href="http://data.ala.org.au/occurrences/searchWithTable.htm?c[0].s=20&c[0].p=0&c[0].o=${region.taxonId}&c[1].s=36&c[1].p=0&c[1].o=${region.regionId}">${region.occurrences}</a>
                                             </li>
                                         </c:forEach>
                                     </ul>
