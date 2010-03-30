@@ -143,8 +143,12 @@ public class TaxonConceptController {
             @RequestParam(value="title", required=false, defaultValue ="Species Search Results") String title,
             Model model) throws Exception {
 
-        if (query == null || query.isEmpty()) {
+        SearchResultsDTO searchResults = new SearchResultsDTO();
+
+        if (query == null) {
             return SPECIES_SEARCH;
+        } else if (query.isEmpty()) {
+            return SPECIES_LIST;
         }
 
         String queryJsEscaped = StringEscapeUtils.escapeJavaScript(query);
@@ -154,20 +158,17 @@ public class TaxonConceptController {
         String filterQueryChecked = (filterQuery == null) ? "" : filterQuery;
         model.addAttribute("facetQuery", filterQueryChecked);
 
-        //FulltextSearchDaoImplSolr tcDao = new FulltextSearchDaoImplSolr();
-
-        SearchResultsDTO searchResults = searchDao.findByScientificName(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+        searchResults = searchDao.findByScientificName(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
         model.addAttribute("searchResults", searchResults);
         logger.debug("query = "+query);
 
-        /*
-        if (searchResults.getTaxonConcepts().size() == 1) {
+        if (searchResults.getTaxonConcepts() != null && searchResults.getTaxonConcepts().size() == 1) {
             List taxonConcepts = (List) searchResults.getTaxonConcepts();
             SearchTaxonConceptDTO res = (SearchTaxonConceptDTO) taxonConcepts.get(0);
             String guid = res.getGuid();
-            return "redirect:/species/" + guid;
+            return "redirect:../species/" + guid;
         }
-        */
+
 
         return SPECIES_LIST;
     }
