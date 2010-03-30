@@ -31,7 +31,6 @@ import javax.inject.Inject;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
-import org.ala.lucene.Autocompleter;
 import org.ala.lucene.LuceneUtils;
 import org.ala.model.Classification;
 import org.ala.model.CommonName;
@@ -39,11 +38,11 @@ import org.ala.model.ConservationStatus;
 import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
 import org.ala.model.Image;
+import org.ala.model.PestStatus;
 import org.ala.model.Publication;
+import org.ala.model.Rank;
 import org.ala.model.Reference;
 import org.ala.model.Region;
-import org.ala.model.PestStatus;
-import org.ala.model.Rank;
 import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
@@ -84,7 +83,6 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.store.FSDirectory;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -1312,7 +1310,9 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	    		for(CommonName cn: commonNames){
 	    			if(cn.nameString!=null){
 	    				commonNameSet.add(cn.nameString.toLowerCase());
-                        if (cn.getInfoSourceId()!=null) infoSourceIds.add(cn.getInfoSourceId());
+                        if (cn.getInfoSourceId()!=null) {
+                        	infoSourceIds.add(cn.getInfoSourceId());
+                        }
                         //doc.add(new Field("commonName", cn.nameString.toLowerCase(), Store.YES, Index.ANALYZED));
                         //cnStr.append(cn.nameString.toLowerCase() + " ");
 	    			}
@@ -1322,6 +1322,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
                     String commonNamesConcat = StringUtils.deleteWhitespace(StringUtils.join(commonNameSet, " "));
                     doc.add(new Field("commonNameSort", commonNamesConcat, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
                     doc.add(new Field("commonName", StringUtils.join(commonNameSet, " "), Store.YES, Index.ANALYZED));
+                    doc.add(new Field("commonNameDisplay", StringUtils.join(commonNameSet, ", "), Store.YES, Index.ANALYZED));
                 }
 	    		
 	    		for(TaxonConcept synonym: synonyms){
@@ -1334,11 +1335,14 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	    				synonymDoc.add(new Field("acceptedConceptName", taxonConcept.nameString, Store.YES, Index.NO));
 	    				if(!commonNames.isEmpty()){
 	    					synonymDoc.add(new Field("commonNameSort", commonNames.get(0).nameString, Store.YES, Index.NO));
+	    					synonymDoc.add(new Field("commonNameDisplay", StringUtils.join(commonNameSet, ", "), Store.YES, Index.ANALYZED));
 	    				}
 	                    addRankToIndex(taxonName, synonymDoc);
 	    				//add the synonym as a separate document
 	    				iw.addDocument(synonymDoc, analyzer);
-                        if (synonym.getInfoSourceId()!=null) infoSourceIds.add(synonym.getInfoSourceId()); // getting NPE
+                        if (synonym.getInfoSourceId()!=null){
+                        	infoSourceIds.add(synonym.getInfoSourceId()); // getting NPE
+                        }
 	    			}
 	    		}
 	    		

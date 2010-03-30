@@ -17,7 +17,6 @@ package org.ala.web;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -92,8 +91,6 @@ public class TaxonConceptController {
     /** Name of view for list of datasets */
     private final String DATASET_LIST = "datasetList";
     
-    private final String CLASSIFICATION_DELIMITER = " &rArr; ";
-    
     /**
 	 * Custom handler for the welcome view.
 	 * <p>
@@ -163,12 +160,14 @@ public class TaxonConceptController {
         model.addAttribute("searchResults", searchResults);
         logger.debug("query = "+query);
 
+        /*
         if (searchResults.getTaxonConcepts().size() == 1) {
             List taxonConcepts = (List) searchResults.getTaxonConcepts();
             SearchTaxonConceptDTO res = (SearchTaxonConceptDTO) taxonConcepts.get(0);
             String guid = res.getGuid();
-            //return "redirect:/species/" + guid;
+            return "redirect:/species/" + guid;
         }
+        */
 
         return SPECIES_LIST;
     }
