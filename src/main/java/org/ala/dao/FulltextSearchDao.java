@@ -15,6 +15,7 @@
 package org.ala.dao;
 
 import java.util.List;
+import java.util.Map;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.util.StatusType;
@@ -64,4 +65,11 @@ public interface FulltextSearchDao {
      */
     SearchResultsDTO findByScientificName(String query, String filterQuery, Integer startIndex, Integer pageSize, String sortField, String sortDirection) throws Exception;
 
+    /**
+     * For every dataset (infoSource) get a count of the number of taxon concepts which contain indexed
+     * information from that dataset.
+     *
+     * @return
+     */
+    Map<String, Long> getAllDatasetCounts();
 }

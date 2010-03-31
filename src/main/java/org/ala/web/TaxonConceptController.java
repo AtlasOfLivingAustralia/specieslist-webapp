@@ -20,6 +20,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
@@ -336,6 +337,8 @@ public class TaxonConceptController {
     public String listDatasets (Model model)  {
         List<InfoSource> infoSources = infoSourceDAO.getAllByDatasetType();
         model.addAttribute("infoSources", infoSources);
+        Map<String, Long> countsMap = searchDao.getAllDatasetCounts();
+        model.addAttribute("countsMap", countsMap);
 
         return DATASET_LIST;
     }

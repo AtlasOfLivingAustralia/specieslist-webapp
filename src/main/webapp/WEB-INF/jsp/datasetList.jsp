@@ -20,10 +20,11 @@
                 <th>Taxa indexed</th>
             </tr>
             <c:forEach var="dataset" items="${infoSources}">
+                <c:set var="datasetId"><c:out value="${dataset.id}"/></c:set>
                 <c:if test="${fn:contains(dataset.datasetType, '1')}">
                     <tr>
                         <td><a href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a></td>
-                        <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">view list</a></td>
+                        <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">${not empty countsMap[datasetId] ? countsMap[datasetId] : '0'}</a></td>
                         <td><c:if test="${dataset.documentCount == 0}">N/A</c:if><c:if test="${dataset.documentCount != 0}">${dataset.documentCount}</c:if></td>
                     </tr>
                 </c:if>
@@ -39,11 +40,12 @@
                 <th>Images indexed</th>
             </tr>
             <c:forEach var="dataset" items="${infoSources}">
+                <c:set var="datasetId"><c:out value="${dataset.id}"/></c:set>
                 <c:if test="${fn:contains(dataset.datasetType, '3')}">
                     <tr>
                         <td><a href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a></td>
-                        <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">view list</a></td>
-                        <td>${dataset.documentCount}</td>
+                        <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">${not empty countsMap[datasetId] ? countsMap[datasetId] : '0'}</a></td>
+                        <td><c:if test="${dataset.documentCount == 0}">N/A</c:if><c:if test="${dataset.documentCount != 0}">${dataset.documentCount}</c:if></td>
                     </tr>
                 </c:if>
             </c:forEach>
@@ -58,11 +60,12 @@
                 <th>Pages indexed</th>
             </tr>
             <c:forEach var="dataset" items="${infoSources}">
+                <c:set var="datasetId"><c:out value="${dataset.id}"/></c:set>
                 <c:if test="${fn:contains(dataset.datasetType, '2')}">
                     <tr>
                         <td><a href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a></td>
-                        <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">view list</a></td>
-                        <td>${dataset.documentCount}</td>
+                        <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">${not empty countsMap[datasetId] ? countsMap[datasetId] : '0'}</a></td>
+                        <td><c:if test="${dataset.documentCount == 0}">N/A</c:if><c:if test="${dataset.documentCount != 0}">${dataset.documentCount}</c:if></td>
                     </tr>
                 </c:if>
             </c:forEach>

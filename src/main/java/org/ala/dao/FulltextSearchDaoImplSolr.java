@@ -16,6 +16,7 @@
 package org.ala.dao;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
@@ -51,6 +52,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
     private static final Logger logger = Logger.getLogger(FulltextSearchDaoImplSolr.class);
     /** SOLR home directory */
     private static final String SOLR_HOME = "/data/solr";
+    /** field name for dataset */
+    private static final String DATASET = "dataset";
     /** SOLR server instance */
     private EmbeddedSolrServer server = null;
     @Inject
@@ -84,7 +87,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 	 */
     @Override
     public List<SearchTaxonConceptDTO> findByScientificName(String input, int limit) throws Exception {
-        SearchResultsDTO sr = findByScientificName(input, null, 0, limit, null, null);
+        SearchResultsDTO sr = findByScientificName(input, null, 0, limit, "score", "asc");
         return sr.getTaxonConcepts();
     }
 
@@ -123,11 +126,11 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         return searchResults;
     }
 
-    private SearchResultsDTO doSolrSearch(String queryString, String filterQuery,
-            Integer pageSize, Integer startIndex, String sortField, String sortDirection) throws SolrServerException {
-        SolrQuery solrQuery = initSolrQuery();
+    private SearchResultsDTO doSolrQuery(SolrQuery solrQuery, String filterQuery, Integer pageSize,
+            Integer startIndex, String sortField, String sortDirection) throws SolrServerException {
+        
         SearchResultsDTO searchResults = new SearchResultsDTO();
-        solrQuery.setQuery(queryString);
+        
         // set the facet query if set
         if (filterQuery != null && !filterQuery.isEmpty()) {
             // pull apart fq. E.g. Rank:species and then sanitize the string parts
@@ -138,6 +141,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
             solrQuery.addFilterQuery(prefix + ":" + suffix); // solrQuery.addFacetQuery(facetQuery)
             System.out.println("adding filter query: " + StringUtils.join(solrQuery.getFacetQuery(), ", "));
         }
+
         solrQuery.setRows(pageSize);
         solrQuery.setStart(startIndex);
         solrQuery.setSortField(sortField, ORDER.valueOf(sortDirection));
@@ -145,6 +149,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         if (server == null) {
             this.initSolrServer();
         }
+        
         QueryResponse qr = server.query(solrQuery); // can throw exception
         SolrDocumentList sdl = qr.getResults();
         List<FacetField> facets = qr.getFacetFields();
@@ -184,8 +189,16 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         // The query result is stored in its original format so that all the information
         // returned is available later on if needed
         searchResults.setQr(qr);
-
         return searchResults;
+    }
+
+    private SearchResultsDTO doSolrSearch(String queryString, String filterQuery,
+            Integer pageSize, Integer startIndex, String sortField, String sortDirection) throws SolrServerException {
+
+        SolrQuery solrQuery = initSolrQuery();
+        solrQuery.setQuery(queryString);
+
+        return doSolrQuery(solrQuery, filterQuery, pageSize, startIndex, sortField, sortDirection);
     }
 
     /**
@@ -216,6 +229,36 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 
         return searchResults;
 
+    }
+
+    /**
+     * @see org.ala.dao.FulltextSearchDao#getAllDatasetCounts()
+     */
+    @Override
+    public Map<String, Long> getAllDatasetCounts() {
+        Map<String, Long> counts = new HashMap<String, Long>();
+        SearchResultsDTO searchResults = null;
+        String queryString = "*:*";
+        
+        try {
+            SolrQuery solrQuery = initCountsQuery();
+            solrQuery.setQuery(queryString);
+            //searchResults = doSolrSearch(query, null, 0, 1, null, null);
+            searchResults = doSolrQuery(solrQuery, null, 0, 1, "score", "asc");
+            List<FacetResultDTO> facetResults = (List) searchResults.getFacetResults();
+
+            for (FacetResultDTO fr : facetResults) {
+                if (fr.getFieldName().equalsIgnoreCase(DATASET)) {
+                    for (FieldResultDTO res : fr.getFieldResult()) {
+                        counts.put(res.getLabel(), res.getCount());
+                    }
+                }
+            }
+        } catch (SolrServerException ex) {
+            logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
+        }
+        
+        return counts;
     }
 
     /**
@@ -288,6 +331,24 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         solrQuery.addHighlightField("pestStatus");
         solrQuery.addHighlightField("conservationStatus");
         solrQuery.addHighlightField("simpleText");
+
+        return solrQuery;
+    }
+
+    /**
+     * Helper method to create SolrQuery facets for dataset counts
+     *
+     * @return solrQuery the SolrQuery
+     */
+    protected SolrQuery initCountsQuery() {
+        SolrQuery solrQuery = new SolrQuery();
+        solrQuery.setQueryType("standard");
+        solrQuery.setFacet(true);
+        solrQuery.addFacetField(DATASET);
+        solrQuery.setFacetMinCount(0);
+        solrQuery.setFacetLimit(10000);
+        solrQuery.setRows(1);
+        solrQuery.setStart(0);
 
         return solrQuery;
     }
