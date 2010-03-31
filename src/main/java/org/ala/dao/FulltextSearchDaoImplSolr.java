@@ -126,6 +126,39 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         return searchResults;
     }
 
+    /**
+     * Re-usable method for performing SOLR searches - takes query string input
+     *
+     * @param queryString
+     * @param filterQuery
+     * @param pageSize
+     * @param startIndex
+     * @param sortField
+     * @param sortDirection
+     * @return
+     * @throws SolrServerException
+     */
+    private SearchResultsDTO doSolrSearch(String queryString, String filterQuery, Integer pageSize,
+          Integer startIndex, String sortField, String sortDirection) throws SolrServerException {
+
+        SolrQuery solrQuery = initSolrQuery(); // general search settings
+        solrQuery.setQuery(queryString);
+
+        return doSolrQuery(solrQuery, filterQuery, pageSize, startIndex, sortField, sortDirection);
+    }
+
+    /**
+     * Re-usable method for performing SOLR searches - takes SolrQuery input
+     *
+     * @param solrQuery
+     * @param filterQuery
+     * @param pageSize
+     * @param startIndex
+     * @param sortField
+     * @param sortDirection
+     * @return
+     * @throws SolrServerException
+     */
     private SearchResultsDTO doSolrQuery(SolrQuery solrQuery, String filterQuery, Integer pageSize,
             Integer startIndex, String sortField, String sortDirection) throws SolrServerException {
         
@@ -190,15 +223,6 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         // returned is available later on if needed
         searchResults.setQr(qr);
         return searchResults;
-    }
-
-    private SearchResultsDTO doSolrSearch(String queryString, String filterQuery,
-            Integer pageSize, Integer startIndex, String sortField, String sortDirection) throws SolrServerException {
-
-        SolrQuery solrQuery = initSolrQuery();
-        solrQuery.setQuery(queryString);
-
-        return doSolrQuery(solrQuery, filterQuery, pageSize, startIndex, sortField, sortDirection);
     }
 
     /**

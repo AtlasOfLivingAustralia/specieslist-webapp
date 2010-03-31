@@ -39,7 +39,8 @@ public interface FulltextSearchDao {
      * @return
      * @throws Exception
      */
-    SearchResultsDTO findAllByStatus(StatusType statusType, String filterQuery, Integer startIndex, Integer pageSize, String sortField, String sortDirection) throws Exception;
+    SearchResultsDTO findAllByStatus(StatusType statusType, String filterQuery, Integer startIndex,
+            Integer pageSize, String sortField, String sortDirection) throws Exception;
 
     /**
      * Search for taxon concept with the following scientific name.
@@ -63,7 +64,8 @@ public interface FulltextSearchDao {
      * @return
      * @throws Exception
      */
-    SearchResultsDTO findByScientificName(String query, String filterQuery, Integer startIndex, Integer pageSize, String sortField, String sortDirection) throws Exception;
+    SearchResultsDTO findByScientificName(String query, String filterQuery, Integer startIndex,
+            Integer pageSize, String sortField, String sortDirection) throws Exception;
 
     /**
      * For every dataset (infoSource) get a count of the number of taxon concepts which contain indexed
