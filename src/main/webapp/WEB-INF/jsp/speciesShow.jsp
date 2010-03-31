@@ -56,33 +56,6 @@
                     }
                 );
 
-                // Lookup portal for species info
-                $.getJSON("http://data.ala.org.au/search/scientificNames/%22${extendedTaxonConcept.taxonName.nameComplete}%22/json?callback=?", function(data){
-                    //alert("inspecting JSON data: " + data);
-                    if (data.result.length > 0) {
-                        var scientificNameId = data.result[0].scientificNameId;
-                        var scientificName = data.result[0].scientificName;
-                        var scientificNameUrl = "http://data.ala.org.au" + data.result[0].scientificNameUrl;
-                        var occurrenceCount = data.result[0].occurrenceCount;
-                        var occurrenceTableUrl = "http://data.ala.org.au/occurrences/searchWithTable.htm?c[0].s=20&c[0].p=0&c[0].o=" + scientificNameId;
-                        // modify page DOM with values
-                        $("a#portalLink").attr("href", scientificNameUrl);
-                        //$("a#occurTableLink").attr("href", occurrenceTableUrl);
-                        $("#occurrenceCount").html(occurrenceCount);
-                        $("a#occurrenceTableLink").attr("href", occurrenceTableUrl);
-                        $("#portalBookmark").fadeIn();
-                        //$("#portalInfo").slideDown();
-                        loadMap(scientificName,scientificNameId);
-                        //loadSpeciesRdf(scientificNameUrl);
-                    } else {
-                        // no records - check for other sections and if none then remove the "jumpt to" text
-                        var tocListItems = $("div#toc ul").children();
-                        if (tocListItems.length < 2) {
-                            $("div#toc").hide();
-                        }
-                    }
-                });
-
                 // convert lsid link text to TC title via SOLR
                 $("a.lsidLink").each(function() {
                     var link = $(this);
@@ -165,6 +138,13 @@
                     $("#tabs").tabs();
                 });
 
+                $('#tabs').bind('tabsselect', function(event, ui) {
+                    //alert("portalInfo was selected:"+ui.panel.id);
+                    if (ui.panel.id == 'portalInfo') {
+                        //loadMap("${extendedTaxonConcept.taxonName.nameComplete}")
+                    }
+                });
+
             });  // end document ready function
 
             /**
@@ -183,33 +163,53 @@
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/openlayers/OpenLayers.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/GeoExt.js"></script>
         <script type="text/javascript">
-            var map;
+            var map, mapPanel;
 
             /**
              * Initiate an OpenLayers Map
              */
-            function loadMap(scientificName,scientificNameId) {
-                var mapPanel;
-                //Ext.onReady(function() {
-                    var options = {
-                        numZoomLevels: 12,
-                        controls: []
-                        // maxExtent: new OpenLayers.Bounds()
-                    };
-                    map = new OpenLayers.Map('mappanel', options);
-                    var layer = new OpenLayers.Layer.WMS(
-                        "Global Imagery",
-                        "http://maps.opengeo.org/geowebcache/service/wms",
-                        {layers: "bluemarble"},
-                        {wrapDateLine: true}
-                    );
+            function loadMap(scientificName, scientificNameId) {
+                if (map != null && mapPanel != null) {
+                    map.destroy();
+                    mapPanel.destroy();
+                }
 
-                    var cellDensityLayerUrl = 'http://data.ala.org.au';
-                    var entityName = '<span class="genera">' + scientificName + ' </span>';
-                    var entityId = scientificNameId;
-                    var entityType = 1; // species type
+                var options = {
+                    numZoomLevels: 12,
+                    controls: []
+                    // maxExtent: new OpenLayers.Bounds()
+                };
 
-                    cellLayer = new OpenLayers.Layer.WMS(
+                map = new OpenLayers.Map('mappanel', options);
+
+                var layer = new OpenLayers.Layer.WMS(
+                    "Global Imagery",
+                    "http://maps.opengeo.org/geowebcache/service/wms",
+                    {layers: "bluemarble"},
+                    {wrapDateLine: true}
+                );
+
+                var statesLayer = new OpenLayers.Layer.WMS("Political States",
+                    "http://maps.ala.org.au/wms",
+                    {layers: "ala:as",
+                    srs: 'EPSG:4326',
+                    version: "1.0.0",
+                    transparent: "true",
+                    format: "image/png",
+                    maxExtent: new OpenLayers.Bounds(112.91,-54.76,159.11,-10.06)},
+                    {alpha: true}
+                );
+
+                map.addLayer(layer);
+                map.addLayer(statesLayer);
+
+                var cellDensityLayerUrl = 'http://data.ala.org.au';
+                var entityName = '<span class="genera">' + scientificName + ' </span>';
+                var entityId = scientificNameId;
+                var entityType = 1; // species type
+
+                if (scientificNameId != null) {
+                    var cellLayer = new OpenLayers.Layer.WMS(
                         entityName + " 1 degree cells",
                         "http://maps.ala.org.au/wms",  //cellDensityArray,
                         {layers: "ala:tabDensityLayer",
@@ -221,35 +221,62 @@
                         {opacity: "0.65", wrapDateLine: true, buffer: 0}
                     );
 
-                    var statesLayer = new OpenLayers.Layer.WMS("Political States",
-                        "http://maps.ala.org.au/wms",
-                        {layers: "ala:as",
-                        srs: 'EPSG:4326',
-                        version: "1.0.0",
-                        transparent: "true",
-                        format: "image/png",
-                        maxExtent: new OpenLayers.Bounds(112.91,-54.76,159.11,-10.06)},
-                        {alpha: true}
-                    );
+                    map.addLayer(cellLayer);
+                }
 
-                    map.addLayers([layer,cellLayer,statesLayer]);
-                    map.addControl(new OpenLayers.Control.Navigation({zoomWheelEnabled: false}));
-                    map.addControl(new OpenLayers.Control.PanZoom({zoomWorldIcon: false}));
-                    map.setCenter(new OpenLayers.LonLat(133, -27), 4);
+                //map.addLayers([layer,cellLayer,statesLayer]);
+                map.addControl(new OpenLayers.Control.Navigation({zoomWheelEnabled: false}));
+                map.addControl(new OpenLayers.Control.PanZoom({zoomWorldIcon: false}));
+                map.setCenter(new OpenLayers.LonLat(133, -27), 4);
 
-                    mapPanel = new GeoExt.MapPanel({
-                        //title: "Species Density Map",
-                        renderTo: "mappanel",
-                        border: false,
-                        heder: false,
-                        height: 450,
-                        width: 550,
-                        map: map,
-                        center: new OpenLayers.LonLat(133, -27),
-                        zoom: 4
-                    });
-                //});
+                mapPanel = new GeoExt.MapPanel({
+                    //title: "Species Density Map",
+                    renderTo: "mappanel",
+                    stateId: "mappanel",
+                    border: false,
+                    header: false,
+                    height: 450,
+                    width: 550,
+                    map: map,
+                    center: new OpenLayers.LonLat(133, -27),
+                    zoom: 4
+                });
+                
             }
+
+            Ext.onReady(function() {
+                $('#debug').append("ext.onReady loadMap<br/>");
+                loadMap("${extendedTaxonConcept.taxonName.nameComplete}", null);
+
+                // Lookup portal for species info
+                $.getJSON("http://data.ala.org.au/search/scientificNames/%22${extendedTaxonConcept.taxonName.nameComplete}%22/json?callback=?", function(data){
+                    //alert("inspecting JSON data: " + data);
+                    if (data.result.length > 0) {
+                        var sciNameId = data.result[0].scientificNameId;
+                        var scientificName = data.result[0].scientificName;
+                        var scientificNameUrl = "http://data.ala.org.au" + data.result[0].scientificNameUrl;
+                        var occurrenceCount = data.result[0].occurrenceCount;
+                        var occurrenceTableUrl = "http://data.ala.org.au/occurrences/searchWithTable.htm?c[0].s=20&c[0].p=0&c[0].o=" + sciNameId;
+                        // modify page DOM with values
+                        $("a#portalLink").attr("href", scientificNameUrl);
+                        //$("a#occurTableLink").attr("href", occurrenceTableUrl);
+                        $("#occurrenceCount").html(occurrenceCount);
+                        $("a#occurrenceTableLink").attr("href", occurrenceTableUrl);
+                        $("#portalBookmark").fadeIn();
+                        //$("#portalInfo").slideDown();
+                        $('#debug').append("ajax loadMap<br/>");
+                        loadMap(scientificName,sciNameId);
+                        //loadSpeciesRdf(scientificNameUrl);
+                    } else {
+                        // no records - check for other sections and if none then remove the "jumpt to" text
+                        var tocListItems = $("div#toc ul").children();
+                        if (tocListItems.length < 2) {
+                            $("div#toc").hide();
+                        }
+                        $('#debug').append("ajax failed<br/>");
+                    }
+                });
+            });
         </script>
     </head>
     <body>
@@ -341,7 +368,7 @@
             <ul>
                 <c:set var="tabIsFirst" value="false"/>
                 <c:if test="${not empty extendedTaxonConcept.conservationStatuses || fn:length(extendedTaxonConcept.pestStatuses) > 0 || fn:length(textProperties) > 0}">
-                    <li class="selected"><a href="#harvestedInfo"><em>Information</em></a></li>
+                    <li><a href="#harvestedInfo"><em>Information</em></a></li>
                     <c:set var="tabIsFirst" value="true"/>
                 </c:if>
                 <c:if test="${not empty extendedTaxonConcept.taxonConcept}">
@@ -588,7 +615,7 @@
                             </c:forEach>
                         </ul>
                     </div>
-                    <div id="mappanel"></div>
+                    <div id="mappanel" style="display: block;"></div>
                     <div style="float:right;font-size:11px;width:550px;">
                         <table id="cellCountsLegend">
                             <tr>
@@ -637,6 +664,6 @@
                 </c:if>
             </div>
         </div>
-
+        <p id="debug" style="display: none;"></p>
     </body>
 </html>

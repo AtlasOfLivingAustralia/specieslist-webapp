@@ -654,7 +654,9 @@ ul.ui-tabs-nav {
 }
 
 .ui-tabs .ui-tabs-hide {
-     display: none;
+   /* display: inherit;*/
+    position: absolute;
+    left: -10000px;
 }
 
 em, dfn {
