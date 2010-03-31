@@ -87,7 +87,7 @@ public class LoadUtils {
 	 */
 	public List<String> getGuidsForPublicationGuid(String publicationGuid, int limit) throws Exception {
 		
-		Query query = new TermQuery(new Term("publicationGuid", publicationGuid));
+		Query query = new TermQuery(new Term("publishedInCitation", publicationGuid));
 		TopDocs topDocs = getTcIdxSearcher().search(query, limit);
 		List<String> guids = new ArrayList<String>();
 		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
@@ -152,10 +152,8 @@ public class LoadUtils {
 		taxonConcept.guid = doc.get("guid");
 		taxonConcept.parentGuid = doc.get("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsChildTaxonOf");
 		taxonConcept.nameString = doc.get(LuceneUtils.SCI_NAME_RAW);
-		
-//		Field[] fields = doc.getFields("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsParentTaxonOf");
-//		taxonConcept.hasChildren = (fields==null || fields.length==0) ? false : true;
-		
+		taxonConcept.publishedIn = doc.get("publishedIn");
+		taxonConcept.publishedInCitation = doc.get("publishedInCitation");
 		return taxonConcept;
 	}
 	
@@ -201,15 +199,6 @@ public class LoadUtils {
 		return guids;
 	}
 
-	/*
-		this.tcIdxSearcher = new IndexSearcher(TC_INDEX_DIR);
-		this.accIdxSearcher = new IndexSearcher(ACC_INDEX_DIR);
-		this.relIdxSearcher = new IndexSearcher(REL_INDEX_DIR);
-
-	 * 
-	 */
-	
-	
 	private Searcher getRelIdxSearcher() throws Exception {
 		//FIXME move to dependency injection
 		if(this.relIdxSearcher==null){
@@ -393,7 +382,10 @@ public class LoadUtils {
 		    	doc.add(new Field("guid", keyValue[0], Store.YES, Index.ANALYZED));
 		    	doc.add(new Field("nameGuid", keyValue[1], Store.YES, Index.ANALYZED));
 		    	if(keyValue[5]!=null){
-		    		doc.add(new Field("publicationGuid", keyValue[5], Store.YES, Index.ANALYZED));
+		    		doc.add(new Field("publishedInCitation", keyValue[5], Store.YES, Index.ANALYZED));
+		    	}
+		    	if(keyValue[6]!=null){
+		    		doc.add(new Field("publishedIn", keyValue[6], Store.YES, Index.NO));
 		    	}
 		    	LuceneUtils.addScientificNameToIndex(doc, keyValue[2], null);
 		    	
