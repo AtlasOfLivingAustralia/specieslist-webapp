@@ -138,4 +138,16 @@ public class TaxonName extends AttributableObject implements Comparable<TaxonNam
         }
         return rankLabel;
     }
+	/**
+	 * @return the publishedIn
+	 */
+	public String getPublishedIn() {
+		return publishedIn;
+	}
+	/**
+	 * @param publishedIn the publishedIn to set
+	 */
+	public void setPublishedIn(String publishedIn) {
+		this.publishedIn = publishedIn;
+	}
 }
