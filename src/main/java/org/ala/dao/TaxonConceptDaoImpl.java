@@ -446,6 +446,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		putIfNotNull(batchUpdate, "tn:nomenclaturalCode", tn.nomenclaturalCode);
 		putIfNotNull(batchUpdate, "tn:typificationString", tn.typificationString);
 		putIfNotNull(batchUpdate, "tn:publishedInCitation", tn.publishedInCitation);
+		putIfNotNull(batchUpdate, "tn:publishedIn", tn.publishedIn);
 		putIfNotNull(batchUpdate, "tn:rankString", tn.rankString);
 		getTable().commit(batchUpdate);
 		return true;
@@ -651,6 +652,8 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		tn.nomenclaturalCode = HBaseDaoUtils.getField(rowResult, "tn:nomenclaturalCode");
 		tn.rankString = HBaseDaoUtils.getField(rowResult, "tn:rankString");
 		tn.typificationString = HBaseDaoUtils.getField(rowResult, "tn:typificationString");
+		tn.publishedInCitation = HBaseDaoUtils.getField(rowResult, "tn:publishedInCitation");
+		tn.publishedIn = HBaseDaoUtils.getField(rowResult, "tn:publishedIn");
 		return tn;
 	}
 

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.ala.lucene.LuceneUtils;
+import org.ala.model.Publication;
 import org.ala.model.TaxonConcept;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -57,11 +58,13 @@ public class LoadUtils {
 	public static final String TC_INDEX_DIR = BASE_DIR+"taxonConcept";
 	public static final String REL_INDEX_DIR = BASE_DIR+"relationship";
 	public static final String ACC_INDEX_DIR = BASE_DIR+"accepted";
+	public static final String PUB_INDEX_DIR = BASE_DIR+"publication";
 	static Pattern p = Pattern.compile("\t");
 	
 	private IndexSearcher tcIdxSearcher;
 	private IndexSearcher relIdxSearcher;
 	private IndexSearcher accIdxSearcher;
+	private IndexSearcher pubIdxSearcher;
 	
 	public LoadUtils() throws Exception {}
 	
@@ -110,7 +113,32 @@ public class LoadUtils {
 		if(tcs.isEmpty())
 			return null;
 		return tcs.get(0);
-	}		
+	}
+
+	/**
+	 * Retrieve the publication for this GUID.
+	 * 
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	public Publication getPublicationByGuid(String guid) throws Exception {
+		if(guid==null)
+			return null;
+		Query query = new TermQuery(new Term("guid", guid));
+		TopDocs topDocs = getPubIdxSearcher().search(query, 1);
+		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
+			Document doc = getTcIdxSearcher().doc(scoreDoc.doc);
+			Publication p = new Publication();
+			p.setGuid(doc.get("guid"));
+			p.setTitle(doc.get("title"));
+			p.setAuthor(doc.get("authorship"));
+			p.setDatePublished(doc.get("datePublished"));
+			p.setPublicationType("publicationType");
+			return p;
+		}
+		return null;
+	}
 	
 	/**
 	 * Search the index with the supplied value targeting a specific column.
@@ -132,13 +160,6 @@ public class LoadUtils {
 			tcs.add(createTaxonConceptFromIndex(doc));
 		}	
 		return tcs;
-	}
-	
-	private Searcher getTcIdxSearcher() throws Exception {
-		if(this.tcIdxSearcher==null){
-			this.tcIdxSearcher = new IndexSearcher(TC_INDEX_DIR);
-		}
-		return this.tcIdxSearcher;
 	}
 
 	/**
@@ -206,7 +227,28 @@ public class LoadUtils {
 		}
 		return this.relIdxSearcher;
 	}
+	
+	private Searcher getAccIdxSearcher() throws Exception {
+		if(this.accIdxSearcher==null){
+			this.accIdxSearcher = new IndexSearcher(ACC_INDEX_DIR);
+		}
+		return this.accIdxSearcher;
+	}	
 
+	private Searcher getTcIdxSearcher() throws Exception {
+		if(this.tcIdxSearcher==null){
+			this.tcIdxSearcher = new IndexSearcher(TC_INDEX_DIR);
+		}
+		return this.tcIdxSearcher;
+	}
+	
+	private Searcher getPubIdxSearcher() throws Exception {
+		if(this.pubIdxSearcher==null){
+			this.pubIdxSearcher = new IndexSearcher(PUB_INDEX_DIR);
+		}
+		return this.pubIdxSearcher;
+	}
+	
 	/**
 	 * Is this concept an accepted concept? If so return the authority that
 	 * that says so. e.g. "AFD", "APC"
@@ -231,13 +273,6 @@ public class LoadUtils {
 		}
 //		
 //		return topDocs.scoreDocs[0];
-	}
-	
-	private Searcher getAccIdxSearcher() throws Exception {
-		if(this.accIdxSearcher==null){
-			this.accIdxSearcher = new IndexSearcher(ACC_INDEX_DIR);
-		}
-		return this.accIdxSearcher;
 	}
 
 	/**
@@ -406,37 +441,42 @@ public class LoadUtils {
     	logger.info(i+" indexed taxon concepts in: "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
 	}
 
-//	/**
-//	 * Add a relationship to document representing the concept.
-//	 * 
-//	 * @param is
-//	 * @param guid
-//	 * @param doc
-//	 * @throws Exception
-//	 */
-//	private static void addRels(IndexSearcher is, String guid, Document doc) throws Exception {
-//		Query q = new TermQuery(new Term("fromTaxon", guid));
-//		TopDocs topDocs = is.search(q, 100);
-//		
-//		boolean hasParent = false;
-//		
-//		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
-//			Document relDoc = is.doc(scoreDoc.doc);
-//			Field toTaxon = relDoc.getField("toTaxon");
-//			Field relType = relDoc.getField("relationship");
-//			if(relType.stringValue().endsWith("IsChildTaxonOf")){
-//				hasParent = true;
-//			}
-//			doc.add(new Field(relType.stringValue(),toTaxon.stringValue(),Store.YES,Index.ANALYZED));
-//		}
-//		
-//		if(!hasParent){
-//			//add a representative null value
-//			doc.add(new Field("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsChildTaxonOf","NULL",Store.YES,Index.ANALYZED));
-//		}
-//	}
-	
-//	public static String stripQuotes(String field){
-//		return field.substring(1, field.length()-1);
-//	}
+	/**
+	 * @throws Exception
+	 */
+	public void loadPublications() throws Exception {
+		
+		File file = new File(PUB_INDEX_DIR);
+    	if(file.exists()){
+    		FileUtils.forceDelete(file);
+    	}
+    	FileUtils.forceMkdir(file);
+    	int i=0;
+		KeywordAnalyzer analyzer = new KeywordAnalyzer();
+    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
+		try {
+	    	long start = System.currentTimeMillis();
+	    	//add the relationships
+	    	TabReader tr = new TabReader(BIE_STAGING_DIR+"anbg/publications.txt");
+	    	String[] keyValue = null;
+	    	
+	    	while((keyValue=tr.readNext())!=null){
+	    		if(keyValue.length==5){
+	    			i++;
+			    	Document doc = new Document();
+			    	doc.add(new Field("guid", keyValue[0], Store.YES, Index.ANALYZED));
+			    	if(keyValue[1]!=null) doc.add(new Field("title", keyValue[1], Store.YES, Index.NO));
+			    	if(keyValue[2]!=null) doc.add(new Field("authorship", keyValue[2], Store.YES, Index.NO));
+			    	if(keyValue[3]!=null) doc.add(new Field("datePublished", keyValue[3], Store.YES, Index.NO));
+			    	if(keyValue[4]!=null) doc.add(new Field("publicationType", keyValue[4], Store.YES, Index.NO));
+			    	iw.addDocument(doc);
+	    		}
+			}
+	    	tr.close();
+			long finish = System.currentTimeMillis();
+	    	logger.info(i+" loaded relationships, Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
+		} finally {
+			iw.close();
+		}
+	}
 }

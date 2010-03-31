@@ -23,7 +23,7 @@ public class Publication extends AttributableObject implements Comparable<Public
 	protected String guid;
 	protected String title;
 	protected String author;
-	protected String year;
+	protected String datePublished;
 	protected String publicationType;
 	
 	/**
@@ -88,18 +88,6 @@ public class Publication extends AttributableObject implements Comparable<Public
 		this.author = author;
 	}
 	/**
-	 * @return the year
-	 */
-	public String getYear() {
-		return year;
-	}
-	/**
-	 * @param year the year to set
-	 */
-	public void setYear(String year) {
-		this.year = year;
-	}
-	/**
 	 * @return the publicationType
 	 */
 	public String getPublicationType() {
@@ -110,5 +98,17 @@ public class Publication extends AttributableObject implements Comparable<Public
 	 */
 	public void setPublicationType(String publicationType) {
 		this.publicationType = publicationType;
+	}
+	/**
+	 * @return the datePublished
+	 */
+	public String getDatePublished() {
+		return datePublished;
+	}
+	/**
+	 * @param datePublished the datePublished to set
+	 */
+	public void setDatePublished(String datePublished) {
+		this.datePublished = datePublished;
 	}
 }

@@ -45,6 +45,8 @@ public class CreateLoadingIndex {
 		l.loadTaxonConcepts();
 		logger.info("Loading accepted concepts...");
 		l.loadAccepted();
+		logger.info("Loading publications...");
+		l.loadPublications();
 		logger.info("Loading complete.");
 	}
 }

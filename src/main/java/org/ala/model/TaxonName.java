@@ -25,9 +25,10 @@ public class TaxonName extends AttributableObject implements Comparable<TaxonNam
 	public String authorship;
 	public String rankString;
 	public String publishedInCitation; //lsid
+	public String publishedIn; //readable title
 	public String nomenclaturalCode;
 	public String typificationString;
-	
+
 	/**
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
