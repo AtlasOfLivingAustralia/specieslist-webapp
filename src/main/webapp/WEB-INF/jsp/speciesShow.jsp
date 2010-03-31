@@ -422,7 +422,7 @@
                             <tr>
                                 <td class="propertyNames">Accepted Name</td>
                                 <td>${extendedTaxonConcept.taxonConcept.nameString}</td>
-                                <td>Published in: ${extendedTaxonConcept.taxonConcept.publishedIn}</td>
+                                <td>Published in: ${extendedTaxonConcept.taxonName.publishedIn}</td>
                             </tr>
                             <c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym">
                                 <tr>
