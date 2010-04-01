@@ -1156,7 +1156,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 							+File.separator
 							+FileType.RAW.getFilename()
 							+MimeType.getFileExtension(document.getMimeType()));
-					image.setInfoSourceId(Integer.toString(document.getId()));
+					image.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
 					image.setDocumentId(Integer.toString(document.getId()));
                     image.setInfoSourceName(dcPublisher);
                     image.setInfoSourceURL(dcSource);
