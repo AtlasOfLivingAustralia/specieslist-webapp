@@ -43,7 +43,7 @@ public class CommonName extends AttributableObject implements Comparable<CommonN
 	public boolean equals(Object obj) {
 		if(obj!=null && obj instanceof CommonName){
 			CommonName tc = (CommonName) obj;
-			if(tc.getNameString()!=null && nameString!=null && nameString.equalsIgnoreCase(nameString)){
+			if(nameString!=null && nameString.equalsIgnoreCase(tc.getNameString())){
 				//compare guids if not null
 				if(tc.getGuid()!=null && guid!=null){
 					return tc.getGuid().equals(guid);
