@@ -1,23 +1,24 @@
 <assembly>
-  <id>assembly</id>
+  <id>standalone</id>
   <formats>
     <format>jar</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
-  <dependencySets>
-    <dependencySet>
-      <unpack>false</unpack>
-      <scope>runtime</scope>
-      <outputDirectory>/lib</outputDirectory>
-	  <excludes>
-	    <exclude>*:war</exclude>
-      </excludes>
-    </dependencySet>
-  </dependencySets>
   <fileSets>
     <fileSet>
-      <directory>${project.build.outputDirectory}</directory>
+      <directory>target/classes</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
+    <fileSet>
+      <directory>target/test-classes</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>  
   </fileSets>
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>/</outputDirectory>
+      <unpack>true</unpack>
+      <scope>runtime</scope>
+    </dependencySet>
+  </dependencySets>
 </assembly>
