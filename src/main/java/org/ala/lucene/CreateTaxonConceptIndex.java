@@ -38,7 +38,8 @@ public class CreateTaxonConceptIndex {
         // Create the autocomplete indexes
 		logger.info("Creating autocomplete indexes...");
         Autocompleter ac = new Autocompleter();
-        ac.reIndex(FSDirectory.getDirectory(tcDao.getIndexLocation(), null), "scientificName");
+        ac.reIndex(FSDirectory.getDirectory(tcDao.getIndexLocation(), null), "scientificName", true);
+        ac.reIndex(FSDirectory.getDirectory(tcDao.getIndexLocation(), null), "commonName", false);
         logger.info("Finished creating autocomplete indexes...");
 	}
 }

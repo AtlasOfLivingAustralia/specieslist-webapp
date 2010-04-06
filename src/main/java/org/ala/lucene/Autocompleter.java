@@ -73,10 +73,10 @@ public final class Autocompleter {
     private static final String COUNT_FIELD = "count";
 
     private static final String[] ENGLISH_STOP_WORDS = {
-    "a", "an", "and", "are", "as", "at", "be", "but", "by",
-    "for", "i", "if", "in", "into", "is",
-    "no", "not", "of", "on", "or", "s", "such",
-    "t", "that", "the", "their", "then", "there", "these",
+    "an", "and", "are", "as", "at", "be", "but", "by", // "a", 
+    "for", "if", "in", "into", "is", //  "i",
+    "no", "not", "of", "on", "or", "such", //  "s",
+    "that", "the", "their", "then", "there", "these", // "t",
     "they", "this", "to", "was", "will", "with"
     };
 
@@ -123,7 +123,7 @@ public final class Autocompleter {
     }
 
     @SuppressWarnings("unchecked")
-    public void reIndex(Directory sourceDirectory, String fieldToAutocomplete)
+    public void reIndex(Directory sourceDirectory, String fieldToAutocomplete, boolean createNewIndex)
                 throws CorruptIndexException, IOException {
         // build a dictionary (from the spell package)
         IndexReader sourceReader = IndexReader.open(sourceDirectory);
@@ -153,7 +153,7 @@ public final class Autocompleter {
 
                         return result;
                 }
-        }, true);
+        }, createNewIndex);
 
         writer.setMergeFactor(300);
         writer.setMaxBufferedDocs(150);
@@ -222,16 +222,22 @@ public final class Autocompleter {
         //autocomplete.reIndex(FSDirectory.getDirectory("/index/live", null), "content");
         Autocompleter autocomplete = new Autocompleter();
 
-        if (false) {
+        if (true) {
             ApplicationContext context = SpringUtils.getContext();
             TaxonConceptDao tcDao = (TaxonConceptDao) context.getBean(TaxonConceptDao.class);
             System.out.println("Starting re-indexing...");
-            autocomplete.reIndex(FSDirectory.getDirectory(tcDao.getIndexLocation(), null), "scientificName");
+            System.out.println("creating scientificName index");
+            autocomplete.reIndex(FSDirectory.getDirectory(tcDao.getIndexLocation(), null), "scientificName", true);
+            Thread.sleep(2000);
+            System.out.println("creating commonName index");
+            autocomplete.reIndex(FSDirectory.getDirectory(tcDao.getIndexLocation(), null), "commonName", false);
             System.out.println("Finished re-indexing...");
         }
 
+        Thread.sleep(2000);
         String term = "rufus";
-
+        System.out.println("autocompleting: "+term+" = "+autocomplete.suggestTermsFor(term, 5));
+        term = "frog";
         System.out.println("autocompleting: "+term+" = "+autocomplete.suggestTermsFor(term, 5));
         // prints [steve, steven, stevens, stevenson, stevenage]
     }
