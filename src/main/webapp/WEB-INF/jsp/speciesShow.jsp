@@ -311,7 +311,7 @@
                     </a>
                 </c:if>
                 <h2>
-                    <span id="rankInTitle" class="show-60"><fmt:message key="rank.${taxonConceptRank}" />:</span>
+                    <span id="rankInTitle" class="show-70"><fmt:message key="rank.${taxonConceptRank}" />:</span>
                     ${fn:replace(extendedTaxonConcept.taxonConcept.nameString, extendedTaxonConcept.taxonName.nameComplete, sciNameFormatted)}
                 </h2>
                 <div id="commonNames">
