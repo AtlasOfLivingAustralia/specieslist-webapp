@@ -1130,7 +1130,8 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
                     SimpleProperty simpleProperty = new SimpleProperty();
                     simpleProperty.setName(triple.predicate);
                     simpleProperty.setValue(triple.object);
-                    simpleProperty.setInfoSourceId(Integer.toString(document.getId()));
+                    simpleProperty.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
+                    simpleProperty.setDocumentId(Integer.toString(document.getId()));
                     simpleProperty.setInfoSourceName(dcPublisher);
                     simpleProperty.setInfoSourceURL(dcSource);
                     simpleProperty.setTitle(dcTitle);
