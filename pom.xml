@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.ala</groupId>
 	<artifactId>bie-hbase</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<version>1.0-SNAPSHOT</version>
 	<name>bie-hbase</name>
 	<url>http://www.ala.org.au</url>
@@ -370,16 +370,6 @@
 					<source>1.6</source>
 					<target>1.6</target>
 					<encoding>UTF8</encoding>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.mortbay.jetty</groupId>
-				<artifactId>jetty-maven-plugin</artifactId>
-				<version>7.0.0.pre5</version>
-				<configuration>
-					<scanIntervalSeconds>10</scanIntervalSeconds>
-					<stopKey>foo</stopKey>
-					<stopPort>9999</stopPort>
 				</configuration>
 			</plugin>
 			<plugin>
