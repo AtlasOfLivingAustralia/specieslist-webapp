@@ -9,7 +9,7 @@
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
-    <context:component-scan base-package="org.ala"/>
+    <context:component-scan base-package="org.ala.web"/>
 
     <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver" p:order="10">
         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
@@ -29,8 +29,25 @@
         <property name="useDefaultSuffixPattern" value="false"/>
     </bean>
 
+    <!--
+      - This bean resolves specific types of exceptions to corresponding logical
+      - view names for error views. The default behaviour of DispatcherServlet
+      - is to propagate all exceptions to the servlet container: this will happen
+      - here with all other types of exceptions.
+     -->
+    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <props>
+                <prop key="org.springframework.web.servlet.PageNotFound">error/pageNotFound.jsp</prop>
+                <prop key="org.springframework.dao.DataAccessException">error/dataAccessFailure</prop>
+                <prop key="org.springframework.transaction.TransactionException">error/dataAccessFailure</prop>
+            </props>
+        </property>
+        <property name="defaultErrorView" value="error/general" />
+    </bean>
+
     <!-- Content negotiation view resolver - uses either accept header mime type of the request
-         or the file extention for the request URL -->
+     -   or the file extention for the request URL -->
     <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver" p:order="1">
         <property name="mediaTypes">
             <map>

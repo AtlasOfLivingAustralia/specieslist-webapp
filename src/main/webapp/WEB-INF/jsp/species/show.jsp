@@ -132,10 +132,11 @@
                 });
 
                 /*
-                 * Enable Tabs
+                 * Enable jQuery UI Tabs
                  */
                 $(function() {
                     $("#tabs").tabs();
+                    <%--$("#speciesTitle").resizable();--%>
                 });
 
                 $('#tabs').bind('tabsselect', function(event, ui) {

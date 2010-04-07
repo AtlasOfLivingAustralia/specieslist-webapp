@@ -47,17 +47,7 @@
             <artifactId>jackson-mapper-asl</artifactId>
             <version>1.4.1</version>
         </dependency>
-        <!-- SL4j -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.5.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.4.3</version>
-        </dependency>
+        <!-- LOG4J -->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -69,23 +59,12 @@
             <artifactId>commons-lang</artifactId>
             <version>2.4</version>
         </dependency>
-        <!-- SOLR -->
-        <dependency>
-            <artifactId>solr-core</artifactId>
-            <groupId>org.apache.solr</groupId>
-            <version>1.4.0</version>
-        </dependency>
-        <dependency>
-            <artifactId>solr-solrj</artifactId>
-            <groupId>org.apache.solr</groupId>
-            <version>1.4.0</version>
-        </dependency>
         <!-- Sun's Servlet API -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.4</version>
-            <!--<scope>provided</scope>-->
+            <scope>provided</scope>
         </dependency>
         <!-- Sun's JSP API-->
         <dependency>

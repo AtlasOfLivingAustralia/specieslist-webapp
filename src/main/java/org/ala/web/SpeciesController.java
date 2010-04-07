@@ -62,11 +62,11 @@ import org.springframework.web.servlet.ModelAndView;
  *
  * @author "Nick dos Remedios <Nick.dosRemedios@csiro.au>"
  */
-@Controller("taxonConceptController")
-public class TaxonConceptController {
+@Controller("speciesController")
+public class SpeciesController {
 
 	/** Logger initialisation */
-    private final static Logger logger = Logger.getLogger(TaxonConceptController.class);
+    private final static Logger logger = Logger.getLogger(SpeciesController.class);
     /** DAO bean for access to taxon concepts */
     @Inject
     private TaxonConceptDao taxonConceptDao;
@@ -81,16 +81,16 @@ public class TaxonConceptController {
     private InfoSourceDAO infoSourceDAO;
     /** Name of view for site home page */
     private String HOME_PAGE = "homePage";
-    /** Name of view for search page */
-    private final String SPECIES_SEARCH = "speciesSearchForm";
+    /** Name of view for an empty search page */
+    private final String SPECIES_SEARCH = "species/search";
     /** Name of view for list of taxa */
-    private final String SPECIES_LIST = "speciesList";
+    private final String SPECIES_LIST = "species/list";
     /** Name of view for a single taxon */
-    private final String SPECIES_SHOW = "speciesShow";
+    private final String SPECIES_SHOW = "species/show";
     /** Name of view for list of pest/conservation status */
-    private final String STATUS_LIST = "statusList";
+    private final String STATUS_LIST = "species/statusList";
     /** Name of view for list of datasets */
-    private final String DATASET_LIST = "datasetList";
+    private final String DATASET_LIST = "species/datasetList";
     
     /**
 	 * Custom handler for the welcome view.
@@ -130,8 +130,10 @@ public class TaxonConceptController {
      * @param pageSize
      * @param sortField
      * @param sortDirection
+     * @param title
      * @param model
      * @return view name
+     * @throws Exception
      */
     @RequestMapping(value = "/species/search*", method = RequestMethod.GET)
     public String solrSearchSpecies(
@@ -181,6 +183,7 @@ public class TaxonConceptController {
      * @param guid
      * @param model
      * @return view name
+     * @throws Exception
      */ 
     @RequestMapping(value = "/species/{guid}", method = RequestMethod.GET)
     public String showSpecies(@PathVariable("guid") String guid, Model model) throws Exception {
