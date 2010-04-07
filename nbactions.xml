@@ -9,17 +9,6 @@
             </goals>
         </action>
         <action>
-            <actionName>CUSTOM-Jetty run</actionName>
-            <displayName>Jetty run</displayName>
-            <properties>
-                <jetty.port>8888</jetty.port>
-                <maven.skip.test>true</maven.skip.test>
-            </properties>
-            <goals>
-                <goal>jetty:run</goal>
-            </goals>
-        </action>
-        <action>
             <actionName>run</actionName>
             <goals>
                 <goal>package</goal>
@@ -49,6 +38,16 @@
                 <netbeans.deploy>true</netbeans.deploy>
                 <netbeans.deploy.clientUrlPart>/species/search</netbeans.deploy.clientUrlPart>
                 <netbeans.deploy.profilemode>true</netbeans.deploy.profilemode>
+            </properties>
+        </action>
+        <action>
+            <actionName>rebuild</actionName>
+            <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+            </goals>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
             </properties>
         </action>
     </actions>

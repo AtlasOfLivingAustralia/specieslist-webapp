@@ -51,29 +51,29 @@
 			</exclusions>
 		</dependency>
 		<!-- BIE Repository -->
-		<dependency>
-			<groupId>ala</groupId>
-			<artifactId>bie-repository</artifactId>
-			<version>1.0-SNAPSHOT</version>
-      <exclusions>
-        <exclusion>
-          <groupId>xerces</groupId>
-          <artifactId>xercesImpl</artifactId>
-        </exclusion>
-      </exclusions>
-		</dependency>
-		<!-- DwC Archive Reader -->
-		<dependency>
-			<groupId>org.gbif</groupId>
-			<artifactId>dwc-archive</artifactId>
-			<version>1.1-SNAPSHOT</version>
-      <exclusions>
-        <exclusion>
-          <groupId>xerces</groupId>
-          <artifactId>xercesImpl</artifactId>
-        </exclusion>
-      </exclusions>
-		</dependency>
+                <dependency>
+                    <groupId>ala</groupId>
+                    <artifactId>bie-repository</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>xerces</groupId>
+                            <artifactId>xercesImpl</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <!-- DwC Archive Reader -->
+                <dependency>
+                    <groupId>org.gbif</groupId>
+                    <artifactId>dwc-archive</artifactId>
+                    <version>1.1-SNAPSHOT</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>xerces</groupId>
+                            <artifactId>xercesImpl</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
 		<!-- Jackson -->
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
@@ -142,43 +142,43 @@
 			<version>1.2.15</version>
 		</dependency>
 		<!-- COMMONS -->
-		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
-			<version>3.1</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>2.4</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>1.4</version>
-		</dependency>
-    <dependency>
-      <groupId>commons-cli</groupId>
-      <artifactId>commons-cli</artifactId>
-      <version>1.2</version>
-    </dependency>
-		<!-- LUCENE -->
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-core</artifactId>
-			<version>2.9.2</version>
-		</dependency>
-		<!-- SOLR -->
-		<dependency>
-			<artifactId>solr-core</artifactId>
-			<groupId>org.apache.solr</groupId>
-			<version>1.4.0</version>
-		</dependency>
-		<dependency>
-			<artifactId>solr-solrj</artifactId>
-			<groupId>org.apache.solr</groupId>
-			<version>1.4.0</version>
-		</dependency>
+                <dependency>
+                    <groupId>commons-httpclient</groupId>
+                    <artifactId>commons-httpclient</artifactId>
+                    <version>3.1</version>
+                </dependency>
+                <dependency>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                    <version>2.4</version>
+                </dependency>
+                <dependency>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                    <version>1.4</version>
+                </dependency>
+                <dependency>
+                    <groupId>commons-cli</groupId>
+                    <artifactId>commons-cli</artifactId>
+                    <version>1.2</version>
+                </dependency>
+                <!-- LUCENE -->
+                <dependency>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-core</artifactId>
+                    <version>2.9.2</version>
+                </dependency>
+                <!-- SOLR -->
+                <dependency>
+                    <artifactId>solr-core</artifactId>
+                    <groupId>org.apache.solr</groupId>
+                    <version>1.4.0</version>
+                </dependency>
+                <dependency>
+                    <artifactId>solr-solrj</artifactId>
+                    <groupId>org.apache.solr</groupId>
+                    <version>1.4.0</version>
+                </dependency>
 		<!-- Sun's Servlet API -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -186,51 +186,11 @@
 			<version>2.4</version>
 			<!--<scope>provided</scope>-->
 		</dependency>
-		<!-- Sun's JSP API-->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jsp-api</artifactId>
-			<version>2.0</version>
-			<scope>provided</scope>
-		</dependency>
-		<!-- Sun's JSTL API-->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.1.2</version>
-		</dependency>
-    <dependency>
-			<groupId>taglibs</groupId>
-			<artifactId>standard</artifactId>
-			<version>1.1.2</version>
-		</dependency>
 		<!-- Sun's DI API -->
 		<dependency>
 			<groupId>javax.inject</groupId>
 			<artifactId>javax.inject</artifactId>
 			<version>1</version>
-		</dependency>
-		<!-- Sun's Java Advance Imaging API -->
-		<dependency>
-			<groupId>javax.media</groupId>
-			<artifactId>jai-core</artifactId>
-			<version>1.1.3</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.media</groupId>
-			<artifactId>jai-codec</artifactId>
-			<version>1.1.3</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.media</groupId>
-			<artifactId>jai-imageio</artifactId>
-			<version>1.1</version>
-		</dependency>
-		<!-- JSON -->
-		<dependency>
-			<groupId>atg</groupId>
-			<artifactId>json-taglib</artifactId>
-			<version>0.4.1</version>
 		</dependency>
 		<!-- JUNIT -->
 		<dependency>
@@ -282,46 +242,9 @@
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>org.springframework.web.servlet</artifactId>
-			<version>${spring.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>com.springsource.org.aopalliance</artifactId>
-					<groupId>org.aopalliance</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>com.springsource.org.apache.commons.logging</artifactId>
-					<groupId>org.apache.commons</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.webflow</groupId>
-			<artifactId>org.springframework.js</artifactId>
-			<version>2.0.8.RELEASE</version>
-		</dependency>
-		<dependency>
 			<groupId>org.openrdf.sesame</groupId>
 			<artifactId>sesame-rio-turtle</artifactId>
 			<version>${openrdf.sesame.version}</version>
-		</dependency>
-		<!-- SITEMESH -->
-		<dependency>
-			<groupId>opensymphony</groupId>
-			<artifactId>sitemesh</artifactId>
-			<version>2.4.2</version>
-		</dependency>
-		<!-- XSTREAM -->
-		<dependency>
-			<groupId>com.thoughtworks.xstream</groupId>
-			<artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
-			<version>1.3.0</version>
 		</dependency>
 	</dependencies>
 	<repositories>
