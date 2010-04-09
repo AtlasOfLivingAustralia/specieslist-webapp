@@ -11,6 +11,9 @@ export CLASSPATH=.:target/bie-hbase.jar:$(cat classpath.txt)
 echo "LOAD : initialising HBase $('date')"
 java -classpath $CLASSPATH org.ala.hbase.InitProfiler
 
+echo "LOAD : running ANBG data load $('date')"
+java -classpath $CLASSPATH org.ala.hbase.ChecklistBankLoader
+
 echo "LOAD : creating loading indicies $('date')"
 java -classpath $CLASSPATH org.ala.lucene.CreateLoadingIndex
 
@@ -34,9 +37,6 @@ java -classpath $CLASSPATH org.ala.hbase.IrmngDataLoader
 
 echo "LOAD : running Bio Cache Loader $('date')"
 java -classpath $CLASSPATH org.ala.hbase.BHLDataLoader
-
-echo "LOAD : running DwC Classification Loader $('date')"
-java -classpath $CLASSPATH org.ala.hbase.DwcClassificationLoader
 
 echo "LOAD : running Re-Create Taxon Concept Index $('date')"
 java -classpath $CLASSPATH org.ala.lucene.CreateTaxonConceptIndex
