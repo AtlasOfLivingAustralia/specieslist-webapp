@@ -170,11 +170,11 @@ public class LoadUtils {
 	 */
 	private TaxonConcept createTaxonConceptFromIndex(Document doc) {
 		TaxonConcept taxonConcept = new TaxonConcept();
-		taxonConcept.guid = doc.get("guid");
-		taxonConcept.parentGuid = doc.get("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsChildTaxonOf");
-		taxonConcept.nameString = doc.get(LuceneUtils.SCI_NAME_RAW);
-		taxonConcept.publishedIn = doc.get("publishedIn");
-		taxonConcept.publishedInCitation = doc.get("publishedInCitation");
+		taxonConcept.setGuid(doc.get("guid"));
+		taxonConcept.setParentGuid(doc.get("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsChildTaxonOf"));
+		taxonConcept.setNameString(doc.get(LuceneUtils.SCI_NAME_RAW));
+		taxonConcept.setPublishedIn(doc.get("publishedIn"));
+		taxonConcept.setPublishedInCitation(doc.get("publishedInCitation"));
 		return taxonConcept;
 	}
 	
