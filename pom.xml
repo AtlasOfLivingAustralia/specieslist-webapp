@@ -246,6 +246,11 @@
 			<artifactId>sesame-rio-turtle</artifactId>
 			<version>${openrdf.sesame.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>au.org.ala</groupId>
+			<artifactId>ala-name-matching</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<!-- ALA repository  -->
