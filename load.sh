@@ -11,7 +11,7 @@ export CLASSPATH=.:target/bie-hbase.jar:$(cat classpath.txt)
 echo "LOAD : initialising HBase $('date')"
 java -classpath $CLASSPATH org.ala.hbase.InitProfiler
 
-echo "LOAD : running ANBG data load $('date')"
+echo "LOAD : running checklistbank data load $('date')"
 java -classpath $CLASSPATH org.ala.hbase.ChecklistBankLoader
 
 echo "LOAD : creating loading indicies $('date')"
