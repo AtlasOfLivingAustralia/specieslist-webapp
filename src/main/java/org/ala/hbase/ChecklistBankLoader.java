@@ -15,21 +15,26 @@
 package org.ala.hbase;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 
+import javax.inject.Inject;
+
 import org.ala.dao.TaxonConceptDao;
-import org.ala.dao.TaxonConceptDaoImpl;
 import org.ala.model.Classification;
 import org.ala.model.Rank;
+import org.ala.model.TaxonConcept;
+import org.ala.util.SpringUtils;
 import org.apache.log4j.Logger;
 import org.gbif.dwc.record.DarwinCoreRecord;
-import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.text.Archive;
 import org.gbif.dwc.text.ArchiveFactory;
-import org.gbif.dwc.text.ArchiveFile;
 import org.gbif.dwc.text.UnsupportedArchiveException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
+import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Reads a Darwin Core extracted which contains a classification for a taxon,
@@ -37,15 +42,25 @@ import org.gbif.dwc.text.UnsupportedArchiveException;
  *
  * @author Dave Martin (David.Martin@csiro.au)
  */
-public class DwcClassificationLoader {
+@Component("checklistBankLoader")
+public class ChecklistBankLoader {
 	
-    protected static Logger logger = Logger.getLogger(DwcClassificationLoader.class);
+    protected static Logger logger = Logger.getLogger(ChecklistBankLoader.class);
+    
+	@Inject
+	protected TaxonConceptDao taxonConceptDao;
+	
+	private static final String IDENTIFIERS_FILE="/data/bie-staging/checklistbank/cb_identifiers.txt";
+    
+	private static final String CB_EXPORT_DIR="/data/bie-staging/checklistbank/";
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		DwcClassificationLoader l = new DwcClassificationLoader();
+		ApplicationContext context = SpringUtils.getContext();
+		ChecklistBankLoader l = context.getBean(ChecklistBankLoader.class);
 		l.load();
+		System.exit(0);
 	}
 
 	/**
@@ -55,28 +70,31 @@ public class DwcClassificationLoader {
 	 * @throws UnsupportedArchiveException
 	 * @throws Exception
 	 */
-	public void load() throws IOException, UnsupportedArchiveException,
-			Exception {
-		Archive archive = ArchiveFactory.openArchive(new File("/data/bie-staging/checklistbank/"),true);
-		ArchiveFile coreFile = archive.getCore();
-        if (coreFile.hasTerm(DwcTerm.scientificName)){
-            System.out.println("Has scientific name");
-        }
-        
-//        ClosableIterator<StarRecord> iter = archive.iterator();
-        
+	public void load() throws IOException, UnsupportedArchiveException, Exception {
+		
+		Archive archive = ArchiveFactory.openArchive(new File(CB_EXPORT_DIR),true);
 		Iterator<DarwinCoreRecord> iter = archive.iteratorDwc();
-		TaxonConceptDao taxonConceptDao = new TaxonConceptDaoImpl();
-//		
 		while(iter.hasNext()){
-			
-//			StarRecord sr = iter.next();
-//			System.out.println(sr.value("kingdomID"));
-			
 			
 			DarwinCoreRecord dwc = iter.next();
 			String guid = dwc.getTaxonID();
+			String identifier = dwc.getIdentifier();
+			if(guid == null){
+				guid = identifier;
+			}
+			
 			if(guid!=null){
+				//add the base concept
+				TaxonConcept tc = new TaxonConcept();
+				tc.setId(Integer.parseInt(identifier));
+				tc.setGuid(guid);
+				tc.setParentId(dwc.getParentNameUsageID());
+				tc.setNameString(dwc.getScientificName());
+				tc.setAuthor(dwc.getScientificNameAuthorship());
+				tc.setRankString(dwc.getTaxonRank());
+				taxonConceptDao.create(tc);
+
+				//add the classification
 				Classification c = new Classification();
 				c.setGuid(dwc.getTaxonID());
 				c.setScientificName(dwc.getScientificName());
@@ -87,16 +105,31 @@ public class DwcClassificationLoader {
                 c.setOrder(dwc.getOrder());
                 c.setPhylum(dwc.getPhylum());
                 c.setKingdom(dwc.getKingdom());
-
                 // Attempt to set the rank Id via Rank enum
                 try {
                     c.setRankId(Rank.getForName(dwc.getTaxonRank()).getId());
                 } catch (Exception e) {
                     logger.warn("Could not set rankId for: "+dwc.getTaxonRank()+" in "+guid);
                 }
-                
 				taxonConceptDao.addClassification(guid, c);
 			}
 		}
+		
+		//read the identifiers file
+		CSVReader reader = new CSVReader(new FileReader(IDENTIFIERS_FILE),'\t', '\n');
+		String[] line = null;
+		while((line = reader.readNext())!=null){
+			if(line[1]!=null && line[2]!=null){
+				//add this guid somewhere
+				taxonConceptDao.addIdentifier(line[1], line[2]);
+			}
+		}
+	}
+
+	/**
+	 * @param taxonConceptDao the taxonConceptDao to set
+	 */
+	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
+		this.taxonConceptDao = taxonConceptDao;
 	}
 }

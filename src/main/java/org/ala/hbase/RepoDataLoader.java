@@ -155,6 +155,8 @@ public class RepoDataLoader {
 	 * @throws Exception
 	 */
 	private boolean sync(File currentFile, List<Triple> triples) throws Exception {
+		
+		
 		String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
 		String documentId = currentFile.getParentFile().getName();
 		// Read dublin core

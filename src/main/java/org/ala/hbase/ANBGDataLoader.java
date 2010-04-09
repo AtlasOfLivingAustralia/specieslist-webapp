@@ -91,6 +91,11 @@ public class ANBGDataLoader {
     	loadPublications();
 	}
 
+	/**
+	 * Load the publications for each concept.
+	 * 
+	 * @throws Exception
+	 */
 	private void loadPublications() throws Exception {
 		logger.info("Starting to load taxon names");
 		
@@ -263,11 +268,11 @@ public class ANBGDataLoader {
     		for(TaxonConcept tc: tcs){
     			j++;
 //        		boolean isVernacular = loadUtils.isVernacularConcept(tc.guid);
-    			if(addTaxonToProfile(loadUtils, tc.guid)){
+    			if(addTaxonToProfile(loadUtils, tc.getGuid())){
     				//some of these name additions will fail, where the concept
     				//is not an accepted concept and is congruent to another
     				//we have not added the concept to the profile - hence the lookup will fail
-    				taxonConceptDao.addTaxonName(tc.guid, tn);
+    				taxonConceptDao.addTaxonName(tc.getGuid(), tn);
     				
     				//FIXME load the publication information
     				
@@ -320,14 +325,14 @@ public class ANBGDataLoader {
 //	    			if(!isVernacular && !isCongruent){
 	    			if(addTaxonToProfile(loadUtils, record[0])){
 		    			TaxonConcept tc = new TaxonConcept();
-		    			tc.guid = record[0];
-		    			tc.nameGuid = record[1];
-		    			tc.nameString = record[2];
-		    			tc.author = record[3];
-		    			tc.authorYear = record[4];
-		    			tc.publishedInCitation = record[5];
-		    			tc.publishedIn = record[6];
-		    			tc.acceptedConceptGuid = record[8];
+		    			tc.setGuid(record[0]);
+//		    			tc.nameGuid = record[1];
+//		    			tc.nameString = record[2];
+		    			tc.setAuthor(record[3]);
+		    			tc.setAuthorYear(record[4]);
+		    			tc.setPublishedInCitation(record[5]);
+		    			tc.setPublishedIn(record[6]);
+//		    			tc.setAcceptedConceptGuid(record[8]);
 		    			
 		    			//remove and use a infosource lookup
 //		    			if("AFD".equals(accepted)){
@@ -348,6 +353,8 @@ public class ANBGDataLoader {
 		    				tc.setInfoSourceId(Integer.toString(afd.getId()));
 		    				tc.setInfoSourceName(afd.getName());
 		    				tc.setInfoSourceURL(afd.getWebsiteUrl());
+		    				//http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/0fbc224e-d258-4ed3-a559-eacb2c6bb5f0
+//		    				tc.setInfoSourceURL(infoSourceURL)
 		    			}
 		    			tcBatch.add(tc);
 		    			j++;
