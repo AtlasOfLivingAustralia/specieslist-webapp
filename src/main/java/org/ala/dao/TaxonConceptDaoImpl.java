@@ -104,6 +104,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public static final String TC_INDEX_DIR = "/data/lucene/taxonConcept";
 	
 	/** HBase columns */
+	private static final String IDENTIFIER_COL = "tc:sameAs";
 	private static final String SYNONYM_COL = "tc:hasSynonym";
 	private static final String IS_SYNONYM_FOR_COL = "tc:IsSynonymFor";
 	private static final String IS_CONGRUENT_TO_COL = "tc:IsCongruentTo";
@@ -408,19 +409,44 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#create(org.ala.model.TaxonConcept)
 	 */
 	public boolean create(TaxonConcept tc) throws Exception {
-		if(tc.guid==null){
+		
+		if(tc.getGuid()==null){
 			throw new IllegalArgumentException("Supplied GUID for the Taxon Concept is null.");
 		}
 		
-		BatchUpdate batchUpdate = new BatchUpdate(tc.guid.getBytes());
-		putIfNotNull(batchUpdate, "tc:parentGuid", tc.parentGuid);
-		putIfNotNull(batchUpdate, "tc:nameGuid", tc.nameGuid);
-		putIfNotNull(batchUpdate, "tc:nameString", tc.nameString);
-		putIfNotNull(batchUpdate, "tc:author", tc.author);
-		putIfNotNull(batchUpdate, "tc:authorYear", tc.authorYear);
-		putIfNotNull(batchUpdate, "tc:publishedIn", tc.publishedIn);
-		putIfNotNull(batchUpdate, "tc:publishedInCitation", tc.publishedInCitation);
-		putIfNotNull(batchUpdate, "tc:acceptedConceptGuid", tc.acceptedConceptGuid);
+		BatchUpdate batchUpdate = new BatchUpdate(tc.getGuid().getBytes());
+		putIfNotNull(batchUpdate, "tc:id", Integer.toString(tc.getId()));
+		putIfNotNull(batchUpdate, "tc:parentId", tc.getParentId());
+		putIfNotNull(batchUpdate, "tc:parentGuid", tc.getParentGuid());
+		putIfNotNull(batchUpdate, "tc:nameString", tc.getNameString());
+		putIfNotNull(batchUpdate, "tc:author", tc.getAuthor());
+		putIfNotNull(batchUpdate, "tc:authorYear", tc.getAuthorYear());
+		putIfNotNull(batchUpdate, "tc:publishedIn", tc.getPublishedIn());
+		putIfNotNull(batchUpdate, "tc:publishedInCitation", tc.getPublishedInCitation());
+		putIfNotNull(batchUpdate, "tc:acceptedConceptGuid", tc.getAcceptedConceptGuid());
+		putIfNotNull(batchUpdate, "tc:rankString", tc.getRankString());
+		
+		putIfNotNull(batchUpdate, "tc:infoSourceId", tc.getInfoSourceId());
+		putIfNotNull(batchUpdate, "tc:infoSourceName", tc.getInfoSourceName());
+		putIfNotNull(batchUpdate, "tc:infoSourceURL", tc.getInfoSourceURL());
+		getTable().commit(batchUpdate);	
+		
+		return true;
+	}
+	
+	public boolean update(TaxonConcept tc) throws Exception {
+		
+		if(tc.getGuid()==null){
+			throw new IllegalArgumentException("Supplied GUID for the Taxon Concept is null.");
+		}
+		
+		BatchUpdate batchUpdate = new BatchUpdate(tc.getGuid().getBytes());
+		
+		putIfNotNull(batchUpdate, "tc:authorYear", tc.getAuthorYear());
+		putIfNotNull(batchUpdate, "tc:publishedIn", tc.getPublishedIn());
+		putIfNotNull(batchUpdate, "tc:publishedInCitation", tc.getPublishedInCitation());
+		putIfNotNull(batchUpdate, "tc:acceptedConceptGuid", tc.getAcceptedConceptGuid());
+		putIfNotNull(batchUpdate, "tc:rankString", tc.getRankString());
 		putIfNotNull(batchUpdate, "tc:infoSourceId", tc.getInfoSourceId());
 		putIfNotNull(batchUpdate, "tc:infoSourceName", tc.getInfoSourceName());
 		putIfNotNull(batchUpdate, "tc:infoSourceURL", tc.getInfoSourceURL());
@@ -519,7 +545,14 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	public boolean addChildTaxon(String guid, TaxonConcept childConcept) throws Exception {
 		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_PARENT_COL_OF, childConcept, new TypeReference<List<TaxonConcept>>(){});
-	}	
+	}
+	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#addIdentifier(java.lang.String, java.lang.String)
+	 */
+	public boolean addIdentifier(String guid, String alternativeIdentifier) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IDENTIFIER_COL, alternativeIdentifier, new TypeReference<List<String>>(){});
+	}
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addParentTaxon(java.lang.String, org.ala.model.TaxonConcept)
@@ -614,13 +647,13 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	private TaxonConcept getTaxonConcept(String guid, RowResult rowResult) {
 		TaxonConcept tc = new TaxonConcept();
-		tc.guid = guid;
-		tc.author = HBaseDaoUtils.getField(rowResult, "tc:author");
-		tc.authorYear = HBaseDaoUtils.getField(rowResult, "tc:authorYear");
-		tc.nameGuid = HBaseDaoUtils.getField(rowResult, "tc:hasName"); 
-		tc.nameString = HBaseDaoUtils.getField(rowResult, "tc:nameString");
-		tc.publishedIn = HBaseDaoUtils.getField(rowResult, "tc:publishedIn");
-		tc.publishedInCitation = HBaseDaoUtils.getField(rowResult, "tc:publishedInCitation");
+		tc.setGuid(guid);
+		tc.setAuthor(HBaseDaoUtils.getField(rowResult, "tc:author"));
+		tc.setAuthorYear(HBaseDaoUtils.getField(rowResult, "tc:authorYear"));
+		tc.setNameGuid(HBaseDaoUtils.getField(rowResult, "tc:hasName")); 
+		tc.setNameString(HBaseDaoUtils.getField(rowResult, "tc:nameString"));
+		tc.setPublishedIn(HBaseDaoUtils.getField(rowResult, "tc:publishedIn"));
+		tc.setPublishedInCitation(HBaseDaoUtils.getField(rowResult, "tc:publishedInCitation"));
 		tc.setInfoSourceId(HBaseDaoUtils.getField(rowResult, "tc:infoSourceId"));
 		tc.setInfoSourceName(HBaseDaoUtils.getField(rowResult, "tc:infoSourceName"));
 		tc.setInfoSourceURL(HBaseDaoUtils.getField(rowResult, "tc:infoSourceURL"));
@@ -1266,15 +1299,15 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     		//TODO this index should also include nub ids
     		Document doc = new Document();
             
-    		if(taxonConcept.nameString!=null){
+    		if(taxonConcept.getNameString()!=null){
     			
-    			doc.add(new Field("guid", taxonConcept.guid, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+    			doc.add(new Field("guid", taxonConcept.getGuid(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
     			infoSourceIds.add(taxonConcept.getInfoSourceId());
     			//add multiple forms of the scientific name to the index
-    			LuceneUtils.addScientificNameToIndex(doc, taxonConcept.nameString, taxonName.getRankString());
+    			LuceneUtils.addScientificNameToIndex(doc, taxonConcept.getNameString(), taxonConcept.getRankString());
 	    		
-	    		if(taxonConcept.parentGuid!=null){
-	    			doc.add(new Field("parentGuid", taxonConcept.parentGuid, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+	    		if(taxonConcept.getParentGuid()!=null){
+	    			doc.add(new Field("parentGuid", taxonConcept.getParentGuid(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
 	    		}
 	    		
                 for (ConservationStatus cs : conservationStatuses) {
@@ -1330,18 +1363,18 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
                 }
 	    		
 	    		for(TaxonConcept synonym: synonyms){
-	    			if(synonym.nameString!=null){
-	    				logger.debug("adding synonym to index: "+synonym.nameString);
+	    			if(synonym.getNameString()!=null){
+	    				logger.debug("adding synonym to index: "+synonym.getNameString());
 	    				//add a new document for each synonym
 	    				Document synonymDoc = new Document();
-	    				synonymDoc.add(new Field("guid", taxonConcept.guid, Store.YES, Index.NO));
-	    				LuceneUtils.addScientificNameToIndex(synonymDoc, synonym.nameString, null);
-	    				synonymDoc.add(new Field("acceptedConceptName", taxonConcept.nameString, Store.YES, Index.NO));
+	    				synonymDoc.add(new Field("guid", taxonConcept.getGuid(), Store.YES, Index.NO));
+	    				LuceneUtils.addScientificNameToIndex(synonymDoc, synonym.getNameString(), null);
+	    				synonymDoc.add(new Field("acceptedConceptName", taxonConcept.getNameString(), Store.YES, Index.NO));
 	    				if(!commonNames.isEmpty()){
 	    					synonymDoc.add(new Field("commonNameSort", commonNames.get(0).nameString, Store.YES, Index.NO));
 	    					synonymDoc.add(new Field("commonNameDisplay", StringUtils.join(commonNameSet, ", "), Store.YES, Index.ANALYZED));
 	    				}
-	                    addRankToIndex(taxonName, synonymDoc);
+	                    addRankToIndex(taxonConcept.getRankString(), synonymDoc);
 	    				//add the synonym as a separate document
 	    				iw.addDocument(synonymDoc, analyzer);
                         if (synonym.getInfoSourceId()!=null){
@@ -1350,7 +1383,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	    			}
 	    		}
 	    		
-                addRankToIndex(taxonName, doc);
+                addRankToIndex(taxonConcept.getRankString(), doc);
 	    		
     			doc.add(new Field("hasChildren", Boolean.toString(!children.isEmpty()), Store.YES, Index.NO));
                 
@@ -1373,14 +1406,20 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     	logger.info("Index created in: "+((finish-start)/1000)+" seconds with "+ i +" documents");
 	}
 
-	private void addRankToIndex(TaxonName taxonName, Document doc) {
-		if (taxonName.getRankString()!=null) {
+	/**
+	 * Add the rank to the search document.
+	 * 
+	 * @param rankString
+	 * @param doc
+	 */
+	private void addRankToIndex(String rankString, Document doc) {
+		if (rankString!=null) {
 		    try {
-		        Rank rank = Rank.getForField(taxonName.getRankString().toLowerCase());
+		        Rank rank = Rank.getForField(rankString.toLowerCase());
 		        doc.add(new Field("rank", rank.getName(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
 		        doc.add(new Field("rankId", rank.getId().toString(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
 		    } catch (Exception e) {
-		        logger.error("Rank not found: "+taxonName.getRankString()+" - "+taxonName.guid);
+		        logger.error("Rank not found: "+rankString+" - ");
 		        // assign to Rank.TAXSUPRAGEN so that sorting still works reliably
 		        doc.add(new Field("rank", Rank.TAXSUPRAGEN.getName(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
 		        doc.add(new Field("rankId", Rank.TAXSUPRAGEN.getId().toString(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));

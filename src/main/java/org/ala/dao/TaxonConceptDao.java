@@ -55,6 +55,17 @@ public interface TaxonConceptDao {
 			throws Exception;
 
 	/**
+	 * Add an alternative identifier (GUID) for this taxon concept or 
+	 * a concept asserted to be congruent.
+	 * 
+	 * @param guid
+	 * @param alternativeIdentifier
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean addIdentifier(String guid, String alternativeIdentifier) throws Exception;
+	
+	/**
 	 * Retrieve the images associated with this taxon concept.
 	 *
 	 * @param guid
