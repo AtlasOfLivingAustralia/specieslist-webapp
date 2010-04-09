@@ -11,4 +11,8 @@
     <context:component-scan base-package="org.ala"/>
     <!-- Over-ride bean properties - including dataSource configs -->
     <context:property-override location="classpath:bie.properties"/>
+    
+    <bean id="CBIndexSearch" class="au.org.ala.checklist.lucene.CBIndexSearch">
+        <constructor-arg value="/data/lucene/cb/classification"/>
+    </bean>
 </beans>
