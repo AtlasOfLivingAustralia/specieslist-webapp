@@ -246,7 +246,7 @@ td, th  {
     margin: 4px 0 4px 0;
 }
 #classification td a {
-    color:inherit;
+    /*color:inherit;*/
 }
 #classification td {
     color:inherit;
@@ -560,6 +560,10 @@ table.propertyTable td:first-child  {
     font-weight: bold;
     text-align: right;
 }
+table.propertyTable2 td:first-child  {
+    font-weight: bold;
+    text-align: left;
+}
 table.propertyTable th {
     /*background-color: #DDD;
     border-right: 1px solid #FFF;
@@ -571,7 +575,6 @@ table.propertyTable th {
 }
 table.propertyTable th, .propertyTable td {
     padding: 5px;
-    
 }
 
 .resultTable ul {

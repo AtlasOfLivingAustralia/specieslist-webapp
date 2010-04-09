@@ -437,11 +437,10 @@
                 <c:if test="${not empty extendedTaxonConcept.classification || not empty extendedTaxonConcept.parentConcepts || not empty extendedTaxonConcept.childConcepts }">
                     <!-- Classification -->
                     <div id="classification">
-                        <div id="outerDiv"
-                            <table id="family" class="propertyTable">
+                        <div id="outerDiv">
+                            <table id="family" class="propertyTable propertyTable2">
                                 <tr>
-                                    <th width=""></th>
-                                    <th width=""></th>
+                                    <th colspan="2">Parent &amp; Child Taxa</th>
                                 <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) > 0}"><tr>
                                     <td class="propertyName">Parent <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) > 1}">Taxa</c:if>
                                         <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) < 2}">Taxon</c:if>:
@@ -463,11 +462,11 @@
                             </table>
                             <c:set var="classfn" value="${extendedTaxonConcept.classification}"/>
                             <c:set var="rankId" value="${classfn.rankId}"/>
-                            <table id="taxonTree" class="propertyTable">
+                            
+                            <table id="taxonTree" class="propertyTable propertyTable2">
                                 <tr>
-                                    <th width="15%"></th>
-                                    <th width="70%"></th>
-                                    <th width="15%"></th>
+                                    <th colspan="2">Taxon Tree</th>
+                                    <th></th>
                                 </tr>
                             <c:if test="${rankId >= 1000}">
                                 <tr>

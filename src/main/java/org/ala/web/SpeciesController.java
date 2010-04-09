@@ -261,7 +261,7 @@ public class SpeciesController {
             String fileName = doc.getFilePath()+"/raw"+mt.getFileExtension();
 
             ImageUtils iu = new ImageUtils();
-            iu.load(fileName);
+            iu.load(fileName); // problem with Jetty 7.0.1
 
             if (square) {
                 iu.square();
