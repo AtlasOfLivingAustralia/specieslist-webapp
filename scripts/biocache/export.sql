@@ -1,3 +1,5 @@
+-- Export Occurrend data from MySQL DB portal on alaproddb1-cbr.vm.csiro.au
+--
 --Species occurrences by region - species id, species name, region, region_type, no of occurrences
 
 select tc.id, tn.canonical, grt.name, gr.id, gr.name, count(*) as occurrences from occurrence_record oc
