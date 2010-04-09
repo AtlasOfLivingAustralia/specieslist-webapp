@@ -20,17 +20,21 @@ package org.ala.model;
  */
 public class TaxonConcept extends AttributableObject implements Comparable<TaxonConcept>{
 
+	/** internal identifier for this concept */
+	protected int id;
 	/** Every taxonconcept should have a guid of some sort */
-	public String guid;
-	public String parentGuid;
-	public String acceptedConceptGuid;
-	public String nameGuid; //one to many
-	public String nameString;
-	public String author;
-	public String authorYear;
-	public String publishedInCitation;
-	public String publishedIn;
-//	public boolean hasChildren;
+	protected String guid;
+	/** internal identifier for the parent concept */
+	protected String parentId;
+	protected String parentGuid;
+	protected String acceptedConceptGuid;
+	protected String nameGuid; //one to many
+	protected String nameString;
+	protected String author;
+	protected String authorYear;
+	protected String publishedInCitation;
+	protected String publishedIn;
+	protected String rankString;
 
 	/**
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
@@ -81,18 +85,6 @@ public class TaxonConcept extends AttributableObject implements Comparable<Taxon
 	public void setParentGuid(String parentGuid) {
 		this.parentGuid = parentGuid;
 	}
-//	/**
-//	 * @return the hasChildren
-//	 */
-//	public boolean isHasChildren() {
-//		return hasChildren;
-//	}
-//	/**
-//	 * @param hasChildren the hasChildren to set
-//	 */
-//	public void setHasChildren(boolean hasChildren) {
-//		this.hasChildren = hasChildren;
-//	}
 	/**
 	 * @return the nameGuid
 	 */
@@ -176,5 +168,47 @@ public class TaxonConcept extends AttributableObject implements Comparable<Taxon
 	 */
 	public void setAcceptedConceptGuid(String acceptedConceptGuid) {
 		this.acceptedConceptGuid = acceptedConceptGuid;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	/**
+	 * @return the parentId
+	 */
+	public String getParentId() {
+		return parentId;
+	}
+
+	/**
+	 * @param parentId the parentId to set
+	 */
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
+	}
+
+	/**
+	 * @return the rankString
+	 */
+	public String getRankString() {
+		return rankString;
+	}
+
+	/**
+	 * @param rankString the rankString to set
+	 */
+	public void setRankString(String rankString) {
+		this.rankString = rankString;
 	}
 }
