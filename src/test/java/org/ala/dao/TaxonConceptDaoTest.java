@@ -14,24 +14,24 @@ public class TaxonConceptDaoTest extends TestCase {
 		tcDao.delete("urn:lsid:afd:taxon:123");
 		
 		TaxonConcept tc = new TaxonConcept();
-		tc.guid = "urn:lsid:afd:taxon:123";
-		tc.nameString = "Sarcophilus harrisii";
+		tc.setGuid("urn:lsid:afd:taxon:123");
+		tc.setNameString("Sarcophilus harrisii");
 		tcDao.create(tc);
 		
 		TaxonConcept synonym1 = new TaxonConcept();
-		synonym1.guid = "urn:lsid:afd:taxon:124";
-		synonym1.nameString = "Sarcophilus satanius";
+		synonym1.setGuid("urn:lsid:afd:taxon:124");
+		synonym1.setNameString("Sarcophilus satanius");
 		tcDao.addSynonym("urn:lsid:afd:taxon:123", synonym1);
 		
 		List<TaxonConcept> synonyms = tcDao.getSynonymsFor("urn:lsid:afd:taxon:123");
 		
 		assertEquals(synonyms.size(), 1);
-		assertEquals(synonyms.get(0).guid, "urn:lsid:afd:taxon:124");
-		assertEquals(synonyms.get(0).nameString, "Sarcophilus satanius");
+		assertEquals(synonyms.get(0).getGuid(), "urn:lsid:afd:taxon:124");
+		assertEquals(synonyms.get(0).getNameString(), "Sarcophilus satanius");
 		
 		TaxonConcept synonym2 = new TaxonConcept();
-		synonym2.guid = "urn:lsid:afd:taxon:125";
-		synonym2.nameString = "Sarcophilus laniarius";
+		synonym2.setGuid("urn:lsid:afd:taxon:125");
+		synonym2.setNameString("Sarcophilus laniarius");
 		tcDao.addSynonym("urn:lsid:afd:taxon:123", synonym2);		
 		
 		//refresh local
@@ -39,8 +39,8 @@ public class TaxonConceptDaoTest extends TestCase {
 		
 		//sort order should place Sarcophilus satanius below
 		assertEquals(synonyms.size(), 2);
-		assertEquals(synonyms.get(1).guid, "urn:lsid:afd:taxon:124");
-		assertEquals(synonyms.get(1).nameString, "Sarcophilus satanius");
+		assertEquals(synonyms.get(1).getGuid(), "urn:lsid:afd:taxon:124");
+		assertEquals(synonyms.get(1).getNameString(), "Sarcophilus satanius");
 		
 		//clear up after test
 		tcDao.delete("urn:lsid:afd:taxon:123");
