@@ -28,6 +28,9 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import au.org.ala.checklist.lucene.CBIndexSearch;
+import au.org.ala.checklist.lucene.SearchResultException;
+import au.org.ala.checklist.lucene.model.NameSearchResult;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
@@ -102,7 +105,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	
 	/** The location for the lucene index */
 	public static final String TC_INDEX_DIR = "/data/lucene/taxonConcept";
-	
+
 	/** HBase columns */
 	private static final String IDENTIFIER_COL = "tc:sameAs";
 	private static final String SYNONYM_COL = "tc:hasSynonym";
@@ -132,6 +135,9 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     
 	protected IndexSearcher tcIdxSearcher;
 	
+	@Inject
+	protected CBIndexSearch cbIdxSearcher;
+	
 	protected HTable tcTable;
 
 	/**
@@ -151,6 +157,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     	this.tcTable = new HTable(config, "taxonConcept");
 //    	this.tcTable.setAutoFlush(false);
     	this.tcTable.setWriteBufferSize(1024*1024*12);
+
 	}
 	
 	/**
@@ -847,18 +854,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		try {
 			String searchName = scientificName;
 
-			//change A. bus to Aus bus if it is abbreviated
-			if(abbreviatedCanonical.matcher(scientificName).matches() && genus!=null){
-				NameParser np = new NameParser();
-				
-				ParsedName parsedName = np.parse(scientificName);
-				
-				if(parsedName!=null){
-					if(parsedName.isBinomial()){
-						searchName = genus +" "+ parsedName.getSpecificEpithet();
-					}
-				}
-			}
+			searchName = expandAbbreviation(genus, scientificName);
 			
 			IndexSearcher is = getTcIdxSearcher();
 			QueryParser qp  = new QueryParser("scientificName", new KeywordAnalyzer());
@@ -894,8 +890,71 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 			logger.error("Problem searching with:"+scientificName+" : "+e.getMessage());
 		}		
 		return null;
+	}
+
+	/**
+	 * @param genus
+	 * @param scientificName
+	 * @param searchName
+	 * @return
+	 */
+	private String expandAbbreviation(String genus, String scientificName) {
+		String expandedName = null;
+		
+		//change A. bus to Aus bus if it is abbreviated
+		if (abbreviatedCanonical.matcher(scientificName).matches()
+				&& genus != null) {
+			NameParser np = new NameParser();
+
+			ParsedName parsedName = np.parse(scientificName);
+
+			if (parsedName != null) {
+				if (parsedName.isBinomial()) {
+					expandedName = genus + " "
+							+ parsedName.getSpecificEpithet();
+				}
+			}
+		}
+		return expandedName;
 	}	
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#findLsidByName(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public String findLsidByName(String kingdom, String genus, String scientificName, String taxonRank) {
+		String lsid = null;
+		try {
+			lsid = cbIdxSearcher.searchForLSID(kingdom, genus, scientificName, taxonRank);
+		} catch (SearchResultException e) {
+			logger.warn("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
+		}
+		return lsid;
+	}
 	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#findLsidByName(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public String findLsidByName(String scientificName, String taxonRank) {
+		String lsid = null;
+		try {
+			lsid = cbIdxSearcher.searchForLSID(scientificName, taxonRank);
+		} catch (SearchResultException e) {
+			logger.warn("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
+		}
+		return lsid;
+	}
+	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#findCBDataByName(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public NameSearchResult findCBDataByName(String kingdom, String genus,
+			String scientificName, String rank) throws SearchResultException {
+		return cbIdxSearcher.searchForRecord(scientificName, kingdom, genus, rank);
+	}
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getByParentGuid(java.lang.String, int)
 	 */
@@ -1088,19 +1147,18 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 			return false; //we have nothing to work with, so give up
 		}
 		
-		//FIXME - this should be replaced with improved sci name lookup coming out of the 
-		//checklistbank works
-		String guid = findConceptIDForName(kingdom, genus, scientificName);
-		//if null try with the species name
-		if(guid==null && species!=null){
-			guid = findConceptIDForName(kingdom, genus, species);
+		// Lookup LSID in Checklist Bank data 
+		String guid = findLsidByName(kingdom, genus, scientificName, null);
+		// if null try with the species name
+		if (guid == null && species != null) {
+			guid = findLsidByName(kingdom, genus, species, null);
 		}
-		//FIX ME search with genus + specific epithet
-		if(guid==null && genus!=null && specificEpithet!=null){
-			guid = findConceptIDForName(kingdom, genus, genus+ " "+ specificEpithet);
+		// FIX ME search with genus + specific epithet
+		if (guid == null && genus != null && specificEpithet != null) {
+			guid = findLsidByName(kingdom, genus, genus + " " + specificEpithet, null);
 		}
-		
-		if(guid!=null){
+
+		if (guid != null) {
 			
 //			Map<String, Object> properties = new HashMap<String,Object>();
 			
