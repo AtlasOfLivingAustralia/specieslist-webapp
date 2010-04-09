@@ -54,15 +54,12 @@ public class IrmngDataLoader {
 	 * @throws Exception
 	 */
 	private void load() throws Exception {
-		// For testing
-//		((TaxonConceptDaoImpl) taxonConceptDao).setLuceneIndexLocation(LoadUtils.BASE_DIR + "taxonConcept");
-		
-		loadIrmngData(IRMNG_FAMILY_DATA);
-		loadIrmngData(IRMNG_GENUS_DATA);
-		loadIrmngData(IRMNG_SPECIES_DATA);
+		loadIrmngData(IRMNG_FAMILY_DATA, "family");
+		loadIrmngData(IRMNG_GENUS_DATA, "genus");
+		loadIrmngData(IRMNG_SPECIES_DATA, "species");
 	}
 
-	private void loadIrmngData(String irmngDataFile) throws Exception {
+	private void loadIrmngData(String irmngDataFile, String rank) throws Exception {
 		logger.info("Starting to load IRMNG data from " + irmngDataFile);
 		
     	long start = System.currentTimeMillis();
@@ -80,11 +77,11 @@ public class IrmngDataLoader {
     			String habitatCode = values[4];
     			
     			if (!currentScientificName.equalsIgnoreCase(previousScientificName)) {
-    				guid = taxonConceptDao.findConceptIDForName(null, null, currentScientificName.toLowerCase());
+					guid = taxonConceptDao.findLsidByName(currentScientificName.toLowerCase(), rank);
         			if (guid == null) {
-        				logger.warn("Unable to find taxon concept for '" + currentScientificName + "'");
+        				logger.warn("Unable to find LSID for '" + currentScientificName + "'");
         			} else {
-        				logger.debug("Loading IRMNG data for '" + currentScientificName + "'");
+        				logger.debug("Found LSID for '" + currentScientificName + "' - " + guid);
         			}
     				previousScientificName = currentScientificName;
     			}
