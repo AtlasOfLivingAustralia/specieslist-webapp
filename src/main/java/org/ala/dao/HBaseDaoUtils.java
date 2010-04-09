@@ -117,8 +117,8 @@ public class HBaseDaoUtils {
 		BatchUpdate batchUpdate = new BatchUpdate(Bytes.toBytes(guid));
 
 		//serialise to json
-		String commonNamesAsJson = mapper.writeValueAsString(listOfObjects); 
-		batchUpdate.put(columnName, Bytes.toBytes(commonNamesAsJson));
+		String objectsAsJson = mapper.writeValueAsString(listOfObjects); 
+		batchUpdate.put(columnName, Bytes.toBytes(objectsAsJson));
 		htable.commit(batchUpdate);
 		return true;
 	}
