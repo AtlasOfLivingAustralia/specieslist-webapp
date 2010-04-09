@@ -17,6 +17,7 @@ package org.ala.dao;
 import java.util.List;
 import java.util.Map;
 
+import au.org.ala.checklist.lucene.model.NameSearchResult;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
@@ -401,6 +402,38 @@ public interface TaxonConceptDao {
 	public String findConceptIDForName(String kingdom, String genus,
 			String scientificName) throws Exception;
 
+	/**
+	 * Get LSID from Checklist Bank by kingdom, genus and scientific name.
+	 * 
+	 * @param kingdom Can be null.
+	 * @param genus Can be null.
+	 * @param scientificName Required.
+	 * @param taxonRank Can be null.
+	 * @return LSID or null.
+	 */
+	public String findLsidByName(String kingdom, String genus, String scientificName, String taxonRank);
+	
+	/**
+	 * Get LSID from Checklist Bank by scientific name.
+	 * 
+	 * @param scientificName Required.
+	 * @param taxonRank Can be null.
+	 * @return LSID or null.
+	 */
+	public String findLsidByName(String scientificName, String taxonRank);
+	
+	/**
+	 * Get Checklist Bank entry by scientific name.
+	 * 
+	 * @param kingdom Can be null.
+	 * @param genus Can be null.
+	 * @param scientificName Required.
+	 * @param rank Can be null.
+	 * @return 
+	 */
+	public NameSearchResult findCBDataByName(String kingdom, String genus,
+			String scientificName, String rank) throws Exception;
+	
 	/**
 	 * Retrieve a list of concepts with the supplied parent guid.
 	 *
