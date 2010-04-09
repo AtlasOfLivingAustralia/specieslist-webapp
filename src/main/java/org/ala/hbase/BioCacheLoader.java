@@ -57,16 +57,16 @@ public class BioCacheLoader {
 		// For testing
 //		taxonConceptDao.setLuceneIndexLocation(LoadUtils.BASE_DIR + "taxonConcept");
 		
-		loadRegions(FAMILY_REGION_OCCURRENCE);
-		loadRegions(GENUS_REGION_OCCURRENCE);
-		loadRegions(SPECIES_REGION_OCCURRENCE);
+		loadRegions(FAMILY_REGION_OCCURRENCE, "family");
+		loadRegions(GENUS_REGION_OCCURRENCE, "genus");
+		loadRegions(SPECIES_REGION_OCCURRENCE, "species");
 	}
 
 	/**
 	 * @param regionDatFile
 	 * @throws Exception
 	 */
-	private void loadRegions(String regionDatFile) throws Exception {
+	private void loadRegions(String regionDatFile, String taxonRank) throws Exception {
 		logger.info("Starting to load region occurrences from " + regionDatFile);
 		
     	long start = System.currentTimeMillis();
@@ -96,7 +96,7 @@ public class BioCacheLoader {
         				noOfTaxa++;
         				regions.clear();
     				}
-    				guid = taxonConceptDao.findConceptIDForName(null, null, currentScientificName.toLowerCase());
+    				guid = taxonConceptDao.findLsidByName(currentScientificName, taxonRank);
         			if (guid == null) {
         				logger.warn("Unable to find taxon concept for '" + currentScientificName + "'");
         			} else {
