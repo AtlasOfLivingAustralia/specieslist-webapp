@@ -925,7 +925,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public String findLsidByName(String kingdom, String genus, String scientificName, String taxonRank) {
 		String lsid = null;
 		try {
-			lsid = cbIdxSearcher.searchForLSID(kingdom, genus, scientificName, taxonRank);
+			lsid = cbIdxSearcher.searchForLSID(scientificName, genus, kingdom, taxonRank);
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
 		}
