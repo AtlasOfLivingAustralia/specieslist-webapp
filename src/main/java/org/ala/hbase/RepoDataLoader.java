@@ -15,6 +15,7 @@
 package org.ala.hbase;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import org.ala.util.RepositoryFileUtils;
 import org.ala.util.SpringUtils;
 import org.ala.util.TurtleUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -88,63 +90,69 @@ public class RepoDataLoader {
 	private int load(String filePath) throws Exception {
 		logger.info("Scanning directory: "+filePath);
 		
-		int filesRead = 0;
-		int propertiesSynced = 0;
+		int totalFilesRead = 0;
+		int totalPropertiesSynced = 0;
 		
 		//start scan
 		File file = new File(filePath);
-		Iterator<File> fileIterator = FileUtils.iterateFiles(file, null, true);
-		while(fileIterator.hasNext()){
-			File currentFile = fileIterator.next();
-			if(currentFile.getName().equals(FileType.RDF.toString())){
-				filesRead++;
-				
-				//read the dublin core in the same directory - determine if its an image
-				try {
-                    FileReader reader = new FileReader(currentFile);
-                    List<Triple> triples = TurtleUtils.readTurtle(reader);
-                    //close the reader
-                    reader.close();
-                    
-                    String currentSubject = null;
-                    List<Triple> splitBySubject = new ArrayList<Triple>();
-                    
-                    //iterate through triple, splitting the triples by subject
-                    for(Triple triple: triples){
-                    
-                    	if(currentSubject==null){
-                    		currentSubject = triple.subject;
-                    	} else if(!currentSubject.equals(triple.subject)){
-                    		//sync these triples
-                    		boolean success = sync(currentFile, splitBySubject);
-                    		logger.debug("Read file: "+currentFile.getAbsolutePath()+", success: "+success);
-                        	if(success){
-                        		propertiesSynced++;
-                        	}
-    	                    //clear list
-    	                    splitBySubject.clear();
-    	                    splitBySubject.add(triple);
-    	                    currentSubject = triple.subject;
-                    	}
-                    	splitBySubject.add(triple);
-
-                    }
-
-                    //sort out the buffer
-                    if(!splitBySubject.isEmpty()){
-                    	boolean success = sync(currentFile, triples);
-                    	if(success){
-                    		propertiesSynced++;
-                    	}
-                    }
-                    
-                } catch (Exception e) {
-                    logger.error("Error reading triples from file: '"+currentFile.getName() +"', "+e.getMessage(), e);
-                }
+		for (File currentDir : file.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY)) {
+			int filesRead = 0;
+			int propertiesSynced = 0;
+			Iterator<File> fileIterator = FileUtils.iterateFiles(currentDir, null, true);
+			while (fileIterator.hasNext()) {
+				File currentFile = fileIterator.next();
+				if (currentFile.getName().equals(FileType.RDF.toString())) {
+					filesRead++;
+					
+					//read the dublin core in the same directory - determine if its an image
+					try {
+	                    FileReader reader = new FileReader(currentFile);
+	                    List<Triple> triples = TurtleUtils.readTurtle(reader);
+	                    //close the reader
+	                    reader.close();
+	                    
+	                    String currentSubject = null;
+	                    List<Triple> splitBySubject = new ArrayList<Triple>();
+	                    
+	                    //iterate through triple, splitting the triples by subject
+	                    for(Triple triple: triples){
+	                    
+							if (currentSubject == null) {
+	                    		currentSubject = triple.subject;
+							} else if (!currentSubject.equals(triple.subject)) {
+	                    		//sync these triples
+	                    		boolean success = sync(currentFile, splitBySubject, currentDir.getName());
+	                    		logger.debug("Read file: "+currentFile.getAbsolutePath()+", success: "+success);
+								if (success) {
+									propertiesSynced++;
+								}
+	    	                    //clear list
+	    	                    splitBySubject.clear();
+	    	                    splitBySubject.add(triple);
+	    	                    currentSubject = triple.subject;
+	                    	}
+	                    	splitBySubject.add(triple);
+	                    }
+	
+	                    //sort out the buffer
+						if (!splitBySubject.isEmpty()) {
+							boolean success = sync(currentFile, triples, currentDir.getName());
+							if (success) {
+								propertiesSynced++;
+							}
+						}
+	                    
+	                } catch (Exception e) {
+	                    logger.error("Error reading triples from file: '"+currentFile.getAbsolutePath() +"', "+e.getMessage(), e);
+	                }
+				}
 			}
+			logger.info("InfosourceId: " + currentDir.getName() + " - Files read: " + filesRead + ", files matched: " + propertiesSynced);
+			totalFilesRead += filesRead;
+			totalPropertiesSynced += propertiesSynced;
 		}
-		logger.info("Files read: "+filesRead+", files matched: "+propertiesSynced);
-		return filesRead;
+		logger.info("Files read: "+totalFilesRead+", files matched: "+totalPropertiesSynced);
+		return totalFilesRead;
 	}
 
 	/**
@@ -154,10 +162,8 @@ public class RepoDataLoader {
 	 * @param triples
 	 * @throws Exception
 	 */
-	private boolean sync(File currentFile, List<Triple> triples) throws Exception {
+	private boolean sync(File currentFile, List<Triple> triples, String infosourceId) throws Exception {
 		
-		
-		String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
 		String documentId = currentFile.getParentFile().getName();
 		// Read dublin core
 		// Added info source data to the Document via info source Map
