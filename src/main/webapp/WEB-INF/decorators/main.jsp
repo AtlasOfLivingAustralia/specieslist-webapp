@@ -49,7 +49,6 @@
                     <span id="searchHint">Find Australian Species: </span>
                     <form action="${pageContext.request.contextPath}/species/search" method="GET" autocomplete="off">
                         <input name="q" id="q" <c:if test="${not empty query}">value="<c:out value="${query}" />"</c:if> type="text" size="30"/>
-                        <input type="hidden" name="title"/>
                         <input type="submit" value="Search"/>
                     </form>
                 </div>

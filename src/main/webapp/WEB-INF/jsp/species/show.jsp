@@ -316,7 +316,7 @@
                     Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="_blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a>
                 </div>
                 <div id="icons">
-                    <span id="LSID_text"><a href="#lsidText" id="lsid" title="LSID info">LSID</a></span><span id="JSON_text"><a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" title="View JSON data for this taxon">JSON</a></span>
+                    <span id="LSID_text"><a href="#lsidText" id="lsid" title="Life Science Identifier (pop-up)">LSID</a></span><span id="JSON_text"><a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" title="JSON web service">JSON</a></span>
                 </div>
                 <div style="display:none;">
                     <div id="lsidText">
@@ -408,9 +408,9 @@
                     <div id="names">
                         <table class="propertyTable">
                             <tr>
-                                <th width="15%"></th>
-                                <th width="70%"></th>
-                                <th width="15%"></th>
+                                <th width=""></th>
+                                <th width=""></th>
+                                <th width=""></th>
                             </tr>
                             <tr>
                                 <td class="propertyNames">Accepted Name</td>

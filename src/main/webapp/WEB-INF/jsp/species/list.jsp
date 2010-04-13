@@ -36,7 +36,7 @@
             <div id="facetBar">
                 <h4>Refine your results:</h4>
                 <ul id="navlist">
-                    <c:if test="${not empty query}"><c:set var="queryParam">q=<c:out value="${query}" escapeXml="true"/></c:set></c:if>
+                    <c:if test="${not empty query}"><c:set var="queryParam">q=<c:out value="${query}&title=${title}" escapeXml="true"/></c:set></c:if>
                     <c:forEach var="facetResult" items="${searchResults.facetResults}">
                         <c:if test="${!fn:containsIgnoreCase(facetQuery, facetResult.fieldResult[0].label)}">
                             <li><span class="FieldName"><fmt:message key="facet.${facetResult.fieldName}"/></span></li>
@@ -58,7 +58,7 @@
             <c:if test="${not empty facetQuery}">
                 <div id="removeFacet">
                     <h4>Displaying subset of results, restricted to: <span id="facetName">
-                            <fmt:message key="rank.${fn:substringAfter(facetQuery, 'rank:')}"/></span></h4>
+                            <fmt:message key="${fn:substringAfter(facetQuery, ':')}"/></span></h4>
                     <p>&bull; <a href="?<c:out value="${queryParam}"/>">Return to full result list</a></p>
                 </div>
             </c:if>
