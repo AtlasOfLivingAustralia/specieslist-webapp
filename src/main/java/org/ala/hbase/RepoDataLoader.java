@@ -71,10 +71,7 @@ public class RepoDataLoader {
 		long start = System.currentTimeMillis();
         loader.loadInfoSources();
         String filePath = repositoryDir;
-        if(args.length==1){
-        	filePath=args[0];
-        }
-		int filesRead = loader.load(filePath); //FIX ME - move to config
+		int filesRead = loader.load(filePath, args); //FIX ME - move to config
     	long finish = System.currentTimeMillis();
     	System.out.println(filesRead+" files scanned/loaded in: "+((finish-start)/60000)+" minutes "+((finish-start)/1000)+" seconds.");
     	System.exit(1);
@@ -84,10 +81,11 @@ public class RepoDataLoader {
 	 * Scan through the repository, retrieve triples and
 	 * add to taxon concepts
 	 * 
-	 * @param filePath
+	 * @param filePath Root directory of harvested repository
+	 * @param repoDirs Optional array of Infosource directories to scan passed as program arguments
 	 * @throws Exception
 	 */
-	private int load(String filePath) throws Exception {
+	private int load(String filePath, String[] repoDirs) throws Exception {
 		logger.info("Scanning directory: "+filePath);
 		
 		int totalFilesRead = 0;
@@ -95,7 +93,20 @@ public class RepoDataLoader {
 		
 		//start scan
 		File file = new File(filePath);
-		for (File currentDir : file.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY)) {
+		File [] dirs = null;
+
+		// See if array of infosource directories passed as program arguments
+		if (repoDirs.length > 0) {
+			dirs = new File [repoDirs.length];
+			for (int i = 0; i < repoDirs.length; i++) {
+				dirs[i] = new File(file.getAbsolutePath() + "/" + repoDirs[i]);
+			}
+		} else {
+			// Scan all sub-directories
+			dirs = file.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
+		}
+ 
+		for (File currentDir : dirs) {
 			int filesRead = 0;
 			int propertiesSynced = 0;
 			Iterator<File> fileIterator = FileUtils.iterateFiles(currentDir, null, true);
