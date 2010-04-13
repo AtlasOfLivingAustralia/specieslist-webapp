@@ -374,23 +374,18 @@ public class SpeciesController {
 //			System.out.println(vocabularyDAO.getPreferredTermsFor(infoId, "" ,  ""));
 			
 			List<Map<String,Object>> vocabulariesMap = vocabularyDAO.getTermsByInfosourceId(infoId);
-
-//			for (Map<String,Object> hashMap : vocabulariesMap) {
-//				System.out.println("!!!!!!!!!!!!!");
-//				System.out.println(hashMap.get("source_id"));
-//				System.out.println(hashMap.get("source_term"));
-//				System.out.println(hashMap.get("target_term"));
-//				System.out.println(hashMap.get("predicate"));
-//			}
 			
-//			vocabularyDAO.getIdsforAll();
-
 			model.addAttribute("vocabulariesMap", vocabulariesMap);
-
+			
+			InfoSource infoSource = infoSourceDAO.getById(infoId);
+			String infoSourceName = infoSource.getName();
+			System.out.println("Infosource Name:" + infoSourceName);
+			model.addAttribute("infoName", infoSourceName);
 			
 		} catch (Exception e) {
 
 		}
+				
 		return VOCABULARIES_LIST;
 	}
 

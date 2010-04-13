@@ -10,7 +10,7 @@
     <title>Vocabularies</title>
 </head>
 <body>
-    <h1>Vocabularies</h1>
+    <h1>Vocabularies for <c:out value="${infoName}" /></h1>
     <c:if test="${not empty vocabulariesMap}">
         <h3>&bull; Term Mapping</h3>
         <table>
