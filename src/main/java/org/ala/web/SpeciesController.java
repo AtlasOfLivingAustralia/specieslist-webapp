@@ -25,14 +25,12 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
 
 import org.ala.dao.DocumentDAO;
 import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.dao.VocabularyDAO;
-import org.ala.dao.VocabularyDAOImpl;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
@@ -51,7 +49,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -102,8 +99,6 @@ public class SpeciesController {
 	/** Name of view for list of vocabularies */
 	private final String VOCABULARIES_LIST = "species/vocabularies";
 	
-	private static ApplicationContext context;
-
 	/**
 	 * Custom handler for the welcome view.
 	 * <p>
@@ -359,33 +354,28 @@ public class SpeciesController {
 	}
 
 	/**
-	 * List of vocabularies
+	 * List of vocabularies for a given Info Source Id
 	 *
 	 * @param model
 	 * @return view name
 	 */
-	@RequestMapping(value = "/voc/vocabularies", method = RequestMethod.GET)
-	public String listVocabularies (@RequestParam(value="infosourceId", required=true) String infoSourceId, Model model)  {
+	@RequestMapping(value = "/species/vocabularies/{infosourceId}", method = RequestMethod.GET)
+	public String listVocabularies (@PathVariable("infosourceId") String infoSourceId, Model model) throws Exception {
 		model.addAttribute("infoSource", infoSourceId);
 		
-		try {
-			int infoId = Integer.parseInt(infoSourceId);        
-			
-//			System.out.println(vocabularyDAO.getPreferredTermsFor(infoId, "" ,  ""));
-			
-			List<Map<String,Object>> vocabulariesMap = vocabularyDAO.getTermsByInfosourceId(infoId);
-			
-			model.addAttribute("vocabulariesMap", vocabulariesMap);
-			
-			InfoSource infoSource = infoSourceDAO.getById(infoId);
-			String infoSourceName = infoSource.getName();
-			System.out.println("Infosource Name:" + infoSourceName);
-			model.addAttribute("infoName", infoSourceName);
-			
-		} catch (Exception e) {
+        int infoId = Integer.parseInt(infoSourceId);
 
-		}
-				
+        logger.debug(vocabularyDAO.getPreferredTermsFor(infoId, "" ,  ""));
+
+        List<Map<String,Object>> vocabulariesMap = vocabularyDAO.getTermsByInfosourceId(infoId);
+
+        model.addAttribute("vocabulariesMap", vocabulariesMap);
+
+        InfoSource infoSource = infoSourceDAO.getById(infoId);
+        String infoSourceName = infoSource.getName();
+        logger.debug("Infosource Name:" + infoSourceName);
+        model.addAttribute("infoName", infoSourceName);
+
 		return VOCABULARIES_LIST;
 	}
 

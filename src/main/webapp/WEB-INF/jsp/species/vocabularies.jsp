@@ -12,7 +12,7 @@
 <body>
     <h1>Vocabularies for <c:out value="${infoName}" /></h1>
     <c:if test="${not empty vocabulariesMap}">
-        <h3>&bull; Term Mapping</h3>
+        <h3>Term Mapping</h3>
         <table>
             <tr>
                 <th>ID</th>
@@ -24,7 +24,11 @@
                     <tr>
                         <td><c:out value="${vocaMap['source_id']}" /></td>
                         <td><c:out value="${vocaMap['source_term']}" /></td>
-                        <td><c:out value="${vocaMap['target_term']}" /></td>
+                        <c:set var="statusType">
+                            <c:if test="${fn:endsWith(vocaMap['predicate'], 'hasPestStatus')}">pestStatus</c:if>
+                            <c:if test="${fn:endsWith(vocaMap['predicate'], 'hasConservationStatus')}">conservationStatus</c:if>
+                        </c:set>
+                        <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${infoSource}&fq=${statusType}:${vocaMap['target_term']}&title=${infoName} with ${vocaMap['predicate']}:${vocaMap['target_term']}"><c:out value="${vocaMap['target_term']}" /></a></td>
                         <td><c:out value="${vocaMap['predicate']}" /></td>
                     </tr>
             </c:forEach>
