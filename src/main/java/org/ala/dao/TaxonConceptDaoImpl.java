@@ -1137,25 +1137,53 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 			}
 		}
 		
-		if(scientificName==null
-				&& species==null
-				&& genus==null
-				&& family==null
-				&& order==null
-				&& specificEpithet==null){
-			logger.error("No classification found for document at: "+document.getFilePath());
-			return false; //we have nothing to work with, so give up
+		if (scientificName == null 
+				&& species == null 
+				&& genus == null
+				&& family == null 
+				&& order == null
+				&& specificEpithet == null) {
+			logger.error("No classification found for document at: " + document.getFilePath());
+			return false; // we have nothing to work with, so give up
 		}
 		
 		// Lookup LSID in Checklist Bank data 
-		String guid = findLsidByName(kingdom, genus, scientificName, null);
+		String rank = null;
+		if (scientificName == null) {
+			if (species != null) {
+				scientificName = species;
+				rank = "species";
+			} else if (genus != null) {
+				if (specificEpithet != null) {
+					scientificName = genus + " " + specificEpithet;
+					rank = "species";
+				} else {
+					scientificName = genus;
+					rank = "genus";
+				}
+			} else if (family != null) {
+				scientificName = family;
+				rank = "family";
+			} else if (order != null) {
+				scientificName = order;
+				rank = "order";
+			} else if (kingdom != null) {
+				scientificName = kingdom;
+				rank = "kingdom";
+			} else {
+				logger.error("Not enough search data for Checklist Bank found for document at: "+document.getFilePath());
+				return false;
+			}
+		}
+		String guid = findLsidByName(kingdom, genus, scientificName, rank);
+
 		// if null try with the species name
 		if (guid == null && species != null) {
-			guid = findLsidByName(kingdom, genus, species, null);
+			guid = findLsidByName(kingdom, genus, species, "species");
 		}
 		// FIX ME search with genus + specific epithet
 		if (guid == null && genus != null && specificEpithet != null) {
-			guid = findLsidByName(kingdom, genus, genus + " " + specificEpithet, null);
+			guid = findLsidByName(kingdom, genus, genus + " " + specificEpithet, "species");
 		}
 
 		if (guid != null) {
