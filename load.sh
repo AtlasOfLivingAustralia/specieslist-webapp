@@ -2,11 +2,8 @@ start_time=$(date +%s)
 
 echo "LOAD : running processing $('date')"
 
-mvn clean install jar:jar -Dmaven.test.skip=true $1
-
-mvn dependency:build-classpath $1
-
-export CLASSPATH=.:target/bie-hbase.jar:$(cat classpath.txt)
+jar xf bie-hbase-assembly.jar lib lib
+export CLASSPATH=bie-hbase-assembly.jar
 
 echo "LOAD : initialising HBase $('date')"
 java -classpath $CLASSPATH org.ala.hbase.InitProfiler
@@ -35,7 +32,7 @@ java -classpath $CLASSPATH org.ala.hbase.BioCacheLoader
 echo "LOAD : running Irmng Loader $('date')"
 java -classpath $CLASSPATH org.ala.hbase.IrmngDataLoader
 
-echo "LOAD : running Bio Cache Loader $('date')"
+echo "LOAD : running BHL Data Loader $('date')"
 java -classpath $CLASSPATH org.ala.hbase.BHLDataLoader
 
 echo "LOAD : running Re-Create Taxon Concept Index $('date')"
