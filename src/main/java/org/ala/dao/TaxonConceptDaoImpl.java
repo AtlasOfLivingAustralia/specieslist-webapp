@@ -1388,7 +1388,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     		if(taxonConcept.getNameString()!=null){
     			
     			doc.add(new Field("guid", taxonConcept.getGuid(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
-    			infoSourceIds.add(taxonConcept.getInfoSourceId());
+    			addToSetSafely(infoSourceIds, taxonConcept.getInfoSourceId());
     			//add multiple forms of the scientific name to the index
     			LuceneUtils.addScientificNameToIndex(doc, taxonConcept.getNameString(), taxonConcept.getRankString());
 	    		
@@ -1402,7 +1402,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
                             Field f = new Field("conservationStatus", csTerm, Store.YES, Index.NOT_ANALYZED);
                             f.setBoost(0.6f);
                             doc.add(f);
-                            infoSourceIds.add(cs.getInfoSourceId());
+                			addToSetSafely(infoSourceIds, cs.getInfoSourceId());
                         }
                     }
                 }
@@ -1413,7 +1413,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
                             Field f = new Field("pestStatus", psTerm, Store.YES, Index.NOT_ANALYZED);
                             f.setBoost(0.6f);
                             doc.add(f);
-                            infoSourceIds.add(ps.getInfoSourceId());
+                            addToSetSafely(infoSourceIds, ps.getInfoSourceId());
                         }
                     }
                 }
@@ -1424,7 +1424,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
                         Field textField = new Field("simpleText", sp.getValue(), Store.YES, Index.ANALYZED);
                         textField.setBoost(0.4f);
                         doc.add(textField);
-                        infoSourceIds.add(sp.getInfoSourceId());
+                        addToSetSafely(infoSourceIds, sp.getInfoSourceId());
                     }
                 }
 
@@ -1433,13 +1433,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	    		for(CommonName cn: commonNames){
 	    			if(cn.nameString!=null){
 	    				commonNameSet.add(cn.nameString.toLowerCase());
-                        if (cn.getInfoSourceId()!=null) {
-                        	try {
-								infoSourceIds.add(cn.getInfoSourceId());
-							} catch (Exception e) {
-								logger.info("Common Name: " + cn.nameString + ", InfoSourceId: " + cn.getInfoSourceId(), e);
-							}
-                        }
+						addToSetSafely(infoSourceIds, cn.getInfoSourceId());
                         //doc.add(new Field("commonName", cn.nameString.toLowerCase(), Store.YES, Index.ANALYZED));
                         //cnStr.append(cn.nameString.toLowerCase() + " ");
 	    			}
@@ -1656,5 +1650,17 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     @Override
     public String getIndexLocation() {
         return TC_INDEX_DIR;
+    }
+    
+    /**
+     * Prevent adding a null to a set.
+     * 
+     * @param set 
+     * @param object
+     */
+    private void addToSetSafely(Set set, Object object) {
+    	if (object != null) {
+    		set.add(object);
+    	}
     }
 }
