@@ -1434,7 +1434,11 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	    			if(cn.nameString!=null){
 	    				commonNameSet.add(cn.nameString.toLowerCase());
                         if (cn.getInfoSourceId()!=null) {
-                        	infoSourceIds.add(cn.getInfoSourceId());
+                        	try {
+								infoSourceIds.add(cn.getInfoSourceId());
+							} catch (Exception e) {
+								logger.info("Common Name: " + cn.nameString + ", InfoSourceId: " + cn.getInfoSourceId(), e);
+							}
                         }
                         //doc.add(new Field("commonName", cn.nameString.toLowerCase(), Store.YES, Index.ANALYZED));
                         //cnStr.append(cn.nameString.toLowerCase() + " ");
