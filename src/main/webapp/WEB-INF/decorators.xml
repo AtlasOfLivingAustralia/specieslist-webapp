@@ -11,6 +11,7 @@
         <pattern>/query*</pattern>
         <pattern>/taxon*</pattern>
         <pattern>/index.jsp</pattern>
+        <pattern>/map/sld*</pattern>
     </excludes>
 
     <decorator name="main" page="main.jsp">
