@@ -30,6 +30,6 @@ public class InitProfiler {
 		SystemDao systemDao = new SystemDaoImpl();
 		systemDao.init();
 		logger.info("Initialise completed.");
-		System.exit(1);
+//		System.exit(1);
     }
 }
