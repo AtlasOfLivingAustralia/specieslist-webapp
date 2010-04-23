@@ -31,6 +31,8 @@ import javax.inject.Inject;
 import au.org.ala.checklist.lucene.CBIndexSearch;
 import au.org.ala.checklist.lucene.SearchResultException;
 import au.org.ala.checklist.lucene.model.NameSearchResult;
+import au.org.ala.data.util.RankType;
+
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
@@ -925,7 +927,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public String findLsidByName(String kingdom, String genus, String scientificName, String taxonRank) {
 		String lsid = null;
 		try {
-			lsid = cbIdxSearcher.searchForLSID(scientificName, genus, kingdom, taxonRank);
+			lsid = cbIdxSearcher.searchForLSID(scientificName, genus, kingdom, RankType.getForName(taxonRank));
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
 		}
@@ -939,7 +941,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public String findLsidByName(String scientificName, String taxonRank) {
 		String lsid = null;
 		try {
-			lsid = cbIdxSearcher.searchForLSID(scientificName, taxonRank);
+			lsid = cbIdxSearcher.searchForLSID(scientificName, RankType.getForName(taxonRank));
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
 		}
@@ -952,7 +954,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	@Override
 	public NameSearchResult findCBDataByName(String kingdom, String genus,
 			String scientificName, String rank) throws SearchResultException {
-		return cbIdxSearcher.searchForRecord(scientificName, kingdom, genus, rank);
+		return cbIdxSearcher.searchForRecord(scientificName, kingdom, genus, RankType.getForName(rank));
 	}
 
 	/**
