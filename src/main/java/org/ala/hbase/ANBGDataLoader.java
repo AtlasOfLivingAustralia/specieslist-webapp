@@ -152,7 +152,7 @@ public class ANBGDataLoader {
     		if(keyValue.length==3){
     			i++;
     			//add the relationship to the "toTaxon"
-        		if(++i % 1000==0) 
+				if (++i % 10000 == 0)
         			logger.info(i+" relationships processed");
     			
         		//add the synonym information to the accepted concept
