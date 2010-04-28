@@ -22,7 +22,7 @@
     <priority value="ERROR"/>
   </category>
   <category name="org.apache.hadoop">
-    <priority value="DEBUG"/>
+    <priority value="WARN"/>
   </category>
   <category name="httpclient">
     <priority value="ERROR"/>
