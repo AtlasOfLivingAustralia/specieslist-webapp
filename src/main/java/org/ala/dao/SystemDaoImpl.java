@@ -36,6 +36,7 @@ public class SystemDaoImpl implements SystemDao {
     	
     	HBaseConfiguration config = new HBaseConfiguration();
     	HBaseAdmin hBaseAdmin = new HBaseAdmin(config);
+    	logger.info("HBase ZooKeeper Quorum - " + hBaseAdmin.getConnection().getZooKeeperWrapper().getQuorumServers());
     	
     	if(hBaseAdmin.tableExists("taxonConcept")){
     		hBaseAdmin.disableTable("taxonConcept");
