@@ -107,6 +107,7 @@ public class RepoDataLoader {
 		}
  
 		for (File currentDir : dirs) {
+			logger.debug("Reading directory: " + currentDir.getAbsolutePath());
 			int filesRead = 0;
 			int propertiesSynced = 0;
 			Iterator<File> fileIterator = FileUtils.iterateFiles(currentDir, null, true);
@@ -133,7 +134,7 @@ public class RepoDataLoader {
 							} else if (!currentSubject.equals(triple.subject)) {
 	                    		//sync these triples
 	                    		boolean success = sync(currentFile, splitBySubject, currentDir.getName());
-	                    		logger.debug("Read file: "+currentFile.getAbsolutePath()+", success: "+success);
+	                    		logger.debug("Read file: "+currentFile.getAbsolutePath()+"Scientific Name = " + getScientificName(splitBySubject) + ", success: "+success);
 								if (success) {
 									propertiesSynced++;
 								}
@@ -164,6 +165,15 @@ public class RepoDataLoader {
 		}
 		logger.info("Files read: "+totalFilesRead+", files matched: "+totalPropertiesSynced);
 		return totalFilesRead;
+	}
+
+	private String getScientificName(List<Triple> triples) {
+        for (Triple triple: triples) {
+        	if (triple.subject.equalsIgnoreCase(Predicates.SCIENTIFIC_NAME.toString())) {
+        		return triple.object.toString();
+        	}
+        }
+		return null;
 	}
 
 	/**
