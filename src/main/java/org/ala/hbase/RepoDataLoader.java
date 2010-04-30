@@ -134,7 +134,7 @@ public class RepoDataLoader {
 							} else if (!currentSubject.equals(triple.subject)) {
 	                    		//sync these triples
 	                    		boolean success = sync(currentFile, splitBySubject, currentDir.getName());
-	                    		logger.debug("Read file: "+currentFile.getAbsolutePath()+"Scientific Name = " + getScientificName(splitBySubject) + ", success: "+success);
+	                    		logger.debug("Read file: "+currentFile.getAbsolutePath() + ", Scientific Name = " + getScientificName(splitBySubject) + ", success: "+success);
 								if (success) {
 									propertiesSynced++;
 								}
@@ -169,7 +169,7 @@ public class RepoDataLoader {
 
 	private String getScientificName(List<Triple> triples) {
         for (Triple triple: triples) {
-        	if (triple.subject.equalsIgnoreCase(Predicates.SCIENTIFIC_NAME.toString())) {
+        	if (triple.subject.equalsIgnoreCase(Predicates.SCIENTIFIC_NAME.getPredicate())) {
         		return triple.object.toString();
         	}
         }
