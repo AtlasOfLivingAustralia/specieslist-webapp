@@ -7,7 +7,6 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.ala.dto.ExtendedTaxonConceptDTO;
-import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
@@ -19,11 +18,6 @@ import org.ala.model.Region;
 import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
-import org.ala.util.StatusType;
-import org.ala.vocabulary.Vocabulary;
-import org.ala.vocabulary.VocabularyImpl;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class TaxonConceptDaoTest extends TestCase {
 	
