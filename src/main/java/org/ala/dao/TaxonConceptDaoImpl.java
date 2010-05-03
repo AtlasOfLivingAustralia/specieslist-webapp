@@ -21,17 +21,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
-
-import au.org.ala.checklist.lucene.CBIndexSearch;
-import au.org.ala.checklist.lucene.SearchResultException;
-import au.org.ala.checklist.lucene.model.NameSearchResult;
-import au.org.ala.data.util.RankType;
 
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
@@ -59,11 +55,12 @@ import org.ala.vocabulary.Vocabulary;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Scanner;
-import org.apache.hadoop.hbase.io.BatchUpdate;
-import org.apache.hadoop.hbase.io.Cell;
-import org.apache.hadoop.hbase.io.RowResult;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
@@ -95,6 +92,11 @@ import org.codehaus.jackson.type.TypeReference;
 import org.gbif.ecat.model.ParsedName;
 import org.gbif.ecat.parser.NameParser;
 import org.springframework.stereotype.Component;
+
+import au.org.ala.checklist.lucene.CBIndexSearch;
+import au.org.ala.checklist.lucene.SearchResultException;
+import au.org.ala.checklist.lucene.model.NameSearchResult;
+import au.org.ala.data.util.RankType;
 /**
  * HBase implementation if Taxon concept DAO.
  * 
@@ -109,26 +111,27 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public static final String TC_INDEX_DIR = "/data/lucene/taxonConcept";
 
 	/** HBase columns */
-	private static final String IDENTIFIER_COL = "tc:sameAs";
-	private static final String SYNONYM_COL = "tc:hasSynonym";
-	private static final String IS_SYNONYM_FOR_COL = "tc:IsSynonymFor";
-	private static final String IS_CONGRUENT_TO_COL = "tc:IsCongruentTo";
-	private static final String VERNACULAR_COL = "tc:VernacularConcept";
-	private static final String CONSERVATION_STATUS_COL = "tc:hasConservationStatus";
-	private static final String PEST_STATUS_COL = "tc:hasPestStatus";
-	private static final String REGION_COL = "tc:hasRegion";
-	private static final String EXTANT_STATUS_COL = "tc:hasExtantStatus";
-	private static final String HABITAT_COL = "tc:hasHabitat";
-	private static final String IMAGE_COL = "tc:hasImage";
-	private static final String IS_CHILD_COL_OF = "tc:IsChildTaxonOf";
-	private static final String IS_PARENT_COL_OF = "tc:IsParentTaxonOf";
-    private static final String TEXT_PROPERTY_COL = "tc:hasTextProperty";
-    private static final String CLASSIFICATION_COL = "tc:hasClassification";
-    private static final String REFERENCE_COL = "tc:hasReference";
-    private static final String PUBLICATION_COL = "tc:hasPublication";
+	private static final String IDENTIFIER_COL = "sameAs";
+	private static final String SYNONYM_COL = "hasSynonym";
+	private static final String IS_SYNONYM_FOR_COL = "IsSynonymFor";
+	private static final String IS_CONGRUENT_TO_COL = "IsCongruentTo";
+	private static final String VERNACULAR_COL = "VernacularConcept";
+	private static final String CONSERVATION_STATUS_COL = "hasConservationStatus";
+	private static final String PEST_STATUS_COL = "hasPestStatus";
+	private static final String REGION_COL = "hasRegion";
+	private static final String EXTANT_STATUS_COL = "hasExtantStatus";
+	private static final String HABITAT_COL = "hasHabitat";
+	private static final String IMAGE_COL = "hasImage";
+	private static final String IS_CHILD_COL_OF = "IsChildTaxonOf";
+	private static final String IS_PARENT_COL_OF = "IsParentTaxonOf";
+    private static final String TEXT_PROPERTY_COL = "hasTextProperty";
+    private static final String CLASSIFICATION_COL = "hasClassification";
+    private static final String REFERENCE_COL = "hasReference";
+    private static final String PUBLICATION_COL = "hasPublication";
 
-    private static final String TC_COL_FAMILY = "tc:";
-    private static final String RAW_COL_FAMILY = "raw:";
+    private static final String TC_COL_FAMILY = "tc";
+    private static final String TN_COL_FAMILY = "tn";
+    private static final String RAW_COL_FAMILY = "raw";
     
     static Pattern abbreviatedCanonical = Pattern.compile("([A-Z]\\. )([a-zA-ZÏËÖÜÄÉÈČÁÀÆŒïëöüäåéèčáàæœóú]{1,})");
     
@@ -141,7 +144,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	protected CBIndexSearch cbIdxSearcher;
 	
 	protected HTable tcTable;
-
+	
 	/**
 	 * Initialise the DAO, setting up the HTable instance.
 	 * 
@@ -241,31 +244,38 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getSynonymsFor(java.lang.String)
 	 */
 	public List<TaxonConcept> getSynonymsFor(String guid) throws Exception {
-		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
-		return getSynonyms(row);
+		Result result = getTable().get(getTcGetter(guid));
+		if (!result.isEmpty()) {
+			return getSynonyms(result);
+		} else {
+			return new ArrayList<TaxonConcept>();
+		}
 	}
 
-	private List<TaxonConcept> getSynonyms(RowResult row) throws IOException,
+	private List<TaxonConcept> getSynonyms(Result result) throws IOException,
 			JsonParseException, JsonMappingException {
-		Cell cell = row.get(Bytes.toBytes(SYNONYM_COL));
-		return getTaxonConceptsFrom(cell);
+		byte [] synonym = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(SYNONYM_COL));
+		return getTaxonConceptsFrom(synonym);
 	}
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getImages(java.lang.String)
 	 */
 	public List<Image> getImages(String guid) throws Exception {
-		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
-		return getImages(row);
+		Result result = getTable().get(getTcGetter(guid));
+		if (!result.isEmpty()) {
+			return getImages(result);
+		} else {
+			return new ArrayList<Image>();
+		}
 	}
 
-	private List<Image> getImages(RowResult row) throws IOException,
+	private List<Image> getImages(Result result) throws IOException,
 			JsonParseException, JsonMappingException {
-		Cell cell = row.get(Bytes.toBytes(IMAGE_COL));
+		byte [] images = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(IMAGE_COL));
 		ObjectMapper mapper = new ObjectMapper();
-		if(cell!=null){
-			byte[] value = cell.getValue();
-			return mapper.readValue(value, 0, value.length, new TypeReference<List<Image>>(){});
+		if (images != null) {
+			return mapper.readValue(images, 0, images.length, new TypeReference<List<Image>>(){});
 		} 
 		return new ArrayList<Image>();
 	}
@@ -274,17 +284,20 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getPestStatuses(java.lang.String)
 	 */
 	public List<PestStatus> getPestStatuses(String guid) throws Exception {
-		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
-		return getPestStatus(row);
+		Result result = getTable().get(getTcGetter(guid));
+		if (!result.isEmpty()) {
+			return getPestStatus(result);
+		} else {
+			return new ArrayList<PestStatus>();
+		}
 	}
 
-	private List<PestStatus> getPestStatus(RowResult row) throws IOException,
+	private List<PestStatus> getPestStatus(Result result) throws IOException,
 			JsonParseException, JsonMappingException {
-		Cell cell = row.get(Bytes.toBytes(PEST_STATUS_COL));
+		byte [] pestStatus = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(PEST_STATUS_COL));
 		ObjectMapper mapper = new ObjectMapper();
-		if(cell!=null){
-			byte[] value = cell.getValue();
-			return mapper.readValue(value, 0, value.length, new TypeReference<List<PestStatus>>(){});
+		if (pestStatus != null) {
+			return mapper.readValue(pestStatus, 0, pestStatus.length, new TypeReference<List<PestStatus>>(){});
 		} 
 		return new ArrayList<PestStatus>();
 	}
@@ -293,56 +306,57 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getConservationStatuses(java.lang.String)
 	 */
 	public List<ConservationStatus> getConservationStatuses(String guid) throws Exception {
-		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
-		return getConservationStatus(row);
+		Result result = getTable().get(getTcGetter(guid));
+		if (!result.isEmpty()) {
+			return getConservationStatus(result);
+		} else {
+			return new ArrayList<ConservationStatus>();
+		}
 	}
 
-	private List<ConservationStatus> getConservationStatus(RowResult row)
+	private List<ConservationStatus> getConservationStatus(Result result)
 			throws IOException, JsonParseException, JsonMappingException {
-		Cell cell = row.get(Bytes.toBytes(CONSERVATION_STATUS_COL));
+		byte [] consStatus = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(CONSERVATION_STATUS_COL));
 		ObjectMapper mapper = new ObjectMapper();
-		if(cell!=null){
-			byte[] value = cell.getValue();
-			return mapper.readValue(value, 0, value.length, new TypeReference<List<ConservationStatus>>(){});
+		if (consStatus != null) {
+			return mapper.readValue(consStatus, 0, consStatus.length, new TypeReference<List<ConservationStatus>>(){});
 		} 
 		return new ArrayList<ConservationStatus>();
 	}
 
 	/**
-	 * Deserialise the taxon concepts in this cell.
+	 * Deserialise the taxon concepts from value.
 	 * 
-	 * @param cell
+	 * @param value
 	 * @return
 	 * @throws IOException
 	 * @throws JsonParseException
 	 * @throws JsonMappingException
 	 */
-	private List<TaxonConcept> getTaxonConceptsFrom(Cell cell)
+	private List<TaxonConcept> getTaxonConceptsFrom(byte [] value)
 			throws IOException, JsonParseException, JsonMappingException {
 		ObjectMapper mapper = new ObjectMapper();
-		if(cell!=null){
-			byte[] value = cell.getValue();
+		if (value != null) {
 			return mapper.readValue(value, 0, value.length, new TypeReference<List<TaxonConcept>>(){});
 		} 
 		return new ArrayList<TaxonConcept>();
 	}
 	
 	/**
-	 * Deserialise the taxon concepts in this cell.
+	 * Deserialise the common names from value.
 	 * 
-	 * @param cell
+	 * @param value
 	 * @return
 	 * @throws IOException
 	 * @throws JsonParseException
 	 * @throws JsonMappingException
 	 */
-	private List<CommonName> getCommonNamesFrom(Cell cell)
+	private List<CommonName> getCommonNamesFrom(byte [] value)
 			throws IOException, JsonParseException, JsonMappingException {
 		ObjectMapper mapper = new ObjectMapper();
-		if(cell!=null){
-			byte[] value = cell.getValue();
-			return mapper.readValue(value, 0, value.length, new TypeReference<List<CommonName>>(){});
-		} 
+		if (value != null) {
+			return mapper.readValue(value, 0, value.length, new TypeReference<List<CommonName>>() {});
+		}
 		return new ArrayList<CommonName>();
 	}
 	
@@ -350,44 +364,55 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getChildConceptsFor(java.lang.String)
 	 */
 	public List<TaxonConcept> getChildConceptsFor(String guid) throws Exception {
-		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
-		return getChildConcepts(row);
+		Result result = getTable().get(getTcGetter(guid));
+		if (!result.isEmpty()) {
+			return getChildConcepts(result);
+		} else {
+			return new ArrayList<TaxonConcept>();
+		}
 	}
 
-	private List<TaxonConcept> getChildConcepts(RowResult row)
+	private List<TaxonConcept> getChildConcepts(Result result)
 			throws IOException, JsonParseException, JsonMappingException {
-		Cell cell = row.get(Bytes.toBytes(IS_PARENT_COL_OF));
-		return getTaxonConceptsFrom(cell);
+		byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(IS_PARENT_COL_OF));
+		return getTaxonConceptsFrom(value);
 	}
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getParentConceptsFor(java.lang.String)
 	 */	
 	public List<TaxonConcept> getParentConceptsFor(String guid) throws Exception {
-		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
-		return getParentConcepts(row);
+		Result result = getTable().get(getTcGetter(guid));
+		if (!result.isEmpty()) {
+			return getParentConcepts(result);
+		} else {
+			return new ArrayList<TaxonConcept>();
+		}
 	}
 
-	private List<TaxonConcept> getParentConcepts(RowResult row)
+	private List<TaxonConcept> getParentConcepts(Result result)
 			throws IOException, JsonParseException, JsonMappingException {
-		Cell cell = row.get(Bytes.toBytes(IS_CHILD_COL_OF));
-		return getTaxonConceptsFrom(cell);
+		byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(IS_CHILD_COL_OF));
+		return getTaxonConceptsFrom(value);
 	}		
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getCommonNamesFor(java.lang.String)
 	 */
 	public List<CommonName> getCommonNamesFor(String guid) throws Exception {
-		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
-		return getCommonNames(row);
+		Result result = getTable().get(getTcGetter(guid));
+		if (!result.isEmpty()) {
+			return getCommonNames(result);
+		} else {
+			return new ArrayList<CommonName>();
+		}
 	}
 
-	private List<CommonName> getCommonNames(RowResult row) throws IOException,
+	private List<CommonName> getCommonNames(Result result) throws IOException,
 			JsonParseException, JsonMappingException {
-		Cell cell = row.get(Bytes.toBytes(VERNACULAR_COL));
+		byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(VERNACULAR_COL));
 		ObjectMapper mapper = new ObjectMapper();
-		if(cell!=null){
-			byte[] value = cell.getValue();
+		if (value != null) {
 			return mapper.readValue(value, 0, value.length, new TypeReference<List<CommonName>>(){});
 		} 
 		return new ArrayList<CommonName>();
@@ -397,16 +422,19 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getTextPropertiesFor(java.lang.String)
 	 */
 	public List<SimpleProperty> getTextPropertiesFor(String guid) throws Exception {
-		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes("tc:")});
-		return getTextProperties(row);
+		Result result = getTable().get(getTcGetter(guid));
+		if (!result.isEmpty()) {
+			return getTextProperties(result);
+		} else {
+			return new ArrayList<SimpleProperty>();
+		}
 	}
 
-	private List<SimpleProperty> getTextProperties(RowResult row) throws IOException,
+	private List<SimpleProperty> getTextProperties(Result result) throws IOException,
 			JsonParseException, JsonMappingException {
-		Cell cell = row.get(Bytes.toBytes(TEXT_PROPERTY_COL));
+		byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(TEXT_PROPERTY_COL));
 		ObjectMapper mapper = new ObjectMapper();
-		if(cell!=null){
-			byte[] value = cell.getValue();
+		if (value != null) {
 			return mapper.readValue(value, 0, value.length, new TypeReference<List<SimpleProperty>>(){});
 		}
 		return new ArrayList<SimpleProperty>();
@@ -419,47 +447,46 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	public boolean create(TaxonConcept tc) throws Exception {
 		
-		if(tc.getGuid()==null){
+		if (tc.getGuid() == null) {
 			throw new IllegalArgumentException("Supplied GUID for the Taxon Concept is null.");
 		}
 		
-		BatchUpdate batchUpdate = new BatchUpdate(tc.getGuid().getBytes());
-		putIfNotNull(batchUpdate, "tc:id", Integer.toString(tc.getId()));
-		putIfNotNull(batchUpdate, "tc:parentId", tc.getParentId());
-		putIfNotNull(batchUpdate, "tc:parentGuid", tc.getParentGuid());
-		putIfNotNull(batchUpdate, "tc:nameString", tc.getNameString());
-		putIfNotNull(batchUpdate, "tc:author", tc.getAuthor());
-		putIfNotNull(batchUpdate, "tc:authorYear", tc.getAuthorYear());
-		putIfNotNull(batchUpdate, "tc:publishedIn", tc.getPublishedIn());
-		putIfNotNull(batchUpdate, "tc:publishedInCitation", tc.getPublishedInCitation());
-		putIfNotNull(batchUpdate, "tc:acceptedConceptGuid", tc.getAcceptedConceptGuid());
-		putIfNotNull(batchUpdate, "tc:rankString", tc.getRankString());
+		Put putter = new Put(Bytes.toBytes(tc.getGuid()));
+		putIfNotNull(putter, "tc:id", Integer.toString(tc.getId()));
+		putIfNotNull(putter, "tc:parentId", tc.getParentId());
+		putIfNotNull(putter, "tc:parentGuid", tc.getParentGuid());
+		putIfNotNull(putter, "tc:nameString", tc.getNameString());
+		putIfNotNull(putter, "tc:author", tc.getAuthor());
+		putIfNotNull(putter, "tc:authorYear", tc.getAuthorYear());
+		putIfNotNull(putter, "tc:publishedIn", tc.getPublishedIn());
+		putIfNotNull(putter, "tc:publishedInCitation", tc.getPublishedInCitation());
+		putIfNotNull(putter, "tc:acceptedConceptGuid", tc.getAcceptedConceptGuid());
+		putIfNotNull(putter, "tc:rankString", tc.getRankString());
 		
-		putIfNotNull(batchUpdate, "tc:infoSourceId", tc.getInfoSourceId());
-		putIfNotNull(batchUpdate, "tc:infoSourceName", tc.getInfoSourceName());
-		putIfNotNull(batchUpdate, "tc:infoSourceURL", tc.getInfoSourceURL());
-		getTable().commit(batchUpdate);	
+		putIfNotNull(putter, "tc:infoSourceId", tc.getInfoSourceId());
+		putIfNotNull(putter, "tc:infoSourceName", tc.getInfoSourceName());
+		putIfNotNull(putter, "tc:infoSourceURL", tc.getInfoSourceURL());
+		getTable().put(putter);	
 		
 		return true;
 	}
 	
 	public boolean update(TaxonConcept tc) throws Exception {
 		
-		if(tc.getGuid()==null){
+		if (tc.getGuid() == null) {
 			throw new IllegalArgumentException("Supplied GUID for the Taxon Concept is null.");
 		}
 		
-		BatchUpdate batchUpdate = new BatchUpdate(tc.getGuid().getBytes());
-		
-		putIfNotNull(batchUpdate, "tc:authorYear", tc.getAuthorYear());
-		putIfNotNull(batchUpdate, "tc:publishedIn", tc.getPublishedIn());
-		putIfNotNull(batchUpdate, "tc:publishedInCitation", tc.getPublishedInCitation());
-		putIfNotNull(batchUpdate, "tc:acceptedConceptGuid", tc.getAcceptedConceptGuid());
-		putIfNotNull(batchUpdate, "tc:rankString", tc.getRankString());
-		putIfNotNull(batchUpdate, "tc:infoSourceId", tc.getInfoSourceId());
-		putIfNotNull(batchUpdate, "tc:infoSourceName", tc.getInfoSourceName());
-		putIfNotNull(batchUpdate, "tc:infoSourceURL", tc.getInfoSourceURL());
-		getTable().commit(batchUpdate);	
+		Put putter = new Put(Bytes.toBytes(tc.getGuid()));
+		putIfNotNull(putter, "tc:authorYear", tc.getAuthorYear());
+		putIfNotNull(putter, "tc:publishedIn", tc.getPublishedIn());
+		putIfNotNull(putter, "tc:publishedInCitation", tc.getPublishedInCitation());
+		putIfNotNull(putter, "tc:acceptedConceptGuid", tc.getAcceptedConceptGuid());
+		putIfNotNull(putter, "tc:rankString", tc.getRankString());
+		putIfNotNull(putter, "tc:infoSourceId", tc.getInfoSourceId());
+		putIfNotNull(putter, "tc:infoSourceName", tc.getInfoSourceName());
+		putIfNotNull(putter, "tc:infoSourceURL", tc.getInfoSourceURL());
+		getTable().put(putter);	
 		return true;
 	}
 
@@ -469,21 +496,21 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#addTaxonName(java.lang.String, org.ala.model.TaxonName)
 	 */
 	public boolean addTaxonName(String guid, TaxonName tn) throws Exception {
-		RowResult row = getTable().getRow(Bytes.toBytes(guid));
-		if(row==null){
+		Result result = getTable().get(getTcGetter(guid));
+		if (result.isEmpty()) {
 			logger.error("Unable to locate a row to add taxon name to for guid: "+guid);
 			return false;
 		}
-		BatchUpdate batchUpdate = new BatchUpdate(Bytes.toBytes(guid));
-		putIfNotNull(batchUpdate, "tn:guid", tn.guid);
-		putIfNotNull(batchUpdate, "tn:nameComplete", tn.nameComplete);
-		putIfNotNull(batchUpdate, "tn:authorship", tn.authorship);
-		putIfNotNull(batchUpdate, "tn:nomenclaturalCode", tn.nomenclaturalCode);
-		putIfNotNull(batchUpdate, "tn:typificationString", tn.typificationString);
-		putIfNotNull(batchUpdate, "tn:publishedInCitation", tn.publishedInCitation);
-		putIfNotNull(batchUpdate, "tn:publishedIn", tn.publishedIn);
-		putIfNotNull(batchUpdate, "tn:rankString", tn.rankString);
-		getTable().commit(batchUpdate);
+		Put putter = new Put(Bytes.toBytes(guid));
+		putIfNotNull(putter, "tn:guid", tn.guid);
+		putIfNotNull(putter, "tn:nameComplete", tn.nameComplete);
+		putIfNotNull(putter, "tn:authorship", tn.authorship);
+		putIfNotNull(putter, "tn:nomenclaturalCode", tn.nomenclaturalCode);
+		putIfNotNull(putter, "tn:typificationString", tn.typificationString);
+		putIfNotNull(putter, "tn:publishedInCitation", tn.publishedInCitation);
+		putIfNotNull(putter, "tn:publishedIn", tn.publishedIn);
+		putIfNotNull(putter, "tn:rankString", tn.rankString);
+		getTable().put(putter);
 		return true;
 	}
 	
@@ -578,16 +605,16 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
-	 * Add field update to the batch if the supplied value is not null.
+	 * Add field update to the put if the supplied value is not null.
 	 * 
-	 * @param batchUpdate
+	 * @param put
 	 * @param fieldName
 	 * @param value
 	 */
-	private void putIfNotNull(BatchUpdate batchUpdate, String fieldName, String value) {
+	private void putIfNotNull(Put put, String fieldName, String value) {
 		value = StringUtils.trimToNull(value);
-		if(value!=null){
-			batchUpdate.put(fieldName, Bytes.toBytes(value));
+		if (value != null) {
+			put.add(Bytes.toBytes(fieldName), put.getTimeStamp(), Bytes.toBytes(value));
 		}
 	}
 	
@@ -604,11 +631,11 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getByGuid(java.lang.String)
 	 */
 	public TaxonConcept getByGuid(String guid) throws Exception {
-		RowResult rowResult = getTable().getRow(guid.getBytes());
-		if(rowResult==null){
+		Result result = getTable().get(getTcGetter(guid));
+		if (result.isEmpty()) {
 			return null;
 		}
-		return getTaxonConcept(guid, rowResult);
+		return getTaxonConcept(guid, result);
 	}
 
 	/**
@@ -616,30 +643,30 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	public ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid) throws Exception {
 
-		RowResult row = getTable().getRow(guid.getBytes());
-		if(row==null){
+		Result result = getTable().get(new Get(Bytes.toBytes(guid)));
+		if (result.isEmpty()) {
 			return null;
 		}
 		ExtendedTaxonConceptDTO etc = new ExtendedTaxonConceptDTO();
 		
 		//populate the dto
-		etc.setTaxonConcept(getTaxonConcept(guid, row));
-		etc.setTaxonName(getTaxonName(row));
-        etc.setClassification(getClassification(row));
-		etc.setSynonyms(getSynonyms(row));
-		etc.setCommonNames(getCommonNames(row));
-		etc.setChildConcepts(getChildConcepts(row));
-		etc.setParentConcepts(getParentConcepts(row));
-		etc.setPestStatuses(getPestStatus(row));
-		etc.setConservationStatuses(getConservationStatus(row));
-		etc.setImages(getImages(row));
-        etc.setExtantStatuses(getExtantStatus(row));
-        etc.setHabitats(getHabitat(row));
-        etc.setRegionTypes(Region.getRegionsByType(getRegion(row)));
-        etc.setReferences(getReferences(row));
+		etc.setTaxonConcept(getTaxonConcept(guid, result));
+		etc.setTaxonName(getTaxonName(result));
+        etc.setClassification(getClassification(result));
+		etc.setSynonyms(getSynonyms(result));
+		etc.setCommonNames(getCommonNames(result));
+		etc.setChildConcepts(getChildConcepts(result));
+		etc.setParentConcepts(getParentConcepts(result));
+		etc.setPestStatuses(getPestStatus(result));
+		etc.setConservationStatuses(getConservationStatus(result));
+		etc.setImages(getImages(result));
+        etc.setExtantStatuses(getExtantStatuses(result));
+        etc.setHabitats(getHabitats(result));
+        etc.setRegionTypes(Region.getRegionsByType(getRegions(result)));
+        etc.setReferences(getReferences(result));
 		
 		// sort the list of SimpleProperties for display in UI
-        List<SimpleProperty> simpleProperties = getTextProperties(row);
+        List<SimpleProperty> simpleProperties = getTextProperties(result);
         Collections.sort(simpleProperties);
         etc.setSimpleProperties(simpleProperties);
 		return etc;
@@ -654,18 +681,18 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @param rowResult
 	 * @return
 	 */
-	private TaxonConcept getTaxonConcept(String guid, RowResult rowResult) {
+	private TaxonConcept getTaxonConcept(String guid, Result result) {
 		TaxonConcept tc = new TaxonConcept();
 		tc.setGuid(guid);
-		tc.setAuthor(HBaseDaoUtils.getField(rowResult, "tc:author"));
-		tc.setAuthorYear(HBaseDaoUtils.getField(rowResult, "tc:authorYear"));
-		tc.setNameGuid(HBaseDaoUtils.getField(rowResult, "tc:hasName")); 
-		tc.setNameString(HBaseDaoUtils.getField(rowResult, "tc:nameString"));
-		tc.setPublishedIn(HBaseDaoUtils.getField(rowResult, "tc:publishedIn"));
-		tc.setPublishedInCitation(HBaseDaoUtils.getField(rowResult, "tc:publishedInCitation"));
-		tc.setInfoSourceId(HBaseDaoUtils.getField(rowResult, "tc:infoSourceId"));
-		tc.setInfoSourceName(HBaseDaoUtils.getField(rowResult, "tc:infoSourceName"));
-		tc.setInfoSourceURL(HBaseDaoUtils.getField(rowResult, "tc:infoSourceURL"));
+		tc.setAuthor(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "author"));
+		tc.setAuthorYear(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "authorYear"));
+		tc.setNameGuid(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "hasName")); 
+		tc.setNameString(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "nameString"));
+		tc.setPublishedIn(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "publishedIn"));
+		tc.setPublishedInCitation(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "publishedInCitation"));
+		tc.setInfoSourceId(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "infoSourceId"));
+		tc.setInfoSourceName(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "infoSourceName"));
+		tc.setInfoSourceURL(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "infoSourceURL"));
 		return tc;
 	}	
 	
@@ -673,29 +700,29 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getTaxonNameFor(java.lang.String)
 	 */
 	public TaxonName getTaxonNameFor(String guid) throws Exception {
-		RowResult rowResult = getTable().getRow(guid.getBytes());
-		if(rowResult==null){
+		Result result = getTable().get(getTnGetter(guid));
+		if (result.isEmpty()) {
 			return null;
 		}
-		return getTaxonName(rowResult);
+		return getTaxonName(result);
 	}
 
 	/**
 	 * Retrieve the Taxon Name from a row.
 	 * 
-	 * @param rowResult
+	 * @param result
 	 * @return
 	 */
-	private TaxonName getTaxonName(RowResult rowResult) {
+	private TaxonName getTaxonName(Result result) {
 		TaxonName tn = new TaxonName();
-		tn.guid = HBaseDaoUtils.getField(rowResult, "tn:guid");
-		tn.authorship = HBaseDaoUtils.getField(rowResult, "tn:authorship");
-		tn.nameComplete = HBaseDaoUtils.getField(rowResult, "tn:nameComplete");
-		tn.nomenclaturalCode = HBaseDaoUtils.getField(rowResult, "tn:nomenclaturalCode");
-		tn.rankString = HBaseDaoUtils.getField(rowResult, "tn:rankString");
-		tn.typificationString = HBaseDaoUtils.getField(rowResult, "tn:typificationString");
-		tn.publishedInCitation = HBaseDaoUtils.getField(rowResult, "tn:publishedInCitation");
-		tn.publishedIn = HBaseDaoUtils.getField(rowResult, "tn:publishedIn");
+		tn.guid = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "guid");
+		tn.authorship = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "authorship");
+		tn.nameComplete = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "nameComplete");
+		tn.nomenclaturalCode = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "nomenclaturalCode");
+		tn.rankString = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "rankString");
+		tn.typificationString = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "typificationString");
+		tn.publishedInCitation = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "publishedInCitation");
+		tn.publishedIn = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "publishedIn");
 		return tn;
 	}
 
@@ -708,19 +735,19 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public Map<String, String> getPropertiesFor(String guid) throws Exception {
-		RowResult rowResult = getTable().getRow(guid.getBytes());
-		if(rowResult==null){
+		Result result = getTable().get(getTcGetter(guid));
+		if (result.isEmpty()) {
 			return null;
 		}
 		
 		//treemaps are sorted
 		TreeMap<String, String> properties = new TreeMap<String,String>();
 		
-		Set<Map.Entry<byte[], Cell>> entrySet = rowResult.entrySet();
-		Iterator<Map.Entry<byte[], Cell>> iter = entrySet.iterator();
-		while(iter.hasNext()){
-			Map.Entry<byte[], Cell> entry = iter.next();
-			properties.put(new String(entry.getKey()), new String(entry.getValue().getValue()));
+		for (Map.Entry<byte[], NavigableMap<byte[], byte[]>> entry : result.getNoVersionMap().entrySet()) {
+			for (Map.Entry<byte[], byte[]> familyEntry : entry.getValue().entrySet()) {
+				properties.put(Bytes.toString(entry.getKey()) + ":" + Bytes.toString(familyEntry.getKey()), 
+						Bytes.toString(familyEntry.getValue()));
+			}
 		}
 		
 		//sort by key
@@ -1043,8 +1070,8 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#delete(java.lang.String)
 	 */
 	public boolean delete(String guid) throws Exception {
-		if(getTable().exists(Bytes.toBytes(guid))){
-			getTable().deleteAll(Bytes.toBytes(guid));
+		if (getTable().exists(new Get(Bytes.toBytes(guid)))) {
+			getTable().delete(new Delete(Bytes.toBytes(guid)));
 			return true;
 		}
 		return false;
@@ -1062,23 +1089,26 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getClassifications(java.lang.String)
 	 */
 	public List<Classification> getClassifications(String guid) throws Exception {
-		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
-		return getClassificationsForRow(row);
+		Result result = getTable().get(getTcGetter(guid));
+		if (!result.isEmpty()) {
+			return getClassificationsForRow(result);
+		} else {
+			return new ArrayList<Classification>();
+		}
 	}
 
-    private List<Classification> getClassificationsForRow(RowResult row) throws IOException {
-        Cell cell = row.get(Bytes.toBytes(CLASSIFICATION_COL));
+    private List<Classification> getClassificationsForRow(Result result) throws IOException {
+        byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(CLASSIFICATION_COL));
         ObjectMapper mapper = new ObjectMapper();
-        if (cell != null) {
-            byte[] value = cell.getValue();
+        if (value != null) {
             return mapper.readValue(value, 0, value.length, new TypeReference<List<Classification>>() {
             });
         }
         return new ArrayList<Classification>();
     }
 
-    private Classification getClassification(RowResult row) throws IOException {
-        List<Classification> cs = getClassificationsForRow(row);
+    private Classification getClassification(Result result) throws IOException {
+        List<Classification> cs = getClassificationsForRow(result);
         Classification c = null; // new Classification();
         if (cs != null && cs.size() > 0) {
             c = cs.get(0);
@@ -1302,18 +1332,13 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	public void clearRawProperties() throws Exception {
 		
-    	Scanner scanner = getTable().getScanner(new String[]{TC_COL_FAMILY});
-    	Iterator<RowResult> iter = scanner.iterator();
-    	int i=0;
-    	while(iter.hasNext()){
-    		RowResult rowResult = iter.next();
-    		byte[] row = rowResult.getRow();
-    		getTable().deleteFamily(row, Bytes.toBytes(RAW_COL_FAMILY));
-    		getTable().deleteAllByRegex(new String(row), CONSERVATION_STATUS_COL);
-    		getTable().deleteAllByRegex(new String(row), PEST_STATUS_COL);
-    		getTable().deleteAllByRegex(new String(row), IMAGE_COL);
-    		getTable().deleteAllByRegex(new String(row), "tc:[0-9]{1,}:[0-9]{1,}hasScientificName");
-    		
+    	ResultScanner scanner = getTable().getScanner(Bytes.toBytes(TC_COL_FAMILY));
+    	Iterator<Result> iter = scanner.iterator();
+		int i = 0;
+		while (iter.hasNext()) {
+    		Result result = iter.next();
+    		byte[] row = result.getRow();
+    		getTable().delete(new Delete(row).deleteFamily(Bytes.toBytes(RAW_COL_FAMILY)));
     		logger.debug(++i + " " + (new String(row)));
     	}
     	logger.debug("Raw triples cleared");
@@ -1341,45 +1366,45 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 
     	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
 		
-    	Scanner scanner = getTable().getScanner(new String[]{TC_COL_FAMILY});
-    	Iterator<RowResult> iter = scanner.iterator();
-    	int i=0;
-    	while(iter.hasNext()){
+    	ResultScanner scanner = getTable().getScanner(Bytes.toBytes(TC_COL_FAMILY));
+    	Iterator<Result> iter = scanner.iterator();
+		int i = 0;
+		while (iter.hasNext()) {
     		i++;
-    		RowResult rowResult = iter.next();
-    		byte[] row = rowResult.getRow();
+    		Result result = iter.next();
+    		byte[] row = result.getRow();
     		String guid = new String(row);
 
     		//get taxon concept details
-    		TaxonConcept taxonConcept = getTaxonConcept(guid, rowResult);
+    		TaxonConcept taxonConcept = getTaxonConcept(guid, result);
             
             // get taxon name
             TaxonName taxonName = getTaxonNameFor(guid);
 
             //get synonyms
-    		Cell synonymsCell = rowResult.get(Bytes.toBytes(SYNONYM_COL));
-    		List<TaxonConcept> synonyms = getTaxonConceptsFrom(synonymsCell);
+    		byte [] synonymsValue = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(SYNONYM_COL));
+    		List<TaxonConcept> synonyms = getTaxonConceptsFrom(synonymsValue);
     		
-    		Cell congruentCell = rowResult.get(Bytes.toBytes(IS_CONGRUENT_TO_COL));
-    		List<TaxonConcept> congruentTcs = getTaxonConceptsFrom(congruentCell);
+    		byte [] isCongruentValue = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(IS_CONGRUENT_TO_COL));
+    		List<TaxonConcept> congruentTcs = getTaxonConceptsFrom(isCongruentValue);
     		
     		//treat congruent objects the same way we do synonyms
     		synonyms.addAll(congruentTcs);
     		
     		//get common names
-    		Cell commonNamesCell = rowResult.get(Bytes.toBytes(VERNACULAR_COL));
-    		List<CommonName> commonNames = getCommonNamesFrom(commonNamesCell);
+    		byte [] commonNamesValue = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(VERNACULAR_COL));
+    		List<CommonName> commonNames = getCommonNamesFrom(commonNamesValue);
     		
     		//add the parent id to enable tree browsing with this index
-    		Cell childrenCell = rowResult.get(Bytes.toBytes(IS_CHILD_COL_OF));
-    		List<TaxonConcept> children = getTaxonConceptsFrom(childrenCell);
+    		byte [] childrenValue = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(IS_CHILD_COL_OF));
+    		List<TaxonConcept> children = getTaxonConceptsFrom(childrenValue);
 
     		//add conservation and pest status'
-            List<ConservationStatus> conservationStatuses = getConservationStatus(rowResult);
-    		List<PestStatus> pestStatuses = getPestStatus(rowResult);
+            List<ConservationStatus> conservationStatuses = getConservationStatus(result);
+    		List<PestStatus> pestStatuses = getPestStatus(result);
 
             //add text properties
-            List<SimpleProperty> simpleProperties = getTextProperties(rowResult);
+            List<SimpleProperty> simpleProperties = getTextProperties(result);
             
     		// save all infosource ids to add in a Set to index at the end
     		TreeSet<String> infoSourceIds = new TreeSet<String>();
@@ -1547,16 +1572,18 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	@Override
 	public List<ExtantStatus> getExtantStatuses(String guid) throws Exception {
-		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
-		return getExtantStatus(row);
+		Result result = getTable().get(getTcGetter(guid));
+		if (!result.isEmpty()) {
+			return getExtantStatuses(result);
+		} else {
+			return new ArrayList<ExtantStatus>();
+		}
 	}
-
-	private List<ExtantStatus> getExtantStatus(RowResult row) throws IOException,
-			JsonParseException, JsonMappingException {
-		Cell cell = row.get(Bytes.toBytes(EXTANT_STATUS_COL));
+		
+	private List<ExtantStatus> getExtantStatuses(Result result) throws JsonParseException, JsonMappingException, IOException {
+		byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(EXTANT_STATUS_COL));
 		ObjectMapper mapper = new ObjectMapper();
-		if(cell!=null){
-			byte[] value = cell.getValue();
+		if (value != null) {
 			return mapper.readValue(value, 0, value.length, new TypeReference<List<ExtantStatus>>(){});
 		} 
 		return new ArrayList<ExtantStatus>();
@@ -1567,16 +1594,18 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	@Override
 	public List<Habitat> getHabitats(String guid) throws Exception {
-		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
-		return getHabitat(row);
+		Result result = getTable().get(getTcGetter(guid));
+		if (!result.isEmpty()) {
+			return getHabitats(result);
+		} else {
+			return new ArrayList<Habitat>();
+		}
 	}
-
-	private List<Habitat> getHabitat(RowResult row) throws IOException,
-			JsonParseException, JsonMappingException {
-		Cell cell = row.get(Bytes.toBytes(HABITAT_COL));
+	
+	private List<Habitat> getHabitats(Result result) throws JsonParseException, JsonMappingException, IOException {
+		byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(HABITAT_COL));
 		ObjectMapper mapper = new ObjectMapper();
-		if(cell!=null){
-			byte[] value = cell.getValue();
+		if (value != null) {
 			return mapper.readValue(value, 0, value.length, new TypeReference<List<Habitat>>(){});
 		} 
 		return new ArrayList<Habitat>();
@@ -1604,36 +1633,41 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	@Override
 	public List<Region> getRegions(String guid) throws Exception {
-		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
-		return getRegion(row);
+		Result result = getTable().get(getTcGetter(guid));
+		if (!result.isEmpty()) {
+			return getRegions(result);
+		} else {
+			return new ArrayList<Region>();
+		}
 	}
-
-	private List<Region> getRegion(RowResult row) throws IOException,
-			JsonParseException, JsonMappingException {
-		Cell cell = row.get(Bytes.toBytes(REGION_COL));
+	
+	private List<Region> getRegions(Result result) throws JsonParseException, JsonMappingException, IOException {
+		byte [] regionValue = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(REGION_COL));
 		ObjectMapper mapper = new ObjectMapper();
-		if(cell!=null){
-			byte[] value = cell.getValue();
-			return mapper.readValue(value, 0, value.length, new TypeReference<List<Region>>(){});
+		if (regionValue != null) {
+			return mapper.readValue(regionValue, 0, regionValue.length, new TypeReference<List<Region>>(){});
 		} 
 		return new ArrayList<Region>();
 	}
-	
+
 	/**
 	 * Retrieve the references for the concept with the supplied GUID.
 	 * 
 	 * @see org.ala.dao.TaxonConceptDao#getReferencesFor(java.lang.String)
 	 */
 	public List<Reference> getReferencesFor(String guid) throws Exception {
-		RowResult row = getTable().getRow(Bytes.toBytes(guid), new byte[][]{Bytes.toBytes(TC_COL_FAMILY)});
-		return getReferences(row);
+		Result result = getTable().get(getTcGetter(guid));
+		if (!result.isEmpty()) {
+			return getReferences(result);
+		} else {
+			return new ArrayList<Reference>();
+		}
 	}
-
-	private List<Reference> getReferences(RowResult row) throws Exception {
-		Cell cell = row.get(Bytes.toBytes(REFERENCE_COL));
+	
+	private List<Reference> getReferences(Result result) throws JsonParseException, JsonMappingException, IOException {
+		byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(REFERENCE_COL));
 		ObjectMapper mapper = new ObjectMapper();
-		if(cell!=null){
-			byte[] value = cell.getValue();
+		if (value != null) {
 			return mapper.readValue(value, 0, value.length, new TypeReference<List<Reference>>(){});
 		} 
 		return new ArrayList<Reference>();
@@ -1664,5 +1698,23 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     	if (object != null) {
     		set.add(object);
     	}
+    }
+    
+    /**
+     * @param guid
+     * @return
+     */
+    private Get getTcGetter(String guid) {
+    	Get getter = new Get(Bytes.toBytes(guid)).addFamily(Bytes.toBytes(TC_COL_FAMILY));
+    	return getter;
+    }
+    
+    /**
+     * @param guid
+     * @return
+     */
+    private Get getTnGetter(String guid) {
+    	Get getter = new Get(Bytes.toBytes(guid)).addFamily(Bytes.toBytes(TN_COL_FAMILY));
+    	return getter;
     }
 }
