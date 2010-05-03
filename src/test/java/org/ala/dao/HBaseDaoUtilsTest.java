@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
  */
 public class HBaseDaoUtilsTest extends TestCase {
 
-	private static final String MACROPUS_RUFUS = "urn:lsid:biodiversity.org.au:afd.taxon:aa745ff0-c776-4d0e-851d-369ba0e6f537";
+	private static final String TEST_TCDAO_GUID = "urn:lsid:afd:taxon:123";;
 	private static final String TAXON_ID = "taxonId";
 	private static final String REGION_TYPE = "regionType";
 	private static final String REGION_NAME = "regionName";
@@ -29,12 +29,14 @@ public class HBaseDaoUtilsTest extends TestCase {
 		List<Region> regionsOut = new ArrayList<Region>();
 		regionsOut.add(region);
 		
-		// Put region to Macropus Rufus
-		tcDao.addRegions(MACROPUS_RUFUS, regionsOut);
-		
-		// Retrieve region list
-		List<Region> regionsIn = tcDao.getRegions(MACROPUS_RUFUS);
-		if (!regionsOut.get(0).equals(regionsIn.get(0)))
-			fail("Region objects differ");
+		// Put region to test taxon concept
+		if (tcDao.addRegions(TEST_TCDAO_GUID, regionsOut)) {
+			// Retrieve region list
+			List<Region> regionsIn = tcDao.getRegions(TEST_TCDAO_GUID);
+			if (!regionsOut.get(0).equals(regionsIn.get(0)))
+				fail("Region objects differ");
+		} else {
+			fail("Error adding region");
+		}
 	}
 }
