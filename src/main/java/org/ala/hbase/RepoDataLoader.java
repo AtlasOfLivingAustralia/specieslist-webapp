@@ -74,7 +74,6 @@ public class RepoDataLoader {
 		int filesRead = loader.load(filePath, args); //FIX ME - move to config
     	long finish = System.currentTimeMillis();
     	System.out.println(filesRead+" files scanned/loaded in: "+((finish-start)/60000)+" minutes "+((finish-start)/1000)+" seconds.");
-    	System.exit(1);
 	}
 
 	/**
@@ -133,14 +132,12 @@ public class RepoDataLoader {
 	                    		currentSubject = triple.subject;
 							} else if (!currentSubject.equals(triple.subject)) {
 	                    		//sync these triples
-	                    		boolean success = sync(currentFile, splitBySubject, currentDir.getName());
-	                    		logger.debug("Read file: "+currentFile.getAbsolutePath() + ", Scientific Name = " + getScientificName(splitBySubject) + ", success: "+success);
+								boolean success = sync(currentFile, splitBySubject, currentDir.getName());
 								if (success) {
 									propertiesSynced++;
 								}
 	    	                    //clear list
 	    	                    splitBySubject.clear();
-	    	                    splitBySubject.add(triple);
 	    	                    currentSubject = triple.subject;
 	                    	}
 	                    	splitBySubject.add(triple);
@@ -148,7 +145,7 @@ public class RepoDataLoader {
 	
 	                    //sort out the buffer
 						if (!splitBySubject.isEmpty()) {
-							boolean success = sync(currentFile, triples, currentDir.getName());
+							boolean success = sync(currentFile, splitBySubject, currentDir.getName());
 							if (success) {
 								propertiesSynced++;
 							}
@@ -169,7 +166,7 @@ public class RepoDataLoader {
 
 	private String getScientificName(List<Triple> triples) {
         for (Triple triple: triples) {
-        	if (triple.subject.equalsIgnoreCase(Predicates.SCIENTIFIC_NAME.getPredicate())) {
+        	if (triple.predicate.equalsIgnoreCase(Predicates.SCIENTIFIC_NAME.toString())) {
         		return triple.object.toString();
         	}
         }
@@ -196,7 +193,10 @@ public class RepoDataLoader {
 		document.setInfoSourceUri(infoSource.getWebsiteUrl());
 		document.setFilePath(currentFile.getParentFile().getAbsolutePath());
 		// Sync the triples and associated DC data
-		return taxonConceptDao.syncTriples(document, triples);
+		logger.debug("Attempting to sync triple where Scientific Name = " + getScientificName(triples));
+		boolean success = taxonConceptDao.syncTriples(document, triples);
+		logger.debug("Read file: "+currentFile.getAbsolutePath() + ", Scientific Name = " + getScientificName(triples) + ", success: "+success);
+		return success;
 	}
 
     /**
