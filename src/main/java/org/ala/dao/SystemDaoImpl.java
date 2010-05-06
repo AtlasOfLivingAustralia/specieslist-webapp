@@ -61,10 +61,27 @@ public class SystemDaoImpl implements SystemDao {
     	
 //    	//create taxon concept table
     	HTableDescriptor htd = new HTableDescriptor("taxonConcept");
-    	htd.addFamily(new HColumnDescriptor("tc:")); // this is the taxon concept data from AFD/APNI/CoL
-    	htd.addFamily(new HColumnDescriptor("tn:")); // taxon name properties
-    	htd.addFamily(new HColumnDescriptor("pub:")); // publication properties    	
-    	htd.addFamily(new HColumnDescriptor("raw:")); //this is the properties from harvested sources (HTML etc)
+    	
+    	 // this is the taxon concept data from AFD/APNI/CoL
+    	HColumnDescriptor tcHcd = new HColumnDescriptor("tc:");
+    	tcHcd.setMaxVersions(1);
+    	htd.addFamily(tcHcd);
+    	
+    	// taxon name properties
+    	HColumnDescriptor tnHcd = new HColumnDescriptor("tn:");
+    	tnHcd.setMaxVersions(1);
+    	htd.addFamily(tnHcd);
+    	
+    	// publication properties
+    	HColumnDescriptor pubHcd = new HColumnDescriptor("pub:");
+    	pubHcd.setMaxVersions(1);
+    	htd.addFamily(pubHcd);
+    	
+    	// this is the properties from harvested sources (HTML etc)
+    	HColumnDescriptor rawHcd = new HColumnDescriptor("raw:");
+    	rawHcd.setMaxVersions(1);
+    	htd.addFamily(rawHcd);
+    	
 //    	htd.addFamily(new HColumnDescriptor("taxonomic:"));
 //    	htd.addFamily(new HColumnDescriptor("geospatial:"));
 //    	htd.addFamily(new HColumnDescriptor("morphological:"));
