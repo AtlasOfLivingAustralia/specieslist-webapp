@@ -451,6 +451,8 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 			throw new IllegalArgumentException("Supplied GUID for the Taxon Concept is null.");
 		}
 		
+		logger.debug("Creating Taxon Concept - " + tc);
+		
 		Put putter = new Put(Bytes.toBytes(tc.getGuid()));
 		putIfNotNull(putter, "tc:id", Integer.toString(tc.getId()));
 		putIfNotNull(putter, "tc:parentId", tc.getParentId());
@@ -477,6 +479,8 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 			throw new IllegalArgumentException("Supplied GUID for the Taxon Concept is null.");
 		}
 		
+		logger.debug("Updating Taxon Concept - " + tc);
+
 		Put putter = new Put(Bytes.toBytes(tc.getGuid()));
 		putIfNotNull(putter, "tc:authorYear", tc.getAuthorYear());
 		putIfNotNull(putter, "tc:publishedIn", tc.getPublishedIn());
