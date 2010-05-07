@@ -74,8 +74,10 @@ public class ChecklistBankLoader {
 		
 		Archive archive = ArchiveFactory.openArchive(new File(CB_EXPORT_DIR),true);
 		Iterator<DarwinCoreRecord> iter = archive.iteratorDwc();
-		while(iter.hasNext()){
-			
+		int numberRead = 0;
+		int numberAdded = 0;
+		while (iter.hasNext()) {
+			numberRead++;
 			DarwinCoreRecord dwc = iter.next();
 			String guid = dwc.getTaxonID();
 			String identifier = dwc.getIdentifier();
@@ -83,7 +85,7 @@ public class ChecklistBankLoader {
 				guid = identifier;
 			}
 			
-			if(guid!=null){
+			if (guid != null) {
 				//add the base concept
 				TaxonConcept tc = new TaxonConcept();
 				tc.setId(Integer.parseInt(identifier));
@@ -92,8 +94,10 @@ public class ChecklistBankLoader {
 				tc.setNameString(dwc.getScientificName());
 				tc.setAuthor(dwc.getScientificNameAuthorship());
 				tc.setRankString(dwc.getTaxonRank());
-				taxonConceptDao.create(tc);
-
+				if (taxonConceptDao.create(tc)) {
+					numberAdded++;
+				}
+				
 				//add the classification
 				Classification c = new Classification();
 				c.setGuid(dwc.getTaxonID());
@@ -124,6 +128,8 @@ public class ChecklistBankLoader {
 				taxonConceptDao.addIdentifier(line[1], line[2]);
 			}
 		}
+
+		logger.info(numberAdded + " TaxonConcepts added from " + numberRead + " rows of Checklist Bank data.");
 	}
 
 	/**
