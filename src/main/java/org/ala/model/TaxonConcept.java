@@ -211,4 +211,23 @@ public class TaxonConcept extends AttributableObject implements Comparable<Taxon
 	public void setRankString(String rankString) {
 		this.rankString = rankString;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "TaxonConcept [id=" + this.id
+				+ ", nameString=" + this.nameString
+				+ ", guid=" + this.guid
+				+ ", nameGuid=" + this.nameGuid
+				+ ", parentGuid=" + this.parentGuid
+				+ ", parentId=" + this.parentId
+				+ ", acceptedConceptGuid=" + this.acceptedConceptGuid
+				+ ", author=" + this.author + ", authorYear=" + this.authorYear
+				+ ", publishedIn=" + this.publishedIn
+				+ ", publishedInCitation=" + this.publishedInCitation
+				+ ", rankString=" + this.rankString + "]";
+	}
+	
 }
