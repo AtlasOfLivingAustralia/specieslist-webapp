@@ -22,9 +22,6 @@ import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.io.BatchUpdate;
-import org.apache.hadoop.hbase.io.Cell;
-import org.apache.hadoop.hbase.io.RowResult;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -56,6 +53,10 @@ public class HBaseDaoUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static boolean storeComplexObject(HTable htable, String guid, String columnFamily, String columnName, Comparable object, TypeReference typeReference) throws Exception {
+		if (guid == null || guid.equals("")) {
+			logger.error("Attempting to store column=" +  columnFamily + ":" + columnName + " with undefined key. Object=" + object);
+			return false;
+		}
 		Get getter = new Get(Bytes.toBytes(guid)).addFamily(Bytes.toBytes(columnFamily));
 		Result result = htable.get(getter);
 		if (result.getRow() == null) {
@@ -105,6 +106,10 @@ public class HBaseDaoUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static boolean putComplexObject(HTable htable, String guid, String columnFamily, String columnName, List listOfObjects) throws Exception {
+		if (guid == null || guid.equals("")) {
+			logger.error("Attempting to put column=" +  columnFamily + ":" + columnName + " with undefined key.");
+			return false;
+		}
 		Get getter = new Get(Bytes.toBytes(guid)).addFamily(Bytes.toBytes(columnFamily));
 		Result result = htable.get(getter);
 		if (result.getRow() == null) {
