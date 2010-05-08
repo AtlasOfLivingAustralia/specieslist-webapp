@@ -958,7 +958,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public String findLsidByName(String kingdom, String genus, String scientificName, String taxonRank) {
 		String lsid = null;
 		try {
-			lsid = cbIdxSearcher.searchForLSID(scientificName, genus, kingdom, RankType.getForName(taxonRank));
+			lsid = cbIdxSearcher.searchForLSID(lc(scientificName), lc(genus), lc(kingdom), RankType.getForName(taxonRank));
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
 		}
@@ -972,7 +972,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public String findLsidByName(String scientificName, String taxonRank) {
 		String lsid = null;
 		try {
-			lsid = cbIdxSearcher.searchForLSID(scientificName, RankType.getForName(taxonRank));
+			lsid = cbIdxSearcher.searchForLSID(lc(scientificName), RankType.getForName(taxonRank));
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
 		}
@@ -1720,5 +1720,17 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     private Get getTnGetter(String guid) {
     	Get getter = new Get(Bytes.toBytes(guid)).addFamily(Bytes.toBytes(TN_COL_FAMILY));
     	return getter;
+    }
+    
+    /**
+     * @param string
+     * @return
+     */
+    private String lc(String string) {
+    	if (string == null) {
+    		return null;
+    	} else {
+    		return string.toLowerCase();
+    	}
     }
 }
