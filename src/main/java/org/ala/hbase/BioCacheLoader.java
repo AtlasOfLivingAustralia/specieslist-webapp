@@ -96,7 +96,7 @@ public class BioCacheLoader {
         				noOfTaxa++;
         				regions.clear();
     				}
-    				guid = taxonConceptDao.findLsidByName(currentScientificName.toLowerCase(), taxonRank);
+    				guid = taxonConceptDao.findLsidByName(currentScientificName, taxonRank);
         			if (guid == null) {
         				logger.warn("Unable to find taxon concept for '" + currentScientificName + "'");
         			} else {
