@@ -77,7 +77,7 @@ public class IrmngDataLoader {
     			String habitatCode = values[4];
     			
     			if (!currentScientificName.equalsIgnoreCase(previousScientificName)) {
-					guid = taxonConceptDao.findLsidByName(currentScientificName.toLowerCase(), rank);
+					guid = taxonConceptDao.findLsidByName(currentScientificName, rank);
         			if (guid == null) {
         				logger.warn("Unable to find LSID for '" + currentScientificName + "'");
         			} else {
