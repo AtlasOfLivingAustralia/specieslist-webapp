@@ -106,7 +106,7 @@ public class RepoDataLoader {
 		}
  
 		for (File currentDir : dirs) {
-			logger.debug("Reading directory: " + currentDir.getAbsolutePath());
+			logger.info("Reading directory: " + currentDir.getAbsolutePath());
 			int filesRead = 0;
 			int propertiesSynced = 0;
 			Iterator<File> fileIterator = FileUtils.iterateFiles(currentDir, null, true);
@@ -117,7 +117,8 @@ public class RepoDataLoader {
 					
 					//read the dublin core in the same directory - determine if its an image
 					try {
-	                    FileReader reader = new FileReader(currentFile);
+	                    logger.debug("Reading file: " + currentFile.getAbsolutePath());
+						FileReader reader = new FileReader(currentFile);
 	                    List<Triple> triples = TurtleUtils.readTurtle(reader);
 	                    //close the reader
 	                    reader.close();
