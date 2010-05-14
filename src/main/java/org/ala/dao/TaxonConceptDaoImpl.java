@@ -1429,7 +1429,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	    		
                 for (ConservationStatus cs : conservationStatuses) {
                     for (String csTerm : consTerms) {
-                        if (cs.getStatus().toLowerCase().contains(csTerm.toLowerCase())) {
+                        if (cs.getStatus()!=null && cs.getStatus().toLowerCase().contains(csTerm.toLowerCase())) {
                             Field f = new Field("conservationStatus", csTerm, Store.YES, Index.NOT_ANALYZED);
                             f.setBoost(0.6f);
                             doc.add(f);
