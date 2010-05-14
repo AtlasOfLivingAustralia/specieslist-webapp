@@ -399,8 +399,8 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public String findConceptIDForName(String kingdom, String genus,
-			String scientificName) throws Exception;
+//	public String findConceptIDForName(String kingdom, String genus,
+//			String scientificName) throws Exception;
 
 	/**
 	 * Get LSID from Checklist Bank by kingdom, genus and scientific name.

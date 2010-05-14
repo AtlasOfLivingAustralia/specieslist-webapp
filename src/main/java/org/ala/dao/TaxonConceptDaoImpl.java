@@ -115,7 +115,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	private static final String SYNONYM_COL = "hasSynonym";
 	private static final String IS_SYNONYM_FOR_COL = "IsSynonymFor";
 	private static final String IS_CONGRUENT_TO_COL = "IsCongruentTo";
-	private static final String VERNACULAR_COL = "VernacularConcept";
+	private static final String VERNACULAR_COL = "hasVernacularConcept";
 	private static final String CONSERVATION_STATUS_COL = "hasConservationStatus";
 	private static final String PEST_STATUS_COL = "hasPestStatus";
 	private static final String REGION_COL = "hasRegion";
@@ -880,76 +880,76 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
         return sortPageSearch(searchQuery, startIndex, pageSize, sortField, sortDirection);
     }
 	
-	/**
-	 * @see org.ala.dao.TaxonConceptDao#findConceptIDForName(java.lang.String, java.lang.String, java.lang.String)
-	 */
-	public String findConceptIDForName(String kingdom, String genus, String scientificName) throws Exception {
-		try {
-			String searchName = scientificName;
-
-			searchName = expandAbbreviation(genus, scientificName);
-			
-			IndexSearcher is = getTcIdxSearcher();
-			QueryParser qp  = new QueryParser("scientificName", new KeywordAnalyzer());
-			Query q = qp.parse("\""+searchName.toLowerCase()+"\"");
-			
-			TopDocs topDocs = is.search(q, 20);
-			
-			for(ScoreDoc scoreDoc: topDocs.scoreDocs){
-				Document doc = is.doc(scoreDoc.doc);
-//				Field hasSynonym = doc.getField("http://rs.tdwg.org/ontology/voc/TaxonConcept#HasSynonym");
-//				if(hasSynonym!=null){
-//					logger.debug("Returning synonym");
-//					return hasSynonym.stringValue();
+//	/**
+//	 * @see org.ala.dao.TaxonConceptDao#findConceptIDForName(java.lang.String, java.lang.String, java.lang.String)
+//	 */
+//	public String findConceptIDForName(String kingdom, String genus, String scientificName) throws Exception {
+//		try {
+//			String searchName = scientificName;
+//
+//			searchName = expandAbbreviation(genus, scientificName);
+//			
+//			IndexSearcher is = getTcIdxSearcher();
+//			QueryParser qp  = new QueryParser("scientificName", new KeywordAnalyzer());
+//			Query q = qp.parse("\""+searchName.toLowerCase()+"\"");
+//			
+//			TopDocs topDocs = is.search(q, 20);
+//			
+//			for(ScoreDoc scoreDoc: topDocs.scoreDocs){
+//				Document doc = is.doc(scoreDoc.doc);
+////				Field hasSynonym = doc.getField("http://rs.tdwg.org/ontology/voc/TaxonConcept#HasSynonym");
+////				if(hasSynonym!=null){
+////					logger.debug("Returning synonym");
+////					return hasSynonym.stringValue();
+////				}
+////				Field hasVernacular = doc.getField("http://rs.tdwg.org/ontology/voc/TaxonConcept#HasVernacular");
+////				if(hasVernacular!=null){
+////					logger.debug("Returning vernacular");
+////					return hasVernacular.stringValue();
+////				}
+////				Field isCongruentTo = doc.getField("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsCongruentTo");
+////				if(isCongruentTo!=null){
+////					logger.debug("Returning congruent");
+////					return isCongruentTo.stringValue();
+////				}
+////			logger.debug("Doc Id: "+scoreDoc.doc);
+////			logger.debug("Guid: "+doc.getField("guid").stringValue());
+////			logger.debug("Name: "+doc.getField("scientificName").stringValue());
+////			logger.debug("Raw name: "+doc.getField("scientificNameRaw").stringValue());
+////			logger.debug("#################################");
+//				return doc.getField("guid").stringValue();
+//			}
+//		} catch (Exception e) {
+//			logger.error("Problem searching with:"+scientificName+" : "+e.getMessage());
+//		}		
+//		return null;
+//	}
+//
+//	/**
+//	 * @param genus
+//	 * @param scientificName
+//	 * @param searchName
+//	 * @return
+//	 */
+//	private String expandAbbreviation(String genus, String scientificName) {
+//		String expandedName = null;
+//		
+//		//change A. bus to Aus bus if it is abbreviated
+//		if (abbreviatedCanonical.matcher(scientificName).matches()
+//				&& genus != null) {
+//			NameParser np = new NameParser();
+//
+//			ParsedName parsedName = np.parse(scientificName);
+//
+//			if (parsedName != null) {
+//				if (parsedName.isBinomial()) {
+//					expandedName = genus + " "
+//							+ parsedName.getSpecificEpithet();
 //				}
-//				Field hasVernacular = doc.getField("http://rs.tdwg.org/ontology/voc/TaxonConcept#HasVernacular");
-//				if(hasVernacular!=null){
-//					logger.debug("Returning vernacular");
-//					return hasVernacular.stringValue();
-//				}
-//				Field isCongruentTo = doc.getField("http://rs.tdwg.org/ontology/voc/TaxonConcept#IsCongruentTo");
-//				if(isCongruentTo!=null){
-//					logger.debug("Returning congruent");
-//					return isCongruentTo.stringValue();
-//				}
-//			logger.debug("Doc Id: "+scoreDoc.doc);
-//			logger.debug("Guid: "+doc.getField("guid").stringValue());
-//			logger.debug("Name: "+doc.getField("scientificName").stringValue());
-//			logger.debug("Raw name: "+doc.getField("scientificNameRaw").stringValue());
-//			logger.debug("#################################");
-				return doc.getField("guid").stringValue();
-			}
-		} catch (Exception e) {
-			logger.error("Problem searching with:"+scientificName+" : "+e.getMessage());
-		}		
-		return null;
-	}
-
-	/**
-	 * @param genus
-	 * @param scientificName
-	 * @param searchName
-	 * @return
-	 */
-	private String expandAbbreviation(String genus, String scientificName) {
-		String expandedName = null;
-		
-		//change A. bus to Aus bus if it is abbreviated
-		if (abbreviatedCanonical.matcher(scientificName).matches()
-				&& genus != null) {
-			NameParser np = new NameParser();
-
-			ParsedName parsedName = np.parse(scientificName);
-
-			if (parsedName != null) {
-				if (parsedName.isBinomial()) {
-					expandedName = genus + " "
-							+ parsedName.getSpecificEpithet();
-				}
-			}
-		}
-		return expandedName;
-	}	
+//			}
+//		}
+//		return expandedName;
+//	}	
 
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#findLsidByName(java.lang.String, java.lang.String)
@@ -1556,20 +1556,20 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, PUBLICATION_COL, publication, new TypeReference<List<Publication>>(){});
 	}
 	
-	/**
-	 * Sets a new Lucene IndexSearcher for the supplied index directory.
-	 * 
-	 * @param indexDir the location of the lucene index
-	 * @throws IOException 
-	 * @throws CorruptIndexException 
-	 */
-	public void setLuceneIndexLocation(String indexDir)
-			throws CorruptIndexException, IOException {
-		File file = new File(indexDir);
-		if (file.exists()) {
-			this.tcIdxSearcher = new IndexSearcher(indexDir);
-		}
-	}
+//	/**
+//	 * Sets a new Lucene IndexSearcher for the supplied index directory.
+//	 * 
+//	 * @param indexDir the location of the lucene index
+//	 * @throws IOException 
+//	 * @throws CorruptIndexException 
+//	 */
+//	public void setLuceneIndexLocation(String indexDir)
+//			throws CorruptIndexException, IOException {
+//		File file = new File(indexDir);
+//		if (file.exists()) {
+//			this.tcIdxSearcher = new IndexSearcher(indexDir);
+//		}
+//	}
 
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getExtantStatus(java.lang.String)
