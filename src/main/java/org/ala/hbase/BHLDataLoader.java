@@ -77,7 +77,7 @@ public class BHLDataLoader {
     				
     				if(r!=null){
     					//sync profile
-    	    			String guid = taxonConceptDao.findConceptIDForName(null, null, r.getScientificName());
+    	    			String guid = taxonConceptDao.findLsidByName(r.getScientificName(), null);
     	    			if(guid!=null){
     	    				logger.debug("Add reference to " + guid
     	    						+" for document with id: "+r.getIdentifier()
