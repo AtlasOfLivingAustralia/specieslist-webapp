@@ -259,9 +259,11 @@ public class ANBGDataLoader {
     		tn.typificationString = record[7];
 
     		//load the publication information for the name
-    		Publication publication = loadUtils.getPublicationByGuid(record[5]);
-    		if(publication!=null){
-    			tn.publishedIn = publication.getTitle();
+    		if(record[5]!=null){
+    			Publication pub = loadUtils.getPublicationByGuid(record[5]);
+    			if(pub!=null){
+    				tn.publishedIn = pub.getTitle();
+    			}
     		}
     		
     		//add this taxon name to each taxon concept
