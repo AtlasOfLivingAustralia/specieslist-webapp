@@ -15,6 +15,7 @@
 package org.ala.hbase;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
@@ -26,6 +27,7 @@ import org.ala.model.Classification;
 import org.ala.model.Rank;
 import org.ala.model.TaxonConcept;
 import org.ala.util.SpringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.gbif.dwc.record.DarwinCoreRecord;
 import org.gbif.dwc.text.Archive;
@@ -59,7 +61,15 @@ public class ChecklistBankLoader {
 	public static void main(String[] args) throws Exception {
 		ApplicationContext context = SpringUtils.getContext();
 		ChecklistBankLoader l = context.getBean(ChecklistBankLoader.class);
-		l.load();
+		//FIXME do two passes on this file - not ideal
+		logger.info("Loading concepts....");
+		l.loadConcepts();
+		logger.info("Loading synonyms....");
+		l.loadSynonyms();
+		logger.info("Loading identifiers....");
+//		l.loadIdentifiers();
+		
+		logger.info("Finished loading checklistbank data.");
 		System.exit(0);
 	}
 
@@ -70,7 +80,7 @@ public class ChecklistBankLoader {
 	 * @throws UnsupportedArchiveException
 	 * @throws Exception
 	 */
-	public void load() throws IOException, UnsupportedArchiveException, Exception {
+	public void loadConcepts() throws IOException, UnsupportedArchiveException, Exception {
 		
 		Archive archive = ArchiveFactory.openArchive(new File(CB_EXPORT_DIR),true);
 		Iterator<DarwinCoreRecord> iter = archive.iteratorDwc();
@@ -85,7 +95,8 @@ public class ChecklistBankLoader {
 				guid = identifier;
 			}
 			
-			if (guid != null) {
+			if (guid != null && StringUtils.isEmpty(dwc.getAcceptedNameUsageID())) {
+				
 				//add the base concept
 				TaxonConcept tc = new TaxonConcept();
 				tc.setId(Integer.parseInt(identifier));
@@ -94,7 +105,9 @@ public class ChecklistBankLoader {
 				tc.setNameString(dwc.getScientificName());
 				tc.setAuthor(dwc.getScientificNameAuthorship());
 				tc.setRankString(dwc.getTaxonRank());
+				
 				if (taxonConceptDao.create(tc)) {
+					logger.info("Adding concept: "+tc);
 					numberAdded++;
 				}
 				
@@ -118,18 +131,61 @@ public class ChecklistBankLoader {
 				taxonConceptDao.addClassification(guid, c);
 			}
 		}
+		logger.info(numberAdded + " concepts added from " + numberRead + " rows of Checklist Bank data.");
+	}
 		
+	public void loadSynonyms() throws IOException, UnsupportedArchiveException, Exception {
+		Archive archive = ArchiveFactory.openArchive(new File(CB_EXPORT_DIR),true);
+		Iterator<DarwinCoreRecord> iter = archive.iteratorDwc();
+		int numberRead = 0;
+		int numberAdded = 0;
+		while (iter.hasNext()) {
+			numberRead++;
+			DarwinCoreRecord dwc = iter.next();
+			String guid = dwc.getTaxonID();
+			String identifier = dwc.getIdentifier();
+			if(guid == null){
+				guid = identifier;
+			}
+			
+			if (guid != null && StringUtils.isNotEmpty(dwc.getAcceptedNameUsageID())) {
+				
+				//add the base concept
+				TaxonConcept tc = new TaxonConcept();
+				tc.setId(Integer.parseInt(identifier));
+				tc.setGuid(guid);
+				tc.setParentId(dwc.getParentNameUsageID());
+				tc.setNameString(dwc.getScientificName());
+				tc.setAuthor(dwc.getScientificNameAuthorship());
+				tc.setRankString(dwc.getTaxonRank());
+				
+				String acceptedGuid = dwc.getAcceptedNameUsageID();
+				logger.info("Adding synonym: "+tc);
+				if (taxonConceptDao.addSynonym(acceptedGuid, tc)) {
+					numberAdded++;
+				}
+			}
+		}
+		logger.info(numberAdded + " synonyms added from " + numberRead + " rows of Checklist Bank data.");
+	}
+
+	private void loadIdentifiers()
+			throws FileNotFoundException, IOException, Exception {
 		//read the identifiers file
 		CSVReader reader = new CSVReader(new FileReader(IDENTIFIERS_FILE),'\t', '\n');
 		String[] line = null;
+		int numberRead = 0;
+		int numberAdded = 0;
 		while((line = reader.readNext())!=null){
+			numberRead++;
 			if(line[1]!=null && line[2]!=null){
 				//add this guid somewhere
-				taxonConceptDao.addIdentifier(line[1], line[2]);
+				if(taxonConceptDao.addIdentifier(line[1], line[2])){
+					numberAdded++;
+				}
 			}
 		}
-
-		logger.info(numberAdded + " TaxonConcepts added from " + numberRead + " rows of Checklist Bank data.");
+		logger.info(numberAdded + " identifiers added from " + numberRead + " rows of Checklist Bank data.");		
 	}
 
 	/**
