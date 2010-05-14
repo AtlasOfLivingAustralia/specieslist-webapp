@@ -10,13 +10,13 @@ jar xf bie-hbase-assembly.jar lib lib
 export CLASSPATH=bie-hbase-assembly.jar:$HBASE_HOME/conf
 
 echo "LOAD : creating lucene indexes for concept lookups $('date')"
-java -classpath $CLASSPATH au.org.ala.checklist.lucene.CBCreateLuceneIndex /data/bie-staging/checklistbank/ /data/lucene/namematching
+java -Xmx1g -Xms1g -classpath $CLASSPATH au.org.ala.checklist.lucene.CBCreateLuceneIndex /data/bie-staging/checklistbank/ /data/lucene/namematching
 
 echo "LOAD : initialising HBase $('date')"
 java -classpath $CLASSPATH org.ala.hbase.InitProfiler
 
 echo "LOAD : running checklistbank data load $('date')"
-java -classpath $CLASSPATH org.ala.hbase.ChecklistBankLoader
+java -Xmx1g -Xms1g -classpath $CLASSPATH org.ala.hbase.ChecklistBankLoader
 
 echo "LOAD : creating loading indicies $('date')"
 java -classpath $CLASSPATH org.ala.lucene.CreateLoadingIndex
