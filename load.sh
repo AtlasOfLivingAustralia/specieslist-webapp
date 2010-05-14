@@ -48,4 +48,5 @@ java -classpath $CLASSPATH org.ala.lucene.CreateTaxonConceptIndex
 echo "LOAD : processing complete at $('date')"
 
 finish_time=$(date +%s)
+
 echo "LOAD : Time taken: $(( $((finish_time - start_time)) /3600 )) hours $(( $((finish_time - start_time)) /60 )) minutes."
