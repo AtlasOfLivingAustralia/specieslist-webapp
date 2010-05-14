@@ -15,7 +15,6 @@
 package org.ala.hbase;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
@@ -67,8 +66,7 @@ public class ChecklistBankLoader {
 		logger.info("Loading synonyms....");
 		l.loadSynonyms();
 		logger.info("Loading identifiers....");
-//		l.loadIdentifiers();
-		
+		l.loadIdentifiers();
 		logger.info("Finished loading checklistbank data.");
 		System.exit(0);
 	}
@@ -107,7 +105,7 @@ public class ChecklistBankLoader {
 				tc.setRankString(dwc.getTaxonRank());
 				
 				if (taxonConceptDao.create(tc)) {
-					logger.info("Adding concept: "+tc);
+//					logger.info("Adding concept: "+tc);
 					numberAdded++;
 				}
 				
@@ -160,7 +158,7 @@ public class ChecklistBankLoader {
 				tc.setRankString(dwc.getTaxonRank());
 				
 				String acceptedGuid = dwc.getAcceptedNameUsageID();
-				logger.info("Adding synonym: "+tc);
+//				logger.info("Adding synonym: "+tc);
 				if (taxonConceptDao.addSynonym(acceptedGuid, tc)) {
 					numberAdded++;
 				}
@@ -169,8 +167,8 @@ public class ChecklistBankLoader {
 		logger.info(numberAdded + " synonyms added from " + numberRead + " rows of Checklist Bank data.");
 	}
 
-	private void loadIdentifiers()
-			throws FileNotFoundException, IOException, Exception {
+	private void loadIdentifiers() throws Exception {
+		
 		//read the identifiers file
 		CSVReader reader = new CSVReader(new FileReader(IDENTIFIERS_FILE),'\t', '\n');
 		String[] line = null;
