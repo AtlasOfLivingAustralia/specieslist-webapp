@@ -27,9 +27,6 @@ java -classpath $CLASSPATH org.ala.hbase.ANBGDataLoader
 echo "LOAD : running Col Names Processing $('date')"
 java -classpath $CLASSPATH org.ala.preprocess.ColFamilyNamesProcessor
 
-echo "LOAD : running Create Taxon Concept Index $('date')"
-java -classpath $CLASSPATH org.ala.lucene.CreateTaxonConceptIndex
-
 echo "LOAD : running Repository Data Loader $('date')"
 java -Xmx1g -Xms1g -classpath $CLASSPATH -Xmx1g -Xms1g org.ala.hbase.RepoDataLoader
 
@@ -42,7 +39,7 @@ java -classpath $CLASSPATH org.ala.hbase.IrmngDataLoader
 echo "LOAD : running BHL Data Loader $('date')"
 java -classpath $CLASSPATH org.ala.hbase.BHLDataLoader
 
-echo "LOAD : running Re-Create Taxon Concept Index $('date')"
+echo "LOAD : running Create Taxon Concept Index $('date')"
 java -classpath $CLASSPATH org.ala.lucene.CreateTaxonConceptIndex
 
 echo "LOAD : processing complete at $('date')"
