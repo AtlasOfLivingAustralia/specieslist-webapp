@@ -2,8 +2,15 @@ start_time=$(date +%s)
 
 echo "LOAD : running processing $('date')"
 
+mvn clean package -DskipTests=true
+
+cd target
+
 jar xf bie-hbase-assembly.jar lib lib
-export CLASSPATH=bie-hbase-assembly.jar
+export CLASSPATH=bie-hbase-assembly.jar:$HBASE_HOME/conf
+
+echo "LOAD : creating lucene indexes for concept lookups $('date')"
+java -classpath $CLASSPATH au.org.ala.checklist.lucene.CBCreateLuceneIndex /data/bie-staging/checklistbank/ /data/lucene/namematching
 
 echo "LOAD : initialising HBase $('date')"
 java -classpath $CLASSPATH org.ala.hbase.InitProfiler
