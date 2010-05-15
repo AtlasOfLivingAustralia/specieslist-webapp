@@ -637,7 +637,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		if (result.isEmpty()) {
 			return null;
 		}
-		return getTaxonConcept(guid, result);
+		return getTaxonConcept(result);
 	}
 
 	/**
@@ -652,7 +652,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		ExtendedTaxonConceptDTO etc = new ExtendedTaxonConceptDTO();
 		
 		//populate the dto
-		etc.setTaxonConcept(getTaxonConcept(guid, result));
+		etc.setTaxonConcept(getTaxonConcept(result));
 		etc.setTaxonName(getTaxonName(result));
         etc.setClassification(getClassification(result));
 		etc.setSynonyms(getSynonyms(result));
@@ -683,8 +683,9 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @param rowResult
 	 * @return
 	 */
-	private TaxonConcept getTaxonConcept(String guid, Result result) {
+	private TaxonConcept getTaxonConcept(Result result) {
 		TaxonConcept tc = new TaxonConcept();
+		String guid = new String(result.getRow());
 		tc.setGuid(guid);
 		tc.setAuthor(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "author"));
 		tc.setAuthorYear(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "authorYear"));
@@ -1374,15 +1375,10 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		while (iter.hasNext()) {
     		i++;
     		Result result = iter.next();
-    		byte[] row = result.getRow();
-    		String guid = new String(row);
 
     		//get taxon concept details
-    		TaxonConcept taxonConcept = getTaxonConcept(guid, result);
+    		TaxonConcept taxonConcept = getTaxonConcept(result);
             
-            // get taxon name
-            TaxonName taxonName = getTaxonNameFor(guid);
-
             //get synonyms
     		byte [] synonymsValue = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(SYNONYM_COL));
     		List<TaxonConcept> synonyms = getTaxonConceptsFrom(synonymsValue);
@@ -1409,7 +1405,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
             List<SimpleProperty> simpleProperties = getTextProperties(result);
             
     		// save all infosource ids to add in a Set to index at the end
-    		TreeSet<String> infoSourceIds = new TreeSet<String>();
+    		Set<String> infoSourceIds = new TreeSet<String>();
             
     		//TODO this index should also include nub ids
     		Document doc = new Document();
@@ -1458,7 +1454,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
                 }
 
                 //StringBuffer cnStr = new StringBuffer();
-                TreeSet<String> commonNameSet = new TreeSet<String>();
+                Set<String> commonNameSet = new TreeSet<String>();
 	    		for(CommonName cn: commonNames){
 	    			if(cn.nameString!=null){
 	    				commonNameSet.add(cn.nameString.toLowerCase());
@@ -1509,7 +1505,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	    		iw.commit();
 	    	}
 	    	
-    		if (i%100==0) logger.debug(i + " " + guid);
+    		if (i%100==0) logger.debug(i + " " + taxonConcept.getGuid());
     	}
     	
     	iw.commit();
