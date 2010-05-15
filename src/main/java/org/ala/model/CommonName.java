@@ -51,6 +51,11 @@ public class CommonName extends AttributableObject implements Comparable<CommonN
 				if(documentId!=null && tc.getDocumentId()!=null){
 					return documentId.equals(tc.getDocumentId());
 				}
+				if(infoSourceId!=null && tc.getInfoSourceId()!=null){
+					return infoSourceId.equals(tc.getInfoSourceId());
+				}
+				//return true as the names are the same
+				return true;
 			}
 		}
 		return false;
@@ -79,5 +84,13 @@ public class CommonName extends AttributableObject implements Comparable<CommonN
 	 */
 	public void setNameString(String nameString) {
 		this.nameString = nameString;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "CommonName [guid=" + guid + ", nameString=" + nameString + "]";
 	}
 }
