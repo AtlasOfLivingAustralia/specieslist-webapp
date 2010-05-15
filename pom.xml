@@ -18,15 +18,15 @@
         <netbeans.hint.deploy.server>Tomcat55</netbeans.hint.deploy.server>
     </properties>
     <dependencies>
-        <!-- BIE Hbase -->
+        <!-- BIE HBase -->
         <dependency>
-            <groupId>org.ala</groupId>
+            <groupId>au.org.ala</groupId>
             <artifactId>bie-hbase</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <!-- BIE Repository -->
         <dependency>
-            <groupId>ala</groupId>
+            <groupId>au.org.ala</groupId>
             <artifactId>bie-repository</artifactId>
             <version>1.0-SNAPSHOT</version>
             <exclusions>
