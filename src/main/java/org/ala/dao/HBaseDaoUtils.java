@@ -26,6 +26,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.type.TypeReference;
 
 /**
@@ -67,7 +68,7 @@ public class HBaseDaoUtils {
 		byte [] columnValue = result.getValue(Bytes.toBytes(columnFamily), Bytes.toBytes(columnName));
 		List objectList = null;
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.configure(SerializationConfig.Feature.WRITE_NULL_PROPERTIES, false);
+		mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 		
 		if (columnValue != null) {
 			objectList = mapper.readValue(columnValue, 0, columnValue.length, typeReference);
@@ -118,7 +119,7 @@ public class HBaseDaoUtils {
 		}
 		
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.configure(SerializationConfig.Feature.WRITE_NULL_PROPERTIES, false);
+		mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 		
 		// Serialise to JSON and save in HBase
 		String objectsAsJson = mapper.writeValueAsString(listOfObjects); 
