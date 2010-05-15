@@ -21,7 +21,7 @@ package org.ala.model;
 public class TaxonConcept extends AttributableObject implements Comparable<TaxonConcept>{
 
 	/** internal identifier for this concept */
-	protected int id;
+	protected int id = -1;
 	/** Every taxonconcept should have a guid of some sort */
 	protected String guid;
 	/** internal identifier for the parent concept */
@@ -57,6 +57,9 @@ public class TaxonConcept extends AttributableObject implements Comparable<Taxon
 			TaxonConcept tc = (TaxonConcept) obj;
 			if(tc.getGuid()!=null && guid!=null){
 				return tc.getGuid().equals(guid);
+			}
+			if(tc.getId()!=-1 && id!=-1){
+				return tc.getId()==id;
 			}
 		}
 		return false;
