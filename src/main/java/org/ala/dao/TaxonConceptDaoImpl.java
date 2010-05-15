@@ -1227,75 +1227,81 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 			
 			for(Triple triple: triples){
 				
-				logger.trace(triple.predicate);
+				//check for an empty object
+				String object = StringUtils.trimToNull(triple.object);
 				
-				//check here for predicates of complex objects
-				if(triple.predicate.endsWith("hasCommonName")){
+				if(object!=null){
+				
+					logger.trace(triple.predicate);
 					
-					CommonName commonName = new CommonName();
-					commonName.setNameString(triple.object);
-					commonName.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
-					commonName.setDocumentId(Integer.toString(document.getId()));
-                    commonName.setInfoSourceName(dcPublisher);
-                    commonName.setInfoSourceURL(dcSource);
-					addCommonName(guid, commonName);
-					
-				} else if(triple.predicate.endsWith("hasConservationStatus")){
-					
-					//lookup the vocabulary term
-					ConservationStatus cs = vocabulary.getConservationStatusFor(document.getInfoSourceId(), triple.object);
-					if(cs==null){
-						cs = new ConservationStatus();
-						cs.setStatus(triple.object);
-					}
-
-					cs.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
-					cs.setDocumentId(Integer.toString(document.getId()));
-                    cs.setInfoSourceName(dcPublisher);
-                    cs.setInfoSourceURL(dcSource);
-					addConservationStatus(guid, cs);
-					
-				} else if(triple.predicate.endsWith("hasPestStatus")){
-
-					//lookup the vocabulary term
-					PestStatus ps = vocabulary.getPestStatusFor(document.getInfoSourceId(), triple.object);
-					if(ps==null){
-						ps = new PestStatus();
-						ps.setStatus(triple.object);
-					}
-					
-					ps.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
-					ps.setDocumentId(Integer.toString(document.getId()));
-                    ps.setInfoSourceName(dcPublisher);
-                    ps.setInfoSourceURL(dcSource);
-					addPestStatus(guid, ps);
-					
-                } else if (triple.predicate.endsWith("hasImagePageUrl")) {
-                    // do nothing but prevent getting caught next - added further down
-                } else {    
-
-                	// FIXME - this feels mighty unscalable...
-                	// essentially we are putting all other field values in one very 
-                	// large cell
-                	// if this becomes a performance problem we should split
-                	// on the predicate value. i.e. tc:hasHabitatText,
-                	// this was the intention with the "raw:" column family namespace
-                	
-                    SimpleProperty simpleProperty = new SimpleProperty();
-                    simpleProperty.setName(triple.predicate);
-                    simpleProperty.setValue(triple.object);
-                    simpleProperty.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
-                    simpleProperty.setDocumentId(Integer.toString(document.getId()));
-                    simpleProperty.setInfoSourceName(dcPublisher);
-                    simpleProperty.setInfoSourceURL(dcSource);
-                    simpleProperty.setTitle(dcTitle);
-                    simpleProperty.setIdentifier(dcIdentifier);
-                    addTextProperty(guid, simpleProperty);
-
-                }
-//                } else {
-//					properties.put(triple.predicate, triple.object);
-//				}
+					//check here for predicates of complex objects
+					if(triple.predicate.endsWith("hasCommonName")){
+						
+						CommonName commonName = new CommonName();
+						commonName.setNameString(triple.object);
+						commonName.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
+						commonName.setDocumentId(Integer.toString(document.getId()));
+	                    commonName.setInfoSourceName(dcPublisher);
+	                    commonName.setInfoSourceURL(dcSource);
+						addCommonName(guid, commonName);
+						
+					} else if(triple.predicate.endsWith("hasConservationStatus")){
+						
+						//lookup the vocabulary term
+						ConservationStatus cs = vocabulary.getConservationStatusFor(document.getInfoSourceId(), triple.object);
+						if(cs==null){
+							cs = new ConservationStatus();
+							cs.setStatus(triple.object);
+						}
+	
+						cs.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
+						cs.setDocumentId(Integer.toString(document.getId()));
+	                    cs.setInfoSourceName(dcPublisher);
+	                    cs.setInfoSourceURL(dcSource);
+						addConservationStatus(guid, cs);
+						
+					} else if(triple.predicate.endsWith("hasPestStatus")){
+	
+						//lookup the vocabulary term
+						PestStatus ps = vocabulary.getPestStatusFor(document.getInfoSourceId(), triple.object);
+						if(ps==null){
+							ps = new PestStatus();
+							ps.setStatus(triple.object);
+						}
+						
+						ps.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
+						ps.setDocumentId(Integer.toString(document.getId()));
+	                    ps.setInfoSourceName(dcPublisher);
+	                    ps.setInfoSourceURL(dcSource);
+						addPestStatus(guid, ps);
+						
+	                } else if (triple.predicate.endsWith("hasImagePageUrl")) {
+	                    // do nothing but prevent getting caught next - added further down
+	                } else {    
+	
+	                	// FIXME - this feels mighty unscalable...
+	                	// essentially we are putting all other field values in one very 
+	                	// large cell
+	                	// if this becomes a performance problem we should split
+	                	// on the predicate value. i.e. tc:hasHabitatText,
+	                	// this was the intention with the "raw:" column family namespace
+	                	
+	                    SimpleProperty simpleProperty = new SimpleProperty();
+	                    simpleProperty.setName(triple.predicate);
+	                    simpleProperty.setValue(triple.object);
+	                    simpleProperty.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
+	                    simpleProperty.setDocumentId(Integer.toString(document.getId()));
+	                    simpleProperty.setInfoSourceName(dcPublisher);
+	                    simpleProperty.setInfoSourceURL(dcSource);
+	                    simpleProperty.setTitle(dcTitle);
+	                    simpleProperty.setIdentifier(dcIdentifier);
+	                    addTextProperty(guid, simpleProperty);
+	
+	                }
+	//                } else {
+	//					properties.put(triple.predicate, triple.object);
+	//				}
+				}
 			}
 			
 			//retrieve the content type
