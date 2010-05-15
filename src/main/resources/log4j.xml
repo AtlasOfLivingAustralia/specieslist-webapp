@@ -7,7 +7,7 @@
     </layout>
   </appender>
   <appender name="FILE" class="org.apache.log4j.FileAppender">
-    <param name="File" value="/tmp/bie-hbase.log"/>
+    <param name="File" value="${catalina.base}/logs/bie-webapp.log"/>
     <param name="Append" value="true"/>
     <param name="Threshold" value="INFO"/>
     <layout class="org.apache.log4j.PatternLayout">
