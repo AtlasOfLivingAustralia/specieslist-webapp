@@ -86,10 +86,15 @@ public enum Rank {
     static {
          for (Rank rank : EnumSet.allOf(Rank.class)) {
         	 for(String field: rank.getFields()){
-        		 fieldLookup.put(field, rank);
+        		 fieldLookup.put(field.toLowerCase(), rank);
         	 }
+        	 
              idLookup.put(rank.getId(), rank);
-             nameLookup.put(rank.getName(), rank);
+             nameLookup.put(rank.getName().toLowerCase(), rank);
+             fieldLookup.put(rank.getName().toLowerCase(), rank);
+             for(String field: rank.getFields()){
+            	 nameLookup.put(field.toLowerCase(), rank);
+             }
          }
     }
 
@@ -132,11 +137,11 @@ public enum Rank {
      * @return RankFacet the RankFacet
      */
     public static Rank getForField(String field) {
-        return fieldLookup.get(field);
+        return fieldLookup.get(field.toLowerCase());
     }
 
     public static Rank getForName(String name) {
-        return nameLookup.get(name);
+        return nameLookup.get(name.toLowerCase());
     }
     /**
      * @param id
@@ -145,6 +150,13 @@ public enum Rank {
     public static Rank getForId(Integer id) {
         return idLookup.get(id);
      }
+    
+    public static void main(String[] args){
+    	
+    	System.out.println(Rank.getForField("genus"));
+    	
+    }
+    
 }
 
 /* Values mined from namesIndex.txt
