@@ -91,6 +91,20 @@ public class CommonName extends AttributableObject implements Comparable<CommonN
 	 */
 	@Override
 	public String toString() {
-		return "CommonName [guid=" + guid + ", nameString=" + nameString + "]";
+		StringBuilder builder = new StringBuilder();
+		builder.append("CommonName [guid=");
+		builder.append(this.guid);
+		builder.append(", nameString=");
+		builder.append(this.nameString);
+		builder.append(", documentId=");
+		builder.append(this.documentId);
+		builder.append(", infoSourceId=");
+		builder.append(this.infoSourceId);
+		builder.append(", infoSourceName=");
+		builder.append(this.infoSourceName);
+		builder.append(", infoSourceURL=");
+		builder.append(this.infoSourceURL);
+		builder.append("]");
+		return builder.toString();
 	}
 }
