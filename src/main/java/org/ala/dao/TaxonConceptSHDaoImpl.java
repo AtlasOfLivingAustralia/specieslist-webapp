@@ -45,6 +45,7 @@ import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.model.Triple;
+import org.ala.repository.Predicates;
 import org.ala.util.FileType;
 import org.ala.util.MimeType;
 import org.ala.util.StatusType;
@@ -862,17 +863,18 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	                	// on the predicate value. i.e. tc:hasHabitatText,
 	                	// this was the intention with the "raw:" column family namespace
 	                	
-	                    SimpleProperty simpleProperty = new SimpleProperty();
-	                    simpleProperty.setName(triple.predicate);
-	                    simpleProperty.setValue(triple.object);
-	                    simpleProperty.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
-	                    simpleProperty.setDocumentId(Integer.toString(document.getId()));
-	                    simpleProperty.setInfoSourceName(dcPublisher);
-	                    simpleProperty.setInfoSourceURL(dcSource);
-	                    simpleProperty.setTitle(dcTitle);
-	                    simpleProperty.setIdentifier(dcIdentifier);
-	                    addTextProperty(guid, simpleProperty);
-	
+	                	if(!Predicates.getTaxonomicPredicates().contains(triple.predicate)){
+		                    SimpleProperty simpleProperty = new SimpleProperty();
+		                    simpleProperty.setName(triple.predicate);
+		                    simpleProperty.setValue(triple.object);
+		                    simpleProperty.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
+		                    simpleProperty.setDocumentId(Integer.toString(document.getId()));
+		                    simpleProperty.setInfoSourceName(dcPublisher);
+		                    simpleProperty.setInfoSourceURL(dcSource);
+		                    simpleProperty.setTitle(dcTitle);
+		                    simpleProperty.setIdentifier(dcIdentifier);
+		                    addTextProperty(guid, simpleProperty);
+	                	}
 	                }
 	//                } else {
 	//					properties.put(triple.predicate, triple.object);
@@ -967,8 +969,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     		
     		String guid = new String(guidAsBytes);
 
-    		logger.info(guid);
-    		
     		//get taxon concept details
     		TaxonConcept taxonConcept = getByGuid(guid);
             if(taxonConcept!=null){
