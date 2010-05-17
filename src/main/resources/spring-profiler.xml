@@ -15,4 +15,15 @@
     <bean id="CBIndexSearch" class="au.org.ala.checklist.lucene.CBIndexSearch">
         <constructor-arg value="/data/lucene/namematching"/>
     </bean>
+    
+    <!-- 
+    <bean id="taxonConceptDao" class="org.ala.dao.TaxonConceptDaoImpl"/>
+    
+    
+    <bean id="taxonConceptDao" class="org.ala.dao.TaxonConceptSHDaoImpl">
+      <property name="storeHelper">
+        <bean class="org.ala.dao.CassandraHelper" init-method="init"/>
+      </property>
+    </bean>
+    -->
 </beans>
