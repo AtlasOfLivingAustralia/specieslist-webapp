@@ -132,4 +132,32 @@ public class Reference extends AttributableObject implements Comparable<Referenc
 	public void setScientificName(String scientificName) {
 		this.scientificName = scientificName;
 	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Reference [authorship=");
+		builder.append(this.authorship);
+		builder.append(", identifier=");
+		builder.append(this.identifier);
+		builder.append(", pageIdentifiers=");
+		builder.append(this.pageIdentifiers);
+		builder.append(", scientificName=");
+		builder.append(this.scientificName);
+		builder.append(", title=");
+		builder.append(this.title);
+		builder.append(", documentId=");
+		builder.append(this.documentId);
+		builder.append(", infoSourceId=");
+		builder.append(this.infoSourceId);
+		builder.append(", infoSourceName=");
+		builder.append(this.infoSourceName);
+		builder.append(", infoSourceURL=");
+		builder.append(this.infoSourceURL);
+		builder.append("]");
+		return builder.toString();
+	}
 }

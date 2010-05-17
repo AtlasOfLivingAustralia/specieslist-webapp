@@ -233,4 +233,32 @@ public class Region extends AttributableObject implements Comparable<Region> {
 	public void setRegionType(String regionType) {
 		this.regionType = regionType;
 	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Region [occurrences=");
+		builder.append(this.occurrences);
+		builder.append(", regionId=");
+		builder.append(this.regionId);
+		builder.append(", regionName=");
+		builder.append(this.regionName);
+		builder.append(", regionType=");
+		builder.append(this.regionType);
+		builder.append(", taxonId=");
+		builder.append(this.taxonId);
+		builder.append(", documentId=");
+		builder.append(this.documentId);
+		builder.append(", infoSourceId=");
+		builder.append(this.infoSourceId);
+		builder.append(", infoSourceName=");
+		builder.append(this.infoSourceName);
+		builder.append(", infoSourceURL=");
+		builder.append(this.infoSourceURL);
+		builder.append("]");
+		return builder.toString();
+	}
 }

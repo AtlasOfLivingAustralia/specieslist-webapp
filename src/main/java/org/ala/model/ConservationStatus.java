@@ -71,4 +71,28 @@ public class ConservationStatus extends AttributableObject implements Comparable
 	public void setSystem(String system) {
 		this.system = system;
 	}
+	
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ConservationStatus [region=");
+		builder.append(this.region);
+		builder.append(", status=");
+		builder.append(this.status);
+		builder.append(", system=");
+		builder.append(this.system);
+		builder.append(", documentId=");
+		builder.append(this.documentId);
+		builder.append(", infoSourceId=");
+		builder.append(this.infoSourceId);
+		builder.append(", infoSourceName=");
+		builder.append(this.infoSourceName);
+		builder.append(", infoSourceURL=");
+		builder.append(this.infoSourceURL);
+		builder.append("]");
+		return builder.toString();
+	}
 }

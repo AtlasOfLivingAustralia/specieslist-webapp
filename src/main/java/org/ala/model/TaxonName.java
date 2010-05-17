@@ -150,4 +150,38 @@ public class TaxonName extends AttributableObject implements Comparable<TaxonNam
 	public void setPublishedIn(String publishedIn) {
 		this.publishedIn = publishedIn;
 	}
+	
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("TaxonName [authorship=");
+		builder.append(this.authorship);
+		builder.append(", guid=");
+		builder.append(this.guid);
+		builder.append(", nameComplete=");
+		builder.append(this.nameComplete);
+		builder.append(", nomenclaturalCode=");
+		builder.append(this.nomenclaturalCode);
+		builder.append(", publishedIn=");
+		builder.append(this.publishedIn);
+		builder.append(", publishedInCitation=");
+		builder.append(this.publishedInCitation);
+		builder.append(", rankString=");
+		builder.append(this.rankString);
+		builder.append(", typificationString=");
+		builder.append(this.typificationString);
+		builder.append(", documentId=");
+		builder.append(this.documentId);
+		builder.append(", infoSourceId=");
+		builder.append(this.infoSourceId);
+		builder.append(", infoSourceName=");
+		builder.append(this.infoSourceName);
+		builder.append(", infoSourceURL=");
+		builder.append(this.infoSourceURL);
+		builder.append("]");
+		return builder.toString();
+	}
 }

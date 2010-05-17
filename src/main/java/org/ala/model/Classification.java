@@ -317,4 +317,65 @@ public class Classification extends AttributableObject implements Comparable<Cla
         this.rankId = rankId;
     }
     
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Classification [clazz=");
+		builder.append(this.clazz);
+		builder.append(", clazzGuid=");
+		builder.append(this.clazzGuid);
+		builder.append(", family=");
+		builder.append(this.family);
+		builder.append(", familyGuid=");
+		builder.append(this.familyGuid);
+		builder.append(", genus=");
+		builder.append(this.genus);
+		builder.append(", genusGuid=");
+		builder.append(this.genusGuid);
+		builder.append(", guid=");
+		builder.append(this.guid);
+		builder.append(", kingdom=");
+		builder.append(this.kingdom);
+		builder.append(", kingdomGuid=");
+		builder.append(this.kingdomGuid);
+		builder.append(", order=");
+		builder.append(this.order);
+		builder.append(", orderGuid=");
+		builder.append(this.orderGuid);
+		builder.append(", phylum=");
+		builder.append(this.phylum);
+		builder.append(", phylumGuid=");
+		builder.append(this.phylumGuid);
+		builder.append(", rank=");
+		builder.append(this.rank);
+		builder.append(", rankId=");
+		builder.append(this.rankId);
+		builder.append(", scientificName=");
+		builder.append(this.scientificName);
+		builder.append(", species=");
+		builder.append(this.species);
+		builder.append(", speciesGuid=");
+		builder.append(this.speciesGuid);
+		builder.append(", subspecies=");
+		builder.append(this.subspecies);
+		builder.append(", subspeciesGuid=");
+		builder.append(this.subspeciesGuid);
+		builder.append(", superfamily=");
+		builder.append(this.superfamily);
+		builder.append(", superfamilyGuid=");
+		builder.append(this.superfamilyGuid);
+		builder.append(", documentId=");
+		builder.append(this.documentId);
+		builder.append(", infoSourceId=");
+		builder.append(this.infoSourceId);
+		builder.append(", infoSourceName=");
+		builder.append(this.infoSourceName);
+		builder.append(", infoSourceURL=");
+		builder.append(this.infoSourceURL);
+		builder.append("]");
+		return builder.toString();
+	}
 }

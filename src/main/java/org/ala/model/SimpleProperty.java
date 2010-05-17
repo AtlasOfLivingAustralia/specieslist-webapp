@@ -126,4 +126,29 @@ public class SimpleProperty extends AttributableObject implements Comparable<Sim
         this.identifier = identifier;
     }
 
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("SimpleProperty [identifier=");
+		builder.append(this.identifier);
+		builder.append(", name=");
+		builder.append(this.name);
+		builder.append(", title=");
+		builder.append(this.title);
+		builder.append(", value=");
+		builder.append(this.value);
+		builder.append(", documentId=");
+		builder.append(this.documentId);
+		builder.append(", infoSourceId=");
+		builder.append(this.infoSourceId);
+		builder.append(", infoSourceName=");
+		builder.append(this.infoSourceName);
+		builder.append(", infoSourceURL=");
+		builder.append(this.infoSourceURL);
+		builder.append("]");
+		return builder.toString();
+	}
 }

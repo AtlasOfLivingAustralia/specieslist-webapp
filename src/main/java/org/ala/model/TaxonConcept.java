@@ -215,22 +215,45 @@ public class TaxonConcept extends AttributableObject implements Comparable<Taxon
 		this.rankString = rankString;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "TaxonConcept [id=" + this.id
-				+ ", nameString=" + this.nameString
-				+ ", guid=" + this.guid
-				+ ", nameGuid=" + this.nameGuid
-				+ ", parentGuid=" + this.parentGuid
-				+ ", parentId=" + this.parentId
-				+ ", acceptedConceptGuid=" + this.acceptedConceptGuid
-				+ ", author=" + this.author + ", authorYear=" + this.authorYear
-				+ ", publishedIn=" + this.publishedIn
-				+ ", publishedInCitation=" + this.publishedInCitation
-				+ ", rankString=" + this.rankString + "]";
+		StringBuilder builder = new StringBuilder();
+		builder.append("TaxonConcept [acceptedConceptGuid=");
+		builder.append(this.acceptedConceptGuid);
+		builder.append(", author=");
+		builder.append(this.author);
+		builder.append(", authorYear=");
+		builder.append(this.authorYear);
+		builder.append(", guid=");
+		builder.append(this.guid);
+		builder.append(", id=");
+		builder.append(this.id);
+		builder.append(", nameGuid=");
+		builder.append(this.nameGuid);
+		builder.append(", nameString=");
+		builder.append(this.nameString);
+		builder.append(", parentGuid=");
+		builder.append(this.parentGuid);
+		builder.append(", parentId=");
+		builder.append(this.parentId);
+		builder.append(", publishedIn=");
+		builder.append(this.publishedIn);
+		builder.append(", publishedInCitation=");
+		builder.append(this.publishedInCitation);
+		builder.append(", rankString=");
+		builder.append(this.rankString);
+		builder.append(", documentId=");
+		builder.append(this.documentId);
+		builder.append(", infoSourceId=");
+		builder.append(this.infoSourceId);
+		builder.append(", infoSourceName=");
+		builder.append(this.infoSourceName);
+		builder.append(", infoSourceURL=");
+		builder.append(this.infoSourceURL);
+		builder.append("]");
+		return builder.toString();
 	}
-	
 }

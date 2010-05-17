@@ -61,10 +61,9 @@ public class Habitat extends AttributableObject implements Comparable<Habitat> {
 	}
 
 	/**
-	 * @see java.lang.Object#toString()
+	 *
 	 */
-	@Override
-	public String toString() {
+	public String getStatusAsString() {
 		if (this.status.equalsIgnoreCase("M")) {
 			return "Marine";
 		} else if (this.status.equalsIgnoreCase("N")) {
@@ -119,5 +118,25 @@ public class Habitat extends AttributableObject implements Comparable<Habitat> {
 		} else if (!this.status.equals(other.getStatus()))
 			return false;
 		return true;
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Habitat [status=");
+		builder.append(this.status);
+		builder.append(", documentId=");
+		builder.append(this.documentId);
+		builder.append(", infoSourceId=");
+		builder.append(this.infoSourceId);
+		builder.append(", infoSourceName=");
+		builder.append(this.infoSourceName);
+		builder.append(", infoSourceURL=");
+		builder.append(this.infoSourceURL);
+		builder.append("]");
+		return builder.toString();
 	}
 }
