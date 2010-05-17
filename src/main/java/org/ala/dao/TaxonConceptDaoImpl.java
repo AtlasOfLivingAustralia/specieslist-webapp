@@ -48,6 +48,7 @@ import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.model.Triple;
+import org.ala.repository.Predicates;
 import org.ala.util.FileType;
 import org.ala.util.MimeType;
 import org.ala.util.StatusType;
@@ -1277,7 +1278,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 						
 	                } else if (triple.predicate.endsWith("hasImagePageUrl")) {
 	                    // do nothing but prevent getting caught next - added further down
-	                } else {    
+	                } else if (!Predicates.getTaxonomicPredicates().contains(triple.predicate)) {    
 	
 	                	// FIXME - this feels mighty unscalable...
 	                	// essentially we are putting all other field values in one very 
