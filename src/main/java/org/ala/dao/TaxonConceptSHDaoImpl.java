@@ -969,6 +969,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     		
     		String guid = new String(guidAsBytes);
 
+    		logger.info(guid);
+    		
     		//get taxon concept details
     		TaxonConcept taxonConcept = getByGuid(guid);
             if(taxonConcept!=null){
@@ -1090,13 +1092,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		    		
 			    	//add to index
 			    	iw.addDocument(doc, analyzer);
+			    	
+		    		if (i%1000==0) logger.debug(i + " " + taxonConcept.getGuid());
     			}
     		}
 	    	if(i%10000==0){
 	    		iw.commit();
 	    	}
-	    	
-    		if (i%100==0) logger.debug(i + " " + taxonConcept.getGuid());
     	}
     	
     	iw.commit();
