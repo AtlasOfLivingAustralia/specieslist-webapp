@@ -60,19 +60,26 @@ public class ChecklistBankLoader {
 	public static void main(String[] args) throws Exception {
 		ApplicationContext context = SpringUtils.getContext();
 		ChecklistBankLoader l = context.getBean(ChecklistBankLoader.class);
-		//FIXME do two passes on this file - not ideal
+		long start = System.currentTimeMillis();
+		
 		logger.info("Loading concepts....");
 		l.loadConcepts();
+		
 		logger.info("Loading synonyms....");
 		l.loadSynonyms();
+		
 		logger.info("Loading identifiers....");
 		l.loadIdentifiers();
-		logger.info("Finished loading checklistbank data.");
+		
+		long finish = System.currentTimeMillis();
+		
+		logger.info("Finished loading checklistbank data. Time taken: "+((finish-start)/60000)+" minutes");
+		
 		System.exit(0);
 	}
 
 	/**
-	 * Load the contents of the file.
+	 * Load the accepted concepts in the DwC Archive
 	 * 
 	 * @throws IOException
 	 * @throws UnsupportedArchiveException
@@ -84,6 +91,8 @@ public class ChecklistBankLoader {
 		Iterator<DarwinCoreRecord> iter = archive.iteratorDwc();
 		int numberRead = 0;
 		int numberAdded = 0;
+		long start = System.currentTimeMillis();
+		
 		while (iter.hasNext()) {
 			numberRead++;
 			DarwinCoreRecord dwc = iter.next();
@@ -107,6 +116,10 @@ public class ChecklistBankLoader {
 				if (taxonConceptDao.create(tc)) {
 //					logger.info("Adding concept: "+tc);
 					numberAdded++;
+					if(numberAdded % 1000 == 0){
+						long current = System.currentTimeMillis();
+						logger.info("Taxon concepts added: "+numberAdded+", insert rate: "+((current-start)/numberAdded)+ "ms per record" );
+					}
 				}
 				
 				//add the classification
@@ -132,11 +145,20 @@ public class ChecklistBankLoader {
 		logger.info(numberAdded + " concepts added from " + numberRead + " rows of Checklist Bank data.");
 	}
 		
+	/**
+	 * Load the synonyms in the DwC Archive
+	 * 
+	 * @throws IOException
+	 * @throws UnsupportedArchiveException
+	 * @throws Exception
+	 */
 	public void loadSynonyms() throws IOException, UnsupportedArchiveException, Exception {
 		Archive archive = ArchiveFactory.openArchive(new File(CB_EXPORT_DIR),true);
 		Iterator<DarwinCoreRecord> iter = archive.iteratorDwc();
 		int numberRead = 0;
 		int numberAdded = 0;
+		long start = System.currentTimeMillis();
+		
 		while (iter.hasNext()) {
 			numberRead++;
 			DarwinCoreRecord dwc = iter.next();
@@ -161,12 +183,21 @@ public class ChecklistBankLoader {
 //				logger.info("Adding synonym: "+tc);
 				if (taxonConceptDao.addSynonym(acceptedGuid, tc)) {
 					numberAdded++;
+					if(numberAdded % 1000 == 0){
+						long current = System.currentTimeMillis();
+						logger.info("Synonyms added: "+numberAdded+", insert rate: "+((current-start)/numberAdded)+ "ms per record" );
+					}
 				}
 			}
 		}
 		logger.info(numberAdded + " synonyms added from " + numberRead + " rows of Checklist Bank data.");
 	}
 
+	/**
+	 * Load the alternative identifiers for these concepts.
+	 * 
+	 * @throws Exception
+	 */
 	private void loadIdentifiers() throws Exception {
 		
 		//read the identifiers file
@@ -174,16 +205,21 @@ public class ChecklistBankLoader {
 		String[] line = null;
 		int numberRead = 0;
 		int numberAdded = 0;
+		long start = System.currentTimeMillis();
 		while((line = reader.readNext())!=null){
 			numberRead++;
 			if(line[1]!=null && line[2]!=null){
 				//add this guid somewhere
 				if(taxonConceptDao.addIdentifier(line[1], line[2])){
 					numberAdded++;
+					if(numberAdded % 1000 == 0){
+						long current = System.currentTimeMillis();
+						logger.info("Number added: "+numberAdded+", insert rate: "+((current-start)/numberAdded)+ "ms per record" );
+					}
 				}
 			}
 		}
-		logger.info(numberAdded + " identifiers added from " + numberRead + " rows of Checklist Bank data.");		
+		logger.info(numberAdded + " identifiers added from " + numberRead + " rows of Checklist Bank data.");
 	}
 
 	/**
