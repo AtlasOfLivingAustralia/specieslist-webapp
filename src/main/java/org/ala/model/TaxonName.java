@@ -21,7 +21,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
  *
  * @author Dave Martin (David.Martin@csiro.au)
  */
-@JsonIgnoreProperties(value="rankLabel")
+@JsonIgnoreProperties({"rankLabel"})
 public class TaxonName extends AttributableObject implements Comparable<TaxonName>{
 
 	public String guid;
