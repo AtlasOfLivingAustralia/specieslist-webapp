@@ -32,6 +32,7 @@ public class TabReader {
 
 	Pattern p = Pattern.compile("\t");
 	BufferedReader br;
+	boolean hasQuotes = true;
 	
 	/**
 	 * Initialise suppling the absolute file path.
@@ -42,6 +43,11 @@ public class TabReader {
 	public TabReader(String filePath) throws Exception{
     	FileReader fr = new FileReader(new File(filePath));
     	this.br = new BufferedReader(fr);
+	}
+
+	public TabReader(String filePath, boolean hasQuotes) throws Exception{
+    	this(filePath);
+    	this.hasQuotes = hasQuotes;
 	}
 	
 	/**
@@ -56,7 +62,7 @@ public class TabReader {
 			return null;
 		String[] fields = p.split(line);
 		for(int i=0;i<fields.length;i++){
-			if(fields[i].length()>=2){
+			if(hasQuotes && fields[i].length()>=2){
 				//remove quotes				
 				fields[i] = fields[i].substring(1, fields[i].length()-1);
 			}
