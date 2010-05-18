@@ -183,6 +183,15 @@ public interface TaxonConceptDao {
 	public boolean create(TaxonConcept tc) throws Exception;
 
 	/**
+	 * Update the taxon concept.
+	 * 
+	 * @param tc
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean update(TaxonConcept tc) throws Exception;
+	
+	/**
 	 * What about multiple taxon names for each taxon concept???
 	 *
 	 * @param guid

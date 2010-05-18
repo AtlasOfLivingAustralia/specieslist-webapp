@@ -136,6 +136,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	@Inject
 	protected CBIndexSearch cbIdxSearcher;
 	
+	/** The spring wired store helper to use */
 	protected StoreHelper storeHelper;
 	
 	/**
@@ -234,27 +235,25 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, TAXONCONCEPT_COL, tc.getGuid(), tc);
 	}
 	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#update(org.ala.model.TaxonConcept)
+	 */
 	public boolean update(TaxonConcept tc) throws Exception {
 		
 		if (tc.getGuid() == null) {
 			throw new IllegalArgumentException("Supplied GUID for the Taxon Concept is null.");
 		}
 		
-		//FIXME
+		//FIXME this is here to update some information not available in the export from checklist bank
+		// This should refactored out at some stage
+		TaxonConcept current = (TaxonConcept) storeHelper.get(TC_TABLE, TC_COL_FAMILY, TAXONCONCEPT_COL, tc.getGuid(), TaxonConcept.class);
+		current.setPublishedIn(tc.getPublishedIn());
+		current.setPublishedInCitation(tc.getPublishedInCitation());
+		current.setInfoSourceId(tc.getInfoSourceId());
+		current.setInfoSourceName(tc.getInfoSourceName());
+		current.setInfoSourceURL(tc.getInfoSourceURL());
 		
-//		logger.debug("Updating Taxon Concept - " + tc);
-//
-//		Put putter = new Put(Bytes.toBytes(tc.getGuid()));
-//		putIfNotNull(putter, "tc:authorYear", tc.getAuthorYear());
-//		putIfNotNull(putter, "tc:publishedIn", tc.getPublishedIn());
-//		putIfNotNull(putter, "tc:publishedInCitation", tc.getPublishedInCitation());
-//		putIfNotNull(putter, "tc:acceptedConceptGuid", tc.getAcceptedConceptGuid());
-//		putIfNotNull(putter, "tc:rankString", tc.getRankString());
-//		putIfNotNull(putter, "tc:infoSourceId", tc.getInfoSourceId());
-//		putIfNotNull(putter, "tc:infoSourceName", tc.getInfoSourceName());
-//		putIfNotNull(putter, "tc:infoSourceURL", tc.getInfoSourceURL());
-//		getTable().put(putter);	
-		return true;
+		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, TAXONCONCEPT_COL, tc.getGuid(), current);
 	}
 
 	/**
