@@ -101,7 +101,7 @@ import au.org.ala.data.util.RankType;
  * 
  * @author Dave Martin
  */
-@Component("taxonConceptDao")
+//@Component("taxonConceptDao")
 public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	
 	protected static Logger logger = Logger.getLogger(TaxonConceptDaoImpl.class);
