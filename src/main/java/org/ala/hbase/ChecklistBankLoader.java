@@ -17,7 +17,9 @@ package org.ala.hbase;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -26,8 +28,24 @@ import org.ala.model.Classification;
 import org.ala.model.Rank;
 import org.ala.model.TaxonConcept;
 import org.ala.util.SpringUtils;
+import org.ala.util.TabReader;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.lucene.analysis.KeywordAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Index;
+import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.gbif.dwc.record.DarwinCoreRecord;
 import org.gbif.dwc.text.Archive;
 import org.gbif.dwc.text.ArchiveFactory;
@@ -40,6 +58,8 @@ import au.com.bytecode.opencsv.CSVReader;
 /**
  * Reads a Darwin Core extracted which contains a classification for a taxon,
  * and add this classification to the taxon profile.
+ * 
+ * Loads the concepts, synonyms, parent and child taxa references.
  *
  * @author Dave Martin (David.Martin@csiro.au)
  */
@@ -54,13 +74,25 @@ public class ChecklistBankLoader {
 	private static final String IDENTIFIERS_FILE="/data/bie-staging/checklistbank/cb_identifiers.txt";
     
 	private static final String CB_EXPORT_DIR="/data/bie-staging/checklistbank/";
+	
+	private static final String CB_LOADING_IDX_DIR= "/data/lucene/checklistbankloading";
+	
+	protected IndexSearcher tcIdxSearcher;
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
+		
 		ApplicationContext context = SpringUtils.getContext();
 		ChecklistBankLoader l = context.getBean(ChecklistBankLoader.class);
 		long start = System.currentTimeMillis();
+		
+		logger.info("Creating checklist bank loading index....");
+		l.createLoadingIndex();
+		
+		logger.info("Initialise indexes....");
+		l.initIndexes();
 		
 		logger.info("Loading concepts....");
 		l.loadConcepts();
@@ -77,7 +109,130 @@ public class ChecklistBankLoader {
 		
 		System.exit(0);
 	}
+	
+	/**
+	 * Create a loading index for checklist bank data.
+	 * 
+	 * @throws Exception
+	 */
+	public void createLoadingIndex() throws Exception {
+		long start = System.currentTimeMillis();
+		
+		//create a name index
+    	File file = new File(CB_LOADING_IDX_DIR);
+    	if(file.exists()){
+    		FileUtils.forceDelete(file);
+    	}
+    	FileUtils.forceMkdir(file);
+    	
+    	KeywordAnalyzer analyzer = new KeywordAnalyzer();
+        //initialise lucene
+    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
+    	
+    	int i = 0;
+    	
+    	//names files to index
+    	TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_name_usages.txt", false);
+    	String[] cols = null;
+    	while((cols=tr.readNext())!=null){
+    		
+			Document doc = new Document();
+	    	doc.add(new Field("id", cols[0], Store.YES, Index.ANALYZED));
+	    	if(cols[1]!=null){
+	    		doc.add(new Field("parentId", cols[1], Store.YES, Index.ANALYZED));
+	    	}
+	    	if(cols[2]!=null){
+	    		doc.add(new Field("guid", cols[2], Store.YES, Index.NOT_ANALYZED));
+	    	} else {
+	    		doc.add(new Field("guid", cols[0], Store.YES, Index.NOT_ANALYZED));
+	    	}
+	    	doc.add(new Field("nameString", cols[6], Store.YES, Index.ANALYZED));
+	    	
+	    	//add to index
+	    	iw.addDocument(doc, analyzer);
+	    	i++;
+	    	
+	    	if(i%10000==0) {
+	    		iw.flush();
+	    		System.out.println(i+"\t"+cols[0]+"\t"+cols[2]);
+	    	}
+		}
+    	
+    	//close taxonConcept stream
+    	tr.close();
+    	iw.close();
+    	
+    	long finish = System.currentTimeMillis();
+    	logger.info(i+" indexed taxon concepts in: "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
+	}
+	
+	public void initIndexes() throws Exception {
+		this.tcIdxSearcher = new IndexSearcher(CB_LOADING_IDX_DIR);
+	}
+	
+	/**
+	 * Retrieve by id
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 */
+	public TaxonConcept getById(String id) throws Exception {
+		List<TaxonConcept> tc = searchTaxonConceptIndexBy("id", id, 1);
+		if(tc.isEmpty()){
+			return null;
+		} else {
+			return tc.get(0);
+		}
+	}
+	
+	/**
+	 * Retrieve the child concepts for this parent id.
+	 * 
+	 * @param parentId
+	 * @return
+	 * @throws Exception
+	 */
+	public List<TaxonConcept> getChildConcepts(String parentId) throws Exception {
+		return searchTaxonConceptIndexBy("parentId", parentId, 10000);
+	}
+	
+	/**
+	 * Search the index with the supplied value targeting a specific column.
+	 * 
+	 * @param columnName
+	 * @param value
+	 * @param limit
+	 * @return
+	 * @throws IOException
+	 * @throws CorruptIndexException
+	 */
+	private List<TaxonConcept> searchTaxonConceptIndexBy(String columnName, String value, int limit) throws Exception {
+		Query query = new TermQuery(new Term(columnName, value));
+		TopDocs topDocs = tcIdxSearcher.search(query, limit);
+		List<TaxonConcept> tcs = new ArrayList<TaxonConcept>();
+		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
+			Document doc = tcIdxSearcher.doc(scoreDoc.doc);
+			tcs.add(createTaxonConceptFromIndex(doc));
+		}	
+		return tcs;
+	}
 
+	/**
+	 * Populate a TaxonConcept from the data in the lucene index.
+	 * 
+	 * @param doc
+	 * @return
+	 */
+	private TaxonConcept createTaxonConceptFromIndex(Document doc) {
+		TaxonConcept taxonConcept = new TaxonConcept();
+		taxonConcept.setId(Integer.parseInt(doc.get("id")));
+		taxonConcept.setGuid(doc.get("guid"));
+		taxonConcept.setParentId(doc.get("parentId"));
+		taxonConcept.setNameString(doc.get("nameString"));
+		return taxonConcept;
+	}	
+	
 	/**
 	 * Load the accepted concepts in the DwC Archive
 	 * 
@@ -114,11 +269,25 @@ public class ChecklistBankLoader {
 				tc.setRankString(dwc.getTaxonRank());
 				
 				if (taxonConceptDao.create(tc)) {
-//					logger.info("Adding concept: "+tc);
 					numberAdded++;
+//					if(numberAdded>500000) System.exit(0);
 					if(numberAdded % 1000 == 0){
 						long current = System.currentTimeMillis();
-						logger.info("Taxon concepts added: "+numberAdded+", insert rate: "+((current-start)/numberAdded)+ "ms per record" );
+						logger.info("Taxon concepts added: "+numberAdded+", insert rate: "+((current-start)/numberAdded)+ "ms per record, last guid: "+ tc.getGuid());
+					}
+				}
+				
+				//load the parent concept
+				if(tc.getParentId()!=null){
+					TaxonConcept parentConcept = getById(tc.getParentId());
+					taxonConceptDao.addParentTaxon(tc.getGuid(), parentConcept);
+				}
+				
+				//load the child concepts
+				List<TaxonConcept> childConcepts = getChildConcepts(Integer.toString(tc.getId()));
+				if(!childConcepts.isEmpty()){
+					for(TaxonConcept childConcept: childConcepts){
+						taxonConceptDao.addChildTaxon(tc.getGuid(), childConcept);
 					}
 				}
 				
@@ -133,8 +302,8 @@ public class ChecklistBankLoader {
                 c.setOrder(dwc.getOrder());
                 c.setPhylum(dwc.getPhylum());
                 c.setKingdom(dwc.getKingdom());
-                // Attempt to set the rank Id via Rank enum
                 try {
+                    // Attempt to set the rank Id via Rank enum
                     c.setRankId(Rank.getForName(dwc.getTaxonRank()).getId());
                 } catch (Exception e) {
                     logger.warn("Could not set rankId for: "+dwc.getTaxonRank()+" in "+guid);
@@ -180,7 +349,12 @@ public class ChecklistBankLoader {
 				tc.setRankString(dwc.getTaxonRank());
 				
 				String acceptedGuid = dwc.getAcceptedNameUsageID();
-//				logger.info("Adding synonym: "+tc);
+				
+				//FIXME get the publication information
+				
+				
+				
+				
 				if (taxonConceptDao.addSynonym(acceptedGuid, tc)) {
 					numberAdded++;
 					if(numberAdded % 1000 == 0){

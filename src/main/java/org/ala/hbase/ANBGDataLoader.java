@@ -14,7 +14,6 @@
  ***************************************************************************/
 package org.ala.hbase;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -111,7 +110,7 @@ public class ANBGDataLoader {
     			continue;
     		}
     		
-    		List<String> tcs = loadUtils.getGuidsForPublicationGuid(record[0], 100);
+    		List<String> taxonConceptIds = loadUtils.getGuidsForPublicationGuid(record[0], 100);
     		
     		Publication p = new Publication();
     		p.setGuid(record[0]);
@@ -121,9 +120,9 @@ public class ANBGDataLoader {
     		p.setPublicationType(record[4]);
     		
     		//add this taxon name to each taxon concept
-    		for(String tc: tcs){
-    			logger.debug("Adding publication to "+tc+" record: "+p.getGuid());
-   				boolean success = taxonConceptDao.addPublication(tc, p);
+    		for(String tcId: taxonConceptIds){
+    			logger.debug("Adding publication to "+tcId+" record: "+p.getGuid());
+   				boolean success = taxonConceptDao.addPublication(tcId, p);
    				if(success)
    					j++;
     		}
@@ -185,31 +184,6 @@ public class ANBGDataLoader {
     				}
     			}
 
-        		//add the child information to the accepted concept
-    			if(keyValue[2].endsWith("IsChildTaxonOf")){
-    				
-    				//from-to-rel
-    				TaxonConcept tc = taxonConceptDao.getByGuid(keyValue[1]);
-    				if(tc!=null){
-    					taxonConceptDao.addParentTaxon(keyValue[0], tc);
-    				} else {
-    					logger.warn("Unable to add child - No concept for :"+keyValue[1]);
-    				}
-    				
-//    				tcDao.addOverlapsWith();
-    			}
-    			
-        		//add the parent information to the accepted concept
-    			if(keyValue[2].endsWith("IsParentTaxonOf")){
-//    				tcDao.addOverlapsWith();
-    				TaxonConcept tc = taxonConceptDao.getByGuid(keyValue[1]);
-    				if(tc!=null){
-    					taxonConceptDao.addChildTaxon(keyValue[0], tc);
-    				} else {
-    					logger.warn("Unable to add parent - No concept for :"+keyValue[1]);
-    				}
-    			}
-    			
 //    			http://rs.tdwg.org/ontology/voc/TaxonConcept#Includes
 //    			http://rs.tdwg.org/ontology/voc/TaxonConcept#Overlaps
 //    			http://rs.tdwg.org/ontology/voc/TaxonConcept#IsHybridParentOf
@@ -285,7 +259,7 @@ public class ANBGDataLoader {
 	}
 
 	/**
-	 * Load the taxon concepts into the profiler
+	 * Adds some additional details to an existing taxon concept.
 	 * 
 	 * @throws Exception
 	 */
