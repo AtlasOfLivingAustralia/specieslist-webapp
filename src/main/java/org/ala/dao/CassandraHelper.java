@@ -33,6 +33,7 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
@@ -53,6 +54,8 @@ public class CassandraHelper implements StoreHelper {
 	protected String host = "localhost";
 	
 	protected int port = 9160;
+	
+	protected String charsetEncoding = "UTF-8";
 
 	/**
 	 * @see org.ala.dao.StoreHelper#init()
@@ -91,12 +94,14 @@ public class CassandraHelper implements StoreHelper {
 
         //initialise the object mapper
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+//		mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+		mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		
 		//read the existing value
 		List<Comparable> objectList = null;
 		if(col!=null){
-			String value = new String(col.getColumn().value);
+			String value = new String(col.getColumn().value, charsetEncoding);
+//			logger.info(value);
 			objectList = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, theClass));
 		} else {
 			objectList = new ArrayList<Comparable>();
@@ -122,11 +127,13 @@ public class CassandraHelper implements StoreHelper {
 
         //initialise the object mapper
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+//		mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+		mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		
 		//read the existing value
 		if(col!=null){
-			String value = new String(col.getColumn().value);
+			String value = new String(col.getColumn().value,charsetEncoding);
+//			logger.info(value);
 			return (Comparable) mapper.readValue(value, theClass);
 		} else {
 			return null;
@@ -159,7 +166,7 @@ public class CassandraHelper implements StoreHelper {
         //initialise the object mapper
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
-
+		
 		//convert to JSON
 		String json = mapper.writeValueAsString(object); 
 		long timestamp = System.currentTimeMillis();
@@ -168,7 +175,7 @@ public class CassandraHelper implements StoreHelper {
 		getConnection().insert(keySpace, //keyspace
 	        	guid,
 	        	columnPath,   // columnFamily = tc
-                json.getBytes("UTF-8"),
+                json.getBytes(charsetEncoding),
                 timestamp,
                 ConsistencyLevel.ONE);
 		
@@ -210,7 +217,7 @@ public class CassandraHelper implements StoreHelper {
 			//read the existing value
 			List<Comparable> objectList = null;
 			if(col!=null){
-				String value = new String(col.getColumn().value);
+				String value = new String(col.getColumn().value, charsetEncoding);
 				
 				if(!objects.isEmpty()){
 					Object first = objects.get(0);
@@ -238,7 +245,7 @@ public class CassandraHelper implements StoreHelper {
 		getConnection().insert(keySpace, //keyspace
 	        	guid,
 	        	columnPath,
-                json.getBytes("UTF-8"),
+                json.getBytes(charsetEncoding),
                 timestamp,
                 ConsistencyLevel.ONE);
 		
@@ -275,7 +282,7 @@ public class CassandraHelper implements StoreHelper {
 		//read the existing value
 		List<Comparable> objectList = null;
 		if(col!=null){
-			String value = new String(col.getColumn().value);
+			String value = new String(col.getColumn().value, charsetEncoding);
 			objectList = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, object.getClass()));
 		} else {
 			objectList = new ArrayList<Comparable>();
@@ -301,7 +308,7 @@ public class CassandraHelper implements StoreHelper {
 			getConnection().insert(keySpace, //keyspace
 		        	guid,
 		        	columnPath,
-	                json.getBytes("UTF-8"),
+	                json.getBytes(charsetEncoding),
 	                timestamp,
 	                ConsistencyLevel.ONE);
 		} catch (Exception e){
