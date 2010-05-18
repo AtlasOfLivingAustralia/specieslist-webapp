@@ -13,11 +13,15 @@
  * rights and limitations under the License.
  ***************************************************************************/
 package org.ala.model;
+
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
 /**
  * Simple POJO for a taxon name. Closely mirrors the TDWG ontology (as of 2009).
  *
  * @author Dave Martin (David.Martin@csiro.au)
  */
+@JsonIgnoreProperties(value="rankLabel")
 public class TaxonName extends AttributableObject implements Comparable<TaxonName>{
 
 	public String guid;
