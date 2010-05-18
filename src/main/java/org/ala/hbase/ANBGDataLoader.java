@@ -295,24 +295,19 @@ public class ANBGDataLoader {
 		
 		LoadUtils loadUtils = new LoadUtils();
 		TabReader tr = new TabReader(TAXON_CONCEPTS);
-//		TabReader tr = new TabReader("/data/bie-staging/anbg/taxonConceptsSmall.txt");
 		
 		InfoSource afd = infoSourceDAO.getByUri("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/home");
 		InfoSource apc = infoSourceDAO.getByUri("http://www.anbg.gov.au/chah/apc/");
 		InfoSource apni = infoSourceDAO.getByUri("http://www.anbg.gov.au/apni/");
+		InfoSource col = infoSourceDAO.getByUri("http://www.catalogueoflife.org/");
 		
     	String[] record = null;
-    	List<TaxonConcept> tcBatch = new ArrayList<TaxonConcept>();
     	long start = System.currentTimeMillis();
     	int i=0;
     	int j=0;
     	try {
 	    	while((record = tr.readNext())!=null){
 	    		i++;
-	    		if(i%1000==0){
-	    			taxonConceptDao.create(tcBatch);
-	    			tcBatch.clear();
-	    		}
 	    		if(record.length==9){
 
 	    			// if its congruent to another concept dont add it
@@ -328,50 +323,44 @@ public class ANBGDataLoader {
 	    			if(addTaxonToProfile(loadUtils, record[0])){
 		    			TaxonConcept tc = new TaxonConcept();
 		    			tc.setGuid(record[0]);
-//		    			tc.nameGuid = record[1];
-//		    			tc.nameString = record[2];
+		    			tc.setNameGuid(record[1]);
+		    			tc.setNameString(record[2]);
 		    			tc.setAuthor(record[3]);
 		    			tc.setAuthorYear(record[4]);
 		    			tc.setPublishedInCitation(record[5]);
 		    			tc.setPublishedIn(record[6]);
-//		    			tc.setAcceptedConceptGuid(record[8]);
-		    			
-		    			//remove and use a infosource lookup
-//		    			if("AFD".equals(accepted)){
-//		    				tc.setInfoSourceId(Integer.toString(afd.getId()));
-//		    				tc.setInfoSourceName(afd.getName());
-//		    				tc.setInfoSourceURL(afd.getWebsiteUrl());
-//		    			} else 
+
 		    			String accepted = loadUtils.isAcceptedConcept(record[0]);
 		    			if("APC".equals(accepted)){
 		    				tc.setInfoSourceId(Integer.toString(apc.getId()));
 		    				tc.setInfoSourceName(apc.getName());
-		    				tc.setInfoSourceURL(apc.getWebsiteUrl());
-		    			} else if(record[0].contains("apni")){
+		    				String internalId = record[0].substring(record[0].lastIndexOf(":")+1);
+		    				tc.setInfoSourceURL("http://www.anbg.gov.au/cgi-bin/apni?taxon_id="+internalId);
+		    			} else if(record[0].contains(":apni.")){
 		    				tc.setInfoSourceId(Integer.toString(apni.getId()));
 		    				tc.setInfoSourceName(apni.getName());
-		    				tc.setInfoSourceURL(apni.getWebsiteUrl());
-		    			} else if(record[0].contains("afd")){
+		    				String internalId = record[0].substring(record[0].lastIndexOf(":")+1);
+		    				tc.setInfoSourceURL("http://www.anbg.gov.au/cgi-bin/apni?taxon_id="+internalId);
+		    			} else if(record[0].contains("catalogue")){
+		    				tc.setInfoSourceId(Integer.toString(col.getId()));
+		    				tc.setInfoSourceName(col.getName());
+		    				tc.setInfoSourceURL(col.getWebsiteUrl());
+		    			} else if(record[0].contains(":afd.")){
 		    				tc.setInfoSourceId(Integer.toString(afd.getId()));
 		    				tc.setInfoSourceName(afd.getName());
 		    				tc.setInfoSourceURL(afd.getWebsiteUrl());
-		    				//http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/0fbc224e-d258-4ed3-a559-eacb2c6bb5f0
-//		    				tc.setInfoSourceURL(infoSourceURL)
+		    				String internalId = record[0].substring(record[0].lastIndexOf(":")+1);
+		    				tc.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+internalId);
 		    			}
-		    			tcBatch.add(tc);
+		    			taxonConceptDao.update(tc);
 		    			j++;
 	    			} 
-//	    			else {
-//	    				logger.debug("Skipping "+record[0]+", as vernacular:"+isVernacular+", iscongruent: "+isCongruent+", isAccepted:"+isAccepted+", source:"+record[9]);
-//	    			}
 	    		} else {
 	    			logger.error(i+" - missing fields: "+record.length+" fields:"+record);
 	    		}
 	    	}
 	    	
 	    	//add the remainder
-	    	taxonConceptDao.create(tcBatch);
-			tcBatch.clear();
 	    	
 	    	long finish = System.currentTimeMillis();
 	    	logger.info(i+" lines read, "+j+" loaded taxon concepts in: "+(((finish-start)/1000)/60)+" minutes.");
