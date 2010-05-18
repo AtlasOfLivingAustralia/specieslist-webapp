@@ -395,9 +395,23 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getTaxonNameFor(java.lang.String)
 	 */
 	public TaxonName getTaxonNameFor(String guid) throws Exception {
-		return (TaxonName) storeHelper.get(TC_TABLE, TC_COL_FAMILY, TAXONNAME_COL, guid, TaxonName.class);
+		List taxonNames = storeHelper.getList(TC_TABLE, TC_COL_FAMILY, TAXONNAME_COL, guid, TaxonName.class);
+		if(taxonNames.isEmpty()){
+			return null;
+		} else {
+			return (TaxonName) taxonNames.get(0);
+		}
 	}
 
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getTaxonNameFor(java.lang.String)
+	 */
+	public List<TaxonName> getTaxonNamesFor(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, TAXONNAME_COL, guid, TaxonName.class);
+	}	
+	
+	
+	
 	/**
 	 * Retrieve all properties for this row as a Map. Useful for debug
 	 * interfaces only.
