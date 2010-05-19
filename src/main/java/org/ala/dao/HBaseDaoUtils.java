@@ -14,10 +14,13 @@
  ***************************************************************************/
 package org.ala.dao;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.ala.model.AttributableObject;
+import org.apache.commons.collections.KeyValue;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
@@ -26,6 +29,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.type.TypeFactory;
 import org.codehaus.jackson.type.TypeReference;
 
 /**
@@ -44,27 +48,26 @@ public class HBaseDaoUtils {
 	 * Object.equals in a sensible manner for a specific type of object.
 	 * 
 	 * @param guid
-	 * @param columnFamily
-	 * @param columnName
+	 * @param columnName family:cell
 	 * @param object
 	 * @param typeReference
 	 * @return true if the object was stored, false otherwise
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public static boolean storeComplexObject(HTable htable, String guid, String columnFamily, String columnName, Comparable object, TypeReference typeReference) throws Exception {
+	public static boolean storeComplexObject(HTable htable, String guid, String columnName, Comparable object, TypeReference typeReference) throws Exception {
 		if (guid == null || guid.equals("")) {
-			logger.error("Attempting to store column=" +  columnFamily + ":" + columnName + " with undefined key. Object=" + object);
+			logger.error("Attempting to store column=" +  columnName + " with undefined key. Object=" + object);
 			return false;
 		}
-		Get getter = new Get(Bytes.toBytes(guid)).addFamily(Bytes.toBytes(columnFamily));
+		Get getter = new Get(Bytes.toBytes(guid)).addColumn(Bytes.toBytes(columnName));
 		Result result = htable.get(getter);
 		if (result.getRow() == null) {
 			logger.error("Unable to find the row for guid: "+guid+". Unable to add object to "+columnName);
 			return false;
 		}
 		
-		byte [] columnValue = result.getValue(Bytes.toBytes(columnFamily), Bytes.toBytes(columnName));
+		byte [] columnValue = result.getValue(Bytes.toBytes(columnName));
 		List objectList = null;
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
@@ -88,7 +91,8 @@ public class HBaseDaoUtils {
 		Collections.sort(objectList);
 		// Serialise to JSON and save in HBase
 		String objectsAsJson = mapper.writeValueAsString(objectList); 
-		Put putter = new Put(Bytes.toBytes(guid)).add(Bytes.toBytes(columnFamily), Bytes.toBytes(columnName), Bytes.toBytes(objectsAsJson));
+		Put putter = new Put(Bytes.toBytes(guid));
+		putter.add(Bytes.toBytes(columnName), putter.getTimeStamp(), Bytes.toBytes(objectsAsJson));
 		htable.put(putter);
 		return true;
 	}
@@ -98,19 +102,18 @@ public class HBaseDaoUtils {
 	 * 
 	 * @param htable
 	 * @param guid
-	 * @param columnFamily
-	 * @param columnName
+	 * @param columnName family:cell
 	 * @param listOfObjects
 	 * @return
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public static boolean putComplexObject(HTable htable, String guid, String columnFamily, String columnName, List listOfObjects) throws Exception {
+	public static boolean putComplexObject(HTable htable, String guid, String columnName, List listOfObjects) throws Exception {
 		if (guid == null || guid.equals("")) {
-			logger.error("Attempting to put column=" +  columnFamily + ":" + columnName + " with undefined key.");
+			logger.error("Attempting to put column=" +  columnName + " with undefined key.");
 			return false;
 		}
-		Get getter = new Get(Bytes.toBytes(guid)).addFamily(Bytes.toBytes(columnFamily));
+		Get getter = new Get(Bytes.toBytes(guid)).addColumn(Bytes.toBytes(columnName));
 		Result result = htable.get(getter);
 		if (result.getRow() == null) {
 			logger.error("Unable to find the row for guid: "+guid+". Unable to put column object to "+columnName);
@@ -122,8 +125,72 @@ public class HBaseDaoUtils {
 		
 		// Serialise to JSON and save in HBase
 		String objectsAsJson = mapper.writeValueAsString(listOfObjects); 
-		Put putter = new Put(Bytes.toBytes(guid)).add(Bytes.toBytes(columnFamily), Bytes.toBytes(columnName), Bytes.toBytes(objectsAsJson));
+		Put putter = new Put(Bytes.toBytes(guid));
+		putter.add(Bytes.toBytes(columnName), putter.getTimeStamp(), Bytes.toBytes(objectsAsJson));
 		htable.put(putter);
+		return true;
+	}
+	
+	/**
+	 * Update a row if there is new or changed data.
+	 * 
+	 * @param htable
+	 * @param guid
+	 * @param kvList
+	 * @return
+	 * @throws IOException
+	 */
+	@SuppressWarnings("unchecked")
+	public static boolean update(HTable htable, String guid, List<KeyValue> kvList) throws IOException {
+		if (guid == null || guid.equals("")) {
+			logger.error("Attempting to update Taxon Concept with undefined key.");
+			return false;
+		}
+		Get getter = new Get(Bytes.toBytes(guid));
+//		for (KeyValue kv : kvList) {
+//			getter.addColumn(Bytes.toBytes((String) kv.getKey()));
+//		}
+		Result result = htable.get(getter);
+		if (result.getRow() == null) {
+			logger.error("Unable to find the row for guid: "+guid+". Unable to update row.");
+			return false;
+		}
+		
+		boolean dirty = false;
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+		Put putter = new Put(Bytes.toBytes(guid));
+		
+		for (KeyValue kv : kvList) {
+			String column = (String) kv.getKey();
+			ArrayList<AttributableObject> valueList = (ArrayList<AttributableObject>) kv.getValue();
+			List newValues = new ArrayList();
+			String columnValue = Bytes.toString(result.getValue(Bytes.toBytes(column)));
+			List objList = new ArrayList();
+			if (columnValue != null) {
+				objList = mapper.readValue(columnValue, TypeFactory.collectionType(ArrayList.class, valueList.get(0).getClass()));
+				for (AttributableObject value : valueList) {
+					if (!objList.contains(value)) {
+						newValues.add(value);
+					}
+				}
+			} else {
+				newValues.addAll(valueList);
+			}
+			
+			if (!newValues.isEmpty()) {
+				dirty = true;
+				objList.addAll(newValues);
+				Collections.sort(objList);
+				String objectsAsJson = mapper.writeValueAsString(objList); 
+				putter.add(Bytes.toBytes(column), putter.getTimeStamp(), Bytes.toBytes(objectsAsJson));
+			}
+		}
+		if (dirty ) {
+			htable.put(putter);
+		} else {
+			logger.debug("Nothing to update");
+		}
 		return true;
 	}
 	
@@ -132,11 +199,11 @@ public class HBaseDaoUtils {
 	 * the column doesnt exist.
 	 * 
 	 * @param rowResult
-	 * @param column
+	 * @param column as family:cell
 	 * @return the string value for this column
 	 */
-	public static String getField(Result result, String family, String column) {
-		byte [] value = result.getValue(Bytes.toBytes(family), Bytes.toBytes(column));
+	public static String getField(Result result, String column) {
+		byte [] value = result.getValue(Bytes.toBytes(column));
 		return Bytes.toString(value);
 	}
 }
