@@ -53,6 +53,8 @@ import org.ala.util.FileType;
 import org.ala.util.MimeType;
 import org.ala.util.StatusType;
 import org.ala.vocabulary.Vocabulary;
+import org.apache.commons.collections.KeyValue;
+import org.apache.commons.collections.keyvalue.DefaultKeyValue;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -90,7 +92,6 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.springframework.stereotype.Component;
 
 import au.org.ala.checklist.lucene.CBIndexSearch;
 import au.org.ala.checklist.lucene.SearchResultException;
@@ -110,25 +111,48 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public static final String TC_INDEX_DIR = "/data/lucene/taxonConcept";
 
 	/** HBase columns */
-	private static final String IDENTIFIER_COL = "sameAs";
-	private static final String SYNONYM_COL = "hasSynonym";
-	private static final String IS_SYNONYM_FOR_COL = "IsSynonymFor";
-	private static final String IS_CONGRUENT_TO_COL = "IsCongruentTo";
-	private static final String VERNACULAR_COL = "hasVernacularConcept";
-	private static final String CONSERVATION_STATUS_COL = "hasConservationStatus";
-	private static final String PEST_STATUS_COL = "hasPestStatus";
-	private static final String REGION_COL = "hasRegion";
-	private static final String EXTANT_STATUS_COL = "hasExtantStatus";
-	private static final String HABITAT_COL = "hasHabitat";
-	private static final String IMAGE_COL = "hasImage";
-	private static final String IS_CHILD_COL_OF = "IsChildTaxonOf";
-	private static final String IS_PARENT_COL_OF = "IsParentTaxonOf";
-    private static final String TEXT_PROPERTY_COL = "hasTextProperty";
-    private static final String CLASSIFICATION_COL = "hasClassification";
-    private static final String REFERENCE_COL = "hasReference";
-    private static final String PUBLICATION_COL = "hasPublication";
+	private static final String IDENTIFIER_COL = "tc:sameAs";
+	private static final String SYNONYM_COL = "tc:hasSynonym";
+	private static final String IS_SYNONYM_FOR_COL = "tc:IsSynonymFor";
+	private static final String IS_CONGRUENT_TO_COL = "tc:IsCongruentTo";
+	private static final String VERNACULAR_COL = "tc:hasVernacularConcept";
+	private static final String CONSERVATION_STATUS_COL = "tc:hasConservationStatus";
+	private static final String PEST_STATUS_COL = "tc:hasPestStatus";
+	private static final String REGION_COL = "tc:hasRegion";
+	private static final String EXTANT_STATUS_COL = "tc:hasExtantStatus";
+	private static final String HABITAT_COL = "tc:hasHabitat";
+	private static final String IMAGE_COL = "tc:hasImage";
+	private static final String IS_CHILD_COL_OF = "tc:IsChildTaxonOf";
+	private static final String IS_PARENT_COL_OF = "tc:IsParentTaxonOf";
+    private static final String TEXT_PROPERTY_COL = "tc:hasTextProperty";
+    private static final String CLASSIFICATION_COL = "tc:hasClassification";
+    private static final String REFERENCE_COL = "tc:hasReference";
+    private static final String PUBLICATION_COL = "tc:hasPublication";
 
-    private static final String TC_COL_FAMILY = "tc";
+	private static final String TC_ACCEPTED_CONCEPT_GUID = "tc:acceptedConceptGuid";
+	private static final String TC_AUTHOR = "tc:author";
+	private static final String TC_AUTHOR_YEAR = "tc:authorYear";
+	private static final String TC_HAS_NAME = "tc:hasName";
+	private static final String TC_ID = "tc:id";
+	private static final String TC_INFO_SOURCE_ID = "tc:infoSourceId";
+	private static final String TC_INFO_SOURCE_NAME = "tc:infoSourceName";
+	private static final String TC_INFO_SOURCE_URL = "tc:infoSourceURL";
+	private static final String TC_NAME_STRING = "tc:nameString";
+	private static final String TC_PARENT_GUID = "tc:parentGuid";
+	private static final String TC_PARENT_ID = "tc:parentId";
+	private static final String TC_PUBLISHED_IN = "tc:publishedIn";
+	private static final String TC_PUBLISHED_IN_CITATION = "tc:publishedInCitation";
+	private static final String TC_RANK_STRING = "tc:rankString";
+	private static final String TN_AUTHORSHIP = "tn:authorship";
+	private static final String TN_GUID = "tn:guid";
+	private static final String TN_NAME_COMPLETE = "tn:nameComplete";
+	private static final String TN_NOMENCLATURAL_CODE = "tn:nomenclaturalCode";
+	private static final String TN_PUBLISHED_IN = "tn:publishedIn";
+	private static final String TN_PUBLISHED_IN_CITATION = "tn:publishedInCitation";
+	private static final String TN_RANK_STRING = "tn:rankString";
+	private static final String TN_TYPIFICATION_STRING = "tn:typificationString";
+
+	private static final String TC_COL_FAMILY = "tc";
     private static final String TN_COL_FAMILY = "tn";
     private static final String RAW_COL_FAMILY = "raw";
     
@@ -253,7 +277,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 
 	private List<TaxonConcept> getSynonyms(Result result) throws IOException,
 			JsonParseException, JsonMappingException {
-		byte [] synonym = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(SYNONYM_COL));
+		byte [] synonym = result.getValue(Bytes.toBytes(SYNONYM_COL));
 		return getTaxonConceptsFrom(synonym);
 	}
 	
@@ -271,7 +295,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 
 	private List<Image> getImages(Result result) throws IOException,
 			JsonParseException, JsonMappingException {
-		byte [] images = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(IMAGE_COL));
+		byte [] images = result.getValue(Bytes.toBytes(IMAGE_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if (images != null) {
 			return mapper.readValue(images, 0, images.length, new TypeReference<List<Image>>(){});
@@ -293,7 +317,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 
 	private List<PestStatus> getPestStatus(Result result) throws IOException,
 			JsonParseException, JsonMappingException {
-		byte [] pestStatus = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(PEST_STATUS_COL));
+		byte [] pestStatus = result.getValue(Bytes.toBytes(PEST_STATUS_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if (pestStatus != null) {
 			return mapper.readValue(pestStatus, 0, pestStatus.length, new TypeReference<List<PestStatus>>(){});
@@ -315,7 +339,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 
 	private List<ConservationStatus> getConservationStatus(Result result)
 			throws IOException, JsonParseException, JsonMappingException {
-		byte [] consStatus = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(CONSERVATION_STATUS_COL));
+		byte [] consStatus = result.getValue(Bytes.toBytes(CONSERVATION_STATUS_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if (consStatus != null) {
 			return mapper.readValue(consStatus, 0, consStatus.length, new TypeReference<List<ConservationStatus>>(){});
@@ -373,7 +397,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 
 	private List<TaxonConcept> getChildConcepts(Result result)
 			throws IOException, JsonParseException, JsonMappingException {
-		byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(IS_PARENT_COL_OF));
+		byte [] value = result.getValue(Bytes.toBytes(IS_PARENT_COL_OF));
 		return getTaxonConceptsFrom(value);
 	}
 	
@@ -391,7 +415,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 
 	private List<TaxonConcept> getParentConcepts(Result result)
 			throws IOException, JsonParseException, JsonMappingException {
-		byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(IS_CHILD_COL_OF));
+		byte [] value = result.getValue(Bytes.toBytes(IS_CHILD_COL_OF));
 		return getTaxonConceptsFrom(value);
 	}		
 	
@@ -409,7 +433,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 
 	private List<CommonName> getCommonNames(Result result) throws IOException,
 			JsonParseException, JsonMappingException {
-		byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(VERNACULAR_COL));
+		byte [] value = result.getValue(Bytes.toBytes(VERNACULAR_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if (value != null) {
 			return mapper.readValue(value, 0, value.length, new TypeReference<List<CommonName>>(){});
@@ -431,7 +455,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 
 	private List<SimpleProperty> getTextProperties(Result result) throws IOException,
 			JsonParseException, JsonMappingException {
-		byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(TEXT_PROPERTY_COL));
+		byte [] value = result.getValue(Bytes.toBytes(TEXT_PROPERTY_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if (value != null) {
 			return mapper.readValue(value, 0, value.length, new TypeReference<List<SimpleProperty>>(){});
@@ -453,20 +477,20 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		logger.debug("Creating Taxon Concept - " + tc);
 		
 		Put putter = new Put(Bytes.toBytes(tc.getGuid()));
-		putIfNotNull(putter, "tc:id", Integer.toString(tc.getId()));
-		putIfNotNull(putter, "tc:parentId", tc.getParentId());
-		putIfNotNull(putter, "tc:parentGuid", tc.getParentGuid());
-		putIfNotNull(putter, "tc:nameString", tc.getNameString());
-		putIfNotNull(putter, "tc:author", tc.getAuthor());
-		putIfNotNull(putter, "tc:authorYear", tc.getAuthorYear());
-		putIfNotNull(putter, "tc:publishedIn", tc.getPublishedIn());
-		putIfNotNull(putter, "tc:publishedInCitation", tc.getPublishedInCitation());
-		putIfNotNull(putter, "tc:acceptedConceptGuid", tc.getAcceptedConceptGuid());
-		putIfNotNull(putter, "tc:rankString", tc.getRankString());
+		putIfNotNull(putter, TC_ID, Integer.toString(tc.getId()));
+		putIfNotNull(putter, TC_PARENT_ID, tc.getParentId());
+		putIfNotNull(putter, TC_PARENT_GUID, tc.getParentGuid());
+		putIfNotNull(putter, TC_NAME_STRING, tc.getNameString());
+		putIfNotNull(putter, TC_AUTHOR, tc.getAuthor());
+		putIfNotNull(putter, TC_AUTHOR_YEAR, tc.getAuthorYear());
+		putIfNotNull(putter, TC_PUBLISHED_IN, tc.getPublishedIn());
+		putIfNotNull(putter, TC_PUBLISHED_IN_CITATION, tc.getPublishedInCitation());
+		putIfNotNull(putter, TC_ACCEPTED_CONCEPT_GUID, tc.getAcceptedConceptGuid());
+		putIfNotNull(putter, TC_RANK_STRING, tc.getRankString());
 		
-		putIfNotNull(putter, "tc:infoSourceId", tc.getInfoSourceId());
-		putIfNotNull(putter, "tc:infoSourceName", tc.getInfoSourceName());
-		putIfNotNull(putter, "tc:infoSourceURL", tc.getInfoSourceURL());
+		putIfNotNull(putter, TC_INFO_SOURCE_ID, tc.getInfoSourceId());
+		putIfNotNull(putter, TC_INFO_SOURCE_NAME, tc.getInfoSourceName());
+		putIfNotNull(putter, TC_INFO_SOURCE_URL, tc.getInfoSourceURL());
 		getTable().put(putter);	
 		
 		return true;
@@ -481,14 +505,14 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		logger.debug("Updating Taxon Concept - " + tc);
 
 		Put putter = new Put(Bytes.toBytes(tc.getGuid()));
-		putIfNotNull(putter, "tc:authorYear", tc.getAuthorYear());
-		putIfNotNull(putter, "tc:publishedIn", tc.getPublishedIn());
-		putIfNotNull(putter, "tc:publishedInCitation", tc.getPublishedInCitation());
-		putIfNotNull(putter, "tc:acceptedConceptGuid", tc.getAcceptedConceptGuid());
-		putIfNotNull(putter, "tc:rankString", tc.getRankString());
-		putIfNotNull(putter, "tc:infoSourceId", tc.getInfoSourceId());
-		putIfNotNull(putter, "tc:infoSourceName", tc.getInfoSourceName());
-		putIfNotNull(putter, "tc:infoSourceURL", tc.getInfoSourceURL());
+		putIfNotNull(putter, TC_AUTHOR_YEAR, tc.getAuthorYear());
+		putIfNotNull(putter, TC_PUBLISHED_IN, tc.getPublishedIn());
+		putIfNotNull(putter, TC_PUBLISHED_IN_CITATION, tc.getPublishedInCitation());
+		putIfNotNull(putter, TC_ACCEPTED_CONCEPT_GUID, tc.getAcceptedConceptGuid());
+		putIfNotNull(putter, TC_RANK_STRING, tc.getRankString());
+		putIfNotNull(putter, TC_INFO_SOURCE_ID, tc.getInfoSourceId());
+		putIfNotNull(putter, TC_INFO_SOURCE_NAME, tc.getInfoSourceName());
+		putIfNotNull(putter, TC_INFO_SOURCE_URL, tc.getInfoSourceURL());
 		getTable().put(putter);	
 		return true;
 	}
@@ -505,14 +529,14 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 			return false;
 		}
 		Put putter = new Put(Bytes.toBytes(guid));
-		putIfNotNull(putter, "tn:guid", tn.guid);
-		putIfNotNull(putter, "tn:nameComplete", tn.nameComplete);
-		putIfNotNull(putter, "tn:authorship", tn.authorship);
-		putIfNotNull(putter, "tn:nomenclaturalCode", tn.nomenclaturalCode);
-		putIfNotNull(putter, "tn:typificationString", tn.typificationString);
-		putIfNotNull(putter, "tn:publishedInCitation", tn.publishedInCitation);
-		putIfNotNull(putter, "tn:publishedIn", tn.publishedIn);
-		putIfNotNull(putter, "tn:rankString", tn.rankString);
+		putIfNotNull(putter, TN_GUID, tn.guid);
+		putIfNotNull(putter, TN_NAME_COMPLETE, tn.nameComplete);
+		putIfNotNull(putter, TN_AUTHORSHIP, tn.authorship);
+		putIfNotNull(putter, TN_NOMENCLATURAL_CODE, tn.nomenclaturalCode);
+		putIfNotNull(putter, TN_TYPIFICATION_STRING, tn.typificationString);
+		putIfNotNull(putter, TN_PUBLISHED_IN_CITATION, tn.publishedInCitation);
+		putIfNotNull(putter, TN_PUBLISHED_IN, tn.publishedIn);
+		putIfNotNull(putter, TN_RANK_STRING, tn.rankString);
 		getTable().put(putter);
 		return true;
 	}
@@ -521,21 +545,21 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#addCommonName(java.lang.String, org.ala.model.CommonName)
 	 */
 	public boolean addCommonName(String guid, CommonName commonName) throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, VERNACULAR_COL, commonName, new TypeReference<List<CommonName>>(){});
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, VERNACULAR_COL, commonName, new TypeReference<List<CommonName>>(){});
 	}
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addConservationStatus(java.lang.String, org.ala.model.ConservationStatus)
 	 */
 	public boolean addConservationStatus(String guid, ConservationStatus conservationStatus) throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, CONSERVATION_STATUS_COL, conservationStatus, new TypeReference<List<ConservationStatus>>(){});
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, CONSERVATION_STATUS_COL, conservationStatus, new TypeReference<List<ConservationStatus>>(){});
 	}
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addPestStatus(java.lang.String, org.ala.model.PestStatus)
 	 */
 	public boolean addPestStatus(String guid, PestStatus pestStatus) throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, PEST_STATUS_COL, pestStatus, new TypeReference<List<PestStatus>>(){});
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, PEST_STATUS_COL, pestStatus, new TypeReference<List<PestStatus>>(){});
 	}
 	
 	/**
@@ -546,14 +570,14 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @throws Exception
 	 */
 	public boolean addRegions(String guid, List<Region> regions) throws Exception {
-		return HBaseDaoUtils.putComplexObject(getTable(), guid, TC_COL_FAMILY, REGION_COL, regions);
+		return HBaseDaoUtils.putComplexObject(getTable(), guid, REGION_COL, regions);
 	}
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addImage(java.lang.String, org.ala.model.Image)
 	 */
 	public boolean addImage(String guid, Image image) throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IMAGE_COL, image, new TypeReference<List<Image>>(){});
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, IMAGE_COL, image, new TypeReference<List<Image>>(){});
 	}
 		
 	
@@ -561,21 +585,21 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#addSynonym(java.lang.String, org.ala.model.TaxonConcept)
 	 */
 	public boolean addSynonym(String guid, TaxonConcept synonym) throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, SYNONYM_COL, synonym, new TypeReference<List<TaxonConcept>>(){});
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, SYNONYM_COL, synonym, new TypeReference<List<TaxonConcept>>(){});
 	}	
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addIsSynonymFor(java.lang.String, org.ala.model.TaxonConcept)
 	 */
 	public boolean addIsSynonymFor(String guid, TaxonConcept acceptedConcept) throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_SYNONYM_FOR_COL, acceptedConcept, new TypeReference<List<TaxonConcept>>(){});
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, IS_SYNONYM_FOR_COL, acceptedConcept, new TypeReference<List<TaxonConcept>>(){});
 	}
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addIsCongruentTo(java.lang.String, org.ala.model.TaxonConcept)
 	 */
 	public boolean addIsCongruentTo(String guid, TaxonConcept congruent) throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_CONGRUENT_TO_COL, congruent, new TypeReference<List<TaxonConcept>>(){});
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, IS_CONGRUENT_TO_COL, congruent, new TypeReference<List<TaxonConcept>>(){});
 	}
 	
 	
@@ -583,28 +607,28 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#addChildTaxon(java.lang.String, org.ala.model.TaxonConcept)
 	 */
 	public boolean addChildTaxon(String guid, TaxonConcept childConcept) throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_PARENT_COL_OF, childConcept, new TypeReference<List<TaxonConcept>>(){});
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, IS_PARENT_COL_OF, childConcept, new TypeReference<List<TaxonConcept>>(){});
 	}
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addIdentifier(java.lang.String, java.lang.String)
 	 */
 	public boolean addIdentifier(String guid, String alternativeIdentifier) throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IDENTIFIER_COL, alternativeIdentifier, new TypeReference<List<String>>(){});
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, IDENTIFIER_COL, alternativeIdentifier, new TypeReference<List<String>>(){});
 	}
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addParentTaxon(java.lang.String, org.ala.model.TaxonConcept)
 	 */
 	public boolean addParentTaxon(String guid, TaxonConcept parentConcept) throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, IS_CHILD_COL_OF, parentConcept, new TypeReference<List<TaxonConcept>>(){});
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, IS_CHILD_COL_OF, parentConcept, new TypeReference<List<TaxonConcept>>(){});
 	}
 
     /**
 	 * @see org.ala.dao.TaxonConceptDao#addTextProperty(java.lang.String, org.ala.model.SimpleProperty)
 	 */
 	public boolean addTextProperty(String guid, SimpleProperty textProperty) throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, TEXT_PROPERTY_COL, textProperty, new TypeReference<List<SimpleProperty>>(){});
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TEXT_PROPERTY_COL, textProperty, new TypeReference<List<SimpleProperty>>(){});
 	}
 	
 	/**
@@ -680,7 +704,6 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * 
 	 * FIXME Use serialised taxon concept ??
 	 * 
-	 * @param guid
 	 * @param rowResult
 	 * @return
 	 */
@@ -688,15 +711,15 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		TaxonConcept tc = new TaxonConcept();
 		String guid = new String(result.getRow());
 		tc.setGuid(guid);
-		tc.setAuthor(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "author"));
-		tc.setAuthorYear(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "authorYear"));
-		tc.setNameGuid(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "hasName")); 
-		tc.setNameString(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "nameString"));
-		tc.setPublishedIn(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "publishedIn"));
-		tc.setPublishedInCitation(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "publishedInCitation"));
-		tc.setInfoSourceId(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "infoSourceId"));
-		tc.setInfoSourceName(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "infoSourceName"));
-		tc.setInfoSourceURL(HBaseDaoUtils.getField(result, TC_COL_FAMILY, "infoSourceURL"));
+		tc.setAuthor(HBaseDaoUtils.getField(result, TC_AUTHOR));
+		tc.setAuthorYear(HBaseDaoUtils.getField(result, TC_AUTHOR_YEAR));
+		tc.setNameGuid(HBaseDaoUtils.getField(result, TC_HAS_NAME)); 
+		tc.setNameString(HBaseDaoUtils.getField(result, TC_NAME_STRING));
+		tc.setPublishedIn(HBaseDaoUtils.getField(result, TC_PUBLISHED_IN));
+		tc.setPublishedInCitation(HBaseDaoUtils.getField(result, TC_PUBLISHED_IN_CITATION));
+		tc.setInfoSourceId(HBaseDaoUtils.getField(result, TC_INFO_SOURCE_ID));
+		tc.setInfoSourceName(HBaseDaoUtils.getField(result, TC_INFO_SOURCE_NAME));
+		tc.setInfoSourceURL(HBaseDaoUtils.getField(result, TC_INFO_SOURCE_URL));
 		return tc;
 	}	
 	
@@ -719,14 +742,14 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	private TaxonName getTaxonName(Result result) {
 		TaxonName tn = new TaxonName();
-		tn.guid = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "guid");
-		tn.authorship = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "authorship");
-		tn.nameComplete = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "nameComplete");
-		tn.nomenclaturalCode = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "nomenclaturalCode");
-		tn.rankString = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "rankString");
-		tn.typificationString = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "typificationString");
-		tn.publishedInCitation = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "publishedInCitation");
-		tn.publishedIn = HBaseDaoUtils.getField(result, TN_COL_FAMILY, "publishedIn");
+		tn.guid = HBaseDaoUtils.getField(result, TN_GUID);
+		tn.authorship = HBaseDaoUtils.getField(result, TN_AUTHORSHIP);
+		tn.nameComplete = HBaseDaoUtils.getField(result, TN_NAME_COMPLETE);
+		tn.nomenclaturalCode = HBaseDaoUtils.getField(result, TN_NOMENCLATURAL_CODE);
+		tn.rankString = HBaseDaoUtils.getField(result, TN_RANK_STRING);
+		tn.typificationString = HBaseDaoUtils.getField(result, TN_TYPIFICATION_STRING);
+		tn.publishedInCitation = HBaseDaoUtils.getField(result, TN_PUBLISHED_IN_CITATION);
+		tn.publishedIn = HBaseDaoUtils.getField(result, TN_PUBLISHED_IN);
 		return tn;
 	}
 
@@ -1086,7 +1109,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	@Override
 	public boolean addClassification(String guid, Classification classification) throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, CLASSIFICATION_COL, classification, new TypeReference<List<Classification>>(){});
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, CLASSIFICATION_COL, classification, new TypeReference<List<Classification>>(){});
 	}
 	
 	/**
@@ -1102,7 +1125,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 
     private List<Classification> getClassificationsForRow(Result result) throws IOException {
-        byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(CLASSIFICATION_COL));
+        byte [] value = result.getValue(Bytes.toBytes(CLASSIFICATION_COL));
         ObjectMapper mapper = new ObjectMapper();
         if (value != null) {
             return mapper.readValue(value, 0, value.length, new TypeReference<List<Classification>>() {
@@ -1123,6 +1146,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#syncTriples(org.ala.model.Document, java.util.List)
 	 */
+	@SuppressWarnings("unchecked")
 	public boolean syncTriples(org.ala.model.Document document, List<Triple> triples) throws Exception {
 
 		String scientificName = null;
@@ -1224,85 +1248,114 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 
 		if (guid != null) {
 			
-//			Map<String, Object> properties = new HashMap<String,Object>();
-			
+			// Create a list of key-value items where the key is the hbase column and 
+			// the value is a list of model objects to be written to the hbase column.
+			List<KeyValue> kvList = new ArrayList<KeyValue>();
+
 			for(Triple triple: triples){
 				
-				//check for an empty object
-				String object = StringUtils.trimToNull(triple.object);
+				logger.trace(triple.predicate);
 				
-				if(object!=null){
-				
-					logger.trace(triple.predicate);
+				//check here for predicates of complex objects
+				if(triple.predicate.endsWith("hasCommonName")){
 					
-					//check here for predicates of complex objects
-					if(triple.predicate.endsWith("hasCommonName")){
-						
-						CommonName commonName = new CommonName();
-						commonName.setNameString(triple.object);
-						commonName.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
-						commonName.setDocumentId(Integer.toString(document.getId()));
-	                    commonName.setInfoSourceName(dcPublisher);
-	                    commonName.setInfoSourceURL(dcSource);
-						addCommonName(guid, commonName);
-						
-					} else if(triple.predicate.endsWith("hasConservationStatus")){
-						
-						//lookup the vocabulary term
-						ConservationStatus cs = vocabulary.getConservationStatusFor(document.getInfoSourceId(), triple.object);
-						if(cs==null){
-							cs = new ConservationStatus();
-							cs.setStatus(triple.object);
-						}
-	
-						cs.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
-						cs.setDocumentId(Integer.toString(document.getId()));
-	                    cs.setInfoSourceName(dcPublisher);
-	                    cs.setInfoSourceURL(dcSource);
-						addConservationStatus(guid, cs);
-						
-					} else if(triple.predicate.endsWith("hasPestStatus")){
-	
-						//lookup the vocabulary term
-						PestStatus ps = vocabulary.getPestStatusFor(document.getInfoSourceId(), triple.object);
-						if(ps==null){
-							ps = new PestStatus();
-							ps.setStatus(triple.object);
-						}
-						
-						ps.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
-						ps.setDocumentId(Integer.toString(document.getId()));
-	                    ps.setInfoSourceName(dcPublisher);
-	                    ps.setInfoSourceURL(dcSource);
-						addPestStatus(guid, ps);
-						
-	                } else if (triple.predicate.endsWith("hasImagePageUrl")) {
-	                    // do nothing but prevent getting caught next - added further down
-	                } else if (!Predicates.getTaxonomicPredicates().contains(triple.predicate)) {    
-	
-	                	// FIXME - this feels mighty unscalable...
-	                	// essentially we are putting all other field values in one very 
-	                	// large cell
-	                	// if this becomes a performance problem we should split
-	                	// on the predicate value. i.e. tc:hasHabitatText,
-	                	// this was the intention with the "raw:" column family namespace
-	                	
-	                    SimpleProperty simpleProperty = new SimpleProperty();
-	                    simpleProperty.setName(triple.predicate);
-	                    simpleProperty.setValue(triple.object);
-	                    simpleProperty.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
-	                    simpleProperty.setDocumentId(Integer.toString(document.getId()));
-	                    simpleProperty.setInfoSourceName(dcPublisher);
-	                    simpleProperty.setInfoSourceURL(dcSource);
-	                    simpleProperty.setTitle(dcTitle);
-	                    simpleProperty.setIdentifier(dcIdentifier);
-	                    addTextProperty(guid, simpleProperty);
-	
-	                }
-	//                } else {
-	//					properties.put(triple.predicate, triple.object);
-	//				}
-				}
+					CommonName commonName = new CommonName();
+					commonName.setNameString(triple.object);
+					commonName.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
+					commonName.setDocumentId(Integer.toString(document.getId()));
+                    commonName.setInfoSourceName(dcPublisher);
+                    commonName.setInfoSourceURL(dcSource);
+
+                    List<CommonName> vernacularList = null;
+					int idx = indexOfKeyInList(kvList, VERNACULAR_COL);
+					if (idx == -1) {
+						vernacularList = new ArrayList<CommonName>();
+						kvList.add(new DefaultKeyValue(VERNACULAR_COL, vernacularList));
+					} else {
+						vernacularList = (List<CommonName>) kvList.get(idx).getValue();
+					}
+                    vernacularList.add(commonName);
+					
+				} else if(triple.predicate.endsWith("hasConservationStatus")){
+					
+					//lookup the vocabulary term
+					ConservationStatus cs = vocabulary.getConservationStatusFor(document.getInfoSourceId(), triple.object);
+					if(cs==null){
+						cs = new ConservationStatus();
+						cs.setStatus(triple.object);
+					}
+
+					cs.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
+					cs.setDocumentId(Integer.toString(document.getId()));
+                    cs.setInfoSourceName(dcPublisher);
+                    cs.setInfoSourceURL(dcSource);
+
+                    List<ConservationStatus> conservationStatusList = null;
+					int idx = indexOfKeyInList(kvList, CONSERVATION_STATUS_COL);
+					if (idx == -1) {
+						conservationStatusList = new ArrayList<ConservationStatus>();
+						kvList.add(new DefaultKeyValue(CONSERVATION_STATUS_COL, conservationStatusList));
+					} else {
+						conservationStatusList = (List<ConservationStatus>) kvList.get(idx).getValue();
+					}
+                    conservationStatusList.add(cs);
+					
+				} else if(triple.predicate.endsWith("hasPestStatus")){
+
+					//lookup the vocabulary term
+					PestStatus ps = vocabulary.getPestStatusFor(document.getInfoSourceId(), triple.object);
+					if(ps==null){
+						ps = new PestStatus();
+						ps.setStatus(triple.object);
+					}
+					
+					ps.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
+					ps.setDocumentId(Integer.toString(document.getId()));
+                    ps.setInfoSourceName(dcPublisher);
+                    ps.setInfoSourceURL(dcSource);
+
+                    List<PestStatus> pestStatusList = null;
+					int idx = indexOfKeyInList(kvList, PEST_STATUS_COL);
+					if (idx == -1) {
+						pestStatusList = new ArrayList<PestStatus>();
+						kvList.add(new DefaultKeyValue(PEST_STATUS_COL, pestStatusList));
+					} else {
+						pestStatusList = (List<PestStatus>) kvList.get(idx).getValue();
+					}
+                    pestStatusList.add(ps);
+					
+                } else if (triple.predicate.endsWith("hasImagePageUrl")) {
+                    // do nothing but prevent getting caught next - added further down
+                } else if (!Predicates.getTaxonomicPredicates().contains(triple.predicate)) {  
+                	// Ignoring Taxonomic Predicates for tc:hasTextProperty column.
+                	
+                	// FIXME - this feels mighty unscalable...
+                	// essentially we are putting all other field values in one very 
+                	// large cell
+                	// if this becomes a performance problem we should split
+                	// on the predicate value. i.e. tc:hasHabitatText,
+                	// this was the intention with the "raw:" column family namespace
+                	
+                    SimpleProperty simpleProperty = new SimpleProperty();
+                    simpleProperty.setName(triple.predicate);
+                    simpleProperty.setValue(triple.object);
+                    simpleProperty.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
+                    simpleProperty.setDocumentId(Integer.toString(document.getId()));
+                    simpleProperty.setInfoSourceName(dcPublisher);
+                    simpleProperty.setInfoSourceURL(dcSource);
+                    simpleProperty.setTitle(dcTitle);
+                    simpleProperty.setIdentifier(dcIdentifier);
+
+                    List<SimpleProperty> textPropertyList = null;
+					int idx = indexOfKeyInList(kvList, TEXT_PROPERTY_COL);
+					if (idx == -1) {
+						textPropertyList = new ArrayList<SimpleProperty>();
+						kvList.add(new DefaultKeyValue(TEXT_PROPERTY_COL, textPropertyList));
+					} else {
+						textPropertyList = (List<SimpleProperty>) kvList.get(idx).getValue();
+					}
+                    textPropertyList.add(simpleProperty);
+                }
 			}
 			
 			//retrieve the content type
@@ -1324,17 +1377,41 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
                     image.setInfoSourceURL(dcSource);
                     image.setIdentifier(dcIdentifier);
                     image.setTitle(dcTitle);
-					addImage(guid, image);
+
+                    List<Image> imageList = null;
+					int idx = indexOfKeyInList(kvList, IMAGE_COL);
+					if (idx == -1) {
+						imageList = new ArrayList<Image>();
+						kvList.add(new DefaultKeyValue(IMAGE_COL, imageList));
+					} else {
+						imageList = (List<Image>) kvList.get(idx).getValue();
+					}
+                    imageList.add(image);
 				}
 			}
 			
 //			logger.debug("Adding content to: "+guid+", using scientific name: "+scientificName+", genus: "+genus);
 //			addLiteralValues(guid, infoSourceId,Integer.toString(document.getId()), properties);
 			
-			return true;
+			// Update hbase row
+			return HBaseDaoUtils.update(getTable(), guid, kvList);
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * @param kvList
+	 * @param key
+	 * @return
+	 */
+	private int indexOfKeyInList(List<KeyValue> kvList, String key) {
+		for (int i = 0; i < kvList.size(); i++) {
+			if (kvList.get(i).getKey().equals(key)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	/**
@@ -1387,21 +1464,21 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     		TaxonConcept taxonConcept = getTaxonConcept(result);
             
             //get synonyms
-    		byte [] synonymsValue = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(SYNONYM_COL));
+    		byte [] synonymsValue = result.getValue(Bytes.toBytes(SYNONYM_COL));
     		List<TaxonConcept> synonyms = getTaxonConceptsFrom(synonymsValue);
     		
-    		byte [] isCongruentValue = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(IS_CONGRUENT_TO_COL));
+    		byte [] isCongruentValue = result.getValue(Bytes.toBytes(IS_CONGRUENT_TO_COL));
     		List<TaxonConcept> congruentTcs = getTaxonConceptsFrom(isCongruentValue);
     		
     		//treat congruent objects the same way we do synonyms
     		synonyms.addAll(congruentTcs);
     		
     		//get common names
-    		byte [] commonNamesValue = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(VERNACULAR_COL));
+    		byte [] commonNamesValue = result.getValue(Bytes.toBytes(VERNACULAR_COL));
     		List<CommonName> commonNames = getCommonNamesFrom(commonNamesValue);
     		
     		//add the parent id to enable tree browsing with this index
-    		byte [] childrenValue = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(IS_CHILD_COL_OF));
+    		byte [] childrenValue = result.getValue(Bytes.toBytes(IS_CHILD_COL_OF));
     		List<TaxonConcept> children = getTaxonConceptsFrom(childrenValue);
 
     		//add conservation and pest status'
@@ -1547,14 +1624,14 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#addReference(org.ala.model.Reference)
 	 */
 	public boolean addReference(String guid, Reference reference) throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, REFERENCE_COL, reference, new TypeReference<List<Reference>>() {});
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, REFERENCE_COL, reference, new TypeReference<List<Reference>>() {});
 	}
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addPublication(java.lang.String, org.ala.model.Publication)
 	 */
 	public boolean addPublication(String guid, Publication publication) throws Exception {
-		return HBaseDaoUtils.storeComplexObject(getTable(), guid, TC_COL_FAMILY, PUBLICATION_COL, publication, new TypeReference<List<Publication>>(){});
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, PUBLICATION_COL, publication, new TypeReference<List<Publication>>(){});
 	}
 	
 //	/**
@@ -1586,7 +1663,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 		
 	private List<ExtantStatus> getExtantStatuses(Result result) throws JsonParseException, JsonMappingException, IOException {
-		byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(EXTANT_STATUS_COL));
+		byte [] value = result.getValue(Bytes.toBytes(EXTANT_STATUS_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if (value != null) {
 			return mapper.readValue(value, 0, value.length, new TypeReference<List<ExtantStatus>>(){});
@@ -1608,7 +1685,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	private List<Habitat> getHabitats(Result result) throws JsonParseException, JsonMappingException, IOException {
-		byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(HABITAT_COL));
+		byte [] value = result.getValue(Bytes.toBytes(HABITAT_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if (value != null) {
 			return mapper.readValue(value, 0, value.length, new TypeReference<List<Habitat>>(){});
@@ -1622,7 +1699,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	@Override
 	public boolean addExtantStatus(String guid, List<ExtantStatus> extantStatusList)
 			throws Exception {
-		return HBaseDaoUtils.putComplexObject(getTable(), guid, TC_COL_FAMILY, EXTANT_STATUS_COL, extantStatusList);
+		return HBaseDaoUtils.putComplexObject(getTable(), guid, EXTANT_STATUS_COL, extantStatusList);
 	}
 
 	/**
@@ -1630,7 +1707,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 */
 	@Override
 	public boolean addHabitat(String guid, List<Habitat> habitatList) throws Exception {
-		return HBaseDaoUtils.putComplexObject(getTable(), guid, TC_COL_FAMILY, HABITAT_COL, habitatList);
+		return HBaseDaoUtils.putComplexObject(getTable(), guid, HABITAT_COL, habitatList);
 	}
 
 	/**
@@ -1647,7 +1724,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	private List<Region> getRegions(Result result) throws JsonParseException, JsonMappingException, IOException {
-		byte [] regionValue = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(REGION_COL));
+		byte [] regionValue = result.getValue(Bytes.toBytes(REGION_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if (regionValue != null) {
 			return mapper.readValue(regionValue, 0, regionValue.length, new TypeReference<List<Region>>(){});
@@ -1670,7 +1747,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	}
 	
 	private List<Reference> getReferences(Result result) throws JsonParseException, JsonMappingException, IOException {
-		byte [] value = result.getValue(Bytes.toBytes(TC_COL_FAMILY), Bytes.toBytes(REFERENCE_COL));
+		byte [] value = result.getValue(Bytes.toBytes(REFERENCE_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if (value != null) {
 			return mapper.readValue(value, 0, value.length, new TypeReference<List<Reference>>(){});
