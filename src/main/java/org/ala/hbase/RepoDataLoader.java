@@ -196,7 +196,7 @@ public class RepoDataLoader {
 		// Sync the triples and associated DC data
 		logger.debug("Attempting to sync triple where Scientific Name = " + getScientificName(triples));
 		boolean success = taxonConceptDao.syncTriples(document, triples);
-		logger.debug("Read file: "+currentFile.getAbsolutePath() + ", Scientific Name = " + getScientificName(triples) + ", success: "+success);
+		logger.debug("Processed file: "+currentFile.getAbsolutePath() + ", Scientific Name = " + getScientificName(triples) + ", success: "+success);
 		return success;
 	}
 
