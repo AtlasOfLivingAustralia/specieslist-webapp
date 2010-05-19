@@ -247,6 +247,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		//FIXME this is here to update some information not available in the export from checklist bank
 		// This should refactored out at some stage
 		TaxonConcept current = (TaxonConcept) storeHelper.get(TC_TABLE, TC_COL_FAMILY, TAXONCONCEPT_COL, tc.getGuid(), TaxonConcept.class);
+		
+		if(current==null){ 
+			return false;
+		}
+		
 		current.setPublishedIn(tc.getPublishedIn());
 		current.setPublishedInCitation(tc.getPublishedInCitation());
 		current.setInfoSourceId(tc.getInfoSourceId());
