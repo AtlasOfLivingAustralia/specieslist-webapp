@@ -21,6 +21,9 @@
   <category name="org.ala.hbase.RepoDataLoader">
     <priority value="DEBUG"/>
   </category> 
+  <category name="org.ala.dao.HBaseDaoUtils">
+    <priority value="DEBUG"/>
+  </category> 
   <category name="org.apache">
     <priority value="ERROR"/>
   </category>
