@@ -300,6 +300,7 @@ public class ChecklistBankLoader {
                 c.setGenus(dwc.getGenus());
                 c.setFamily(dwc.getFamily());
                 c.setOrder(dwc.getOrder());
+                c.setClazz(dwc.getClasss());
                 c.setPhylum(dwc.getPhylum());
                 c.setKingdom(dwc.getKingdom());
                 try {
