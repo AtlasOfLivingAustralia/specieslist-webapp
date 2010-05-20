@@ -26,7 +26,12 @@ public abstract class AttributableObject {
 	protected String infoSourceId;
 	protected String documentId;
     protected String infoSourceName;
+    /** The URL of the infoSource */
     protected String infoSourceURL;
+    /** The title of the resource contributing the property */
+    protected String title;
+    /** The identifier (URI) of the resource contributing the property */
+    protected String identifier;    
 
     /**
 	 * Custom equals method to use documentId for uniqueness
@@ -107,4 +112,32 @@ public abstract class AttributableObject {
     public void setInfoSourceURL(String infoSourceURL) {
         this.infoSourceURL = infoSourceURL;
     }
+
+	/**
+	 * @return the title
+	 */
+	public String getTitle() {
+		return title;
+	}
+
+	/**
+	 * @param title the title to set
+	 */
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	/**
+	 * @return the identifier
+	 */
+	public String getIdentifier() {
+		return identifier;
+	}
+
+	/**
+	 * @param identifier the identifier to set
+	 */
+	public void setIdentifier(String identifier) {
+		this.identifier = identifier;
+	}
 }

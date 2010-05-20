@@ -19,13 +19,17 @@ package org.ala.model;
  * @author Dave Martin (David.Martin@csiro.au)
  */
 public class ConservationStatus extends AttributableObject implements Comparable<ConservationStatus> {
-	
+
+	/** This is the raw status retrieved from the source document */
+	protected String rawStatus;
 	/** The conservation status - using a controlled vocabulary */
 	protected String status;
 	/** The system supplying the status e.g. IUCN */
 	protected String system;
 	/** The region where this status is valid. e.g. New South Wales */
 	protected String region;
+	/** This is the URI or identifier for the region */
+	protected String regionId;
 	
 	/**
 	 * @return the status
@@ -73,26 +77,36 @@ public class ConservationStatus extends AttributableObject implements Comparable
 	}
 	
 	/**
+	 * @return the rawStatus
+	 */
+	public String getRawStatus() {
+		return rawStatus;
+	}
+	/**
+	 * @param rawStatus the rawStatus to set
+	 */
+	public void setRawStatus(String rawStatus) {
+		this.rawStatus = rawStatus;
+	}
+	/**
+	 * @return the regionId
+	 */
+	public String getRegionId() {
+		return regionId;
+	}
+	/**
+	 * @param regionId the regionId to set
+	 */
+	public void setRegionId(String regionId) {
+		this.regionId = regionId;
+	}
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("ConservationStatus [region=");
-		builder.append(this.region);
-		builder.append(", status=");
-		builder.append(this.status);
-		builder.append(", system=");
-		builder.append(this.system);
-		builder.append(", documentId=");
-		builder.append(this.documentId);
-		builder.append(", infoSourceId=");
-		builder.append(this.infoSourceId);
-		builder.append(", infoSourceName=");
-		builder.append(this.infoSourceName);
-		builder.append(", infoSourceURL=");
-		builder.append(this.infoSourceURL);
-		builder.append("]");
-		return builder.toString();
+		return "ConservationStatus [rawStatus=" + rawStatus + ", region="
+				+ region + ", regionId=" + regionId + ", status=" + status
+				+ ", system=" + system + "]";
 	}
 }

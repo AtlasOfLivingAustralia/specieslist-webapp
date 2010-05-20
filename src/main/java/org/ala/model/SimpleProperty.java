@@ -30,10 +30,6 @@ public class SimpleProperty extends AttributableObject implements Comparable<Sim
 	protected String name;
 	/** The property value supplying the name e.g. IUCN */
 	protected String value;
-    /** The title of the resource contributing the property */
-    protected String title;
-    /** The identifier (URI) of the resource contributing the property */
-    protected String identifier;
 
     @Override
     public boolean equals(Object obj) {
@@ -88,42 +84,6 @@ public class SimpleProperty extends AttributableObject implements Comparable<Sim
 
     public void setValue(String value) {
         this.value = value;
-    }
-
-    /**
-     * Get the value of title
-     *
-     * @return the value of title
-     */
-    public String getTitle() {
-        return title;
-    }
-
-    /**
-     * Set the value of title
-     *
-     * @param title new value of title
-     */
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    /**
-     * Get the value of identifier
-     *
-     * @return the value of identifier
-     */
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    /**
-     * Set the value of identifier
-     *
-     * @param identifier new value of identifier
-     */
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
     }
 
 	/**

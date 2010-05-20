@@ -838,6 +838,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						commonName.setDocumentId(Integer.toString(document.getId()));
 	                    commonName.setInfoSourceName(dcPublisher);
 	                    commonName.setInfoSourceURL(dcSource);
+	                    commonName.setTitle(dcTitle);
+	                    commonName.setIdentifier(dcIdentifier);
 						addCommonName(guid, commonName);
 						
 					} else if(triple.predicate.endsWith("hasConservationStatus")){
@@ -853,6 +855,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						cs.setDocumentId(Integer.toString(document.getId()));
 	                    cs.setInfoSourceName(dcPublisher);
 	                    cs.setInfoSourceURL(dcSource);
+	                    cs.setTitle(dcTitle);
+	                    cs.setIdentifier(dcIdentifier);
+	                    cs.setRawStatus(triple.object);
 						addConservationStatus(guid, cs);
 						
 					} else if(triple.predicate.endsWith("hasPestStatus")){
@@ -868,11 +873,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						ps.setDocumentId(Integer.toString(document.getId()));
 	                    ps.setInfoSourceName(dcPublisher);
 	                    ps.setInfoSourceURL(dcSource);
+	                    ps.setTitle(dcTitle);
+	                    ps.setIdentifier(dcIdentifier);
+	                    ps.setRawStatus(triple.object);
 						addPestStatus(guid, ps);
 						
 	                } else if (triple.predicate.endsWith("hasImagePageUrl")) {
 	                    // do nothing but prevent getting caught next - added further down
-	                } else {    
+	                } else if(!Predicates.getTaxonomicPredicates().contains(triple.predicate)){
 	
 	                	// FIXME - this feels mighty unscalable...
 	                	// essentially we are putting all other field values in one very 
@@ -880,23 +888,17 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	                	// if this becomes a performance problem we should split
 	                	// on the predicate value. i.e. tc:hasHabitatText,
 	                	// this was the intention with the "raw:" column family namespace
-	                	
-	                	if(!Predicates.getTaxonomicPredicates().contains(triple.predicate)){
-		                    SimpleProperty simpleProperty = new SimpleProperty();
-		                    simpleProperty.setName(triple.predicate);
-		                    simpleProperty.setValue(triple.object);
-		                    simpleProperty.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
-		                    simpleProperty.setDocumentId(Integer.toString(document.getId()));
-		                    simpleProperty.setInfoSourceName(dcPublisher);
-		                    simpleProperty.setInfoSourceURL(dcSource);
-		                    simpleProperty.setTitle(dcTitle);
-		                    simpleProperty.setIdentifier(dcIdentifier);
-		                    addTextProperty(guid, simpleProperty);
-	                	}
+	                    SimpleProperty simpleProperty = new SimpleProperty();
+	                    simpleProperty.setName(triple.predicate);
+	                    simpleProperty.setValue(triple.object);
+	                    simpleProperty.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
+	                    simpleProperty.setDocumentId(Integer.toString(document.getId()));
+	                    simpleProperty.setInfoSourceName(dcPublisher);
+	                    simpleProperty.setInfoSourceURL(dcSource);
+	                    simpleProperty.setTitle(dcTitle);
+	                    simpleProperty.setIdentifier(dcIdentifier);
+	                    addTextProperty(guid, simpleProperty);
 	                }
-	//                } else {
-	//					properties.put(triple.predicate, triple.object);
-	//				}
 				}
 			}
 			

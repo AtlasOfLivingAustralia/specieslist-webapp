@@ -1265,6 +1265,8 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 					commonName.setDocumentId(Integer.toString(document.getId()));
                     commonName.setInfoSourceName(dcPublisher);
                     commonName.setInfoSourceURL(dcSource);
+                    commonName.setTitle(dcTitle);
+                    commonName.setIdentifier(dcIdentifier);
 
                     List<CommonName> vernacularList = null;
 					int idx = indexOfKeyInList(kvList, VERNACULAR_COL);
@@ -1289,6 +1291,8 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 					cs.setDocumentId(Integer.toString(document.getId()));
                     cs.setInfoSourceName(dcPublisher);
                     cs.setInfoSourceURL(dcSource);
+                    cs.setTitle(dcTitle);
+                    cs.setIdentifier(dcIdentifier);
 
                     List<ConservationStatus> conservationStatusList = null;
 					int idx = indexOfKeyInList(kvList, CONSERVATION_STATUS_COL);
@@ -1313,6 +1317,8 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 					ps.setDocumentId(Integer.toString(document.getId()));
                     ps.setInfoSourceName(dcPublisher);
                     ps.setInfoSourceURL(dcSource);
+                    ps.setTitle(dcTitle);
+                    ps.setIdentifier(dcIdentifier);
 
                     List<PestStatus> pestStatusList = null;
 					int idx = indexOfKeyInList(kvList, PEST_STATUS_COL);
