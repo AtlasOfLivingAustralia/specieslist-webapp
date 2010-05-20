@@ -415,13 +415,13 @@
                             <tr>
                                 <td class="propertyNames">Accepted Name</td>
                                 <td>${extendedTaxonConcept.taxonConcept.nameString}</td>
-                                <td>Published in: ${extendedTaxonConcept.taxonName.publishedIn}</td>
+                                <td><c:if test="${not empty extendedTaxonConcept.taxonName.publishedIn}">Published in: ${extendedTaxonConcept.taxonName.publishedIn}</c:if></td>
                             </tr>
                             <c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym">
                                 <tr>
                                     <td class="propertyNames">Synonym</td>
                                     <td>${synonym.nameString}</td>
-                                    <td>Published in: ${synonym.publishedIn}</td>
+                                    <td><c:if test="${not empty synonym.publishedIn}">Published in: ${synonym.publishedIn}</c:if></td>
                                 </tr>
                             </c:forEach>
                             <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
