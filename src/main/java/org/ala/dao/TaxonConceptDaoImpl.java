@@ -92,6 +92,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.gbif.portal.model.LinnaeanRankClassification;
 
 import au.org.ala.checklist.lucene.CBIndexSearch;
 import au.org.ala.checklist.lucene.SearchResultException;
@@ -978,10 +979,10 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#findLsidByName(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public String findLsidByName(String kingdom, String genus, String scientificName, String taxonRank) {
+	public String findLsidByName(String scientificName, LinnaeanRankClassification classification, String taxonRank) {
 		String lsid = null;
 		try {
-			lsid = cbIdxSearcher.searchForLSID(lc(scientificName), lc(genus), lc(kingdom), RankType.getForName(taxonRank));
+			lsid = cbIdxSearcher.searchForLSID(scientificName, classification, RankType.getForName(taxonRank));
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
 		}
@@ -995,7 +996,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public String findLsidByName(String scientificName, String taxonRank) {
 		String lsid = null;
 		try {
-			lsid = cbIdxSearcher.searchForLSID(lc(scientificName), RankType.getForName(taxonRank));
+			lsid = cbIdxSearcher.searchForLSID(scientificName, RankType.getForName(taxonRank));
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
 		}
@@ -1006,9 +1007,11 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#findCBDataByName(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public NameSearchResult findCBDataByName(String kingdom, String genus,
-			String scientificName, String rank) throws SearchResultException {
-		return cbIdxSearcher.searchForRecord(scientificName, kingdom, genus, RankType.getForName(rank));
+	public NameSearchResult findCBDataByName(String scientificName,
+			LinnaeanRankClassification classification, String rank)
+			throws SearchResultException {
+		return cbIdxSearcher.searchForRecord(scientificName, classification,
+				RankType.getForName(rank));
 	}
 
 	/**
@@ -1235,15 +1238,18 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 				return false;
 			}
 		}
-		String guid = findLsidByName(kingdom, genus, scientificName, rank);
+
+		LinnaeanRankClassification classification = new LinnaeanRankClassification(kingdom, null, null, order, family, genus, scientificName);
+		
+		String guid = findLsidByName(scientificName, classification, rank);
 
 		// if null try with the species name
 		if (guid == null && species != null) {
-			guid = findLsidByName(kingdom, genus, species, "species");
+			guid = findLsidByName(species, classification, "species");
 		}
 		// FIX ME search with genus + specific epithet
 		if (guid == null && genus != null && specificEpithet != null) {
-			guid = findLsidByName(kingdom, genus, genus + " " + specificEpithet, "species");
+			guid = findLsidByName(genus + " " + specificEpithet, classification, "species");
 		}
 
 		if (guid != null) {
@@ -1804,17 +1810,5 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     private Get getTnGetter(String guid) {
     	Get getter = new Get(Bytes.toBytes(guid)).addFamily(Bytes.toBytes(TN_COL_FAMILY));
     	return getter;
-    }
-    
-    /**
-     * @param string
-     * @return
-     */
-    private String lc(String string) {
-    	if (string == null) {
-    		return null;
-    	} else {
-    		return string.toLowerCase();
-    	}
     }
 }

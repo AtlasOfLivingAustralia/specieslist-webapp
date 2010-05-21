@@ -37,6 +37,8 @@ import org.ala.model.TaxonName;
 import org.ala.model.Triple;
 import org.ala.util.StatusType;
 import org.apache.lucene.queryParser.ParseException;
+import org.gbif.portal.model.LinnaeanRankClassification;
+
 /**
  * Interface for creating, changing and searching taxon concept
  * profiles.
@@ -414,13 +416,12 @@ public interface TaxonConceptDao {
 	/**
 	 * Get LSID from Checklist Bank by kingdom, genus and scientific name.
 	 * 
-	 * @param kingdom Can be null.
-	 * @param genus Can be null.
 	 * @param scientificName Required.
+	 * @param classification Required.
 	 * @param taxonRank Can be null.
 	 * @return LSID or null.
 	 */
-	public String findLsidByName(String kingdom, String genus, String scientificName, String taxonRank);
+	public String findLsidByName(String scientificName, LinnaeanRankClassification classification, String taxonRank);
 	
 	/**
 	 * Get LSID from Checklist Bank by scientific name.
@@ -434,14 +435,12 @@ public interface TaxonConceptDao {
 	/**
 	 * Get Checklist Bank entry by scientific name.
 	 * 
-	 * @param kingdom Can be null.
-	 * @param genus Can be null.
 	 * @param scientificName Required.
+	 * @param classification Required.
 	 * @param rank Can be null.
 	 * @return 
 	 */
-	public NameSearchResult findCBDataByName(String kingdom, String genus,
-			String scientificName, String rank) throws Exception;
+	public NameSearchResult findCBDataByName(String scientificName, LinnaeanRankClassification classification, String rank) throws Exception;
 	
 	/**
 	 * Retrieve a list of concepts with the supplied parent guid.
@@ -541,4 +540,5 @@ public interface TaxonConceptDao {
      * @return
      */
     public String getIndexLocation();
+
 }
