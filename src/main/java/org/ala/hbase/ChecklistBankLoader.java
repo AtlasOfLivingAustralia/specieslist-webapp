@@ -133,7 +133,9 @@ public class ChecklistBankLoader {
     	
     	//names files to index
     	TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_name_usages.txt", false);
-    	String[] cols = null;
+    	
+    	String[] cols = tr.readNext(); //first line contains headers - ignore
+    	
     	while((cols=tr.readNext())!=null){
     		
 			Document doc = new Document();
@@ -166,8 +168,13 @@ public class ChecklistBankLoader {
     	logger.info(i+" indexed taxon concepts in: "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
 	}
 	
+	/**
+	 * Initialise indexes for lookups.
+	 * 
+	 * @throws Exception
+	 */
 	public void initIndexes() throws Exception {
-		this.tcIdxSearcher = new IndexSearcher(CB_LOADING_IDX_DIR);
+		this.tcIdxSearcher = new IndexSearcher(CB_LOADING_IDX_DIR, true);
 	}
 	
 	/**
@@ -278,7 +285,7 @@ public class ChecklistBankLoader {
 				}
 				
 				//load the parent concept
-				if(tc.getParentId()!=null){
+				if(StringUtils.isNotEmpty(tc.getParentId())){
 					TaxonConcept parentConcept = getById(tc.getParentId());
 					taxonConceptDao.addParentTaxon(tc.getGuid(), parentConcept);
 				}
@@ -352,9 +359,6 @@ public class ChecklistBankLoader {
 				String acceptedGuid = dwc.getAcceptedNameUsageID();
 				
 				//FIXME get the publication information
-				
-				
-				
 				
 				if (taxonConceptDao.addSynonym(acceptedGuid, tc)) {
 					numberAdded++;
