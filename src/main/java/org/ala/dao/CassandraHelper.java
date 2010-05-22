@@ -147,7 +147,7 @@ public class CassandraHelper implements StoreHelper {
 		
 		guid =  StringUtils.trimToNull(guid);
 		if(guid==null){
-			logger.warn("Null or empty guid supplied. Unable to add to column ["+columnName+"] object: "+object);
+			logger.warn("Null or empty guid supplied. Unable to add to row ["+guid+"] column ["+columnName+"] object: "+object);
 			return false;
 		}
 		
@@ -190,7 +190,7 @@ public class CassandraHelper implements StoreHelper {
         
 		guid =  StringUtils.trimToNull(guid);
 		if(guid==null){
-			logger.warn("Null or empty guid supplied. Unable to add to column ["+columnName+"] object: "+objects);
+			logger.warn("Null or empty guid supplied. Unable to add to row ["+guid+"] column ["+columnName+"] object: "+objects);
 			return false;
 		}
 		
@@ -258,8 +258,8 @@ public class CassandraHelper implements StoreHelper {
 	public boolean put(String table, String columnFamily, String columnName, String guid, Comparable object) throws Exception {
 		
 		guid =  StringUtils.trimToNull(guid);
-		if(guid==null){
-			logger.warn("Null or empty guid supplied. Unable to add to column ["+columnName+"] object: "+object);
+		if(guid==null || object==null){
+			logger.warn("Null or empty guid supplied. Unable to add to row ["+guid+"] column ["+columnName+"] object: "+object);
 			return false;
 		}
 		
