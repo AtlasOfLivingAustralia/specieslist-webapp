@@ -98,7 +98,7 @@ public class RepoDataLoader {
 		if (repoDirs.length > 0) {
 			dirs = new File [repoDirs.length];
 			for (int i = 0; i < repoDirs.length; i++) {
-				dirs[i] = new File(file.getAbsolutePath() + "/" + repoDirs[i]);
+				dirs[i] = new File(file.getAbsolutePath() + File.separator + repoDirs[i]);
 			}
 		} else {
 			// Scan all sub-directories
@@ -165,6 +165,12 @@ public class RepoDataLoader {
 		return totalFilesRead;
 	}
 
+	/**
+	 * Retrieve the scientific name from the list of triples.
+	 * 
+	 * @param triples
+	 * @return scientific name if found, null otherwise
+	 */
 	private String getScientificName(List<Triple> triples) {
         for (Triple triple: triples) {
         	if (triple.predicate.equalsIgnoreCase(Predicates.SCIENTIFIC_NAME.toString())) {
