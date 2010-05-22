@@ -117,6 +117,7 @@ public class ColFamilyNamesProcessor {
 		dc.put(Predicates.DC_IDENTIFIER.toString(), uri);
 		dc.put(Predicates.DC_PUBLISHER.toString(), publisher);
 		dc.put(Predicates.DC_SOURCE.toString(), uri);
+		dc.put(Predicates.DC_FORMAT.toString(), "text/plain");
 		repository.storeDublinCore(documentId, dc);
 		
 		//reset the reader so it can be read again
