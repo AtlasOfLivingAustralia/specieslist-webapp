@@ -1004,7 +1004,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public String findLsidByName(String scientificName, LinnaeanRankClassification classification, String taxonRank) {
 		String lsid = null;
 		try {
-			lsid = cbIdxSearcher.searchForLSID(lc(scientificName), lc(genus), lc(kingdom), RankType.getForName(taxonRank));
+			lsid = cbIdxSearcher.searchForLSID(scientificName, classification, RankType.getForName(taxonRank));
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
 		}
@@ -1018,7 +1018,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public String findLsidByName(String scientificName, String taxonRank) {
 		String lsid = null;
 		try {
-			lsid = cbIdxSearcher.searchForLSID(lc(scientificName), RankType.getForName(taxonRank));
+			lsid = cbIdxSearcher.searchForLSID(scientificName, RankType.getForName(taxonRank));
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
 		}
