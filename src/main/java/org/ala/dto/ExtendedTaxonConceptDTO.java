@@ -38,7 +38,8 @@ public class ExtendedTaxonConceptDTO {
 	protected TaxonConcept taxonConcept;
 	protected TaxonName taxonName;
     protected Classification classification;
-	protected List<TaxonConcept> synonyms;
+    protected List<String> identifiers;
+    protected List<TaxonConcept> synonyms;
 	protected List<CommonName> commonNames;
 	protected List<TaxonConcept> childConcepts;
 	protected List<TaxonConcept> parentConcepts;
@@ -228,4 +229,16 @@ public class ExtendedTaxonConceptDTO {
     public void setClassification(Classification classification) {
         this.classification = classification;
     }
+	/**
+	 * @return the identifiers
+	 */
+	public List<String> getIdentifiers() {
+		return identifiers;
+	}
+	/**
+	 * @param identifiers the identifiers to set
+	 */
+	public void setIdentifiers(List<String> identifiers) {
+		this.identifiers = identifiers;
+	}
 }
