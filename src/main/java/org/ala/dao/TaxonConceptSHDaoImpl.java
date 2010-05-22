@@ -334,6 +334,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
+	 * @see org.ala.dao.TaxonConceptDao#getIdentifiers(java.lang.String)
+	 */
+	public List<String> getIdentifiers(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, IDENTIFIER_COL, guid, String.class);
+	}
+	
+	/**
 	 * @see org.ala.dao.TaxonConceptDao#addParentTaxon(java.lang.String, org.ala.model.TaxonConcept)
 	 */
 	public boolean addParentTaxon(String guid, TaxonConcept parentConcept) throws Exception {
@@ -378,6 +385,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		if(!classifications.isEmpty()){
 			etc.setClassification(classifications.get(0));
 		}
+		
+		etc.setIdentifiers(getIdentifiers(guid));
 		etc.setSynonyms(getSynonymsFor(guid));
 		etc.setCommonNames(getCommonNamesFor(guid));
 		etc.setChildConcepts(getChildConceptsFor(guid));
@@ -1026,12 +1035,20 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    		// save all infosource ids to add in a Set to index at the end
 	    		Set<String> infoSourceIds = new TreeSet<String>();
 	            
+	    		//get alternative ids
+	    		List<String> identifiers = new ArrayList<String>();
+	    		
 	    		//TODO this index should also include nub ids
 	    		Document doc = new Document();
 	            
 	    		if(taxonConcept.getNameString()!=null){
 	    			
 	    			doc.add(new Field("guid", taxonConcept.getGuid(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+	    			
+	    			for(String identifier: identifiers){
+	    				doc.add(new Field("otherGuid", identifier, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+	    			}
+	    			
 	    			addToSetSafely(infoSourceIds, taxonConcept.getInfoSourceId());
 	    			//add multiple forms of the scientific name to the index
 	    			LuceneUtils.addScientificNameToIndex(doc, taxonConcept.getNameString(), taxonConcept.getRankString());

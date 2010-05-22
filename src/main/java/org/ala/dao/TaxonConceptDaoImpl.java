@@ -418,7 +418,29 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 			throws IOException, JsonParseException, JsonMappingException {
 		byte [] value = result.getValue(Bytes.toBytes(IS_CHILD_COL_OF));
 		return getTaxonConceptsFrom(value);
-	}		
+	}
+	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getIdentifiers(java.lang.String)
+	 */
+	public List<String> getIdentifiers(String guid) throws Exception {
+		Result result = getTable().get(getTcGetter(guid));
+		if (!result.isEmpty()) {
+			return getIdentifiers(result);
+		} else {
+			return new ArrayList<String>();
+		}
+	}
+
+	private List<String> getIdentifiers(Result result)
+			throws IOException, JsonParseException, JsonMappingException {
+		byte [] value = result.getValue(Bytes.toBytes(IDENTIFIER_COL));
+		ObjectMapper mapper = new ObjectMapper();
+		if (value != null) {
+			return mapper.readValue(value, 0, value.length, new TypeReference<List<String>>(){});
+		} 
+		return new ArrayList<String>();
+	}
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getCommonNamesFor(java.lang.String)
@@ -982,7 +1004,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public String findLsidByName(String scientificName, LinnaeanRankClassification classification, String taxonRank) {
 		String lsid = null;
 		try {
-			lsid = cbIdxSearcher.searchForLSID(scientificName, classification, RankType.getForName(taxonRank));
+			lsid = cbIdxSearcher.searchForLSID(lc(scientificName), lc(genus), lc(kingdom), RankType.getForName(taxonRank));
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
 		}
@@ -996,7 +1018,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public String findLsidByName(String scientificName, String taxonRank) {
 		String lsid = null;
 		try {
-			lsid = cbIdxSearcher.searchForLSID(scientificName, RankType.getForName(taxonRank));
+			lsid = cbIdxSearcher.searchForLSID(lc(scientificName), RankType.getForName(taxonRank));
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
 		}
@@ -1503,12 +1525,20 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     		// save all infosource ids to add in a Set to index at the end
     		Set<String> infoSourceIds = new TreeSet<String>();
             
+    		//get alternative ids
+    		List<String> identifiers = new ArrayList<String>();
+    		
     		//TODO this index should also include nub ids
     		Document doc = new Document();
             
     		if(taxonConcept.getNameString()!=null){
     			
     			doc.add(new Field("guid", taxonConcept.getGuid(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+    			
+    			for(String identifier: identifiers){
+    				doc.add(new Field("otherGuid", identifier, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+    			}
+    			
     			addToSetSafely(infoSourceIds, taxonConcept.getInfoSourceId());
     			//add multiple forms of the scientific name to the index
     			LuceneUtils.addScientificNameToIndex(doc, taxonConcept.getNameString(), taxonConcept.getRankString());
@@ -1810,5 +1840,17 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
     private Get getTnGetter(String guid) {
     	Get getter = new Get(Bytes.toBytes(guid)).addFamily(Bytes.toBytes(TN_COL_FAMILY));
     	return getter;
+    }
+    
+    /**
+     * @param string
+     * @return
+     */
+    private String lc(String string) {
+    	if (string == null) {
+    		return null;
+    	} else {
+    		return string.toLowerCase();
+    	}
     }
 }

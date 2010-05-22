@@ -78,6 +78,16 @@ public interface TaxonConceptDao {
 	public List<Image> getImages(String guid) throws Exception;
 
 	/**
+	 * Retrieve a list of alternative identifiers (guids) associated with
+	 * this taxon concept.
+	 * 
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	public List<String> getIdentifiers(String guid) throws Exception;
+	
+	/**
 	 * Retrieve the pest status associated with this taxon concept.
 	 *
 	 * @param guid
