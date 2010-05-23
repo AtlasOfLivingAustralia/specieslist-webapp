@@ -364,14 +364,14 @@
                                 <tr>
                                     <td class="propertyNames">Conservation Status</td>
                                     <td>${status.status}</td>
-                                    <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
+                                    <td><a href="${status.identifier}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
                                 </tr>
                             </c:forEach>
                             <c:forEach var="status" items="${extendedTaxonConcept.pestStatuses}">
                                 <tr>
                                     <td class="propertyNames">Pest Status</td>
                                     <td>${status.status}</td>
-                                    <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
+                                    <td><a href="${status.identifier}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
                                 </tr>
                             </c:forEach>
                             <c:forEach var="status" items="${extendedTaxonConcept.extantStatusus}">
@@ -385,7 +385,7 @@
                                 <tr>
                                     <td class="propertyNames">Habitat Status</td>
                                     <td><fmt:message key="habitat.${status.status}"/></td>
-                                    <td><a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
+                                    <td><a href="${status.identifier}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></td>
                                 </tr>
                             </c:forEach>
                             <c:if test="${not empty textProperties}">
