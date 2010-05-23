@@ -281,7 +281,7 @@
         </c:set>
         <c:set var="taxonConceptRank">
             <c:choose>
-                <c:when test="${taxonConcept != null}">${taxonConcept.rank}</c:when>
+                <c:when test="${not empty extendedTaxonConcept.taxonConcept}">${extendedTaxonConcept.taxonConcept.rankString}</c:when>
                 <c:when test="${fn:length(extendedTaxonConcept.taxonName.rankLabel) > 0}">${extendedTaxonConcept.taxonName.rankLabel}</c:when>
                 <c:otherwise>(rank not known)</c:otherwise>
             </c:choose>
