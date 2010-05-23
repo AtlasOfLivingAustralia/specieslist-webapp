@@ -48,7 +48,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -394,7 +393,6 @@ public class SpeciesController {
 			OutputStreamWriter os = new OutputStreamWriter(response.getOutputStream());
 			Autocompleter ac = new Autocompleter();
 			List<String> terms = new ArrayList<String>();
-			List<String> jsonTerms = new ArrayList<String>();
 			terms = ac.suggestTermsFor(query.toLowerCase().trim(), 10);
 			// create JSON string using Jackson
 			ObjectMapper o = new ObjectMapper();
