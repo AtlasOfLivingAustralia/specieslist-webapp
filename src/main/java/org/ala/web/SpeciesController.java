@@ -345,6 +345,15 @@ public class SpeciesController {
 	@RequestMapping(value = "/species/datasets", method = RequestMethod.GET)
 	public String listDatasets (Model model)  {
 		List<InfoSource> infoSources = infoSourceDAO.getAllByDatasetType();
+				
+		for (InfoSource infoSource : infoSources) {
+			List<Map<String,Object>> vocabulariesMap = vocabularyDAO.getTermsByInfosourceId(infoSource.getId());
+			
+			if (vocabulariesMap != null) {
+				infoSource.setVocabulariesMap(vocabulariesMap);
+			}
+		}
+		
 		model.addAttribute("infoSources", infoSources);
 		Map<String, Long> countsMap = searchDao.getAllDatasetCounts();
 		model.addAttribute("countsMap", countsMap);
