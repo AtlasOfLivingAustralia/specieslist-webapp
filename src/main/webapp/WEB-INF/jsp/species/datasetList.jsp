@@ -44,7 +44,7 @@
                 <c:if test="${fn:contains(dataset.datasetType, '3')}">
                     <tr>
                         <td><a href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a> 
-                        	<c:if test="${dataset.vocabulariesMap != null && not empty dataset.vocabulariesMap}">
+                        	<c:if test="${fn:contains(infoSourceIDWithVocabulariesMapList, dataset.id)}">
                         		(see <a href="${pageContext.request.contextPath}/species/vocabularies/${dataset.id}">term mapping</a>)
                         	</c:if>
                         </td>
@@ -68,7 +68,7 @@
                 <c:if test="${fn:contains(dataset.datasetType, '2')}">
                     <tr>
                         <td><a href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a> 
-                        	<c:if test="${dataset.vocabulariesMap != null && not empty dataset.vocabulariesMap}">
+                        	<c:if test="${fn:contains(infoSourceIDWithVocabulariesMapList, dataset.id)}">
                         		(see <a href="${pageContext.request.contextPath}/species/vocabularies/${dataset.id}">term mapping</a>)
                         	</c:if>
                         </td>
