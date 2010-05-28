@@ -30,7 +30,9 @@ public class Reference extends AttributableObject implements Comparable<Referenc
 	protected String title;
 	protected String authorship;
 	protected String identifier;
+	protected String volume;
 	protected String scientificName;
+	protected String year;
 	protected List<String> pageIdentifiers = new ArrayList<String>();
 
 	/**
@@ -134,6 +136,20 @@ public class Reference extends AttributableObject implements Comparable<Referenc
 	}
 
 	/**
+	 * @return the year
+	 */
+	public String getYear() {
+		return year;
+	}
+
+	/**
+	 * @param year the year to set
+	 */
+	public void setYear(String year) {
+		this.year = year;
+	}
+	
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -159,5 +175,19 @@ public class Reference extends AttributableObject implements Comparable<Referenc
 		builder.append(this.infoSourceURL);
 		builder.append("]");
 		return builder.toString();
+	}
+
+	/**
+	 * @return the volume
+	 */
+	public String getVolume() {
+		return volume;
+	}
+
+	/**
+	 * @param volume the volume to set
+	 */
+	public void setVolume(String volume) {
+		this.volume = volume;
 	}
 }
