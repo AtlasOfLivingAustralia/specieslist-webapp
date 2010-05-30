@@ -20,7 +20,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.ala.dao.TaxonConceptDao;
-import org.ala.model.Region;
+import org.ala.model.OccurrencesInGeoregion;
 import org.ala.util.SpringUtils;
 import org.ala.util.TabReader;
 import org.apache.log4j.Logger;
@@ -57,8 +57,8 @@ public class BioCacheLoader {
 		// For testing
 //		taxonConceptDao.setLuceneIndexLocation(LoadUtils.BASE_DIR + "taxonConcept");
 		
-		loadRegions(FAMILY_REGION_OCCURRENCE, "family");
-		loadRegions(GENUS_REGION_OCCURRENCE, "genus");
+		//loadRegions(FAMILY_REGION_OCCURRENCE, "family");
+		//loadRegions(GENUS_REGION_OCCURRENCE, "genus");
 		loadRegions(SPECIES_REGION_OCCURRENCE, "species");
 	}
 
@@ -76,37 +76,29 @@ public class BioCacheLoader {
     	String[] values = null;
 		int noOfTaxa = 0;
 		int noOfRegions = 0;
-		String guid = null;
-		String previousScientificName = null;
-		List<Region> regions = new ArrayList<Region>();
+		String previousGuid = null;
+		List<OccurrencesInGeoregion> regions = new ArrayList<OccurrencesInGeoregion>();
 		while ((values = tr.readNext()) != null) {
-    		if (values.length == 6) {
-    			String taxonId = values[0]; //FIXME this should later be replaced with the LSIDs
-    			String currentScientificName = values[1];
-    			String regionType = values[2];
-    			String regionId = values[3];
-    			String regionName = values[4];
-    			String occurrences = values[5];
+    		if (values.length == 5) {
+    			String guid = values[0];
+    			String regionType = values[1];
+    			String regionId = values[2];
+    			String regionName = values[3];
+    			String occurrences = values[4];
     			
-    			if (!currentScientificName.equalsIgnoreCase(previousScientificName)) {
+    			if (!guid.equalsIgnoreCase(previousGuid)) {
     				if (!regions.isEmpty()) {
     					// Flush list of regions
     					taxonConceptDao.addRegions(guid, regions);
-        				logger.trace("Added region list for guid=" + guid + " SciName=" + currentScientificName);
+        				logger.trace("Added region list for guid=" + guid );
         				noOfTaxa++;
         				regions.clear();
     				}
-    				guid = taxonConceptDao.findLsidByName(currentScientificName, taxonRank);
-        			if (guid == null) {
-        				logger.warn("Unable to find taxon concept for '" + currentScientificName + "'");
-        			} else {
-        				logger.debug("Loading region occurrences for '" + currentScientificName + "'");
-        			}
-    				previousScientificName = currentScientificName;
+    				previousGuid = guid;
     			}
     			if (guid != null) {
-    				Region region = new Region(taxonId, regionId, regionName, regionType, Integer.parseInt(occurrences));
-    				logger.trace("Adding guid=" + guid + " SciName=" + currentScientificName + " Region=" + regionName + " Type=" + regionType + " Occs=" + occurrences);
+    				OccurrencesInGeoregion region = new OccurrencesInGeoregion(guid, regionId, regionName, regionType, Integer.parseInt(occurrences));
+    				logger.trace("Adding guid=" + guid + " Region=" + regionName + " Type=" + regionType + " Occs=" + occurrences);
     				regions.add(region);
     				noOfRegions++;
     			}
@@ -116,8 +108,8 @@ public class BioCacheLoader {
 		}
 		if (!regions.isEmpty()) {
 			// Flush list of regions
-			taxonConceptDao.addRegions(guid, regions);
-			logger.trace("Added region list for guid=" + guid + " SciName=" + previousScientificName);
+			taxonConceptDao.addRegions(previousGuid, regions);
+			logger.trace("Added region list for guid=" + previousGuid );
 			noOfTaxa++;
 		}
 		
