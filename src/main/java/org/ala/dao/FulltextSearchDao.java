@@ -14,8 +14,10 @@
  ***************************************************************************/
 package org.ala.dao;
 
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.util.StatusType;
@@ -42,6 +44,31 @@ public interface FulltextSearchDao {
     SearchResultsDTO findAllByStatus(StatusType statusType, String filterQuery, Integer startIndex,
             Integer pageSize, String sortField, String sortDirection) throws Exception;
 
+    SearchResultsDTO findAllSpeciesByRegionAndHigherTaxon(String regionType, 
+    		String regionName, String rank, String higherTaxon,
+    		String filterQuery, Integer startIndex, Integer pageSize,
+            String sortField, String sortDirection) throws Exception;
+    
+    SearchResultsDTO findAllSpeciesByRegionAndHigherTaxon(String regionType, String regionName, 
+    		String rank, List<String> higherTaxa, 
+    		String filterQuery, Integer startIndex, Integer pageSize,
+            String sortField, String sortDirection) throws Exception;
+    
+    int countSpeciesByRegionAndHigherTaxon(String regionType, String regionName, 
+    		 String rank, String higherTaxon) throws Exception;
+    
+    int countSpeciesByRegionAndHigherTaxon(String regionType,
+			String regionName, String rank, List<String> higherTaxa)
+			throws Exception;
+
+    int writeSpeciesByRegionAndHigherTaxon(String regionType, String regionName, 
+    		String rank, String higherTaxon, OutputStream output)
+			throws Exception;
+    
+    int writeSpeciesByRegionAndHigherTaxon(String regionType, String regionName, 
+    		String rank, List<String> higherTaxa, OutputStream output)
+			throws Exception;
+    
     /**
      * Search for taxon concept with the following scientific name.
      *

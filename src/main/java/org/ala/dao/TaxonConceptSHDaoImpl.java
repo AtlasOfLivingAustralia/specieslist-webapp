@@ -40,7 +40,7 @@ import org.ala.model.PestStatus;
 import org.ala.model.Publication;
 import org.ala.model.Rank;
 import org.ala.model.Reference;
-import org.ala.model.Region;
+import org.ala.model.OccurrencesInGeoregion;
 import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
@@ -294,7 +294,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addRegions(java.lang.String, java.util.List)
 	 */
-	public boolean addRegions(String guid, List<Region> regions) throws Exception {
+	public boolean addRegions(String guid, List<OccurrencesInGeoregion> regions) throws Exception {
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, REGION_COL, guid, (List) regions, false);
 	}
 	
@@ -396,7 +396,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		etc.setImages(getImages(guid));
         etc.setExtantStatuses(getExtantStatuses(guid));
         etc.setHabitats(getHabitats(guid));
-        etc.setRegionTypes(Region.getRegionsByType(getRegions(guid)));
+        etc.setRegionTypes(OccurrencesInGeoregion.getRegionsByType(getRegions(guid)));
         etc.setReferences(getReferencesFor(guid));
 		
 		// sort the list of SimpleProperties for display in UI
@@ -1005,7 +1005,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     		
     		String guid = new String(guidAsBytes);
 
-    		logger.info(guid);
+    		if(i % 1000 == 0) logger.info(guid);
     		
     		//get taxon concept details
     		TaxonConcept taxonConcept = getByGuid(guid);
@@ -1128,16 +1128,34 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		    			}
 		    		}
 		    		
+		    		List<OccurrencesInGeoregion> regions = getRegions(guid);
+		    		for(OccurrencesInGeoregion region : regions){
+		    			//FIXME do this nicer....
+		    			if("State".equalsIgnoreCase(region.getRegionType()) || "Territory".equalsIgnoreCase(region.getRegionType())){
+		    				doc.add(new Field("state", region.getName(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+		    			}
+		    		}
+		    		
+		    		List<Classification> classifications = getClassifications(guid);
+		    		for (Classification classification: classifications){
+		    			addIfNotNull(doc, "kingdom", classification.getKingdom());
+		    			addIfNotNull(doc, "phylum", classification.getPhylum());
+		    			addIfNotNull(doc, "class", classification.getClazz());
+		    			addIfNotNull(doc, "bioOrder", classification.getOrder());
+		    			addIfNotNull(doc, "family", classification.getFamily());
+		    		}
+		    		
 	                addRankToIndex(taxonConcept.getRankString(), doc);
 		    		
 	    			doc.add(new Field("hasChildren", Boolean.toString(!children.isEmpty()), Store.YES, Index.NO));
-	                
 	                doc.add(new Field("dataset", StringUtils.join(infoSourceIds, " "), Store.YES, Index.ANALYZED_NO_NORMS));
 		    		
 			    	//add to index
 			    	iw.addDocument(doc, analyzer);
 			    	
-		    		if (i%1000==0) logger.debug(i + " " + taxonConcept.getGuid());
+		    		if (i%1000 == 0) logger.debug(i + " " + taxonConcept.getGuid());
+		    		
+		    		if(i>100000) break;
     			}
     		}
 	    	if(i%10000==0){
@@ -1150,6 +1168,19 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     	
     	long finish = System.currentTimeMillis();
     	logger.info("Index created in: "+((finish-start)/1000)+" seconds with "+ i +" documents");
+	}
+
+	/**
+	 * Add field if the value is not null
+	 * 
+	 * @param doc
+	 * @param classification
+	 * @param fieldName
+	 */
+	private void addIfNotNull(Document doc, String fieldName, String fieldValue) {
+		if(StringUtils.isNotEmpty(fieldValue)){
+			doc.add(new Field(fieldName, fieldValue, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+		}
 	}
 
 	/**
@@ -1223,8 +1254,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getRegions(java.lang.String)
 	 */
 	@Override
-	public List<Region> getRegions(String guid) throws Exception {
-		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, REGION_COL, guid, Region.class);
+	public List<OccurrencesInGeoregion> getRegions(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, REGION_COL, guid, OccurrencesInGeoregion.class);
 	}
 
 	/**

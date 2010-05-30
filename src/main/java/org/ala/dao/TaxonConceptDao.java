@@ -30,7 +30,7 @@ import org.ala.model.Image;
 import org.ala.model.PestStatus;
 import org.ala.model.Publication;
 import org.ala.model.Reference;
-import org.ala.model.Region;
+import org.ala.model.OccurrencesInGeoregion;
 import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
@@ -54,8 +54,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<TaxonConcept> getSynonymsFor(String guid)
-			throws Exception;
+	List<TaxonConcept> getSynonymsFor(String guid) throws Exception;
 
 	/**
 	 * Add an alternative identifier (GUID) for this taxon concept or 
@@ -66,7 +65,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean addIdentifier(String guid, String alternativeIdentifier) throws Exception;
+	boolean addIdentifier(String guid, String alternativeIdentifier) throws Exception;
 	
 	/**
 	 * Retrieve the images associated with this taxon concept.
@@ -75,7 +74,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<Image> getImages(String guid) throws Exception;
+	List<Image> getImages(String guid) throws Exception;
 
 	/**
 	 * Retrieve a list of alternative identifiers (guids) associated with
@@ -85,7 +84,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<String> getIdentifiers(String guid) throws Exception;
+	List<String> getIdentifiers(String guid) throws Exception;
 	
 	/**
 	 * Retrieve the pest status associated with this taxon concept.
@@ -94,8 +93,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<PestStatus> getPestStatuses(String guid)
-			throws Exception;
+	List<PestStatus> getPestStatuses(String guid) throws Exception;
 
 	/**
 	 * Retrieve the conservation status associated with this taxon concept.
@@ -104,8 +102,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<ConservationStatus> getConservationStatuses(String guid)
-			throws Exception;
+	List<ConservationStatus> getConservationStatuses(String guid) throws Exception;
 
 	/**
 	 * Retrieve the extant status associated with this taxon concept.
@@ -114,8 +111,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<ExtantStatus> getExtantStatuses(String guid)
-			throws Exception;
+	List<ExtantStatus> getExtantStatuses(String guid) throws Exception;
 
 	/**
 	 * Retrieve the habitat associated with this taxon concept.
@@ -124,8 +120,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<Habitat> getHabitats(String guid)
-			throws Exception;
+	List<Habitat> getHabitats(String guid) throws Exception;
 	
     /**
      * Retreive the region(s) associated with this taxon concept.
@@ -133,7 +128,7 @@ public interface TaxonConceptDao {
      * @return
      * @throws Exception
      */
-    public List<Region> getRegions(String guid) throws Exception;
+    List<OccurrencesInGeoregion> getRegions(String guid) throws Exception;
     
 	/**
 	 * Retrieve the child concepts for the Taxon Concept with the supplied guid.
@@ -142,8 +137,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<TaxonConcept> getChildConceptsFor(String guid)
-			throws Exception;
+	List<TaxonConcept> getChildConceptsFor(String guid) throws Exception;
 
 	/**
 	 * Retrieve the parent concepts for the Taxon Concept with the supplied guid.
@@ -152,8 +146,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<TaxonConcept> getParentConceptsFor(String guid)
-			throws Exception;
+	List<TaxonConcept> getParentConceptsFor(String guid) throws Exception;
 
 	/**
 	 * Retrieve the common names for the Taxon Concept with the supplied guid.
@@ -162,8 +155,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<CommonName> getCommonNamesFor(String guid)
-			throws Exception;
+	List<CommonName> getCommonNamesFor(String guid) throws Exception;
 
 	/**
 	 * Retrieve the text properties for the Taxon Concept with the supplied guid.
@@ -172,8 +164,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<SimpleProperty> getTextPropertiesFor(String guid)
-			throws Exception;
+	List<SimpleProperty> getTextPropertiesFor(String guid) throws Exception;
 
 	
 	/**
@@ -183,7 +174,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<Reference> getReferencesFor(String guid) throws Exception;
+	List<Reference> getReferencesFor(String guid) throws Exception;
 
 	/**
 	 * Store the following taxon concept
@@ -192,7 +183,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean create(TaxonConcept tc) throws Exception;
+	boolean create(TaxonConcept tc) throws Exception;
 
 	/**
 	 * Update the taxon concept.
@@ -201,7 +192,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean update(TaxonConcept tc) throws Exception;
+	boolean update(TaxonConcept tc) throws Exception;
 	
 	/**
 	 * What about multiple taxon names for each taxon concept???
@@ -210,8 +201,7 @@ public interface TaxonConceptDao {
 	 * @param tn
 	 * @throws Exception
 	 */
-	public boolean addTaxonName(String guid, TaxonName tn)
-			throws Exception;
+	boolean addTaxonName(String guid, TaxonName tn) throws Exception;
 
 	/**
 	 * Add this common name to the Taxon Concept.
@@ -220,8 +210,7 @@ public interface TaxonConceptDao {
 	 * @param commonName
 	 * @throws Exception
 	 */
-	public boolean addCommonName(String guid, CommonName commonName)
-			throws Exception;
+	boolean addCommonName(String guid, CommonName commonName) throws Exception;
 
 	/**
 	 * Add this conservation status to the Taxon Concept.
@@ -230,8 +219,7 @@ public interface TaxonConceptDao {
 	 * @param conservationStatus
 	 * @throws Exception
 	 */
-	public boolean addConservationStatus(String guid,
-			ConservationStatus conservationStatus) throws Exception;
+	boolean addConservationStatus(String guid, ConservationStatus conservationStatus) throws Exception;
 
 	/**
 	 * Add this pest status to the Taxon Concept.
@@ -240,8 +228,7 @@ public interface TaxonConceptDao {
 	 * @param pestStatus
 	 * @throws Exception
 	 */
-	public boolean addPestStatus(String guid, PestStatus pestStatus)
-			throws Exception;
+	boolean addPestStatus(String guid, PestStatus pestStatus) throws Exception;
 
 	/**
 	 * Add extant status list to the Taxon Concept.
@@ -250,8 +237,7 @@ public interface TaxonConceptDao {
 	 * @param extantStatusList
 	 * @throws Exception
 	 */
-	public boolean addExtantStatus(String guid, List<ExtantStatus> extantStatusList)
-			throws Exception;
+	boolean addExtantStatus(String guid, List<ExtantStatus> extantStatusList) throws Exception;
 
 	/**
 	 * Add habitat list to the Taxon Concept.
@@ -260,8 +246,7 @@ public interface TaxonConceptDao {
 	 * @param habitatList
 	 * @throws Exception
 	 */
-	public boolean addHabitat(String guid, List<Habitat> habitatLSist) 
-			throws Exception;
+	boolean addHabitat(String guid, List<Habitat> habitatLSist) throws Exception;
 
 	/**
 	 * Add this list of regions to the Taxon Concept.
@@ -270,8 +255,7 @@ public interface TaxonConceptDao {
 	 * @param regions
 	 * @throws Exception
 	 */
-	public boolean addRegions(String guid, List<Region> regions) 
-			throws Exception;
+	boolean addRegions(String guid, List<OccurrencesInGeoregion> regions) throws Exception;
 
 	/**
 	 * Add this image to the Taxon Concept.
@@ -280,7 +264,7 @@ public interface TaxonConceptDao {
 	 * @param image
 	 * @throws Exception
 	 */
-	public boolean addImage(String guid, Image image) throws Exception;
+	boolean addImage(String guid, Image image) throws Exception;
 
 	/**
 	 * Add a synonym to this concept.
@@ -289,8 +273,7 @@ public interface TaxonConceptDao {
 	 * @param synonym
 	 * @throws Exception
 	 */
-	public boolean addSynonym(String guid, TaxonConcept synonym)
-			throws Exception;
+	boolean addSynonym(String guid, TaxonConcept synonym) throws Exception;
 
 	/**
 	 * Add a congruent concept.
@@ -299,8 +282,7 @@ public interface TaxonConceptDao {
 	 * @param congruent
 	 * @throws Exception
 	 */
-	public boolean addIsCongruentTo(String guid, TaxonConcept congruent)
-			throws Exception;
+	boolean addIsCongruentTo(String guid, TaxonConcept congruent) throws Exception;
 
 	/**
 	 * Add a child taxon to this concept.
@@ -309,8 +291,7 @@ public interface TaxonConceptDao {
 	 * @param childConcept
 	 * @throws Exception
 	 */
-	public boolean addChildTaxon(String guid, TaxonConcept childConcept)
-			throws Exception;
+	boolean addChildTaxon(String guid, TaxonConcept childConcept) throws Exception;
 
 	/**
 	 * Add a parent taxon to this concept.
@@ -319,8 +300,7 @@ public interface TaxonConceptDao {
 	 * @param parentConcept
 	 * @throws Exception
 	 */
-	public boolean addParentTaxon(String guid, TaxonConcept parentConcept)
-			throws Exception;
+	boolean addParentTaxon(String guid, TaxonConcept parentConcept) throws Exception;
 
 	/**
 	 * Add a text property to this concept.
@@ -329,8 +309,7 @@ public interface TaxonConceptDao {
 	 * @param parentConcept
 	 * @throws Exception
 	 */
-	public boolean addTextProperty(String guid,
-			SimpleProperty textProperty) throws Exception;
+	boolean addTextProperty(String guid, SimpleProperty textProperty) throws Exception;
 
 	/**
 	 * Create a batch of taxon concepts.
@@ -338,8 +317,7 @@ public interface TaxonConceptDao {
 	 * @param taxonConcepts
 	 * @throws Exception
 	 */
-	public void create(List<TaxonConcept> taxonConcepts)
-			throws Exception;
+	void create(List<TaxonConcept> taxonConcepts) throws Exception;
 
 	/**
 	 * Retrieve the taxon concept by guid.
@@ -348,7 +326,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public TaxonConcept getByGuid(String guid) throws Exception;
+	TaxonConcept getByGuid(String guid) throws Exception;
 
 	/**
 	 * Retrieve the entire profile data for a taxon concept by guid.
@@ -357,8 +335,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(
-			String guid) throws Exception;
+	ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid) throws Exception;
 
 	/**
 	 * Retrieve the Taxon Name for the supplied GUID.
@@ -367,7 +344,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public TaxonName getTaxonNameFor(String guid) throws Exception;
+	TaxonName getTaxonNameFor(String guid) throws Exception;
 
 	/**
 	 * Search for taxon concept with the following scientific name.
@@ -377,8 +354,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<SearchTaxonConceptDTO> findByScientificName(
-			String input, int limit) throws Exception;
+	List<SearchTaxonConceptDTO> findByScientificName(String input, int limit) throws Exception;
 
 	/**
 	 * Search for taxon concept with the following scientific name
@@ -391,7 +367,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public SearchResultsDTO findByScientificName(String input,
+	SearchResultsDTO findByScientificName(String input,
 			Integer startIndex, Integer pageSize, String sortField,
 			String sortDirection) throws Exception;
 
@@ -407,21 +383,9 @@ public interface TaxonConceptDao {
 	 * @throws ParseException
 	 * @throws Exception
 	 */
-	public SearchResultsDTO findAllByStatus(StatusType statusType,
+	SearchResultsDTO findAllByStatus(StatusType statusType,
 			Integer startIndex, Integer pageSize, String sortField,
 			String sortDirection) throws ParseException, Exception;
-
-	/**
-	 * Get TaxonConcept GUID by genus and scientific name.
-	 *
-	 * TODO replace this with the indexes generated from ChecklistBank
-	 *
-	 * @param scientificName
-	 * @return
-	 * @throws Exception
-	 */
-//	public String findConceptIDForName(String kingdom, String genus,
-//			String scientificName) throws Exception;
 
 	/**
 	 * Get LSID from Checklist Bank by kingdom, genus and scientific name.
@@ -431,7 +395,7 @@ public interface TaxonConceptDao {
 	 * @param taxonRank Can be null.
 	 * @return LSID or null.
 	 */
-	public String findLsidByName(String scientificName, LinnaeanRankClassification classification, String taxonRank);
+	String findLsidByName(String scientificName, LinnaeanRankClassification classification, String taxonRank);
 	
 	/**
 	 * Get LSID from Checklist Bank by scientific name.
@@ -440,7 +404,7 @@ public interface TaxonConceptDao {
 	 * @param taxonRank Can be null.
 	 * @return LSID or null.
 	 */
-	public String findLsidByName(String scientificName, String taxonRank);
+	String findLsidByName(String scientificName, String taxonRank);
 	
 	/**
 	 * Get Checklist Bank entry by scientific name.
@@ -450,7 +414,7 @@ public interface TaxonConceptDao {
 	 * @param rank Can be null.
 	 * @return 
 	 */
-	public NameSearchResult findCBDataByName(String scientificName, LinnaeanRankClassification classification, String rank) throws Exception;
+	NameSearchResult findCBDataByName(String scientificName, LinnaeanRankClassification classification, String rank) throws Exception;
 	
 	/**
 	 * Retrieve a list of concepts with the supplied parent guid.
@@ -460,8 +424,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<SearchTaxonConceptDTO> getByParentGuid(
-			String parentGuid, int limit) throws Exception;
+	List<SearchTaxonConceptDTO> getByParentGuid(String parentGuid, int limit) throws Exception;
 
 	/**
 	 * Delete the TaxonConcept for the supplied guid
@@ -470,7 +433,7 @@ public interface TaxonConceptDao {
 	 * @return true if a delete was performed
 	 * @throws Exception
 	 */
-	public boolean delete(String guid) throws Exception;
+	boolean delete(String guid) throws Exception;
 
 	/**
 	 * Synchronises these triples to a taxon concept in hbase.
@@ -484,8 +447,7 @@ public interface TaxonConceptDao {
 	 * @param the filepath of the document
 	 * @throws Exception
 	 */
-	public boolean syncTriples(org.ala.model.Document document,
-			List<Triple> triples) throws Exception;
+	boolean syncTriples(org.ala.model.Document document, List<Triple> triples) throws Exception;
 
 	/**
 	 * Clear the associated properties from each taxon concept.
@@ -494,14 +456,14 @@ public interface TaxonConceptDao {
 	 *
 	 * @throws Exception
 	 */
-	public void clearRawProperties() throws Exception;
+	void clearRawProperties() throws Exception;
 
 	/**
 	 * Create a index to support searching.
 	 *
 	 * @throws Exception
 	 */
-	public void createIndex() throws Exception;
+	void createIndex() throws Exception;
 
 	/**
 	 * Retrieve the raw properties
@@ -510,7 +472,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String, String> getPropertiesFor(String guid) throws Exception;
+	Map<String, String> getPropertiesFor(String guid) throws Exception;
 
 	/**
 	 * Add a classification to this taxon.
@@ -518,7 +480,7 @@ public interface TaxonConceptDao {
 	 * @param guid
 	 * @param classification
 	 */
-	public boolean addClassification(String guid, Classification classification) throws Exception;
+	boolean addClassification(String guid, Classification classification) throws Exception;
 
 	/**
 	 * Retrieve the classifications associated with this taxon.
@@ -527,14 +489,14 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<Classification> getClassifications(String guid) throws Exception;
+	List<Classification> getClassifications(String guid) throws Exception;
 	
 	/**
 	 * Adds a (literature) reference to this taxon.
 	 * 
 	 * @param reference
 	 */
-	public boolean addReference(String guid, Reference reference) throws Exception;
+	boolean addReference(String guid, Reference reference) throws Exception;
 
 	/**
 	 * Add a publication to the profile.
@@ -542,13 +504,12 @@ public interface TaxonConceptDao {
 	 * @param guid
 	 * @param publication
 	 */
-	public boolean addPublication(String guid, Publication publication) throws Exception;
+	boolean addPublication(String guid, Publication publication) throws Exception;
 
     /**
      * Get the location of an index
      *
      * @return
      */
-    public String getIndexLocation();
-
+    String getIndexLocation();
 }

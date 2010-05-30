@@ -43,7 +43,7 @@ import org.ala.model.PestStatus;
 import org.ala.model.Publication;
 import org.ala.model.Rank;
 import org.ala.model.Reference;
-import org.ala.model.Region;
+import org.ala.model.OccurrencesInGeoregion;
 import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
@@ -592,7 +592,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @param region
 	 * @throws Exception
 	 */
-	public boolean addRegions(String guid, List<Region> regions) throws Exception {
+	public boolean addRegions(String guid, List<OccurrencesInGeoregion> regions) throws Exception {
 		return HBaseDaoUtils.putComplexObject(getTable(), guid, REGION_COL, regions);
 	}
 	
@@ -712,7 +712,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 		etc.setImages(getImages(result));
         etc.setExtantStatuses(getExtantStatuses(result));
         etc.setHabitats(getHabitats(result));
-        etc.setRegionTypes(Region.getRegionsByType(getRegions(result)));
+        etc.setRegionTypes(OccurrencesInGeoregion.getRegionsByType(getRegions(result)));
         etc.setReferences(getReferences(result));
 		
 		// sort the list of SimpleProperties for display in UI
@@ -1756,22 +1756,22 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getRegions(java.lang.String)
 	 */
 	@Override
-	public List<Region> getRegions(String guid) throws Exception {
+	public List<OccurrencesInGeoregion> getRegions(String guid) throws Exception {
 		Result result = getTable().get(getTcGetter(guid));
 		if (!result.isEmpty()) {
 			return getRegions(result);
 		} else {
-			return new ArrayList<Region>();
+			return new ArrayList<OccurrencesInGeoregion>();
 		}
 	}
 	
-	private List<Region> getRegions(Result result) throws JsonParseException, JsonMappingException, IOException {
+	private List<OccurrencesInGeoregion> getRegions(Result result) throws JsonParseException, JsonMappingException, IOException {
 		byte [] regionValue = result.getValue(Bytes.toBytes(REGION_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if (regionValue != null) {
-			return mapper.readValue(regionValue, 0, regionValue.length, new TypeReference<List<Region>>(){});
+			return mapper.readValue(regionValue, 0, regionValue.length, new TypeReference<List<OccurrencesInGeoregion>>(){});
 		} 
-		return new ArrayList<Region>();
+		return new ArrayList<OccurrencesInGeoregion>();
 	}
 
 	/**
