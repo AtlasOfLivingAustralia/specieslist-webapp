@@ -14,7 +14,7 @@ import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
 import org.ala.model.Image;
 import org.ala.model.PestStatus;
-import org.ala.model.Region;
+import org.ala.model.OccurrencesInGeoregion;
 import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
@@ -237,9 +237,9 @@ public class TaxonConceptDaoTest extends TestCase {
 	public void testAddRegions() throws Exception {
 		TaxonConceptDao tcDao = initTaxonConceptDao();
 		
-		List<Region> regionList = new ArrayList<Region>();
+		List<OccurrencesInGeoregion> regionList = new ArrayList<OccurrencesInGeoregion>();
 		
-		Region region = new Region();
+		OccurrencesInGeoregion region = new OccurrencesInGeoregion();
 		
 		region.setOccurrences(1);
 		region.setRegionId("R ID");
@@ -251,9 +251,9 @@ public class TaxonConceptDaoTest extends TestCase {
 		
 		tcDao.addRegions(TEST_TCDAO_GUID, regionList);
 		
-		List<Region> rList = tcDao.getRegions(TEST_TCDAO_GUID);
+		List<OccurrencesInGeoregion> rList = tcDao.getRegions(TEST_TCDAO_GUID);
 		
-		for (Region r : rList) {
+		for (OccurrencesInGeoregion r : rList) {
 			assertEquals(r.getOccurrences(), 1);
 			assertEquals(r.getRegionId(), "R ID");
 			assertEquals(r.getRegionName(), "R Name");
@@ -416,8 +416,8 @@ public class TaxonConceptDaoTest extends TestCase {
 		
 		tcDao.addHabitat(TEST_TCDAO_GUID, habitatList);
 		
-		List<Region> regionList = new ArrayList<Region>();
-		Region region = new Region();
+		List<OccurrencesInGeoregion> regionList = new ArrayList<OccurrencesInGeoregion>();
+		OccurrencesInGeoregion region = new OccurrencesInGeoregion();
 		region.setOccurrences(1);
 		region.setRegionId("R ID");
 		region.setRegionName("R Name");

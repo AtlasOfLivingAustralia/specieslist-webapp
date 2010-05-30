@@ -5,7 +5,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.ala.model.Region;
+import org.ala.model.OccurrencesInGeoregion;
 import org.apache.log4j.Logger;
 
 /**
@@ -25,14 +25,14 @@ public class HBaseDaoUtilsTest extends TestCase {
 
 	public void testPutComplexObject() throws Exception {
 		TaxonConceptDao tcDao = new TaxonConceptDaoImpl();
-		Region region = new Region(TAXON_ID, REGION_ID, REGION_NAME, REGION_TYPE, 20);
-		List<Region> regionsOut = new ArrayList<Region>();
+		OccurrencesInGeoregion region = new OccurrencesInGeoregion(TAXON_ID, REGION_ID, REGION_NAME, REGION_TYPE, 20);
+		List<OccurrencesInGeoregion> regionsOut = new ArrayList<OccurrencesInGeoregion>();
 		regionsOut.add(region);
 		
 		// Put region to test taxon concept
 		if (tcDao.addRegions(TEST_TCDAO_GUID, regionsOut)) {
 			// Retrieve region list
-			List<Region> regionsIn = tcDao.getRegions(TEST_TCDAO_GUID);
+			List<OccurrencesInGeoregion> regionsIn = tcDao.getRegions(TEST_TCDAO_GUID);
 			if (!regionsOut.get(0).equals(regionsIn.get(0)))
 				fail("Region objects differ");
 		} else {
