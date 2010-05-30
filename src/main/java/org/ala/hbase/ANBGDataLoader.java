@@ -34,7 +34,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 /**
- * This class loads data from exported ANBG dump files into the HBase table
+ * This class loads data from exported ANBG dump files into the table
  * "taxonConcept" after they have been preprocessed by a Scala script.
  * 
  * It makes use of lucene indexes for lookups of concepts, to add synonyms
