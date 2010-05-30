@@ -21,13 +21,13 @@ import java.util.TreeMap;
 
 import org.ala.dto.RegionTypeDTO;
 
-
 /**
- * Simple POJO to represent a geographical region for a taxon
+ * Simple POJO to represents a join between Taxon concept and Geographic region
+ * in terms of occurrences of that taxon in the specified region.
  * 
  * @author Peter Flemming (peter.flemming@csiro.au)
  */
-public class Region extends AttributableObject implements Comparable<Region> {
+public class OccurrencesInGeoregion extends AttributableObject implements Comparable<OccurrencesInGeoregion> {
 
 	protected String taxonId;
 	protected String regionId;
@@ -41,9 +41,7 @@ public class Region extends AttributableObject implements Comparable<Region> {
 	 * @param regionType
 	 * @param occurrences
 	 */
-	public Region(String taxonId, String regionId, String regionName,
-			String regionType, int occurrences) {
-		super();
+	public OccurrencesInGeoregion(String taxonId, String regionId, String regionName, String regionType, int occurrences) {
 		this.taxonId = taxonId;
 		this.regionId = regionId;
 		this.regionName = regionName;
@@ -68,7 +66,7 @@ public class Region extends AttributableObject implements Comparable<Region> {
 	/**
 	 * Default constructor
 	 */
-	public Region() {
+	public OccurrencesInGeoregion() {
 		super();
 	}
 
@@ -122,10 +120,10 @@ public class Region extends AttributableObject implements Comparable<Region> {
 	 * @param regions
 	 * @return List of RegionTypeDTOs
 	 */
-	public static List<RegionTypeDTO> getRegionsByType(List<Region> regions) {
+	public static List<RegionTypeDTO> getRegionsByType(List<OccurrencesInGeoregion> regions) {
 		Map<String, RegionTypeDTO> regionMap = new TreeMap<String, RegionTypeDTO>();
 		
-		for (Region region : regions) {
+		for (OccurrencesInGeoregion region : regions) {
 			RegionTypeDTO regionType;
 			if (regionMap.containsKey(region.getType())) {
 			    regionType = regionMap.get(region.getType());
@@ -153,7 +151,7 @@ public class Region extends AttributableObject implements Comparable<Region> {
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	@Override
-	public int compareTo(Region o) {
+	public int compareTo(OccurrencesInGeoregion o) {
 		if (o.getName() != null && regionName != null) {
 			return regionName.compareTo(o.getName());
 		}
@@ -183,7 +181,7 @@ public class Region extends AttributableObject implements Comparable<Region> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Region other = (Region) obj;
+		OccurrencesInGeoregion other = (OccurrencesInGeoregion) obj;
 		if (this.regionId == null) {
 			if (other.regionId != null)
 				return false;
