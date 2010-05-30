@@ -52,6 +52,7 @@ public class CommonNamesLoader {
 	private void load() throws Exception {
 		// For testing
 		loadCommonNames(AFD_COMMON_NAMES);
+		loadCommonNames(APNI_COMMON_NAMES);
 	}
 
 	/**
