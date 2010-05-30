@@ -190,6 +190,27 @@
       <artifactId>thrift</artifactId>
       <version>0.2.0</version>
     </dependency>
+    <!-- GEOTOOLS -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-main</artifactId>
+      <version>2.5-RC1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-shapefile</artifactId>
+      <version>2.5-RC1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-epsg-hsql</artifactId>
+      <version>2.5-RC1</version>
+    </dependency>
+    <dependency>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>8.1-407.jdbc3</version>
+    </dependency>
 		<!-- Sun's Servlet API -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
