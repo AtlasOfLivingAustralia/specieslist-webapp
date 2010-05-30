@@ -22,9 +22,9 @@ public class RegionTest extends TestCase {
 
 	public void testGetRegionsByType() throws Exception {
 		TaxonConceptDao tcDao = new TaxonConceptDaoImpl();
-		List<Region> regions = tcDao.getRegions(MACROPUS_RUFUS);
+		List<OccurrencesInGeoregion> regions = tcDao.getRegions(MACROPUS_RUFUS);
 		
-		List<RegionTypeDTO> regionTypes = Region.getRegionsByType(regions);
+		List<RegionTypeDTO> regionTypes = OccurrencesInGeoregion.getRegionsByType(regions);
 		System.out.println("No of RegionTypes " + regionTypes.size());
 	}
 }
