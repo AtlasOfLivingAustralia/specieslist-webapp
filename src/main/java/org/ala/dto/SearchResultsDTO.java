@@ -14,10 +14,11 @@
  ***************************************************************************/
 package org.ala.dto;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.apache.solr.client.solrj.response.QueryResponse;
 
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
@@ -40,11 +41,12 @@ public class SearchResultsDTO {
     /** Status code to be set by Controller (e.g. OK) */
     private String status;
     /** List of results from search */
-    private List<SearchTaxonConceptDTO> taxonConcepts;
+    private List<SearchTaxonConceptDTO> taxonConcepts = new ArrayList<SearchTaxonConceptDTO>();
     /** List of facet results from search */
-    private Collection<FacetResultDTO> facetResults;
+    private Collection<FacetResultDTO> facetResults = new ArrayList<FacetResultDTO>();
     /** SOLR query response following search */
     private QueryResponse qr;
+    /** The query that was used */
     private String query;
 
     /**
@@ -93,7 +95,10 @@ public class SearchResultsDTO {
     
     @JsonIgnore
     public long getCurrentPage() {
-        return this.startIndex/pageSize;
+    	if(pageSize>0){
+    		return this.startIndex/pageSize;
+    	}
+    	return -1;
     }
    
     public String getDir() {

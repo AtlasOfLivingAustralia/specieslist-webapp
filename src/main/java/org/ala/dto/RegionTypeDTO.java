@@ -17,7 +17,7 @@ package org.ala.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ala.model.Region;
+import org.ala.model.OccurrencesInGeoregion;
 
 /**
  * A DTO that encapsulates regional occurrences of a taxon concept grouped by region type.
@@ -28,7 +28,7 @@ public class RegionTypeDTO {
 
 	protected String regionType;
 	protected int occurrencesInRegionType;
-	protected List<Region> regions;
+	protected List<OccurrencesInGeoregion> regions;
 	
 	/**
 	 * Constructor
@@ -36,10 +36,9 @@ public class RegionTypeDTO {
 	 * @param regionType
 	 */
 	public RegionTypeDTO(String regionType) {
-		super();
 		this.regionType = regionType;
 		this.occurrencesInRegionType = 0;
-		this.regions = new ArrayList<Region>();
+		this.regions = new ArrayList<OccurrencesInGeoregion>();
 	}
 
 	/**
@@ -69,14 +68,13 @@ public class RegionTypeDTO {
 	/**
 	 * @return the regions
 	 */
-	public List<Region> getRegions() {
+	public List<OccurrencesInGeoregion> getRegions() {
 		return this.regions;
 	}
 	/**
 	 * @param regions the regions to set
 	 */
-	public void setRegions(List<Region> regions) {
+	public void setRegions(List<OccurrencesInGeoregion> regions) {
 		this.regions = regions;
 	}
-
 }
