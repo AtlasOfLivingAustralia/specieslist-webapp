@@ -30,7 +30,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class TabReader {
 
-	Pattern p = Pattern.compile("\t");
+	Pattern p = null;
 	BufferedReader br;
 	boolean hasQuotes = true;
 	
@@ -48,6 +48,13 @@ public class TabReader {
 	public TabReader(String filePath, boolean hasQuotes) throws Exception{
     	this(filePath);
     	this.hasQuotes = hasQuotes;
+    	p = Pattern.compile("\t");
+	}
+
+	public TabReader(String filePath, boolean hasQuotes, char delimiter) throws Exception{
+    	this(filePath);
+    	this.hasQuotes = hasQuotes;
+    	p = Pattern.compile(",");
 	}
 	
 	/**
