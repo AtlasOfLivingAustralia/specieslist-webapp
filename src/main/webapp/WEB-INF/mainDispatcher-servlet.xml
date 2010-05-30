@@ -70,11 +70,11 @@
             </list>
         </property>
         <property name="defaultContentType" ref="htmlMediaType" />
-	<property name="ignoreAcceptHeader" value="true" />
+        <property name="ignoreAcceptHeader" value="true" />
     </bean>
     
     <bean id="htmlMediaType" class="org.springframework.http.MediaType">
-	<constructor-arg value="text/html" />
+      <constructor-arg value="text/html" />
     </bean>
 
     <!-- BoBo Lucene add-on for facet browsing -->
