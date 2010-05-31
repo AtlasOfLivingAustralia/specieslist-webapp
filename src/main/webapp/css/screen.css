@@ -739,12 +739,14 @@ em, dfn {
 /* Temporary styles add by Dave */
 #selectedGroup li { margin-right: 20px; float: left; }
 #compareRegions li { margin-left: 20px; float: right; }
-#taxonGroups { padding:0; margin:0; list-style: none;}
-#taxonGroups li { border: 1px solid gray; padding:10px; margin-bottom: 5px;}
+
+#taxonGroups { list-style: none; padding:0; margin:0;}
+li.taxonBreakdown { border: 1px solid gray; padding:10px; margin-bottom: 5px;}
+
 #comparisonToolHdr {margin-top:20px;}
 
 .taxonGroupActions { float: right; }
-.taxonList { list-style: none; padding:0; margin:0; }
+.taxonList { list-style: none; padding:0; margin:0; border:none;}
 .taxonList li { border:0; padding:0; margin:0; }
 .taxonGroupTitle { margin-left:35px; }
 
@@ -759,3 +761,6 @@ em, dfn {
 
 .groupSelect {  }
 .regionSelect { border-top: 1px solid grey;  border-bottom: 1px solid grey; padding-right: 10px; margin-bottom: 10px; }
+
+#taxaDiffCount { margin-top:5px; }
+#taxaDiff { margin-top:5px; }
