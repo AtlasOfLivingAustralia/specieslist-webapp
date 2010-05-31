@@ -66,7 +66,7 @@ public class GeoRegionController {
 	}
 	
 	/**
-	 * View a specific region.
+	 * View a specific region with breakdowns for selected higher taxa.
 	 * 
 	 * @param regionType
 	 * @param regionName
@@ -80,36 +80,26 @@ public class GeoRegionController {
 			@PathVariable("regionName") String regionName, 
 			Model model) throws Exception {
 		
-		String guid = regionType+"/" +regionName;
+		String guid = regionType + "/" +regionName;
 		logger.debug("Retrieving concept with guid: " + guid);
 		GeoRegion geoRegion = geoRegionDao.getByGuid(guid);
 		model.addAttribute("geoRegion", geoRegion);
 		
 		//birds counts
-		int birdCount = searchDao.countSpeciesByRegionAndHigherTaxon(
-				"state", regionName, "class", "Aves");
-		model.addAttribute("birdCount", birdCount);
-		logger.info("bird count: "+birdCount);
+		SearchResultsDTO birds = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Aves", null, 0, 25, "scientificNameRaw", "asc");
+		model.addAttribute("birds", birds);
 		
 		//mammal counts
-//		int mammalCount = searchDao.countSpeciesByRegionAndHigherTaxon(
-//				"state", regionName, "class", "Mammalia");
-//		model.addAttribute("mammalCount", mammalCount);
-		SearchResultsDTO searchResults = searchDao.findAllSpeciesByRegionAndHigherTaxon(
-				"state", regionName, "class", "Mammalia", 
-				null, 0, 100, "scientificNameRaw", "asc");
-		model.addAttribute("mammals", searchResults);
-		logger.info("mammal count: "+searchResults.getTotalRecords());
+		SearchResultsDTO mammals = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Mammalia", null, 0, 25, "scientificNameRaw", "asc");
+		model.addAttribute("mammals", mammals);
 
 		//reptile counts
-		int reptileCount = searchDao.countSpeciesByRegionAndHigherTaxon(
-				"state", regionName, "class", "Reptilia");
-		model.addAttribute("reptileCount", reptileCount);
+		SearchResultsDTO reptiles = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Reptilia", null, 0, 25, "scientificNameRaw", "asc");
+		model.addAttribute("reptiles", reptiles);
 
 		//frog counts
-		int frogCount = searchDao.countSpeciesByRegionAndHigherTaxon(
-				"state", regionName, "class", "Amphibia");
-		model.addAttribute("frogCount", frogCount);
+		SearchResultsDTO frogs = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Amphibia", null, 0, 25, "scientificNameRaw", "asc");
+		model.addAttribute("frogs", frogs);
 
 		//fish counts
 		List<String> fishTaxa = new ArrayList<String>();
@@ -118,13 +108,23 @@ public class GeoRegionController {
 		fishTaxa.add("Chondrichthyes");
 		fishTaxa.add("Sarcopterygii");
 		fishTaxa.add("Actinopterygii");
-		int fishCount = searchDao.countSpeciesByRegionAndHigherTaxon(
-				"state", regionName, "bioOrder", fishTaxa);
-		model.addAttribute("fishCount", fishCount);
-		
+		SearchResultsDTO fish = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "bioOrder", fishTaxa, null, 0, 25, "scientificNameRaw", "asc");
+		model.addAttribute("fish", fish);
+
 		return GEOREGION_SHOW;
 	}
 	
+	/**
+	 * Download a list of species within a higher taxon group, that have occurred within a region.
+	 * 
+	 * @param regionType
+	 * @param regionName
+	 * @param higherTaxon
+	 * @param rank
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/regions/{regionType}/{regionName}/download*", method = RequestMethod.GET)
 	public String downloadSpeciesList(
 			@PathVariable("regionType") String regionType,
@@ -138,9 +138,7 @@ public class GeoRegionController {
         response.setHeader("Pragma", "must-revalidate");
         response.setHeader("Content-Disposition", "attachment;filename=speciesList");
         response.setContentType("application/vnd.ms-excel");
-        
         ServletOutputStream out = response.getOutputStream();
-        
         try {
         	searchDao.writeSpeciesByRegionAndHigherTaxon("state", regionName, rank, higherTaxon, out);
         } catch (Exception e){
@@ -148,8 +146,6 @@ public class GeoRegionController {
         }
         return null;
 	}
-	
-	
 	
 	/**
 	 * Example regions/taxa?regionType=state&regionName=Tasmania&higherTaxon=Mammalia&rank=class
@@ -171,7 +167,7 @@ public class GeoRegionController {
 			Model model) throws Exception {
 
 		SearchResultsDTO searchResults = searchDao.findAllSpeciesByRegionAndHigherTaxon(
-				"state", regionName, "class", "Mammalia", 
+				"state", regionName, rank, higherTaxon, 
 				null, 0, 100, "scientificNameRaw", "asc");
 		
 		model.addAttribute("searchResults", searchResults);
@@ -179,6 +175,19 @@ public class GeoRegionController {
 		return GEOREGION_TAXA_SHOW;
 	}
 	
+	/**
+	 * Retrieve a list of species
+	 * 
+	 * @param regionType
+	 * @param regionName
+	 * @param altRegionType
+	 * @param altRegionName
+	 * @param higherTaxon
+	 * @param rank
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/regions/taxaDiff.json", method = RequestMethod.GET)
 	public String showTaxaDiff(
 			@RequestParam("regionType") String regionType,
@@ -187,6 +196,7 @@ public class GeoRegionController {
 			@RequestParam("altRegionName") String altRegionName, 
 			@RequestParam("higherTaxon") String higherTaxon,
 			@RequestParam("rank") String rank,
+			@RequestParam(defaultValue="false", value="inCommon") boolean inCommon,
 			Model model) throws Exception {
 		
 		List<String> higherTaxa = new ArrayList<String>();
