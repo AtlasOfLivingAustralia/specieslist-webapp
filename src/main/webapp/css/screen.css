@@ -735,3 +735,27 @@ em, dfn {
     font-size:inherit;
 }
 
+
+/* Temporary styles add by Dave */
+#selectedGroup li { margin-right: 20px; float: left; }
+#compareRegions li { margin-left: 20px; float: right; }
+#taxonGroups { padding:0; margin:0; list-style: none;}
+#taxonGroups li { border: 1px solid gray; padding:10px; margin-bottom: 5px;}
+#comparisonToolHdr {margin-top:20px;}
+
+.taxonGroupActions { float: right; }
+.taxonList { list-style: none; padding:0; margin:0; }
+.taxonList li { border:0; padding:0; margin:0; }
+.taxonGroupTitle { margin-left:35px; }
+
+#fishBreakdown { background:url("../images/afdgroups/pisces.gif")  no-repeat; padding-left:10px; background-position: 5px 3px;}
+#birdsBreakdown { background:url("../images/afdgroups/aves.png") no-repeat; padding-left:10px; background-position: 5px 3px;}
+#frogsBreakdown { background:url("../images/afdgroups/amphibia.png") no-repeat; padding-left:10px; background-position: 5px 3px;}
+#reptilesBreakdown { background:url("../images/afdgroups/reptilia.png") no-repeat ; padding-left:10px; background-position: 5px 3px;}
+#mammalsBreakdown { background:url("../images/afdgroups/mammalia.png") no-repeat; padding-left:10px; background-position: 5px 3px;}
+
+#comparisonTable { border: 1px solid gray; padding:10px; }
+.selectedCompareGroup { font-weight: bold; } 
+
+.groupSelect {  }
+.regionSelect { border-top: 1px solid grey;  border-bottom: 1px solid grey; padding-right: 10px; margin-bottom: 10px; }
