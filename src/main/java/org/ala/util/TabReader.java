@@ -43,6 +43,7 @@ public class TabReader {
 	public TabReader(String filePath) throws Exception{
     	FileReader fr = new FileReader(new File(filePath));
     	this.br = new BufferedReader(fr);
+    	p = Pattern.compile("\t");
 	}
 
 	public TabReader(String filePath, boolean hasQuotes) throws Exception{
