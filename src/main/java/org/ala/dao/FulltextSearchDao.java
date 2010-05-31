@@ -54,6 +54,32 @@ public interface FulltextSearchDao {
     		String filterQuery, Integer startIndex, Integer pageSize,
             String sortField, String sortDirection) throws Exception;
     
+    
+    /**
+     * Retrieves a list of species that have been recorded in one region
+     * but not in another.
+     * 
+     * @param regionType the region type to test
+     * @param regionName the region name
+     * @param altRegionType the region type to compare to
+     * @param altRegionName the region name to compare to
+     * @param rank
+     * @param higherTaxa
+     * @param filterQuery
+     * @param startIndex
+     * @param pageSize
+     * @param sortField
+     * @param sortDirection
+     * @return
+     * @throws Exception
+     */
+    SearchResultsDTO findAllDifferencesInSpeciesByRegionAndHigherTaxon(
+    		String regionType, String regionName, 
+    		String altRegionType, String altRegionName, 
+    		String rank, List<String> higherTaxa, 
+    		String filterQuery, Integer startIndex, Integer pageSize,
+            String sortField, String sortDirection) throws Exception;
+    
     int countSpeciesByRegionAndHigherTaxon(String regionType, String regionName, 
     		 String rank, String higherTaxon) throws Exception;
     

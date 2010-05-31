@@ -231,27 +231,19 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
     }
 
     /**
-     * Find all the taxa for a specific region.
-     * 
-     * @param regionName
-     * @param regionType
-     * @param higherTaxon
-     * @return
-     * @throws Exception
+     * @see org.ala.dao.FulltextSearchDao#findAllSpeciesByRegionAndHigherTaxon(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String)
      */
     public SearchResultsDTO findAllSpeciesByRegionAndHigherTaxon(String regionType, String regionName, 
     		String rank, String higherTaxon, 
     		String filterQuery, Integer startIndex, Integer pageSize,
             String sortField, String sortDirection) throws Exception {
     	
-        List<String> searchTerms = new ArrayList<String>();
-        searchTerms.add(rank + ":\"" + higherTaxon+"\"");
-        searchTerms.add(regionType + ":\"" + regionName+"\"");
-        String queryString = StringUtils.join(searchTerms, " AND ");
-        logger.info("search query = "+queryString);
+        List<String> higherTaxa = new ArrayList<String>();
+        higherTaxa.add(higherTaxon);
+        StringBuffer queryBuffer = constructQueryForRegion(regionType, regionName, rank, higherTaxa);
 
         try {
-            return doSolrSearch(queryString, filterQuery, pageSize, startIndex, sortField, sortDirection);
+            return doSolrSearch(queryBuffer.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
         } catch (SolrServerException ex) {
             logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
             return  new SearchResultsDTO();
@@ -259,6 +251,39 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
     }
     
     /**
+	 * @see org.ala.dao.FulltextSearchDao#findAllDifferencesInSpeciesByRegionAndHigherTaxon(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.List, java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public SearchResultsDTO findAllDifferencesInSpeciesByRegionAndHigherTaxon(
+			String regionType, String regionName, String altRegionType,
+			String altRegionName, String rank, List<String> higherTaxa,
+			String filterQuery, Integer startIndex, Integer pageSize,
+			String sortField, String sortDirection) throws Exception {
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append("( rank:species OR rank:subspecies ) AND ");
+		sb.append("(");
+		for(int i=0; i< higherTaxa.size(); i++){
+			if(i>0){
+				sb.append(" OR ");
+			}
+			sb.append(rank + ":\"" + higherTaxa.get(i)+"\"");
+		}
+		sb.append(") AND ");
+		sb.append(regionType + ":\"" + regionName+"\"");
+		sb.append(" AND ");
+		sb.append("!"+altRegionType + ":\"" + altRegionName+"\"");
+
+        try {
+        	logger.info(sb.toString());
+            return doSolrSearch(sb.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
+        } catch (SolrServerException ex) {
+            logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
+            return  new SearchResultsDTO();
+        }
+	}
+
+	/**
      * @see org.ala.dao.FulltextSearchDao#findAllSpeciesByRegionAndHigherTaxon(java.lang.String, java.lang.String, java.lang.String, java.util.List, java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String)
      */
     public SearchResultsDTO findAllSpeciesByRegionAndHigherTaxon(String regionType, String regionName, 
