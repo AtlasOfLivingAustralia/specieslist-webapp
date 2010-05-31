@@ -1,5 +1,6 @@
 package org.ala.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -54,16 +55,35 @@ public class FulltextSearchDaoTest extends TestCase {
 		//Plants in New South Wales
 		count = searchDao.countSpeciesByRegionAndHigherTaxon("state", "New South Wales", "kingdom", "Plantae");
 		System.out.println("Plants records in New South Wales: "+count);
-
-		//Animals in Queensland
-		count = searchDao.countSpeciesByRegionAndHigherTaxon("state", "Queensland", "kingdom", "Animalia");
-		System.out.println("Animals records in Queensland: "+count);
-		
-		//Plants in Queensland
-		count = searchDao.countSpeciesByRegionAndHigherTaxon("state", "Queensland", "kingdom", "Plantae");
-		System.out.println("Plants records in Queensland: "+count);
-
-		
+//
+//		//Animals in Queensland
+//		count = searchDao.countSpeciesByRegionAndHigherTaxon("state", "Queensland", "kingdom", "Animalia");
+//		System.out.println("Animals records in Queensland: "+count);
+//		
+//		//Plants in Queensland
+//		count = searchDao.countSpeciesByRegionAndHigherTaxon("state", "Queensland", "kingdom", "Plantae");
+//		System.out.println("Plants records in Queensland: "+count);
 	}
-
+	
+	public void testDifferencesInRegions() throws Exception {
+		
+		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");
+		SearchResultsDTO srDTO = null;
+		List<SearchTaxonConceptDTO> tcs = null;
+		
+		List<String> taxa = new ArrayList<String>();
+		taxa.add("Animalia");
+		
+		//VIC
+		srDTO = searchDao.findAllDifferencesInSpeciesByRegionAndHigherTaxon(
+				"state", "Victoria",
+				"state", "New South Wales",
+				"kingdom", taxa, 
+				null, 0, 10, "scientificNameRaw", "asc");
+		tcs = srDTO.getTaxonConcepts();
+		System.out.println("Species found in Victoria but not in NSW");
+		for(SearchTaxonConceptDTO tc: tcs){
+			System.out.println(tc.getNameString() + " " + tc.getCommonName());
+		}
+	}
 }
