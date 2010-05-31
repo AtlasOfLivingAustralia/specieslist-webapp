@@ -179,6 +179,30 @@ public class GeoRegionController {
 		return GEOREGION_TAXA_SHOW;
 	}
 	
+	@RequestMapping(value = "/regions/taxaDiff.json", method = RequestMethod.GET)
+	public String showTaxaDiff(
+			@RequestParam("regionType") String regionType,
+			@RequestParam("regionName") String regionName, 
+			@RequestParam("altRegionType") String altRegionType,
+			@RequestParam("altRegionName") String altRegionName, 
+			@RequestParam("higherTaxon") String higherTaxon,
+			@RequestParam("rank") String rank,
+			Model model) throws Exception {
+		
+		List<String> higherTaxa = new ArrayList<String>();
+		higherTaxa.add(higherTaxon);
+
+		SearchResultsDTO searchResults = searchDao.findAllDifferencesInSpeciesByRegionAndHigherTaxon(
+				regionType, regionName, 
+				regionType, altRegionName,
+				rank, higherTaxa,
+				null, 0, 100, "scientificNameRaw", "asc");
+		
+		model.addAttribute("searchResults", searchResults);
+		
+		return GEOREGION_TAXA_SHOW;
+	}
+	
 	/**
 	 * @param geoRegionDao the geoRegionDao to set
 	 */
