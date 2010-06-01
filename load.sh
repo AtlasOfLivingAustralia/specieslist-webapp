@@ -27,6 +27,9 @@ java -classpath $CLASSPATH org.ala.hbase.ANBGDataLoader
 echo "LOAD : running Col Names Processing $('date')"
 java -classpath $CLASSPATH org.ala.preprocess.ColFamilyNamesProcessor
 
+echo "LOAD : running ANBG common names  $('date')"
+java -classpath $CLASSPATH org.ala.hbase.CommonNamesLoader
+
 echo "LOAD : running Repository Data Loader $('date')"
 java -Xmx1g -Xms1g -classpath $CLASSPATH -Xmx1g -Xms1g org.ala.hbase.RepoDataLoader
 
