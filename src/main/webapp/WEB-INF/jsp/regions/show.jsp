@@ -191,7 +191,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 			  }
 			  $('#taxaDiff').append('<li><a href="${pageContext.request.contextPath}/species/'+tc.guid+'">'+nameString+'</a></li>');
 		  }
-		  $('#taxaDiffCount').html(regionName+ ' has recorded '+data.searchResults.taxonConcepts.length+' '+selectedTaxaSimple+' not recorded in '+altRegionName);
+		  $('#taxaDiffCount').html(regionName+ ' has recorded '+data.searchResults.totalRecords+' '+selectedTaxaSimple+' not recorded in '+altRegionName);
 		  $('#taxaDiff').show('slow');
 		}); 
   }
