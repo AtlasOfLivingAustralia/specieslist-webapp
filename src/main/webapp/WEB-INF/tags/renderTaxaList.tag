@@ -7,8 +7,15 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 <c:forEach items="${taxonConcepts}" var="taxonConcept">
  <li>
       <a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}">
-       <span class="scientificName">${taxonConcept.nameString}</span> 
-       <c:if test="${not empty taxonConcept.commonName}">(${taxonConcept.commonName})</c:if>
+        <c:choose>
+          <c:when test="${not empty taxonConcept.commonName}">
+            <span class="commonName">${taxonConcept.commonName}</span>
+            <span class="scientificName">(${taxonConcept.nameString})</span>
+          </c:when>
+          <c:otherwise>
+           <span class="scientificName">${taxonConcept.nameString}</span> 
+          </c:otherwise>
+        </c:choose>
      </a>
  </li>
 </c:forEach>
