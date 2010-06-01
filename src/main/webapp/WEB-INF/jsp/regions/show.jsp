@@ -33,7 +33,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
       <span class="taxonGroupTitle">Fish: ${fish.totalRecords}</span>
       <span class="taxonGroupActions">
         <c:if test="${fish.totalRecords>0}">
-          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?higherTaxon=Aves&rank=class">Download</a>
+          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?higherTaxon=Myxini,Petromyzontida,Chondrichthyes,Sarcopterygii,Actinopterygii&rank=class">Download</a>
           <a href="#Fish" id="viewFishList">View<c:if test="${fish.totalRecords>=25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
@@ -91,11 +91,10 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 	  <ul id="selectedGroup" class="tabs groupSelect">
 	    <li class="selectedCompareGroup"><a href="#" onclick="javascript:setSelectedTaxa(this,'mammals','Mammalia','class');">Mammals</a></li>
 	    <li><a href="#" onclick="javascript:setSelectedTaxa(this,'birds','Aves','class');">Birds</a></li>
-	    <li><a href="#" onclick="javascript:setSelectedTaxa(this,'mammals','Mammalia','class');">Fish</a></li>
+	    <li><a href="#" onclick="javascript:setSelectedTaxa(this,'fish','Myxini,Petromyzontida,Chondrichthyes,Sarcopterygii,Actinopterygii','class');">Fish</a></li>
 	    <li><a href="#" onclick="javascript:setSelectedTaxa(this,'frogs','Amphibia','class');">Frogs</a></li>
 	    <li><a href="#" onclick="javascript:setSelectedTaxa(this,'reptiles','Reptilia','class');">Reptiles</a></li>
 	  </ul>
-	  
 	  <ul id="compareRegions" class="tabs regionSelect">
 	    <li><a id="Australian Capital Territory" href="#" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Australian Capital Territory');">ACT</a></li>
 	    <li><a id="New South Wales" href="#" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','New South Wales');">NSW</a></li>
@@ -112,18 +111,25 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 <script type="text/javascript"><!--
 
   // currently selected grouping
-  var selectedTaxaSimple = "mammals";
-  var selectedTaxa = "Mammalia";
-  var selectedTaxonRank = "class";
+  var selectedTaxaSimple = 'mammals';
+  var selectedTaxa = 'Mammalia';
+  var selectedTaxonRank = 'class';
 
+  var geoRegion = '${geoRegion.name}';
+	var geoRegionType = 'state'; //FIXME hardcoded state for now
+	var compareRegion = '${geoRegion.name !="Victoria" ? "Victoria" : "Tasmania"}';
+	var compareRegionType = 'state';
+	
   initPage();
 
   //default to Victoria for now
-  var currentNode = document.getElementById('${geoRegion.name !="Victoria" ? "Victoria" : "Tasmania"}');
-  loadTaxaDiff(currentNode, "state", '${geoRegion.name}', 'state', '${geoRegion.name !="Victoria" ? "Victoria" : "Tasmania"}');
-  
-  function initPage(){
+  var currentNode = document.getElementById(compareRegion);
+  loadTaxaDiff(currentNode, geoRegionType, geoRegion, compareRegionType, compareRegion);
 
+  /**
+   * Initialise the page and tool.
+   */
+  function initPage(){
 	  //hide lists initially
 	  $('#viewBirdsList').click(function () {
 	      $('#birdsList').toggle("slow");
@@ -143,7 +149,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 	  $('#viewFrogsList').click(function () {
 	      $('#frogsList').toggle("slow");
 	  });
-	  $('#fishList').hide();
+	  $('#frogsList').hide();
 	
 	  $('#viewReptilesList').click(function () {
 	      $('#reptilesList').toggle("slow");
@@ -160,6 +166,8 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 	  selectedTaxaSimple = commonName;
 	  selectedTaxa = taxa;
 	  selectedTaxonRank = taxonRank;
+	  //reload the taxon comparator
+	  loadTaxaDiff(currentNode, geoRegionType, geoRegion, compareRegionType, compareRegion);
   }
 
   /**
