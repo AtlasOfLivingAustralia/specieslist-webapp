@@ -15,6 +15,7 @@
 package org.ala.web;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -129,18 +130,24 @@ public class GeoRegionController {
 	public String downloadSpeciesList(
 			@PathVariable("regionType") String regionType,
 			@PathVariable("regionName") String regionName, 
-			@RequestParam("higherTaxon") String higherTaxon,
+			@RequestParam("higherTaxon") String higherTaxa,
 			@RequestParam("rank") String rank,
             HttpServletResponse response)
             throws Exception {
         
+		if(higherTaxa==null)
+			return null;
+		
+		String[] taxa = higherTaxa.trim().split(",");
+		List<String> taxaList = Arrays.asList(taxa);
+		
         response.setHeader("Cache-Control", "must-revalidate");
         response.setHeader("Pragma", "must-revalidate");
         response.setHeader("Content-Disposition", "attachment;filename=speciesList");
         response.setContentType("application/vnd.ms-excel");
         ServletOutputStream out = response.getOutputStream();
         try {
-        	searchDao.writeSpeciesByRegionAndHigherTaxon("state", regionName, rank, higherTaxon, out);
+        	searchDao.writeSpeciesByRegionAndHigherTaxon("state", regionName, rank, taxaList, out);
         } catch (Exception e){
         	e.printStackTrace();
         }
@@ -162,12 +169,18 @@ public class GeoRegionController {
 	public String showTaxa(
 			@RequestParam("regionType") String regionType,
 			@RequestParam("regionName") String regionName, 
-			@RequestParam("higherTaxon") String higherTaxon,
+			@RequestParam("higherTaxon") String higherTaxa,
 			@RequestParam("rank") String rank,
 			Model model) throws Exception {
 
+		if(higherTaxa==null)
+			return null;
+		
+		String[] taxa = higherTaxa.trim().split(",");
+		List<String> taxaList = Arrays.asList(taxa);
+		
 		SearchResultsDTO searchResults = searchDao.findAllSpeciesByRegionAndHigherTaxon(
-				"state", regionName, rank, higherTaxon, 
+				"state", regionName, rank, taxaList, 
 				null, 0, 100, "scientificNameRaw", "asc");
 		
 		model.addAttribute("searchResults", searchResults);
@@ -199,13 +212,16 @@ public class GeoRegionController {
 			@RequestParam(defaultValue="false", value="inCommon") boolean inCommon,
 			Model model) throws Exception {
 		
-		List<String> higherTaxa = new ArrayList<String>();
-		higherTaxa.add(higherTaxon);
+		if(higherTaxon==null)
+			return null;
+		
+		String[] taxa = higherTaxon.trim().split(",");
+		List<String> taxaList = Arrays.asList(taxa);
 
 		SearchResultsDTO searchResults = searchDao.findAllDifferencesInSpeciesByRegionAndHigherTaxon(
 				regionType, regionName, 
 				regionType, altRegionName,
-				rank, higherTaxa,
+				rank, taxaList,
 				null, 0, 100, "scientificNameRaw", "asc");
 		
 		model.addAttribute("searchResults", searchResults);
