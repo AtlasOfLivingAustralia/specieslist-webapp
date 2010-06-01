@@ -75,6 +75,15 @@ public interface TaxonConceptDao {
 	 * @throws Exception
 	 */
 	List<Image> getImages(String guid) throws Exception;
+	
+	/**
+	 * Retrieve the images illustrating the distribution of this taxon concept.
+	 *
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	List<Image> getDistributionImages(String guid) throws Exception;
 
 	/**
 	 * Retrieve a list of alternative identifiers (guids) associated with
@@ -277,6 +286,15 @@ public interface TaxonConceptDao {
 	 */
 	boolean addImage(String guid, Image image) throws Exception;
 
+	/**
+	 * Add this image illustrating the distribution of a the Taxon Concept.
+	 * 
+	 * @param guid
+	 * @param image
+	 * @throws Exception
+	 */
+	boolean addDistributionImage(String guid, Image image) throws Exception;
+	
 	/**
 	 * Add a synonym to this concept.
 	 *

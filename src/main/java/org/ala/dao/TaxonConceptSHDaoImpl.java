@@ -36,11 +36,11 @@ import org.ala.model.ConservationStatus;
 import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
 import org.ala.model.Image;
+import org.ala.model.OccurrencesInGeoregion;
 import org.ala.model.PestStatus;
 import org.ala.model.Publication;
 import org.ala.model.Rank;
 import org.ala.model.Reference;
-import org.ala.model.OccurrencesInGeoregion;
 import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
@@ -51,7 +51,6 @@ import org.ala.util.MimeType;
 import org.ala.util.StatusType;
 import org.ala.vocabulary.Vocabulary;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
@@ -116,6 +115,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	private static final String EXTANT_STATUS_COL = "hasExtantStatus";
 	private static final String HABITAT_COL = "hasHabitat";
 	private static final String IMAGE_COL = "hasImage";
+	private static final String DIST_IMAGE_COL = "hasDistributionImage";
 	private static final String IS_CHILD_COL_OF = "IsChildTaxonOf";
 	private static final String IS_PARENT_COL_OF = "IsParentTaxonOf";
     private static final String TEXT_PROPERTY_COL = "hasTextProperty";
@@ -181,6 +181,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, IMAGE_COL, guid, Image.class);
 	}
 
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getDistributionImages(java.lang.String)
+	 */
+	public List<Image> getDistributionImages(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, DIST_IMAGE_COL, guid, Image.class);
+	}
+	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getPestStatuses(java.lang.String)
 	 */
@@ -306,6 +313,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public boolean addImage(String guid, Image image) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, IMAGE_COL, guid, image);
+	}
+	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#addDistributionImage(java.lang.String, org.ala.model.Image)
+	 */
+	public boolean addDistributionImage(String guid, Image image) throws Exception {
+		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, DIST_IMAGE_COL, guid, image);
 	}
 	
 	/**
@@ -929,22 +943,26 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			if(document.getFilePath()!=null){
 
 				//FIXME - we should be able to copy images up to the parent
-				
 				//is it an image ???
 				if(document!=null && document.getMimeType()!=null && MimeType.getImageMimeTypes().contains(document.getMimeType())){
 					Image image = new Image();
 					image.setContentType(document.getMimeType());
 					image.setRepoLocation(document.getFilePath()
-							+File.separator
-							+FileType.RAW.getFilename()
-							+MimeType.getFileExtension(document.getMimeType()));
+							+ File.separator
+							+ FileType.RAW.getFilename()
+							+ MimeType.getFileExtension(document.getMimeType()));
 					image.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
 					image.setDocumentId(Integer.toString(document.getId()));
                     image.setInfoSourceName(dcPublisher);
                     image.setInfoSourceURL(dcSource);
                     image.setIdentifier(dcIdentifier);
                     image.setTitle(dcTitle);
-					addImage(guid, image);
+                    
+                    if(hasPredicate(triples,Predicates.DIST_MAP_IMG_URL)){
+                    	addDistributionImage(guid, image);
+                    } else {
+                    	addImage(guid, image);
+                    }
 				}
 			}
 			
@@ -955,6 +973,21 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		} else {
 			return false;
 		}
+	}
+	
+	/**
+	 * Returns true if the predicate is present.
+	 * @param triples
+	 * @param predicate
+	 * @return
+	 */
+	private boolean hasPredicate(List<Triple> triples, Predicates predicate) {
+		for(Triple triple: triples){
+			if(triple.predicate.equals(predicate.getPredicate())){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

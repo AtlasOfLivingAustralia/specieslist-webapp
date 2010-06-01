@@ -123,6 +123,7 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	private static final String EXTANT_STATUS_COL = "tc:hasExtantStatus";
 	private static final String HABITAT_COL = "tc:hasHabitat";
 	private static final String IMAGE_COL = "tc:hasImage";
+	private static final String DIST_IMAGE_COL = "hasDistributionImage";
 	private static final String IS_CHILD_COL_OF = "tc:IsChildTaxonOf";
 	private static final String IS_PARENT_COL_OF = "tc:IsParentTaxonOf";
     private static final String TEXT_PROPERTY_COL = "tc:hasTextProperty";
@@ -297,6 +298,28 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	private List<Image> getImages(Result result) throws IOException,
 			JsonParseException, JsonMappingException {
 		byte [] images = result.getValue(Bytes.toBytes(IMAGE_COL));
+		ObjectMapper mapper = new ObjectMapper();
+		if (images != null) {
+			return mapper.readValue(images, 0, images.length, new TypeReference<List<Image>>(){});
+		} 
+		return new ArrayList<Image>();
+	}
+	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getImages(java.lang.String)
+	 */
+	public List<Image> getDistributionImages(String guid) throws Exception {
+		Result result = getTable().get(getTcGetter(guid));
+		if (!result.isEmpty()) {
+			return getDistributionImages(result);
+		} else {
+			return new ArrayList<Image>();
+		}
+	}
+
+	private List<Image> getDistributionImages(Result result) throws IOException,
+			JsonParseException, JsonMappingException {
+		byte [] images = result.getValue(Bytes.toBytes(DIST_IMAGE_COL));
 		ObjectMapper mapper = new ObjectMapper();
 		if (images != null) {
 			return mapper.readValue(images, 0, images.length, new TypeReference<List<Image>>(){});
@@ -602,7 +625,13 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public boolean addImage(String guid, Image image) throws Exception {
 		return HBaseDaoUtils.storeComplexObject(getTable(), guid, IMAGE_COL, image, new TypeReference<List<Image>>(){});
 	}
-		
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#addDistributionImage(java.lang.String, org.ala.model.Image)
+	 */
+	public boolean addDistributionImage(String guid, Image image) throws Exception {
+		return HBaseDaoUtils.storeComplexObject(getTable(), guid, DIST_IMAGE_COL, image, new TypeReference<List<Image>>(){});
+	}
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addSynonym(java.lang.String, org.ala.model.TaxonConcept)
