@@ -1156,8 +1156,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			    	iw.addDocument(doc, analyzer);
 			    	
 		    		if (i%1000 == 0) logger.debug(i + " " + taxonConcept.getGuid());
-		    		
-		    		if(i>100000) break;
     			}
     		}
 	    	if(i%10000==0){
