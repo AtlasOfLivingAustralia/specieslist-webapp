@@ -37,7 +37,7 @@ import org.ala.model.TaxonName;
 import org.ala.model.Triple;
 import org.ala.util.StatusType;
 import org.apache.lucene.queryParser.ParseException;
-import au.org.ala.data.util.LinnaeanRankClassification;
+import org.gbif.portal.model.LinnaeanRankClassification;
 
 /**
  * Interface for creating, changing and searching taxon concept
