@@ -10,6 +10,9 @@ jar xf bie-hbase-assembly.jar lib lib
 
 export CLASSPATH=bie-hbase-assembly.jar
 
+echo "LOAD : loading the geographic regions into the BIE $('date')"
+java -classpath $CLASSPATH org.ala.hbase.GeoRegionLoader
+
 echo "LOAD : creating lucene indexes for concept lookups $('date')"
 java -Xmx2g -Xms2g -classpath $CLASSPATH au.org.ala.checklist.lucene.CBCreateLuceneIndex /data/bie-staging/checklistbank/ /data/lucene/namematching
 
@@ -21,6 +24,12 @@ java -classpath $CLASSPATH org.ala.lucene.CreateLoadingIndex
 
 echo "LOAD : running ANBG data load $('date')"
 java -classpath $CLASSPATH org.ala.hbase.ANBGDataLoader
+
+echo "LOAD : running Col Names Processing $('date')"
+java -classpath $CLASSPATH org.ala.preprocess.ColFamilyNamesProcessor
+
+echo "LOAD : running ANBG common names  $('date')"
+java -classpath $CLASSPATH org.ala.hbase.CommonNamesLoader
 
 echo "LOAD : running Repository Data Loader $('date')"
 java -Xmx1g -Xms1g -classpath $CLASSPATH org.ala.hbase.RepoDataLoader
