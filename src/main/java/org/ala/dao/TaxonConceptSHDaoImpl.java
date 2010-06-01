@@ -51,6 +51,7 @@ import org.ala.util.MimeType;
 import org.ala.util.StatusType;
 import org.ala.vocabulary.Vocabulary;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
@@ -682,6 +683,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		taxonConcept.setNameString(doc.get("scientificNameRaw"));
 		taxonConcept.setAcceptedConceptName(doc.get("acceptedConceptName"));
 		String hasChildrenAsString = doc.get("hasChildren");
+		
 		String[] commonNames = doc.getValues("commonName");
 		if(commonNames.length>0){
 			taxonConcept.setCommonName(commonNames[0]);
@@ -697,7 +699,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         }
         taxonConcept.setPestStatus(doc.get(StatusType.PEST.toString()));
         taxonConcept.setConservationStatus(doc.get(StatusType.CONSERVATION.toString()));
-
+        
+        //add image detais
+        taxonConcept.setImage(doc.get("image"));
+        taxonConcept.setThumbnail(doc.get("thumbnail"));
 		return taxonConcept;
 	}
 
@@ -1147,6 +1152,16 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		    			addIfNotNull(doc, "family", classification.getFamily());
 		    		}
 		    		
+		    		List<Image> images = getImages(guid);
+		    		if(!images.isEmpty()){
+		    			//FIXME should be replaced by the highest ranked image
+		    			Image image  = images.get(0);
+		    			doc.add(new Field("image", image.getRepoLocation(), Store.YES, Index.NO));
+		    			//Change to adding this in earlier
+		    			String thumbnail = image.getRepoLocation().replace("raw", "thumbnail");
+		    			doc.add(new Field("thumbnail", thumbnail, Store.YES, Index.NO));
+		    		}
+		    		
 	                addRankToIndex(taxonConcept.getRankString(), doc);
 		    		
 	    			doc.add(new Field("hasChildren", Boolean.toString(!children.isEmpty()), Store.YES, Index.NO));
@@ -1210,12 +1225,20 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addReference(String guid, Reference reference) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, REFERENCE_COL, guid, reference);
 	}
-        public boolean addEarliestReference(String guid, Reference reference) throws Exception {
-            return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, EARLIEST_REFERENCE_COL, guid, reference);
-        }
-        public boolean addPublicationReference(String guid, Reference reference) throws Exception{
-            return storeHelper.put(TC_TABLE, TC_COL_FAMILY, PUBLICATION_REFERENCE_COL, guid, reference);
-        }
+	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#addEarliestReference(java.lang.String, org.ala.model.Reference)
+	 */
+	public boolean addEarliestReference(String guid, Reference reference) throws Exception {
+        return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, EARLIEST_REFERENCE_COL, guid, reference);
+    }
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#addPublicationReference(java.lang.String, org.ala.model.Reference)
+	 */
+	public boolean addPublicationReference(String guid, Reference reference) throws Exception{
+    	return storeHelper.put(TC_TABLE, TC_COL_FAMILY, PUBLICATION_REFERENCE_COL, guid, reference);
+    }
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addPublication(java.lang.String, org.ala.model.Publication)
