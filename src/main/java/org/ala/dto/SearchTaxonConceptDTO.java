@@ -34,6 +34,8 @@ public class SearchTaxonConceptDTO {
     protected String pestStatus;
     protected String conservationStatus;
     protected String highlight;
+    protected String image;
+    protected String thumbnail;
 	/**
 	 * @return the guid
 	 */
@@ -118,52 +120,100 @@ public class SearchTaxonConceptDTO {
 	public void setHasChildren(boolean hasChildren) {
 		this.hasChildren = hasChildren;
 	}
-
-    public Float getScore() {
-        return score;
-    }
-
-    public void setScore(Float score) {
-        this.score = score;
-    }
-
-    public String getRank() {
-        return rank;
-    }
-
-    public void setRank(String rank) {
-        this.rank = rank;
-    }
-
-    public int getRankId() {
-        return rankId;
-    }
-
-    public void setRankId(int rankId) {
-        this.rankId = rankId;
-    }
-
-    public String getConservationStatus() {
-        return conservationStatus;
-    }
-
-    public void setConservationStatus(String conservationStatus) {
-        this.conservationStatus = conservationStatus;
-    }
-
-    public String getPestStatus() {
-        return pestStatus;
-    }
-
-    public void setPestStatus(String pestStatus) {
-        this.pestStatus = pestStatus;
-    }
-
-    public String getHighlight() {
-        return highlight;
-    }
-
-    public void setHighlight(String highlight) {
-        this.highlight = highlight;
-    }
+	/**
+	 * @return the score
+	 */
+	public Float getScore() {
+		return score;
+	}
+	/**
+	 * @param score the score to set
+	 */
+	public void setScore(Float score) {
+		this.score = score;
+	}
+	/**
+	 * @return the rank
+	 */
+	public String getRank() {
+		return rank;
+	}
+	/**
+	 * @param rank the rank to set
+	 */
+	public void setRank(String rank) {
+		this.rank = rank;
+	}
+	/**
+	 * @return the rankId
+	 */
+	public int getRankId() {
+		return rankId;
+	}
+	/**
+	 * @param rankId the rankId to set
+	 */
+	public void setRankId(int rankId) {
+		this.rankId = rankId;
+	}
+	/**
+	 * @return the pestStatus
+	 */
+	public String getPestStatus() {
+		return pestStatus;
+	}
+	/**
+	 * @param pestStatus the pestStatus to set
+	 */
+	public void setPestStatus(String pestStatus) {
+		this.pestStatus = pestStatus;
+	}
+	/**
+	 * @return the conservationStatus
+	 */
+	public String getConservationStatus() {
+		return conservationStatus;
+	}
+	/**
+	 * @param conservationStatus the conservationStatus to set
+	 */
+	public void setConservationStatus(String conservationStatus) {
+		this.conservationStatus = conservationStatus;
+	}
+	/**
+	 * @return the highlight
+	 */
+	public String getHighlight() {
+		return highlight;
+	}
+	/**
+	 * @param highlight the highlight to set
+	 */
+	public void setHighlight(String highlight) {
+		this.highlight = highlight;
+	}
+	/**
+	 * @return the image
+	 */
+	public String getImage() {
+		return image;
+	}
+	/**
+	 * @param image the image to set
+	 */
+	public void setImage(String image) {
+		this.image = image;
+	}
+	/**
+	 * @return the thumbnail
+	 */
+	public String getThumbnail() {
+		return thumbnail;
+	}
+	/**
+	 * @param thumbnail the thumbnail to set
+	 */
+	public void setThumbnail(String thumbnail) {
+		this.thumbnail = thumbnail;
+	}
 }
