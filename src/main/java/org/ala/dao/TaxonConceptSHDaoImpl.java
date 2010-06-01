@@ -75,7 +75,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
-import org.gbif.portal.model.LinnaeanRankClassification;
+import au.org.ala.data.util.LinnaeanRankClassification;
 
 import au.org.ala.checklist.lucene.CBIndexSearch;
 import au.org.ala.checklist.lucene.SearchResultException;
@@ -120,6 +120,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     private static final String TEXT_PROPERTY_COL = "hasTextProperty";
     private static final String CLASSIFICATION_COL = "hasClassification";
     private static final String REFERENCE_COL = "hasReference";
+    private static final String EARLIEST_REFERENCE_COL = "hasEarliestReference";
+    private static final String PUBLICATION_REFERENCE_COL = "hasPublicationReference";
     private static final String PUBLICATION_COL = "hasPublication";
 
     /** Column families */
@@ -1210,6 +1212,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addReference(String guid, Reference reference) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, REFERENCE_COL, guid, reference);
 	}
+        public boolean addEarliestReference(String guid, Reference reference) throws Exception {
+            return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, EARLIEST_REFERENCE_COL, guid, reference);
+        }
+        public boolean addPublicationReference(String guid, Reference reference) throws Exception{
+            return storeHelper.put(TC_TABLE, TC_COL_FAMILY, PUBLICATION_REFERENCE_COL, guid, reference);
+        }
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addPublication(java.lang.String, org.ala.model.Publication)
@@ -1266,6 +1274,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public List<Reference> getReferencesFor(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, REFERENCE_COL, guid, Reference.class);
 	}
+        public Reference getEarliestReferenceFor(String guid) throws Exception{
+            return (Reference)storeHelper.get(TC_TABLE, TC_COL_FAMILY, EARLIEST_REFERENCE_COL, guid,Reference.class);
+            
+        }
+        public List<Reference> getPublicationReferencesFor(String guid) throws Exception{
+            return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, PUBLICATION_REFERENCE_COL, guid, Reference.class);
+        }
 	
     /**
      * @see org.ala.dao.TaxonConceptDao#getIndexLocation()

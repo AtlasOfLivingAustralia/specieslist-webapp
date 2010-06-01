@@ -37,7 +37,7 @@ import org.ala.model.TaxonName;
 import org.ala.model.Triple;
 import org.ala.util.StatusType;
 import org.apache.lucene.queryParser.ParseException;
-import org.gbif.portal.model.LinnaeanRankClassification;
+import au.org.ala.data.util.LinnaeanRankClassification;
 
 /**
  * Interface for creating, changing and searching taxon concept
@@ -175,6 +175,17 @@ public interface TaxonConceptDao {
 	 * @throws Exception
 	 */
 	List<Reference> getReferencesFor(String guid) throws Exception;
+
+        /**
+         * Retrieves the earliest reference for this taxon concept.
+         *
+         * @param guid
+         * @return
+         * @throws Exception
+         */
+        public Reference getEarliestReferenceFor(String guid) throws Exception;
+
+        public List<Reference> getPublicationReferencesFor(String guid) throws Exception;
 
 	/**
 	 * Store the following taxon concept
@@ -497,6 +508,18 @@ public interface TaxonConceptDao {
 	 * @param reference
 	 */
 	boolean addReference(String guid, Reference reference) throws Exception;
+
+        /**
+         * Adds the "earliest" reference to this taxon.
+         *
+         * @param guid
+         * @param reference
+         * @return
+         * @throws Exception
+         */
+        public boolean addEarliestReference(String guid, Reference reference) throws Exception;
+
+        public boolean addPublicationReference(String guid, Reference reference) throws Exception;
 
 	/**
 	 * Add a publication to the profile.

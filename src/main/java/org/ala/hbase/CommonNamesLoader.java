@@ -14,6 +14,9 @@
  ***************************************************************************/
 package org.ala.hbase;
 
+import au.com.bytecode.opencsv.CSVReader;
+import java.io.FileReader;
+import java.util.regex.Pattern;
 import javax.inject.Inject;
 
 import org.ala.dao.TaxonConceptDao;
@@ -65,20 +68,27 @@ public class CommonNamesLoader {
     	long start = System.currentTimeMillis();
     	
     	// add the taxon concept regions
-    	TabReader tr = new TabReader(dataFile, true, ',');
+        //NC A TabReader can not be used because quoted fields can contain a comma
+    	//TabReader tr = new TabReader(dataFile, true, ',');
+        CSVReader tr = new CSVReader(new FileReader(dataFile), ',', '"',1);
     	String[] values = null;
+        Pattern p = Pattern.compile(",");
     	int namesAdded = 0;
 		while ((values = tr.readNext()) != null) {
     		if (values.length > 5) {
     			String guid = values[1];
     			String commonNameString = values[2];
+                        //the common name string can be a comma separated list of names
     			String taxonConceptGuid = values[5];
-    			
     			CommonName commonName = new CommonName();
     			commonName.setGuid(guid);
-    			commonName.setNameString(commonNameString);
-    			boolean success = taxonConceptDao.addCommonName(taxonConceptGuid, commonName);
-    			if(success) namesAdded++;
+    			String[] commonNameStrings = p.split(commonNameString);
+                        for(String cn: commonNameStrings){
+                            commonName.setNameString(cn);
+                            boolean success = taxonConceptDao.addCommonName(taxonConceptGuid, commonName);
+                            if(success) namesAdded++;
+                        }
+    			
     		}
 		}
 		

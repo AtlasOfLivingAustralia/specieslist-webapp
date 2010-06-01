@@ -92,7 +92,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.gbif.portal.model.LinnaeanRankClassification;
+import au.org.ala.data.util.LinnaeanRankClassification;
 
 import au.org.ala.checklist.lucene.CBIndexSearch;
 import au.org.ala.checklist.lucene.SearchResultException;
@@ -1668,6 +1668,21 @@ public class TaxonConceptDaoImpl implements TaxonConceptDao {
 	public boolean addReference(String guid, Reference reference) throws Exception {
 		return HBaseDaoUtils.storeComplexObject(getTable(), guid, REFERENCE_COL, reference, new TypeReference<List<Reference>>() {});
 	}
+        
+        public boolean addEarliestReference(String guid, Reference reference) throws Exception{
+            throw new java.lang.UnsupportedOperationException();
+        }
+
+        public boolean addPublicationReference(String guid, Reference reference) throws Exception{
+            throw new java.lang.UnsupportedOperationException();
+        }
+
+        public Reference getEarliestReferenceFor(String guid) throws Exception{
+            throw new java.lang.UnsupportedOperationException();
+        }
+        public List<Reference> getPublicationReferencesFor(String guid)throws Exception{
+            throw new java.lang.UnsupportedOperationException();
+        }
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addPublication(java.lang.String, org.ala.model.Publication)
