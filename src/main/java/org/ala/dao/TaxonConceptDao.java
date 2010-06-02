@@ -527,17 +527,25 @@ public interface TaxonConceptDao {
 	 */
 	boolean addReference(String guid, Reference reference) throws Exception;
 
-        /**
-         * Adds the "earliest" reference to this taxon.
-         *
-         * @param guid
-         * @param reference
-         * @return
-         * @throws Exception
-         */
-        public boolean addEarliestReference(String guid, Reference reference) throws Exception;
+    /**
+     * Adds the "earliest" reference to this taxon.
+     *
+     * @param guid
+     * @param reference
+     * @return
+     * @throws Exception
+     */
+    public boolean addEarliestReference(String guid, Reference reference) throws Exception;
 
-        public boolean addPublicationReference(String guid, Reference reference) throws Exception;
+    /**
+     * Adds the publication reference for this taxon concept.
+     * 
+     * @param guid
+     * @param reference
+     * @return
+     * @throws Exception
+     */
+    public boolean addPublicationReference(String guid, Reference reference) throws Exception;
 
 	/**
 	 * Add a publication to the profile.

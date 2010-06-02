@@ -47,11 +47,43 @@ public class ExtendedTaxonConceptDTO {
 	protected List<ConservationStatus> conservationStatuses;
     protected List<SimpleProperty> simpleProperties;
 	protected List<Image> images;
-	protected List<ExtantStatus> extantStatusus;
+	protected List<ExtantStatus> extantStatuses;
+	/**
+	 * @return the publicationReference
+	 */
+	public List<Reference> getPublicationReference() {
+		return publicationReference;
+	}
+	/**
+	 * @param publicationReference the publicationReference to set
+	 */
+	public void setPublicationReference(List<Reference> publicationReference) {
+		this.publicationReference = publicationReference;
+	}
+	/**
+	 * @return the extantStatuses
+	 */
+	public List<ExtantStatus> getExtantStatuses() {
+		return extantStatuses;
+	}
 	protected List<Habitat> habitats;
 	protected List<RegionTypeDTO> regionTypes;
 	protected List<Reference> references;
+	protected Reference earliestReference;
+	protected List<Reference> publicationReference;
 
+	/**
+	 * @return the earliestReference
+	 */
+	public Reference getEarliestReference() {
+		return earliestReference;
+	}
+	/**
+	 * @param earliestReference the earliestReference to set
+	 */
+	public void setEarliestReference(Reference earliestReference) {
+		this.earliestReference = earliestReference;
+	}
 	/**
 	 * @return the taxonConcept
 	 */
@@ -189,13 +221,13 @@ public class ExtendedTaxonConceptDTO {
 	 * @return the extantStatusus
 	 */
 	public List<ExtantStatus> getExtantStatusus() {
-		return this.extantStatusus;
+		return this.extantStatuses;
 	}
 	/**
 	 * @param extantStatusus the extantStatusus to set
 	 */
 	public void setExtantStatuses(List<ExtantStatus> extantStatusus) {
-		this.extantStatusus = extantStatusus;
+		this.extantStatuses = extantStatusus;
 	}
 	/**
 	 * @return the habitats

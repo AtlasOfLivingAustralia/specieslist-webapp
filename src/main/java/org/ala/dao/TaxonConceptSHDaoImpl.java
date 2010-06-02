@@ -416,6 +416,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         etc.setRegionTypes(OccurrencesInGeoregion.getRegionsByType(getRegions(guid)));
         etc.setReferences(getReferencesFor(guid));
 		
+        etc.setEarliestReference(getEarliestReferenceFor(guid));
+        etc.setPublicationReference(getPublicationReferencesFor(guid));
+        
 		// sort the list of SimpleProperties for display in UI
         List<SimpleProperty> simpleProperties = getTextPropertiesFor(guid);
         Collections.sort(simpleProperties);
@@ -1328,13 +1331,21 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public List<Reference> getReferencesFor(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, REFERENCE_COL, guid, Reference.class);
 	}
-        public Reference getEarliestReferenceFor(String guid) throws Exception{
-            return (Reference)storeHelper.get(TC_TABLE, TC_COL_FAMILY, EARLIEST_REFERENCE_COL, guid,Reference.class);
-            
-        }
-        public List<Reference> getPublicationReferencesFor(String guid) throws Exception{
-            return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, PUBLICATION_REFERENCE_COL, guid, Reference.class);
-        }
+	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getEarliestReferenceFor(java.lang.String)
+	 */
+    public Reference getEarliestReferenceFor(String guid) throws Exception{
+        return (Reference) storeHelper.get(TC_TABLE, TC_COL_FAMILY, EARLIEST_REFERENCE_COL, guid, Reference.class);
+        
+    }
+    
+    /**
+     * @see org.ala.dao.TaxonConceptDao#getPublicationReferencesFor(java.lang.String)
+     */
+    public List<Reference> getPublicationReferencesFor(String guid) throws Exception{
+        return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, PUBLICATION_REFERENCE_COL, guid, Reference.class);
+    }
 	
     /**
      * @see org.ala.dao.TaxonConceptDao#getIndexLocation()
