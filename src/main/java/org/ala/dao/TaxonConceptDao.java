@@ -185,16 +185,23 @@ public interface TaxonConceptDao {
 	 */
 	List<Reference> getReferencesFor(String guid) throws Exception;
 
-        /**
-         * Retrieves the earliest reference for this taxon concept.
-         *
-         * @param guid
-         * @return
-         * @throws Exception
-         */
-        public Reference getEarliestReferenceFor(String guid) throws Exception;
+    /**
+     * Retrieves the earliest reference for this taxon concept.
+     *
+     * @param guid
+     * @return
+     * @throws Exception
+     */
+    Reference getEarliestReferenceFor(String guid) throws Exception;
 
-        public List<Reference> getPublicationReferencesFor(String guid) throws Exception;
+    /**
+     * Retrieve the publications that are marked against this taxon concept.
+     * 
+     * @param guid
+     * @return
+     * @throws Exception
+     */
+    List<Reference> getPublicationReferencesFor(String guid) throws Exception;
 
 	/**
 	 * Store the following taxon concept
@@ -535,7 +542,7 @@ public interface TaxonConceptDao {
      * @return
      * @throws Exception
      */
-    public boolean addEarliestReference(String guid, Reference reference) throws Exception;
+    boolean addEarliestReference(String guid, Reference reference) throws Exception;
 
     /**
      * Adds the publication reference for this taxon concept.
@@ -545,7 +552,7 @@ public interface TaxonConceptDao {
      * @return
      * @throws Exception
      */
-    public boolean addPublicationReference(String guid, Reference reference) throws Exception;
+    boolean addPublicationReference(String guid, Reference reference) throws Exception;
 
 	/**
 	 * Add a publication to the profile.
