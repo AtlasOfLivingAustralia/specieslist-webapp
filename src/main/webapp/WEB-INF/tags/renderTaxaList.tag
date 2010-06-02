@@ -5,20 +5,13 @@ taglib prefix="spring" uri="http://www.springframework.org/tags" %><%@
 taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 <%@ attribute name="taxonConcepts" required="true" type="java.util.List" rtexprvalue="true"  %>
 <c:forEach items="${taxonConcepts}" var="taxonConcept">
- <li class="taxonConceptResult">
-      <c:if test="${not empty taxonConcept.thumbnail}">
-        <img src="http://${pageContext.request.serverName}:80${fn:replace(taxonConcept.thumbnail,'/data/bie','/repository')}"/>
-      </c:if> 
-      <a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}">
-        <c:choose>
-          <c:when test="${not empty taxonConcept.commonName}">
-            <span class="commonName">${taxonConcept.commonName}</span>
-            <span class="scientificName">(${taxonConcept.nameString})</span>
-          </c:when>
-          <c:otherwise>
-           <span class="scientificName">${taxonConcept.nameString}</span> 
-          </c:otherwise>
-        </c:choose>
-     </a>
- </li>
+ <tr class="taxonConceptResult">
+      <td>
+        <c:if test="${not empty taxonConcept.thumbnail}">
+          <img src="http://${pageContext.request.serverName}:80${fn:replace(taxonConcept.thumbnail,'/data/bie','/repository')}"/>
+        </c:if>
+      </td>
+      <td class="scientificName"><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}">${taxonConcept.nameString}</a></td>
+     <td class="commonName">${taxonConcept.commonName}</td>
+ </tr>
 </c:forEach>

@@ -23,9 +23,15 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
           <a href="#Birds" id="viewBirdsList">View<c:if test="${birds.totalRecords>25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
-      <ul id="birdsList" class="taxonList">
+      <table id="birdsList" class="taxonList">
         <alatag:renderTaxaList taxonConcepts="${birds.taxonConcepts}"/>
-      </ul>
+      </table>
+      <script type="text/javascript">
+        $('#viewBirdsList').click(function () {
+          $('#birdsList').toggle("slow");
+        });
+        $('#birdsList').hide();
+      </script>
      </li>
      
     <!-- FISH -->
@@ -37,23 +43,15 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
           <a href="#Fish" id="viewFishList">View<c:if test="${fish.totalRecords>=25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
-      <ul id="fishList" class="taxonList">
+      <table id="fishList" class="taxonList">
         <alatag:renderTaxaList taxonConcepts="${fish.taxonConcepts}"/>
-      </ul>
-    </li>
-    
-    <!-- MAMMALS -->
-    <li id="mammalsBreakdown" class="taxonBreakdown">
-      <span class="taxonGroupTitle">Mammals: ${mammals.totalRecords}</span>
-      <span class="taxonGroupActions">
-        <c:if test="${mammals.totalRecords>0}">
-          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=MammalsList${geoRegion.acronym}&higherTaxon=Mammalia&rank=class">Download</a>
-          <a href="#Mammals" id="viewMammalsList">View<c:if test="${mammals.totalRecords>=25}"> (limited to 25)</c:if></a>
-        </c:if>
-      </span>
-      <ul id="mammalsList" class="taxonList">
-        <alatag:renderTaxaList taxonConcepts="${mammals.taxonConcepts}"/>
-      </ul>
+      </table>
+      <script type="text/javascript">
+        $('#viewFishList').click(function () {
+          $('#fishList').toggle("slow");
+        });
+        $('#fishList').hide();
+      </script>
     </li>
     
     <!-- FROGS -->
@@ -65,9 +63,35 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
           <a href="#Frogs" id="viewFrogsList">View<c:if test="${frogs.totalRecords>=25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
-      <ul id="frogsList" class="taxonList">
+      <table id="frogsList" class="taxonList">
         <alatag:renderTaxaList taxonConcepts="${frogs.taxonConcepts}"/>
-      </ul>
+      </table>
+      <script type="text/javascript">
+        $('#viewFrogsList').click(function () {
+          $('#frogsList').toggle("slow");
+        });
+        $('#frogsList').hide();
+      </script>
+    </li>
+    
+    <!-- MAMMALS -->
+    <li id="mammalsBreakdown" class="taxonBreakdown">
+      <span class="taxonGroupTitle">Mammals: ${mammals.totalRecords}</span>
+      <span class="taxonGroupActions">
+        <c:if test="${mammals.totalRecords>0}">
+          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=MammalsList${geoRegion.acronym}&higherTaxon=Mammalia&rank=class">Download</a>
+          <a href="#Mammals" id="viewMammalsList">View<c:if test="${mammals.totalRecords>=25}"> (limited to 25)</c:if></a>
+        </c:if>
+      </span>
+      <table id="mammalsList" class="taxonList">
+        <alatag:renderTaxaList taxonConcepts="${mammals.taxonConcepts}"/>
+      </table>
+      <script type="text/javascript">
+        $('#viewMammalsList').click(function () {
+          $('#mammalsList').toggle("slow");
+        });
+        $('#mammalsList').hide();
+      </script>
     </li>
     
     <!-- REPTILES -->
@@ -79,23 +103,29 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
           <a href="#Reptiles" id="viewReptilesList">View<c:if test="${reptiles.totalRecords>=25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
-      <ul id="reptilesList" class="taxonList">
+      <table id="reptilesList" class="taxonList">
         <alatag:renderTaxaList taxonConcepts="${reptiles.taxonConcepts}"/>
-      </ul>
+      </table>
+      <script type="text/javascript">
+        $('#viewReptilesList').click(function () {
+          $('#reptilesList').toggle("slow");
+        });
+        $('#reptilesList').hide();
+      </script>
     </li>
   </ul>
   
   <!-- Start of the Comparison Tool -->
   <h2 id="comparisonToolHdr">Compare biodiversity to other states and territories</h2>
   <div id="comparisonTable">
-	  <ul id="selectedGroup" class="tabs groupSelect">
-	    <li class="selectedCompareGroup"><a href="#" onclick="javascript:setSelectedTaxa(this,'mammals','Mammalia','class');">Mammals</a></li>
+	  <ul id="selectedGroup" class="groupSelect">
 	    <li><a href="#" onclick="javascript:setSelectedTaxa(this,'birds','Aves','class');">Birds</a></li>
 	    <li><a href="#" onclick="javascript:setSelectedTaxa(this,'fish','Myxini,Petromyzontida,Chondrichthyes,Sarcopterygii,Actinopterygii','class');">Fish</a></li>
 	    <li><a href="#" onclick="javascript:setSelectedTaxa(this,'frogs','Amphibia','class');">Frogs</a></li>
+	    <li class="selectedCompareGroup"><a href="#" onclick="javascript:setSelectedTaxa(this,'mammals','Mammalia','class');">Mammals</a></li>
 	    <li><a href="#" onclick="javascript:setSelectedTaxa(this,'reptiles','Reptilia','class');">Reptiles</a></li>
 	  </ul>
-	  <ul id="compareRegions" class="tabs regionSelect">
+	  <ul id="compareRegions" class="regionSelect">
 	    <li><a id="Australian Capital Territory" href="#" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Australian Capital Territory');">ACT</a></li>
 	    <li><a id="New South Wales" href="#" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','New South Wales');">NSW</a></li>
 	    <li><a id="Northern Territory" href="#" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Northern Territory');">NT</a></li>
@@ -104,110 +134,115 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 	    <li><a id="Tasmania" href="#" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Tasmania');">TAS</a></li>
 	    <li><a id="Victoria" href="#" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Victoria');">VIC</a></li>
 	  </ul>
-	  <h6 id="taxaDiffCount"></h6>
-	  <ul id="taxaDiff"></ul>
+	  <!-- Two panel display -->
+	  <table id="taxaDiffComparison">
+	     <tr>
+	       <td>
+	         <h6 id="taxaDiffCount" class="taxaDiffCount"></h6>
+	         <table id="taxaDiff"></table>
+	       </td>
+	       <td>
+	         <h6 id="taxaDiffCount2" class="taxaDiffCount"></h6>
+	         <table id="taxaDiff2"></table>
+	       </td>
+	     </tr>
+	  </table>
+      <script type="text/javascript">
+      // currently selected grouping
+      var selectedTaxaSimple = null;
+      var selectedTaxa = null;
+      var selectedTaxonRank = null;
+
+      var geoRegion = null;
+      var geoRegionType = null;
+      var compareRegion = null;
+      var compareRegionType = null;
+
+      var currentNode = null;
+      var initialised = false;
+
+      initPage();
+      
+      /**
+       * Initialise the page and tool.
+       */
+      function initPage(){
+
+        selectedTaxaSimple = 'mammals';
+        selectedTaxa = 'Mammalia';
+        selectedTaxonRank = 'class';
+
+        geoRegion = '${geoRegion.name}';
+        geoRegionType = 'state'; //FIXME hardcoded state for now
+        compareRegion = '${geoRegion.name !="Victoria" ? "Victoria" : "Tasmania"}';
+        compareRegionType = 'state';
+          
+        //default to Victoria for now
+        currentNode = document.getElementById(compareRegion);
+        loadTaxaDiff(currentNode, geoRegionType, geoRegion, compareRegionType, compareRegion);
+      }
+
+      /**
+       * Switch currently selected taxa.
+       */
+      function setSelectedTaxa(currentNode, commonName, taxa, taxonRank){
+        $('#selectedGroup').children().removeClass("selectedCompareGroup");
+        currentNode.parentNode.className = 'selectedCompareGroup';
+        selectedTaxaSimple = commonName;
+        selectedTaxa = taxa;
+        selectedTaxonRank = taxonRank;
+        //reload the taxon comparator
+        loadTaxaDiff(currentNode, geoRegionType, geoRegion, compareRegionType, compareRegion);
+      }
+
+      /**
+       * Loads the taxo that are different between states.
+       */
+      function loadTaxaDiff(currentNode, regionType, regionName, altRegionType, altRegionName){
+
+        $('#compareRegions').children().removeClass("selectedCompareGroup");
+        currentNode.parentNode.className = 'selectedCompareGroup';
+
+        if(initialised){
+            $('#taxaDiff').hide('slow');
+        	  $('#taxaDiff').empty();
+        }
+        
+        var searchUrl = '${pageContext.request.contextPath}/regions/taxaDiff.json?regionType='+regionType+'&regionName='+regionName+'&altRegionType='+altRegionType+'&altRegionName='+altRegionName+'&higherTaxon='+selectedTaxa+'&rank='+selectedTaxonRank;
+        $.getJSON(searchUrl, function(data) { 
+          for(var i=0; i<data.searchResults.taxonConcepts.length; i++){
+            var tc = data.searchResults.taxonConcepts[i];
+            var commonName = tc.commonName!=null ? tc.commonName : ''; 
+            $('#taxaDiff').append('<tr><td><a href="${pageContext.request.contextPath}/species/'+tc.guid+'">'+tc.nameString+'</td><td>'+commonName+'</td></tr>');
+          }
+          $('#taxaDiffCount').html('<em>'+regionName+ '</em> has recorded <em>'+data.searchResults.totalRecords+' '+selectedTaxaSimple+'</em> not recorded in <em>'+altRegionName+'</em>');
+          $('#taxaDiff').show('slow');
+        }); 
+
+        if(initialised){
+        	 $('#taxaDiff2').hide('slow');
+           $('#taxaDiff2').empty();
+        }
+        
+        var searchUrl = '${pageContext.request.contextPath}/regions/taxaDiff.json?regionType='+altRegionType+'&regionName='+altRegionName+'&altRegionType='+regionType+'&altRegionName='+regionName+'&higherTaxon='+selectedTaxa+'&rank='+selectedTaxonRank;
+        $.getJSON(searchUrl, function(data) {
+            for(var i=0; i<data.searchResults.taxonConcepts.length; i++){
+              var tc = data.searchResults.taxonConcepts[i];
+              var commonName = tc.commonName!=null ? tc.commonName : ''; 
+              $('#taxaDiff2').append('<tr><td><a href="${pageContext.request.contextPath}/species/'+tc.guid+'">'+tc.nameString+'</td><td>'+commonName+'</td></tr>');
+            }
+            $('#taxaDiffCount2').html('<em>'+altRegionName+ '</em> has recorded <em>'+data.searchResults.totalRecords+' '+selectedTaxaSimple+'</em> not recorded in <em>'+regionName+'</em>');
+            $('#taxaDiff2').show('slow');
+        }); 
+
+        initialised = true;
+      }
+      </script>
   </div>
 
 <script type="text/javascript"><!--
 
-  // currently selected grouping
-  var selectedTaxaSimple = 'mammals';
-  var selectedTaxa = 'Mammalia';
-  var selectedTaxonRank = 'class';
 
-  var geoRegion = '${geoRegion.name}';
-	var geoRegionType = 'state'; //FIXME hardcoded state for now
-	var compareRegion = '${geoRegion.name !="Victoria" ? "Victoria" : "Tasmania"}';
-	var compareRegionType = 'state';
-
-	var currentNode = null;
-
-	 // initialise the page
-		
-	initPage();
-
-	selectedTaxaSimple = 'mammals';
-	selectedTaxa = 'Mammalia';
-	selectedTaxonRank = 'class';
-
-	geoRegion = '${geoRegion.name}';
-	geoRegionType = 'state'; //FIXME hardcoded state for now
-	compareRegion = '${geoRegion.name !="Victoria" ? "Victoria" : "Tasmania"}';
-	compareRegionType = 'state';
-		
-	//default to Victoria for now
-  currentNode = document.getElementById(compareRegion);
-  loadTaxaDiff(currentNode, geoRegionType, geoRegion, compareRegionType, compareRegion);
-
-  /**
-   * Initialise the page and tool.
-   */
-  function initPage(){
-	  //hide lists initially
-	  $('#viewBirdsList').click(function () {
-	      $('#birdsList').toggle("slow");
-	  });
-	  $('#birdsList').hide();
-
-	  $('#viewMammalsList').click(function () {
-	    $('#mammalsList').toggle("slow");
-	  });
-	  $('#mammalsList').hide();
-	
-	  $('#viewFishList').click(function () {
-		    $('#fishList').toggle("slow");
-		});
-		$('#fishList').hide();
-	
-	  $('#viewFrogsList').click(function () {
-	      $('#frogsList').toggle("slow");
-	  });
-	  $('#frogsList').hide();
-	
-	  $('#viewReptilesList').click(function () {
-	      $('#reptilesList').toggle("slow");
-	  });
-	  $('#reptilesList').hide();
-  }
-
-  /**
-   * Switch currently selected taxa.
-   */
-  function setSelectedTaxa(currentNode, commonName, taxa, taxonRank){
-	  $('#selectedGroup').children().removeClass("selectedCompareGroup");
-	  currentNode.parentNode.className = 'selectedCompareGroup';
-	  selectedTaxaSimple = commonName;
-	  selectedTaxa = taxa;
-	  selectedTaxonRank = taxonRank;
-	  //reload the taxon comparator
-	  loadTaxaDiff(currentNode, geoRegionType, geoRegion, compareRegionType, compareRegion);
-  }
-
-  /**
-   * Loads the taxo that are different between states.
-   */
-  function loadTaxaDiff(currentNode, regionType, regionName, altRegionType, altRegionName){
-
-	  $('#compareRegions').children().removeClass("selectedCompareGroup");
-	  currentNode.parentNode.className = 'selectedCompareGroup';
-
-	  $('#taxaDiff').hide('slow');
-	  $('#taxaDiff').empty();
-	  
-	  var searchUrl = '${pageContext.request.contextPath}/regions/taxaDiff.json?regionType='+regionType+'&regionName='+regionName+'&altRegionType='+altRegionType+'&altRegionName='+altRegionName+'&higherTaxon='+selectedTaxa+'&rank='+selectedTaxonRank;
-	  $.getJSON(searchUrl, function(data) {   
-		  for(var i=0; i<data.searchResults.taxonConcepts.length; i++){
-			  var tc = data.searchResults.taxonConcepts[i];
-			  var nameString  = tc.nameString;
-			  if(tc.commonName!=null){
-				  nameString = nameString + ' (' + tc.commonName + ')';
-			  }
-			  $('#taxaDiff').append('<li><a href="${pageContext.request.contextPath}/species/'+tc.guid+'">'+nameString+'</a></li>');
-		  }
-		  $('#taxaDiffCount').html(regionName+ ' has recorded '+data.searchResults.totalRecords+' '+selectedTaxaSimple+' not recorded in '+altRegionName);
-		  $('#taxaDiff').show('slow');
-		}); 
-  }
 </script>
 </body>
 

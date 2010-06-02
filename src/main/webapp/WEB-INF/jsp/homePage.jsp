@@ -15,5 +15,7 @@
         </p>
         
         <p><a href="species/search">Search for Species Pages</a></p>
+        
+        <p><a href="regions/">Explore the states</a></p>
     </body>
 </html>

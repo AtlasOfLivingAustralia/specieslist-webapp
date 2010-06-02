@@ -737,8 +737,9 @@ em, dfn {
 
 
 /* Temporary styles add by Dave */
-#selectedGroup li { margin-right: 20px; float: left; }
-#compareRegions li { margin-left: 20px; float: right; }
+#selectedGroup, #compareRegions { margin:0; }
+#selectedGroup li { margin-right: 10px; float: left; display: inline; list-style-type: none;}
+#compareRegions li { margin-left: 20px; float: right; list-style-type: none;}
 
 #taxonGroups { list-style: none; padding:0; margin:0;}
 li.taxonBreakdown { border: 1px solid gray; padding:10px; margin-bottom: 5px;}
@@ -756,12 +757,12 @@ li.taxonBreakdown { border: 1px solid gray; padding:10px; margin-bottom: 5px;}
 #reptilesBreakdown { background:url("../images/afdgroups/reptilia.png") no-repeat ; padding-left:10px; background-position: 5px 3px;}
 #mammalsBreakdown { background:url("../images/afdgroups/mammalia.png") no-repeat; padding-left:10px; background-position: 5px 3px;}
 
+#taxaDiffComparison { width:100%;  margin-top: 30px;}
+
 #comparisonTable { border: 1px solid gray; padding:10px; }
 .selectedCompareGroup { font-weight: bold; } 
 
-.regionSelect { border-top: 1px solid grey;  border-bottom: 1px solid grey; padding-right: 10px; margin-bottom: 10px; }
-
-#taxaDiffCount { margin-top:5px; }
+.taxaDiffCount { margin:0 0 5px 0; }
 #taxaDiff { margin-top:5px; }
 
 .taxonGroupActions a { margin-left:25px; }
