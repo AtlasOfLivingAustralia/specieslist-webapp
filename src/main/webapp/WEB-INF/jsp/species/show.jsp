@@ -568,7 +568,7 @@
                             <tr class="earliestReference">
                                 <td>${extendedTaxonConcept.earliestReference.scientificName}</td>
                                 <td>${extendedTaxonConcept.earliestReference.title}
-                                    <span class="earliestReferenceLabel">(Earliest reference within BHL)</span>
+                                    <br/><span class="earliestReferenceLabel">(Earliest reference within BHL)</span>
                                 </td>
                                 <td>${extendedTaxonConcept.earliestReference.volume}</td>
                                 <td>${extendedTaxonConcept.earliestReference.authorship}</td>
