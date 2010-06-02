@@ -768,3 +768,6 @@ li.taxonBreakdown { border: 1px solid gray; padding:10px; margin-bottom: 5px;}
 .taxonGroupActions a { margin-left:25px; }
 
 .scientificName {font-style: italic; } 
+
+.earliestReference { background-color: FFFFCC; }
+.earliestReferenceLabel { color: grey; }
