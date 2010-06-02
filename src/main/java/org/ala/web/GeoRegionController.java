@@ -132,6 +132,7 @@ public class GeoRegionController {
 			@PathVariable("regionName") String regionName, 
 			@RequestParam("higherTaxon") String higherTaxa,
 			@RequestParam("rank") String rank,
+			@RequestParam(value="title", defaultValue="speciesList",required=false) String downloadTitle,
             HttpServletResponse response)
             throws Exception {
         
@@ -143,7 +144,7 @@ public class GeoRegionController {
 		
         response.setHeader("Cache-Control", "must-revalidate");
         response.setHeader("Pragma", "must-revalidate");
-        response.setHeader("Content-Disposition", "attachment;filename=speciesList");
+        response.setHeader("Content-Disposition", "attachment;filename="+downloadTitle);
         response.setContentType("application/vnd.ms-excel");
         ServletOutputStream out = response.getOutputStream();
         try {
