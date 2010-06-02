@@ -564,6 +564,18 @@
                                 <th>Year</th>
                                 <th>Source</th>
                             </tr>
+                            <c:if test="${not empty extendedTaxonConcept.earliestReference}">
+                            <tr class="earliestReference">
+                                <td>${extendedTaxonConcept.earliestReference.scientificName}</td>
+                                <td>${extendedTaxonConcept.earliestReference.title}
+                                    <span class="earliestReferenceLabel">(Earliest reference within BHL)</span>
+                                </td>
+                                <td>${extendedTaxonConcept.earliestReference.volume}</td>
+                                <td>${extendedTaxonConcept.earliestReference.authorship}</td>
+                                <td>${extendedTaxonConcept.earliestReference.year}</td>
+                                <td><a href="http://library.ala.org.au/page/${extendedTaxonConcept.earliestReference.pageIdentifiers[0]}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
+                            </tr>
+                            </c:if>
                             <c:forEach items="${extendedTaxonConcept.references}" var="reference">
                                 <tr>
                                     <td>${reference.scientificName}</td>
@@ -574,7 +586,7 @@
                                       <span class="volume"><c:if test="${not empty reference.volume && reference.volume!='NULL'}">${reference.volume}</c:if></span><br/>
                                     </td>
                                     <td>
-                                      <span class="year">${reference.authorship}</span>
+                                      <span class="authorship">${reference.authorship}</span>
                                     </td>
                                     <td>
                                       <span class="year">${reference.year}</span>
