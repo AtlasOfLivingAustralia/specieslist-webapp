@@ -19,7 +19,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
       <span class="taxonGroupTitle">Birds: ${birds.totalRecords}</span>
       <span class="taxonGroupActions">
         <c:if test="${birds.totalRecords>0}">
-          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=FishList${geoRegion.acronym}&higherTaxon=Aves&rank=class">Download</a>
+          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=BirdsList${geoRegion.acronym}&higherTaxon=Aves&rank=class">Download</a>
           <a href="#Birds" id="viewBirdsList">View<c:if test="${birds.totalRecords>25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
