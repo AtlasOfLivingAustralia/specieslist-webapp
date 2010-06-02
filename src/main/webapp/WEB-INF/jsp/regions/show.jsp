@@ -19,7 +19,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
       <span class="taxonGroupTitle">Birds: ${birds.totalRecords}</span>
       <span class="taxonGroupActions">
         <c:if test="${birds.totalRecords>0}">
-          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?higherTaxon=Aves&rank=class">Download</a>
+          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=FishList${geoRegion.acronym}&higherTaxon=Aves&rank=class">Download</a>
           <a href="#Birds" id="viewBirdsList">View<c:if test="${birds.totalRecords>25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
@@ -33,7 +33,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
       <span class="taxonGroupTitle">Fish: ${fish.totalRecords}</span>
       <span class="taxonGroupActions">
         <c:if test="${fish.totalRecords>0}">
-          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?higherTaxon=Myxini,Petromyzontida,Chondrichthyes,Sarcopterygii,Actinopterygii&rank=class">Download</a>
+          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=FishList${geoRegion.acronym}&higherTaxon=Myxini,Petromyzontida,Chondrichthyes,Sarcopterygii,Actinopterygii&rank=class">Download</a>
           <a href="#Fish" id="viewFishList">View<c:if test="${fish.totalRecords>=25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
@@ -47,7 +47,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
       <span class="taxonGroupTitle">Mammals: ${mammals.totalRecords}</span>
       <span class="taxonGroupActions">
         <c:if test="${mammals.totalRecords>0}">
-          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?higherTaxon=Mammalia&rank=class">Download</a>
+          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=MammalsList${geoRegion.acronym}&higherTaxon=Mammalia&rank=class">Download</a>
           <a href="#Mammals" id="viewMammalsList">View<c:if test="${mammals.totalRecords>=25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
@@ -61,7 +61,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
       <span class="taxonGroupTitle">Frogs: ${frogs.totalRecords}</span>
       <span class="taxonGroupActions">
         <c:if test="${frogs.totalRecords>0}">
-          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?higherTaxon=Amphibia&rank=class">Download</a>
+          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=FrogsList${geoRegion.acronym}&higherTaxon=Amphibia&rank=class">Download</a>
           <a href="#Frogs" id="viewFrogsList">View<c:if test="${frogs.totalRecords>=25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
@@ -75,7 +75,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
       <span class="taxonGroupTitle">Reptiles: ${reptiles.totalRecords}</span>
       <span class="taxonGroupActions">
         <c:if test="${reptiles.totalRecords>0}">
-          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?higherTaxon=Reptilia&rank=class">Download</a>
+          <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=ReptilesList${geoRegion.acronym}&higherTaxon=Reptilia&rank=class">Download</a>
           <a href="#Reptiles" id="viewReptilesList">View<c:if test="${reptiles.totalRecords>=25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
@@ -122,23 +122,22 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 
 	var currentNode = null;
 
-	// initialise the page
-	$(document).ready(function() {
-		initPage();
-
-		selectedTaxaSimple = 'mammals';
-		selectedTaxa = 'Mammalia';
-		selectedTaxonRank = 'class';
-
-		geoRegion = '${geoRegion.name}';
-		geoRegionType = 'state'; //FIXME hardcoded state for now
-		compareRegion = '${geoRegion.name !="Victoria" ? "Victoria" : "Tasmania"}';
-		compareRegionType = 'state';
+	 // initialise the page
 		
-		//default to Victoria for now
-    currentNode = document.getElementById(compareRegion);
-    loadTaxaDiff(currentNode, geoRegionType, geoRegion, compareRegionType, compareRegion);
-	)};
+	initPage();
+
+	selectedTaxaSimple = 'mammals';
+	selectedTaxa = 'Mammalia';
+	selectedTaxonRank = 'class';
+
+	geoRegion = '${geoRegion.name}';
+	geoRegionType = 'state'; //FIXME hardcoded state for now
+	compareRegion = '${geoRegion.name !="Victoria" ? "Victoria" : "Tasmania"}';
+	compareRegionType = 'state';
+		
+	//default to Victoria for now
+  currentNode = document.getElementById(compareRegion);
+  loadTaxaDiff(currentNode, geoRegionType, geoRegion, compareRegionType, compareRegion);
 
   /**
    * Initialise the page and tool.
