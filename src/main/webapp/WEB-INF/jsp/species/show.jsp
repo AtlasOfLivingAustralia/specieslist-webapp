@@ -559,13 +559,27 @@
                             <tr>
                                 <th>Scientific Name</th>
                                 <th>Reference</th>
+                                <th>Volume</th>
+                                <th>Author</th>
+                                <th>Year</th>
                                 <th>Source</th>
                             </tr>
                             <c:forEach items="${extendedTaxonConcept.references}" var="reference">
                                 <tr>
                                     <td>${reference.scientificName}</td>
-                                    <td>${reference.title}</td>
-                                    <td><a href="http://www.biodiversitylibrary.org/item/${reference.identifier}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
+                                    <td>
+                                      <span class="title">${reference.title}</span>
+                                     </td>
+                                    <td> 
+                                      <span class="volume"><c:if test="${not empty reference.volume && reference.volume!='NULL'}">${reference.volume}</c:if></span><br/>
+                                    </td>
+                                    <td>
+                                      <span class="year">${reference.authorship}</span>
+                                    </td>
+                                    <td>
+                                      <span class="year">${reference.year}</span>
+                                    </td>
+                                    <td><a href="http://library.ala.org.au/page/${reference.pageIdentifiers[0]}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
                                 </tr>
                             </c:forEach>
                         </table>
