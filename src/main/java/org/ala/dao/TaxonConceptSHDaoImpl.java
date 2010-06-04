@@ -75,7 +75,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
-import org.gbif.portal.model.LinnaeanRankClassification;
+import au.org.ala.data.model.LinnaeanRankClassification;
 
 import au.org.ala.checklist.lucene.CBIndexSearch;
 import au.org.ala.checklist.lucene.SearchResultException;
@@ -1258,8 +1258,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addReference(org.ala.model.Reference)
 	 */
-	public boolean addReference(String guid, Reference reference) throws Exception {
-		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, REFERENCE_COL, guid, reference);
+	public boolean addReferences(String guid, List<org.ala.model.Reference> references) throws Exception {
+		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, REFERENCE_COL, guid, (List)references, false);
 	}
 	
 	/**
@@ -1272,8 +1272,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addPublicationReference(java.lang.String, org.ala.model.Reference)
 	 */
-	public boolean addPublicationReference(String guid, Reference reference) throws Exception{
-    	return storeHelper.put(TC_TABLE, TC_COL_FAMILY, PUBLICATION_REFERENCE_COL, guid, reference);
+	public boolean addPublicationReference(String guid, List<Reference> references) throws Exception{
+    	return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, PUBLICATION_REFERENCE_COL, guid, (List)references, false);
     }
 	
 	/**

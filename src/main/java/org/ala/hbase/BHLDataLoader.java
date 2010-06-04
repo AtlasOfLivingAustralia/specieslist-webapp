@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,6 +42,8 @@ import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.CachingWrapperFilter;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
@@ -69,7 +72,7 @@ import org.apache.lucene.search.TopFieldDocs;
 public class BHLDataLoader {
 
     protected static Logger logger = Logger.getLogger(BHLDataLoader.class);
-    public static String BHL_EXPORT = "/data/bie-staging/bhl/item_au_sn_ref.txt";
+    public static String BHL_EXPORT = "/data/bie-staging/bhl/item_au_sn_ref-full.txt";
     private static final String BHL_LOADING_IDX_DIR = "/data/lucene/bhlloading/bhl";
     private static final String ANBG_BHL_LOADING_IDX_DIR = "/data/lucene/bhlloading/anbg";
     @Inject
@@ -77,6 +80,7 @@ public class BHLDataLoader {
     protected IndexSearcher bhlIdxSearcher, anbgIdxSearcher;
     private int maxDocs = 10;
     private Pattern yearPattern = Pattern.compile("[12][0-9][0-9][0-9]");
+    private Pattern sepPattern = Pattern.compile(",");
     private CachingWrapperFilter yearFilter;
     /**
      * @param args
@@ -89,78 +93,75 @@ public class BHLDataLoader {
         l.initIndexes();
         l.load();
     }
-
-
-    
+    public void printDistinctLsids()throws Exception{
+        
+        org.apache.lucene.index.TermEnum te =  bhlIdxSearcher.getIndexReader().terms(new Term("lsid"));
+        Term t = te.term();
+        int i =0;
+        while (t != null &&"lsid".equals(t.field())){
+            System.out.println("processing LSID: " + t.text()) ;
+            i++;
+            t = te.next()? te.term():null;
+            
+        }
+        System.out.println("Finished processing " + i + " distinct lsids");
+    }
 
     /**
-     *
+     * Loads the BHL literature references. 
      * @throws Exception
      */
-    private void load() throws Exception {
-
+    private void load() throws Exception{
         logger.info("Starting to load literature references from: " + BHL_EXPORT);
 
         long start = System.currentTimeMillis();
-
-        // add the BHL publications to the taxon concepts
-    	TabReader tr = new TabReader(BHL_EXPORT,false); 
-        tr.readNext();//the header line
-        String[] values = null;
-        int i = 0,l=0;
-        Reference r = null;
-        List<String> topXDocs = null;
-        while((values = tr.readNext()) != null){
-            l++;
-            //Each entry in the source file represents a unique species Item relationship
-            //Each entry is a potential new refernece
-            if(values.length == 9){
-                String guid = values[7];
-               //get the taxonConcept for this guid to obgtain the published in citation
-                TaxonConcept tc = taxonConceptDao.getByGuid(guid);
-                
-                String pubLsid = tc == null?null :tc.getPublishedInCitation();
-                
-                topXDocs = searchItems(guid, "count", maxDocs, true, null);
-                boolean isEarliest = values[2].equals(getEarliestItem(guid));
-                boolean isPublishedIn = isPublishedInTitle(values[0], pubLsid);
-               //Add the reference to the appropriate location
-               if(topXDocs.contains(values[2]) || isEarliest || isPublishedIn){
-                   r = new Reference();
-                   r.setTitle(values[1]);
-                   r.setIdentifier(values[2]);
-                   r.setScientificName(values[6]);
-                   String year = StringUtils.trimToNull(values[4]) == null ? getYear(values[3], values[4]):values[4];
-                   r.setYear(year);
-                   r.setVolume(values[3]);
-                   //add all the page identifiers
-                   CollectionUtils.addAll(r.getPageIdentifiers(), values[5].split(","));
-                   logger.debug("Add reference to " + guid
-                                    + " for document with id: " + r.getIdentifier()
-                                    + ", scientificName: " + r.getScientificName() + ", isEarliest: "
-                                    + isEarliest + ", publishedIn: "+ isPublishedIn);
-                   if(isEarliest)
-                       taxonConceptDao.addEarliestReference(guid, r);
-                   if(isPublishedIn){ //the reference may be the earliest and the published in reference
-                       taxonConceptDao.addPublicationReference(guid, r);
-                   }
-                   else if(!isEarliest && !isPublishedIn)
-                     taxonConceptDao.addReference(guid, r);
-                   i++;
-               }else{
-                  logger.debug("Item " + values[2] + " does not appear in the top " + maxDocs + " for guid: "+ guid);
-               }
-            if(l%100000==0){
-                long now = System.currentTimeMillis();
-                logger.info("Processed " + l + " records. Time taken " + (((now - start) / 1000) / 60) + " minutes, " + (((now - start) / 1000) % 60) + " seconds.");
+        //get the distinct LSID's for the species that are contained in the BHL index
+        org.apache.lucene.index.TermEnum te =  bhlIdxSearcher.getIndexReader().terms(new Term("lsid"));
+        Term term = te.term();
+        int i=0,e=0,p =0;
+        while (term != null &&"lsid".equals(term.field())){
+            i++;
+            String guid = term.text();
+            //get the maxDoc most populated documents
+            List<Reference> topReferences = searchForReferences(guid, "count", maxDocs, true, null);
+            //get the earliest reference document
+            Reference earlyReference = getEarliestItem(guid);
+            if(earlyReference!=null){
+                topReferences.remove(earlyReference);
+                //add the earliest reference
+                taxonConceptDao.addEarliestReference(guid, earlyReference);
+                logger.debug("Add earliestReference to " + guid);
+                e++;
             }
-            }else {
-                logger.error("Incorrect number of fields in tab file - " + BHL_EXPORT + " at line " + l);
+            //get the item ids for the publication title
+            //get the taxonConcept for this guid to obgtain the published in citation
+            TaxonConcept tc = taxonConceptDao.getByGuid(guid);
+            String pubLsid = tc == null?null :tc.getPublishedInCitation();
+            String titleId = pubLsid == null ? null : getTitlePublishedIn(pubLsid);
+            if(titleId !=  null){
+                List<Reference> publishedReferences = searchReferenceForTitle(guid, titleId);
+                if(publishedReferences != null){
+                    topReferences.removeAll(publishedReferences);
+                    //add the published references
+                    taxonConceptDao.addPublicationReference(guid, publishedReferences);
+                    logger.debug("Add publcationReference to " + guid);
+                    p++;
+                }
+            }
+            //add the references
+            taxonConceptDao.addReferences(guid, topReferences);
+            logger.debug("Added " + topReferences.size() + " references to " + guid);
+                  
+          
+            //move onto the next lsid
+            term = te.next()? te.term():null;
+            if(i%1000==0){
+                long now = System.currentTimeMillis();
+                logger.info("Processed " + i + " guids. ["+guid+"]. Time taken " + (((now - start) / 1000) / 60) + " minutes, " + (((now - start) / 1000) % 60) + " seconds.");
             }
         }
-        tr.close();
-        long finish = System.currentTimeMillis();
-        logger.info(i + " literature references loaded. Time taken " + (((finish - start) / 1000) / 60) + " minutes, " + (((finish - start) / 1000) % 60) + " seconds.");
+        logger.info(i + " references loaded. " + e + " earliest references loaded. " + p +" publication references loaded");
+        
     }
 
     /**
@@ -194,13 +195,20 @@ public class BHLDataLoader {
             Document doc = new Document();
             
             String year = getYear(cols[3],cols[4]);
-
+            doc.add(new Field("titleid", cols[0], Store.YES, Index.NOT_ANALYZED));
             doc.add(new Field("lsid", cols[7], Store.YES, Index.ANALYZED));
-            //doc.add(new Field("name", cols[6], Store.YES, Index.ANALYZED));
+            doc.add(new Field("name", cols[6], Store.YES, Index.NO));
             doc.add(new Field("count", cols[8], Store.YES, Index.NOT_ANALYZED));
             if(year != null)
                 doc.add(new Field("year", year, Store.YES, Index.NOT_ANALYZED));
             doc.add(new Field("itemid", cols[2], Store.YES, Index.NO));
+            doc.add(new Field("pages", cols[5], Store.YES, Index.NO));
+            if(cols[4] != null)
+                doc.add(new Field("yeartxt", cols[4], Store.YES, Index.NO));
+            doc.add(new Field("volume", cols[3], Store.YES, Index.NO));
+            doc.add(new Field("title", cols[1], Store.YES, Index.NO));
+
+
             //add to index
             iw.addDocument(doc, analyzer);
             i++;
@@ -214,6 +222,7 @@ public class BHLDataLoader {
         //close taxonConcept stream
         tr.close();
         iw.close();
+        iw.optimize();
 
         long finish = System.currentTimeMillis();
         logger.info(i + " indexed taxon concepts in: " + (((finish - start) / 1000) / 60) + " minutes, " + (((finish - start) / 1000) % 60) + " seconds.");
@@ -254,23 +263,23 @@ public class BHLDataLoader {
         
     }
     /**
+     * Retrieves the BHL title id for the specified ANBG publication LSID.
      *
-     * @param titleId
+     * Null is returned when no corresponding BHL title could be found.
+     *
      * @param pubLsid
-     * @return true when the supplied titleId is mapped to the supplied publication LSID 
+     * @return
      */
-    public boolean isPublishedInTitle(String titleId, String pubLsid){
+    public String getTitlePublishedIn(String pubLsid){
         try{
             TermQuery query = new TermQuery(new Term("lsid", pubLsid));
-            TopDocs docs =anbgIdxSearcher.search(query, 1);
+            TopDocs docs = anbgIdxSearcher.search(query, 1);
             if(docs.totalHits>0){
-                Document doc = anbgIdxSearcher.doc(docs.scoreDocs[0].doc);
-                logger.debug("Title publication LSID : " + pubLsid + " doc.titleId: "+ doc.get("titleid") + " supplied titleID: "+ titleId);
-                return titleId.equals(doc.get("titleid"));
+                return anbgIdxSearcher.doc(docs.scoreDocs[0].doc).get("titleid");
             }
         }
         catch(Exception e){}
-        return false;
+        return null;
     }
 
     /**
@@ -315,9 +324,9 @@ public class BHLDataLoader {
      * @param lsid
      * @return The itemId for the earliest published item for the supplied lsid
      */
-    private String getEarliestItem(String lsid){
-        List<String> results =  searchItems(lsid, "year", 1, false, yearFilter);
-        if(results != null && results.size()>0)
+    private Reference getEarliestItem(String lsid){
+        List<Reference> results = searchForReferences(lsid, "year", 1, false, yearFilter);
+        if(results != null && results.size() >0)
             return results.get(0);
         return null;
     }
@@ -342,6 +351,63 @@ public class BHLDataLoader {
             }
             return results;
         } catch (java.io.IOException e) {
+        }
+        return null;
+    }
+    /**
+     * Searches the bhl item index ordering the results by the sortField optionally
+     * in reverse order.
+     * @param lsid
+     * @param sortField
+     * @param limit The number of results to return
+     * @param reverseSort When true the sort is reversed.
+     * @param filter The filter to be applied to the search - used to remove null values in the search field
+     * @return The list of publications that match these results
+     */
+    private List<Reference> searchForReferences(String lsid, String sortField, int limit, boolean reverseSort, Filter filter){
+        try{
+            Query query = new TermQuery(new Term("lsid", lsid));
+            TopFieldDocs topDocs = bhlIdxSearcher.search(query, filter, limit, new Sort(new SortField(sortField, SortField.INT, reverseSort)));
+            return createReferenceList(topDocs);
+        }
+        catch(Exception e){
+            logger.error("searchForPublications: " +e.getMessage());
+        }
+        return null;
+    }
+    private List<Reference> searchReferenceForTitle(String lsid, String titleId){
+        try{
+            BooleanQuery query = new BooleanQuery();
+            query.add(new TermQuery(new Term("lsid", lsid)), Occur.MUST);
+            query.add(new TermQuery(new Term("titleid", titleId)), Occur.MUST);
+            TopDocs topDocs  = bhlIdxSearcher.search(query, maxDocs);
+            return createReferenceList(topDocs);
+        }
+        catch(Exception e){
+
+        }
+        return null;
+    }
+    private List<Reference> createReferenceList(TopDocs topDocs) throws Exception{
+        if (topDocs.totalHits > 0) {
+            List<Reference> results = new ArrayList<Reference>(maxDocs);
+            Document doc = null;
+            for (ScoreDoc sdoc : topDocs.scoreDocs) {
+                doc = bhlIdxSearcher.doc(sdoc.doc);
+                Reference r = new Reference();
+                r.setIdentifier(doc.get("itemid"));
+                r.setScientificName(doc.get("name"));
+                r.setTitle(doc.get("title"));
+                String year = StringUtils.trimToNull(doc.get("yeartxt"));
+                if (year == null) {
+                    year = doc.get("year");
+                }
+                r.setYear(year);
+                r.setVolume(doc.get("volume"));
+                CollectionUtils.addAll(r.getPageIdentifiers(), sepPattern.split(doc.get("pages")));
+                results.add(r);
+            }
+            return results;
         }
         return null;
     }
