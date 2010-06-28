@@ -101,7 +101,7 @@ public class RepoDataLoader {
 				dirs[i] = new File(file.getAbsolutePath() + File.separator + repoDirs[i]);
 			}
 		} else {
-			// Scan all sub-directories
+			// Scan all sub-directories - FIXME this takes a long time for a large number of subdirectories
 			dirs = file.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
 		}
  
