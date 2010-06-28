@@ -464,8 +464,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, TAXONNAME_COL, guid, TaxonName.class);
 	}	
 	
-	
-	
 	/**
 	 * Retrieve all properties for this row as a Map. Useful for debug
 	 * interfaces only.
