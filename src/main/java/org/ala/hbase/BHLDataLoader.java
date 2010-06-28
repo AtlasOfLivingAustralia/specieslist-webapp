@@ -221,8 +221,8 @@ public class BHLDataLoader {
 
         //close taxonConcept stream
         tr.close();
-        iw.close();
         iw.optimize();
+        iw.close();
 
         long finish = System.currentTimeMillis();
         logger.info(i + " indexed taxon concepts in: " + (((finish - start) / 1000) / 60) + " minutes, " + (((finish - start) / 1000) % 60) + " seconds.");
