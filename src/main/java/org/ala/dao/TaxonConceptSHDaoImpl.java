@@ -384,6 +384,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getByGuid(java.lang.String)
 	 */
 	public TaxonConcept getByGuid(String guid) throws Exception {
+		guid = getPreferredGuid(guid);
 		return (TaxonConcept) storeHelper.get(TC_TABLE, TC_COL_FAMILY, TAXONCONCEPT_COL, guid, TaxonConcept.class);
 	}
 
@@ -393,6 +394,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid) throws Exception {
 
 		ExtendedTaxonConceptDTO etc = new ExtendedTaxonConceptDTO();
+		
+		guid = getPreferredGuid(guid);
 		
 		//populate the dto
 		etc.setTaxonConcept(getByGuid(guid));
@@ -424,6 +427,22 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         Collections.sort(simpleProperties);
         etc.setSimpleProperties(simpleProperties);
 		return etc;
+	}
+
+	/**
+	 * Use the Lucene indexes to find the correct (accepted) guid.
+	 * 
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	private String getPreferredGuid(String guid) throws Exception {
+		//use the Lucene indexes to find the correct (accepted) guid.
+		SearchResultsDTO searchResults = findByGuid(guid, 0, 1, null, null);
+		if(!searchResults.getTaxonConcepts().isEmpty()){
+			guid = searchResults.getTaxonConcepts().get(0).getGuid();
+		}
+		return guid;
 	}
 	
 	/**
@@ -506,15 +525,35 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		qp  = new QueryParser("commonName", new SimpleAnalyzer());
 		Query commonNameQuery = qp.parse("\""+input+"\"");
 
-		//include a query against the GUID
+		//include a query against the GUIDs
 		Query guidQuery = new TermQuery(new Term("guid", input));
+		Query otherGuidQuery = new TermQuery(new Term("otherGuid", input));
 
 		//combine the query terms
-		scientificNameQuery = scientificNameQuery.combine(new Query[]{scientificNameQuery, guidQuery, commonNameQuery});
+		scientificNameQuery = scientificNameQuery.combine(new Query[]{scientificNameQuery, guidQuery, otherGuidQuery, commonNameQuery});
         // run the search
-        SearchResultsDTO searchResults = sortPageSearch(scientificNameQuery, startIndex, pageSize, sortField, sortDirection);
+        return sortPageSearch(scientificNameQuery, startIndex, pageSize, sortField, sortDirection);
+    }
+    
+    /**
+	 * @see org.ala.dao.TaxonConceptDao#findByScientificName(java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String)
+	 */
+    public SearchResultsDTO findByGuid(String input, Integer startIndex, Integer pageSize,
+            String sortField, String sortDirection) throws Exception {
 
-        return searchResults;
+        input = StringUtils.trimToNull(input);
+		if(input==null){
+			return new SearchResultsDTO();
+		}
+		
+		//include a query against the GUIDs
+		Query guidQuery = new TermQuery(new Term("guid", input));
+		Query otherGuidQuery = new TermQuery(new Term("otherGuid", input));
+
+		//combine the query terms
+		Query fullQuery = guidQuery.combine(new Query[]{guidQuery, otherGuidQuery});
+        // run the search
+        return sortPageSearch(fullQuery, startIndex, pageSize, sortField, sortDirection);
     }
 
     /**

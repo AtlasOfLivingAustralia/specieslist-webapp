@@ -35,6 +35,8 @@ public class TaxonConcept extends AttributableObject implements Comparable<Taxon
 	protected String publishedInCitation;
 	protected String publishedIn;
 	protected String rankString;
+	protected Integer left;
+	protected Integer right;
 
 	/**
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
@@ -215,6 +217,34 @@ public class TaxonConcept extends AttributableObject implements Comparable<Taxon
 		this.rankString = rankString;
 	}
 
+	/**
+	 * @return the left
+	 */
+	public Integer getLeft() {
+		return left;
+	}
+
+	/**
+	 * @param left the left to set
+	 */
+	public void setLeft(Integer left) {
+		this.left = left;
+	}
+
+	/**
+	 * @return the right
+	 */
+	public Integer getRight() {
+		return right;
+	}
+
+	/**
+	 * @param right the right to set
+	 */
+	public void setRight(Integer right) {
+		this.right = right;
+	}
+	
 	/**
 	 * @see java.lang.Object#toString()
 	 */

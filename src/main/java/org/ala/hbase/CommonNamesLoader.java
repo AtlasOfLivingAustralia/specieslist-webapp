@@ -14,18 +14,20 @@
  ***************************************************************************/
 package org.ala.hbase;
 
-import au.com.bytecode.opencsv.CSVReader;
 import java.io.FileReader;
 import java.util.regex.Pattern;
+
 import javax.inject.Inject;
 
 import org.ala.dao.TaxonConceptDao;
 import org.ala.model.CommonName;
+import org.ala.model.TaxonConcept;
 import org.ala.util.SpringUtils;
-import org.ala.util.TabReader;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+
+import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Simple class to load in the common names as supplied by the ANBG.
@@ -63,7 +65,7 @@ public class CommonNamesLoader {
 	 * @throws Exception
 	 */
 	private void loadCommonNames(String dataFile) throws Exception {
-		logger.info("Starting to load region occurrences from " + dataFile);
+		logger.info("Starting to load common names from " + dataFile);
 		
     	long start = System.currentTimeMillis();
     	
@@ -78,17 +80,22 @@ public class CommonNamesLoader {
     		if (values.length > 5) {
     			String guid = values[1];
     			String commonNameString = values[2];
-                        //the common name string can be a comma separated list of names
     			String taxonConceptGuid = values[5];
-    			CommonName commonName = new CommonName();
-    			commonName.setGuid(guid);
-    			String[] commonNameStrings = p.split(commonNameString);
-                        for(String cn: commonNameStrings){
-                            commonName.setNameString(cn);
-                            boolean success = taxonConceptDao.addCommonName(taxonConceptGuid, commonName);
-                            if(success) namesAdded++;
-                        }
-    			
+    			//retrieve the concept - this gets around the use of multiple guids for a single concept
+    			//this is the case for APNI/APC concepts.
+    			TaxonConcept tc = taxonConceptDao.getByGuid(taxonConceptGuid);
+    			if(tc!=null){
+	    			//do a look up for the correct taxon
+	    			CommonName commonName = new CommonName();
+	    			commonName.setGuid(guid);
+	                //the common name string can be a comma separated list of names
+	    			String[] commonNameStrings = p.split(commonNameString);
+	                for(String cn: commonNameStrings){
+	                    commonName.setNameString(cn);
+	                    boolean success = taxonConceptDao.addCommonName(tc.getGuid(), commonName);
+	                    if(success) namesAdded++;
+	                }
+    			}
     		}
 		}
 		

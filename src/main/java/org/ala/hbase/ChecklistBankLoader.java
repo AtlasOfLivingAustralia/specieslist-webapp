@@ -31,6 +31,7 @@ import org.ala.util.SpringUtils;
 import org.ala.util.TabReader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.document.Document;
@@ -240,44 +241,65 @@ public class ChecklistBankLoader {
 		return taxonConcept;
 	}	
 	
-	/**
-	 * Load the accepted concepts in the DwC Archive
-	 * 
-	 * @throws IOException
-	 * @throws UnsupportedArchiveException
-	 * @throws Exception
-	 */
-	public void loadConcepts() throws IOException, UnsupportedArchiveException, Exception {
+	public void loadConcepts() throws Exception {
 		
-		Archive archive = ArchiveFactory.openArchive(new File(CB_EXPORT_DIR),true);
-		Iterator<DarwinCoreRecord> iter = archive.iteratorDwc();
-		int numberRead = 0;
-		int numberAdded = 0;
 		long start = System.currentTimeMillis();
 		
-		while (iter.hasNext()) {
-			numberRead++;
-			DarwinCoreRecord dwc = iter.next();
-			String guid = dwc.getTaxonID();
-			String identifier = dwc.getIdentifier();
+    	//names files to index
+    	TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_name_usages.txt", false);
+    	
+    	String[] cols = tr.readNext(); //first line contains headers - ignore
+    	
+    	while((cols=tr.readNext())!=null){
+    		String identifier = cols[0];
+    		String parentNameUsageID = cols[1];
+			String guid = cols[2]; //TaxonID
+			String nubId = cols[3];
+			String acceptedNameUsageID = cols[4]; //acceptedNameUsageID
+			String scientificNameId = cols[5];
+			String scientificName = cols[6];
+			String scientificNameAuthorship = cols[7];
+			String rankID = cols[8];
+			String taxonRank = cols[9];
+			Integer left = NumberUtils.createInteger(cols[10]);
+			Integer right = NumberUtils.createInteger(cols[11]);
+			String kingdomID = cols[12];
+			String kingdom = cols[13];
+			String phylumID = cols[14];
+			String phylum = cols[15];
+			String clazzID = cols[16];
+			String clazz = cols[17];
+			String orderID = cols[18];
+			String order = cols[19];
+			String familyID = cols[20];
+			String family = cols[21];
+			String genusID = cols[22];
+			String genus = cols[23];
+			String speciesID = cols[24];
+			String species = cols[25];
+			String dataset = cols[26];
+
 			if(guid == null){
 				guid = identifier;
 			}
 			
-			if (guid != null && StringUtils.isEmpty(dwc.getAcceptedNameUsageID())) {
+			int numberAdded = 0;
+
+			if (guid != null && StringUtils.isEmpty(acceptedNameUsageID)) {
 				
 				//add the base concept
 				TaxonConcept tc = new TaxonConcept();
 				tc.setId(Integer.parseInt(identifier));
 				tc.setGuid(guid);
-				tc.setParentId(dwc.getParentNameUsageID());
-				tc.setNameString(dwc.getScientificName());
-				tc.setAuthor(dwc.getScientificNameAuthorship());
-				tc.setRankString(dwc.getTaxonRank());
+				tc.setParentId(parentNameUsageID);
+				tc.setNameString(scientificName);
+				tc.setAuthor(scientificNameAuthorship);
+				tc.setRankString(taxonRank);
+				tc.setLeft(left);
+				tc.setRight(right);
 				
 				if (taxonConceptDao.create(tc)) {
 					numberAdded++;
-//					if(numberAdded>500000) System.exit(0);
 					if(numberAdded % 1000 == 0){
 						long current = System.currentTimeMillis();
 						logger.info("Taxon concepts added: "+numberAdded+", insert rate: "+((current-start)/numberAdded)+ "ms per record, last guid: "+ tc.getGuid());
@@ -300,27 +322,115 @@ public class ChecklistBankLoader {
 				
 				//add the classification
 				Classification c = new Classification();
-				c.setGuid(dwc.getTaxonID());
-				c.setScientificName(dwc.getScientificName());
-				c.setRank(dwc.getTaxonRank());
-                c.setSpecies(dwc.getSpecificEpithet());
-                c.setGenus(dwc.getGenus());
-                c.setFamily(dwc.getFamily());
-                c.setOrder(dwc.getOrder());
-                c.setClazz(dwc.getClasss());
-                c.setPhylum(dwc.getPhylum());
-                c.setKingdom(dwc.getKingdom());
+				c.setGuid(guid);
+				c.setScientificName(scientificName);
+				c.setRank(taxonRank);
+                c.setSpecies(species);
+                c.setSpeciesGuid(speciesID);
+                c.setGenus(genus);
+                c.setGenusGuid(genusID);
+                c.setFamily(family);
+                c.setFamilyGuid(familyID);
+                c.setOrder(order);
+                c.setOrderGuid(orderID);
+                c.setClazz(clazz);
+                c.setClazzGuid(clazzID);
+                c.setPhylum(phylum);
+                c.setPhylumGuid(phylumID);
+                c.setKingdom(kingdom);
+                c.setKingdomGuid(kingdomID);
                 try {
                     // Attempt to set the rank Id via Rank enum
-                    c.setRankId(Rank.getForName(dwc.getTaxonRank()).getId());
+                    c.setRankId(Rank.getForName(taxonRank).getId());
                 } catch (Exception e) {
-                    logger.warn("Could not set rankId for: "+dwc.getTaxonRank()+" in "+guid);
+                    logger.warn("Could not set rankId for: "+taxonRank+" in "+guid);
                 }
 				taxonConceptDao.addClassification(guid, c);
 			}
 		}
-		logger.info(numberAdded + " concepts added from " + numberRead + " rows of Checklist Bank data.");
 	}
+	
+//	/**
+//	 * Load the accepted concepts in the DwC Archive
+//	 * 
+//	 * @throws IOException
+//	 * @throws UnsupportedArchiveException
+//	 * @throws Exception
+//	 */
+//	public void xxxloadConcepts() throws IOException, UnsupportedArchiveException, Exception {
+//		
+//		Archive archive = ArchiveFactory.openArchive(new File(CB_EXPORT_DIR),true);
+//		Iterator<DarwinCoreRecord> iter = archive.iteratorDwc();
+//		int numberRead = 0;
+//		int numberAdded = 0;
+//		long start = System.currentTimeMillis();
+//		
+//		while (iter.hasNext()) {
+//			numberRead++;
+//			DarwinCoreRecord dwc = iter.next();
+//			String guid = dwc.getTaxonID();
+//			String identifier = dwc.getIdentifier();
+//			if(guid == null){
+//				guid = identifier;
+//			}
+//			
+//			if (guid != null && StringUtils.isEmpty(dwc.getAcceptedNameUsageID())) {
+//				
+//				//add the base concept
+//				TaxonConcept tc = new TaxonConcept();
+//				tc.setId(Integer.parseInt(identifier));
+//				tc.setGuid(guid);
+//				tc.setParentId(dwc.getParentNameUsageID());
+//				tc.setNameString(dwc.getScientificName());
+//				tc.setAuthor(dwc.getScientificNameAuthorship());
+//				tc.setRankString(dwc.getTaxonRank());
+//				
+//				if (taxonConceptDao.create(tc)) {
+//					numberAdded++;
+////					if(numberAdded>500000) System.exit(0);
+//					if(numberAdded % 1000 == 0){
+//						long current = System.currentTimeMillis();
+//						logger.info("Taxon concepts added: "+numberAdded+", insert rate: "+((current-start)/numberAdded)+ "ms per record, last guid: "+ tc.getGuid());
+//					}
+//				}
+//				
+//				//load the parent concept
+//				if(StringUtils.isNotEmpty(tc.getParentId())){
+//					TaxonConcept parentConcept = getById(tc.getParentId());
+//					taxonConceptDao.addParentTaxon(tc.getGuid(), parentConcept);
+//				}
+//				
+//				//load the child concepts
+//				List<TaxonConcept> childConcepts = getChildConcepts(Integer.toString(tc.getId()));
+//				if(!childConcepts.isEmpty()){
+//					for(TaxonConcept childConcept: childConcepts){
+//						taxonConceptDao.addChildTaxon(tc.getGuid(), childConcept);
+//					}
+//				}
+//				
+//				//add the classification
+//				Classification c = new Classification();
+//				c.setGuid(dwc.getTaxonID());
+//				c.setScientificName(dwc.getScientificName());
+//				c.setRank(dwc.getTaxonRank());
+//                c.setSpecies(dwc.getSpecificEpithet());
+//                c.setGenus(dwc.getGenus());
+//                c.setFamily(dwc.getFamily());
+//                c.setOrder(dwc.getOrder());
+//                c.setClazz(dwc.getClasss());
+//                c.setPhylum(dwc.getPhylum());
+//                c.setKingdom(dwc.getKingdom());
+//                try {
+//                    // Attempt to set the rank Id via Rank enum
+//                    c.setRankId(Rank.getForName(dwc.getTaxonRank()).getId());
+//                } catch (Exception e) {
+//                    logger.warn("Could not set rankId for: "+dwc.getTaxonRank()+" in "+guid);
+//                }
+//				taxonConceptDao.addClassification(guid, c);
+//			}
+//		}
+//		logger.info(numberAdded + " concepts added from " + numberRead + " rows of Checklist Bank data.");
+//	}
 		
 	/**
 	 * Load the synonyms in the DwC Archive
