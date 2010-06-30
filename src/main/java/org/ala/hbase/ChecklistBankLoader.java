@@ -20,11 +20,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
 import org.ala.dao.TaxonConceptDao;
 import org.ala.model.Classification;
+import org.ala.model.CommonName;
 import org.ala.model.Rank;
 import org.ala.model.TaxonConcept;
 import org.ala.util.SpringUtils;
@@ -72,13 +74,18 @@ public class ChecklistBankLoader {
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
 	
+	//data files
 	private static final String IDENTIFIERS_FILE="/data/bie-staging/checklistbank/cb_identifiers.txt";
-    
 	private static final String CB_EXPORT_DIR="/data/bie-staging/checklistbank/";
+	private static final String AFD_COMMON_NAMES = "/data/bie-staging/anbg/AFD-common-names.csv";
+	private static final String APNI_COMMON_NAMES = "/data/bie-staging/anbg/APNI-common-names.csv";
 	
-	private static final String CB_LOADING_IDX_DIR= "/data/lucene/checklistbankloading";
+	//lucene indexes
+	private static final String CB_LOADING_IDX_DIR= "/data/lucene/checklistbankloading/tc";
+	private static final String CB_LOADING_ID_IDX_DIR= "/data/lucene/checklistbankloading/id";
 	
 	protected IndexSearcher tcIdxSearcher;
+	protected IndexSearcher identifierIdxSearcher;
 	
 	/**
 	 * @param args
@@ -91,6 +98,7 @@ public class ChecklistBankLoader {
 		
 		logger.info("Creating checklist bank loading index....");
 		l.createLoadingIndex();
+		l.createIdentifierIndex();
 		
 		logger.info("Initialise indexes....");
 		l.initIndexes();
@@ -100,9 +108,15 @@ public class ChecklistBankLoader {
 		
 		logger.info("Loading synonyms....");
 		l.loadSynonyms();
-		
+//		
 		logger.info("Loading identifiers....");
 		l.loadIdentifiers();
+		
+		logger.info("Loading afd common names....");
+		l.loadCommonNames(AFD_COMMON_NAMES);
+		
+		logger.info("Loading apni common names....");
+		l.loadCommonNames(APNI_COMMON_NAMES);
 		
 		long finish = System.currentTimeMillis();
 		
@@ -139,15 +153,19 @@ public class ChecklistBankLoader {
     	
     	while((cols=tr.readNext())!=null){
     		
+    		String identifier = cols[0];
+    		String parentNameUsageID = cols[1];
+			String guid = cols[2]; //TaxonID
+    		
 			Document doc = new Document();
 	    	doc.add(new Field("id", cols[0], Store.YES, Index.ANALYZED));
-	    	if(cols[1]!=null){
-	    		doc.add(new Field("parentId", cols[1], Store.YES, Index.ANALYZED));
+	    	if(StringUtils.isNotEmpty(parentNameUsageID)){
+	    		doc.add(new Field("parentId", parentNameUsageID, Store.YES, Index.ANALYZED));
 	    	}
-	    	if(cols[2]!=null){
-	    		doc.add(new Field("guid", cols[2], Store.YES, Index.NOT_ANALYZED));
+	    	if(StringUtils.isNotEmpty(guid)){
+	    		doc.add(new Field("guid", guid, Store.YES, Index.NOT_ANALYZED));
 	    	} else {
-	    		doc.add(new Field("guid", cols[0], Store.YES, Index.NOT_ANALYZED));
+	    		doc.add(new Field("guid", identifier, Store.YES, Index.NOT_ANALYZED));
 	    	}
 	    	doc.add(new Field("nameString", cols[6], Store.YES, Index.ANALYZED));
 	    	
@@ -170,12 +188,65 @@ public class ChecklistBankLoader {
 	}
 	
 	/**
+	 * Create a loading index for checklist bank data.
+	 * 
+	 * @throws Exception
+	 */
+	public void createIdentifierIndex() throws Exception {
+		long start = System.currentTimeMillis();
+		
+		//create a name index
+    	File file = new File(CB_LOADING_ID_IDX_DIR);
+    	if(file.exists()){
+    		FileUtils.forceDelete(file);
+    	}
+    	FileUtils.forceMkdir(file);
+    	
+    	KeywordAnalyzer analyzer = new KeywordAnalyzer();
+        //initialise lucene
+    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
+    	
+    	int i = 0;
+    	
+    	//names files to index
+    	TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_identifiers.txt", false);
+    	
+    	String[] cols = tr.readNext(); //first line contains headers - ignore
+    	
+    	while((cols=tr.readNext())!=null){
+    		
+    		if(StringUtils.isNotEmpty(cols[1])){
+				Document doc = new Document();
+		    	doc.add(new Field("guid", cols[2], Store.YES, Index.ANALYZED));
+	    		doc.add(new Field("preferredGuid", cols[1], Store.YES, Index.NO));
+		    	
+		    	//add to index
+		    	iw.addDocument(doc, analyzer);
+		    	i++;
+		    	
+		    	if(i%10000==0) {
+		    		iw.flush();
+		    		System.out.println(i+"\t"+cols[0]+"\t"+cols[2]);
+		    	}
+    		}
+		}
+    	
+    	//close taxonConcept stream
+    	tr.close();
+    	iw.close();
+    	
+    	long finish = System.currentTimeMillis();
+    	logger.info(i+" indexed identifiers in: "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
+	}
+	
+	/**
 	 * Initialise indexes for lookups.
 	 * 
 	 * @throws Exception
 	 */
 	public void initIndexes() throws Exception {
 		this.tcIdxSearcher = new IndexSearcher(CB_LOADING_IDX_DIR, true);
+		this.identifierIdxSearcher = new IndexSearcher(CB_LOADING_ID_IDX_DIR, true);
 	}
 	
 	/**
@@ -239,8 +310,13 @@ public class ChecklistBankLoader {
 		taxonConcept.setParentId(doc.get("parentId"));
 		taxonConcept.setNameString(doc.get("nameString"));
 		return taxonConcept;
-	}	
+	}
 	
+	/**
+	 * Load the concepts from the export file into the BIE.
+	 * 
+	 * @throws Exception
+	 */
 	public void loadConcepts() throws Exception {
 		
 		long start = System.currentTimeMillis();
@@ -309,7 +385,9 @@ public class ChecklistBankLoader {
 				//load the parent concept
 				if(StringUtils.isNotEmpty(tc.getParentId())){
 					TaxonConcept parentConcept = getById(tc.getParentId());
-					taxonConceptDao.addParentTaxon(tc.getGuid(), parentConcept);
+					if(parentConcept!=null){
+						taxonConceptDao.addParentTaxon(tc.getGuid(), parentConcept);
+					}
 				}
 				
 				//load the child concepts
@@ -350,88 +428,6 @@ public class ChecklistBankLoader {
 		}
 	}
 	
-//	/**
-//	 * Load the accepted concepts in the DwC Archive
-//	 * 
-//	 * @throws IOException
-//	 * @throws UnsupportedArchiveException
-//	 * @throws Exception
-//	 */
-//	public void xxxloadConcepts() throws IOException, UnsupportedArchiveException, Exception {
-//		
-//		Archive archive = ArchiveFactory.openArchive(new File(CB_EXPORT_DIR),true);
-//		Iterator<DarwinCoreRecord> iter = archive.iteratorDwc();
-//		int numberRead = 0;
-//		int numberAdded = 0;
-//		long start = System.currentTimeMillis();
-//		
-//		while (iter.hasNext()) {
-//			numberRead++;
-//			DarwinCoreRecord dwc = iter.next();
-//			String guid = dwc.getTaxonID();
-//			String identifier = dwc.getIdentifier();
-//			if(guid == null){
-//				guid = identifier;
-//			}
-//			
-//			if (guid != null && StringUtils.isEmpty(dwc.getAcceptedNameUsageID())) {
-//				
-//				//add the base concept
-//				TaxonConcept tc = new TaxonConcept();
-//				tc.setId(Integer.parseInt(identifier));
-//				tc.setGuid(guid);
-//				tc.setParentId(dwc.getParentNameUsageID());
-//				tc.setNameString(dwc.getScientificName());
-//				tc.setAuthor(dwc.getScientificNameAuthorship());
-//				tc.setRankString(dwc.getTaxonRank());
-//				
-//				if (taxonConceptDao.create(tc)) {
-//					numberAdded++;
-////					if(numberAdded>500000) System.exit(0);
-//					if(numberAdded % 1000 == 0){
-//						long current = System.currentTimeMillis();
-//						logger.info("Taxon concepts added: "+numberAdded+", insert rate: "+((current-start)/numberAdded)+ "ms per record, last guid: "+ tc.getGuid());
-//					}
-//				}
-//				
-//				//load the parent concept
-//				if(StringUtils.isNotEmpty(tc.getParentId())){
-//					TaxonConcept parentConcept = getById(tc.getParentId());
-//					taxonConceptDao.addParentTaxon(tc.getGuid(), parentConcept);
-//				}
-//				
-//				//load the child concepts
-//				List<TaxonConcept> childConcepts = getChildConcepts(Integer.toString(tc.getId()));
-//				if(!childConcepts.isEmpty()){
-//					for(TaxonConcept childConcept: childConcepts){
-//						taxonConceptDao.addChildTaxon(tc.getGuid(), childConcept);
-//					}
-//				}
-//				
-//				//add the classification
-//				Classification c = new Classification();
-//				c.setGuid(dwc.getTaxonID());
-//				c.setScientificName(dwc.getScientificName());
-//				c.setRank(dwc.getTaxonRank());
-//                c.setSpecies(dwc.getSpecificEpithet());
-//                c.setGenus(dwc.getGenus());
-//                c.setFamily(dwc.getFamily());
-//                c.setOrder(dwc.getOrder());
-//                c.setClazz(dwc.getClasss());
-//                c.setPhylum(dwc.getPhylum());
-//                c.setKingdom(dwc.getKingdom());
-//                try {
-//                    // Attempt to set the rank Id via Rank enum
-//                    c.setRankId(Rank.getForName(dwc.getTaxonRank()).getId());
-//                } catch (Exception e) {
-//                    logger.warn("Could not set rankId for: "+dwc.getTaxonRank()+" in "+guid);
-//                }
-//				taxonConceptDao.addClassification(guid, c);
-//			}
-//		}
-//		logger.info(numberAdded + " concepts added from " + numberRead + " rows of Checklist Bank data.");
-//	}
-		
 	/**
 	 * Load the synonyms in the DwC Archive
 	 * 
@@ -509,6 +505,71 @@ public class ChecklistBankLoader {
 			}
 		}
 		logger.info(numberAdded + " identifiers added from " + numberRead + " rows of Checklist Bank data.");
+	}
+
+	/**
+	 * Loads the common names in the supplied file.
+	 * 
+	 * @param dataFile
+	 * @throws Exception
+	 */
+	private void loadCommonNames(String dataFile) throws Exception {
+		logger.info("Starting to load common names from " + dataFile);
+		
+    	long start = System.currentTimeMillis();
+    	
+    	// add the taxon concept regions
+        //NC A TabReader can not be used because quoted fields can contain a comma
+    	//TabReader tr = new TabReader(dataFile, true, ',');
+        CSVReader tr = new CSVReader(new FileReader(dataFile), ',', '"',1);
+    	String[] values = null;
+        Pattern p = Pattern.compile(",");
+    	int namesAdded = 0;
+		while ((values = tr.readNext()) != null) {
+    		if (values.length > 5) {
+    			String guid = values[1];
+    			String commonNameString = values[2];
+    			String taxonConceptGuid = values[5];
+    			//retrieve the concept - this gets around the use of multiple guids for a single concept
+    			//this is the case for APNI/APC concepts.
+    			taxonConceptGuid = getPreferredGuid(taxonConceptGuid);
+    			//do a look up for the correct taxon
+    			CommonName commonName = new CommonName();
+    			commonName.setGuid(guid);
+                //the common name string can be a comma separated list of names
+    			String[] commonNameStrings = p.split(commonNameString);
+                for(String cn: commonNameStrings){
+                    commonName.setNameString(cn);
+                    boolean success = taxonConceptDao.addCommonName(taxonConceptGuid, commonName);
+                    if(success) namesAdded++;
+                    if(!success){
+                    	logger.error("Unable to add "+commonName);
+                    }
+                }
+    		}
+		}
+		
+    	tr.close();
+		long finish = System.currentTimeMillis();
+		logger.info(namesAdded+" common names added to taxa. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
+	}
+	
+	/**
+	 * Retrieve the preferred guid for this taxon concept.
+	 * 
+	 * @param taxonConceptGuid
+	 * @return
+	 * @throws Exception
+	 */
+	private String getPreferredGuid(String taxonConceptGuid) throws Exception {
+		
+		Query query = new TermQuery(new Term("guid", taxonConceptGuid));
+		TopDocs topDocs = identifierIdxSearcher.search(query, 1);
+		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
+			Document doc = identifierIdxSearcher.doc(scoreDoc.doc);
+			return doc.get("preferredGuid");
+		}
+		return taxonConceptGuid;
 	}
 
 	/**
