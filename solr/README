@@ -1,4 +1,1 @@
-Copy this directory into /data/ so that /data/solr/conf exists.
-
-create a sym link in this directory called index that points to the taxonConcept Lucene directory.
-E.g. "ln -s /data/lucene/taxonConcept /data/solr/index".
+Copy this directory into /data/ so that /data/solr/bie/conf exists.
