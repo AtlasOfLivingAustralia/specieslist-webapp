@@ -363,7 +363,7 @@ public class SpeciesController {
 	 * @return view name
 	 */
 	@RequestMapping(value = "/species/datasets", method = RequestMethod.GET)
-	public String listDatasets (Model model)  {
+	public String listDatasets (Model model) throws Exception  {
 		List<InfoSource> infoSources = infoSourceDAO.getAllByDatasetType();
 		List<Integer> infoSourceIDWithVocabulariesMapList = new ArrayList<Integer>();		
 		for (InfoSource infoSource : infoSources) {
