@@ -20,7 +20,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
       <span class="taxonGroupActions">
         <c:if test="${birds.totalRecords>0}">
           <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=BirdsList${geoRegion.acronym}&higherTaxon=Aves&rank=class">Download</a>
-          <a href="#Birds" id="viewBirdsList">View<c:if test="${birds.totalRecords>25}"> (limited to 25)</c:if></a>
+          <a href="#Birds" id="viewBirdsList">Show/Hide<c:if test="${birds.totalRecords>25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
       <table id="birdsList" class="taxonList">
@@ -40,7 +40,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
       <span class="taxonGroupActions">
         <c:if test="${fish.totalRecords>0}">
           <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=FishList${geoRegion.acronym}&higherTaxon=Myxini,Petromyzontida,Chondrichthyes,Sarcopterygii,Actinopterygii&rank=class">Download</a>
-          <a href="#Fish" id="viewFishList">View<c:if test="${fish.totalRecords>=25}"> (limited to 25)</c:if></a>
+          <a href="#Fish" id="viewFishList">Show/Hide<c:if test="${fish.totalRecords>=25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
       <table id="fishList" class="taxonList">
@@ -60,7 +60,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
       <span class="taxonGroupActions">
         <c:if test="${frogs.totalRecords>0}">
           <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=FrogsList${geoRegion.acronym}&higherTaxon=Amphibia&rank=class">Download</a>
-          <a href="#Frogs" id="viewFrogsList">View<c:if test="${frogs.totalRecords>=25}"> (limited to 25)</c:if></a>
+          <a href="#Frogs" id="viewFrogsList">Show/Hide<c:if test="${frogs.totalRecords>=25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
       <table id="frogsList" class="taxonList">
@@ -80,7 +80,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
       <span class="taxonGroupActions">
         <c:if test="${mammals.totalRecords>0}">
           <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=MammalsList${geoRegion.acronym}&higherTaxon=Mammalia&rank=class">Download</a>
-          <a href="#Mammals" id="viewMammalsList">View<c:if test="${mammals.totalRecords>=25}"> (limited to 25)</c:if></a>
+          <a href="#Mammals" id="viewMammalsList">Show/Hide<c:if test="${mammals.totalRecords>=25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
       <table id="mammalsList" class="taxonList">
@@ -100,7 +100,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
       <span class="taxonGroupActions">
         <c:if test="${reptiles.totalRecords>0}">
           <a href="${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=ReptilesList${geoRegion.acronym}&higherTaxon=Reptilia&rank=class">Download</a>
-          <a href="#Reptiles" id="viewReptilesList">View<c:if test="${reptiles.totalRecords>=25}"> (limited to 25)</c:if></a>
+          <a href="#Reptiles" id="viewReptilesList">Show/Hide<c:if test="${reptiles.totalRecords>=25}"> (limited to 25)</c:if></a>
         </c:if>
       </span>
       <table id="reptilesList" class="taxonList">
