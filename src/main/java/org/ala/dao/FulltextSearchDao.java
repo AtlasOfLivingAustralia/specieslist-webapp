@@ -117,7 +117,7 @@ public interface FulltextSearchDao {
      * @return
      * @throws Exception
      */
-    SearchResultsDTO findByScientificName(String query, String filterQuery, Integer startIndex,
+    SearchResultsDTO findByScientificName(String query, String[] filterQuery, Integer startIndex,
             Integer pageSize, String sortField, String sortDirection) throws Exception;
 
     /**
