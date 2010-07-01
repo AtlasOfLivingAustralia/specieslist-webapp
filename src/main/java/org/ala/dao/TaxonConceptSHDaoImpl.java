@@ -1104,9 +1104,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     		if(i % 1000 == 0) logger.info(guid);
     		
     		//get taxon concept details
-//    		TaxonConcept taxonConcept = getByGuid(guid);
-    		
-    		TaxonConcept taxonConcept = getByGuid("urn:lsid:biodiversity.org.au:afd.taxon:aa745ff0-c776-4d0e-851d-369ba0e6f537");
+    		TaxonConcept taxonConcept = getByGuid(guid);
     		
             if(taxonConcept!=null){
             	//get synonyms concepts
