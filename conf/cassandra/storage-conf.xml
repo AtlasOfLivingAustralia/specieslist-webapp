@@ -25,7 +25,7 @@
    ~ The name of this cluster.  This is mainly used to prevent machines in
    ~ one logical cluster from joining another.
   -->
-  <ClusterName>Test Cluster</ClusterName>
+  <ClusterName>BIE Cluster</ClusterName>
 
   <!--
    ~ Turn on to make new [non-seed] nodes automatically migrate the right data 
@@ -99,34 +99,21 @@
        ~
        ~ Remember, when using caches as a percentage, they WILL grow with
        ~ your data set!
-      -->
-      <ColumnFamily Name="Standard1" CompareWith="BytesType"/>
-      <ColumnFamily Name="Standard2" 
-                    CompareWith="UTF8Type"
-                    KeysCached="100%"/>
-      <ColumnFamily Name="StandardByUUID1" CompareWith="TimeUUIDType" />
-      <ColumnFamily Name="Super1"
-                    ColumnType="Super"
-                    CompareWith="BytesType"
-                    CompareSubcolumnsWith="BytesType" />
-      <ColumnFamily Name="Super2"
-                    ColumnType="Super"
-                    CompareWith="UTF8Type"
-                    CompareSubcolumnsWith="UTF8Type"
-                    RowsCached="10000"
-                    KeysCached="50%"
-                    Comment="A column family with supercolumns, whose column and subcolumn names are UTF8 strings"/>                    
+      -->                  
       <ColumnFamily Name="tc"
       				ColumnType="Super"
                     CompareWith="UTF8Type"
                     CompareSubcolumnsWith="UTF8Type"
+                    RowsCached="10000"
+                    KeysCached="100%"
                     Comment="The column family for Taxon Concepts"/>
       <ColumnFamily Name="gr"
       				ColumnType="Super"
                     CompareWith="UTF8Type"
                     CompareSubcolumnsWith="UTF8Type"
+                    RowsCached="10000"
+                    KeysCached="100%"
                     Comment="The column family for Geo Regions"/>
-
 
       <!--
        ~ Strategy: Setting this to the class that implements

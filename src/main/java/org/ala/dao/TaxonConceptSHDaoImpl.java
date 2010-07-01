@@ -29,7 +29,6 @@ import javax.inject.Inject;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
-import org.ala.lucene.LuceneUtils;
 import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
@@ -53,18 +52,13 @@ import org.ala.vocabulary.Vocabulary;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.analysis.SimpleAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanClause;
@@ -75,11 +69,15 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
-import au.org.ala.data.model.LinnaeanRankClassification;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.common.SolrInputDocument;
+import org.gbif.ecat.model.ParsedName;
+import org.gbif.ecat.parser.NameParser;
 
 import au.org.ala.checklist.lucene.CBIndexSearch;
 import au.org.ala.checklist.lucene.SearchResultException;
 import au.org.ala.checklist.lucene.model.NameSearchResult;
+import au.org.ala.data.model.LinnaeanRankClassification;
 import au.org.ala.data.util.RankType;
 
 /**
@@ -100,7 +98,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	protected static Logger logger = Logger.getLogger(TaxonConceptSHDaoImpl.class);
 	
 	/** The location for the lucene index */
-	public static final String TC_INDEX_DIR = "/data/lucene/taxonConcept";
+	public static final String TC_INDEX_DIR = "/data/solr/bie/index";
 
 	/** Columns */
 	private static final String TAXONCONCEPT_COL = "taxonConcept";
@@ -143,6 +141,15 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	
 	/** The spring wired store helper to use */
 	protected StoreHelper storeHelper;
+	
+	@Inject
+	protected SolrUtils solrUtils;
+	
+    /* Final fields */
+    protected static final String DATASET = "dataset";
+    protected static final String SCI_NAME = "scientificName";
+    protected static final String SCI_NAME_RAW = "scientificNameRaw";
+    protected static final String SCI_NAME_TEXT = "scientificNameText";
 	
 	/**
 	 * Initialise the DAO, setting up the HTable instance.
@@ -259,17 +266,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		//FIXME this is here to update some information not available in the export from checklist bank
 		// This should refactored out at some stage
 		TaxonConcept current = (TaxonConcept) storeHelper.get(TC_TABLE, TC_COL_FAMILY, TAXONCONCEPT_COL, tc.getGuid(), TaxonConcept.class);
-		
 		if(current==null){ 
 			return false;
 		}
-		
-		current.setPublishedIn(tc.getPublishedIn());
-		current.setPublishedInCitation(tc.getPublishedInCitation());
-		current.setInfoSourceId(tc.getInfoSourceId());
-		current.setInfoSourceName(tc.getInfoSourceName());
-		current.setInfoSourceURL(tc.getInfoSourceURL());
-		
 		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, TAXONCONCEPT_COL, tc.getGuid(), current);
 	}
 
@@ -384,7 +383,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getByGuid(java.lang.String)
 	 */
 	public TaxonConcept getByGuid(String guid) throws Exception {
-		guid = getPreferredGuid(guid);
+//		guid = getPreferredGuid(guid);
 		return (TaxonConcept) storeHelper.get(TC_TABLE, TC_COL_FAMILY, TAXONCONCEPT_COL, guid, TaxonConcept.class);
 	}
 
@@ -568,7 +567,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
      */
     private SearchResultsDTO sortPageSearch(Query searchQuery, Integer startIndex, Integer pageSize,
             String sortField, String sortDirection) throws IOException, Exception {
-        IndexSearcher tcIdxSearcher1 = getTcIdxSearcher();
         boolean direction = false;
 
         if (sortDirection != null && !sortDirection.isEmpty() && sortDirection.equalsIgnoreCase("desc")) {
@@ -583,14 +581,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
             sort = Sort.RELEVANCE;
         }
 
-        TopDocs topDocs = tcIdxSearcher1.search(searchQuery, null, startIndex + pageSize, sort); // TODO ues sortField here
+        TopDocs topDocs = getTcIdxSearcher().search(searchQuery, null, startIndex + pageSize, sort); // TODO ues sortField here
         logger.debug("Total hits: " + topDocs.totalHits);
         List<SearchTaxonConceptDTO> tcs = new ArrayList<SearchTaxonConceptDTO>();
 
         for (int i = 0; i < topDocs.scoreDocs.length; i++) {
             if (i >= startIndex) {
                 ScoreDoc scoreDoc = topDocs.scoreDocs[i];
-                Document doc = tcIdxSearcher1.doc(scoreDoc.doc);
+                Document doc = getTcIdxSearcher().doc(scoreDoc.doc);
                 tcs.add(createTaxonConceptFromIndex(doc, scoreDoc.score));
             }
         }
@@ -718,7 +716,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		if(this.tcIdxSearcher==null){
 	    	File file = new File(TC_INDEX_DIR);
 	    	if(file.exists()){
-	    		this.tcIdxSearcher = new IndexSearcher(TC_INDEX_DIR);
+	    		try {
+	    			this.tcIdxSearcher = new IndexSearcher(TC_INDEX_DIR);
+	    		} catch (Exception e){
+	    			new IndexWriter(TC_INDEX_DIR , new StandardAnalyzer());
+	    		}
 	    	}
 		}
 		return this.tcIdxSearcher;
@@ -746,6 +748,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		taxonConcept.setHasChildren(Boolean.parseBoolean(hasChildrenAsString));
         taxonConcept.setScore(score);
         taxonConcept.setRank(doc.get("rank"));
+        try {
+	        taxonConcept.setLeft(Integer.parseInt(doc.get("left")));
+	        taxonConcept.setRight(Integer.parseInt(doc.get("right")));
+        } catch (NumberFormatException e) {
+        	//expected if left and right values are unavailable
+        }
+        
         try {
             taxonConcept.setRankId(Integer.parseInt(doc.get("rankId")));
         } catch (NumberFormatException ex) {
@@ -1063,11 +1072,16 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     	}
     	FileUtils.forceMkdir(file);
     	
+        SolrServer solrServer = solrUtils.getSolrServer();
+        solrServer.deleteByQuery( "*:*" ); // delete everything!
+    	
     	//Analyzer analyzer = new KeywordAnalyzer(); - works for exact matches
     	//KeywordAnalyzer analyzer = new KeywordAnalyzer();
-        Analyzer analyzer = new StandardAnalyzer();
-
-    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
+//        Analyzer analyzer = new StandardAnalyzer();
+//
+//    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
+        
+        List<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
 
     	int i = 0;
 		
@@ -1076,6 +1090,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		byte[] guidAsBytes = null;
 		
 		while ((guidAsBytes = scanner.getNextGuid())!=null) {
+//		while (i<1) {
     		
 			i++;
 			
@@ -1084,11 +1099,15 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			}
     		
     		String guid = new String(guidAsBytes);
+//			String guid = new String("urn:lsid:biodiversity.org.au:afd.taxon:aa745ff0-c776-4d0e-851d-369ba0e6f537");
 
     		if(i % 1000 == 0) logger.info(guid);
     		
     		//get taxon concept details
-    		TaxonConcept taxonConcept = getByGuid(guid);
+//    		TaxonConcept taxonConcept = getByGuid(guid);
+    		
+    		TaxonConcept taxonConcept = getByGuid("urn:lsid:biodiversity.org.au:afd.taxon:aa745ff0-c776-4d0e-851d-369ba0e6f537");
+    		
             if(taxonConcept!=null){
             	//get synonyms concepts
 	    		List<TaxonConcept> synonyms = getSynonymsFor(guid);
@@ -1119,30 +1138,36 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    		List<String> identifiers = new ArrayList<String>();
 	    		
 	    		//TODO this index should also include nub ids
-	    		Document doc = new Document();
+	    		SolrInputDocument doc = new SolrInputDocument();
+	    		doc.addField("idxtype", IndexedTypes.TAXON);
 	            
 	    		if(taxonConcept.getNameString()!=null){
 	    			
-	    			doc.add(new Field("guid", taxonConcept.getGuid(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+	    			doc.addField("id", taxonConcept.getGuid());
+	    			doc.addField("guid", taxonConcept.getGuid());
 	    			
 	    			for(String identifier: identifiers){
-	    				doc.add(new Field("otherGuid", identifier, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+	    				doc.addField("otherGuid", identifier);
 	    			}
 	    			
 	    			addToSetSafely(infoSourceIds, taxonConcept.getInfoSourceId());
 	    			//add multiple forms of the scientific name to the index
-	    			LuceneUtils.addScientificNameToIndex(doc, taxonConcept.getNameString(), taxonConcept.getRankString());
+	    			addScientificNameToIndex(doc, taxonConcept.getNameString(), taxonConcept.getRankString());
 		    		
 		    		if(taxonConcept.getParentGuid()!=null){
-		    			doc.add(new Field("parentGuid", taxonConcept.getParentGuid(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+		    			doc.addField("parentGuid", taxonConcept.getParentGuid());
 		    		}
+		    		
+		    		//add the nested set values
+		    		doc.addField("left", taxonConcept.getLeft());
+		    		doc.addField("right", taxonConcept.getRight());
 		    		
 	                for (ConservationStatus cs : conservationStatuses) {
 	                    for (String csTerm : consTerms) {
 	                        if (cs.getStatus()!=null && cs.getStatus().toLowerCase().contains(csTerm.toLowerCase())) {
-	                            Field f = new Field("conservationStatus", csTerm, Store.YES, Index.NOT_ANALYZED);
-	                            f.setBoost(0.6f);
-	                            doc.add(f);
+//	                            Field f = new Field("conservationStatus", csTerm, Store.YES, Index.NOT_ANALYZED);
+//	                            f.setBoost(0.6f);
+	                            doc.addField("conservationStatus", csTerm, 0.6f);
 	                			addToSetSafely(infoSourceIds, cs.getInfoSourceId());
 	                        }
 	                    }
@@ -1151,9 +1176,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	                for (PestStatus ps : pestStatuses) {
 	                    for (String psTerm : pestTerms) {
 	                        if (ps.getStatus().toLowerCase().contains(psTerm.toLowerCase())) {
-	                            Field f = new Field("pestStatus", psTerm, Store.YES, Index.NOT_ANALYZED);
-	                            f.setBoost(0.6f);
-	                            doc.add(f);
+//	                            Field f = new Field("pestStatus", psTerm, Store.YES, Index.NOT_ANALYZED);
+//	                            f.setBoost(0.6f);
+	                            doc.addField("pestStatus", psTerm, 0.6f);
 	                            addToSetSafely(infoSourceIds, ps.getInfoSourceId());
 	                        }
 	                    }
@@ -1162,9 +1187,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	                for (SimpleProperty sp : simpleProperties) {
 	                    // index *Text properties
 	                    if (sp.getName().endsWith("Text")) {
-	                        Field textField = new Field("simpleText", sp.getValue(), Store.YES, Index.ANALYZED);
-	                        textField.setBoost(0.4f);
-	                        doc.add(textField);
+//	                        Field textField = new Field("simpleText", sp.getValue(), Store.YES, Index.ANALYZED);
+//	                        textField.setBoost(0.4f);
+	                        doc.addField("simpleText", sp.getValue(), 0.4f);
 	                        addToSetSafely(infoSourceIds, sp.getInfoSourceId());
 	                    }
 	                }
@@ -1182,26 +1207,29 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	
 	                if (commonNameSet.size() > 0) {
 	                    String commonNamesConcat = StringUtils.deleteWhitespace(StringUtils.join(commonNameSet, " "));
-	                    doc.add(new Field("commonNameSort", commonNamesConcat, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
-	                    doc.add(new Field("commonName", StringUtils.join(commonNameSet, " "), Store.YES, Index.ANALYZED));
-	                    doc.add(new Field("commonNameDisplay", StringUtils.join(commonNameSet, ", "), Store.YES, Index.ANALYZED));
+	                    doc.addField("commonNameSort", commonNamesConcat);
+	                    doc.addField("commonName", StringUtils.join(commonNameSet, " "));
+	                    doc.addField("commonNameDisplay", StringUtils.join(commonNameSet, ", "));
 	                }
 		    		
 		    		for(TaxonConcept synonym: synonyms){
 		    			if(synonym.getNameString()!=null){
 		    				logger.debug("adding synonym to index: "+synonym.getNameString());
 		    				//add a new document for each synonym
-		    				Document synonymDoc = new Document();
-		    				synonymDoc.add(new Field("guid", taxonConcept.getGuid(), Store.YES, Index.NO));
-		    				LuceneUtils.addScientificNameToIndex(synonymDoc, synonym.getNameString(), null);
-		    				synonymDoc.add(new Field("acceptedConceptName", taxonConcept.getNameString(), Store.YES, Index.NO));
+		    				SolrInputDocument synonymDoc = new SolrInputDocument();
+		    				synonymDoc.addField("id", synonym.getGuid());
+		    				synonymDoc.addField("guid", taxonConcept.getGuid());
+		    				synonymDoc.addField("idxtype", IndexedTypes.TAXON);
+		    				addScientificNameToIndex(synonymDoc, synonym.getNameString(), null);
+		    				synonymDoc.addField("acceptedConceptName", taxonConcept.getNameString());
 		    				if(!commonNames.isEmpty()){
-		    					synonymDoc.add(new Field("commonNameSort", commonNames.get(0).nameString, Store.YES, Index.NO));
-		    					synonymDoc.add(new Field("commonNameDisplay", StringUtils.join(commonNameSet, ", "), Store.YES, Index.ANALYZED));
+		    					synonymDoc.addField("commonNameSort", commonNames.get(0).nameString);
+		    					synonymDoc.addField("commonNameDisplay", StringUtils.join(commonNameSet, ", "));
 		    				}
-		                    addRankToIndex(taxonConcept.getRankString(), synonymDoc);
+		                    addRankToIndex(synonymDoc, taxonConcept.getRankString());
 		    				//add the synonym as a separate document
-		    				iw.addDocument(synonymDoc, analyzer);
+		                    docs.add(synonymDoc);
+		                    //store the source
 	                        if (synonym.getInfoSourceId()!=null){
 	                        	infoSourceIds.add(synonym.getInfoSourceId()); // getting NPE
 	                        }
@@ -1210,9 +1238,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		    		
 		    		List<OccurrencesInGeoregion> regions = getRegions(guid);
 		    		for(OccurrencesInGeoregion region : regions){
-		    			//FIXME do this nicer....
+		    			//FIXME do this nicer using define region types etc....
 		    			if("State".equalsIgnoreCase(region.getRegionType()) || "Territory".equalsIgnoreCase(region.getRegionType())){
-		    				doc.add(new Field("state", region.getName(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+		    				doc.addField("state", region.getName());
 		    			}
 		    		}
 		    		
@@ -1229,33 +1257,40 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		    		if(!images.isEmpty()){
 		    			//FIXME should be replaced by the highest ranked image
 		    			Image image  = images.get(0);
-		    			doc.add(new Field("image", image.getRepoLocation(), Store.YES, Index.NO));
+		    			doc.addField("image", image.getRepoLocation());
 		    			//Change to adding this in earlier
 		    			String thumbnail = image.getRepoLocation().replace("raw", "thumbnail");
-		    			doc.add(new Field("thumbnail", thumbnail, Store.YES, Index.NO));
+		    			doc.addField("thumbnail", thumbnail);
 		    		}
 		    		
-	                addRankToIndex(taxonConcept.getRankString(), doc);
+	                addRankToIndex(doc, taxonConcept.getRankString());
 		    		
-	    			doc.add(new Field("hasChildren", Boolean.toString(!children.isEmpty()), Store.YES, Index.NO));
-	                doc.add(new Field("dataset", StringUtils.join(infoSourceIds, " "), Store.YES, Index.ANALYZED_NO_NORMS));
+	    			doc.addField("hasChildren", Boolean.toString(!children.isEmpty()));
+	                doc.addField("dataset", StringUtils.join(infoSourceIds, " "));
 		    		
 			    	//add to index
-			    	iw.addDocument(doc, analyzer);
+//			    	iw.addDocument(doc, analyzer);
+	                docs.add(doc);
 			    	
-		    		if (i%1000 == 0) logger.debug(i + " " + taxonConcept.getGuid());
+			    	if(i%1000==0){
+			    		//iw.commit();
+			    		logger.debug(i + " " + taxonConcept.getGuid()+", adding "+docs.size());
+		                solrServer.add(docs);
+		                solrServer.commit();
+		                docs.clear();
+			    	}
     			}
     		}
-	    	if(i%10000==0){
-	    		iw.commit();
-	    	}
     	}
     	
-    	iw.commit();
-    	iw.close();
+        if (!docs.isEmpty()) {
+        	logger.debug(i + "  adding "+docs.size()+" documents to index");
+        	solrServer.add(docs);
+        	solrServer.commit();
+        }
     	
     	long finish = System.currentTimeMillis();
-    	logger.info("Index created in: "+((finish-start)/1000)+" seconds with "+ i +" documents");
+    	logger.info("Index created in: "+((finish-start)/1000)+" seconds with "+ i +" taxon concepts processed.");
 	}
 
 	/**
@@ -1265,29 +1300,110 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @param classification
 	 * @param fieldName
 	 */
-	private void addIfNotNull(Document doc, String fieldName, String fieldValue) {
+	private void addIfNotNull(SolrInputDocument doc, String fieldName, String fieldValue) {
 		if(StringUtils.isNotEmpty(fieldValue)){
-			doc.add(new Field(fieldName, fieldValue, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+			doc.addField(fieldName, fieldValue);
 		}
 	}
 
-	/**
+    /**
+	 * Adds a scientific name to the lucene index in multiple forms to increase
+	 * chances of matches
+	 *
+	 * @param doc
+     * @param scientificName
+     * @param taxonRank
+	 */
+	public void addScientificNameToIndex(SolrInputDocument doc, String scientificName, String taxonRank){
+
+		NameParser nameParser = new NameParser();
+        Integer rankId = -1;
+
+        if (taxonRank != null) {
+           Rank rank = Rank.getForField(taxonRank.toLowerCase());
+           if (rank != null) {
+             rankId = rank.getId();
+           } else {
+             logger.warn("Unknown rank string: " + taxonRank);
+           }
+        }
+		//remove the subgenus
+		String normalized = "";
+
+		if (scientificName != null) {
+			normalized = scientificName.replaceFirst("\\([A-Za-z]{1,}\\) ", "");
+		}
+
+		ParsedName parsedName = nameParser.parseIgnoreAuthors(normalized);
+        // store scientific name values in a set before adding to Lucene so we don't get duplicates
+        TreeSet<String> sciNames = new TreeSet<String>();
+
+    	if (parsedName != null) {
+    		if (parsedName.isBinomial()) {
+    			//add multiple versions
+                sciNames.add(parsedName.buildAbbreviatedCanonicalName().toLowerCase());
+                sciNames.add(parsedName.buildAbbreviatedFullName().toLowerCase());
+    		}
+
+            //add lowercased version
+            sciNames.add(parsedName.buildCanonicalName().toLowerCase());
+            // add to Lucene
+            for (String sciName : sciNames) {
+                //doc.add(new Field(SCI_NAME, sciName, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+                doc.addField(SCI_NAME, sciName);
+            }
+
+            Float boost = 1f;
+
+            if (rankId != null) {
+	            if (rankId == 6000) {
+    	            // genus higher than species so it appears first
+        	        boost = 3f;
+            	} else if (rankId == 7000) {
+                	// species higher than subspecies so it appears first
+	                boost = 2f;
+    	        }
+    	    }
+
+            //Field f = new Field(SCI_NAME_TEXT, StringUtils.join(sciNames, " "), Store.YES, Index.ANALYZED);
+            //f.setBoost(boost);
+            //doc.add(f);
+            doc.addField(SCI_NAME_TEXT, StringUtils.join(sciNames, " "), boost);
+    	} else {
+    		//add lowercased version if name parser failed
+	    	//doc.add(new Field(SCI_NAME, normalized.toLowerCase(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+            //doc.add(new Field(SCI_NAME_TEXT, normalized.toLowerCase(), Store.YES, Index.ANALYZED));
+            doc.addField(SCI_NAME, normalized.toLowerCase());
+            doc.addField(SCI_NAME_TEXT, normalized.toLowerCase());
+    	}
+
+    	if (scientificName!=null) {
+    		//doc.add(new Field(SCI_NAME_RAW, scientificName, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+            doc.addField(SCI_NAME_RAW, scientificName);
+    	}
+	}
+	
+    /**
 	 * Add the rank to the search document.
-	 * 
+	 *
 	 * @param rankString
 	 * @param doc
 	 */
-	private void addRankToIndex(String rankString, Document doc) {
-		if (rankString!=null) {
+	private void addRankToIndex(SolrInputDocument doc, String rankString) {
+		if (rankString != null) {
 		    try {
 		        Rank rank = Rank.getForField(rankString.toLowerCase());
-		        doc.add(new Field("rank", rank.getName(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
-		        doc.add(new Field("rankId", rank.getId().toString(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+		        //doc.add(new Field("rank", rank.getName(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+		        //doc.add(new Field("rankId", rank.getId().toString(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+                doc.addField("rank", rank.getName());
+                doc.addField("rankId", rank.getId());
 		    } catch (Exception e) {
-		        logger.error("Rank not found: \""+rankString+"\"");
+		        logger.warn("Rank not found: "+rankString+" - ");
 		        // assign to Rank.TAXSUPRAGEN so that sorting still works reliably
-		        doc.add(new Field("rank", Rank.TAXSUPRAGEN.getName(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
-		        doc.add(new Field("rankId", Rank.TAXSUPRAGEN.getId().toString(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+		        //doc.add(new Field("rank", Rank.TAXSUPRAGEN.getName(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+		        //doc.add(new Field("rankId", Rank.TAXSUPRAGEN.getId().toString(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+                doc.addField("rank", Rank.TAXSUPRAGEN.getName());
+                doc.addField("rankId", Rank.TAXSUPRAGEN.getId());
 		    }
 		}
 	}
@@ -1434,5 +1550,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public void setVocabulary(Vocabulary vocabulary) {
 		this.vocabulary = vocabulary;
+	}
+
+	/**
+	 * @param solrUtils the solrUtils to set
+	 */
+	public void setSolrUtils(SolrUtils solrUtils) {
+		this.solrUtils = solrUtils;
 	}
 }

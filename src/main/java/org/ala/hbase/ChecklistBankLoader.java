@@ -24,9 +24,11 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.model.Classification;
 import org.ala.model.CommonName;
+import org.ala.model.InfoSource;
 import org.ala.model.Rank;
 import org.ala.model.TaxonConcept;
 import org.ala.util.SpringUtils;
@@ -70,7 +72,8 @@ import au.com.bytecode.opencsv.CSVReader;
 public class ChecklistBankLoader {
 	
     protected static Logger logger = Logger.getLogger(ChecklistBankLoader.class);
-    
+	@Inject
+	protected InfoSourceDAO infoSourceDAO;
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
 	
@@ -321,6 +324,11 @@ public class ChecklistBankLoader {
 		
 		long start = System.currentTimeMillis();
 		
+		InfoSource afd = infoSourceDAO.getByUri("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/home");
+		InfoSource apc = infoSourceDAO.getByUri("http://www.anbg.gov.au/chah/apc/");
+		InfoSource apni = infoSourceDAO.getByUri("http://www.anbg.gov.au/apni/");
+		InfoSource col = infoSourceDAO.getByUri("http://www.catalogueoflife.org/");
+		
     	//names files to index
     	TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_name_usages.txt", false);
     	
@@ -374,6 +382,34 @@ public class ChecklistBankLoader {
 				tc.setLeft(left);
 				tc.setRight(right);
 				
+    			if("APC".equalsIgnoreCase(dataset)){
+    				tc.setInfoSourceId(Integer.toString(apc.getId()));
+    				tc.setInfoSourceName(apc.getName());
+    				if(isLSID(guid)){
+    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
+    					tc.setInfoSourceURL("http://biodiversity.org.au/apni.taxon/"+internalId);
+    				}
+    			} else if("APNI".equalsIgnoreCase(dataset)){
+    				tc.setInfoSourceId(Integer.toString(apni.getId()));
+    				tc.setInfoSourceName(apni.getName());
+    				if(isLSID(guid)){
+    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
+    					tc.setInfoSourceURL("http://biodiversity.org.au/apni.taxon/"+internalId);
+    				}
+    			} else if("COL".equalsIgnoreCase(dataset)){
+    				tc.setInfoSourceId(Integer.toString(col.getId()));
+    				tc.setInfoSourceName(col.getName());
+    				tc.setInfoSourceURL(col.getWebsiteUrl());
+    			} else if("AFD".equalsIgnoreCase(dataset)){
+    				tc.setInfoSourceId(Integer.toString(afd.getId()));
+    				tc.setInfoSourceName(afd.getName());
+    				tc.setInfoSourceURL(afd.getWebsiteUrl());
+    				if(isLSID(guid)){
+    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
+    					tc.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+internalId);
+    				}
+    			}
+				
 				if (taxonConceptDao.create(tc)) {
 					numberAdded++;
 					if(numberAdded % 1000 == 0){
@@ -426,6 +462,10 @@ public class ChecklistBankLoader {
 				taxonConceptDao.addClassification(guid, c);
 			}
 		}
+	}
+
+	private boolean isLSID(String guid) {
+		return guid!=null && guid.contains("lsid");
 	}
 	
 	/**
@@ -577,5 +617,12 @@ public class ChecklistBankLoader {
 	 */
 	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
 		this.taxonConceptDao = taxonConceptDao;
+	}
+
+	/**
+	 * @param infoSourceDAO the infoSourceDAO to set
+	 */
+	public void setInfoSourceDAO(InfoSourceDAO infoSourceDAO) {
+		this.infoSourceDAO = infoSourceDAO;
 	}
 }

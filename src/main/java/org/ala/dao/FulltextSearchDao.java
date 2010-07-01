@@ -125,6 +125,7 @@ public interface FulltextSearchDao {
      * information from that dataset.
      *
      * @return
+     * @throws Exception
      */
-    Map<String, Long> getAllDatasetCounts();
+    Map<String, Long> getAllDatasetCounts() throws Exception;
 }

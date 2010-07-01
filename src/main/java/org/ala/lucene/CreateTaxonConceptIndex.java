@@ -18,7 +18,6 @@ package org.ala.lucene;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.util.SpringUtils;
 import org.apache.log4j.Logger;
-import org.apache.lucene.store.FSDirectory;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -31,15 +30,17 @@ public class CreateTaxonConceptIndex {
 	protected static Logger logger = Logger.getLogger(CreateTaxonConceptIndex.class);
 	
 	public static void main(String[] args) throws Exception {
+		logger.info("Creating species indexes...");
         ApplicationContext context = SpringUtils.getContext();
         TaxonConceptDao tcDao = (TaxonConceptDao) context.getBean(TaxonConceptDao.class);
 		tcDao.createIndex();
-
-        // Create the autocomplete indexes
-		logger.info("Creating autocomplete indexes...");
-        Autocompleter ac = new Autocompleter();
-        ac.reIndex(FSDirectory.getDirectory(tcDao.getIndexLocation(), null), "scientificName", true);
-        ac.reIndex(FSDirectory.getDirectory(tcDao.getIndexLocation(), null), "commonName", false);
-        logger.info("Finished creating autocomplete indexes...");
+		logger.info("Finished creating species indexes.");
+		System.exit(0);
+//        // Create the autocomplete indexes
+//		logger.info("Creating autocomplete indexes...");
+//        Autocompleter ac = new Autocompleter();
+//        ac.reIndex(FSDirectory.getDirectory(tcDao.getIndexLocation(), null), "scientificName", true);
+//        ac.reIndex(FSDirectory.getDirectory(tcDao.getIndexLocation(), null), "commonName", false);
+//        logger.info("Finished creating autocomplete indexes...");
 	}
 }

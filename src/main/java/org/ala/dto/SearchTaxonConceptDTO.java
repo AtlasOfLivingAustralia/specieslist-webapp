@@ -36,6 +36,8 @@ public class SearchTaxonConceptDTO {
     protected String highlight;
     protected String image;
     protected String thumbnail;
+    protected Integer left;
+    protected Integer right;
 	/**
 	 * @return the guid
 	 */
@@ -215,5 +217,29 @@ public class SearchTaxonConceptDTO {
 	 */
 	public void setThumbnail(String thumbnail) {
 		this.thumbnail = thumbnail;
+	}
+	/**
+	 * @return the left
+	 */
+	public Integer getLeft() {
+		return left;
+	}
+	/**
+	 * @param left the left to set
+	 */
+	public void setLeft(Integer left) {
+		this.left = left;
+	}
+	/**
+	 * @return the right
+	 */
+	public Integer getRight() {
+		return right;
+	}
+	/**
+	 * @param right the right to set
+	 */
+	public void setRight(Integer right) {
+		this.right = right;
 	}
 }

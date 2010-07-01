@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.lucene.CreateLoadingIndex;
-import org.ala.model.CommonName;
 import org.ala.model.InfoSource;
 import org.ala.model.Publication;
 import org.ala.model.TaxonConcept;
@@ -83,9 +82,9 @@ public class ANBGDataLoader {
 	 * @throws Exception
 	 */
 	public void load() throws Exception {
-    	loadTaxonConcepts();
+    	loadTaxonConceptPublicationInfo();
     	loadTaxonNames(); // includes rank information
-    	loadVernacularConcepts();
+//    	loadVernacularConcepts();
     	loadRelationships();
     	loadPublications();
 	}
@@ -132,6 +131,9 @@ public class ANBGDataLoader {
 
 	/**
 	 * Add the relationships to the taxon concepts.
+	 * 
+	 * Synonyms are currently loaded by checklistbank, but this
+	 * adds in publication information for the synonym.
 	 * 
 	 * @throws Exception
 	 */
@@ -263,7 +265,7 @@ public class ANBGDataLoader {
 	 * 
 	 * @throws Exception
 	 */
-	private void loadTaxonConcepts() throws Exception {
+	private void loadTaxonConceptPublicationInfo() throws Exception {
 		
 		logger.info("Starting load of taxon concepts...");
 		
@@ -295,37 +297,39 @@ public class ANBGDataLoader {
 	    			//dont add vernacular or congruent concepts
 //	    			if(!isVernacular && !isCongruent){
 	    			if(addTaxonToProfile(loadUtils, record[0])){
-		    			TaxonConcept tc = new TaxonConcept();
-		    			tc.setGuid(record[0]);
-		    			tc.setNameGuid(record[1]);
-		    			tc.setNameString(record[2]);
-		    			tc.setAuthor(record[3]);
-		    			tc.setAuthorYear(record[4]);
-		    			tc.setPublishedInCitation(record[5]);
-		    			tc.setPublishedIn(record[6]);
+	    				
+	    				TaxonConcept tc = taxonConceptDao.getByGuid(record[0]);
+	    				if(tc!=null){
+			    			tc.setNameGuid(record[1]);
+			    			tc.setNameString(record[2]);
+			    			tc.setAuthor(record[3]);
+			    			tc.setAuthorYear(record[4]);
+			    			tc.setPublishedInCitation(record[5]);
+			    			tc.setPublishedIn(record[6]);
+	    				}
 
-		    			String accepted = loadUtils.isAcceptedConcept(record[0]);
-		    			if("APC".equals(accepted)){
-		    				tc.setInfoSourceId(Integer.toString(apc.getId()));
-		    				tc.setInfoSourceName(apc.getName());
-		    				String internalId = record[0].substring(record[0].lastIndexOf(":")+1);
-		    				tc.setInfoSourceURL("http://www.anbg.gov.au/cgi-bin/apni?taxon_id="+internalId);
-		    			} else if(record[0].contains(":apni.")){
-		    				tc.setInfoSourceId(Integer.toString(apni.getId()));
-		    				tc.setInfoSourceName(apni.getName());
-		    				String internalId = record[0].substring(record[0].lastIndexOf(":")+1);
-		    				tc.setInfoSourceURL("http://www.anbg.gov.au/cgi-bin/apni?taxon_id="+internalId);
-		    			} else if(record[0].contains("catalogue")){
-		    				tc.setInfoSourceId(Integer.toString(col.getId()));
-		    				tc.setInfoSourceName(col.getName());
-		    				tc.setInfoSourceURL(col.getWebsiteUrl());
-		    			} else if(record[0].contains(":afd.")){
-		    				tc.setInfoSourceId(Integer.toString(afd.getId()));
-		    				tc.setInfoSourceName(afd.getName());
-		    				tc.setInfoSourceURL(afd.getWebsiteUrl());
-		    				String internalId = record[0].substring(record[0].lastIndexOf(":")+1);
-		    				tc.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+internalId);
-		    			}
+//		    			String accepted = loadUtils.isAcceptedConcept(record[0]);
+//		    			if("APC".equals(accepted)){
+//		    				tc.setInfoSourceId(Integer.toString(apc.getId()));
+//		    				tc.setInfoSourceName(apc.getName());
+//		    				String internalId = record[0].substring(record[0].lastIndexOf(":")+1);
+//		    				tc.setInfoSourceURL("http://www.anbg.gov.au/cgi-bin/apni?taxon_id="+internalId);
+//		    			} else if(record[0].contains(":apni.")){
+//		    				tc.setInfoSourceId(Integer.toString(apni.getId()));
+//		    				tc.setInfoSourceName(apni.getName());
+//		    				String internalId = record[0].substring(record[0].lastIndexOf(":")+1);
+//		    				tc.setInfoSourceURL("http://www.anbg.gov.au/cgi-bin/apni?taxon_id="+internalId);
+//		    			} else if(record[0].contains("catalogue")){
+//		    				tc.setInfoSourceId(Integer.toString(col.getId()));
+//		    				tc.setInfoSourceName(col.getName());
+//		    				tc.setInfoSourceURL(col.getWebsiteUrl());
+//		    			} else if(record[0].contains(":afd.")){
+//		    				tc.setInfoSourceId(Integer.toString(afd.getId()));
+//		    				tc.setInfoSourceName(afd.getName());
+//		    				tc.setInfoSourceURL(afd.getWebsiteUrl());
+//		    				String internalId = record[0].substring(record[0].lastIndexOf(":")+1);
+//		    				tc.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+internalId);
+//		    			}
 		    			taxonConceptDao.update(tc);
 		    			j++;
 	    			} 
@@ -359,54 +363,54 @@ public class ANBGDataLoader {
 		return !isVernacular && !isCongruentTo && !isSynonymFor;
 	}
 	
-	/**
-	 * Load the vernacular concepts
-	 * 
-	 * @throws Exception
-	 */
-	private void loadVernacularConcepts() throws Exception {
-		
-		logger.info("Starting load of common names...");
-		
-		LoadUtils loadUtils = new LoadUtils();
-		TabReader tr = new TabReader(TAXON_CONCEPTS);
-    	String[] record = null;
-    	long start = System.currentTimeMillis();
-    	int i=0;
-    	try {
-	    	while((record = tr.readNext())!=null){
-	    		i++;
-	    		if(record.length==9){
-	    			
-	    			boolean isVernacular = loadUtils.isVernacularConcept(record[0]);
-	    			if(isVernacular){
-	    				CommonName cn = new CommonName();
-		    			cn.guid = record[0];
-//		    			tc.nameGuid = record[1];
-		    			cn.nameString = record[2];
-//		    			tc.author = record[3];
-//		    			tc.authorYear = record[4];
-//		    			tc.publishedInCitation = record[5];
-//		    			tc.publishedIn = record[6];
-//		    			tc.acceptedConceptGuid = record[8];
-		    			
-		    			List<String> guids = loadUtils.getIsVernacularConceptFor(record[0]);
-		    			for(String guid: guids){
-		    				taxonConceptDao.addCommonName(guid, cn);
-		    			}
-	    			}
-	    		} else {
-	    			logger.error(i+" - missing fields: "+record.length+" record:"+record);
-	    		}
-	    	}
-	    	
-	    	long finish = System.currentTimeMillis();
-	    	logger.info("loaded taxon concepts in: "+(((finish-start)/1000)/60)+" minutes.");
-    	} catch (Exception e){
-    		logger.error(i+" error on line", e);
-    		e.printStackTrace();
-    	}
-	}
+//	/**
+//	 * Load the vernacular concepts
+//	 * 
+//	 * @throws Exception
+//	 */
+//	private void loadVernacularConcepts() throws Exception {
+//		
+//		logger.info("Starting load of common names...");
+//		
+//		LoadUtils loadUtils = new LoadUtils();
+//		TabReader tr = new TabReader(TAXON_CONCEPTS);
+//    	String[] record = null;
+//    	long start = System.currentTimeMillis();
+//    	int i=0;
+//    	try {
+//	    	while((record = tr.readNext())!=null){
+//	    		i++;
+//	    		if(record.length==9){
+//	    			
+//	    			boolean isVernacular = loadUtils.isVernacularConcept(record[0]);
+//	    			if(isVernacular){
+//	    				CommonName cn = new CommonName();
+//		    			cn.guid = record[0];
+////		    			tc.nameGuid = record[1];
+//		    			cn.nameString = record[2];
+////		    			tc.author = record[3];
+////		    			tc.authorYear = record[4];
+////		    			tc.publishedInCitation = record[5];
+////		    			tc.publishedIn = record[6];
+////		    			tc.acceptedConceptGuid = record[8];
+//		    			
+//		    			List<String> guids = loadUtils.getIsVernacularConceptFor(record[0]);
+//		    			for(String guid: guids){
+//		    				taxonConceptDao.addCommonName(guid, cn);
+//		    			}
+//	    			}
+//	    		} else {
+//	    			logger.error(i+" - missing fields: "+record.length+" record:"+record);
+//	    		}
+//	    	}
+//	    	
+//	    	long finish = System.currentTimeMillis();
+//	    	logger.info("loaded taxon concepts in: "+(((finish-start)/1000)/60)+" minutes.");
+//    	} catch (Exception e){
+//    		logger.error(i+" error on line", e);
+//    		e.printStackTrace();
+//    	}
+//	}
 
 	/**
 	 * @param infoSourceDAO the infoSourceDAO to set

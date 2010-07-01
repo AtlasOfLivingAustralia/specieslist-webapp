@@ -34,13 +34,11 @@ import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.core.CoreContainer;
 import org.springframework.stereotype.Component;
 
 import au.com.bytecode.opencsv.CSVWriter;
@@ -55,37 +53,14 @@ import au.com.bytecode.opencsv.CSVWriter;
 public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implements TaxonConceptDao {
     /** log4 j logger */
     private static final Logger logger = Logger.getLogger(FulltextSearchDaoImplSolr.class);
-    /** SOLR home directory */
-    private static final String SOLR_HOME = "/data/solr";
     /** field name for dataset */
     private static final String DATASET = "dataset";
-    /** SOLR server instance */
-    private EmbeddedSolrServer server = null;
+
     @Inject
     protected Vocabulary vocabulary;
-    
-    /**
-     * Constructor to set the server field
-     */
-    public FulltextSearchDaoImplSolr() {
-        //initSolrServer();
-    }
 
-    /**
-     * Initialise the SOLR server instance
-     */
-    protected void initSolrServer() {
-        if (this.server == null & SOLR_HOME != null) {
-            try {
-                System.setProperty("solr.solr.home", SOLR_HOME);
-                CoreContainer.Initializer initializer = new CoreContainer.Initializer();
-                CoreContainer coreContainer = initializer.initialize();
-                server = new EmbeddedSolrServer(coreContainer, "");
-            } catch (Exception ex) {
-                logger.error("Error initialising embedded SOLR server: "+ex.getMessage(), ex);
-            }
-        }
-    }
+    @Inject
+    protected SolrUtils solrUtils;
 
     /**
 	 * @see org.ala.dao.FulltextSearchDao#findByScientificName(java.lang.String, int)
@@ -143,8 +118,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
      * @return
      * @throws SolrServerException
      */
-    private SearchResultsDTO doSolrSearch(String queryString, String[] filterQuery, Integer pageSize,
-          Integer startIndex, String sortField, String sortDirection) throws SolrServerException {
+    private SearchResultsDTO doSolrSearch(String queryString, String filterQuery[], Integer pageSize,
+          Integer startIndex, String sortField, String sortDirection) throws Exception {
 
         SolrQuery solrQuery = initSolrQuery(); // general search settings
         solrQuery.setQuery(queryString);
@@ -165,7 +140,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
      * @throws SolrServerException
      */
     private SearchResultsDTO doSolrQuery(SolrQuery solrQuery, String[] filterQuery, Integer pageSize,
-            Integer startIndex, String sortField, String sortDirection) throws SolrServerException {
+            Integer startIndex, String sortField, String sortDirection) throws Exception {
     	
     	if(logger.isDebugEnabled()){
     		logger.debug(solrQuery.getQuery());
@@ -201,11 +176,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         solrQuery.setStart(startIndex);
         solrQuery.setSortField(sortField, ORDER.valueOf(sortDirection));
         // do the Solr search
-        if (server == null) {
-            this.initSolrServer();
-        }
         
-        QueryResponse qr = server.query(solrQuery); // can throw exception
+        QueryResponse qr = solrUtils.getSolrServer().query(solrQuery); // can throw exception
         SolrDocumentList sdl = qr.getResults();
         List<FacetField> facets = qr.getFacetFields();
 //        Map<String, Map<String, List<String>>> highlights = qr.getHighlighting();
@@ -305,7 +277,6 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 	/**
      * @see org.ala.dao.FulltextSearchDao#findAllSpeciesByRegionAndHigherTaxon(java.lang.String, java.lang.String, java.lang.String, java.util.List, java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String)
      */
-    @Override
     public SearchResultsDTO findAllSpeciesByRegionAndHigherTaxon(String regionType, String regionName, 
     		String rank, List<String> higherTaxa, 
     		String filterQuery, Integer startIndex, Integer pageSize,
@@ -440,7 +411,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 	 * @return
 	 * @throws SolrServerException
 	 */
-	private int doCountQuery(String query) throws SolrServerException {
+	private int doCountQuery(String query) throws Exception {
 		
 		logger.info("Count query:  "+query);
 		
@@ -454,11 +425,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         solrQuery.setStart(0);
         solrQuery.setQuery(query);
         
-        if (server == null) {
-            this.initSolrServer();
-        }
-        
-        QueryResponse qr = server.query(solrQuery); // can throw exception
+        QueryResponse qr = solrUtils.getSolrServer().query(solrQuery); // can throw exception
         SolrDocumentList sdl = qr.getResults();
         return (int) sdl.getNumFound();
 	}
@@ -495,7 +462,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
      * @see org.ala.dao.FulltextSearchDao#getAllDatasetCounts()
      */
     @Override
-    public Map<String, Long> getAllDatasetCounts() {
+    public Map<String, Long> getAllDatasetCounts() throws Exception {
         Map<String, Long> counts = new HashMap<String, Long>();
         SearchResultsDTO searchResults = null;
         String queryString = "*:*";
@@ -540,8 +507,10 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 		taxonConcept.setHasChildren(Boolean.parseBoolean(hasChildrenAsString));
         taxonConcept.setScore((Float) doc.getFirstValue("score"));
         taxonConcept.setRank((String) doc.getFirstValue("rank"));
+        taxonConcept.setLeft((Integer) doc.getFirstValue("left"));
+        taxonConcept.setRight((Integer) doc.getFirstValue("right"));
         try {
-            taxonConcept.setRankId(Integer.parseInt((String) doc.getFirstValue("rankId")));
+            taxonConcept.setRankId( (Integer) doc.getFirstValue("rankId"));
         } catch (NumberFormatException ex) {
             logger.error("Error parsing rankId: "+ex.getMessage());
         }
@@ -611,4 +580,11 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         solrQuery.setStart(0);
         return solrQuery;
     }
+
+	/**
+	 * @param solrUtils the solrUtils to set
+	 */
+	public void setSolrUtils(SolrUtils solrUtils) {
+		this.solrUtils = solrUtils;
+	}
 }
