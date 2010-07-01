@@ -25,7 +25,7 @@
                 icons: icons,
                 autoHeight: false
             });
-            
+            //
             $("#refineMore a").click(function(e) {
                 e.preventDefault();
                 $("#accordion").slideDown();
@@ -38,7 +38,7 @@
                 $("#refineLess").hide('slow');
                 $("#refineMore").show('slow');
             });
-
+            // listeners for sort widgets
             $("select#sort").change(function() {
                 var val = $("option:selected", this).val();
                 reloadWithParam('sort',val);
@@ -178,15 +178,15 @@
                         </c:forEach>
                     </div>
                     <div id="resultsStats">
-                        Page ${currentPage} of <fmt:formatNumber value="${lastPage}" pattern="#,###,###"/> (<fmt:formatNumber value="${searchResults.totalRecords}" pattern="#,###,###"/> results)
+                        Page ${currentPage} of <fmt:formatNumber value="${lastPage}" pattern="#,###,###"/> (search returned <fmt:formatNumber value="${searchResults.totalRecords}" pattern="#,###,###"/> results)
                     </div>
                     sort by
                     <select id="sort" name="sort">
                         <option value="score" <c:if test="${param.sort eq 'score'}">selected</c:if>>best match</option>
-                        <option value="taxon_name" <c:if test="${param.sort eq 'taxon_name'}">selected</c:if>>scientific name</option>
+                        <option value="scientificNameRaw" <c:if test="${param.sort eq 'scientificNameRaw'}">selected</c:if>>scientific name</option>
                         <!--                            <option value="rank">rank</option>-->
-                        <option value="occurrence_date" <c:if test="${param.sort eq 'occurrence_date'}">selected</c:if>>record date</option>
-                        <option value="record_type" <c:if test="${param.sort eq 'record_type'}">selected</c:if>>record type</option>
+                        <option value="commonNameSort" <c:if test="${param.sort eq 'commonNameSort'}">selected</c:if>>common name</option>
+                        <option value="rank" <c:if test="${param.sort eq 'rank'}">selected</c:if>>rank</option>
                     </select>
                     sort order
                     <select id="dir" name="dir">
@@ -205,7 +205,7 @@
                     <tbody>
                         <c:forEach var="taxonConcept" items="${searchResults.taxonConcepts}">
                             <tr>
-                                <td id="col1"><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${taxonConcept.rankId}" name="${taxonConcept.nameString}"/></a></td>
+                                <td id="col1"><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}?conceptName=${taxonConcept.nameString}" class="occurrenceLink"><alatag:formatSciName rankId="${taxonConcept.rankId}" name="${taxonConcept.nameString}" acceptedName="${taxonConcept.acceptedConceptName}"/></a></td>
                                 <td id="col2">${fn:substring(taxonConcept.commonName, 0, 250)}</td>
                                 <td id="col3">${taxonConcept.rank}</td>
                             </tr>
@@ -220,8 +220,10 @@
             <div id="facets">
                 <div id="searchTypes">
                     <ul>
+                        <li><a href="#">Site Pages</a></li>
                         <li class="active">Species</li>
                         <li><a href="#">Regions</a></li>
+                        <li><a href="#"><strike>Occurrence Records</strike></a></li>
                         <li><a href="#">Institutions</a></li>
                         <li><a href="#">Collections</a></li>
                         <li><a href="#">Data Providers</a></li>

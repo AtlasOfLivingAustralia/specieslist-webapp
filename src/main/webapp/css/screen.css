@@ -620,7 +620,7 @@ div#searchTypes ul {
     margin: 0;
 }
 div#searchTypes ul li {
-    padding: 4px 6px;
+    padding: 2px 5px;
     width: 110%;
 }
 div#searchTypes ul li.active {
@@ -630,8 +630,8 @@ div#searchTypes ul li.active {
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
 }
-#refineMore a {
-    
+#refineMore, #refineLess {
+    margin-top: 5px;
 }
 #refineLess {
     display: none;
@@ -639,11 +639,15 @@ div#searchTypes ul li.active {
 #accordion {
     display: none;
     font-size:13px;
+    margin-top: 10px;
+}
+#accordion h3{
+    font-size: inherit;
 }
 .queryTermBox, .facetTermBox {
     display: inline-block;
     height: 18px;
-    padding: 3px 4px 4px;
+    padding: 2px 4px 4px;
 }
 .queryTermBox {
     background-color: #F8F2E5;

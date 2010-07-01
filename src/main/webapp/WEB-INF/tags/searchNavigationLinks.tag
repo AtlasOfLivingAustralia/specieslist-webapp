@@ -12,6 +12,7 @@
 <span id="navLinks">
     <c:if test="${empty maxPageLinks}"><c:set var="maxPageLinks" value="10"/></c:if>
     <fmt:formatNumber var="pageNumber" value="${(startIndex / pageSize) + 1}" pattern="0" />
+    <c:set var="hash" value=""/>
     <c:set var="coreParams">?q=${param.q}<c:if test="${not empty paramValues.fq}">&fq=${fn:join(paramValues.fq, "&fq=")}</c:if>&sort=${param.sort}&dir=${param.dir}&pageSize=${pageSize}</c:set>
     <!-- coreParams = ${coreParams} || lastPage = ${lastPage} || startIndex = ${startIndex} || pageNumber = ${pageNumber} -->
     <c:set var="startPageLink">
@@ -36,7 +37,7 @@
     </c:set>
     <c:choose>
         <c:when test="${startIndex > 0}">
-            <span id="prevPage"><a href="${coreParams}&start=${startIndex - pageSize}#searchResults">&lt; Previous</a></span>
+            <span id="prevPage"><a href="${coreParams}&start=${startIndex - pageSize}${hash}">&lt; Previous</a></span>
         </c:when>
         <c:otherwise>
             <span id="prevPage">&nbsp;</span>
@@ -46,13 +47,13 @@
         <span id="pageJumpLink">
             <c:choose>
                 <c:when test="${pageLink == pageNumber}"><span id="currentPage">${pageLink}</span></c:when>
-                <c:otherwise><a href="${coreParams}&start=${(pageLink * pageSize) - pageSize}#searchResults">${pageLink}</a></c:otherwise>
+                <c:otherwise><a href="${coreParams}&start=${(pageLink * pageSize) - pageSize}${hash}">${pageLink}</a></c:otherwise>
             </c:choose>
         </span>
     </c:forEach>
     <c:choose>
         <c:when test="${!(pageNumber == lastPage)}">
-            <span id="nextPage"><a href="${coreParams}&start=${startIndex + pageSize}#searchResults">Next &gt;</a></span>
+            <span id="nextPage"><a href="${coreParams}&start=${startIndex + pageSize}${hash}">Next &gt;</a></span>
         </c:when>
         <c:otherwise>
             <span id="nextPage">&nbsp;</span>

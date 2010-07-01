@@ -146,7 +146,7 @@ public class SpeciesController {
 			@RequestParam(value="q", required=false) String query,
 			@RequestParam(value="fq", required=false) String[] filterQuery,
 			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
-			@RequestParam(value="pageSize", required=false, defaultValue ="20") Integer pageSize,
+			@RequestParam(value="pageSize", required=false, defaultValue ="10") Integer pageSize,
 			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
 			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
 			@RequestParam(value="title", required=false, defaultValue ="Search Results") String title,
@@ -183,7 +183,7 @@ public class SpeciesController {
 		//String filterQueryChecked = (filterQuery == null) ? "" : filterQuery;
 		//model.addAttribute("facetQuery", filterQueryChecked);
 
-		searchResults = searchDao.findByScientificName(query, filterQuery[0], startIndex, pageSize, sortField, sortDirection);
+		searchResults = searchDao.findByScientificName(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
 		model.addAttribute("searchResults", searchResults);
 		logger.debug("query = "+query);
 
