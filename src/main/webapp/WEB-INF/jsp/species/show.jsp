@@ -152,8 +152,8 @@
 
         </script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/ext-cdn-771.js"></script>
-        <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/css/ext-all.css" />
-        <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/css/ext-examples.css" />
+<!--        <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/css/ext-all.css" />
+        <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/css/ext-examples.css" />-->
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/openlayers/OpenLayers.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/GeoExt.js"></script>
         <script type="text/javascript">

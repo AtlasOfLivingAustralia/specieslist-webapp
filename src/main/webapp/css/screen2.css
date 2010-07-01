@@ -60,9 +60,7 @@ p {
 td, th  {
     vertical-align: top;
 }*/
-th, td {
-    vertical-align: top;
-}
+
 .show-90 {
     -moz-opacity:.90;
     -ms-filter:"alpha(opacity=90)";
@@ -480,11 +478,6 @@ img.galleryImage {
     max-width: 640px;
 }
 
-#occurrenceMetadata {
-    font-size: 11px;
-    color: #666;
-}
-
 /* footer */
 #footer {
     clear: both;
@@ -512,11 +505,6 @@ img.galleryImage {
 }
 
 /* Facet links */
-#facets {
-    width: 200px;
-    margin-right: 10px;
-/*    border-right: 1px solid #ddd;*/
-}
 #facetBar {
     float: right;
     width: 200px;
@@ -530,6 +518,7 @@ img.galleryImage {
 }
 #facetBar ul#navlist {
     border-top: 1px solid #99B5E3;
+
 }
 #facetBar li {padding : 4px;
     padding-left: 10px;
@@ -557,207 +546,6 @@ span#facetName {
 }
 #removeFacet li {
     list-style-type: disc;
-}
-div#accordion > h3.ui-state-active {
-    background-color: #d6d6d6 !important;
-}
-div#decoratorBody {
-    padding: 10px;
-    color: #444;
-}
-div#searchResults {
-    margin-top: 10px;
-
-}
-div.solrResults {
-    width:770px;
-    float: right;
-    clear: both;
-/*    padding-left: 5px;*/
-/*    border-left: 1px solid #ddd;*/
-    -moz-border-radius: 8px;
-    -webkit-border-radius: 8px;
-    text-align: center;
-    background-color: #D3E0EA;
-    border: 4px solid #99B5E3;
-    font-size: 12px;
-}
-div.solrResults table {
-    width: 100%;
-    margin-bottom: 10px;
-/*    border-top: 2px solid #ddd;
-    border-bottom: 2px solid #ddd;*/
-    text-align: left;
-    background-color: white;
-}
-div.solrResults table td, div.solrResults table th {
-    padding: 2px 4px;
-    border-bottom: 1px solid #D3E0EA;
-}
-div.solrResults table th {
-    border-bottom: 2px solid #D3E0EA;
-    font-weight: bold;
-}
-div#resultsStats {
-    width: 50%;
-    float: left;
-    text-align: left;
-}
-div#searchTerms {
-/*    padding: 4px 0px;*/
-    margin-bottom: 5px;
-    font-size: 13px;
-    font-weight: bold;
-    text-align: left;
-}
-div#searchTypes {
-    padding: 10px 0;
-    border-bottom: 1px solid #ddd;
-    font-size: 14px;
-}
-div#searchTypes ul {
-    list-style: none;
-    margin: 0;
-}
-div#searchTypes ul li {
-    padding: 4px 6px;
-    width: 110%;
-}
-div#searchTypes ul li.active {
-    font-weight: bold;
-    color: #222;
-    background-color: #99B5E3;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-}
-#refineMore a {
-    
-}
-#refineLess {
-    display: none;
-}
-#accordion {
-    display: none;
-    font-size:13px;
-}
-.queryTermBox, .facetTermBox {
-    display: inline-block;
-    height: 18px;
-    padding: 3px 4px 4px;
-}
-.queryTermBox {
-    background-color: #F8F2E5;
-    border: 1px solid #D75A20;
-}
-.facetTermBox {
-    background-color: #EBF1FA; /* #D3E0EA; */
-    border: 1px solid #99B5E3;
-}
-.facetTermDivider {
-    display: inline-block;
-    height: 14px;
-    padding-right: 4px;
-}
-.facetCloseLink {
-    display: inline-block;
-    height: 14px;
-}
-.facetFieldName {
-    color:#666666;
-}
-#debug {
-    display: none;
-    border: 1px solid #D75A20;
-}
-/*div.solrResults table th {
-    white-space: nowrap;
-}
-div.solrResults #col1, div.solrResults #col2 {
-    width: 38%;
-}
-div.solrResults #col3, div.solrResults #col4 {
-    width: 12%;
-}
-div.solrResults table td {
-    text-overflow:ellipsis;
-    overflow:hidden;
-    white-space:pre-line;
-}*/
-div#sortWidget {
-/*    width: 720px;*/
-    padding: 6px;
-    text-align: right;
-/*    font-size: 85%;*/
-}
-div.occurrenceSection {
-    width:640px;
-}
-div#occurrenceMap {
-    width: 300px;
-    height: 300px;
-    float: right;
-    margin-top: 35px;
-    border: 1px solid gray;
-}
-table.occurrenceTable {
-    width: 100%;
-    border-top: 1px solid #BBBBBB;
-}
-table.occurrenceTable td.label {
-    width: 25%;
-}
-a.occurrenceLink {
-    white-space: nowrap;
-}
-#searchHeader h1 {
-    width: 780px;
-}
-#searchHeader button {
-/*    width: 120px;*/
-    float: right;
-    padding: 3px 10px;
-}
-#searchHeader button span {
-    font-size: 12px;
-    padding: 0 !important;
-}
-#subnavlist > ul {
-    margin: 0px 1em 0.5em 2em;
-
-}
-/* Openlayers map */
-
-div#pointsMap {
-    display: none;
-    height: 480px;
-    width: 580px;
-}
-/* Styling for Google-style Nav links */
-
-#searchNavBar {
-/*    border:1px solid gray;*/
-    padding-bottom: 10px;
-}
-#pageJumpLink {
-    padding-left: 3px;
-    padding-right: 3px;
-}
-#prevPage, #nextPage {
-    display: inline-block;
-    width: 80px;
-}
-#prevPage {
-    text-align: right;
-    padding-right: 3px;
-}
-#nextPage {
-    text-align: left;
-    padding-left: 3px;
-}
-#currentPage {
-    font-weight: normal;
-    padding: 1px 2px;
-    border: 1px solid gray;
 }
 /* Misc changes to CSS */
 div#body {
@@ -832,58 +620,6 @@ table.propertyTable td.propertyNames {
     font-weight: bold;
     text-align: right;
 }
-
-/* Your-Area page styles */
-#taxaBox {
-    width: 550px;
-    font-size: 12px;
-}
-#taxaBox #rightList {
-    float: right;
-    width: 290px;
-    margin-right: 10px;
-}
-#taxaBox #leftList {
-    width: 250px;
-}
-#taxaBox td {
-    padding: 4px 10px 4px 2px;
-}
-#taxaBox td.indent {
-    padding-left: 10px;
-}
-#taxaBox td.indent2 {
-    padding-left: 20px;
-}
-#taxaBox #taxaDiv {
-    overflow: auto;
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: 24.6em; /*260px;*/
-    background-color: #DDD;
-    padding: 2px 4px;
-}
-#taxaDiv ol, #taxaDiv ul {
-    margin: 0px 1em 0.5em 2.5em;
-    font-size: 11px;
-}
-#taxaDiv li {
-    margin: 2px 0px 3px 0px;
-}
-#taxaDiv li span {
-    font-size: 12px;
-}
-#taxaBox #taxa-level-1 tbody td {
-    margin: 0;
-    padding: 0;
-}
-#taxaBox p {
-    margin-bottom: 5px;
-}
-#address {
-    width: 300px;
-}
-
 /* YUI modifications */
 div.yui-dt > table {
     width: 100%;
@@ -1025,14 +761,14 @@ li.taxonBreakdown { border: 1px solid gray; padding:10px; margin-bottom: 5px;}
 #taxaDiffComparison { width:100%;  margin-top: 30px;}
 
 #comparisonTable { border: 1px solid gray; padding:10px; }
-.selectedCompareGroup { font-weight: bold; }
+.selectedCompareGroup { font-weight: bold; } 
 
 .taxaDiffCount { margin:0 0 5px 0; }
 #taxaDiff { margin-top:5px; }
 
 .taxonGroupActions a { margin-left:25px; }
 
-.scientificName {font-style: italic; }
+.scientificName {font-style: italic; } 
 
 .earliestReference { background-color: FFFFCC; }
 .earliestReferenceLabel { color: grey; }

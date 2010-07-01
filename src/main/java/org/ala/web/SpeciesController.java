@@ -144,12 +144,12 @@ public class SpeciesController {
 	@RequestMapping(value = "/species/search*", method = RequestMethod.GET)
 	public String solrSearchSpecies(
 			@RequestParam(value="q", required=false) String query,
-			@RequestParam(value="fq", required=false) String filterQuery,
-			@RequestParam(value="startIndex", required=false, defaultValue="0") Integer startIndex,
-			@RequestParam(value="results", required=false, defaultValue ="10") Integer pageSize,
+			@RequestParam(value="fq", required=false) String[] filterQuery,
+			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
+			@RequestParam(value="pageSize", required=false, defaultValue ="20") Integer pageSize,
 			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
 			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
-			@RequestParam(value="title", required=false, defaultValue ="Species Search Results") String title,
+			@RequestParam(value="title", required=false, defaultValue ="Search Results") String title,
 			Model model) throws Exception {
 
 		SearchResultsDTO searchResults = new SearchResultsDTO();
@@ -159,25 +159,45 @@ public class SpeciesController {
 		} else if (query.isEmpty()) {
 			return SPECIES_LIST;
 		}
+        // if params are set but empty (e.g. foo=&bar=) then provide sensible defaults
+        if (filterQuery != null && filterQuery.length == 0) {
+            filterQuery = null;
+        }
+        if (startIndex == null) {
+            startIndex = 0;
+        }
+        if (pageSize == null) {
+            pageSize = 20;
+        }
+        if (sortField.isEmpty()) {
+            sortField = "score";
+        }
+        if (sortDirection.isEmpty()) {
+            sortDirection = "asc";
+        }
 
 		String queryJsEscaped = StringEscapeUtils.escapeJavaScript(query);
 		model.addAttribute("query", query);
 		model.addAttribute("queryJsEscaped", queryJsEscaped);
 		model.addAttribute("title", StringEscapeUtils.escapeJavaScript(title));
-		String filterQueryChecked = (filterQuery == null) ? "" : filterQuery;
-		model.addAttribute("facetQuery", filterQueryChecked);
+		//String filterQueryChecked = (filterQuery == null) ? "" : filterQuery;
+		//model.addAttribute("facetQuery", filterQueryChecked);
 
-		searchResults = searchDao.findByScientificName(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+		searchResults = searchDao.findByScientificName(query, filterQuery[0], startIndex, pageSize, sortField, sortDirection);
 		model.addAttribute("searchResults", searchResults);
 		logger.debug("query = "+query);
+
+        Long totalRecords = searchResults.getTotalRecords();
+        model.addAttribute("totalRecords", totalRecords);
+        Integer lastPage = (totalRecords.intValue() / pageSize) + 1;
+        model.addAttribute("lastPage", lastPage);
 
 		if (searchResults.getTaxonConcepts() != null && searchResults.getTaxonConcepts().size() == 1) {
 			List taxonConcepts = (List) searchResults.getTaxonConcepts();
 			SearchTaxonConceptDTO res = (SearchTaxonConceptDTO) taxonConcepts.get(0);
 			String guid = res.getGuid();
-			return "redirect:../species/" + guid;
+			//return "redirect:../species/" + guid;
 		}
-
 
 		return SPECIES_LIST;
 	}
