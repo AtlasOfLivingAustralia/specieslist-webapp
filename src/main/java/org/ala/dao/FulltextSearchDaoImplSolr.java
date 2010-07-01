@@ -178,7 +178,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
             for (String fq : filterQuery) {
                 // pull apart fq. E.g. Rank:species and then sanitize the string parts
                 // so that special characters are escaped apporpriately
-                if (fq.isEmpty()) continue;
+                if (fq == null || fq.isEmpty()) continue;
                 String[] parts = fq.split(":", 2); // separate query field from query text
                 logger.debug("fq split into: "+parts.length+" parts: "+parts[0]+" & "+parts[1]);
                 String prefix = null;
