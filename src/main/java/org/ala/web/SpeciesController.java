@@ -192,12 +192,12 @@ public class SpeciesController {
         Integer lastPage = (totalRecords.intValue() / pageSize) + 1;
         model.addAttribute("lastPage", lastPage);
 
-		if (searchResults.getTaxonConcepts() != null && searchResults.getTaxonConcepts().size() == 1) {
-			List taxonConcepts = (List) searchResults.getTaxonConcepts();
-			SearchTaxonConceptDTO res = (SearchTaxonConceptDTO) taxonConcepts.get(0);
-			String guid = res.getGuid();
+//		if (searchResults.getResults() != null && searchResults.getResults().size() == 1) {
+//			List taxonConcepts = (List) searchResults.getResults();
+//			SearchTaxonConceptDTO res = (SearchTaxonConceptDTO) taxonConcepts.get(0);
+//			String guid = res.getGuid();
 			//return "redirect:../species/" + guid;
-		}
+//		}
 
 		return SPECIES_LIST;
 	}
