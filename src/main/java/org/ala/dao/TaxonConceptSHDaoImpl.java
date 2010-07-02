@@ -437,9 +437,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	private String getPreferredGuid(String guid) throws Exception {
 		//use the Lucene indexes to find the correct (accepted) guid.
-		SearchResultsDTO searchResults = findByGuid(guid, 0, 1, null, null);
-		if(!searchResults.getTaxonConcepts().isEmpty()){
-			guid = searchResults.getTaxonConcepts().get(0).getGuid();
+		SearchResultsDTO<SearchTaxonConceptDTO> searchResults = findByGuid(guid, 0, 1, null, null);
+		if(!searchResults.getResults().isEmpty()){
+			guid = searchResults.getResults().get(0).getGuid();
 		}
 		return guid;
 	}
@@ -496,8 +496,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#findByScientificName(java.lang.String, int)
 	 */
 	public List<SearchTaxonConceptDTO> findByScientificName(String input, int limit) throws Exception {
-        SearchResultsDTO sr = findByScientificName(input, 0, limit, null, null);
-        return sr.getTaxonConcepts();
+        SearchResultsDTO<SearchTaxonConceptDTO> sr = findByScientificName(input, 0, limit, null, null);
+        return sr.getResults();
 	}
 
     /**
@@ -736,7 +736,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		SearchTaxonConceptDTO taxonConcept = new SearchTaxonConceptDTO();
 		taxonConcept.setGuid(doc.get("guid"));
 		taxonConcept.setParentGuid(doc.get("parentGuid"));
-		taxonConcept.setNameString(doc.get("scientificNameRaw"));
+		taxonConcept.setName(doc.get("scientificNameRaw"));
 		taxonConcept.setAcceptedConceptName(doc.get("acceptedConceptName"));
 		String hasChildrenAsString = doc.get("hasChildren");
 		
@@ -1090,18 +1090,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		byte[] guidAsBytes = null;
 		
 		while ((guidAsBytes = scanner.getNextGuid())!=null) {
-//		while (i<1) {
     		
+			String guid = new String(guidAsBytes);
 			i++;
 			
 			if(i%1000==0){
-				logger.info("Indexed records: "+i);
+				logger.info("Indexed records: "+i+", current guid: "+guid);
 			}
-    		
-    		String guid = new String(guidAsBytes);
-//			String guid = new String("urn:lsid:biodiversity.org.au:afd.taxon:aa745ff0-c776-4d0e-851d-369ba0e6f537");
-
-    		if(i % 1000 == 0) logger.info(guid);
     		
     		//get taxon concept details
     		TaxonConcept taxonConcept = getByGuid(guid);

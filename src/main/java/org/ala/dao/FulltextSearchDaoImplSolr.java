@@ -25,6 +25,9 @@ import javax.inject.Inject;
 
 import org.ala.dto.FacetResultDTO;
 import org.ala.dto.FieldResultDTO;
+import org.ala.dto.SearchCollectionDTO;
+import org.ala.dto.SearchDTO;
+import org.ala.dto.SearchInstitutionDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.util.StatusType;
@@ -67,20 +70,17 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 	 */
     @Override
     public List<SearchTaxonConceptDTO> findByScientificName(String input, int limit) throws Exception {
-        SearchResultsDTO sr = findByScientificName(input, null, 0, limit, "score", "asc");
-        return sr.getTaxonConcepts();
+        SearchResultsDTO<SearchTaxonConceptDTO> sr = findByScientificName(input, null, 0, limit, "score", "asc");
+        return sr.getResults();
     }
 
     /**
 	 * @see org.ala.dao.FulltextSearchDao#findByScientificName(java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String)
 	 */
     @Override
-    public SearchResultsDTO findByScientificName(String query, String[] filterQuery, Integer startIndex, Integer pageSize, String sortField, String sortDirection) throws Exception {
-        SearchResultsDTO searchResults = new SearchResultsDTO();
-        //String filterQuery = null; // FIXME add another method paramater for this
-
+    public SearchResultsDTO<SearchTaxonConceptDTO> findByScientificName(String query, String[] filterQuery, Integer startIndex, Integer pageSize, String sortField, String sortDirection) throws Exception {
+        
         try {
-            
             // set the query
             StringBuffer queryString = new StringBuffer();
             if (query.contains(":") && !query.startsWith("urn")) {
@@ -96,17 +96,43 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
                 queryString.append(" OR guid:"+cleanQuery);
                 queryString.append(" OR simpleText:"+cleanQuery);
             }
-            searchResults = doSolrSearch(queryString.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
             logger.info("search query: "+queryString.toString());
+            return doSolrSearch(queryString.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
         } catch (SolrServerException ex) {
+        	SearchResultsDTO searchResults = new SearchResultsDTO();
             logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
             searchResults.setStatus("ERROR"); // TODO also set a message field on this bean with the error message(?)
+            return searchResults;
         }
-
-        return searchResults;
     }
 
     /**
+	 * @see org.ala.dao.FulltextSearchDao#findByName(java.lang.String, int)
+	 */
+	@Override
+	public SearchResultsDTO<SearchDTO> findByName(IndexedTypes indexType, String query, String[] filterQuery, Integer startIndex, Integer pageSize, String sortField, String sortDirection) throws Exception {
+        
+        try {
+        	StringBuffer queryString = new StringBuffer();
+            String cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
+            queryString.append("idxtype:"+indexType);
+            queryString.append(" AND ");
+            queryString.append(" (");
+            queryString.append("name:"+cleanQuery);
+            queryString.append(" OR ");
+            queryString.append("acronym:"+cleanQuery);
+            queryString.append(")");
+            logger.info("search query: "+queryString.toString());
+            return doSolrSearch(queryString.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
+        } catch (SolrServerException ex) {
+            logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
+    		SearchResultsDTO searchResults = new SearchResultsDTO();
+            searchResults.setStatus("ERROR"); // TODO also set a message field on this bean with the error message(?)
+            return searchResults;
+        }
+	}
+
+	/**
      * Re-usable method for performing SOLR searches - takes query string input
      *
      * @param queryString
@@ -181,7 +207,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         SolrDocumentList sdl = qr.getResults();
         List<FacetField> facets = qr.getFacetFields();
 //        Map<String, Map<String, List<String>>> highlights = qr.getHighlighting();
-        List<SearchTaxonConceptDTO> results = new ArrayList<SearchTaxonConceptDTO>();
+        List<SearchDTO> results = new ArrayList<SearchDTO>();
         List<FacetResultDTO> facetResults = new ArrayList<FacetResultDTO>();
         searchResults.setTotalRecords(sdl.getNumFound());
         searchResults.setStartIndex(sdl.getStart());
@@ -193,10 +219,24 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         // populate SOLR search results
         if (!sdl.isEmpty()) {
             for (SolrDocument doc : sdl) {
-                results.add(createTaxonConceptFromIndex(qr, doc));
+            	if(IndexedTypes.TAXON.toString().equalsIgnoreCase((String) doc.getFieldValue("idxtype"))){
+                    results.add(createTaxonConceptFromIndex(qr, doc));
+            	} else if(IndexedTypes.COLLECTION.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
+                    results.add(createCollectionFromIndex(qr, doc));
+            	} else if(IndexedTypes.INSTITUTION.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
+                    results.add(createInstitutionFromIndex(qr, doc));
+            	} else if(IndexedTypes.DATAPROVIDER.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
+//                    results.add(createTaxonConceptFromIndex(qr, doc));
+            	} else if(IndexedTypes.DATASET.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
+//                    results.add(createTaxonConceptFromIndex(qr, doc));
+            	} else if(IndexedTypes.REGION.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
+//                    results.add(createTaxonConceptFromIndex(qr, doc));
+            	} else if(IndexedTypes.LOCALITY.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
+//                    results.add(createTaxonConceptFromIndex(qr, doc));
+            	}
             }
         }
-        searchResults.setTaxonConcepts(results);
+        searchResults.setResults(results);
         // populate SOLR facet results
         if (facets != null) {
             for (FacetField facet : facets) {
@@ -330,14 +370,14 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
             		"Taxon rank",
             });
             
-            while(results.getTaxonConcepts().size()>0 && resultsCount<=1000000){
+            while(results.getResults().size()>0 && resultsCount<=1000000){
             	logger.debug("Start index: "+startIndex);
-	            List<SearchTaxonConceptDTO> concepts = results.getTaxonConcepts();
+	            List<SearchTaxonConceptDTO> concepts = results.getResults();
 	            for(SearchTaxonConceptDTO concept : concepts){
 	            	resultsCount++;
 	            	String[] record = new String[]{
 	            		concept.getGuid(),
-	            		concept.getNameString(),
+	            		concept.getName(),
 	            		concept.getCommonName(),
 	            		concept.getConservationStatus(),
 	            		concept.getRank(),
@@ -489,6 +529,33 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
     }
 
     /**
+	 * Populate a Collection from the data in the lucene index.
+	 *
+	 * @param doc
+	 * @return
+	 */
+	private SearchCollectionDTO createCollectionFromIndex(QueryResponse qr, SolrDocument doc) {
+		SearchCollectionDTO collection = new SearchCollectionDTO();
+		collection.setGuid((String) doc.getFirstValue("guid"));
+		collection.setInstitutionName((String) doc.getFirstValue("institutionName"));
+		collection.setName((String) doc.getFirstValue("name"));
+        return collection;
+	}
+    
+    /**
+	 * Populate a Collection from the data in the lucene index.
+	 *
+	 * @param doc
+	 * @return
+	 */
+	private SearchInstitutionDTO createInstitutionFromIndex(QueryResponse qr, SolrDocument doc) {
+		SearchInstitutionDTO institution = new SearchInstitutionDTO();
+		institution.setGuid((String) doc.getFirstValue("guid"));
+		institution.setName((String) doc.getFirstValue("name"));
+        return institution;
+	}
+	
+    /**
 	 * Populate a TaxonConcept from the data in the lucene index.
 	 *
 	 * @param doc
@@ -498,7 +565,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 		SearchTaxonConceptDTO taxonConcept = new SearchTaxonConceptDTO();
 		taxonConcept.setGuid((String) doc.getFirstValue("guid"));
 		taxonConcept.setParentGuid((String) doc.getFirstValue("parentGuid"));
-		taxonConcept.setNameString((String) doc.getFirstValue("scientificNameRaw"));
+		taxonConcept.setName((String) doc.getFirstValue("scientificNameRaw"));
 		taxonConcept.setAcceptedConceptName((String) doc.getFirstValue("acceptedConceptName"));
 		String hasChildrenAsString = (String) doc.getFirstValue("hasChildren");
 		taxonConcept.setCommonName((String) doc.getFirstValue("commonNameDisplay"));
@@ -521,14 +588,12 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         if (qr.getHighlighting()!=null && qr.getHighlighting().get(taxonConcept.getGuid()) != null) {
             //List<String> highlightSnippets = qr.getHighlighting().get(taxonConcept.getGuid()).get("commonName");
             //if (highlightSnippets!=null && !highlightSnippets.isEmpty()) taxonConcept.setHighlight(highlightSnippets.get(1));
-
             Map<String, List<String>> highlightVal = qr.getHighlighting().get(taxonConcept.getGuid());
             for (Map.Entry<String, List<String>> entry : highlightVal.entrySet()) {
                 //System.out.println(taxonConcept.getGuid()+": "+entry.getKey() + " => " + StringUtils.join(entry.getValue(), "|"));
                 taxonConcept.setHighlight(StringUtils.join(entry.getValue(), " "));
             }
         }
-
         return taxonConcept;
 	}
 

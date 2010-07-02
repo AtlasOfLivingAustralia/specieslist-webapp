@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
+import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.util.StatusType;
@@ -104,6 +105,17 @@ public interface FulltextSearchDao {
      * @throws Exception
      */
     List<SearchTaxonConceptDTO> findByScientificName(String input, int limit) throws Exception;
+    
+    /**
+     * Generic Search with name.
+     *
+     * @param input
+     * @param limit
+     * @return
+     * @throws Exception
+     */
+    SearchResultsDTO<SearchDTO> findByName(IndexedTypes indexType, String query, String[] filterQuery, Integer startIndex,
+            Integer pageSize, String sortField, String sortDirection) throws Exception;
 
     /**
      * Search for taxon concept with the following scientific name with parameters for paging & sorting
@@ -117,7 +129,7 @@ public interface FulltextSearchDao {
      * @return
      * @throws Exception
      */
-    SearchResultsDTO findByScientificName(String query, String[] filterQuery, Integer startIndex,
+    SearchResultsDTO<SearchTaxonConceptDTO> findByScientificName(String query, String[] filterQuery, Integer startIndex,
             Integer pageSize, String sortField, String sortDirection) throws Exception;
 
     /**
