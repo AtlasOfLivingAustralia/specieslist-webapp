@@ -77,7 +77,7 @@ public class GeoRegionLoader {
 	 */
 	private void init() {
 		String[] locations = {
-				"classpath:spring-gazetteer.xml",
+				"classpath:spring-external-ds.xml",
 				"classpath:spring-profiler.xml", 
 				"classpath:spring.xml"};
 		context = new ClassPathXmlApplicationContext(locations);
