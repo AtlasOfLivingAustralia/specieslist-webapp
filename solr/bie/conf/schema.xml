@@ -467,8 +467,7 @@
    <field name="id" type="string" indexed="true" stored="true" required="true" />
    <field name="guid" type="string" indexed="true" stored="true" required="true" />
    <field name="idxtype" type="string" indexed="true" stored="true" required="true" />
-   <field name="name" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
-   
+   <field name="name" type="text" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <!-- Taxa fields -->
    <field name="parentGuid" type="string" indexed="true" stored="true" omitNorms="true" />
    <field name="synonym" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
@@ -503,7 +502,7 @@
 
    <!-- Collection / Institution -->
    <field name="url" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
-   <field name="acronym" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
+   <field name="acronym" type="text" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="institutionType" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    
    <!-- end of BIE Lucene Fields -->
@@ -571,6 +570,7 @@
 
    <!-- BIE additions -->
    <copyField source="guid" dest="text"/>
+   <copyField source="name" dest="text"/>
    <copyField source="scientificName" dest="text"/>
    <copyField source="commonName" dest="text"/>
    <copyField source="pestStatus" dest="text"/>
