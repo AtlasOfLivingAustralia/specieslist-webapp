@@ -45,7 +45,7 @@
     that avoids logging every request
 -->
 
-<schema name="example" version="1.2">
+<schema name="bie" version="1.2">
   <!-- attribute "name" is the name of this schema and is only used for display purposes.
        Applications should change this to reflect the nature of the search collection.
        version="1.2" is Solr's version number for the schema syntax and semantics.  It should
@@ -462,9 +462,14 @@
        when adding a document.
    -->
    <!-- start of BIE Lucene Fields -->
+   
+   <!-- Common fields to all -->
    <field name="id" type="string" indexed="true" stored="true" required="true" />
    <field name="guid" type="string" indexed="true" stored="true" required="true" />
    <field name="idxtype" type="string" indexed="true" stored="true" required="true" />
+   <field name="name" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
+   
+   <!-- Taxa fields -->
    <field name="parentGuid" type="string" indexed="true" stored="true" omitNorms="true" />
    <field name="synonym" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="scientificName" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
@@ -481,25 +486,26 @@
    <field name="simpleText" type="text_ws" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="scientificNameText" type="text_ws" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="dataset" type="string" indexed="true" stored="true" required="false" omitNorms="true" multiValued="true" />
-
    <!-- nested set functionality -->
    <field name="left" type="int" indexed="true" stored="true" required="false" omitNorms="true" multiValued="false" />
    <field name="right" type="int" indexed="true" stored="true" required="false" omitNorms="true" multiValued="false" />
-
    <!-- higher taxonomy -->
    <field name="kingdom" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="phylum" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="class" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="bioOrder" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="family" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
-
    <!-- Australian states, supports the region functionality -->
-   <field name="state" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
-
+   <field name="state" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <!-- Multimedia -->
    <field name="image" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="thumbnail" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
 
+   <!-- Collection / Institution -->
+   <field name="url" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
+   <field name="acronym" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
+   <field name="institutionType" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
+   
    <!-- end of BIE Lucene Fields -->
 
    <!-- catchall field, containing all other searchable text fields (implemented
