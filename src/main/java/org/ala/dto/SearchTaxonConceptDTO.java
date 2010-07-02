@@ -19,11 +19,9 @@ package org.ala.dto;
  *
  * @author Dave Martin (David.Martin@csiro.au)
  */
-public class SearchTaxonConceptDTO {
+public class SearchTaxonConceptDTO extends SearchDTO {
 	
-	protected String guid;
 	protected String parentGuid;
-	protected String nameString;
 	protected String commonName;
 	protected String acceptedConceptGuid;
 	protected String acceptedConceptName;
@@ -38,30 +36,7 @@ public class SearchTaxonConceptDTO {
     protected String thumbnail;
     protected Integer left;
     protected Integer right;
-	/**
-	 * @return the guid
-	 */
-	public String getGuid() {
-		return guid;
-	}
-	/**
-	 * @param guid the guid to set
-	 */
-	public void setGuid(String guid) {
-		this.guid = guid;
-	}
-	/**
-	 * @return the nameString
-	 */
-	public String getNameString() {
-		return nameString;
-	}
-	/**
-	 * @param nameString the nameString to set
-	 */
-	public void setNameString(String nameString) {
-		this.nameString = nameString;
-	}
+
 	/**
 	 * @return the commonName
 	 */

@@ -26,7 +26,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
  *
  * @author "Nick dos Remedios <Nick.dosRemedios@csiro.au>"
  */
-public class SearchResultsDTO {
+public class SearchResultsDTO<T extends SearchDTO> {
 
     /** Maximum number of results returned from a query */
     private long pageSize = 10;
@@ -41,7 +41,7 @@ public class SearchResultsDTO {
     /** Status code to be set by Controller (e.g. OK) */
     private String status;
     /** List of results from search */
-    private List<SearchTaxonConceptDTO> taxonConcepts = new ArrayList<SearchTaxonConceptDTO>();
+    private List<T> searchResults = new ArrayList<T>();
     /** List of facet results from search */
     private Collection<FacetResultDTO> facetResults = new ArrayList<FacetResultDTO>();
     /** SOLR query response following search */
@@ -55,8 +55,8 @@ public class SearchResultsDTO {
      * @param searchResults
      * @param facetResults
      */
-    public SearchResultsDTO(List<SearchTaxonConceptDTO> searchResults) {
-        this.taxonConcepts = searchResults;
+    public SearchResultsDTO(List<T> searchResults) {
+        this.searchResults = searchResults;
         //this.facetResults = facetResults;
     }
 
@@ -125,12 +125,12 @@ public class SearchResultsDTO {
         this.status = status;
     }
 
-    public List<SearchTaxonConceptDTO> getTaxonConcepts() {
-        return taxonConcepts;
+    public List<T> getResults() {
+        return searchResults;
     }
 
-    public void setTaxonConcepts(List<SearchTaxonConceptDTO> taxonConcepts) {
-        this.taxonConcepts = taxonConcepts;
+    public void setResults(List<T> searchResults) {
+        this.searchResults = searchResults;
     }
 
     public String getQuery() {
