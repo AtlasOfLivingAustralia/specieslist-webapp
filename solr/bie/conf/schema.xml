@@ -481,21 +481,25 @@
    <field name="simpleText" type="text_ws" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="scientificNameText" type="text_ws" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="dataset" type="string" indexed="true" stored="true" required="false" omitNorms="true" multiValued="true" />
-   
+
    <!-- nested set functionality -->
    <field name="left" type="int" indexed="true" stored="true" required="false" omitNorms="true" multiValued="false" />
    <field name="right" type="int" indexed="true" stored="true" required="false" omitNorms="true" multiValued="false" />
-   
+
    <!-- higher taxonomy -->
    <field name="kingdom" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="phylum" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="class" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="bioOrder" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="family" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
-   
+
    <!-- Australian states, supports the region functionality -->
-   <field name="state" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
-   
+   <field name="state" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
+
+   <!-- Multimedia -->
+   <field name="image" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
+   <field name="thumbnail" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
+
    <!-- end of BIE Lucene Fields -->
 
    <!-- catchall field, containing all other searchable text fields (implemented
