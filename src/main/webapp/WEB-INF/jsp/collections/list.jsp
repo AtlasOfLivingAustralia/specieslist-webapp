@@ -3,7 +3,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <meta name="pageName" content="species"/>
+    <meta name="pageName" content="collections"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-ui-1.8.custom.min.js"></script>
     <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bie-theme/jquery-ui-1.8.custom.css" charset="utf-8">
@@ -183,10 +183,8 @@
                     sort by
                     <select id="sort" name="sort">
                         <option value="score" <c:if test="${param.sort eq 'score'}">selected</c:if>>best match</option>
-                        <option value="scientificNameRaw" <c:if test="${param.sort eq 'scientificNameRaw'}">selected</c:if>>scientific name</option>
-                        <!--                            <option value="rank">rank</option>-->
-                        <option value="commonNameSort" <c:if test="${param.sort eq 'commonNameSort'}">selected</c:if>>common name</option>
-                        <option value="rank" <c:if test="${param.sort eq 'rank'}">selected</c:if>>rank</option>
+                        <option value="name" <c:if test="${param.sort eq 'name'}">selected</c:if>>collection name</option>
+                        <option value="commonNameSort" <c:if test="${param.sort eq 'commonNameSort'}">selected</c:if>>institution</option>
                     </select>
                     sort order
                     <select id="dir" name="dir">
@@ -197,17 +195,15 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Scientific&nbsp;Name</th>
-                            <th>Common&nbsp;Name</th>
-                            <th>Taxon&nbsp;Rank</th>
+                            <th>Collection</th>
+                            <th>Institution</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <c:forEach var="taxonConcept" items="${searchResults.results}">
+                        <c:forEach var="collection" items="${searchResults.results}">
                             <tr>
-                                <td id="col1"><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}?conceptName=${taxonConcept.name}" class="occurrenceLink"><alatag:formatSciName rankId="${taxonConcept.rankId}" name="${taxonConcept.name}" acceptedName="${taxonConcept.acceptedConceptName}"/></a></td>
-                                <td id="col2">${fn:substring(taxonConcept.commonName, 0, 250)}</td>
-                                <td id="col3">${taxonConcept.rank}</td>
+                                <td id="col1"><a href="${collection.guid}">${collection.name}</a></td>
+                                <td id="col2">${collection.institutionName}</td>
                             </tr>
                         </c:forEach>
                     </tbody>
@@ -221,53 +217,15 @@
                 <div id="searchTypes">
                     <ul>
                         <li><a href="#">Site Pages</a></li>
-                        <li class="active">Species</li>
+                        <li><a href="${pageContext.request.contextPath}/species/search?q=${param['q']}">Species</a></li>
                         <li><a href="#">Regions</a></li>
                         <li><a href="#"><strike>Occurrence Records</strike></a></li>
-                        <li><a href="#">Institutions</a></li>
-                        <li><a href="#">Collections</a></li>
+                        <li><a href="${pageContext.request.contextPath}/institutions/search?q=${param['q']}">Institutions</a></li>
+                        <li class="active">Collections</li>
                         <li><a href="#">Data Providers</a></li>
                         <li><a href="#">Data Sets</a></li>
                     </ul>
                 </div>
-                <div id="refineMore"><a href="#">More Search Options</a></div>
-                <div id="accordion">
-                    <c:if test="${not empty query}">
-                        <c:set var="queryParam">q=<c:out value="${query}" escapeXml="true"/><c:if test="${not empty param.fq}">&fq=${fn:join(paramValues.fq, "&fq=")}</c:if></c:set>
-                    </c:if>
-                    <c:forEach var="facetResult" items="${searchResults.facetResults}">
-                        <c:if test="${!fn:containsIgnoreCase(facetQuery, facetResult.fieldResult[0].label)}">
-                            <h3><a href="#"><span class="FieldName"><fmt:message key="facet.${facetResult.fieldName}"/></span></a></h3>
-                            <div id="subnavlist">
-                                <ul>
-                                    <c:set var="lastElement" value="${facetResult.fieldResult[fn:length(facetResult.fieldResult)-1]}"/>
-                                    <c:if test="${lastElement.label eq 'before'}">
-                                        <li><c:set var="firstYear" value="${fn:substring(facetResult.fieldResult[0].label, 0, 4)}"/>
-                                            <a href="?${queryParam}&fq=${facetResult.fieldName}:[* TO ${facetResult.fieldResult[0].label}]">Before ${firstYear}</a>
-                                            (<fmt:formatNumber value="${lastElement.count}" pattern="#,###,###"/>)
-                                        </li>
-                                    </c:if>
-                                    <c:forEach var="fieldResult" items="${facetResult.fieldResult}" varStatus="vs">
-                                        <c:set var="dateRangeTo"><c:choose><c:when test="${vs.last}">*</c:when><c:otherwise>${facetResult.fieldResult[vs.count].label}</c:otherwise></c:choose></c:set>
-                                        <c:choose>
-                                            <c:when test="${fn:containsIgnoreCase(facetResult.fieldName, 'occurrence_date') && fn:endsWith(fieldResult.label, 'Z')}">
-                                                <li><c:set var="startYear" value="${fn:substring(fieldResult.label, 0, 4)}"/>
-                                                    <a href="?${queryParam}&fq=${facetResult.fieldName}:[${fieldResult.label} TO ${dateRangeTo}]">${startYear} - ${startYear + 10}</a>
-                                                    (<fmt:formatNumber value="${fieldResult.count}" pattern="#,###,###"/>)</li>
-                                            </c:when>
-                                            <c:when test="${fn:endsWith(fieldResult.label, 'before')}"><%-- skip --%></c:when>
-                                            <c:otherwise>
-                                                <li><a href="?${queryParam}&fq=${facetResult.fieldName}:${fieldResult.label}"><fmt:message key="${fieldResult.label}"/></a>
-                                                (<fmt:formatNumber value="${fieldResult.count}" pattern="#,###,###"/>)</li>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </c:forEach>
-                                </ul>
-                            </div>
-                        </c:if>
-                    </c:forEach>
-                </div>
-                <div id="refineLess"><a href="#">Fewer Search Options</a></div>
             </div>
         </div>
     </c:if>
