@@ -5,7 +5,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.ala.dao.TaxonConceptDao;
-import org.ala.dao.TaxonConceptDaoImpl;
+import org.ala.dao.TaxonConceptSHDaoImpl;
 import org.ala.dto.RegionTypeDTO;
 import org.apache.log4j.Logger;
 
@@ -21,7 +21,7 @@ public class RegionTest extends TestCase {
 	protected static Logger logger  = Logger.getLogger("HBaseDaoUtilsTest");
 
 	public void testGetRegionsByType() throws Exception {
-		TaxonConceptDao tcDao = new TaxonConceptDaoImpl();
+		TaxonConceptDao tcDao = new TaxonConceptSHDaoImpl();
 		List<OccurrencesInGeoregion> regions = tcDao.getRegions(MACROPUS_RUFUS);
 		
 		List<RegionTypeDTO> regionTypes = OccurrencesInGeoregion.getRegionsByType(regions);

@@ -473,7 +473,7 @@ public class TaxonConceptDaoTest extends TestCase {
 		
 		List<SearchTaxonConceptDTO> sr = tcDao.findByScientificName("Sarcophilus harrisii", 10);
 		
-		assertEquals(sr.get(0).getNameString(), "Sarcophilus harrisii");
+		assertEquals(sr.get(0).getName(), "Sarcophilus harrisii");
 		
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
@@ -502,7 +502,7 @@ public class TaxonConceptDaoTest extends TestCase {
 	
 	
 	private TaxonConceptDao initTaxonConceptDao() throws Exception {
-		TaxonConceptDao tcDao = new TaxonConceptDaoImpl();
+		TaxonConceptDao tcDao = new TaxonConceptSHDaoImpl();
 
 		tcDao.delete(TEST_TCDAO_GUID);
 		

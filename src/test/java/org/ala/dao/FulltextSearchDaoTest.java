@@ -5,13 +5,50 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.util.SpringUtils;
 
 public class FulltextSearchDaoTest extends TestCase {
 
+	public void testFindTaxa() throws Exception {
+		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");
+		SearchResultsDTO<SearchTaxonConceptDTO> srDTO = searchDao.findByScientificName("Macropus", null, 0, 10, "score", "asc");
+		for(SearchDTO tc: srDTO.getResults()){
+			System.out.println(tc.getName());
+		}
+		System.out.println("Number of results: "+srDTO.getResults().size());
+	}
+	
+	public void testFindCollections() throws Exception {
+
+		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");
+		SearchResultsDTO<SearchDTO> srDTO = searchDao.findByName(IndexedTypes.COLLECTION, "ANIC", null, 0, 10, "score", "asc");
+		for(SearchDTO tc: srDTO.getResults()){
+			System.out.println(tc.getName());
+		}
+		System.out.println("Number of results: "+srDTO.getResults().size());
+		
+		
+		//Australian National Insect Collection
+		srDTO = searchDao.findByName(IndexedTypes.COLLECTION, "Australian National Insect Collection", null, 0, 10, "score", "asc");
+		for(SearchDTO tc: srDTO.getResults()){
+			System.out.println(tc.getName());
+		}
+		System.out.println("Number of results: "+srDTO.getResults().size());
+		
+		//Australian National Insect Collection
+		srDTO = searchDao.findByName(IndexedTypes.COLLECTION, "Australian National", null, 0, 10, "score", "asc");
+		for(SearchDTO tc: srDTO.getResults()){
+			System.out.println(tc.getName());
+		}
+		System.out.println("Number of results: "+srDTO.getResults().size());
+	}
+	
 	/**
+	 * Test find all in region.
+	 * 
 	 * @param args
 	 */
 	public void testFindAllInRegion() throws Exception {
@@ -23,20 +60,25 @@ public class FulltextSearchDaoTest extends TestCase {
 		//VIC
 		srDTO = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", "Victoria", "kingdom", "Animalia", 
 				null, 0, 10, "score", "asc");
-		tcs = srDTO.getTaxonConcepts();
+		tcs = srDTO.getResults();
 		for(SearchTaxonConceptDTO tc: tcs){
-			System.out.println(tc.getNameString() + " " + tc.getCommonName());
+			System.out.println(tc.getName() + " " + tc.getCommonName());
 		}
 		
 		//NSW
 		srDTO = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", "New South Wales", "kingdom", "Animalia", 
 				null, 0, 10, "score", "asc");
-		tcs = srDTO.getTaxonConcepts();
+		tcs = srDTO.getResults();
 		for(SearchTaxonConceptDTO tc: tcs){
-			System.out.println(tc.getNameString() + " " + tc.getCommonName());
+			System.out.println(tc.getName() + " " + tc.getCommonName());
 		}
 	}
 	
+	/**
+	 * Test count in region.
+	 * 
+	 * @throws Exception
+	 */
 	public void testCountAllInRegion() throws Exception {
 		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");
 
@@ -80,10 +122,10 @@ public class FulltextSearchDaoTest extends TestCase {
 				"state", "New South Wales",
 				"kingdom", taxa, 
 				null, 0, 10, "scientificNameRaw", "asc");
-		tcs = srDTO.getTaxonConcepts();
+		tcs = srDTO.getResults();
 		System.out.println("Species found in Victoria but not in NSW");
 		for(SearchTaxonConceptDTO tc: tcs){
-			System.out.println(tc.getNameString() + " " + tc.getCommonName());
+			System.out.println(tc.getName() + " " + tc.getCommonName());
 		}
 	}
 }
