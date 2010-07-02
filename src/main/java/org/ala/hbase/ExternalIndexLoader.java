@@ -1,4 +1,4 @@
-package org.ala.hbase;
+	package org.ala.hbase;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -13,13 +13,19 @@ import org.apache.solr.common.SolrInputDocument;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
-
+/**
+ * Load tool for loading external data into the indexes to provide a combined
+ * single index for the BIE front end.
+ *
+ * @author Dave Martin (David.Martin@csiro.au)
+ */
 public class ExternalIndexLoader {
 
-	ApplicationContext context;
-	DataSource collectoryDataSource;
-	JdbcTemplate cTemplate;
-	SolrUtils solrUtils;
+	protected ApplicationContext context;
+	protected DataSource collectoryDataSource;
+	protected JdbcTemplate cTemplate;
+	protected SolrUtils solrUtils;
+	protected String baseUrlForCollections = "http://collections.ala.org.au/public/show/";
 	
 	public static void main(String[] args) throws Exception {
 		
@@ -31,11 +37,13 @@ public class ExternalIndexLoader {
 		
 		//load institution data
 		
-		
 		//load regions 
 		
-		
 		//load localities
+
+		//load data providers
+		
+		//load datasets
 		
 		System.exit(0);
 	}
@@ -61,6 +69,7 @@ public class ExternalIndexLoader {
 	}
 	
 	/**
+	 * Loads collections and institutions into the BIE search index.
 	 * 
 	 * @throws Exception
 	 */
@@ -76,22 +85,23 @@ public class ExternalIndexLoader {
 		
 		while (rs.next()) {
 			String id = rs.getString("id");
-//			String guid = rs.getString("guid");
 			String name = rs.getString("name");
 			String acronym = rs.getString("acronym");
 			String institutionType = rs.getString("institution_type"); // university/museum/government
 			String groupType = rs.getString("group_type"); // Collection/Institution (Enum)
 			
 			SolrInputDocument doc = new SolrInputDocument();
-			doc.addField("guid", "http://www.ala.org.au/nhc/"+id);
-			doc.addField("url", "http://www.ala.org.au/nhc/"+id);
-			doc.addField("id", "http://www.ala.org.au/nhc/"+id);
+			doc.addField("guid", baseUrlForCollections+id);
+			doc.addField("url", baseUrlForCollections+id);
+			doc.addField("id", baseUrlForCollections+id);
 			doc.addField("acronym", acronym);
 			doc.addField("name", name);
 			if("Collection".equalsIgnoreCase(groupType)){
 				doc.addField("idxtype", IndexedTypes.COLLECTION);
+				//add the institution information
 			} else if ("Institution".equalsIgnoreCase(groupType)){
 				doc.addField("idxtype", IndexedTypes.INSTITUTION);
+				//add the number of collections information
 			}
 			doc.addField("institutionType", institutionType);
 			solrServer.add(doc);
@@ -103,5 +113,5 @@ public class ExternalIndexLoader {
 		stmt.close();
 		conn.close();
 		System.out.println("Finishing syncing collection and institution information.");
-	}	
+	}
 }
