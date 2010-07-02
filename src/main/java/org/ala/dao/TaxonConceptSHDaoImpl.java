@@ -1073,7 +1073,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     	FileUtils.forceMkdir(file);
     	
         SolrServer solrServer = solrUtils.getSolrServer();
-        solrServer.deleteByQuery( "*:*" ); // delete everything!
+        solrServer.deleteByQuery("idxtype:"+IndexedTypes.TAXON); // delete everything!
     	
     	//Analyzer analyzer = new KeywordAnalyzer(); - works for exact matches
     	//KeywordAnalyzer analyzer = new KeywordAnalyzer();
