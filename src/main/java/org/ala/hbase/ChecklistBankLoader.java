@@ -111,7 +111,7 @@ public class ChecklistBankLoader {
 		
 		logger.info("Loading synonyms....");
 		l.loadSynonyms();
-//		
+		
 		logger.info("Loading identifiers....");
 		l.loadIdentifiers();
 		
