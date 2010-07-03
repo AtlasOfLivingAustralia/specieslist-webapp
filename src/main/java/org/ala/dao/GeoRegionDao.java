@@ -14,8 +14,6 @@
  ***************************************************************************/
 package org.ala.dao;
 
-import java.util.List;
-
 import org.ala.model.GeoRegion;
 /**
  * A DAO interface for Geographic regions.
@@ -43,19 +41,9 @@ public interface GeoRegionDao {
 	GeoRegion getByGuid(String guid) throws Exception;
 	
 	/**
-	 * Retrieve a full listing of geographic regions.
-	 * 
-	 * @return
+	 * Create a index to support searching.
+	 *
 	 * @throws Exception
 	 */
-	List<GeoRegion> getAll() throws Exception;
-	
-	/**
-	 * Retrieve a full listing of geographic regions for the specified region type
-	 * 
-	 * @param regionType
-	 * @return
-	 * @throws Exception
-	 */
-	List<GeoRegion> getByType(String regionType) throws Exception;
+	void createIndex() throws Exception;
 }

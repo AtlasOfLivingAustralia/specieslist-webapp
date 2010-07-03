@@ -14,9 +14,12 @@
  ***************************************************************************/
 package org.ala.dao;
 
-import java.util.List;
+import javax.inject.Inject;
 
 import org.ala.model.GeoRegion;
+import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.common.SolrInputDocument;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,12 +30,17 @@ import org.springframework.stereotype.Component;
 @Component("geoRegionDao")
 public class GeoRegionDaoImpl implements GeoRegionDao {
 
+	protected static Logger logger = Logger.getLogger(GeoRegionDaoImpl.class);
+	
 	protected static final String GR_TABLE = "geoRegion";
 	protected static final String GR_COL_FAMILY = "gr";
 	
 	private static final String GEOREGION_COL = "geoRegion";
 	
 	protected StoreHelper storeHelper;
+	
+	@Inject
+	protected SolrUtils solrUtils;
 	
 	/**
 	 * @see org.ala.dao.GeoRegionDao#create(org.ala.model.GeoRegion)
@@ -49,14 +57,46 @@ public class GeoRegionDaoImpl implements GeoRegionDao {
 	}
 
 	/**
-	 * @see org.ala.dao.GeoRegionDao#getAll()
+	 * @see org.ala.dao.TaxonConceptDao#createIndex()
 	 */
-	@Override
-	public List<GeoRegion> getAll() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public void createIndex() throws Exception {
+		
+		long start = System.currentTimeMillis();
+		
+        SolrServer solrServer = solrUtils.getSolrServer();
+        solrServer.deleteByQuery("idxtype:"+IndexedTypes.REGION); // delete everything!
+    	
+    	int i = 0;
+		
+		Scanner scanner = storeHelper.getScanner(GR_TABLE, GR_COL_FAMILY, GEOREGION_COL);
+		
+		byte[] guidAsBytes = null;
+		
+		while ((guidAsBytes = scanner.getNextGuid())!=null) {
+    		
+			String guid = new String(guidAsBytes);
+			i++;
+			
+			if(i%1000==0){
+				logger.info("Indexed records: "+i+", current guid: "+guid);
+			}
+    		
+    		//get taxon concept details
+			GeoRegion geoRegion = getByGuid(guid);
+    		SolrInputDocument doc = new SolrInputDocument();
+    		doc.addField("idxtype", IndexedTypes.REGION);
+    		doc.addField("id", geoRegion.getGuid());
+    		doc.addField("guid", geoRegion.getGuid());
+    		doc.addField("name", geoRegion.getName());
+    		doc.addField("regionType", geoRegion.getRegionTypeName());
+    		doc.addField("acronym", geoRegion.getAcronym());
+            solrServer.add(doc);
+            solrServer.commit();
+    	}
+    	long finish = System.currentTimeMillis();
+    	logger.info("Index created in: "+((finish-start)/1000)+" seconds with "+ i +" georegions processed.");
 	}
-
+	
 	/**
 	 * @see org.ala.dao.GeoRegionDao#getByGuid(java.lang.String)
 	 */
@@ -64,20 +104,17 @@ public class GeoRegionDaoImpl implements GeoRegionDao {
 	public GeoRegion getByGuid(String guid) throws Exception {
 		return (GeoRegion) storeHelper.get(GR_TABLE, GR_COL_FAMILY, GEOREGION_COL, guid, GeoRegion.class);
 	}
-
-	/**
-	 * @see org.ala.dao.GeoRegionDao#getByType(java.lang.String)
-	 */
-	@Override
-	public List<GeoRegion> getByType(String regionType) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	/**
 	 * @param storeHelper the storeHelper to set
 	 */
 	public void setStoreHelper(StoreHelper storeHelper) {
 		this.storeHelper = storeHelper;
+	}
+
+	/**
+	 * @param solrUtils the solrUtils to set
+	 */
+	public void setSolrUtils(SolrUtils solrUtils) {
+		this.solrUtils = solrUtils;
 	}
 }

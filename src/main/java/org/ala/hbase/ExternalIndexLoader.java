@@ -1,4 +1,18 @@
-	package org.ala.hbase;
+/***************************************************************************
+ * Copyright (C) 2010 Atlas of Living Australia
+ * All Rights Reserved.
+ *
+ * The contents of this file are subject to the Mozilla Public
+ * License Version 1.1 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of
+ * the License at http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS
+ * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ ***************************************************************************/
+package org.ala.hbase;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -9,6 +23,7 @@ import javax.sql.DataSource;
 
 import org.ala.dao.IndexedTypes;
 import org.ala.dao.SolrUtils;
+import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.context.ApplicationContext;
@@ -23,6 +38,8 @@ import org.springframework.stereotype.Component;
 @Component("externalIndexLoader")
 public class ExternalIndexLoader {
 
+	protected static Logger logger = Logger.getLogger(ExternalIndexLoader.class);
+	
 	@Inject
 	protected DataSource collectoryDataSource;
 	@Inject
@@ -43,17 +60,10 @@ public class ExternalIndexLoader {
 		};
 		
 		ApplicationContext context = new ClassPathXmlApplicationContext(locations);
-		ExternalIndexLoader l = (ExternalIndexLoader) context.getBean("externalIndexLoader");
+		ExternalIndexLoader l = (ExternalIndexLoader) context.getBean(ExternalIndexLoader.class);
 		
 		//load collection data + institution data
-//		l.loadCollections();
-		
-		//load portal data
-		
-		
-		//load regions
-		
-		//load localities
+		l.loadCollections();
 
 		//load data providers
 		l.loadDataProviders();
@@ -71,6 +81,7 @@ public class ExternalIndexLoader {
 	 */
 	public void loadCollections() throws Exception {
 		
+		logger.info("Starting syncing collection and institution information....");
 		Connection conn = collectoryDataSource.getConnection();
 		Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		ResultSet rs = stmt.executeQuery("select id, guid, name, acronym, institution_type, group_type from provider_group");
@@ -108,10 +119,12 @@ public class ExternalIndexLoader {
 		rs.close();
 		stmt.close();
 		conn.close();
-		System.out.println("Finishing syncing collection and institution information.");
+		logger.info("Finished syncing collection and institution information.");
 	}
 	
-	private void loadDatasets() throws Exception {
+	public void loadDatasets() throws Exception {
+		
+		logger.info("Starting syncing dataset information....");
 		Connection conn = bioCacheDataSource.getConnection();
 		Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		ResultSet rs = stmt.executeQuery("select dr.id, dr.name as name, dp.name as data_provider_name, dr.description, dr.basis_of_record " +
@@ -144,10 +157,12 @@ public class ExternalIndexLoader {
 		rs.close();
 		stmt.close();
 		conn.close();
-		System.out.println("Finishing syncing dataset information.");
+		logger.info("Finished syncing dataset information.");
 	}
 	
-	private void loadDataProviders() throws Exception {
+	public void loadDataProviders() throws Exception {
+		
+		logger.info("Started syncing data provider information....");
 		Connection conn = bioCacheDataSource.getConnection();
 		Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		ResultSet rs = stmt.executeQuery("select dp.id, dp.name, dp.description, dp.occurrence_count, dp.data_resource_count " +
@@ -177,7 +192,7 @@ public class ExternalIndexLoader {
 		rs.close();
 		stmt.close();
 		conn.close();
-		System.out.println("Finishing syncing data provider information.");
+		logger.info("Finished syncing data provider information.");
 	}
 
 	/**

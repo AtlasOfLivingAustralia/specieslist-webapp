@@ -508,6 +508,9 @@
    
    <!-- Dataset / Data Provider fields-->
    <field name="dataProviderName" type="text" indexed="true" stored="true" multiValued="false" omitNorms="false" />
+
+   <!-- Georegion fields-->
+   <field name="regionType" type="text" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    
    <!-- end of BIE Lucene Fields -->
 

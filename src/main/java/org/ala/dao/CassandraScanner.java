@@ -76,7 +76,7 @@ public class CassandraScanner implements Scanner {
 			byte[] guid = keySlices.get(countInSlice).getKey().getBytes();
 			countInSlice++;
 			return guid;
-		} else {
+		} else if(!keySlices.isEmpty()){
 			
 			KeySlice lastKey = keySlices.get(keySlices.size()-1);
 			keySlices = clientConnection.get_range_slice(keySpace, columnParent, slicePredicate, lastKey.getKey(), "", pageSize, ConsistencyLevel.ONE);
@@ -92,6 +92,8 @@ public class CassandraScanner implements Scanner {
 				countInSlice++;
 				return guid;
 			}
+		} else {
+			return null;
 		}
 	}
 

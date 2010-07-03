@@ -15,26 +15,35 @@
 package org.ala.lucene;
 
 
+import org.ala.dao.GeoRegionDao;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.util.SpringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 
 /**
- * Creates a basic lucene index for the taxon concepts.
+ * Creates a basic SOLR index for the taxon concepts and regions.
  *
  * @author Dave Martin (David.Martin@csiro.au)
  */
-public class CreateTaxonConceptIndex {
+public class CreateSearchIndex {
 
-	protected static Logger logger = Logger.getLogger(CreateTaxonConceptIndex.class);
+	protected static Logger logger = Logger.getLogger(CreateSearchIndex.class);
 	
 	public static void main(String[] args) throws Exception {
-		logger.info("Creating species indexes...");
+		
         ApplicationContext context = SpringUtils.getContext();
+        
+        logger.info("Creating species indexes...");
         TaxonConceptDao tcDao = (TaxonConceptDao) context.getBean(TaxonConceptDao.class);
-		tcDao.createIndex();
-		logger.info("Finished creating species indexes.");
+        tcDao.createIndex();
+        logger.info("Finished creating species indexes.");
+       
+        logger.info("Loading geo regions into search indexes....");
+        GeoRegionDao grDao = (GeoRegionDao) context.getBean(GeoRegionDao.class);
+        grDao.createIndex();
+        logger.info("Finished loading geo regions into search indexes.");
+		
 		System.exit(0);
 //        // Create the autocomplete indexes
 //		logger.info("Creating autocomplete indexes...");
