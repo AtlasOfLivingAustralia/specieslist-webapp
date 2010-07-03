@@ -27,6 +27,8 @@ import org.ala.dto.FacetResultDTO;
 import org.ala.dto.FieldResultDTO;
 import org.ala.dto.SearchCollectionDTO;
 import org.ala.dto.SearchDTO;
+import org.ala.dto.SearchDataProviderDTO;
+import org.ala.dto.SearchDatasetDTO;
 import org.ala.dto.SearchInstitutionDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
@@ -226,9 +228,9 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
             	} else if(IndexedTypes.INSTITUTION.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
                     results.add(createInstitutionFromIndex(qr, doc));
             	} else if(IndexedTypes.DATAPROVIDER.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
-//                    results.add(createTaxonConceptFromIndex(qr, doc));
+            		results.add(createDataProviderFromIndex(qr, doc));
             	} else if(IndexedTypes.DATASET.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
-//                    results.add(createTaxonConceptFromIndex(qr, doc));
+                    results.add(createDatasetFromIndex(qr, doc));
             	} else if(IndexedTypes.REGION.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
 //                    results.add(createTaxonConceptFromIndex(qr, doc));
             	} else if(IndexedTypes.LOCALITY.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
@@ -554,6 +556,36 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 		institution.setName((String) doc.getFirstValue("name"));
         return institution;
 	}
+	
+    /**
+	 * Populate a Dataset DTO from the data in the lucene index.
+	 *
+	 * @param doc
+	 * @return
+	 */
+	private SearchDatasetDTO createDatasetFromIndex(QueryResponse qr, SolrDocument doc) {
+		SearchDatasetDTO dataset = new SearchDatasetDTO();
+		dataset.setGuid((String) doc.getFirstValue("guid"));
+		dataset.setName((String) doc.getFirstValue("name"));
+		dataset.setDescription((String) doc.getFirstValue("description"));
+		dataset.setDataProviderName((String) doc.getFirstValue("dataProviderName"));
+        return dataset;
+	}
+	
+    /**
+	 * Populate a Collection from the data in the lucene index.
+	 *
+	 * @param doc
+	 * @return
+	 */
+	private SearchDataProviderDTO createDataProviderFromIndex(QueryResponse qr, SolrDocument doc) {
+		SearchDataProviderDTO dataset = new SearchDataProviderDTO();
+		dataset.setGuid((String) doc.getFirstValue("guid"));
+		dataset.setName((String) doc.getFirstValue("name"));
+		dataset.setDescription((String) doc.getFirstValue("description"));
+        return dataset;
+	}
+	
 	
     /**
 	 * Populate a TaxonConcept from the data in the lucene index.

@@ -468,6 +468,7 @@
    <field name="guid" type="string" indexed="true" stored="true" required="true" />
    <field name="idxtype" type="string" indexed="true" stored="true" required="true" />
    <field name="name" type="text" indexed="true" stored="true" multiValued="false" omitNorms="false" />
+   <field name="description" type="text" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <!-- Taxa fields -->
    <field name="parentGuid" type="string" indexed="true" stored="true" omitNorms="true" />
    <field name="synonym" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
@@ -504,6 +505,9 @@
    <field name="url" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="acronym" type="text" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="institutionType" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
+   
+   <!-- Dataset / Data Provider fields-->
+   <field name="dataProviderName" type="text" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    
    <!-- end of BIE Lucene Fields -->
 
