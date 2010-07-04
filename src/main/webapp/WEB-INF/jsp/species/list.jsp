@@ -222,13 +222,12 @@
                     <ul>
                         <li><a href="#">Site Pages</a></li>
                         <li class="active">Species</li>
-                        <li><a href="#">Regions</a></li>
+                        <li><a href="${pageContext.request.contextPath}/regions/search?q=${param['q']}">Regions</a></li>
                         <li><a href="#"><strike>Occurrence Records</strike></a></li>
-                        <li><a href="#">Institutions</a></li>
-                        <li><a href="#">Collections</a></li>
-                        <li><a href="#">Data Providers</a></li>
-                        <li><a href="#">Data Sets</a></li>
-                    </ul>
+                        <li><a href="${pageContext.request.contextPath}/institutions/search?q=${param['q']}">Institutions</a></li>
+                        <li><a href="${pageContext.request.contextPath}/collections/search?q=${param['q']}">Collections</a></li>
+                        <li><a href="${pageContext.request.contextPath}/dataproviders/search?q=${param['q']}">Data Providers</a></li>
+                        <li><a href="${pageContext.request.contextPath}/datasets/search?q=${param['q']}">Data Sets</a></li>                    </ul>
                 </div>
                 <div id="refineMore"><a href="#">More Search Options</a></div>
                 <div id="accordion">

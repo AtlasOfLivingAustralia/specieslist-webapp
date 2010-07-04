@@ -202,7 +202,15 @@
                     <tbody>
                         <c:forEach var="region" items="${searchResults.results}">
                             <tr>
-                                <td id="col1"><a href="${region.guid}">${region.name}</a></td>
+                                <td id="col1">
+                                	<c:if test="${region.regionTypeName=='State' || region.regionTypeName=='Territory'}">
+	                                	<a href="${region.guid}">
+	                               	</c:if>
+                                		${region.name}
+                                	<c:if test="${region.regionTypeName=='State' || region.regionTypeName=='Territory'}">
+	                                	</a>
+	                               	</c:if>
+                               	</td>
                                 <td id="col2">${region.regionTypeName}</td>
                             </tr>
                         </c:forEach>
