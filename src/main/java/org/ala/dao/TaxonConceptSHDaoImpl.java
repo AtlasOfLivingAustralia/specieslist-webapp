@@ -1073,7 +1073,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     	FileUtils.forceMkdir(file);
     	
         SolrServer solrServer = solrUtils.getSolrServer();
+        logger.info("Clearing existing taxon entries in the search index...");
         solrServer.deleteByQuery("idxtype:"+IndexedTypes.TAXON); // delete everything!
+        logger.info("Cleared existing taxon entries in the search index.");
     	
     	//Analyzer analyzer = new KeywordAnalyzer(); - works for exact matches
     	//KeywordAnalyzer analyzer = new KeywordAnalyzer();

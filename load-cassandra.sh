@@ -43,9 +43,11 @@ java -classpath $CLASSPATH org.ala.hbase.IrmngDataLoader
 echo "LOAD : running BHL Data Loader $('date')"
 java -classpath $CLASSPATH org.ala.hbase.BHLDataLoader
 
-echo "LOAD : running Create Search Indexes for the Web Application $('date')"
+echo "LOAD : running Create Search Indexes from BIE for the Web Application $('date')"
 java -classpath $CLASSPATH org.ala.lucene.CreateSearchIndex
-java -classpath $CLASSPATH org.ala.hbase.ExternalIndexLoader
+
+echo "LOAD : running Create Search Indexes from External databases for the Web Application $('date')"
+java -classpath $CLASSPATH org.ala.lucene.ExternalIndexLoader
 
 echo "LOAD : processing complete at $('date')"
 
