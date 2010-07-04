@@ -213,7 +213,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
           for(var i=0; i<data.searchResults.results.length; i++){
             var tc = data.searchResults.taxonConcepts[i];
             var commonName = tc.commonName!=null ? tc.commonName : ''; 
-            $('#taxaDiff').append('<tr><td><a href="${pageContext.request.contextPath}/species/'+tc.guid+'">'+tc.nameString+'</td><td>'+commonName+'</td></tr>');
+            $('#taxaDiff').append('<tr><td><a href="${pageContext.request.contextPath}/species/'+tc.guid+'">'+tc.name+'</td><td>'+commonName+'</td></tr>');
           }
           $('#taxaDiffCount').html('<em>'+regionName+ '</em> has recorded <em>'+data.searchResults.totalRecords+' '+selectedTaxaSimple+'</em> not recorded in <em>'+altRegionName+'</em>');
           $('#taxaDiff').show('slow');
@@ -229,7 +229,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
             for(var i=0; i<data.searchResults.results.length; i++){
               var tc = data.searchResults.results[i];
               var commonName = tc.commonName!=null ? tc.commonName : ''; 
-              $('#taxaDiff2').append('<tr><td><a href="${pageContext.request.contextPath}/species/'+tc.guid+'">'+tc.nameString+'</td><td>'+commonName+'</td></tr>');
+              $('#taxaDiff2').append('<tr><td><a href="${pageContext.request.contextPath}/species/'+tc.guid+'">'+tc.name+'</td><td>'+commonName+'</td></tr>');
             }
             $('#taxaDiffCount2').html('<em>'+altRegionName+ '</em> has recorded <em>'+data.searchResults.totalRecords+' '+selectedTaxaSimple+'</em> not recorded in <em>'+regionName+'</em>');
             $('#taxaDiff2').show('slow');
