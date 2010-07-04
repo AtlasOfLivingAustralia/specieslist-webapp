@@ -3,7 +3,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <meta name="pageName" content="institutions"/>
+    <meta name="pageName" content="Search for Institutions"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-ui-1.8.custom.min.js"></script>
     <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bie-theme/jquery-ui-1.8.custom.css" charset="utf-8">
@@ -146,7 +146,7 @@
         }
 
     </script>
-    <title>Species Search - ${query}</title>
+    <title>Institutions Search - ${query}</title>
 </head>
 <body>
     <c:set var="pageTitle">
@@ -216,12 +216,12 @@
                     <ul>
                         <li><a href="#">Site Pages</a></li>
                         <li><a href="${pageContext.request.contextPath}/species/search?q=${param['q']}">Species</a></li>
-                        <li><a href="#">Regions</a></li>
+                        <li><a href="${pageContext.request.contextPath}/regions/search?q=${param['q']}">Regions</a></li>
                         <li><a href="#"><strike>Occurrence Records</strike></a></li>
                         <li class="active">Institutions</li>
                         <li><a href="${pageContext.request.contextPath}/collections/search?q=${param['q']}">Collections</a></li>
-                        <li><a href="#">Data Providers</a></li>
-                        <li><a href="#">Data Sets</a></li>
+                        <li><a href="${pageContext.request.contextPath}/dataproviders/search?q=${param['q']}">Data Providers</a></li>
+                        <li><a href="${pageContext.request.contextPath}/datasets/search?q=${param['q']}">Datasets</a></li>
                     </ul>
                 </div>
             </div>

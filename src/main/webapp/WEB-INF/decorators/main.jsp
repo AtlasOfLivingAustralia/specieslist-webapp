@@ -74,7 +74,7 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
                 </div><!--close nav-->
                 <div id="border_search">
                     <div id="wrapper_search">
-                        <form id="search-form" action="${pageContext.request.contextPath}/species/search" method="get" name="search-form">
+                        <form id="search-form" action="${pageContext.request.contextPath}/search" method="get" name="search-form">
                             <label for="search">Search</label>
                             <c:set var="searchQuery"><c:choose><c:when test="${not empty param['q']}">${param['q']}</c:when><c:otherwise>Search the Atlas</c:otherwise></c:choose></c:set>
                             <input type="text" class="filled" id="search" name="q" value="${searchQuery}" />

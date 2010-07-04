@@ -54,7 +54,7 @@ public class GeoRegionController {
 	/** Name of view for an empty search page */
 	private final String GEOREGION_SHOW = "regions/show";
 	private final String GEOREGION_TAXA_SHOW = "regions/taxaShow";
-	private final String HOME_PAGE = "regions/list";
+	private final String HOME_PAGE = "regions/browse";
 	
 	/**
 	 * Default view when a region isnt specified.

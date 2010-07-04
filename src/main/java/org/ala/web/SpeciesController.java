@@ -85,10 +85,10 @@ public class SpeciesController {
 	private VocabularyDAO vocabularyDAO;
 	/** Name of view for site home page */
 	private String HOME_PAGE = "homePage";
-	/** Name of view for an empty search page */
-	private final String SPECIES_SEARCH = "species/search";
-	/** Name of view for list of taxa */
-	private final String SPECIES_LIST = "species/list";
+//	/** Name of view for an empty search page */
+//	private final String SPECIES_SEARCH = "species/search";
+//	/** Name of view for list of taxa */
+//	private final String SPECIES_LIST = "species/list";
 	/** Name of view for a single taxon */
 	private final String SPECIES_SHOW = "species/show";
 	/** Name of view for list of pest/conservation status */
@@ -112,95 +112,18 @@ public class SpeciesController {
 		return HOME_PAGE;
 	}
 
-	/**
-	 * Default method for Controller
-	 *
-	 * @return mav
-	 */
-	@RequestMapping(value = "/species", method = RequestMethod.GET)
-	public ModelAndView listSpecies() {
-		ModelAndView mav = new ModelAndView();
-		mav.setViewName(SPECIES_LIST);
-		mav.addObject("message", "Results list for search goes here. (TODO)");
-		return mav;
-	}
-
-	/**
-	 * Map to a /search URI - perform a full-text SOLR search
-	 * Note: adding .json to URL will result in JSON output and
-	 * adding .xml will result in XML output.
-	 *
-	 * @param query
-	 * @param filterQuery
-	 * @param startIndex
-	 * @param pageSize
-	 * @param sortField
-	 * @param sortDirection
-	 * @param title
-	 * @param model
-	 * @return view name
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/species/search*", method = RequestMethod.GET)
-	public String solrSearchSpecies(
-			@RequestParam(value="q", required=false) String query,
-			@RequestParam(value="fq", required=false) String[] filterQuery,
-			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
-			@RequestParam(value="pageSize", required=false, defaultValue ="10") Integer pageSize,
-			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
-			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
-			@RequestParam(value="title", required=false, defaultValue ="Search Results") String title,
-			Model model) throws Exception {
-
-		SearchResultsDTO searchResults = new SearchResultsDTO();
-
-		if (query == null) {
-			return SPECIES_SEARCH;
-		} else if (query.isEmpty()) {
-			return SPECIES_LIST;
-		}
-        // if params are set but empty (e.g. foo=&bar=) then provide sensible defaults
-        if (filterQuery != null && filterQuery.length == 0) {
-            filterQuery = null;
-        }
-        if (startIndex == null) {
-            startIndex = 0;
-        }
-        if (pageSize == null) {
-            pageSize = 20;
-        }
-        if (sortField.isEmpty()) {
-            sortField = "score";
-        }
-        if (sortDirection.isEmpty()) {
-            sortDirection = "asc";
-        }
-
-		String queryJsEscaped = StringEscapeUtils.escapeJavaScript(query);
-		model.addAttribute("query", query);
-		model.addAttribute("queryJsEscaped", queryJsEscaped);
-		model.addAttribute("title", StringEscapeUtils.escapeJavaScript(title));
-		//String filterQueryChecked = (filterQuery == null) ? "" : filterQuery;
-		//model.addAttribute("facetQuery", filterQueryChecked);
-
-		searchResults = searchDao.findByScientificName(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-		model.addAttribute("searchResults", searchResults);
-		logger.debug("query = "+query);
-
-        Long totalRecords = searchResults.getTotalRecords();
-        model.addAttribute("totalRecords", totalRecords);
-        Integer lastPage = (totalRecords.intValue() / pageSize) + 1;
-        model.addAttribute("lastPage", lastPage);
-
-//		if (searchResults.getResults() != null && searchResults.getResults().size() == 1) {
-//			List taxonConcepts = (List) searchResults.getResults();
-//			SearchTaxonConceptDTO res = (SearchTaxonConceptDTO) taxonConcepts.get(0);
-//			String guid = res.getGuid();
-			//return "redirect:../species/" + guid;
-//		}
-
-		return SPECIES_LIST;
-	}
+//	/**
+//	 * Default method for Controller
+//	 *
+//	 * @return mav
+//	 */
+//	@RequestMapping(value = "/species", method = RequestMethod.GET)
+//	public ModelAndView listSpecies() {
+//		ModelAndView mav = new ModelAndView();
+//		mav.setViewName(SPECIES_LIST);
+//		mav.addObject("message", "Results list for search goes here. (TODO)");
+//		return mav;
+//	}
 
 	/**
 	 * Map to a /{guid} URI.

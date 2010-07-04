@@ -3,7 +3,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <meta name="pageName" content="Search for Collections"/>
+    <meta name="pageName" content="Search for Datasets"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-ui-1.8.custom.min.js"></script>
     <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bie-theme/jquery-ui-1.8.custom.css" charset="utf-8">
@@ -146,7 +146,7 @@
         }
 
     </script>
-    <title>Collections Search - ${query}</title>
+    <title>Datasets Search - ${query}</title>
 </head>
 <body>
     <c:set var="pageTitle">
@@ -195,15 +195,15 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Collection</th>
-                            <th>Institution</th>
+                            <th>Dataset</th>
+                            <th>Data Provider</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <c:forEach var="collection" items="${searchResults.results}">
+                        <c:forEach var="dataset" items="${searchResults.results}">
                             <tr>
-                                <td id="col1"><a href="${collection.guid}">${collection.name}</a></td>
-                                <td id="col2">${collection.institutionName}</td>
+                                <td id="col1"><a href="${dataset.guid}">${dataset.name}</a></td>
+                                <td id="col2">${dataset.dataProviderName}</td>
                             </tr>
                         </c:forEach>
                     </tbody>
@@ -221,9 +221,9 @@
                         <li><a href="${pageContext.request.contextPath}/regions/search?q=${param['q']}">Regions</a></li>
                         <li><a href="#"><strike>Occurrence Records</strike></a></li>
                         <li><a href="${pageContext.request.contextPath}/institutions/search?q=${param['q']}">Institutions</a></li>
-                        <li class="active">Collections</li>
+                        <li><a href="${pageContext.request.contextPath}/collections/search?q=${param['q']}">Collections</a></li>
                         <li><a href="${pageContext.request.contextPath}/dataproviders/search?q=${param['q']}">Data Providers</a></li>
-                        <li><a href="${pageContext.request.contextPath}/datasets/search?q=${param['q']}">Datasets</a></li>
+                        <li class="active">Data Sets</a></li>
                     </ul>
                 </div>
             </div>
