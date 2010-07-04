@@ -26,7 +26,6 @@ public class SearchTaxonConceptDTO extends SearchDTO {
 	protected String acceptedConceptGuid;
 	protected String acceptedConceptName;
 	protected boolean hasChildren;
-    protected Float score;
     protected String rank;
     protected int rankId;
     protected String pestStatus;
@@ -96,18 +95,6 @@ public class SearchTaxonConceptDTO extends SearchDTO {
 	 */
 	public void setHasChildren(boolean hasChildren) {
 		this.hasChildren = hasChildren;
-	}
-	/**
-	 * @return the score
-	 */
-	public Float getScore() {
-		return score;
-	}
-	/**
-	 * @param score the score to set
-	 */
-	public void setScore(Float score) {
-		this.score = score;
 	}
 	/**
 	 * @return the rank

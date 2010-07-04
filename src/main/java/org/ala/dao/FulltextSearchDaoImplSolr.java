@@ -30,6 +30,7 @@ import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchDataProviderDTO;
 import org.ala.dto.SearchDatasetDTO;
 import org.ala.dto.SearchInstitutionDTO;
+import org.ala.dto.SearchRegionDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.util.StatusType;
@@ -93,10 +94,13 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
             } else {
                 String cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
                 //queryString.append(ClientUtils.escapeQueryChars(query));
+                queryString.append("idxtype:"+IndexedTypes.TAXON);
+                queryString.append(" AND (");
                 queryString.append("scientificNameText:"+cleanQuery);
                 queryString.append(" OR commonName:"+cleanQuery);
                 queryString.append(" OR guid:"+cleanQuery);
-                queryString.append(" OR simpleText:"+cleanQuery);
+//                queryString.append(" OR simpleText:"+cleanQuery);  //commented out for now as this gives confusing results to users
+                queryString.append(")");
             }
             logger.info("search query: "+queryString.toString());
             return doSolrSearch(queryString.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
@@ -120,9 +124,12 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
             queryString.append("idxtype:"+indexType);
             queryString.append(" AND ");
             queryString.append(" (");
-            queryString.append("name:"+cleanQuery);
-            queryString.append(" OR ");
-            queryString.append("acronym:"+cleanQuery);
+            queryString.append("commonName:"+cleanQuery);
+            queryString.append(" OR scientificNameText:"+cleanQuery);
+            queryString.append(" OR guid:"+cleanQuery);
+//            queryString.append(" OR simpleText:"+cleanQuery);   
+            queryString.append(" OR name:"+cleanQuery);
+            queryString.append(" OR acronym:"+cleanQuery);
             queryString.append(")");
             logger.info("search query: "+queryString.toString());
             return doSolrSearch(queryString.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
@@ -134,6 +141,27 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         }
 	}
 
+	public SearchResultsDTO<SearchDTO> doFullTextSearch(String query, String[] filterQuery, Integer startIndex, Integer pageSize, String sortField, String sortDirection) throws Exception {
+        
+        try {
+        	StringBuffer queryString = new StringBuffer();
+            String cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
+            queryString.append("commonName:"+cleanQuery);
+            queryString.append(" OR scientificNameText:"+cleanQuery);
+            queryString.append(" OR guid:"+cleanQuery);
+//            queryString.append(" OR simpleText:"+cleanQuery);
+            queryString.append(" OR name:"+cleanQuery);
+            queryString.append(" OR acronym:"+cleanQuery);
+            logger.info("search query: "+queryString.toString());
+            return doSolrSearch(queryString.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
+        } catch (SolrServerException ex) {
+            logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
+    		SearchResultsDTO searchResults = new SearchResultsDTO();
+            searchResults.setStatus("ERROR"); // TODO also set a message field on this bean with the error message(?)
+            return searchResults;
+        }
+	}
+	
 	/**
      * Re-usable method for performing SOLR searches - takes query string input
      *
@@ -148,10 +176,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
      */
     private SearchResultsDTO doSolrSearch(String queryString, String filterQuery[], Integer pageSize,
           Integer startIndex, String sortField, String sortDirection) throws Exception {
-
         SolrQuery solrQuery = initSolrQuery(); // general search settings
         solrQuery.setQuery(queryString);
-
         return doSolrQuery(solrQuery, filterQuery, pageSize, startIndex, sortField, sortDirection);
     }
 
@@ -180,7 +206,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         if (filterQuery != null) {
             for (String fq : filterQuery) {
                 // pull apart fq. E.g. Rank:species and then sanitize the string parts
-                // so that special characters are escaped apporpriately
+                // so that special characters are escaped appropriately
                 if (fq == null || fq.isEmpty()) continue;
                 String[] parts = fq.split(":", 2); // separate query field from query text
                 logger.debug("fq split into: "+parts.length+" parts: "+parts[0]+" & "+parts[1]);
@@ -203,9 +229,11 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         solrQuery.setRows(pageSize);
         solrQuery.setStart(startIndex);
         solrQuery.setSortField(sortField, ORDER.valueOf(sortDirection));
-        // do the Solr search
         
+        // do the Solr search
         QueryResponse qr = solrUtils.getSolrServer().query(solrQuery); // can throw exception
+        
+        //process results
         SolrDocumentList sdl = qr.getResults();
         List<FacetField> facets = qr.getFacetFields();
 //        Map<String, Map<String, List<String>>> highlights = qr.getHighlighting();
@@ -232,7 +260,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
             	} else if(IndexedTypes.DATASET.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
                     results.add(createDatasetFromIndex(qr, doc));
             	} else if(IndexedTypes.REGION.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
-//                    results.add(createTaxonConceptFromIndex(qr, doc));
+            		results.add(createRegionFromIndex(qr, doc));
             	} else if(IndexedTypes.LOCALITY.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
 //                    results.add(createTaxonConceptFromIndex(qr, doc));
             	}
@@ -538,9 +566,11 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 	 */
 	private SearchCollectionDTO createCollectionFromIndex(QueryResponse qr, SolrDocument doc) {
 		SearchCollectionDTO collection = new SearchCollectionDTO();
+		collection.setIdxType(IndexedTypes.COLLECTION.toString());
 		collection.setGuid((String) doc.getFirstValue("guid"));
 		collection.setInstitutionName((String) doc.getFirstValue("institutionName"));
 		collection.setName((String) doc.getFirstValue("name"));
+		collection.setScore((Float) doc.getFirstValue("score"));
         return collection;
 	}
     
@@ -550,10 +580,28 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 	 * @param doc
 	 * @return
 	 */
+	private SearchRegionDTO createRegionFromIndex(QueryResponse qr, SolrDocument doc) {
+		SearchRegionDTO region = new SearchRegionDTO();
+		region.setIdxType(IndexedTypes.REGION.toString());
+		region.setGuid((String) doc.getFirstValue("guid"));
+		region.setName((String) doc.getFirstValue("name"));
+		region.setRegionTypeName((String) doc.getFirstValue("regionType"));
+		region.setScore((Float) doc.getFirstValue("score"));
+        return region;
+	}
+	
+    /**
+	 * Populate a Collection from the data in the lucene index.
+	 *
+	 * @param doc
+	 * @return
+	 */
 	private SearchInstitutionDTO createInstitutionFromIndex(QueryResponse qr, SolrDocument doc) {
 		SearchInstitutionDTO institution = new SearchInstitutionDTO();
+		institution.setIdxType(IndexedTypes.INSTITUTION.toString());
 		institution.setGuid((String) doc.getFirstValue("guid"));
 		institution.setName((String) doc.getFirstValue("name"));
+		institution.setScore((Float) doc.getFirstValue("score"));
         return institution;
 	}
 	
@@ -565,10 +613,12 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 	 */
 	private SearchDatasetDTO createDatasetFromIndex(QueryResponse qr, SolrDocument doc) {
 		SearchDatasetDTO dataset = new SearchDatasetDTO();
+		dataset.setIdxType(IndexedTypes.DATASET.toString());
 		dataset.setGuid((String) doc.getFirstValue("guid"));
 		dataset.setName((String) doc.getFirstValue("name"));
 		dataset.setDescription((String) doc.getFirstValue("description"));
 		dataset.setDataProviderName((String) doc.getFirstValue("dataProviderName"));
+		dataset.setScore((Float) doc.getFirstValue("score"));
         return dataset;
 	}
 	
@@ -579,11 +629,13 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 	 * @return
 	 */
 	private SearchDataProviderDTO createDataProviderFromIndex(QueryResponse qr, SolrDocument doc) {
-		SearchDataProviderDTO dataset = new SearchDataProviderDTO();
-		dataset.setGuid((String) doc.getFirstValue("guid"));
-		dataset.setName((String) doc.getFirstValue("name"));
-		dataset.setDescription((String) doc.getFirstValue("description"));
-        return dataset;
+		SearchDataProviderDTO provider = new SearchDataProviderDTO();
+		provider.setIdxType(IndexedTypes.DATAPROVIDER.toString());
+		provider.setGuid((String) doc.getFirstValue("guid"));
+		provider.setName((String) doc.getFirstValue("name"));
+		provider.setDescription((String) doc.getFirstValue("description"));
+		provider.setScore((Float) doc.getFirstValue("score"));
+        return provider;
 	}
 	
 	
@@ -595,6 +647,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 	 */
 	private SearchTaxonConceptDTO createTaxonConceptFromIndex(QueryResponse qr, SolrDocument doc) {
 		SearchTaxonConceptDTO taxonConcept = new SearchTaxonConceptDTO();
+		taxonConcept.setIdxType(IndexedTypes.TAXON.toString());
 		taxonConcept.setGuid((String) doc.getFirstValue("guid"));
 		taxonConcept.setParentGuid((String) doc.getFirstValue("parentGuid"));
 		taxonConcept.setName((String) doc.getFirstValue("scientificNameRaw"));
@@ -638,6 +691,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQueryType("standard");
         solrQuery.setFacet(true);
+        solrQuery.addFacetField("idxtype");
         solrQuery.addFacetField("rank");
         //solrQuery.addFacetField("rankId");
         solrQuery.addFacetField("pestStatus");

@@ -118,6 +118,21 @@ public interface FulltextSearchDao {
             Integer pageSize, String sortField, String sortDirection) throws Exception;
 
     /**
+     * Perform a full text search across all object types.
+     * 
+     * @param query
+     * @param filterQuery
+     * @param startIndex
+     * @param pageSize
+     * @param sortField
+     * @param sortDirection
+     * @return
+     * @throws Exception
+     */
+    SearchResultsDTO<SearchDTO> doFullTextSearch(String query, String[] filterQuery, Integer startIndex, Integer pageSize, 
+    		String sortField, String sortDirection) throws Exception;
+    
+    /**
      * Search for taxon concept with the following scientific name with parameters for paging & sorting
      *
      * @param query
