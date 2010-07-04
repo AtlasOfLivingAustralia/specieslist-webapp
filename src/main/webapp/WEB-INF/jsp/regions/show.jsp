@@ -211,7 +211,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
         var searchUrl = '${pageContext.request.contextPath}/regions/taxaDiff.json?regionType='+regionType+'&regionName='+regionName+'&altRegionType='+altRegionType+'&altRegionName='+altRegionName+'&higherTaxon='+selectedTaxa+'&rank='+selectedTaxonRank;
         $.getJSON(searchUrl, function(data) { 
           for(var i=0; i<data.searchResults.results.length; i++){
-            var tc = data.searchResults.taxonConcepts[i];
+            var tc = data.searchResults.results[i];
             var commonName = tc.commonName!=null ? tc.commonName : ''; 
             $('#taxaDiff').append('<tr><td><a href="${pageContext.request.contextPath}/species/'+tc.guid+'">'+tc.name+'</td><td>'+commonName+'</td></tr>');
           }
