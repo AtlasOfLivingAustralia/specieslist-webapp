@@ -24,7 +24,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
         </c:if>
       </span>
       <table id="birdsList" class="taxonList">
-        <alatag:renderTaxaList taxonConcepts="${birds.taxonConcepts}"/>
+        <alatag:renderTaxaList taxonConcepts="${birds.results}"/>
       </table>
       <script type="text/javascript">
         $('#viewBirdsList').click(function () {
@@ -44,7 +44,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
         </c:if>
       </span>
       <table id="fishList" class="taxonList">
-        <alatag:renderTaxaList taxonConcepts="${fish.taxonConcepts}"/>
+        <alatag:renderTaxaList taxonConcepts="${fish.results}"/>
       </table>
       <script type="text/javascript">
         $('#viewFishList').click(function () {
@@ -64,7 +64,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
         </c:if>
       </span>
       <table id="frogsList" class="taxonList">
-        <alatag:renderTaxaList taxonConcepts="${frogs.taxonConcepts}"/>
+        <alatag:renderTaxaList taxonConcepts="${frogs.results}"/>
       </table>
       <script type="text/javascript">
         $('#viewFrogsList').click(function () {
@@ -84,7 +84,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
         </c:if>
       </span>
       <table id="mammalsList" class="taxonList">
-        <alatag:renderTaxaList taxonConcepts="${mammals.taxonConcepts}"/>
+        <alatag:renderTaxaList taxonConcepts="${mammals.results}"/>
       </table>
       <script type="text/javascript">
         $('#viewMammalsList').click(function () {
@@ -104,7 +104,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
         </c:if>
       </span>
       <table id="reptilesList" class="taxonList">
-        <alatag:renderTaxaList taxonConcepts="${reptiles.taxonConcepts}"/>
+        <alatag:renderTaxaList taxonConcepts="${reptiles.results}"/>
       </table>
       <script type="text/javascript">
         $('#viewReptilesList').click(function () {
@@ -210,7 +210,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
         
         var searchUrl = '${pageContext.request.contextPath}/regions/taxaDiff.json?regionType='+regionType+'&regionName='+regionName+'&altRegionType='+altRegionType+'&altRegionName='+altRegionName+'&higherTaxon='+selectedTaxa+'&rank='+selectedTaxonRank;
         $.getJSON(searchUrl, function(data) { 
-          for(var i=0; i<data.searchResults.taxonConcepts.length; i++){
+          for(var i=0; i<data.searchResults.results.length; i++){
             var tc = data.searchResults.taxonConcepts[i];
             var commonName = tc.commonName!=null ? tc.commonName : ''; 
             $('#taxaDiff').append('<tr><td><a href="${pageContext.request.contextPath}/species/'+tc.guid+'">'+tc.nameString+'</td><td>'+commonName+'</td></tr>');
@@ -226,8 +226,8 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
         
         var searchUrl = '${pageContext.request.contextPath}/regions/taxaDiff.json?regionType='+altRegionType+'&regionName='+altRegionName+'&altRegionType='+regionType+'&altRegionName='+regionName+'&higherTaxon='+selectedTaxa+'&rank='+selectedTaxonRank;
         $.getJSON(searchUrl, function(data) {
-            for(var i=0; i<data.searchResults.taxonConcepts.length; i++){
-              var tc = data.searchResults.taxonConcepts[i];
+            for(var i=0; i<data.searchResults.results.length; i++){
+              var tc = data.searchResults.results[i];
               var commonName = tc.commonName!=null ? tc.commonName : ''; 
               $('#taxaDiff2').append('<tr><td><a href="${pageContext.request.contextPath}/species/'+tc.guid+'">'+tc.nameString+'</td><td>'+commonName+'</td></tr>');
             }
