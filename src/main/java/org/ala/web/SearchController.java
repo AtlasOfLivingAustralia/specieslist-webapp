@@ -56,7 +56,7 @@ public class SearchController {
 	private final String DATAPROVIDERS_LIST = "dataproviders/list";
 	private final String REGIONS_LIST = "regions/list";
 	private final String SPECIES_LIST = "species/list";
-	private final String SEARCH = "search";
+	private final String SEARCH = "search"; //default view when empty query submitted
 	
 	/**
 	 * Performs a search across all objects, and selects to show the view for the closest match.
@@ -113,8 +113,8 @@ public class SearchController {
 		model.addAttribute("query", query);
 		model.addAttribute("queryJsEscaped", queryJsEscaped);
 		model.addAttribute("title", StringEscapeUtils.escapeJavaScript(title));
-		logger.debug("Initial query = "+query);
 		
+		logger.debug("Initial query = "+query);
 		SearchResultsDTO<SearchDTO> searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
 		
 		//get facets - and counts to model for each idx type
@@ -125,7 +125,7 @@ public class SearchController {
 			if("idxtype".equals(facetResultDTO.getFieldName())){
 				List<FieldResultDTO> fieldResults = facetResultDTO.getFieldResult();
 				for(FieldResultDTO fieldResult: fieldResults){
-					System.out.println("FACETS: "+fieldResult.getLabel()+": "+fieldResult.getFieldValue()+", count: "+fieldResult.getCount());
+					model.addAttribute(fieldResult.getLabel(), fieldResult.getCount());
 				}
 			}
 		}
@@ -135,7 +135,7 @@ public class SearchController {
 		if(!searchResults.getResults().isEmpty()){
 			
 			SearchDTO topHit = searchResults.getResults().get(0);
-			System.out.println("Top Hit: "+topHit.getName()+", idxtype: "+topHit.getIdxType());
+			logger.debug("Top Hit: "+topHit.getName()+", idxtype: "+topHit.getIdxType());
 
 			//top hit is species, re-run species search to just get species results
 			if(IndexedTypes.TAXON.toString().equals(topHit.getIdxType())){
@@ -418,7 +418,7 @@ public class SearchController {
 		model.addAttribute("title", StringEscapeUtils.escapeJavaScript(title));
 		logger.debug("query = "+query);
 		
-		SearchResultsDTO searchResults = searchDao.findByName(indexedType, query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+		SearchResultsDTO<SearchDTO> searchResults = searchDao.findByName(indexedType, query, filterQuery, startIndex, pageSize, sortField, sortDirection);
 		model.addAttribute("searchResults", searchResults);
 
         Long totalRecords = searchResults.getTotalRecords();
