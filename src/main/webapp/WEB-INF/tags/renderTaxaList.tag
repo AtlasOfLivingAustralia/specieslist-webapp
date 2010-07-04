@@ -11,7 +11,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
           <img src="http://${pageContext.request.serverName}:80${fn:replace(taxonConcept.thumbnail,'/data/bie','/repository')}"/>
         </c:if>
       </td>
-      <td class="scientificName"><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}">${taxonConcept.nameString}</a></td>
+      <td class="scientificName"><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}">${taxonConcept.name}</a></td>
      <td class="commonName">${taxonConcept.commonName}</td>
  </tr>
 </c:forEach>
