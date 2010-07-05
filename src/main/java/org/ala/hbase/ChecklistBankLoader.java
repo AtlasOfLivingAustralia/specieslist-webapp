@@ -71,15 +71,21 @@ import au.com.bytecode.opencsv.CSVReader;
 @Component("checklistBankLoader")
 public class ChecklistBankLoader {
 	
-    protected static Logger logger = Logger.getLogger(ChecklistBankLoader.class);
+	protected static Logger logger = Logger.getLogger(ChecklistBankLoader.class);
+	
+    public static final String COL_HOME = "http://www.catalogueoflife.org/";
+    public static final String APNI_HOME = "http://www.anbg.gov.au/apni/";
+    public static final String APC_HOME = "http://www.anbg.gov.au/chah/apc/";
+    public static final String AFD_HOME = "http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/home";
+	
 	@Inject
 	protected InfoSourceDAO infoSourceDAO;
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
 	
 	//data files
-	private static final String IDENTIFIERS_FILE="/data/bie-staging/checklistbank/cb_identifiers.txt";
-	private static final String CB_EXPORT_DIR="/data/bie-staging/checklistbank/";
+	private static final String IDENTIFIERS_FILE = "/data/bie-staging/checklistbank/cb_identifiers.txt";
+	private static final String CB_EXPORT_DIR = "/data/bie-staging/checklistbank/";
 	private static final String AFD_COMMON_NAMES = "/data/bie-staging/anbg/AFD-common-names.csv";
 	private static final String APNI_COMMON_NAMES = "/data/bie-staging/anbg/APNI-common-names.csv";
 	
@@ -324,143 +330,152 @@ public class ChecklistBankLoader {
 		
 		long start = System.currentTimeMillis();
 		
-		InfoSource afd = infoSourceDAO.getByUri("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/home");
-		InfoSource apc = infoSourceDAO.getByUri("http://www.anbg.gov.au/chah/apc/");
-		InfoSource apni = infoSourceDAO.getByUri("http://www.anbg.gov.au/apni/");
-		InfoSource col = infoSourceDAO.getByUri("http://www.catalogueoflife.org/");
+		InfoSource afd = infoSourceDAO.getByUri(AFD_HOME);
+		InfoSource apc = infoSourceDAO.getByUri(APC_HOME);
+		InfoSource apni = infoSourceDAO.getByUri(APNI_HOME);
+		InfoSource col = infoSourceDAO.getByUri(COL_HOME);
 		
     	//names files to index
-    	TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_name_usages.txt", false);
+    	CSVReader tr = new CSVReader(new FileReader("/data/bie-staging/checklistbank/cb_name_usages.txt"), '\t', '"', '\\');
     	
     	String[] cols = tr.readNext(); //first line contains headers - ignore
-    	
+    	int lineNumber = 1;
     	while((cols=tr.readNext())!=null){
-    		String identifier = cols[0];
-    		String parentNameUsageID = cols[1];
-			String guid = cols[2]; //TaxonID
-			String nubId = cols[3];
-			String acceptedNameUsageID = cols[4]; //acceptedNameUsageID
-			String scientificNameId = cols[5];
-			String scientificName = cols[6];
-			String scientificNameAuthorship = cols[7];
-			String rankID = cols[8];
-			String taxonRank = cols[9];
-			Integer left = NumberUtils.createInteger(cols[10]);
-			Integer right = NumberUtils.createInteger(cols[11]);
-			String kingdomID = cols[12];
-			String kingdom = cols[13];
-			String phylumID = cols[14];
-			String phylum = cols[15];
-			String clazzID = cols[16];
-			String clazz = cols[17];
-			String orderID = cols[18];
-			String order = cols[19];
-			String familyID = cols[20];
-			String family = cols[21];
-			String genusID = cols[22];
-			String genus = cols[23];
-			String speciesID = cols[24];
-			String species = cols[25];
-			String dataset = cols[26];
-
-			if(guid == null){
-				guid = identifier;
-			}
-			
-			int numberAdded = 0;
-
-			if (guid != null && StringUtils.isEmpty(acceptedNameUsageID)) {
+    		try {
+	    		String identifier = cols[0];
+	    		String parentNameUsageID = cols[1];
+				String guid = cols[2]; //TaxonID
+				String nubId = cols[3];
+				String acceptedNameUsageID = cols[4]; //acceptedNameUsageID
+				String scientificNameId = cols[5];
+				String scientificName = cols[6];
+				String scientificNameAuthorship = cols[7];
+				String rankID = cols[8];
+				String taxonRank = cols[9];
+				Integer left = null;
+				Integer right = null;
+					
+				if(StringUtils.isNotEmpty(cols[10])) left = NumberUtils.createInteger(cols[10]);
+				if(StringUtils.isNotEmpty(cols[10])) right = NumberUtils.createInteger(cols[11]);
 				
-				//add the base concept
-				TaxonConcept tc = new TaxonConcept();
-				tc.setId(Integer.parseInt(identifier));
-				tc.setGuid(guid);
-				tc.setParentId(parentNameUsageID);
-				tc.setNameString(scientificName);
-				tc.setAuthor(scientificNameAuthorship);
-				tc.setRankString(taxonRank);
-				tc.setLeft(left);
-				tc.setRight(right);
-				
-    			if("APC".equalsIgnoreCase(dataset)){
-    				tc.setInfoSourceId(Integer.toString(apc.getId()));
-    				tc.setInfoSourceName(apc.getName());
-    				if(isLSID(guid)){
-    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
-    					tc.setInfoSourceURL("http://biodiversity.org.au/apni.taxon/"+internalId);
-    				}
-    			} else if("APNI".equalsIgnoreCase(dataset)){
-    				tc.setInfoSourceId(Integer.toString(apni.getId()));
-    				tc.setInfoSourceName(apni.getName());
-    				if(isLSID(guid)){
-    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
-    					tc.setInfoSourceURL("http://biodiversity.org.au/apni.taxon/"+internalId);
-    				}
-    			} else if("COL".equalsIgnoreCase(dataset)){
-    				tc.setInfoSourceId(Integer.toString(col.getId()));
-    				tc.setInfoSourceName(col.getName());
-    				tc.setInfoSourceURL(col.getWebsiteUrl());
-    			} else if("AFD".equalsIgnoreCase(dataset)){
-    				tc.setInfoSourceId(Integer.toString(afd.getId()));
-    				tc.setInfoSourceName(afd.getName());
-    				tc.setInfoSourceURL(afd.getWebsiteUrl());
-    				if(isLSID(guid)){
-    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
-    					tc.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+internalId);
-    				}
-    			}
-				
-				if (taxonConceptDao.create(tc)) {
-					numberAdded++;
-					if(numberAdded % 1000 == 0){
-						long current = System.currentTimeMillis();
-						logger.info("Taxon concepts added: "+numberAdded+", insert rate: "+((current-start)/numberAdded)+ "ms per record, last guid: "+ tc.getGuid());
-					}
+				String kingdomID = cols[12];
+				String kingdom = cols[13];
+				String phylumID = cols[14];
+				String phylum = cols[15];
+				String clazzID = cols[16];
+				String clazz = cols[17];
+				String orderID = cols[18];
+				String order = cols[19];
+				String familyID = cols[20];
+				String family = cols[21];
+				String genusID = cols[22];
+				String genus = cols[23];
+				String speciesID = cols[24];
+				String species = cols[25];
+				String dataset = cols[26];
+	
+				if(guid == null){
+					guid = identifier;
 				}
 				
-				//load the parent concept
-				if(StringUtils.isNotEmpty(tc.getParentId())){
-					TaxonConcept parentConcept = getById(tc.getParentId());
-					if(parentConcept!=null){
-						taxonConceptDao.addParentTaxon(tc.getGuid(), parentConcept);
+				int numberAdded = 0;
+	
+				if (guid != null && StringUtils.isEmpty(acceptedNameUsageID)) {
+					
+					//add the base concept
+					TaxonConcept tc = new TaxonConcept();
+					tc.setId(Integer.parseInt(identifier));
+					tc.setGuid(guid);
+					tc.setParentId(parentNameUsageID);
+					tc.setNameString(scientificName);
+					tc.setAuthor(scientificNameAuthorship);
+					tc.setRankString(taxonRank);
+					tc.setLeft(left);
+					tc.setRight(right);
+					
+	    			if("APC".equalsIgnoreCase(dataset)){
+	    				tc.setInfoSourceId(Integer.toString(apc.getId()));
+	    				tc.setInfoSourceName(apc.getName());
+	    				if(isLSID(guid)){
+	    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
+	    					tc.setInfoSourceURL("http://biodiversity.org.au/apni.taxon/"+internalId);
+	    				}
+	    			} else if("APNI".equalsIgnoreCase(dataset)){
+	    				tc.setInfoSourceId(Integer.toString(apni.getId()));
+	    				tc.setInfoSourceName(apni.getName());
+	    				if(isLSID(guid)){
+	    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
+	    					tc.setInfoSourceURL("http://biodiversity.org.au/apni.taxon/"+internalId);
+	    				}
+	    			} else if("COL".equalsIgnoreCase(dataset)){
+	    				tc.setInfoSourceId(Integer.toString(col.getId()));
+	    				tc.setInfoSourceName(col.getName());
+	    				tc.setInfoSourceURL(col.getWebsiteUrl());
+	    			} else if("AFD".equalsIgnoreCase(dataset)){
+	    				tc.setInfoSourceId(Integer.toString(afd.getId()));
+	    				tc.setInfoSourceName(afd.getName());
+	    				tc.setInfoSourceURL(afd.getWebsiteUrl());
+	    				if(isLSID(guid)){
+	    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
+	    					tc.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+internalId);
+	    				}
+	    			}
+					
+					if (taxonConceptDao.create(tc)) {
+						numberAdded++;
+						if(numberAdded % 1000 == 0){
+							long current = System.currentTimeMillis();
+							logger.info("Taxon concepts added: "+numberAdded+", insert rate: "+((current-start)/numberAdded)+ "ms per record, last guid: "+ tc.getGuid());
+						}
 					}
-				}
-				
-				//load the child concepts
-				List<TaxonConcept> childConcepts = getChildConcepts(Integer.toString(tc.getId()));
-				if(!childConcepts.isEmpty()){
-					for(TaxonConcept childConcept: childConcepts){
-						taxonConceptDao.addChildTaxon(tc.getGuid(), childConcept);
+					
+					//load the parent concept
+					if(StringUtils.isNotEmpty(tc.getParentId())){
+						TaxonConcept parentConcept = getById(tc.getParentId());
+						if(parentConcept!=null){
+							taxonConceptDao.addParentTaxon(tc.getGuid(), parentConcept);
+						}
 					}
+					
+					//load the child concepts
+					List<TaxonConcept> childConcepts = getChildConcepts(Integer.toString(tc.getId()));
+					if(!childConcepts.isEmpty()){
+						for(TaxonConcept childConcept: childConcepts){
+							taxonConceptDao.addChildTaxon(tc.getGuid(), childConcept);
+						}
+					}
+					
+					//add the classification
+					Classification c = new Classification();
+					c.setGuid(guid);
+					c.setScientificName(scientificName);
+					c.setRank(taxonRank);
+	                c.setSpecies(species);
+	                c.setSpeciesGuid(speciesID);
+	                c.setGenus(genus);
+	                c.setGenusGuid(genusID);
+	                c.setFamily(family);
+	                c.setFamilyGuid(familyID);
+	                c.setOrder(order);
+	                c.setOrderGuid(orderID);
+	                c.setClazz(clazz);
+	                c.setClazzGuid(clazzID);
+	                c.setPhylum(phylum);
+	                c.setPhylumGuid(phylumID);
+	                c.setKingdom(kingdom);
+	                c.setKingdomGuid(kingdomID);
+	                try {
+	                    // Attempt to set the rank Id via Rank enum
+	                    c.setRankId(Rank.getForName(taxonRank).getId());
+	                } catch (Exception e) {
+	                    logger.warn("Could not set rankId for: "+taxonRank+" in "+guid);
+	                }
+					taxonConceptDao.addClassification(guid, c);
 				}
-				
-				//add the classification
-				Classification c = new Classification();
-				c.setGuid(guid);
-				c.setScientificName(scientificName);
-				c.setRank(taxonRank);
-                c.setSpecies(species);
-                c.setSpeciesGuid(speciesID);
-                c.setGenus(genus);
-                c.setGenusGuid(genusID);
-                c.setFamily(family);
-                c.setFamilyGuid(familyID);
-                c.setOrder(order);
-                c.setOrderGuid(orderID);
-                c.setClazz(clazz);
-                c.setClazzGuid(clazzID);
-                c.setPhylum(phylum);
-                c.setPhylumGuid(phylumID);
-                c.setKingdom(kingdom);
-                c.setKingdomGuid(kingdomID);
-                try {
-                    // Attempt to set the rank Id via Rank enum
-                    c.setRankId(Rank.getForName(taxonRank).getId());
-                } catch (Exception e) {
-                    logger.warn("Could not set rankId for: "+taxonRank+" in "+guid);
-                }
-				taxonConceptDao.addClassification(guid, c);
-			}
+				lineNumber++;
+    		} catch (Exception e){
+    			logger.error("Error reading line " + lineNumber+", " + e.getMessage(), e);
+    		}
 		}
 	}
 
@@ -554,6 +569,10 @@ public class ChecklistBankLoader {
 	 * @throws Exception
 	 */
 	private void loadCommonNames(String dataFile) throws Exception {
+		
+		InfoSource afd = infoSourceDAO.getByUri(AFD_HOME);
+		InfoSource apni = infoSourceDAO.getByUri(APNI_HOME);
+		
 		logger.info("Starting to load common names from " + dataFile);
 		
     	long start = System.currentTimeMillis();
@@ -576,7 +595,17 @@ public class ChecklistBankLoader {
     			//do a look up for the correct taxon
     			CommonName commonName = new CommonName();
     			commonName.setGuid(guid);
-                //the common name string can be a comma separated list of names
+    			//set the attribution
+    			if(guid.contains(":apni.")){
+    				commonName.setInfoSourceId(Integer.toString(apni.getId()));
+    				commonName.setInfoSourceName(apni.getName());
+    				commonName.setInfoSourceURL(apni.getWebsiteUrl());
+    			} else if(guid.contains(":afd.")){
+    				commonName.setInfoSourceId(Integer.toString(afd.getId()));
+    				commonName.setInfoSourceName(afd.getName());
+    				commonName.setInfoSourceURL(afd.getWebsiteUrl());
+    			}
+    			//the common name string can be a comma separated list of names
     			String[] commonNameStrings = p.split(commonNameString);
                 for(String cn: commonNameStrings){
                     commonName.setNameString(cn);
