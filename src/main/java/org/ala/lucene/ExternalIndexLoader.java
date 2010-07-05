@@ -48,6 +48,7 @@ public class ExternalIndexLoader {
 	protected SolrUtils solrUtils;
 	
 	protected String baseUrlForCollections = "http://collections.ala.org.au/public/show/";
+	protected String baseUrlForInstitutions = "http://collections.ala.org.au/public/showInstitution/";
 	protected String baseUrlForDataProviders = "http://data.ala.org.au/dataproviders/";
 	protected String baseUrlForDatasets = "http://data.ala.org.au/datasets/";
 	
@@ -98,17 +99,18 @@ public class ExternalIndexLoader {
 			String groupType = rs.getString("group_type"); // Collection/Institution (Enum)
 			
 			SolrInputDocument doc = new SolrInputDocument();
-			doc.addField("guid", baseUrlForCollections+id);
-			doc.addField("url", baseUrlForCollections+id);
-			doc.addField("id", baseUrlForCollections+id);
 			doc.addField("acronym", acronym);
 			doc.addField("name", name);
 			if("Collection".equalsIgnoreCase(groupType)){
+				doc.addField("guid", baseUrlForCollections+id);
+				doc.addField("url", baseUrlForCollections+id);
+				doc.addField("id", baseUrlForCollections+id);
 				doc.addField("idxtype", IndexedTypes.COLLECTION);
-				//add the institution information
 			} else if ("Institution".equalsIgnoreCase(groupType)){
+				doc.addField("guid", baseUrlForInstitutions+id);
+				doc.addField("url", baseUrlForInstitutions+id);
+				doc.addField("id", baseUrlForInstitutions+id);
 				doc.addField("idxtype", IndexedTypes.INSTITUTION);
-				//add the number of collections information
 			}
 			doc.addField("institutionType", institutionType);
 			solrServer.add(doc);
