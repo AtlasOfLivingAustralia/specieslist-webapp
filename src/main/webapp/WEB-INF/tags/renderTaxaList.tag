@@ -4,14 +4,30 @@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %><%@
 taglib prefix="spring" uri="http://www.springframework.org/tags" %><%@ 
 taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 <%@ attribute name="taxonConcepts" required="true" type="java.util.List" rtexprvalue="true"  %>
-<c:forEach items="${taxonConcepts}" var="taxonConcept">
- <tr class="taxonConceptResult">
-      <td>
-        <c:if test="${not empty taxonConcept.thumbnail}">
+<tr class="taxonConceptResult">
+<c:forEach items="${taxonConcepts}" var="taxonConcept" varStatus="loopStatus">
+
+  <c:if test="${loopStatus.index>0 && loopStatus.index % 8 == 0}">
+    </tr>
+    <tr class="taxonConceptResult">
+  </c:if>
+  
+  <td>
+      <a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}">
+        <c:choose>
+        <c:when test="${not empty taxonConcept.thumbnail}">
           <img src="http://${pageContext.request.serverName}:80${fn:replace(taxonConcept.thumbnail,'/data/bie','/repository')}"/>
-        </c:if>
-      </td>
-      <td class="scientificName"><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}">${taxonConcept.name}</a></td>
-     <td class="commonName">${taxonConcept.commonName}</td>
- </tr>
+        </c:when>
+        <c:otherwise>
+          <img src="${pageContext.request.contextPath}/static/images/noImage100.jpg"/>
+        </c:otherwise>
+        </c:choose>
+      </a>
+      <br/>
+     <span class="scientificName"><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}">${taxonConcept.name}</a></span>
+     <br/>
+     <span class="commonName">${taxonConcept.commonName}</span>
+  </td>
+
 </c:forEach>
+</tr>

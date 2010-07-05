@@ -1006,11 +1006,12 @@ em, dfn {
 
 
 /* Temporary styles add by Dave */
+
 #selectedGroup, #compareRegions { margin:0; }
 #selectedGroup li { margin-right: 10px; float: left; display: inline; list-style-type: none;}
 #compareRegions li { margin-left: 20px; float: right; list-style-type: none;}
 
-#taxonGroups { list-style: none; padding:0; margin:0;}
+#taxonGroups { list-style: none; padding:0; margin:20px 0 0 0;}
 li.taxonBreakdown { border: 1px solid gray; padding:10px; margin-bottom: 5px;}
 
 #comparisonToolHdr {margin-top:20px;}

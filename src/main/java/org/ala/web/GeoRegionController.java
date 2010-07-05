@@ -87,19 +87,19 @@ public class GeoRegionController {
 		model.addAttribute("geoRegion", geoRegion);
 		
 		//birds counts
-		SearchResultsDTO birds = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Aves", null, 0, 25, "scientificNameRaw", "asc");
+		SearchResultsDTO birds = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Aves", null, 0, 24, "scientificNameRaw", "asc");
 		model.addAttribute("birds", birds);
 		
 		//mammal counts
-		SearchResultsDTO mammals = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Mammalia", null, 0, 25, "scientificNameRaw", "asc");
+		SearchResultsDTO mammals = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Mammalia", null, 0, 24, "scientificNameRaw", "asc");
 		model.addAttribute("mammals", mammals);
 
 		//reptile counts
-		SearchResultsDTO reptiles = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Reptilia", null, 0, 25, "scientificNameRaw", "asc");
+		SearchResultsDTO reptiles = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Reptilia", null, 0, 24, "scientificNameRaw", "asc");
 		model.addAttribute("reptiles", reptiles);
 
 		//frog counts
-		SearchResultsDTO frogs = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Amphibia", null, 0, 25, "scientificNameRaw", "asc");
+		SearchResultsDTO frogs = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Amphibia", null, 0, 24, "scientificNameRaw", "asc");
 		model.addAttribute("frogs", frogs);
 
 		//fish counts
@@ -109,7 +109,7 @@ public class GeoRegionController {
 		fishTaxa.add("Chondrichthyes");
 		fishTaxa.add("Sarcopterygii");
 		fishTaxa.add("Actinopterygii");
-		SearchResultsDTO fish = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "bioOrder", fishTaxa, null, 0, 25, "scientificNameRaw", "asc");
+		SearchResultsDTO fish = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "bioOrder", fishTaxa, null, 0, 24, "scientificNameRaw", "asc");
 		model.addAttribute("fish", fish);
 
 		return GEOREGION_SHOW;
