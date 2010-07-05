@@ -1205,6 +1205,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	                    doc.addField("commonNameSort", commonNamesConcat);
 	                    doc.addField("commonName", StringUtils.join(commonNameSet, " "));
 	                    doc.addField("commonNameDisplay", StringUtils.join(commonNameSet, ", "));
+	                    doc.addField("commonNameSingle", commonNames.get(0).nameString);
 	                }
 		    		
 		    		for(TaxonConcept synonym: synonyms){

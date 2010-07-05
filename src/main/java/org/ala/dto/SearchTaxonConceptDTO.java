@@ -23,6 +23,7 @@ public class SearchTaxonConceptDTO extends SearchDTO {
 	
 	protected String parentGuid;
 	protected String commonName;
+	protected String commonNameSingle;
 	protected String acceptedConceptGuid;
 	protected String acceptedConceptName;
 	protected boolean hasChildren;
@@ -203,5 +204,17 @@ public class SearchTaxonConceptDTO extends SearchDTO {
 	 */
 	public void setRight(Integer right) {
 		this.right = right;
+	}
+	/**
+	 * @return the commonNameSingle
+	 */
+	public String getCommonNameSingle() {
+		return commonNameSingle;
+	}
+	/**
+	 * @param commonNameSingle the commonNameSingle to set
+	 */
+	public void setCommonNameSingle(String commonNameSingle) {
+		this.commonNameSingle = commonNameSingle;
 	}
 }

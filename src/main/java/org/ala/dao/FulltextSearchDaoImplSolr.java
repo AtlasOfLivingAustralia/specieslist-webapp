@@ -654,6 +654,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 		taxonConcept.setAcceptedConceptName((String) doc.getFirstValue("acceptedConceptName"));
 		String hasChildrenAsString = (String) doc.getFirstValue("hasChildren");
 		taxonConcept.setCommonName((String) doc.getFirstValue("commonNameDisplay"));
+		taxonConcept.setCommonNameSingle((String) doc.getFirstValue("commonNameSingle"));
 		taxonConcept.setImage((String) doc.getFirstValue("image"));
 		taxonConcept.setThumbnail((String) doc.getFirstValue("thumbnail"));
 		taxonConcept.setHasChildren(Boolean.parseBoolean(hasChildrenAsString));
