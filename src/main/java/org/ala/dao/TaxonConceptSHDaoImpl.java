@@ -1144,6 +1144,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    			for(String identifier: identifiers){
 	    				doc.addField("otherGuid", identifier);
 	    			}
+	    			//add the numeric checklistbank id
+	    			doc.addField("otherGuid", taxonConcept.getId());
 	    			
 	    			addToSetSafely(infoSourceIds, taxonConcept.getInfoSourceId());
 	    			//add multiple forms of the scientific name to the index
