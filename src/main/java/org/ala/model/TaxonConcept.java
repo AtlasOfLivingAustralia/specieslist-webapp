@@ -34,6 +34,7 @@ public class TaxonConcept extends AttributableObject implements Comparable<Taxon
 	protected String authorYear;
 	protected String publishedInCitation;
 	protected String publishedIn;
+	protected Integer rankID;
 	protected String rankString;
 	protected Integer left;
 	protected Integer right;
@@ -243,6 +244,20 @@ public class TaxonConcept extends AttributableObject implements Comparable<Taxon
 	 */
 	public void setRight(Integer right) {
 		this.right = right;
+	}
+
+	/**
+	 * @return the rankID
+	 */
+	public Integer getRankID() {
+		return rankID;
+	}
+
+	/**
+	 * @param rankID the rankID to set
+	 */
+	public void setRankID(Integer rankID) {
+		this.rankID = rankID;
 	}
 	
 	/**

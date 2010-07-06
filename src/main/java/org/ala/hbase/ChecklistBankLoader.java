@@ -350,7 +350,10 @@ public class ChecklistBankLoader {
 				String scientificNameId = cols[5];
 				String scientificName = cols[6];
 				String scientificNameAuthorship = cols[7];
-				String rankID = cols[8];
+				
+				Integer rankID = null;
+				if(StringUtils.isNotEmpty(cols[8])) rankID = NumberUtils.createInteger(cols[8]);
+				
 				String taxonRank = cols[9];
 				Integer left = null;
 				Integer right = null;
@@ -390,6 +393,7 @@ public class ChecklistBankLoader {
 					tc.setNameString(scientificName);
 					tc.setAuthor(scientificNameAuthorship);
 					tc.setRankString(taxonRank);
+					tc.setRankID(rankID);
 					tc.setLeft(left);
 					tc.setRight(right);
 					
