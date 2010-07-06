@@ -1130,7 +1130,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    		Set<String> infoSourceIds = new TreeSet<String>();
 	            
 	    		//get alternative ids
-	    		List<String> identifiers = new ArrayList<String>();
+	    		List<String> identifiers = getIdentifiers(guid);
 	    		
 	    		//TODO this index should also include nub ids
 	    		SolrInputDocument doc = new SolrInputDocument();

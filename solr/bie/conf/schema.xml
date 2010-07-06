@@ -466,6 +466,7 @@
    <!-- Common fields to all -->
    <field name="id" type="string" indexed="true" stored="true" required="true" />
    <field name="guid" type="string" indexed="true" stored="true" required="true" />
+   <field name="otherGuid" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
    <field name="idxtype" type="string" indexed="true" stored="true" required="true" />
    <field name="name" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="description" type="text" indexed="true" stored="true" multiValued="false" omitNorms="false" />
