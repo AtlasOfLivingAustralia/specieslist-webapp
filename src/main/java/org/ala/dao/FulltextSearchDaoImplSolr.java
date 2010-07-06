@@ -69,6 +69,27 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
     protected SolrUtils solrUtils;
 
     /**
+     * @see org.ala.dao.FulltextSearchDao#getClassificationByLeftNS(int)
+     */
+	@Override
+	public SearchResultsDTO getClassificationByLeftNS(int leftNSValue)
+			throws Exception {
+        try {
+            // set the query
+            StringBuffer queryString = new StringBuffer();
+            queryString.append("idxtype:"+IndexedTypes.TAXON);
+            String[] fq = new String[]{"left:[* TO "+leftNSValue+"]", "right:["+leftNSValue+" TO *]"};
+            logger.info("search query: "+queryString.toString());
+            return doSolrSearch(queryString.toString(), fq, 100, 0, "rankId", "asc");
+        } catch (SolrServerException ex) {
+        	SearchResultsDTO searchResults = new SearchResultsDTO();
+            logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
+            searchResults.setStatus("ERROR"); // TODO also set a message field on this bean with the error message(?)
+            return searchResults;
+        }
+    }
+    
+    /**
 	 * @see org.ala.dao.FulltextSearchDao#findByScientificName(java.lang.String, int)
 	 */
     @Override

@@ -30,6 +30,15 @@ import org.ala.util.StatusType;
  */
 public interface FulltextSearchDao {
 
+	/**
+	 * Retrieves a classification used nested set logic.
+	 * 
+	 * @param leftNSValue
+	 * @return
+	 * @throws Exception
+	 */
+    SearchResultsDTO getClassificationByLeftNS(int leftNSValue) throws Exception;
+	
     /**
      * Search for taxon concept with the following status type
      *

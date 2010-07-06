@@ -1065,12 +1065,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		
         List<String> pestTerms = vocabulary.getTermsForStatusType(StatusType.PEST);
         List<String> consTerms = vocabulary.getTermsForStatusType(StatusType.CONSERVATION);
-		
-    	File file = new File(TC_INDEX_DIR);
-    	if(file.exists()){
-    		FileUtils.forceDelete(file);
-    	}
-    	FileUtils.forceMkdir(file);
     	
         SolrServer solrServer = solrUtils.getSolrServer();
         logger.info("Clearing existing taxon entries in the search index...");

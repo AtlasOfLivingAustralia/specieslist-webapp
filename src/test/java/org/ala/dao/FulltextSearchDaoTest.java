@@ -12,6 +12,23 @@ import org.ala.util.SpringUtils;
 
 public class FulltextSearchDaoTest extends TestCase {
 
+	public void testGetClassification() throws Exception {
+		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");
+		
+		List<SearchTaxonConceptDTO> tcs = searchDao.findByScientificName("Macropus rufus", 10);
+		for(SearchTaxonConceptDTO stc: tcs){
+			
+			System.out.println(stc.getName()+", "+stc.getRank()+", left: "+stc.getLeft());
+			if(stc.getLeft()!=null){
+				
+				SearchResultsDTO<SearchTaxonConceptDTO> searchResults = searchDao.getClassificationByLeftNS(stc.getLeft());
+				for(SearchTaxonConceptDTO t: searchResults.getResults()){
+					System.out.println(t.getName()+", "+t.getRank()+", left: "+t.getLeft()+", right: "+t.getRight());
+				}
+			}
+		}
+	}
+	
 	public void testFindTaxa() throws Exception {
 		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");
 		SearchResultsDTO<SearchTaxonConceptDTO> srDTO = searchDao.findByScientificName("Macropus", null, 0, 10, "score", "asc");
