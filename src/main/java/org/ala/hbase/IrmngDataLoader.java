@@ -19,9 +19,11 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
+import org.ala.model.InfoSource;
 import org.ala.util.SpringUtils;
 import org.ala.util.TabReader;
 import org.apache.log4j.Logger;
@@ -37,9 +39,18 @@ public class IrmngDataLoader {
 	
 	protected static Logger logger  = Logger.getLogger(IrmngDataLoader.class);
 	
+	protected String familyBaseUrl = "http://www.marine.csiro.au/mirrorsearch/ir_search.list_genera?fam_id=";
+	protected String genusBaseUrl = "http://www.marine.csiro.au/mirrorsearch/ir_search.list_species?gen_id=";
+	protected String speciesBaseUrl = "http://www.marine.csiro.au/mirrorsearch/ir_search.list_species?sp_id=";
+	
 	private static final String IRMNG_FAMILY_DATA = "/data/bie-staging/irmng/family_list.txt";
 	private static final String IRMNG_GENUS_DATA = "/data/bie-staging/irmng/genus_list.txt";
 	private static final String IRMNG_SPECIES_DATA = "/data/bie-staging/irmng/species_list.txt";
+
+	protected String irmngURI = "http://www.cmar.csiro.au/datacentre/irmng/";
+	
+	@Inject
+	protected InfoSourceDAO infoSourceDao;
 	
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
@@ -54,13 +65,16 @@ public class IrmngDataLoader {
 	 * @throws Exception
 	 */
 	private void load() throws Exception {
-		loadIrmngData(IRMNG_FAMILY_DATA, "family");
-		loadIrmngData(IRMNG_GENUS_DATA, "genus");
-		loadIrmngData(IRMNG_SPECIES_DATA, "species");
+		loadIrmngData(IRMNG_FAMILY_DATA, "family", familyBaseUrl);
+		loadIrmngData(IRMNG_GENUS_DATA, "genus", genusBaseUrl);
+		loadIrmngData(IRMNG_SPECIES_DATA, "species", speciesBaseUrl);
 	}
 
-	private void loadIrmngData(String irmngDataFile, String rank) throws Exception {
+	private void loadIrmngData(String irmngDataFile, String rank, String baseUrl) throws Exception {
 		logger.info("Starting to load IRMNG data from " + irmngDataFile);
+		
+		
+		InfoSource infosource = infoSourceDao.getByUri(irmngURI);
 		
     	long start = System.currentTimeMillis();
     	
@@ -72,6 +86,7 @@ public class IrmngDataLoader {
 		String previousScientificName = null;
 		while ((values = tr.readNext()) != null) {
     		if (values.length == 5) {
+    			String identifier = values[0];
     			String currentScientificName = values[1];
     			String extantCode = values[3];
     			String habitatCode = values[4];
@@ -89,16 +104,16 @@ public class IrmngDataLoader {
     				
     				List<ExtantStatus> extantStatusList = new ArrayList<ExtantStatus>();
     				ExtantStatus e = new ExtantStatus(extantCode);
-    				e.setInfoSourceId("4");
-    				e.setInfoSourceName("IRMNG");
-    				e.setInfoSourceURL("http://www.cmar.csiro.au/datacentre/irmng/");
+    				e.setInfoSourceId(Integer.toString(infosource.getId()));
+    				e.setInfoSourceName(infosource.getName());
+    				e.setInfoSourceURL(baseUrl+identifier);
     				extantStatusList.add(e);
     				
     				List<Habitat> habitatList = new ArrayList<Habitat>();
     				Habitat h = new Habitat(habitatCode);
-    				h.setInfoSourceId("4");
-    				h.setInfoSourceName("IRMNG");
-    				h.setInfoSourceURL("http://www.cmar.csiro.au/datacentre/irmng/");
+    				h.setInfoSourceId(Integer.toString(infosource.getId()));
+    				h.setInfoSourceName(infosource.getName());
+    				h.setInfoSourceURL(baseUrl+identifier);
     				habitatList.add(h);
     				
     				logger.trace("Adding guid=" + guid + " SciName=" + currentScientificName + " Extant=" + extantCode + " Habitat=" + habitatCode);
@@ -120,5 +135,12 @@ public class IrmngDataLoader {
 	 */
 	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
 		this.taxonConceptDao = taxonConceptDao;
+	}
+
+	/**
+	 * @param infoSourceDao the infoSourceDao to set
+	 */
+	public void setInfoSourceDao(InfoSourceDAO infoSourceDao) {
+		this.infoSourceDao = infoSourceDao;
 	}
 }
