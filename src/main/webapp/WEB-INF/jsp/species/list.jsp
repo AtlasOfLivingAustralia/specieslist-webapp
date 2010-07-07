@@ -220,7 +220,7 @@
                 </div>
             </div>
             <div id="facets">
-                <div id="searchTypes">
+                <div id="searchTypes" style="display:none;">
                     <ul>
                         <li><a href="#">Site Pages</a></li>
                         <li class="active">Species</li>
@@ -231,8 +231,8 @@
                         <li><a href="${pageContext.request.contextPath}/dataproviders/search?q=${param['q']}">Data Providers</a></li>
                         <li><a href="${pageContext.request.contextPath}/datasets/search?q=${param['q']}">Data Sets</a></li>                    </ul>
                 </div>
-                <div id="refineMore"><a href="#">More Search Options</a></div>
-                <div id="accordion">
+                <div id="refineMore" style="display:none;"><a href="#">More Search Options</a></div>
+                <div id="accordion" style="display:block;">
                     <c:if test="${not empty query}">
                         <c:set var="queryParam">q=<c:out value="${query}" escapeXml="true"/><c:if test="${not empty param.fq}">&fq=${fn:join(paramValues.fq, "&fq=")}</c:if></c:set>
                     </c:if>
@@ -268,7 +268,7 @@
                         </c:if>
                     </c:forEach>
                 </div>
-                <div id="refineLess"><a href="#">Fewer Search Options</a></div>
+                <div id="refineLess" style="display:none;"><a href="#">Fewer Search Options</a></div>
             </div>
         </div>
     </c:if>
