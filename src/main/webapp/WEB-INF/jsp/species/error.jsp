@@ -11,6 +11,8 @@
         <title>ALA Biodiversity Information Explorer: Error</title>
     </head>
     <body>
-        <h2>Error - ${errorMessage}</h2>
+        <div id="decoratorBody">
+            <h2>Error - ${errorMessage}</h2>
+        </div>
     </body>
 </html>

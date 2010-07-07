@@ -12,6 +12,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
   <title>Regions - ${geoRegion.regionTypeName} - ${geoRegion.name}</title>
 </head>
 <body>
+<div id="decoratorBody">
   <h1><a href="${pageContext.request.contextPath}/regions/">Regions</a> &gt; ${geoRegion.regionTypeName} &gt; Explore ${geoRegion.name}</h1>
   <ul id="taxonGroups">
   
@@ -245,6 +246,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 
 
 </script>
+</div>
 </body>
 
 </html>

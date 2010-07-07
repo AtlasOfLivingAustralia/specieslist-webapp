@@ -150,6 +150,7 @@
     <title>Datasets Search - ${query}</title>
 </head>
 <body>
+    <div id="decoratorBody">
     <c:set var="pageTitle">
         <c:if test="${not empty title}">${title}</c:if>
         <c:if test="${empty title}">Search Results</c:if>
@@ -238,5 +239,6 @@
             </div>
         </div>
     </c:if>
+    </div>
 </body>
 </html>

@@ -7,9 +7,11 @@
 <head>
     <meta name="pageName" content="datasets"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8"/>
     <title>Dataset List</title>
 </head>
 <body>
+<div id="decoratorBody">
     <h1>Dataset List</h1>
     <c:if test="${not empty infoSources}">
         <h3>&bull; Taxonomic datasets</h3>
@@ -79,5 +81,6 @@
             </c:forEach>
         </table>
     </c:if>
+</div>
 </body>
 </html>

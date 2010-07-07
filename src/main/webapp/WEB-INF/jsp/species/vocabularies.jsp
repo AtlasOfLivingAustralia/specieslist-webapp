@@ -7,9 +7,11 @@
 <head>
     <meta name="pageName" content="vocabularies"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8"/>
     <title>Vocabularies</title>
 </head>
 <body>
+<div id="decoratorBody">
     <h1>Vocabularies for <c:out value="${infoName}" /></h1>
     <c:if test="${not empty vocabulariesMap}">
         <h3>Term Mapping</h3>
@@ -34,5 +36,6 @@
             </c:forEach>
         </table>
     </c:if>
+</div>
 </body>
 </html>
