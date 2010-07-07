@@ -230,7 +230,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
         $.getJSON(searchUrl, function(data) {
             for(var i=0; i<data.searchResults.results.length; i++){
               var tc = data.searchResults.results[i];
-              var commonName = tc.commonName!=null ? tc.commonName : ''; 
+              var commonName = tc.commonNameSingle!=null ? tc.commonNameSingle : ''; 
               $('#taxaDiff2').append('<tr><td><a href="${pageContext.request.contextPath}/species/'+tc.guid+'">'+tc.name+'</td><td>'+commonName+'</td></tr>');
             }
             $('#taxaDiffCount2').html('<em>'+altRegionName+ '</em> has recorded <em>'+data.searchResults.totalRecords+' '+selectedTaxaSimple+'</em> not recorded in <em>'+regionName+'</em>');
