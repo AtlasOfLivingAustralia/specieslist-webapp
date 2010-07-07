@@ -14,6 +14,7 @@
 </head>
 <body>
     <div id="decoratorBody">
+        <h1>States</h1>
         <ul>
             <li><a href="${pageContext.request.contextPath}/regions/aus_states/Australian Capital Territory">Australian Capital Territory</a></li>
             <li><a href="${pageContext.request.contextPath}/regions/aus_states/New South Wales">New South Wales</a></li>
@@ -24,7 +25,7 @@
             <li><a href="${pageContext.request.contextPath}/regions/aus_states/Queensland">Queensland</a></li>
             <li><a href="${pageContext.request.contextPath}/regions/aus_states/South Australia">South Australia</a></li>
         </ul>
-    </div><h1>States</h1>
+    </div>
   
 </body>
 </html>
