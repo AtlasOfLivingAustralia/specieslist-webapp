@@ -9,6 +9,7 @@
 <head>
   <meta name="pageName" content="geoRegion"/>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8"/>
   <title>Regions - States</title>
 </head>
 <body>
