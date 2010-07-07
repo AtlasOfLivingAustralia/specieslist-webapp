@@ -11,11 +11,11 @@
    Syntax recommendation http://www.w3.org/TR/REC-CSS2/
 */
 
-propertyTable {
+table.propertyTable {
     width: 100%;
     /*border-left: 1px solid #DDD;
-    border-right: 1px solid #DDD !important;*/
-    font-size: 90%;
+    border-right: 1px solid #DDD !important;
+    font-size: 90%;*/
 }
 table.propertyTable td:first-child  {
     font-weight: bold;

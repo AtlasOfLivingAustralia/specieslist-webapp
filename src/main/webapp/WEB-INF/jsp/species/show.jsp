@@ -250,7 +250,7 @@
                                 </c:set>
                                 <div class="hrgroup col-9">
                                     <h1 class="family">${fn:replace(extendedTaxonConcept.taxonConcept.nameString, extendedTaxonConcept.taxonName.nameComplete, sciNameFormatted)}</h1>
-                                    <h2>${fn:substring(commonNames, 0, 50)}<c:if test="${fn:length(commonNames) >= 50}">...</c:if></h2>
+                                    <h2>${extendedTaxonConcept.commonNames[0].nameString}</h2>
                                 </div>
                                 <div class="aside col-3">
                                     <cite>source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="_blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
@@ -514,7 +514,7 @@
                             <div id="column-one">
                                 <div class="section">
                                     <h2>Records</h2>
-                                    <p><a href="/biocache-webapp/occurrences/search?q=${taxonConceptRank}_lsid:${extendedTaxonConcept.taxonConcept.guid}">View all occurrence records for this taxon</a></p>
+                                    <p><a href="/biocache-webapp/occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View all occurrence records for this taxon</a></p>
                                 </div>
                             </div><!---->
                             <div id="column-two">
