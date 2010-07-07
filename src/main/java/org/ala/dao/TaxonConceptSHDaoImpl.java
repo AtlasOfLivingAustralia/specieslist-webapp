@@ -49,7 +49,6 @@ import org.ala.util.FileType;
 import org.ala.util.MimeType;
 import org.ala.util.StatusType;
 import org.ala.vocabulary.Vocabulary;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.KeywordAnalyzer;

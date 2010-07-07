@@ -150,6 +150,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
             queryString.append(" OR guid:"+cleanQuery);
 //            queryString.append(" OR simpleText:"+cleanQuery);   
             queryString.append(" OR name:"+cleanQuery);
+            queryString.append(" OR text:"+cleanQuery);
             queryString.append(" OR acronym:"+cleanQuery);
             queryString.append(")");
             logger.info("search query: "+queryString.toString());
@@ -172,6 +173,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
             queryString.append(" OR guid:"+cleanQuery);
 //            queryString.append(" OR simpleText:"+cleanQuery);
             queryString.append(" OR name:"+cleanQuery);
+            queryString.append(" OR text:"+cleanQuery);
             queryString.append(" OR acronym:"+cleanQuery);
             logger.info("search query: "+queryString.toString());
             return doSolrSearch(queryString.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
