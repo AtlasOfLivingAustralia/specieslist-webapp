@@ -515,6 +515,7 @@
                                 <div class="section">
                                     <h2>Records</h2>
                                     <p><a href="/biocache-webapp/occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View all occurrence records for this taxon</a></p>
+                                    <p><a href="http://spatial-dev.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}">View all map of records for this taxon</a></p>
                                 </div>
                             </div><!---->
                             <div id="column-two">
