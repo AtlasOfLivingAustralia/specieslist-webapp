@@ -1,0 +1,37 @@
+/* 
+    Document   : speciesPage
+    Created on : Jul 7, 2010, 10:20:47 AM
+    Author     : "Nick dos Remedios <Nick.dosRemedios@csiro.au>"
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+propertyTable {
+    width: 100%;
+    /*border-left: 1px solid #DDD;
+    border-right: 1px solid #DDD !important;*/
+    font-size: 90%;
+}
+table.propertyTable td:first-child  {
+    font-weight: bold;
+    text-align: right;
+}
+table.propertyTable2 td:first-child  {
+    font-weight: bold;
+    text-align: left;
+}
+table.propertyTable th, table.propertyTable td {
+    vertical-align: top;
+}
+table.propertyTable th {
+    border-bottom:4px solid #DDDDDD;
+    font-weight:bold;
+}
+table.propertyTable th, .propertyTable td {
+    padding: 5px;
+}

@@ -25,7 +25,7 @@
                 icons: icons,
                 autoHeight: false
             });
-            //
+            // more/fewer search option links
             $("#refineMore a").click(function(e) {
                 e.preventDefault();
                 $("#accordion").slideDown();
@@ -147,8 +147,10 @@
 
     </script>
     <title>Species Search - ${query}</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8"/>
 </head>
 <body>
+<div id="decoratorBody">
     <c:set var="pageTitle">
         <c:if test="${not empty title}">${title}</c:if>
         <c:if test="${empty title}">Search Results</c:if>
@@ -186,7 +188,7 @@
                         <option value="scientificNameRaw" <c:if test="${param.sort eq 'scientificNameRaw'}">selected</c:if>>scientific name</option>
                         <!--                            <option value="rank">rank</option>-->
                         <option value="commonNameSort" <c:if test="${param.sort eq 'commonNameSort'}">selected</c:if>>common name</option>
-                        <option value="rank" <c:if test="${param.sort eq 'rank'}">selected</c:if>>rank</option>
+                        <option value="rank" <c:if test="${param.sort eq 'rank'}">selected</c:if>>taxon rank</option>
                     </select>
                     sort order
                     <select id="dir" name="dir">
@@ -223,7 +225,7 @@
                         <li><a href="#">Site Pages</a></li>
                         <li class="active">Species</li>
                         <li><a href="${pageContext.request.contextPath}/regions/search?q=${param['q']}">Regions</a></li>
-                        <li><a href="#"><strike>Occurrence Records</strike></a></li>
+                        <li><a href="/biocache-webapp/occurrences/search?q=${param['q']}"><strike>Occurrence Records</strike></a></li>
                         <li><a href="${pageContext.request.contextPath}/institutions/search?q=${param['q']}">Institutions</a></li>
                         <li><a href="${pageContext.request.contextPath}/collections/search?q=${param['q']}">Collections</a></li>
                         <li><a href="${pageContext.request.contextPath}/dataproviders/search?q=${param['q']}">Data Providers</a></li>
@@ -270,5 +272,6 @@
             </div>
         </div>
     </c:if>
+</div>
 </body>
 </html>

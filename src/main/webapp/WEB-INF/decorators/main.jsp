@@ -29,8 +29,6 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
         <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/ui.tabs.js"></script>
         <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/hoverintent-min.js"></script>
         <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/superfish/superfish.js"></script>
-        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-ui-1.8.custom.min.js"></script>
-        <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bie-theme/jquery-ui-1.8.custom.css" charset="utf-8"/>
         <script type="text/javascript">
 
             // initialise plugins
@@ -53,12 +51,12 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
         <meta name="generator" content="WordPress 2.9.2" />
         <link rel='canonical' href='http://test.ala.org.au' />-->
         <decorator:head />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8"/>
+        
         <!-- WP Menubar 4.7: start CSS -->
         <!-- WP Menubar 4.7: end CSS -->
 
     </head>
-    <body id="page-97" class="home page page-id-97 page-parent page-template page-template-default two-column-right">
+    <body id="page-36" class="page page-id-36 page-parent page-template page-template-default two-column-right">
         <div id="wrapper">
             <div id="banner">
                 <div id="logo">
@@ -85,9 +83,7 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
             <div id="wrapper_border"><!--main content area-->
                 <div id="border">
                     <div id="content">
-                        <div id="decoratorBody">
-                            <decorator:body />
-                        </div>
+                        <decorator:body />
                     </div><!--close content-->
                 </div><!--close border-->
             </div><!--close wrapper_border-->

@@ -621,7 +621,7 @@ div#searchTypes ul {
 }
 div#searchTypes ul li {
     padding: 2px 5px;
-    width: 110%;
+    width: 100%;
 }
 div#searchTypes ul li.active {
     font-weight: bold;
