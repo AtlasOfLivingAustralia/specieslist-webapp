@@ -1031,7 +1031,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	private boolean hasPredicate(List<Triple> triples, Predicates predicate) {
 		for(Triple triple: triples){
-			if(triple.predicate.equals(predicate.getPredicate())){
+			if(triple.predicate.toString().equals(predicate.getPredicate())){
 				return true;
 			}
 		}

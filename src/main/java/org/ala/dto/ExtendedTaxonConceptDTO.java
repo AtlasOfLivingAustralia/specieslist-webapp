@@ -47,7 +47,14 @@ public class ExtendedTaxonConceptDTO {
 	protected List<ConservationStatus> conservationStatuses;
     protected List<SimpleProperty> simpleProperties;
 	protected List<Image> images;
+	protected List<Image> distributionImages;
 	protected List<ExtantStatus> extantStatuses;
+	protected List<Habitat> habitats;
+	protected List<RegionTypeDTO> regionTypes;
+	protected List<Reference> references;
+	protected Reference earliestReference;
+	protected List<Reference> publicationReference;
+	
 	/**
 	 * @return the publicationReference
 	 */
@@ -66,11 +73,6 @@ public class ExtendedTaxonConceptDTO {
 	public List<ExtantStatus> getExtantStatuses() {
 		return extantStatuses;
 	}
-	protected List<Habitat> habitats;
-	protected List<RegionTypeDTO> regionTypes;
-	protected List<Reference> references;
-	protected Reference earliestReference;
-	protected List<Reference> publicationReference;
 
 	/**
 	 * @return the earliestReference
@@ -272,5 +274,17 @@ public class ExtendedTaxonConceptDTO {
 	 */
 	public void setIdentifiers(List<String> identifiers) {
 		this.identifiers = identifiers;
+	}
+	/**
+	 * @return the distributionImages
+	 */
+	public List<Image> getDistributionImages() {
+		return distributionImages;
+	}
+	/**
+	 * @param distributionImages the distributionImages to set
+	 */
+	public void setDistributionImages(List<Image> distributionImages) {
+		this.distributionImages = distributionImages;
 	}
 }
