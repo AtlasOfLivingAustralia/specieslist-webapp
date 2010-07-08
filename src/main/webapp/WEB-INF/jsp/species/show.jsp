@@ -21,24 +21,24 @@
              */
             function mycarousel_initCallback(carousel) {
                 jQuery('.jcarousel-control a').bind('click', function() {
-                        carousel.scroll(jQuery.jcarousel.intval(jQuery(this).text()));
-                        carousel.startAuto(0);
-                        return false;
+                    carousel.scroll(jQuery.jcarousel.intval(jQuery(this).text()));
+                    carousel.startAuto(0);
+                    return false;
                 });
                 // Disable autoscrolling if the user clicks the prev or next button.
                 carousel.buttonNext.bind('click', function() {
-                        carousel.startAuto(0);
+                    carousel.startAuto(0);
                 });
 
                 carousel.buttonPrev.bind('click', function() {
-                        carousel.startAuto(0);
+                    carousel.startAuto(0);
                 });
 
                 // Pause autoscrolling if the user moves with the cursor over the clip.
                 carousel.clip.hover(function() {
-                        carousel.stopAuto();
+                    carousel.stopAuto();
                 }, function() {
-                        carousel.startAuto();
+                    carousel.startAuto();
                 });
             };
 
@@ -60,14 +60,14 @@
 
                 $("#view2").hide();
                 $('a.hideShow').click(
-                    function(e) {
-                        e.preventDefault(); //Cancel the link behavior
-                        var num = $(this).text();
-                        var otherNum = (num == 1) ? 2 : 1;
-                        $("#view"+otherNum).slideUp();
-                        $("#view"+num).slideDown();
-                    }
-                );
+                function(e) {
+                    e.preventDefault(); //Cancel the link behavior
+                    var num = $(this).text();
+                    var otherNum = (num == 1) ? 2 : 1;
+                    $("#view"+otherNum).slideUp();
+                    $("#view"+num).slideDown();
+                }
+            );
 
                 // convert lsid link text to TC title via SOLR
                 $("a.lsidLink").each(function() {
@@ -120,33 +120,38 @@
                 $(".showHide").hide();
                 $(".showHideLink").text("+ show more").css("font-size","12px");
                 $(".showHideLink").toggle(function() {
-                        $(".showHide").slideDown();
-                        $(this).text("- show less");
-                    }, function() {
-                        $(".showHide").slideUp();
-                        $(this).text("+ show more");
-                    }
-                 );
+                    $(".showHide").slideDown();
+                    $(this).text("- show less");
+                }, function() {
+                    $(".showHide").slideUp();
+                    $(this).text("+ show more");
+                }
+            );
 
-                 // Dena's tabs implementaation
-                 $('#nav-tabs > ul').tabs();
+                // Dena's tabs implementaation
+                $('#nav-tabs > ul').tabs();
 
-                 // Image gallery setup
-                 $('#photos').galleryView({
-                    panel_width: 650,
-                    panel_height: 400,
-                    frame_width: 100,
-                    frame_height: 100,
-                    border: 'none'
-                    <%--filmstrip_size: 4,
-                    frame_width: 100,
-                    frame_height: 100,
-                    background_color: 'transparent',
-                    nav_theme: 'dark',
-                    border: 'none',
-                    show_captions:true,
-                    caption_text_color: 'black'--%>
-                 });
+                // Display full image when thumbnails are clicked
+                function formatTitle(title, currentArray, currentIndex, currentOpts) {
+                    return '<div id="tip7-title"><span></span>' +
+                        (title && title.length ? '<b>' + title + '</b>' : '' ) + '<br/>Image ' + (currentIndex + 1) + ' of ' + currentArray.length + '</div>';
+                }
+
+                $("a.thumbImage").fancybox({
+                    'hideOnContentClick' : false,
+                    'titlePosition' : 'inside',
+                    'titleFormat' : formatTitle,
+                    'titleShow' : true
+                });
+
+                // images in overview tabbed should take you to Multimedia tab
+                $("#images ul a").click(function(e) {
+                    e.preventDefault(); //Cancel the link behavior
+                    //window.location.replace("#multimedia");
+                    //window.location.href = window.location.href;
+                    //$(".ui-tabs-nav a").attr("href","#multimedia").click();
+                    $('#nav-tabs > ul').tabs( "select" , 1 )
+                });
 
             });  // end document ready function
 
@@ -308,7 +313,7 @@
                                     <ul>
                                         <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
                                             <c:if test="${status.index < 6}">
-                                                <a href="" title=""><img src="http://${pageContext.request.serverName}:80${fn:replace(image.repoLocation, "/data/bie", "/repository")}" width="150" alt="" /></a>
+                                                <li><a href="" title=""><img src="http://${pageContext.request.serverName}:80${fn:replace(image.repoLocation, "/data/bie", "/repository")}" width="150" alt="" /></a></li>
                                             </c:if>
                                         </c:forEach>
                                     </ul>
@@ -356,29 +361,6 @@
                                             </p>
                                         </c:if>
                                     </c:forEach>
-
-<!--                                    <h3>Conservation status</h3>
-                                    <ul class="iucn">
-                                        <li><abbr title="Extinct">ex</abbr></li>
-                                        <li><abbr title="Extinct in the wild">ew</abbr></li>
-                                        <li><abbr title="Critically endangered">cr</abbr></li>
-                                        <li><abbr title="Endangered">en</abbr></li>
-                                        <li><abbr title="Vulnerable">vu</abbr></li>
-                                        <li><abbr title="Near threatened">nt</abbr></li>
-                                        <li class="green"><abbr title="Least concern">lc</abbr></li>
-                                    </ul>
-                                    <p>Least concern <cite>source: <a href="">Wikipedia</a></cite></p>
-                                    <img src="images/map-bg_status.png" width="" height="" alt=""
-                                    <div id="statusMap"></div>
-                                    <p>NSW: Endangered<cite>Source: <a href="">Department of Environment and Conservation - NSW threatened species</a></p>
-                                    <h3>Pest status</h3>
-                                    <p>Native <cite>source: <a href="">Australian Insect Common Names</a></cite></p>
-
-                                    <h3>Extant status</h3>
-                                    <p>Known extant <cite>source: <a href="">IRMNG</a></cite></p>
-
-                                    <h3>Habitat status</h3>
-                                    <p>Known non-marine only (includes freshwater, terrestrial etc.) <cite>source: <a href="">IRMNG</a></cite></p>-->
                                 </div><!--close news-->
                                 <div class="section tools">
                                     <h3><a href="">Experts</a></h3>
@@ -405,7 +387,15 @@
                                 <div class="section">
                                     <h2>Multimedia</h2>
                                     <h3>Images</h3>
-                                    <div id="photos" class="galleryview">
+                                    <div id="imageGallery">
+                                        <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
+                                            <c:set var="thumbUri">http://${pageContext.request.serverName}:80${fn:replace(fn:replace(image.repoLocation, "/data/bie", "/repository"),"raw","thumbnail")}</c:set>
+                                            <c:set var="imageTitle">${image.infoSourceName} | ${image.infoSourceURL} </c:set>
+                                            <a class="thumbImage" rel="thumbs" href="http://${pageContext.request.serverName}:80${fn:replace(image.repoLocation, "/data/bie", "/repository")}"><img src="${thumbUri}" alt="${image.infoSourceName}" title="${imageTitle}" width="100px" height="100px"/></a>
+                                        </c:forEach>
+                                    </div>
+                                    
+                                    <div id="photos" class="galleryview" style="display:none;">
                                         <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
                                             <div class="panel" style="text-align: center;">
                                                 <a href="${image.identifier}" title="View original image" target="_blank">
@@ -485,7 +475,7 @@
                             </div><!--close -->
                         </div><!--close identification-->
                         <div id="names">
-                            <div id="column-one">
+                            <div id="column-one" class="full-width">
                                 <div class="section">
                                     <h2>Names</h2>
                                     <div id="names">
@@ -518,19 +508,7 @@
                                     </div>
                                 </div>
                             </div><!---->
-                            <div id="column-two">
-                                <div class="section tools">
-                                    <h3 class="contribute">Contribute</h3>
-                                    <ul>
-                                        <li><a href="">Images</a></li>
-                                        <li><a href="">Data</a></li>
-                                        <li><a href="">Links</a></li>
-                                    </ul>
-                                </div><!--close tools-->
-                                <div class="section">
-                                    <h2>Right col</h2>
-                                </div><!--close-->
-                            </div><!--close -->
+                            
                         </div><!--close names-->
                         <div id="records">
                             <div id="column-one">
@@ -597,7 +575,7 @@
                             </div><!--close -->
                         </div><!--close molecular-->
                         <div id="references">
-                            <div id="column-one">
+                            <div id="column-one" class="full-width">
                                 <div class="section">
                                     <h2>References</h2>
                                     <div id="literature">
@@ -772,19 +750,6 @@
                                     </ul>-->
                                 </div>
                             </div><!---->
-                            <div id="column-two">
-                                <div class="section tools">
-                                    <h3 class="contribute">Contribute</h3>
-                                    <ul>
-                                        <li><a href="">Images</a></li>
-                                        <li><a href="">Data</a></li>
-                                        <li><a href="">Links</a></li>
-                                    </ul>
-                                </div><!--close tools-->
-                                <div class="section">
-                                    <h2>Right col</h2>
-                                </div><!--close-->
-                            </div><!--close -->
                         </div><!--close references-->
     </body>
 </html>
