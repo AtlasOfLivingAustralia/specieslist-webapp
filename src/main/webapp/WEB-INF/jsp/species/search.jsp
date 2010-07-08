@@ -10,31 +10,33 @@
     <meta name="pageName" content="species"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Species Search</title>
-
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8"/>
 </head>
 <body>
-    <div id="searchBox">
-        <h2>Search for Species and Taxa</h2>
-        <p>
-        <p id="exampleSeaches">Examples searches:<br/><a href='${pageContext.request.contextPath}/species/search?q=Pogona+barbata'>Pogona barbata</a> (Eastern Bearded Dragon)<br/>
-            <a href='${pageContext.request.contextPath}/species/search?q=Hypertropha+chlaenota'>Hypertropha chlaenota</a> (Moth - GELECHIOIDEA family)<br/>
-            <a href='${pageContext.request.contextPath}/species/search?q=Synemon+plana'>Synemon plana</a> (Golden Sun Moth)<br/>
-            <a href='${pageContext.request.contextPath}/species/search?q=Pygoscelis+adeliae'>Pygoscelis adeliae</a> (Adelie Penguin)<br/>
-            <a href='${pageContext.request.contextPath}/species/search?q=Argyropelecus+gigas'>Argyropelecus gigas</a> (Giant Hatchetfish)<br/>
-            <a href='${pageContext.request.contextPath}/species/search?q=Podargus+strigoides'>Podargus strigoides</a> (Tawny Frogmouth)<br/>
-            <a href='${pageContext.request.contextPath}/species/search?q=Glossopsitta+concinna'>Glossopsitta concinna</a> (Musk Lorikeet)<br/>
-            <a href='${pageContext.request.contextPath}/species/search?q=Hippotion+scrofa'>Hippotion scrofa</a> (Scrofa Hawk Moth)<br/>
-            <%--<a href='${pageContext.request.contextPath}/species/search?q=Asplenium+australasicum'>Asplenium australasicum</a><br/>--%>
-            <a href='${pageContext.request.contextPath}/species/search?q=Malacorhynchus+membranaceus'>Malacorhynchus membranaceus</a> (Pink-eared Duck)<br/>
-        </p>
-    </div>
-    <div id="listsBox">
-        <h2>Lists</h2>
-        <ul>
-            <li><a href="${pageContext.request.contextPath}/species/datasets">Datasets</a></li>
-            <li><a href="${pageContext.request.contextPath}/species/status/conservationStatus">Conservation Status</a></li>
-            <li><a href="${pageContext.request.contextPath}/species/status/pestStatus">Pest Status</a></li>
-        </ul>
+    <div id="decoratorBody">
+        <div id="searchBox">
+            <h2>Search for Species and Taxas</h2>
+            <p>
+            <p id="exampleSeaches">Examples searches:<br/><a href='${pageContext.request.contextPath}/species/search?q=Pogona+barbata'>Pogona barbata</a> (Eastern Bearded Dragon)<br/>
+                <a href='${pageContext.request.contextPath}/species/search?q=Hypertropha+chlaenota'>Hypertropha chlaenota</a> (Moth - GELECHIOIDEA family)<br/>
+                <a href='${pageContext.request.contextPath}/species/search?q=Synemon+plana'>Synemon plana</a> (Golden Sun Moth)<br/>
+                <a href='${pageContext.request.contextPath}/species/search?q=Pygoscelis+adeliae'>Pygoscelis adeliae</a> (Adelie Penguin)<br/>
+                <a href='${pageContext.request.contextPath}/species/search?q=Argyropelecus+gigas'>Argyropelecus gigas</a> (Giant Hatchetfish)<br/>
+                <a href='${pageContext.request.contextPath}/species/search?q=Podargus+strigoides'>Podargus strigoides</a> (Tawny Frogmouth)<br/>
+                <a href='${pageContext.request.contextPath}/species/search?q=Glossopsitta+concinna'>Glossopsitta concinna</a> (Musk Lorikeet)<br/>
+                <a href='${pageContext.request.contextPath}/species/search?q=Hippotion+scrofa'>Hippotion scrofa</a> (Scrofa Hawk Moth)<br/>
+                <%--<a href='${pageContext.request.contextPath}/species/search?q=Asplenium+australasicum'>Asplenium australasicum</a><br/>--%>
+                <a href='${pageContext.request.contextPath}/species/search?q=Malacorhynchus+membranaceus'>Malacorhynchus membranaceus</a> (Pink-eared Duck)<br/>
+            </p>
+        </div>
+        <div id="listsBox">
+            <h2>Lists</h2>
+            <ul>
+                <li><a href="${pageContext.request.contextPath}/species/datasets">Datasets</a></li>
+                <li><a href="${pageContext.request.contextPath}/species/status/conservationStatus">Conservation Status</a></li>
+                <li><a href="${pageContext.request.contextPath}/species/status/pestStatus">Pest Status</a></li>
+            </ul>
+        </div>
     </div>
 </body>
 </html>

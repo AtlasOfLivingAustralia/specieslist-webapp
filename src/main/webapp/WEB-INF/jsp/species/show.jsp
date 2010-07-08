@@ -133,7 +133,7 @@
 
                  // Image gallery setup
                  $('#photos').galleryView({
-                    panel_width: 656,
+                    panel_width: 650,
                     panel_height: 400,
                     frame_width: 100,
                     frame_height: 100,
@@ -293,21 +293,6 @@
                                             <cite>source: <a href="${textProperty.identifier}" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></cite>
                                         </p>
                                     </c:forEach>
-
-<!--                                    <h2>Overview</h2>
-                                    <p>Every one knows the common ladybirds of gardens and childhood stories. Yet they are but a very few of the wide diversity of species assigned to the beetle family, Coccinellidae. The family name Coccinellidae probably derives from the diminutive of the Latinized Greek word 'Kokkos', a seed or berry in reference to their rounded and convex shape of the beetles. However, other authorities give the LatinCoccinus&mdash;scarlet colour, as the root of the name. Some of the commonly seen ladybirds are brightly coloured and patterned, readily attracting the attention of home gardeners and small children. Most species are predatory, particularly on insects that are often pests of agriculture.</p>
-                                    <p>Coccinellidae is the biggest family of superfamily Cucujoidea with about 6000 species classified in 370 genera worldwide. There are 57 genera and about 500 species in Australia with about half of them yet undescribed. <cite>source: <a href="http://www.ento.csiro.au/biology/ladybirds/ladybirds.htm">Ladybirds of Australia</a></cite></p>
-                                    <p>In his 2007 review of Australian ladybird beetles, their biology and classification, Slipinski (2007) revises genera occurring in Australia, provides keys to genera for adults and larvae, and describes new genera and species. This work, together with that of Slipinski & Dolambi (2007), brings to 57 the number of genera currently listed for Australia, and 306 valid species. <cite>source: <a href="http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/COCCINELLIDAE">Australian Faunal Directory</a></cite></p>
-                                    <p>Adults and larvae of most species of ladybirds are predacious on aphids, mealybugs, scales or other small insects and mites. The Epilachninae, however, are phytophagous, <i>Epilachna</i> damaging the foliage of Solanaceae and Cucurbitaceae, including vegetable crops like pumpkin, cucumber, tomato and potato; while the Psylloborini (Coccinellinae) feed on powdery mildews (Ascomycetes: Erysiphales). Among the carnivorous species, several have been used with notable success as agents of biological control. <i>Rodolia cardinalis</i>, for instance, saved the California citrus industry from destruction by the cottony cushion scale (<i>Icerya purchasi</i>), while other Australian species, such as <i>Cryptolaemus montrouzieri</i>, <i>Rhyzobius ventralis</i> and <i>R. forestieri</i>, were employed in Hawaii and California for the control of a number of scale insects (HEMI: Coccoidea). Species of <i>Stethorus</i> are predators of the two-spotted mite (<i>Tetranychus urticae</i>) (Britton and Lee 1972).</p>
-                                    <p>Some adult coccinellids, when alarmed, feign death and discharge drops of yellow haemolymph, which is toxic to vertebrates, from the tibio-femoral articulations. There are 6 subfamilies: Sticholotidinae, Scymninae, Chilocorinae, Coccidulinae, Coccinellinae and Epilachninae. Among the larger and more commonly encountered Australian coccinellines are <i>Coelophora inaequalis</i>, <i>Coccinella transversalis</i> and <i>Harmonia conformis</i>. [Gordon 1985; Hagen 1962; Hodek 1973; Pope 1979, 1981, 1989; Richards 1981, 1983; Sasaji 1968, 1971.]<cite>source: <a href="http://anic.ento.csiro.au/insectfamilies/biota_details.aspx?OrderID=25407&BiotaID=26494&PageID=families">Australian Insect Families</a></cite></p>
-                                    <h3>Description</h3>
-                                    <p>Broadly ovate, moderately to strongly convex beetles with pseudotrimerous tarsi (segment 3 reduced, 2 strongly lobed beneath it). Antennae short, weakly clubbed; apical maxillary palp segment almost always large and securiform; femoral lines on first ventrite and sometimes metasternum. Many larger species glabrous and brightly patterned with red or yellow and black or blue; most smaller species more uniformly coloured and finely pubescent.</p>
-                                    <p>Larvae elongate, oblong or occasionally broadly ovate and slightly to strongly flattened, usually with transverse row of 6 tubercles or prominences on most abdominal segments and often covered with waxy exudate; some forms are spinose above and may be aposematically coloured like many adults. Antennae very short; mandibles often with sub-basal lobe which probably represents a reduced mola; mala obtuse and usually with stylus  (specialised, setiferous process); there are paired glandular openings on the thorax and abdomen; tibia usually withs 2 to several expanded setae extending beneath tarsungulus. Pupa obtect and partly enclosed within larval skin, which is attached to substrate by anal end.<cite>source: <a href="http://anic.ento.csiro.au/insectfamilies/biota_details.aspx?OrderID=25407&BiotaID=26494&PageID=families">Australian Insect Families</a></cite></p>
-                                    <h3>Identification Keys</h3>
-                                    <ul>
-                                        <li><a href="http://anic.ento.csiro.au/insectfamilies/key_Coleoptera.aspx?OrderID=25407&PageID=identify">Key to distinguish Coccinellidae from other groups in Coleoptera</a></li>
-                                        <li><a href="http://www.ento.csiro.au/biology/ladybirds/lucid/lucidKey.html">Key to identify genera of Australian Coccinellidae</a></li>
-                                    </ul>-->
                                 </div>
                             </div><!---->
                             <div id="column-two">
@@ -323,19 +308,56 @@
                                     <ul>
                                         <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
                                             <c:if test="${status.index < 6}">
-                                                <a href="" title=""><img src="http://${pageContext.request.serverName}:80${fn:replace(image.repoLocation, "/data/bie", "/repository")}" width="154" alt="" /></a>
+                                                <a href="" title=""><img src="http://${pageContext.request.serverName}:80${fn:replace(image.repoLocation, "/data/bie", "/repository")}" width="150" alt="" /></a>
                                             </c:if>
                                         </c:forEach>
-
-<!--                                        <li><a href="" title=""><img src="images/taxon/image_01.jpg" width="154" height="120" alt="" /></a></li>
-                                        <li><a href="" title=""><img src="images/taxon/image_02.jpg" width="154" height="120" alt="" /></a></li>
-                                        <li><a href="" title=""><img src="images/taxon/image_03.jpg" width="154" height="120" alt="" /></a></li>
-                                        <li><a href="" title=""><img src="images/taxon/image_04.jpg" width="154" height="120" alt="" /></a></li>
-                                        <li><a href="" title=""><img src="images/taxon/image_05.jpg" width="154" height="120" alt="" /></a></li>-->
                                     </ul>
                                 </div>
                                 <div class="section">
-                                    <h3>Conservation status</h3>
+                                    <c:if test="${not empty extendedTaxonConcept.conservationStatuses}"><h3>Conservation Status</h3></c:if>
+                                    <c:forEach var="status" items="${extendedTaxonConcept.conservationStatuses}">
+                                        <c:if test="${fn:containsIgnoreCase(status.status,'extinct') || fn:containsIgnoreCase(status.status,'endangered') || fn:containsIgnoreCase(status.status,'vulnerable') || fn:containsIgnoreCase(status.status,'threatened') || fn:containsIgnoreCase(status.status,'concern') || fn:containsIgnoreCase(status.status,'deficient')}">
+                                            <ul class="iucn">
+                                                <li <c:if test="${fn:endsWith(status.status,'Extinct')}">class="green"</c:if>><abbr title="Extinct">ex</abbr></li>
+                                                <li <c:if test="${fn:containsIgnoreCase(status.status,'wild')}">class="green"</c:if>><abbr title="Extinct in the wild">ew</abbr></li>
+                                                <li <c:if test="${fn:containsIgnoreCase(status.status,'Critically')}">class="green"</c:if>><abbr title="Critically endangered">cr</abbr></li>
+                                                <li <c:if test="${fn:startsWith(status.status,'Endangered')}">class="green"</c:if>><abbr title="Endangered">en</abbr></li>
+                                                <li <c:if test="${fn:containsIgnoreCase(status.status,'Vulnerable')}">class="green"</c:if>><abbr title="Vulnerable">vu</abbr></li>
+                                                <li <c:if test="${fn:containsIgnoreCase(status.status,'Near')}">class="green"</c:if>><abbr title="Near threatened">nt</abbr></li>
+                                                <li <c:if test="${fn:containsIgnoreCase(status.status,'concern')}">class="green"</c:if>><abbr title="Least concern">lc</abbr></li>
+                                            </ul>
+                                        </c:if>
+                                        <p>${status.status}<cite>source: <a href="${status.identifier}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite></p>
+                                    </c:forEach>
+                                    <c:if test="${not empty extendedTaxonConcept.pestStatuses}"><h3>Pest Status</h3></c:if>
+                                    <c:forEach var="status" items="${extendedTaxonConcept.pestStatuses}">
+                                        <p>${status.status}
+                                            <cite>source: <a href="${status.identifier}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
+                                        </p>
+                                    </c:forEach>
+                                    <c:if test="${not empty extendedTaxonConcept.extantStatusus}"><h3>Extant Status</h3></c:if>
+                                    <c:forEach var="status" items="${extendedTaxonConcept.extantStatusus}">
+                                        <p><fmt:message key="status.${status.status}"/>
+                                            <cite>source: <a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
+                                        </p>
+                                    </c:forEach>
+                                    <c:if test="${not empty extendedTaxonConcept.habitats}"><h3>Habitat Status</h3></c:if>
+                                    <c:forEach var="status" items="${extendedTaxonConcept.habitats}">
+                                        <p><fmt:message key="habitat.${status.status}"/>
+                                            <cite>source: <a href="${status.identifier}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
+                                        </p>
+                                    </c:forEach>
+                                    <c:set var="headingAdded" value="${false}"/>
+                                    <c:forEach var="property" items="${extendedTaxonConcept.simpleProperties}">
+                                        <c:if test="${fn:endsWith(property.name, 'hasDistributionMapImageUrl')}">
+                                            <c:if test="${headingAdded == false}"><h3>Distribution Map</h3><c:set var="headingAdded" value="${true}"/></c:if>
+                                            <p><img src="${property.value}" alt="" width="300"/><br/>
+                                                <cite>source: <a href="${property.identifier}" target="_blank" title="${property.infoSourceName}">${property.infoSourceName}</a></cite>
+                                            </p>
+                                        </c:if>
+                                    </c:forEach>
+
+<!--                                    <h3>Conservation status</h3>
                                     <ul class="iucn">
                                         <li><abbr title="Extinct">ex</abbr></li>
                                         <li><abbr title="Extinct in the wild">ew</abbr></li>
@@ -356,7 +378,7 @@
                                     <p>Known extant <cite>source: <a href="">IRMNG</a></cite></p>
 
                                     <h3>Habitat status</h3>
-                                    <p>Known non-marine only (includes freshwater, terrestrial etc.) <cite>source: <a href="">IRMNG</a></cite></p>
+                                    <p>Known non-marine only (includes freshwater, terrestrial etc.) <cite>source: <a href="">IRMNG</a></cite></p>-->
                                 </div><!--close news-->
                                 <div class="section tools">
                                     <h3><a href="">Experts</a></h3>

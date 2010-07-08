@@ -392,7 +392,7 @@ public class SpeciesController {
 		List<SimpleProperty> textProperties = new ArrayList<SimpleProperty>();
 
 		for (SimpleProperty sp : simpleProperties) {
-			if (sp.getName().endsWith("Text")) {
+			if (sp.getName().endsWith("Text") || sp.getName().endsWith("hasPopulateEstimate")) {
 				textProperties.add(sp);
 			}
 		}
