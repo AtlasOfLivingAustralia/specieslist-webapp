@@ -437,15 +437,17 @@ public class ChecklistBankLoader {
 					if(StringUtils.isNotEmpty(tc.getParentId())){
 						TaxonConcept parentConcept = getById(tc.getParentId());
 						if(parentConcept!=null){
-							taxonConceptDao.addParentTaxon(tc.getGuid(), parentConcept);
+							boolean success = taxonConceptDao.addParentTaxon(guid, parentConcept);
+							if(!success) logger.error("Failed to add parent concept to "+guid+", line number: "+lineNumber);
 						}
 					}
 					
 					//load the child concepts
-					List<TaxonConcept> childConcepts = getChildConcepts(tc.getGuid());
+					List<TaxonConcept> childConcepts = getChildConcepts(guid);
 					if(!childConcepts.isEmpty()){
 						for(TaxonConcept childConcept: childConcepts){
-							taxonConceptDao.addChildTaxon(tc.getGuid(), childConcept);
+							boolean success = taxonConceptDao.addChildTaxon(guid, childConcept);
+							if(!success) logger.error("Failed to add child concept to "+guid+", line number: "+lineNumber);
 						}
 					}
 					
@@ -474,7 +476,8 @@ public class ChecklistBankLoader {
 	                } catch (Exception e) {
 	                    logger.warn("Could not set rankId for: "+taxonRank+" in "+guid);
 	                }
-					taxonConceptDao.addClassification(guid, c);
+	                boolean success = taxonConceptDao.addClassification(guid, c);
+					if(!success) logger.error("Failed to add classification to "+guid+", line number: "+lineNumber);
 				}
 				lineNumber++;
     		} catch (Exception e){
