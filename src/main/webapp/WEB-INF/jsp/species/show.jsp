@@ -477,7 +477,7 @@
                                         </p>
                                     </c:forEach>
                                     <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
-                                        <p><b>Common Name:</b><alatag:formatSciName name="${commonName.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/> ${synonym.author}
+                                        <p><b>Common Name:</b> ${commonName.nameString}
                                             <c:choose>
                                                 <c:when test="${empty commonName.infoSourceURL}"><cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite></c:when>
                                                 <c:otherwise><cite>Source: <a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>
