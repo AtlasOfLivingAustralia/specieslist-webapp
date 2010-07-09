@@ -48,18 +48,20 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Main controller for the BIE site
  *
- * TODO: If this class gets too big or complex then split into mulitple Controllers.
+ * TODO: If this class gets too big or complex then split into multiple Controllers.
  *
  * @author "Nick dos Remedios <Nick.dosRemedios@csiro.au>"
  */
@@ -91,6 +93,8 @@ public class SpeciesController {
 //	private final String SPECIES_LIST = "species/list";
 	/** Name of view for a single taxon */
 	private final String SPECIES_SHOW = "species/show";
+    /** Name of view for a taxon error page */
+	private final String SPECIES_ERROR = "species/error";
 	/** Name of view for list of pest/conservation status */
 	private final String STATUS_LIST = "species/statusList";
 	/** Name of view for list of datasets */
@@ -135,10 +139,19 @@ public class SpeciesController {
 	 * @throws Exception
 	 */ 
 	@RequestMapping(value = "/species/{guid}", method = RequestMethod.GET)
-	public String showSpecies(@PathVariable("guid") String guid, Model model) throws Exception {
-		logger.debug("Retrieving concept with guid: "+guid+".");
-		ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
-		model.addAttribute("extendedTaxonConcept", etc);
+	public String showSpecies(
+            @PathVariable("guid") String guid,
+            @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
+            Model model) throws Exception {
+		
+        ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
+
+        if (etc.getTaxonConcept() == null || etc.getTaxonConcept().getGuid() == null) {
+            model.addAttribute("errorMessage", "The requested taxon was not found: "+conceptName+" ("+ guid+")");
+            return SPECIES_ERROR;
+        }
+
+        model.addAttribute("extendedTaxonConcept", etc);
 		model.addAttribute("commonNames", getCommonNamesString(etc));
 		model.addAttribute("textProperties", filterSimpleProperties(etc));
 		return SPECIES_SHOW;

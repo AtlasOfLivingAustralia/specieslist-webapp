@@ -9,10 +9,14 @@
         <meta name="pageName" content="species" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>ALA Biodiversity Information Explorer: Error</title>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8"/>
     </head>
     <body>
         <div id="decoratorBody">
-            <h2>Error - ${errorMessage}</h2>
+            <div id="decoratorBody">
+                <h2>Error</h2>
+                <p>${errorMessage}</p>
+            </div>
         </div>
     </body>
 </html>

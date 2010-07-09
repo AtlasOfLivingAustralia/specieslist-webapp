@@ -1,8 +1,5 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ include file="/common/taglibs.jsp" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
     <head>
@@ -42,7 +39,6 @@
                 });
             };
 
-            //var scientificNameId, scientificName;
             var solrServer = "${solrServerUrl}"; //
 
             /*
@@ -275,7 +271,7 @@
                             <div id="nav-tabs">
                                 <ul>
                                     <li><a href="#overview">Overview</a></li>
-                                    <li><a href="#multimedia">Multimedia</a></li>
+                                    <li><a href="#gallery">Gallery</a></li>
                                     <li><a href="#identification">Identification</a></li>
                                     <li><a href="#names">Names</a></li>
                                     <li><a href="#records">Records</a></li>
@@ -352,15 +348,11 @@
                                             <cite>source: <a href="${status.identifier}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
                                         </p>
                                     </c:forEach>
-                                    <c:set var="headingAdded" value="${false}"/>
-                                    <c:forEach var="property" items="${extendedTaxonConcept.simpleProperties}">
-                                        <c:if test="${fn:endsWith(property.name, 'hasDistributionMapImageUrl')}">
-                                            <c:if test="${headingAdded == false}"><h3>Distribution Map</h3><c:set var="headingAdded" value="${true}"/></c:if>
-                                            <p><img src="${property.value}" alt="" width="300"/><br/>
-                                                <cite>source: <a href="${property.identifier}" target="_blank" title="${property.infoSourceName}">${property.infoSourceName}</a></cite>
-                                            </p>
-                                        </c:if>
-                                    </c:forEach>
+                                    <h3>Distribution Map</h3>
+                                    <p>
+                                        <a href="http://spatial-dev.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool"><img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" alt="" width="300"/></a>
+                                        <a href="http://spatial-dev.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
+                                    </p>
                                 </div><!--close news-->
                                 <div class="section tools">
                                     <h3><a href="">Experts</a></h3>
@@ -382,10 +374,10 @@
                                 </div><!--close tools-->
                             </div><!--close -->
                         </div><!--close overview-->
-                        <div id="multimedia">
+                        <div id="gallery">
                             <div id="column-one">
                                 <div class="section">
-                                    <h2>Multimedia</h2>
+                                    <h2>Gallery</h2>
                                     <h3>Images</h3>
                                     <div id="imageGallery">
                                         <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
@@ -475,10 +467,24 @@
                             </div><!--close -->
                         </div><!--close identification-->
                         <div id="names">
-                            <div id="column-one" class="full-width">
+                            <div id="column-one">
                                 <div class="section">
                                     <h2>Names</h2>
-                                    <div id="names">
+                                    <p><b>Accepted Name:</b> <alatag:formatSciName name="${extendedTaxonConcept.taxonConcept.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/>${extendedTaxonConcept.taxonConcept.author}
+                                        <cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
+                                        <c:if test="${not empty extendedTaxonConcept.taxonName.publishedIn}"><cite>Published in: <a href="#">${extendedTaxonConcept.taxonName.publishedIn}</a></cite></c:if>
+                                    </p>
+                                    <c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym">
+                                        <p><b>Synonym:</b><alatag:formatSciName name="${synonym.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/> ${synonym.author}
+                                            <c:choose>
+                                                <c:when test="${empty synonym.infoSourceURL}"><cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite></c:when>
+                                                <c:otherwise><cite>Source: <a href="${synonym.infoSourceURL}" target="blank">${synonym.infoSourceName}</a></cite></c:otherwise>
+                                            </c:choose>
+                                            <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <a href="#">${synonym.publishedIn}</a></cite></c:if>
+                                        </p>
+                                    </c:forEach>
+                                    
+                                    <div id="names" style="display:none;">
                                         <table class="propertyTable">
                                             <tr>
                                                 <th width="">Type</th>
@@ -508,7 +514,19 @@
                                     </div>
                                 </div>
                             </div><!---->
-                            
+                            <div id="column-two">
+                                <div class="section tools">
+                                    <h3 class="contribute">Contribute</h3>
+                                    <ul>
+                                        <li><a href="">Images</a></li>
+                                        <li><a href="">Data</a></li>
+                                        <li><a href="">Links</a></li>
+                                    </ul>
+                                </div><!--close tools-->
+                                <div class="section">
+                                    <h2>Right col</h2>
+                                </div><!--close-->
+                            </div><!--close -->
                         </div><!--close names-->
                         <div id="records">
                             <div id="column-one">
@@ -528,7 +546,11 @@
                                     </ul>
                                 </div><!--close tools-->
                                 <div class="section">
-                                    <h2>Right col</h2>
+                                    <h3>Distribution Map</h3>
+                                    <p>
+                                        <a href="http://spatial-dev.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool"><img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" alt="" width="300"/></a>
+                                        <a href="http://spatial-dev.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
+                                    </p>
                                 </div><!--close-->
                             </div><!--close -->
                         </div><!--close records-->
