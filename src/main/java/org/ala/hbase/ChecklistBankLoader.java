@@ -442,7 +442,7 @@ public class ChecklistBankLoader {
 					}
 					
 					//load the child concepts
-					List<TaxonConcept> childConcepts = getChildConcepts(Integer.toString(tc.getId()));
+					List<TaxonConcept> childConcepts = getChildConcepts(tc.getGuid());
 					if(!childConcepts.isEmpty()){
 						for(TaxonConcept childConcept: childConcepts){
 							taxonConceptDao.addChildTaxon(tc.getGuid(), childConcept);
