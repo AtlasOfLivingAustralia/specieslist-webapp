@@ -717,6 +717,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         solrQuery.setFacet(true);
         solrQuery.addFacetField("idxtype");
         solrQuery.addFacetField("rank");
+        solrQuery.addFacetField("kingdom");
         //solrQuery.addFacetField("rankId");
         solrQuery.addFacetField("pestStatus");
         solrQuery.addFacetField("conservationStatus");
