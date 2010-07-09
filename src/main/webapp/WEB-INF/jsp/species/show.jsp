@@ -146,12 +146,13 @@
                         var titleBits = this.title.split("|");
                         return "<a href='"+titleBits[1]+"'>"+titleBits[0]+"</a>"; },
                     opacity: 0.5,
+                    maxWidth: "80%",
                     onComplete: function() {
                         $("#cboxTitle").html("");
                         //link = $.fn.colorbox.element();
                         //title = $(link).attr("title");
                         var titleBits = this.title.split("|");
-                        var titleText = "<cite>Source: <a href='"+titleBits[1]+"'>"+titleBits[0]+"</a></cite>";
+                        var titleText = "<cite>Source: <a href='"+titleBits[1]+"' target='_blank'>"+titleBits[0]+"</a></cite>";
                         $("<div>"+titleText+"</div>").insertAfter("#cboxPhoto");
                         $.fn.colorbox.resize(); }
                 });
@@ -471,6 +472,15 @@
                                             <c:choose>
                                                 <c:when test="${empty synonym.infoSourceURL}"><cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite></c:when>
                                                 <c:otherwise><cite>Source: <a href="${synonym.infoSourceURL}" target="blank">${synonym.infoSourceName}</a></cite></c:otherwise>
+                                            </c:choose>
+                                            <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <a href="#">${synonym.publishedIn}</a></cite></c:if>
+                                        </p>
+                                    </c:forEach>
+                                    <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
+                                        <p><b>Common Name:</b><alatag:formatSciName name="${commonName.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/> ${synonym.author}
+                                            <c:choose>
+                                                <c:when test="${empty commonName.infoSourceURL}"><cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite></c:when>
+                                                <c:otherwise><cite>Source: <a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>
                                             </c:choose>
                                             <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <a href="#">${synonym.publishedIn}</a></cite></c:if>
                                         </p>
