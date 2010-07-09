@@ -7,6 +7,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-ui-1.8.custom.min.js"></script>
     <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bie-theme/jquery-ui-1.8.custom.css" charset="utf-8">
+    <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.cookie.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             var facetLinksSize = $("ul#subnavlist li").size();
@@ -23,21 +24,29 @@
             };
             $("#accordion").accordion({
                 icons: icons,
+                collapsible: true,
                 autoHeight: false
             });
             // more/fewer search option links
             $("#refineMore a").click(function(e) {
                 e.preventDefault();
-                $("#accordion").slideDown();
-                $("#refineLess").show('slow');
-                $("#refineMore").hide('slow');
+                $("#accordion").show();
+                $("#refineLess").show();
+                $("#refineMore").hide();
+                $.cookie("bie-refine", "show");
             });
             $("#refineLess a").click(function(e) {
                 e.preventDefault();
-                $("#accordion").slideUp();
-                $("#refineLess").hide('slow');
-                $("#refineMore").show('slow');
+                $("#accordion").hide();
+                $("#refineLess").hide();
+                $("#refineMore").show();
+                $.cookie("bie-refine", "hide");
             });
+            // use cookie to remeber state of the facet links
+            var refineState = $.cookie("bie-refine");
+            if (refineState == "show") {
+                $("#refineMore a").click();
+            }
             // listeners for sort widgets
             $("select#sort").change(function() {
                 var val = $("option:selected", this).val();

@@ -9,6 +9,7 @@
         <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/jquery.jcarousel.min.js"></script>
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.1.css" media="screen" />
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.1.pack.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.colorbox.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.easing.1.3.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-galleryview-1.1/jquery.galleryview-1.1.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-galleryview-1.1/jquery.timers-1.1.2.js"></script>
@@ -53,7 +54,7 @@
                     'width' : 600,
                     'height' : 180
                 });
-
+                
                 $("#view2").hide();
                 $('a.hideShow').click(
                 function(e) {
@@ -133,11 +134,26 @@
                         (title && title.length ? '<b>' + title + '</b>' : '' ) + '<br/>Image ' + (currentIndex + 1) + ' of ' + currentArray.length + '</div>';
                 }
 
-                $("a.thumbImage").fancybox({
+                $("a.thumbImageOFF").fancybox({
                     'hideOnContentClick' : false,
                     'titlePosition' : 'inside',
                     'titleFormat' : formatTitle,
                     'titleShow' : true
+                });
+                
+                $("a.thumbImage").colorbox({
+                    title: function() {
+                        var titleBits = this.title.split("|");
+                        return "<a href='"+titleBits[1]+"'>"+titleBits[0]+"</a>"; },
+                    opacity: 0.5,
+                    onComplete: function() {
+                        $("#cboxTitle").html("");
+                        //link = $.fn.colorbox.element();
+                        //title = $(link).attr("title");
+                        var titleBits = this.title.split("|");
+                        var titleText = "<cite>Source: <a href='"+titleBits[1]+"'>"+titleBits[0]+"</a></cite>";
+                        $("<div>"+titleText+"</div>").insertAfter("#cboxPhoto");
+                        $.fn.colorbox.resize(); }
                 });
 
                 // images in overview tabbed should take you to Multimedia tab
@@ -161,6 +177,7 @@
             }
 
         </script>
+        <link type="text/css" media="screen" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/colorbox.css" />
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/css/speciesPage.css" media="screen" />
     </head>
     <body id="page-36" class="page page-id-36 page-parent page-template page-template-default two-column-right">
@@ -350,7 +367,8 @@
                                     </c:forEach>
                                     <h3>Distribution Map</h3>
                                     <p>
-                                        <a href="http://spatial-dev.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool"><img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" alt="" width="300"/></a>
+                                        <a href="http://spatial-dev.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">
+                                            <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" alt="" width="300" style="margin-bottom:-30px;"/></a>
                                         <a href="http://spatial-dev.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
                                     </p>
                                 </div><!--close news-->
@@ -383,34 +401,8 @@
                                         <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
                                             <c:set var="thumbUri">http://${pageContext.request.serverName}:80${fn:replace(fn:replace(image.repoLocation, "/data/bie", "/repository"),"raw","thumbnail")}</c:set>
                                             <c:set var="imageTitle">${image.infoSourceName} | ${image.infoSourceURL} </c:set>
-                                            <a class="thumbImage" rel="thumbs" href="http://${pageContext.request.serverName}:80${fn:replace(image.repoLocation, "/data/bie", "/repository")}"><img src="${thumbUri}" alt="${image.infoSourceName}" title="${imageTitle}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/></a>
+                                            <a class="thumbImage" rel="thumbs" title="${imageTitle}" href="http://${pageContext.request.serverName}:80${fn:replace(image.repoLocation, "/data/bie", "/repository")}"><img src="${thumbUri}" alt="${image.infoSourceName}" title="${imageTitle}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/></a>
                                         </c:forEach>
-                                    </div>
-                                    
-                                    <div id="photos" class="galleryview" style="display:none;">
-                                        <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
-                                            <div class="panel" style="text-align: center;">
-                                                <a href="${image.identifier}" title="View original image" target="_blank">
-                                                    <img src="http://${pageContext.request.serverName}:80${fn:replace(image.repoLocation, "/data/bie", "/repository")}" class="galleryImage"/>
-                                                </a>
-                                                <div class="panel-overlay">
-                                                    <c:set var="title">
-                                                        <c:if test="${fn:length(image.title) > 0}">${image.title}</c:if>
-                                                        <c:if test="${fn:length(image.title) < 1}">[no title]</c:if>
-                                                    </c:set>
-                                                    Image ${status.count}: <a href="${image.identifier}" target="_blank">${title}</a>
-                                                    <br/>
-                                                    Source: <a href="${image.infoSourceURL}" target="_blank">${image.infoSourceName}</a>
-                                                </div>
-                                            </div>
-                                        </c:forEach>
-                                        <ul class="filmstrip">
-                                            <c:forEach var="image" items="${extendedTaxonConcept.images}">
-                                                <c:set var="thumbUri">http://${pageContext.request.serverName}:80${fn:replace(fn:replace(image.repoLocation, "/data/bie", "/repository"),"raw","thumbnail")}</c:set>
-                                                <!-- ${thumbUri} -->
-                                                <li><img src="${thumbUri}" alt="${image.infoSourceName}" title="${image.infoSourceName}" /></li>
-                                                </c:forEach>
-                                        </ul>
                                     </div>
                                 </div>
                             </div><!---->
@@ -424,7 +416,7 @@
                                     </ul>
                                 </div><!--close tools-->
                                 <div class="section">
-                                    <h2>Right col</h2>
+                                    <h2></h2>
                                 </div><!--close-->
                             </div><!--close -->
                         </div><!--close multimedia-->
@@ -462,7 +454,7 @@
                                     </ul>
                                 </div><!--close tools-->
                                 <div class="section">
-                                    <h2>Right col</h2>
+                                    <h2></h2>
                                 </div><!--close-->
                             </div><!--close -->
                         </div><!--close identification-->
@@ -524,7 +516,7 @@
                                     </ul>
                                 </div><!--close tools-->
                                 <div class="section">
-                                    <h2>Right col</h2>
+                                    <h2></h2>
                                 </div><!--close-->
                             </div><!--close -->
                         </div><!--close names-->
@@ -571,7 +563,7 @@
                                     </ul>
                                 </div><!--close tools-->
                                 <div class="section">
-                                    <h2>Right col</h2>
+                                    <h2></h2>
                                 </div><!--close-->
                             </div><!--close -->
                         </div><!--close biology-->
@@ -592,7 +584,7 @@
                                     </ul>
                                 </div><!--close tools-->
                                 <div class="section">
-                                    <h2>Right col</h2>
+                                    <h2></h2>
                                 </div><!--close-->
                             </div><!--close -->
                         </div><!--close molecular-->
