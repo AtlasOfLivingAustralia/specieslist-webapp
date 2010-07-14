@@ -28,12 +28,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ala.dao.DocumentDAO;
 import org.ala.dao.FulltextSearchDao;
+import org.ala.dao.IndexedTypes;
 import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.dao.VocabularyDAO;
 import org.ala.dto.ExtendedTaxonConceptDTO;
+import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
-import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.lucene.Autocompleter;
 import org.ala.model.CommonName;
 import org.ala.model.Document;
@@ -44,19 +45,15 @@ import org.ala.util.ImageUtils;
 import org.ala.util.MimeType;
 import org.ala.util.RepositoryFileUtils;
 import org.ala.util.StatusType;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Main controller for the BIE site
@@ -158,6 +155,28 @@ public class SpeciesController {
 	}
 
 	/**
+	 * Map to a /{guid} URI.
+	 * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
+	 * 
+	 * @param guid
+	 * @param model
+	 * @return view name
+	 * @throws Exception
+	 */ 
+	@RequestMapping(value = "/species/info/{guid}.json", method = RequestMethod.GET)
+	public String showBriefSpecies(
+            @PathVariable("guid") String guid,
+            @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
+            Model model) throws Exception {
+		
+		SearchResultsDTO<SearchDTO> stcs = searchDao.findByName(IndexedTypes.TAXON, guid, null, 0, 1, "score", "asc");
+        if(stcs.getTotalRecords()>0){
+        	model.addAttribute("taxonConcept", stcs.getResults().get(0));
+        }
+		return SPECIES_SHOW;
+	}
+	
+	/**
 	 * JSON output for TC guid
 	 *
 	 * @param guid
@@ -196,7 +215,6 @@ public class SpeciesController {
 				}
 			}
 		}
-
 		return doc;
 	}
 
@@ -293,12 +311,13 @@ public class SpeciesController {
 	}
 
 	/**
-	 * List of data sets
+	 * List of data sets.
+	 * 
 	 *
 	 * @param model
 	 * @return view name
 	 */
-	@RequestMapping(value = "/species/datasets", method = RequestMethod.GET)
+	@RequestMapping(value = "/species/contributors", method = RequestMethod.GET)
 	public String listDatasets (Model model) throws Exception  {
 		List<InfoSource> infoSources = infoSourceDAO.getAllByDatasetType();
 		List<Integer> infoSourceIDWithVocabulariesMapList = new ArrayList<Integer>();		
