@@ -24,8 +24,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.GeoRegionDao;
+import org.ala.dto.ExtendedGeoRegionDTO;
 import org.ala.dto.SearchResultsDTO;
-import org.ala.model.GeoRegion;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -82,9 +82,10 @@ public class GeoRegionController {
 			Model model) throws Exception {
 		
 		String guid = regionType + "/" +regionName;
-		logger.debug("Retrieving concept with guid: " + guid);
-		GeoRegion geoRegion = geoRegionDao.getByGuid(guid);
-		model.addAttribute("geoRegion", geoRegion);
+		logger.debug("Retrieving region with guid: " + guid);
+		ExtendedGeoRegionDTO geoRegion = geoRegionDao.getExtendedGeoRegionByGuid(guid);
+		model.addAttribute("geoRegion", geoRegion.getGeoRegion());
+		model.addAttribute("extendedGeoRegion", geoRegion);
 		
 		//birds counts
 		SearchResultsDTO birds = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Aves", null, 0, 24, "scientificNameRaw", "asc");
