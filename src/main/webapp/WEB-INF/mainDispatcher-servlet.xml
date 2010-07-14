@@ -77,6 +77,9 @@
       <constructor-arg value="text/html" />
     </bean>
 
+    <!-- Over-ride bean properties - including dataSource configs -->
+    <context:property-override location="classpath:bie.properties" ignore-unresolvable="true" ignore-resource-not-found="true"/>
+
     <!-- BoBo Lucene add-on for facet browsing -->
     <!--<bean id="rank" class="com.browseengine.bobo.facets.impl.SimpleFacetHandler">
         <constructor-arg value="rankId" />
