@@ -8,17 +8,17 @@
     <meta name="pageName" content="datasets"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8"/>
-    <title>Dataset List</title>
+    <title>Contributors</title>
 </head>
 <body>
 <div id="decoratorBody">
-    <h1>Dataset List</h1>
+    <h1>Contributors list</h1>
     <c:if test="${not empty infoSources}">
         <h3>&bull; Taxonomic datasets</h3>
         <table class="datasets">
             <tr>
                 <th>Dataset Name</th>
-                <th>Species</th>
+                <th>Species & higher taxa</th>
                 <th>Taxa indexed</th>
             </tr>
             <c:forEach var="dataset" items="${infoSources}">
@@ -62,7 +62,7 @@
         <table class="datasets">
             <tr>
                 <th>Dataset Name</th>
-                <th>Species</th>
+                <th>Species & higher taxa</th>
                 <th>Pages indexed</th>
             </tr>
             <c:forEach var="dataset" items="${infoSources}">

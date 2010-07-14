@@ -14,6 +14,13 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 <body>
 <div id="decoratorBody">
   <h1><a href="${pageContext.request.contextPath}/regions/">Regions</a> &gt; ${geoRegion.regionTypeName} &gt; Explore ${geoRegion.name}</h1>
+  
+  <ul id="emblems">
+  	<li id="animal">${extendedGeoRegion.animalEmblem.nameString}</li>
+  	<li id="plant">${extendedGeoRegion.plantEmblem.nameString}</li>
+  	<li id="bird">${extendedGeoRegion.birdEmblem.nameString}</li>  	
+  </ul>
+  
   <ul id="taxonGroups">
   
     <!-- BIRDS -->
