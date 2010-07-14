@@ -14,7 +14,9 @@
  ***************************************************************************/
 package org.ala.dao;
 
+import org.ala.dto.ExtendedGeoRegionDTO;
 import org.ala.model.GeoRegion;
+import org.ala.model.TaxonConcept;
 /**
  * A DAO interface for Geographic regions.
  *
@@ -40,10 +42,16 @@ public interface GeoRegionDao {
 	 */
 	GeoRegion getByGuid(String guid) throws Exception;
 	
+	ExtendedGeoRegionDTO getExtendedGeoRegionByGuid(String guid) throws Exception;
+	
 	/**
 	 * Create a index to support searching.
 	 *
 	 * @throws Exception
 	 */
 	void createIndex() throws Exception;
+
+	boolean addBirdEmblem(String stateGuid, TaxonConcept tc) throws Exception;
+	boolean addPlantEmblem(String stateGuid, TaxonConcept tc) throws Exception;
+	boolean addAnimalEmblem(String stateGuid, TaxonConcept tc) throws Exception;
 }
