@@ -65,14 +65,25 @@ public class CassandraHelper implements StoreHelper {
 		getConnection();
 	}
 
+	/**
+	 * Initialise the connection to Cassandra.
+	 * 
+	 * @return
+	 * @throws TTransportException
+	 */
 	public Cassandra.Client getConnection() throws TTransportException {
-		if(clientConnection==null){
-			TTransport tr = new TSocket(host, port);
-	        TProtocol proto = new TBinaryProtocol(tr);
-	        this.clientConnection = new Cassandra.Client(proto);
-	        tr.open();
+		try {
+			if(clientConnection==null){
+				TTransport tr = new TSocket(host, port);
+			    TProtocol proto = new TBinaryProtocol(tr);
+			    this.clientConnection = new Cassandra.Client(proto);
+			    tr.open();
+			}
+			return this.clientConnection;
+		} catch (TTransportException e) {
+			logger.error("Unable to initialise connection to Cassandra server. Using host: "+host+", and port:"+port);
+			throw e;
 		}
-		return this.clientConnection;
 	}
 	
 	/**
