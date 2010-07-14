@@ -35,6 +35,7 @@ import org.ala.dao.VocabularyDAO;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
+import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.lucene.Autocompleter;
 import org.ala.model.CommonName;
 import org.ala.model.Document;
@@ -99,6 +100,10 @@ public class SpeciesController {
 	/** Name of view for list of vocabularies */
 	private final String VOCABULARIES_LIST = "species/vocabularies";
 	
+	protected String repositoryPath = "/data/bie/";
+	
+	protected String repositoryUrl = "http://alaslvweb2-cbr.vm.csiro.au/repository/";
+	
 	/**
 	 * Custom handler for the welcome view.
 	 * <p>
@@ -112,19 +117,6 @@ public class SpeciesController {
 	public String homePageHandler() {
 		return HOME_PAGE;
 	}
-
-//	/**
-//	 * Default method for Controller
-//	 *
-//	 * @return mav
-//	 */
-//	@RequestMapping(value = "/species", method = RequestMethod.GET)
-//	public ModelAndView listSpecies() {
-//		ModelAndView mav = new ModelAndView();
-//		mav.setViewName(SPECIES_LIST);
-//		mav.addObject("message", "Results list for search goes here. (TODO)");
-//		return mav;
-//	}
 
 	/**
 	 * Map to a /{guid} URI.
@@ -171,7 +163,8 @@ public class SpeciesController {
 		
 		SearchResultsDTO<SearchDTO> stcs = searchDao.findByName(IndexedTypes.TAXON, guid, null, 0, 1, "score", "asc");
         if(stcs.getTotalRecords()>0){
-        	model.addAttribute("taxonConcept", stcs.getResults().get(0));
+        	SearchTaxonConceptDTO st = (SearchTaxonConceptDTO) stcs.getResults().get(0);
+        	model.addAttribute("taxonConcept", fixRepoUrls(st));
         }
 		return SPECIES_SHOW;
 	}
@@ -433,15 +426,29 @@ public class SpeciesController {
 	}
 
 	/**
+	 * Fix the repository URLs
+	 * 
+	 * @param searchConceptDTO
+	 * @return
+	 */
+	public SearchTaxonConceptDTO fixRepoUrls(SearchTaxonConceptDTO searchConceptDTO){
+		
+		String thumbnail = searchConceptDTO.getThumbnail();
+		if(thumbnail!=null && thumbnail.contains(repositoryPath)){
+			searchConceptDTO.setThumbnail(thumbnail.replace(repositoryPath, repositoryUrl));
+		}
+		String image = searchConceptDTO.getImage();
+		if(image!=null && image.contains(repositoryPath)){
+			searchConceptDTO.setImage(image.replace(repositoryPath, repositoryUrl));
+		}
+		return searchConceptDTO;
+	}
+	
+	
+	/**
 	 * @param taxonConceptDao the taxonConceptDao to set
 	 */
 	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
 		this.taxonConceptDao = taxonConceptDao;
 	}
-	
-//	private void setUp() throws Exception {
-//		context = new ClassPathXmlApplicationContext("classpath*:spring.xml");
-//		DataSource dataSource = (DataSource) context.getBean("dataSource");
-//		vocabularyDAO = new VocabularyDAOImpl(dataSource);
-//	}
 }

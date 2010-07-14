@@ -16,10 +16,28 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
   <h1><a href="${pageContext.request.contextPath}/regions/">Regions</a> &gt; ${geoRegion.regionTypeName} &gt; Explore ${geoRegion.name}</h1>
   
   <ul id="emblems">
-  	<li id="animal">${extendedGeoRegion.animalEmblem.nameString}</li>
-  	<li id="plant">${extendedGeoRegion.plantEmblem.nameString}</li>
-  	<li id="bird">${extendedGeoRegion.birdEmblem.nameString}</li>  	
+  	<li id="animal">
+  		Animal emblem: 
+  		<a id="animalEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.animalEmblem.guid}">
+  			${extendedGeoRegion.animalEmblem.nameString}
+  		</a>
+  	</li>
+  	<li id="plant">Plant emblem: <a id="plantEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.plantEmblem.guid}">${extendedGeoRegion.plantEmblem.nameString}</a></li>
+  	<li id="bird">Bird emblem: <a id="birdEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.birdEmblem.guid}">${extendedGeoRegion.birdEmblem.nameString}</a></li>  	
   </ul>
+  
+  <script type="text/javascript">
+        var searchUrl = '${pageContext.request.contextPath}/species/info/${extendedGeoRegion.animalEmblem.guid}.json';
+        $.getJSON(searchUrl, function(data) {
+            $('#animalEmblem').html('<img src="'+data.taxonConcept.thumbnail+'"/>');
+        });  
+        $.getJSON(searchUrl, function(data) {
+            $('#plantEmblem').html('<img src="'+data.taxonConcept.thumbnail+'"/>');
+        });  
+        $.getJSON(searchUrl, function(data) {
+            $('#birdEmblem').html('<img src="'+data.taxonConcept.thumbnail+'"/>');
+        });  
+  </script>
   
   <ul id="taxonGroups">
   
