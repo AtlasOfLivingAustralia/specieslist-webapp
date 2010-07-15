@@ -40,6 +40,10 @@ public class Image extends AttributableObject implements Comparable<Image>{
     protected String title;
     /** The title of the identifier (URI) contributing the property */
     protected String identifier;
+    /** The creator of this image - for attribution */
+    protected String creator;
+    /** The locality this image was taken at as a free text string */
+    protected String locality;
 
     /**
      * Compare to method
@@ -155,7 +159,35 @@ public class Image extends AttributableObject implements Comparable<Image>{
 	public void setThumbnail(String thumbnail) {
 		this.thumbnail = thumbnail;
 	}
-    
+
+	/**
+	 * @return the creator
+	 */
+	public String getCreator() {
+		return creator;
+	}
+
+	/**
+	 * @param creator the creator to set
+	 */
+	public void setCreator(String creator) {
+		this.creator = creator;
+	}
+
+	/**
+	 * @return the locality
+	 */
+	public String getLocality() {
+		return locality;
+	}
+
+	/**
+	 * @param locality the locality to set
+	 */
+	public void setLocality(String locality) {
+		this.locality = locality;
+	}
+	
 	/**
 	 * @see java.lang.Object#toString()
 	 */

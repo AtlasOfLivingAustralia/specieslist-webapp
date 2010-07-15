@@ -199,9 +199,10 @@ public class RepoDataLoader {
 		document.setInfoSourceName(infoSource.getName());
 		document.setInfoSourceUri(infoSource.getWebsiteUrl());
 		document.setFilePath(currentFile.getParentFile().getAbsolutePath());
+		Map<String, String> dc = readDcFileAsMap(currentFile);
 		// Sync the triples and associated DC data
 		logger.debug("Attempting to sync triple where Scientific Name = " + getScientificName(triples));
-		boolean success = taxonConceptDao.syncTriples(document, triples);
+		boolean success = taxonConceptDao.syncTriples(document, triples, dc);
 		logger.debug("Processed file: "+currentFile.getAbsolutePath() + ", Scientific Name = " + getScientificName(triples) + ", success: "+success);
 		return success;
 	}
@@ -251,10 +252,31 @@ public class RepoDataLoader {
         } catch (Exception ex) {
             logger.error("Cannot open dc file: "+dcFileName+" - "+ex.getMessage());
         }
-
         return doc;
     }
 
+    /**
+     * Read dc file and populate a Document with values from file
+     *
+     * @param currentFile
+     * @return doc the Docuement to return
+     */
+    private Map<String,String> readDcFileAsMap(File currentFile) {
+        Document doc = new Document();
+        String rdfFileName = currentFile.getAbsolutePath();
+        String dcFileName = rdfFileName.replaceFirst("rdf", "dc");
+        File dcfile = new File(dcFileName);
+        Map<String,String> dc = null;
+        
+        try {
+        	dc = repoFileUtils.readDcFileAsMap(dcfile);
+
+        } catch (Exception ex) {
+            logger.error("Cannot open dc file: "+dcFileName+" - "+ex.getMessage());
+        }
+        return dc;
+    }
+    
     /**
 	 * @param taxonConceptDao the taxonConceptDao to set
 	 */

@@ -800,7 +800,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#syncTriples(org.ala.model.Document, java.util.List)
 	 */
-	public boolean syncTriples(org.ala.model.Document document, List<Triple> triples) throws Exception {
+	public boolean syncTriples(org.ala.model.Document document, List<Triple> triples, Map<String, String> dublinCore) throws Exception {
 
 		String scientificName = null;
 		String specificEpithet = null;
@@ -1007,6 +1007,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                     image.setIdentifier(dcIdentifier);
                     image.setTitle(dcTitle);
                     
+                    if(dublinCore!=null){
+                    	image.setCreator(dublinCore.get(Predicates.DC_CREATOR.toString()));
+                    	image.setLocality(dublinCore.get(Predicates.LOCALITY.toString()));
+                    }
+                    
                     if(hasPredicate(triples,Predicates.DIST_MAP_IMG_URL)){
                     	addDistributionImage(guid, image);
                     } else {
@@ -1032,7 +1037,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	private boolean hasPredicate(List<Triple> triples, Predicates predicate) {
 		for(Triple triple: triples){
-			if(triple.predicate.toString().equals(predicate.getPredicate())){
+			if(triple.predicate.equals(predicate.getPredicate().toString())){
 				return true;
 			}
 		}

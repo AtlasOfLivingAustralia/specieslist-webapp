@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -101,7 +102,7 @@ public class NTripleDataLoader {
 	    			doc.setId(Integer.parseInt(documentId));
 	    			doc.setInfoSourceId(Integer.parseInt(infoSourceId));
 	    			//subject has changed - sync to hbase
-	    			boolean success = taxonConceptDao.syncTriples(doc, triples);
+	    			boolean success = taxonConceptDao.syncTriples(doc, triples, new HashMap<String,String>());
 	    			if(success) 
 	    				successfulSync++; 
 	    			else 
@@ -118,7 +119,7 @@ public class NTripleDataLoader {
     			Document doc = new Document();
     			doc.setId(Integer.parseInt(documentId));
     			doc.setInfoSourceId(Integer.parseInt(infoSourceId));
-				boolean success = taxonConceptDao.syncTriples(doc, triples);
+				boolean success = taxonConceptDao.syncTriples(doc, triples, new HashMap<String,String>());
 				if(success) 
 					successfulSync++; 
 				else 

@@ -483,7 +483,7 @@ public interface TaxonConceptDao {
 	 * @param the filepath of the document
 	 * @throws Exception
 	 */
-	boolean syncTriples(org.ala.model.Document document, List<Triple> triples) throws Exception;
+	boolean syncTriples(org.ala.model.Document document, List<Triple> triples, Map<String,String> dublinCore) throws Exception;
 
 	/**
 	 * Clear the associated properties from each taxon concept.
