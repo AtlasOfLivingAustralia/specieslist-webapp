@@ -102,7 +102,7 @@ public class SpeciesController {
 	/** The path to the repository */
 	protected String repositoryPath = "/data/bie/";
 	/** The URL to the repository */
-	protected String repositoryUrl = "http://bie.ala.org.au/repository/";
+	protected String repositoryUrl = "http://bie.ala.org.au/repo/";
 	
 	/**
 	 * Custom handler for the welcome view.
