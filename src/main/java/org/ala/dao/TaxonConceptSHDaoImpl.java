@@ -412,6 +412,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		etc.setPestStatuses(getPestStatuses(guid));
 		etc.setConservationStatuses(getConservationStatuses(guid));
 		etc.setImages(getImages(guid));
+		etc.setDistributionImages(getDistributionImages(guid));
         etc.setExtantStatuses(getExtantStatuses(guid));
         etc.setHabitats(getHabitats(guid));
         etc.setRegionTypes(OccurrencesInGeoregion.getRegionsByType(getRegions(guid)));
