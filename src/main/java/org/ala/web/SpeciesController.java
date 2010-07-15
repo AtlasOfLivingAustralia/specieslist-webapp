@@ -14,6 +14,7 @@
  ***************************************************************************/
 package org.ala.web;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -462,11 +463,11 @@ public class SpeciesController {
 				image.setRepoLocation(imageLocation);
 			}
 			
-			int lastFileSep = imageLocation.lastIndexOf('/');
-			String baseUrl = imageLocation.substring(0, lastFileSep);
+			int lastFileSep = imageLocation.lastIndexOf(File.separatorChar);
+			String baseUrl = imageLocation.substring(0, lastFileSep+1);
 			String fileName = imageLocation.substring(lastFileSep+1);
 			String extension = FilenameUtils.getExtension(fileName);
-			String thumbnail = baseUrl + "thumbnail"+ extension;
+			String thumbnail = baseUrl + "thumbnail"+ "." + extension;
 			
 			//set the thumbnail location and DC path
 			image.setDcLocation(baseUrl + FileType.DC.getFilename());
