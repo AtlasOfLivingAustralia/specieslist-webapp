@@ -20,7 +20,6 @@ import javax.inject.Inject;
 
 import org.ala.dao.GeoRegionDao;
 import org.ala.model.TaxonConcept;
-import org.ala.repository.Predicates;
 import org.ala.util.SpringUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
