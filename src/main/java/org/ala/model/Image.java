@@ -44,6 +44,8 @@ public class Image extends AttributableObject implements Comparable<Image>{
     protected String creator;
     /** The locality this image was taken at as a free text string */
     protected String locality;
+    /** The locality this image was taken at as a free text string */
+    protected String isPartOf;
 
     /**
      * Compare to method
@@ -214,5 +216,19 @@ public class Image extends AttributableObject implements Comparable<Image>{
 		builder.append(this.infoSourceURL);
 		builder.append("]");
 		return builder.toString();
+	}
+
+	/**
+	 * @return the isPartOf
+	 */
+	public String getIsPartOf() {
+		return isPartOf;
+	}
+
+	/**
+	 * @param isPartOf the isPartOf to set
+	 */
+	public void setIsPartOf(String isPartOf) {
+		this.isPartOf = isPartOf;
 	}
 }

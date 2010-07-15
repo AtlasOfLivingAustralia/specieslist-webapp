@@ -1010,6 +1010,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                     if(dublinCore!=null){
                     	image.setCreator(dublinCore.get(Predicates.DC_CREATOR.toString()));
                     	image.setLocality(dublinCore.get(Predicates.LOCALITY.toString()));
+                    	image.setIsPartOf(dublinCore.get(Predicates.DC_IS_PART_OF.toString()));
                     }
                     
                     if(hasPredicate(triples,Predicates.DIST_MAP_IMG_URL)){
