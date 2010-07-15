@@ -108,6 +108,9 @@ public class SearchController {
         if (sortDirection.isEmpty()) {
             sortDirection = "asc";
         }
+             //reverse the sort direction for the "score" field a normal sort should be descending while a reverse sort should be ascending
+                 sortDirection = getSortDirection(sortField, sortDirection);
+                
 
 		String queryJsEscaped = StringEscapeUtils.escapeJavaScript(query);
 		model.addAttribute("query", query);
@@ -135,12 +138,15 @@ public class SearchController {
 		if(!searchResults.getResults().isEmpty()){
 			
 			SearchDTO topHit = searchResults.getResults().get(0);
-			logger.debug("Top Hit: "+topHit.getName()+", idxtype: "+topHit.getIdxType());
-
+			logger.debug("Top Hit: "+topHit.getName()+", idxtype: "+topHit.getIdxType() + ", total number results: "+ searchResults.getResults().size());
+//                        for(SearchDTO result : searchResults.getResults()){
+//                            logger.debug("Name: " + result.getName() + " idxType: " + result.getIdxType() + " score: " + result.getScore());
+//                        }
+                        
 			//top hit is species, re-run species search to just get species results
 			if(IndexedTypes.TAXON.toString().equals(topHit.getIdxType())){
 				searchResults = searchDao.findByName(IndexedTypes.TAXON, query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-				view = SPECIES_LIST;
+                                view = SPECIES_LIST;
 			}
 			
 			//top hit is species, re-run species search to just get species results
@@ -180,7 +186,7 @@ public class SearchController {
 		model.addAttribute("searchResults", searchResults);
         model.addAttribute("totalRecords", searchResults.getTotalRecords());
         model.addAttribute("lastPage", lastPage);
-        
+
         System.out.println("Selected view: "+view);
         
 		return view;
@@ -212,8 +218,8 @@ public class SearchController {
 			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
 			@RequestParam(value="title", required=false, defaultValue ="Search Results") String title,
 			Model model) throws Exception {
-
-		return doGenericSearch(query, filterQuery, startIndex, pageSize, sortField,
+            System.out.println("Species sort direction: " + sortDirection);
+            return doGenericSearch(query, filterQuery, startIndex, pageSize, sortField,
 				sortDirection, title, model, SPECIES_LIST, IndexedTypes.TAXON);
 	}
 
@@ -364,6 +370,24 @@ public class SearchController {
 		return doGenericSearch(query, filterQuery, startIndex, pageSize, sortField,
 				sortDirection, title, model, INSTITUTIONS_LIST, IndexedTypes.INSTITUTION);
 	}
+        
+        /**
+         * Changes the direction of the sore if the sortField is score
+         * @param sortField
+         * @param sortDirection
+         * @return
+         */
+        private String getSortDirection(String sortField, String sortDirection){
+            String direction = sortDirection;
+            if(sortField.equals("score")){
+                    if(sortDirection.equals("asc"))
+                        direction = "desc";
+                    else
+                        direction = "asc";
+                }
+            return direction;
+
+        }
 	
 	/**
 	 * Perform an generic free text search.
@@ -411,7 +435,9 @@ public class SearchController {
         if (sortDirection.isEmpty()) {
             sortDirection = "asc";
         }
-
+                //reverse the sort direction for the "score" field a normal sort should be descending while a reverse sort should be ascending
+                
+                sortDirection = getSortDirection(sortField, sortDirection);
 		String queryJsEscaped = StringEscapeUtils.escapeJavaScript(query);
 		model.addAttribute("query", query);
 		model.addAttribute("queryJsEscaped", queryJsEscaped);
@@ -419,7 +445,7 @@ public class SearchController {
 		logger.debug("query = "+query);
 		
 		SearchResultsDTO<SearchDTO> searchResults = searchDao.findByName(indexedType, query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-		model.addAttribute("searchResults", searchResults);
+                model.addAttribute("searchResults", searchResults);
 
         Long totalRecords = searchResults.getTotalRecords();
         model.addAttribute("totalRecords", totalRecords);

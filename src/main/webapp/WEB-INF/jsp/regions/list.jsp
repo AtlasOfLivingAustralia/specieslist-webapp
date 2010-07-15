@@ -136,7 +136,7 @@
             if (paramName != null && paramValue != null) {
                 if (paramName == 'sort') {
                     paramList.push(paramName + "=" +paramValue);
-                } else if (paramName == 'dir' && !(sort == null || sort == 'score')) {
+                } else if (paramName == 'dir'){// && !(sort == null || sort == 'score')) {//moved to SearchController
                     paramList.push(paramName + "=" +paramValue);
                 }
             }
@@ -224,16 +224,35 @@
                 </div>
             </div>
             <div id="facets">
+                <c:if test="${not empty TAXON or not empty REGION or not empty INSTITUTION or not empty COLLECTION or not empty DATAPROVIDER or not empty DATASET}">
+                    <c:set var="taxon" scope="session"><c:out value="${TAXON}"/></c:set>
+                    <c:set var="region" scope="session"><c:out value="${REGION}"/></c:set>
+                    <c:set var="institution" scope="session"><c:out value="${INSTITUTION}"/></c:set>
+                    <c:set var="collection" scope="session"><c:out value="${COLLECTION}"/></c:set>
+                    <c:set var="dataprovider" scope="session"><c:out value="${DATAPROVIDER}"/></c:set>
+                    <c:set var="dataset" scope="session"><c:out value="${DATASET}"/></c:set>
+                </c:if>
                 <div id="searchTypes">
                     <ul>
                         <li><a href="#">Site Pages</a></li>
-                        <li><a href="${pageContext.request.contextPath}/species/search?q=${param['q']}">Species</a></li>
+                        
+                        <c:if test="${not empty taxon}">
+                            <li><a href="${pageContext.request.contextPath}/species/search?q=${param['q']}">Species</a></li>
+                        </c:if>
                         <li class="active">Regions</li>
-                        <li><a href="#"><strike>Occurrence Records</strike></a></li>
-                        <li><a href="${pageContext.request.contextPath}/institutions/search?q=${param['q']}">Institutions</a></li>
-                        <li><a href="${pageContext.request.contextPath}/collections/search?q=${param['q']}">Collections</a></li>
-                        <li><a href="${pageContext.request.contextPath}/dataproviders/search?q=${param['q']}">Data Providers</a></li>
-                        <li><a href="${pageContext.request.contextPath}/datasets/search?q=${param['q']}">Data Sets</a></li>
+                        <!--<li><a href="#"><strike>Occurrence Records</strike></a></li>-->
+                        <c:if test="${not empty institution}">
+                            <li><a href="${pageContext.request.contextPath}/institutions/search?q=${param['q']}">Institutions</a></li>
+                        </c:if>
+                        <c:if test="${not empty collection}">
+                            <li><a href="${pageContext.request.contextPath}/collections/search?q=${param['q']}">Collections</a></li>
+                        </c:if>
+                        <c:if test="${not empty dataprovider}">
+                            <li><a href="${pageContext.request.contextPath}/dataproviders/search?q=${param['q']}">Data Providers</a></li>
+                        </c:if>
+                        <c:if test="${not empty dataset}">
+                            <li><a href="${pageContext.request.contextPath}/datasets/search?q=${param['q']}">Data Sets</a></li>
+                        </c:if>
                     </ul>
                 </div>
             </div>
