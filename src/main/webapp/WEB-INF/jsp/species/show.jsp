@@ -154,7 +154,7 @@
                         
                         var titleBits = this.title.split("|");
                         var titleText = "<cite>Source: <a href='"+titleBits[1]+"' target='_blank'>"+titleBits[0]+"</a></cite>";
-                        $("<div id="titleText">"+titleText+"</div>").insertAfter("#cboxPhoto");
+                        $("<div id='titleText'>"+titleText+"</div>").insertAfter("#cboxPhoto");
                         $.fn.colorbox.resize(); 
                     }
                 });
