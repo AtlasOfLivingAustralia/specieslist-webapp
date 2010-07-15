@@ -14,42 +14,45 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
         <title><decorator:title default="ALA Biodiversity Harvester" /></title>
-<!--        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-1.4.2.min.js"></script>-->
-        <link rel="stylesheet" href="http://test.ala.org.au/wp-content/themes/ala/style.css" type="text/css" media="screen" />
-        <link rel="icon" type="image/x-icon" href="http://test.ala.org.au/wp-content/themes/ala/images/favicon.ico" />
-        <link rel="shortcut icon" type="image/x-icon" href="http://test.ala.org.au/wp-content/themes/ala/images/favicon.ico" />
+		<link rel="stylesheet" href="http://test.ala.org.au/wp-content/themes/ala/style.css" type="text/css" media="screen" /> 
+		<link rel="icon" type="image/x-icon" href="http://test.ala.org.au/wp-content/themes/ala/images/favicon.ico" /> 
+		<link rel="shortcut icon" type="image/x-icon" href="http://test.ala.org.au/wp-content/themes/ala/images/favicon.ico" /> 
+		
+		<link rel="stylesheet" type="text/css" media="screen" href="http://test.ala.org.au/wp-content/themes/ala/css/sf.css" /> 
+		<link rel="stylesheet" type="text/css" media="screen" href="http://test.ala.org.au/wp-content/themes/ala/css/superfish.css" /> 
+		<link rel="stylesheet" type="text/css" media="screen" href="http://test.ala.org.au/wp-content/themes/ala/css/skin.css" /> 
+		
+		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/form.js"></script> 
+		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/jquery-1.4.2.min.js"></script> 
+		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/ui.core.js"></script> 
+		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/ui.tabs.js"></script> 
+		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/hoverintent-min.js"></script> 
+		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/superfish/superfish.js"></script> 
+		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/jquery.jcarousel.min.js"></script> 
+		<script type="text/javascript"> 
+		
+				// initialise plugins
+				jQuery(function(){
+					jQuery('ul.sf').superfish( {
+						delay:500,
+						autoArrows:false,
+						dropShadows:false
+					});
+				});
+		
+		</script> 
+		<meta name="robots" content="noindex,nofollow"/> 
+		<link rel="alternate" type="application/rss+xml" title="Atlas Living Australia NG &raquo; Feed" href="http://test.ala.org.au/feed/" /> 
+		<link rel="alternate" type="application/rss+xml" title="Atlas Living Australia NG &raquo; Comments Feed" href="http://test.ala.org.au/comments/feed/" /> 
+		<link rel='stylesheet' id='external-links-css'  href='http://test.ala.org.au/wp-content/plugins/sem-external-links/sem-external-links.css?ver=20090903' type='text/css' media='all' /> 
+		<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://test.ala.org.au/xmlrpc.php?rsd" /> 
+		<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://test.ala.org.au/wp-includes/wlwmanifest.xml" /> 
+		<link rel='index' title='Atlas Living Australia NG' href='http://test.ala.org.au/' /> 
+		<link rel='prev' title='My Profile' href='http://test.ala.org.au/my-profile/' /> 
+		<link rel='next' title='Search' href='http://test.ala.org.au/tools-services/search-tools/' /> 
+		<meta name="generator" content="WordPress 3.0"/> 
+		<link rel='canonical' href='http://test.ala.org.au/' /> 
 
-        <link rel="stylesheet" type="text/css" media="screen" href="http://test.ala.org.au/wp-content/themes/ala/css/sf.css" />
-        <link rel="stylesheet" type="text/css" media="screen" href="http://test.ala.org.au/wp-content/themes/ala/css/superfish.css" />
-        <link rel="stylesheet" type="text/css" media="screen" href="http://test.ala.org.au/wp-content/themes/ala/css/skin.css" />
-
-        <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/form.js"></script>
-        <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/jquery-1.4.2.min.js"></script>
-        <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/ui.core.js"></script>
-        <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/ui.tabs.js"></script>
-        <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/hoverintent-min.js"></script>
-        <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/superfish/superfish.js"></script>
-        <script type="text/javascript">
-
-            // initialise plugins
-            jQuery(function(){
-                jQuery('ul.sf').superfish( {
-                    delay:500,
-                    autoArrows:false,
-                    dropShadows:false
-                });
-            });
-
-        </script>
-        <meta name='robots' content='noindex,nofollow' />
-        <link rel="alternate" type="application/rss+xml" title="Atlas Living Australia NG &raquo; Feed" href="http://test.ala.org.au/?feed=rss2" />
-        <link rel="alternate" type="application/rss+xml" title="Atlas Living Australia NG &raquo; Comments Feed" href="http://test.ala.org.au/?feed=comments-rss2" />
-        <link rel='stylesheet' id='external-links-css'  href='http://test.ala.org.au/wp-content/plugins/sem-external-links/sem-external-links.css?ver=20090903' type='text/css' media='' />
-        <!--<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://test.ala.org.au/xmlrpc.php?rsd" />
-        <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://test.ala.org.au/wp-includes/wlwmanifest.xml" />
-        <link rel='index' title='Atlas Living Australia NG' href='http://test.ala.org.au' />
-        <meta name="generator" content="WordPress 2.9.2" />
-        <link rel='canonical' href='http://test.ala.org.au' />-->
         <decorator:head />
         
         <!-- WP Menubar 4.7: start CSS -->
@@ -60,7 +63,7 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
         <div id="wrapper">
             <div id="banner">
                 <div id="logo">
-                    <a  href="http://test.ala.org.au" title="Atlas of Living Australia home"><img src="http://test.ala.org.au/wp-content/themes/ala/images/ala_logo.png" width="176" height="165" alt="Atlas of Living Ausralia logo" /></a>
+                    <a  href="http://test.ala.org.au" title="Atlas of Living Australia home"><img src="http://test.ala.org.au/wp-content/themes/ala/images/ala_logo.png" width="218" height="88" alt="Atlas of Living Ausralia logo" /></a>
                 </div><!--close logo-->
                 <div id="nav">
                     <!-- WP Menubar 4.7: start menu nav-site, template Superfish, CSS  -->
