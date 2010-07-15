@@ -206,7 +206,7 @@
                             <tr>
                                 <td id="col1">
                                 	<c:if test="${region.regionTypeName=='State' || region.regionTypeName=='Territory'}">
-	                                	<a href="${region.guid}">
+	                                	<a href="${pageContext.request.contextPath}/region/${region.guid}">
 	                               	</c:if>
                                 		${region.name}
                                 	<c:if test="${region.regionTypeName=='State' || region.regionTypeName=='Territory'}">

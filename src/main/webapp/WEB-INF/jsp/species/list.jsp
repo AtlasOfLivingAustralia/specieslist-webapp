@@ -216,7 +216,7 @@
                     <tbody>
                         <c:forEach var="taxonConcept" items="${searchResults.results}">
                             <tr>
-                                <td id="col1"><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}?conceptName=${taxonConcept.name}" class="occurrenceLink"><alatag:formatSciName rankId="${taxonConcept.rankId}" name="${taxonConcept.name}" acceptedName="${taxonConcept.acceptedConceptName}"/></a></td>
+                                <td id="col1"><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${taxonConcept.rankId}" name="${taxonConcept.name}" acceptedName="${taxonConcept.acceptedConceptName}"/></a></td>
                                 <td id="col2">${fn:substring(taxonConcept.commonName, 0, 250)}</td>
                                 <td id="col3">${taxonConcept.rank}</td>
                             </tr>
