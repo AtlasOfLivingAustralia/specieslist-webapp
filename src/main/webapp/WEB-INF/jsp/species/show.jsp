@@ -151,10 +151,12 @@
                         $("#cboxTitle").html("");
                         //link = $.fn.colorbox.element();
                         //title = $(link).attr("title");
+                        
                         var titleBits = this.title.split("|");
                         var titleText = "<cite>Source: <a href='"+titleBits[1]+"' target='_blank'>"+titleBits[0]+"</a></cite>";
-                        $("<div>"+titleText+"</div>").insertAfter("#cboxPhoto");
-                        $.fn.colorbox.resize(); }
+                        $("<div id="titleText">"+titleText+"</div>").insertAfter("#cboxPhoto");
+                        $.fn.colorbox.resize(); 
+                    }
                 });
 
                 // images in overview tabbed should take you to Multimedia tab
@@ -327,7 +329,7 @@
                                     <ul>
                                         <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
                                             <c:if test="${status.index < 6}">
-                                                <li><a href="" title=""><img src="http://${pageContext.request.serverName}:80${fn:replace(image.repoLocation, "/data/bie", "/repository")}" width="150" alt="" /></a></li>
+                                                <li><a href="" title=""><img src="${image.repoLocation}" width="150" alt="" /></a></li>
                                             </c:if>
                                         </c:forEach>
                                     </ul>
@@ -400,9 +402,9 @@
                                     <h3>Images</h3>
                                     <div id="imageGallery">
                                         <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
-                                            <c:set var="thumbUri">http://${pageContext.request.serverName}:80${fn:replace(fn:replace(image.repoLocation, "/data/bie", "/repository"),"raw","thumbnail")}</c:set>
+                                            <c:set var="thumbUri">${image.thumbnail}</c:set>
                                             <c:set var="imageTitle">${image.infoSourceName} | ${image.infoSourceURL} </c:set>
-                                            <a class="thumbImage" rel="thumbs" title="${imageTitle}" href="http://${pageContext.request.serverName}:80${fn:replace(image.repoLocation, "/data/bie", "/repository")}"><img src="${thumbUri}" alt="${image.infoSourceName}" title="${imageTitle}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/></a>
+                                            <a class="thumbImage" rel="thumbs" title="${imageTitle}" href="${image.repoLocation}"><img src="${thumbUri}" alt="${image.infoSourceName}" title="${imageTitle}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/></a>
                                         </c:forEach>
                                     </div>
                                 </div>
