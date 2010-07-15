@@ -14,16 +14,28 @@
  ***************************************************************************/
 package org.ala.model;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
 /**
  * Simple POJO representing an image within the system. 
+ * FIXME We *should* be generating thumbnails at repository load
+ * time. Hence the thumbnail property should be populated.
  *
  * @author Dave Martin (David.Martin@csiro.au)
  */
+@JsonIgnoreProperties({"thumbnail", "dcLocation"})
 public class Image extends AttributableObject implements Comparable<Image>{
 
+	/** The guid of this image, typically the URL from whence it came */
 	protected String guid;
+	/** The content type of this image */
 	protected String contentType;
+	/** The location in the repository */
 	protected String repoLocation;
+	/** The location in the repository */
+	protected String dcLocation;
+	/** The location in the repository */
+	protected String thumbnail;
     /** The title of the resource contributing the property */
     protected String title;
     /** The title of the identifier (URI) contributing the property */
@@ -116,6 +128,34 @@ public class Image extends AttributableObject implements Comparable<Image>{
         this.identifier = identifier;
     }
 
+	/**
+	 * @return the dcLocation
+	 */
+	public String getDcLocation() {
+		return dcLocation;
+	}
+
+	/**
+	 * @param dcLocation the dcLocation to set
+	 */
+	public void setDcLocation(String dcLocation) {
+		this.dcLocation = dcLocation;
+	}
+
+	/**
+	 * @return the thumbnail
+	 */
+	public String getThumbnail() {
+		return thumbnail;
+	}
+
+	/**
+	 * @param thumbnail the thumbnail to set
+	 */
+	public void setThumbnail(String thumbnail) {
+		this.thumbnail = thumbnail;
+	}
+    
 	/**
 	 * @see java.lang.Object#toString()
 	 */
