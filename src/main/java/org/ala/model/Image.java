@@ -46,6 +46,11 @@ public class Image extends AttributableObject implements Comparable<Image>{
     protected String locality;
     /** The locality this image was taken at as a free text string */
     protected String isPartOf;
+    /** The licence */
+    protected String licence;
+    /** The rights */
+    protected String rights;
+
 
     /**
      * Compare to method
@@ -191,6 +196,49 @@ public class Image extends AttributableObject implements Comparable<Image>{
 	}
 	
 	/**
+	 * @return the isPartOf
+	 */
+	public String getIsPartOf() {
+		return isPartOf;
+	}
+
+	/**
+	 * @param isPartOf the isPartOf to set
+	 */
+	public void setIsPartOf(String isPartOf) {
+		this.isPartOf = isPartOf;
+	}
+	
+
+	/**
+	 * @return the licence
+	 */
+	public String getLicence() {
+		return licence;
+	}
+
+	/**
+	 * @param licence the licence to set
+	 */
+	public void setLicence(String licence) {
+		this.licence = licence;
+	}
+
+	/**
+	 * @return the rights
+	 */
+	public String getRights() {
+		return rights;
+	}
+
+	/**
+	 * @param rights the rights to set
+	 */
+	public void setRights(String rights) {
+		this.rights = rights;
+	}
+	
+	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -216,19 +264,5 @@ public class Image extends AttributableObject implements Comparable<Image>{
 		builder.append(this.infoSourceURL);
 		builder.append("]");
 		return builder.toString();
-	}
-
-	/**
-	 * @return the isPartOf
-	 */
-	public String getIsPartOf() {
-		return isPartOf;
-	}
-
-	/**
-	 * @param isPartOf the isPartOf to set
-	 */
-	public void setIsPartOf(String isPartOf) {
-		this.isPartOf = isPartOf;
 	}
 }
