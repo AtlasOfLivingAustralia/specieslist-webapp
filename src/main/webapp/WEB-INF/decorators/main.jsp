@@ -29,7 +29,18 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/hoverintent-min.js"></script> 
 		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/superfish/superfish.js"></script> 
 		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/jquery.jcarousel.min.js"></script> 
-		<script type="text/javascript"> 
+		<script type="text/javascript">
+                                //add the indexOf method for IE7
+                                if(!Array.indexOf){
+                                    Array.prototype.indexOf = function(obj){
+                                        for(var i=0; i<this.length; i++){
+                                            if(this[i]===obj){
+                                                return i;
+                                            }
+                                        }
+                                        return -1;
+                                    }
+                                }
 		
 				// initialise plugins
 				jQuery(function(){
