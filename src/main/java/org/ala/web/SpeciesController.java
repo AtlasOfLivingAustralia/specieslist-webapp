@@ -39,13 +39,16 @@ import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.lucene.Autocompleter;
 import org.ala.model.CommonName;
 import org.ala.model.Document;
+import org.ala.model.Image;
 import org.ala.model.InfoSource;
 import org.ala.model.SimpleProperty;
 import org.ala.repository.Predicates;
+import org.ala.util.FileType;
 import org.ala.util.ImageUtils;
 import org.ala.util.MimeType;
 import org.ala.util.RepositoryFileUtils;
 import org.ala.util.StatusType;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -85,10 +88,6 @@ public class SpeciesController {
 	private VocabularyDAO vocabularyDAO;
 	/** Name of view for site home page */
 	private String HOME_PAGE = "homePage";
-//	/** Name of view for an empty search page */
-//	private final String SPECIES_SEARCH = "species/search";
-//	/** Name of view for list of taxa */
-//	private final String SPECIES_LIST = "species/list";
 	/** Name of view for a single taxon */
 	private final String SPECIES_SHOW = "species/show";
     /** Name of view for a taxon error page */
@@ -99,10 +98,10 @@ public class SpeciesController {
 	private final String DATASET_LIST = "species/datasetList";
 	/** Name of view for list of vocabularies */
 	private final String VOCABULARIES_LIST = "species/vocabularies";
-	
+	/** The path to the repository */
 	protected String repositoryPath = "/data/bie/";
-	
-	protected String repositoryUrl = "http://alaslvweb2-cbr.vm.csiro.au/repository/";
+	/** The URL to the repository */
+	protected String repositoryUrl = "http://bie.ala.org.au/repository/";
 	
 	/**
 	 * Custom handler for the welcome view.
@@ -140,7 +139,7 @@ public class SpeciesController {
             return SPECIES_ERROR;
         }
 
-        model.addAttribute("extendedTaxonConcept", etc);
+        model.addAttribute("extendedTaxonConcept", fixRepoUrls(etc));
 		model.addAttribute("commonNames", getCommonNamesString(etc));
 		model.addAttribute("textProperties", filterSimpleProperties(etc));
 		return SPECIES_SHOW;
@@ -179,7 +178,7 @@ public class SpeciesController {
 	@RequestMapping(value = "/species/{guid}.json", method = RequestMethod.GET)
 	public ExtendedTaxonConceptDTO showSpeciesJson(@PathVariable("guid") String guid) throws Exception {
 		logger.info("Retrieving concept with guid: "+guid);
-		return taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
+		return fixRepoUrls(taxonConceptDao.getExtendedTaxonConceptByGuid(guid));
 	}
 
 	/**
@@ -444,11 +443,58 @@ public class SpeciesController {
 		return searchConceptDTO;
 	}
 	
+	/**
+	 * Fix the repository URLs
+	 * 
+	 * @param searchConceptDTO
+	 * @return
+	 */
+	public ExtendedTaxonConceptDTO fixRepoUrls(ExtendedTaxonConceptDTO taxonConceptDTO){
+		
+		List<Image> images = taxonConceptDTO.getImages();
+		
+		for(Image image: images){
+		
+			String imageLocation = image.getRepoLocation();
+			
+			if(imageLocation!=null && imageLocation.contains(repositoryPath)){
+				imageLocation = imageLocation.replace(repositoryPath, repositoryUrl);
+				image.setRepoLocation(imageLocation);
+			}
+			
+			int lastFileSep = imageLocation.lastIndexOf('/');
+			String baseUrl = imageLocation.substring(0, lastFileSep);
+			String fileName = imageLocation.substring(lastFileSep+1);
+			String extension = FilenameUtils.getExtension(fileName);
+			String thumbnail = baseUrl + "thumbnail"+ extension;
+			
+			//set the thumbnail location and DC path
+			image.setDcLocation(baseUrl + FileType.DC.getFilename());
+			image.setThumbnail(thumbnail);
+			
+		}
+		return taxonConceptDTO;
+	}
+	
 	
 	/**
 	 * @param taxonConceptDao the taxonConceptDao to set
 	 */
 	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
 		this.taxonConceptDao = taxonConceptDao;
+	}
+
+	/**
+	 * @param repositoryPath the repositoryPath to set
+	 */
+	public void setRepositoryPath(String repositoryPath) {
+		this.repositoryPath = repositoryPath;
+	}
+
+	/**
+	 * @param repositoryUrl the repositoryUrl to set
+	 */
+	public void setRepositoryUrl(String repositoryUrl) {
+		this.repositoryUrl = repositoryUrl;
 	}
 }

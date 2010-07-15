@@ -15,27 +15,57 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 <div id="decoratorBody">
   <h1><a href="${pageContext.request.contextPath}/regions/">Regions</a> &gt; ${geoRegion.regionTypeName} &gt; Explore ${geoRegion.name}</h1>
   
-  <ul id="emblems">
-  	<li id="animal">
-  		Animal emblem: 
-  		<a id="animalEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.animalEmblem.guid}">
-  			${extendedGeoRegion.animalEmblem.nameString}
-  		</a>
-  	</li>
-  	<li id="plant">Plant emblem: <a id="plantEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.plantEmblem.guid}">${extendedGeoRegion.plantEmblem.nameString}</a></li>
-  	<li id="bird">Bird emblem: <a id="birdEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.birdEmblem.guid}">${extendedGeoRegion.birdEmblem.nameString}</a></li>  	
-  </ul>
+  <table id="emblems">
+  	<tr>
+		<td>Animal emblem</td>
+		<td>
+  			<a id="animalEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.animalEmblem.guid}">
+  				${extendedGeoRegion.animalEmblem.nameString}
+	  		</a>
+	  	</td>
+	  	<td id="animalEmblemText">
+		  	${extendedGeoRegion.animalEmblem.nameString}
+	  	</td>
+  	</tr>
+  	<tr>
+  		<td>Plant emblem</td> 
+  		<td>
+  			<a id="plantEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.plantEmblem.guid}">
+  				${extendedGeoRegion.plantEmblem.nameString}
+  			</a>
+  		</td>
+	  	<td id="plantEmblemText">
+		  	${extendedGeoRegion.plantEmblem.nameString}
+	  	</td>
+  	</tr>
+  	<tr>
+  		<td>Bird emblem</td> 
+  		<td>
+  			<a id="birdEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.birdEmblem.guid}">
+  				${extendedGeoRegion.birdEmblem.nameString}
+  			</a>
+  		</td>
+	  	<td id="birdEmblemText">
+		  	${extendedGeoRegion.birdEmblem.nameString}
+	  	</td>
+  	</tr>
+  </table>
   
   <script type="text/javascript">
         var searchUrl = '${pageContext.request.contextPath}/species/info/${extendedGeoRegion.animalEmblem.guid}.json';
         $.getJSON(searchUrl, function(data) {
             $('#animalEmblem').html('<img src="'+data.taxonConcept.thumbnail+'"/>');
+            $('#animalEmblemText').html(data.taxonConcept.commonNameSingle+" (<i>"+data.taxonConcept.name+"</i>)");
         });  
+        searchUrl = '${pageContext.request.contextPath}/species/info/${extendedGeoRegion.plantEmblem.guid}.json';
         $.getJSON(searchUrl, function(data) {
             $('#plantEmblem').html('<img src="'+data.taxonConcept.thumbnail+'"/>');
+            $('#plantEmblemText').html(data.taxonConcept.commonNameSingle+" (<i>"+data.taxonConcept.name+"</i>)");
         });  
+        searchUrl = '${pageContext.request.contextPath}/species/info/${extendedGeoRegion.birdEmblem.guid}.json';
         $.getJSON(searchUrl, function(data) {
             $('#birdEmblem').html('<img src="'+data.taxonConcept.thumbnail+'"/>');
+            $('#birdEmblemText').html(data.taxonConcept.commonNameSingle+" (<i>"+data.taxonConcept.name+"</i>)");
         });  
   </script>
   

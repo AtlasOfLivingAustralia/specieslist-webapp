@@ -203,7 +203,7 @@ public class SearchController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/species/search*", method = RequestMethod.GET)
-	public String solrSearchSpecies(
+	public String searchSpecies(
 			@RequestParam(value="q", required=false) String query,
 			@RequestParam(value="fq", required=false) String[] filterQuery,
 			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
