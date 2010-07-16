@@ -40,6 +40,7 @@ public class BioCacheLoader {
 	private static final String FAMILY_REGION_OCCURRENCE = "/data/bie-staging/biocache/family_region.txt";
 	private static final String GENUS_REGION_OCCURRENCE = "/data/bie-staging/biocache/genus_region.txt";
 	private static final String SPECIES_REGION_OCCURRENCE = "/data/bie-staging/biocache/species_region.txt";
+	private static final String SUBSPECIES_REGION_OCCURRENCE = "/data/bie-staging/biocache/subspecies_region.txt";
 	
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
@@ -60,6 +61,7 @@ public class BioCacheLoader {
 		loadRegions(FAMILY_REGION_OCCURRENCE, "family");
 		loadRegions(GENUS_REGION_OCCURRENCE, "genus");
 		loadRegions(SPECIES_REGION_OCCURRENCE, "species");
+		loadRegions(SUBSPECIES_REGION_OCCURRENCE, "subspecies");
 	}
 
 	/**
@@ -85,7 +87,6 @@ public class BioCacheLoader {
     			String regionId = values[2];
     			String regionName = values[3];
     			String occurrences = values[4];
-    			
     			if (!guid.equalsIgnoreCase(previousGuid)) {
     				if (!regions.isEmpty()) {
     					// Flush list of regions
