@@ -13,6 +13,21 @@
 <body>
 <div id="decoratorBody">
     <h1>Contributors list</h1>
+    <c:if test="${not empty occurrenceInfoSources}">
+        <h3>&bull; Specimen and Observation providers</h3>
+        <table class="datasets">
+            <tr>
+                <th>Provider Name</th>
+                <th>Records</th>
+            </tr>
+            <c:forEach var="dataset" items="${occurrenceInfoSources}">
+                    <tr>
+                        <td><a  href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a></td>
+                        <td><c:if test="${dataset.documentCount == 0}">N/A</c:if><c:if test="${dataset.documentCount != 0}">${dataset.documentCount}</c:if></td>
+                    </tr>
+            </c:forEach>
+        </table>
+    </c:if>    
     <c:if test="${not empty infoSources}">
         <h3>&bull; Taxonomic datasets</h3>
         <table class="datasets">
@@ -25,7 +40,7 @@
                 <c:set var="datasetId"><c:out value="${dataset.id}"/></c:set>
                 <c:if test="${fn:contains(dataset.datasetType, '1')}">
                     <tr>
-                        <td><a href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a></td>
+                        <td><a class="external" href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a></td>
                         <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">${not empty countsMap[datasetId] ? countsMap[datasetId] : '0'}</a></td>
                         <td><c:if test="${dataset.documentCount == 0}">N/A</c:if><c:if test="${dataset.documentCount != 0}">${dataset.documentCount}</c:if></td>
                     </tr>
@@ -45,9 +60,9 @@
                 <c:set var="datasetId"><c:out value="${dataset.id}"/></c:set>
                 <c:if test="${fn:contains(dataset.datasetType, '3')}">
                     <tr>
-                        <td><a href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a> 
+                        <td><a class="external" href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a> 
                         	<c:if test="${fn:contains(infoSourceIDWithVocabulariesMapList, dataset.id)}">
-                        		(see <a href="${pageContext.request.contextPath}/species/vocabularies/${dataset.id}">term mapping</a>)
+                        		<span class="termMappingLink">(see <a href="${pageContext.request.contextPath}/species/vocabularies/${dataset.id}">term mapping</a>)</span>
                         	</c:if>
                         </td>
                         <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">${not empty countsMap[datasetId] ? countsMap[datasetId] : '0'}</a></td>
@@ -69,9 +84,9 @@
                 <c:set var="datasetId"><c:out value="${dataset.id}"/></c:set>
                 <c:if test="${fn:contains(dataset.datasetType, '2')}">
                     <tr>
-                        <td><a href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a> 
+                        <td><a class="external" href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a> 
                         	<c:if test="${fn:contains(infoSourceIDWithVocabulariesMapList, dataset.id)}">
-                        		(see <a href="${pageContext.request.contextPath}/species/vocabularies/${dataset.id}">term mapping</a>)
+                        		<span class="termMappingLink">(see <a href="${pageContext.request.contextPath}/species/vocabularies/${dataset.id}">term mapping</a>)</span>
                         	</c:if>
                         </td>
                         <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">${not empty countsMap[datasetId] ? countsMap[datasetId] : '0'}</a></td>
