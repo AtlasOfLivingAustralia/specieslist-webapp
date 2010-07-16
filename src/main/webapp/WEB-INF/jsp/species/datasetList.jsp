@@ -43,16 +43,20 @@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %><!DOCTYPE html PUBL
         <table class="datasets">
             <tr>
                 <th>Dataset Name</th>
+                <!--
                 <th>Species & higher taxa</th>
                 <th>Taxa indexed</th>
+                -->
             </tr>
             <c:forEach var="dataset" items="${infoSources}">
                 <c:set var="datasetId"><c:out value="${dataset.id}"/></c:set>
                 <c:if test="${fn:contains(dataset.datasetType, '1')}">
                     <tr>
                         <td><a class="external" href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a></td>
+                        <!--
                         <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">${not empty countsMap[datasetId] ? countsMap[datasetId] : '0'}</a></td>
                         <td><c:if test="${dataset.documentCount == 0}">N/A</c:if><c:if test="${dataset.documentCount != 0}">${dataset.documentCount}</c:if></td>
+                        -->
                     </tr>
                 </c:if>
             </c:forEach>
@@ -61,7 +65,9 @@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %><!DOCTYPE html PUBL
         <table class="datasets">
             <tr>
                 <th>Dataset Name</th>
+                <!--
                 <th>Species</th>
+                -->
                 <th>Images indexed</th>
             </tr>
             <c:forEach var="dataset" items="${infoSources}">
@@ -73,7 +79,9 @@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %><!DOCTYPE html PUBL
                         		<span class="termMappingLink">(see <a href="${pageContext.request.contextPath}/species/vocabularies/${dataset.id}">term mapping</a>)</span>
                         	</c:if>
                         </td>
+                        <!--
                         <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">${not empty countsMap[datasetId] ? countsMap[datasetId] : '0'}</a></td>
+                        -->
                         <td>
                         	<c:if test="${dataset.documentCount == 0}">N/A</c:if>
                         	<c:if test="${dataset.documentCount != 0}">${dataset.documentCount}</c:if>
@@ -86,7 +94,9 @@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %><!DOCTYPE html PUBL
         <table class="datasets">
             <tr>
                 <th>Dataset Name</th>
+                <!--
                 <th>Species & higher taxa</th>
+                -->
                 <th>Pages indexed</th>
             </tr>
             <c:forEach var="dataset" items="${infoSources}">
@@ -98,7 +108,9 @@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %><!DOCTYPE html PUBL
                         		<span class="termMappingLink">(see <a href="${pageContext.request.contextPath}/species/vocabularies/${dataset.id}">term mapping</a>)</span>
                         	</c:if>
                         </td>
+                        <!--
                         <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">${not empty countsMap[datasetId] ? countsMap[datasetId] : '0'}</a></td>
+                        -->
                         <td>
                         	<c:if test="${dataset.documentCount == 0}">N/A</c:if>
                         	<c:if test="${dataset.documentCount != 0}">${dataset.documentCount}</c:if>
