@@ -203,7 +203,7 @@
                     <tbody>
                         <c:forEach var="dataprovider" items="${searchResults.results}">
                             <tr>
-                                <td id="col1"><a href="${collection.guid}">${dataprovider.name}</a></td>
+                                <td id="col1"><a href="${dataprovider.guid}">${dataprovider.name}</a></td>
                                 <td id="col2">${dataprovider.description}</td>
                             </tr>
                         </c:forEach>
