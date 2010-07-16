@@ -298,9 +298,9 @@
                                     <div id="distroMap" style="display:none;">
                                         <h3>Distribution Map</h3>
                                         <p>
-                                            <a href="http://spatial-dev.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">
+                                            <a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">
                                                 <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" id="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
-                                            <a href="http://spatial-dev.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
+                                            <a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
                                         </p>
                                     </div>
                                 </div><!--close news-->
@@ -492,8 +492,8 @@
                             <div id="column-one">
                                 <div class="section">
                                     <h2>Records</h2>
-                                    <p><a href="http://biocache.ala.org.au/biocache-webapp/occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View all occurrence records for this taxon</a></p>
-                                    <p><a href="http://spatial-dev.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}">View all map of records for this taxon</a></p>
+                                    <p><a href="http://biocache.ala.org.au/occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View all occurrence records for this taxon</a></p>
+                                    <p><a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}">View all map of records for this taxon</a></p>
                                 </div>
                             </div><!---->
                             <div id="column-two">
@@ -508,8 +508,8 @@
                                 <div class="section">
                                     <h3>Distribution Map</h3>
                                     <p>
-                                        <a href="http://spatial-dev.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool"><img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" alt="" width="300"/></a>
-                                        <a href="http://spatial-dev.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
+                                        <a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool"><img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" alt="" width="300"/></a>
+                                        <a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
                                     </p>
                                 </div><!--close-->
                             </div><!--close -->
