@@ -1,8 +1,7 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<%@ page contentType="text/html" pageEncoding="UTF-8" %><%@ 
+taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %><%@ 
+taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %><%@ 
+taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %><!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
     <meta name="pageName" content="datasets"/>
@@ -11,19 +10,30 @@
     <title>Contributors</title>
 </head>
 <body>
+<p>
+The Atlas of Living Australia will become the gateway to the country’s most comprehensive collection of Australia’s biodiversity information. 
+It will draw on, and direct people to, research, literature, images, maps, records, natural history collections and observations on all Australian plants, 
+animals and microorganisms. However, we cannot complete this task without co-operation and access to data sources. 
+We are fortunate to have agreements with a range of data providers who are willing to shared their data and allow a comprehensive documentation of Australia’s Biodiversity.
+</p>
 <div id="decoratorBody">
     <h1>Contributors list</h1>
     <c:if test="${not empty occurrenceInfoSources}">
         <h3>&bull; Specimen and Observation providers</h3>
         <table class="datasets">
             <tr>
-                <th>Provider Name</th>
+                <th>Provider name</th>
                 <th>Records</th>
             </tr>
             <c:forEach var="dataset" items="${occurrenceInfoSources}">
                     <tr>
-                        <td><a  href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a></td>
-                        <td><c:if test="${dataset.documentCount == 0}">N/A</c:if><c:if test="${dataset.documentCount != 0}">${dataset.documentCount}</c:if></td>
+                        <td><a href="http://biocache.ala.org.au/data_provider/${dataset.id}">${dataset.name}</a></td>
+                        <td>
+                        	<c:if test="${dataset.documentCount == 0}">N/A</c:if>
+                        	<c:if test="${dataset.documentCount != 0}">
+                        		<a href="http://biocache.ala.org.au/occurrences/searchByDataProviderId?q=${dataset.id}">${dataset.documentCount}</a>
+                        	</c:if>
+                        </td>
                     </tr>
             </c:forEach>
         </table>
@@ -47,8 +57,6 @@
                 </c:if>
             </c:forEach>
         </table>
-    <%--</c:if>
-    <c:if test="${not empty infoSources3}">--%>
         <h3>&bull; Image Libraries</h3>
         <table class="datasets">
             <tr>
@@ -66,13 +74,14 @@
                         	</c:if>
                         </td>
                         <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">${not empty countsMap[datasetId] ? countsMap[datasetId] : '0'}</a></td>
-                        <td><c:if test="${dataset.documentCount == 0}">N/A</c:if><c:if test="${dataset.documentCount != 0}">${dataset.documentCount}</c:if></td>
+                        <td>
+                        	<c:if test="${dataset.documentCount == 0}">N/A</c:if>
+                        	<c:if test="${dataset.documentCount != 0}">${dataset.documentCount}</c:if>
+                        </td>
                     </tr>
                 </c:if>
             </c:forEach>
         </table>
-    <%--</c:if>
-    <c:if test="${not empty infoSources2}">--%>
         <h3>&bull; External Websites</h3>
         <table class="datasets">
             <tr>
@@ -90,7 +99,10 @@
                         	</c:if>
                         </td>
                         <td><a href="${pageContext.request.contextPath}/species/search?q=dataset:${dataset.id}&title=${dataset.name}">${not empty countsMap[datasetId] ? countsMap[datasetId] : '0'}</a></td>
-                        <td><c:if test="${dataset.documentCount == 0}">N/A</c:if><c:if test="${dataset.documentCount != 0}">${dataset.documentCount}</c:if></td>
+                        <td>
+                        	<c:if test="${dataset.documentCount == 0}">N/A</c:if>
+                        	<c:if test="${dataset.documentCount != 0}">${dataset.documentCount}</c:if>
+                        </td>
                     </tr>
                 </c:if>
             </c:forEach>
