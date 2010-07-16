@@ -8,14 +8,15 @@
         <title>Welcome to the Atlas of Living Australia</title>
     </head>
     <body>
+    	<div id="decoratorBody">
         <p>Welcome to the Atlas of Living Australia <strong>Biodiversity Information Explorer</strong>.</p>
-        
         <p>
-          This is an early release of this functionality for <strong>release 2 (March 17th)</strong>.
+          This is an early release of this functionality for <strong>release 4 (July 21st)</strong>.
         </p>
-        
-        <p><a href="species/search">Search for Species Pages</a></p>
-        
-        <p><a href="regions/">Explore the states</a></p>
+        <ul>
+	        <li><a href="regions/">Explore the states</a></li>
+	        <li><a href="contributors">Contributors list</a></li>
+	    </ul>    
+        </div>
     </body>
 </html>
