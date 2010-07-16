@@ -237,7 +237,7 @@
                             <li><a href="${pageContext.request.contextPath}/institutions/search?q=${param['q']}">Institutions</a></li>
                         </c:if>
                         <li class="active">Collections</li>
-                        <c:if test="${not empty collection}">
+                        <c:if test="${not empty dataprovider}">
                             <li><a href="${pageContext.request.contextPath}/dataproviders/search?q=${param['q']}">Data Providers</a></li>
                         </c:if>
                         <c:if test="${not empty dataset}">
