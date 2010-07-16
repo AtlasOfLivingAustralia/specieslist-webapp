@@ -49,8 +49,8 @@ public class ExternalIndexLoader {
 	
 	protected String baseUrlForCollections = "http://collections.ala.org.au/public/show/";
 	protected String baseUrlForInstitutions = "http://collections.ala.org.au/public/showInstitution/";
-	protected String baseUrlForDataProviders = "http://data.ala.org.au/dataproviders/";
-	protected String baseUrlForDatasets = "http://data.ala.org.au/datasets/";
+	protected String baseUrlForDataProviders = "http://biocache.ala.org.au/data_provider/";
+	protected String baseUrlForDatasets = "http://biocache.ala.org.au/data_resource/";
 	
 	public static void main(String[] args) throws Exception {
 		
