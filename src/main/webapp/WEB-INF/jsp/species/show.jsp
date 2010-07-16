@@ -72,22 +72,23 @@
                         return "<a href='"+titleBits[1]+"'>"+titleBits[0]+"</a>"; },
                     opacity: 0.5,
                     maxWidth: "80%",
+                    maxHeight: "80%",
                     onComplete: function() {
-                        $("#cboxTitle").html("");
-                        //link = $.fn.colorbox.element();
-                        //title = $(link).attr("title");
-                        
-                        var titleBits = this.title.split("|");
-                        var titleText = "<cite>Source: <a href='"+titleBits[1]+"' target='_blank'>"+titleBits[0]+"</a></cite>";
-                        $("<div id='titleText'>"+titleText+"</div>").insertAfter("#cboxPhoto");
+                        $("#cboxTitle").html(""); // Clear default title div
+                        var index = $(this).attr('id').replace("thumb",""); // get the imdex of this image
+                        var titleHtml = $("div#thumbDiv"+index).html(); // use index to load meta data
+                        $("<div id='titleText'>"+titleHtml+"</div>").insertAfter("#cboxPhoto");
+                        $("div#titleText").css("padding-top","8px");
                         $.fn.colorbox.resize(); 
                     }
                 });
 
-                // images in overview tabbed should take you to Multimedia tab
+                // images in overview tabbed should take you to Multimedia tab and display the image 
                 $("#images ul a").click(function(e) {
                     e.preventDefault(); //Cancel the link behavior
-                    $('#nav-tabs > ul').tabs( "select" , 1 )
+                    $('#nav-tabs > ul').tabs( "select" , 1 );
+                    var thumbId = "thumb" + $(this).attr('href');
+                    $("a#"+thumbId).click();
                 });
 
                 // Check for valid distribution map img URLs
@@ -249,7 +250,7 @@
                                     <ul>
                                         <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
                                             <c:if test="${status.index < 6}">
-                                                <li><a href="" title=""><img src="${image.repoLocation}" width="150" alt="" /></a></li>
+                                                <li><a href="${status.index}" title=""><img src="${image.repoLocation}" width="150" alt="" /></a></li>
                                             </c:if>
                                         </c:forEach>
                                     </ul>
@@ -284,8 +285,14 @@
                                     </c:forEach>
                                     <c:if test="${not empty extendedTaxonConcept.habitats}"><h3>Habitat Status</h3></c:if>
                                     <c:forEach var="status" items="${extendedTaxonConcept.habitats}">
+                                        <c:set var="sourceUrl">
+                                            <c:choose>
+                                                <c:when test="${not empty status.identifier}">${status.identifier}</c:when>
+                                                <c:otherwise>${status.infoSourceURL}</c:otherwise>
+                                            </c:choose>
+                                        </c:set>
                                         <p><fmt:message key="habitat.${status.status}"/>
-                                            <cite>source: <a href="${status.identifier}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
+                                            <cite>source: <a href="${sourceUrl}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
                                         </p>
                                     </c:forEach>
                                     <div id="distroMap" style="display:none;">
@@ -325,8 +332,35 @@
                                     <div id="imageGallery">
                                         <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
                                             <c:set var="thumbUri">${image.thumbnail}</c:set>
-                                            <c:set var="imageTitle">${image.infoSourceName} | ${image.infoSourceURL} </c:set>
-                                            <a class="thumbImage" rel="thumbs" title="${imageTitle}" href="${image.repoLocation}"><img src="${thumbUri}" alt="${image.infoSourceName}" title="${imageTitle}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/></a>
+                                            <c:set var="imageTitle">${image.infoSourceName} | ${image.infoSourceURL} | ${image.creator} | ${image.isPartOf} | ${image.licence} | ${image.rights} </c:set>
+                                            <a class="thumbImage" rel="thumbs" title="${image.title}" href="${image.repoLocation}" id="thumb${status.index}"><img src="${thumbUri}" alt="${image.infoSourceName}" title="${imageTitle}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/></a>
+                                            <div id="thumbDiv${status.index}" style="display:none;">
+                                                <c:if test="${not empty image.title}">
+                                                    ${image.title}<br/>
+                                                </c:if>
+                                                <c:if test="${not empty image.creator}">
+                                                    Image by: ${image.creator}<br/>
+                                                </c:if>
+                                                <c:if test="${not empty image.licence}">
+                                                    Image licence: ${image.licence}<br/>
+                                                </c:if>
+                                                <c:if test="${not empty image.rights}">
+                                                    Image rights: ${image.rights}<br/>
+                                                </c:if>
+                                                <c:set var="imageUri">
+                                                    <c:choose>
+                                                        <c:when test="${not empty image.isPartOf}">
+                                                            ${image.isPartOf}
+                                                        </c:when>
+                                                        <c:when test="${not empty image.identifier}">
+                                                            ${image.identifier}
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            ${image.infoSourceURL}
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </c:set>
+                                                <cite>Source: <a href="${imageUri}" target="_blank">${image.infoSourceName}</a></cite></div>
                                         </c:forEach>
                                     </div>
                                 </div>
