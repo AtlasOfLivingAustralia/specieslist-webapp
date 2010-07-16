@@ -10,14 +10,14 @@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %><!DOCTYPE html PUBL
     <title>Contributors</title>
 </head>
 <body>
-<p>
-The Atlas of Living Australia will become the gateway to the country’s most comprehensive collection of Australia’s biodiversity information. 
-It will draw on, and direct people to, research, literature, images, maps, records, natural history collections and observations on all Australian plants, 
-animals and microorganisms. However, we cannot complete this task without co-operation and access to data sources. 
-We are fortunate to have agreements with a range of data providers who are willing to shared their data and allow a comprehensive documentation of Australia’s Biodiversity.
-</p>
 <div id="decoratorBody">
     <h1>Contributors list</h1>
+	<p>
+	The Atlas of Living Australia will become the gateway to the country’s most comprehensive collection of Australia’s biodiversity information. 
+	It will draw on, and direct people to, research, literature, images, maps, records, natural history collections and observations on all Australian plants, 
+	animals and microorganisms. However, we cannot complete this task without co-operation and access to data sources. 
+	We are fortunate to have agreements with a range of data providers who are willing to shared their data and allow a comprehensive documentation of Australia’s Biodiversity.
+	</p>
     <c:if test="${not empty occurrenceInfoSources}">
         <h3>&bull; Specimen and Observation providers</h3>
         <table class="datasets">
