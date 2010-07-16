@@ -17,11 +17,9 @@ package org.ala.web;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
@@ -30,18 +28,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.ala.dao.DocumentDAO;
 import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.IndexedTypes;
-import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
-import org.ala.dao.VocabularyDAO;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
-import org.ala.lucene.Autocompleter;
 import org.ala.model.CommonName;
 import org.ala.model.Document;
 import org.ala.model.Image;
-import org.ala.model.InfoSource;
 import org.ala.model.SimpleProperty;
 import org.ala.repository.Predicates;
 import org.ala.util.FileType;
@@ -52,7 +46,6 @@ import org.ala.util.StatusType;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -81,12 +74,6 @@ public class SpeciesController {
 	/** DAO bean for SOLR search queries */
 	@Inject
 	private FulltextSearchDao searchDao;
-	/** DAO bean for access to info sources */
-	@Inject
-	private InfoSourceDAO infoSourceDAO;
-	/** DAO bean for vocabularies */
-	@Inject
-	private VocabularyDAO vocabularyDAO;
 	/** Name of view for site home page */
 	private String HOME_PAGE = "homePage";
 	/** Name of view for a single taxon */
@@ -95,10 +82,6 @@ public class SpeciesController {
 	private final String SPECIES_ERROR = "species/error";
 	/** Name of view for list of pest/conservation status */
 	private final String STATUS_LIST = "species/statusList";
-	/** Name of view for list of datasets */
-	private final String DATASET_LIST = "species/datasetList";
-	/** Name of view for list of vocabularies */
-	private final String VOCABULARIES_LIST = "species/vocabularies";
 	/** The path to the repository */
 	protected String repositoryPath = "/data/bie/";
 	/** The URL to the repository */
@@ -303,87 +286,6 @@ public class SpeciesController {
 		return searchResults;
 	}
 
-	/**
-	 * List of data sets.
-	 * 
-	 *
-	 * @param model
-	 * @return view name
-	 */
-	@RequestMapping(value = "/species/contributors", method = RequestMethod.GET)
-	public String listDatasets (Model model) throws Exception  {
-		List<InfoSource> infoSources = infoSourceDAO.getAllByDatasetType();
-		List<Integer> infoSourceIDWithVocabulariesMapList = new ArrayList<Integer>();		
-		for (InfoSource infoSource : infoSources) {
-			List<Map<String,Object>> vocabulariesMap = vocabularyDAO.getTermsByInfosourceId(infoSource.getId());
-			
-			if (vocabulariesMap != null && vocabulariesMap.size() != 0) {
-				infoSourceIDWithVocabulariesMapList.add(infoSource.getId());
-			}
-		}
-		
-		model.addAttribute("infoSources", infoSources);
-		model.addAttribute("infoSourceIDWithVocabulariesMapList", infoSourceIDWithVocabulariesMapList);
-		Map<String, Long> countsMap = searchDao.getAllDatasetCounts();
-		model.addAttribute("countsMap", countsMap);
-
-		return DATASET_LIST;
-	}
-
-	/**
-	 * List of vocabularies for a given Info Source Id
-	 *
-	 * @param model
-	 * @return view name
-	 */
-	@RequestMapping(value = "/species/vocabularies/{infosourceId}", method = RequestMethod.GET)
-	public String listVocabularies (@PathVariable("infosourceId") String infoSourceId, Model model) throws Exception {
-		model.addAttribute("infoSource", infoSourceId);
-		
-        int infoId = Integer.parseInt(infoSourceId);
-
-        logger.debug(vocabularyDAO.getPreferredTermsFor(infoId, "" ,  ""));
-
-        List<Map<String,Object>> vocabulariesMap = vocabularyDAO.getTermsByInfosourceId(infoId);
-
-        model.addAttribute("vocabulariesMap", vocabulariesMap);
-
-        InfoSource infoSource = infoSourceDAO.getById(infoId);
-        String infoSourceName = infoSource.getName();
-        logger.debug("Infosource Name:" + infoSourceName);
-        model.addAttribute("infoName", infoSourceName);
-
-		return VOCABULARIES_LIST;
-	}
-
-	/**
-	 * Autocomplete AJAX service for JQuery-autocomplete
-	 *
-	 * @param query
-	 * @param response
-	 */
-	@RequestMapping(value = "/species/terms", method = RequestMethod.GET)
-	public void listTerms(
-			@RequestParam(value="term", required=false) String query,
-			HttpServletResponse response) {
-
-		try {
-			OutputStreamWriter os = new OutputStreamWriter(response.getOutputStream());
-			Autocompleter ac = new Autocompleter();
-			List<String> terms = new ArrayList<String>();
-			terms = ac.suggestTermsFor(query.toLowerCase().trim(), 10);
-			// create JSON string using Jackson
-			ObjectMapper o = new ObjectMapper();
-			String json = o.writeValueAsString(terms);
-			response.setContentType("application/json");
-			os.write(json);
-			os.close();
-		} catch (IOException ex) {
-			logger.error("Problem running Autocompleter: "+ex.getMessage(), ex);
-		}
-
-		return;
-	}
 
 	/**
 	 * Utility to pull out common names and remove duplicates, returning a string
