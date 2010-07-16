@@ -172,7 +172,7 @@ public class ExternalIndexLoader {
 				"where dp.occurrence_count>0");
 		
 		SolrServer solrServer = solrUtils.getSolrServer();
-		solrServer.deleteByQuery("idxtype:"+IndexedTypes.DATASET);
+		solrServer.deleteByQuery("idxtype:"+IndexedTypes.DATAPROVIDER);
 		
 		while (rs.next()) {
 			String id = rs.getString("id");
