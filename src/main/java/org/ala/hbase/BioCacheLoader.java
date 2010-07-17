@@ -14,6 +14,7 @@
  ***************************************************************************/
 package org.ala.hbase;
 
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,10 +23,11 @@ import javax.inject.Inject;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.model.OccurrencesInGeoregion;
 import org.ala.util.SpringUtils;
-import org.ala.util.TabReader;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+
+import au.com.bytecode.opencsv.CSVReader;
 /**
  * This class loads data reports extracted from the BioCache into the BIE.
  *
@@ -74,7 +76,7 @@ public class BioCacheLoader {
     	long start = System.currentTimeMillis();
     	
     	// add the taxon concept regions
-    	TabReader tr = new TabReader(regionDatFile);
+    	CSVReader tr = new CSVReader(new FileReader(regionDatFile), '\t', '"');
     	String[] values = null;
 		int noOfTaxa = 0;
 		int noOfRegions = 0;
