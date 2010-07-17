@@ -130,7 +130,7 @@ public class SpeciesController {
 	}
 
 	/**
-	 * Map to a /{guid} URI.
+	 * Map to a /{guid}.json or /{guid}.xml URI.
 	 * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
 	 * 
 	 * @param guid
@@ -138,8 +138,8 @@ public class SpeciesController {
 	 * @return view name
 	 * @throws Exception
 	 */ 
-	@RequestMapping(value = "/species/info/{guid}.json", method = RequestMethod.GET)
-	public String showBriefSpecies(
+	@RequestMapping(value = {"/species/info/{guid}.json","/species/info/{guid}.xml"}, method = RequestMethod.GET)
+	public SearchResultsDTO showBriefSpecies(
             @PathVariable("guid") String guid,
             @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
             Model model) throws Exception {
@@ -149,7 +149,7 @@ public class SpeciesController {
         	SearchTaxonConceptDTO st = (SearchTaxonConceptDTO) stcs.getResults().get(0);
         	model.addAttribute("taxonConcept", fixRepoUrls(st));
         }
-		return SPECIES_SHOW;
+		return stcs;
 	}
 	
 	/**
@@ -159,7 +159,7 @@ public class SpeciesController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/species/{guid}.json", method = RequestMethod.GET)
+	@RequestMapping(value = {"/species/{guid}.json","/species/{guid}.xml"}, method = RequestMethod.GET)
 	public ExtendedTaxonConceptDTO showSpeciesJson(@PathVariable("guid") String guid) throws Exception {
 		logger.info("Retrieving concept with guid: "+guid);
 		return fixRepoUrls(taxonConceptDao.getExtendedTaxonConceptByGuid(guid));
