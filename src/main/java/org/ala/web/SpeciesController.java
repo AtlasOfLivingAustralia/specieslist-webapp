@@ -14,7 +14,6 @@
  ***************************************************************************/
 package org.ala.web;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -35,15 +34,12 @@ import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.model.CommonName;
 import org.ala.model.Document;
-import org.ala.model.Image;
 import org.ala.model.SimpleProperty;
 import org.ala.repository.Predicates;
-import org.ala.util.FileType;
 import org.ala.util.ImageUtils;
 import org.ala.util.MimeType;
 import org.ala.util.RepositoryFileUtils;
 import org.ala.util.StatusType;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -82,10 +78,8 @@ public class SpeciesController {
 	private final String SPECIES_ERROR = "species/error";
 	/** Name of view for list of pest/conservation status */
 	private final String STATUS_LIST = "species/statusList";
-	/** The path to the repository */
-	protected String repositoryPath = "/data/bie/";
-	/** The URL to the repository */
-	protected String repositoryUrl = "http://bie.ala.org.au/repo/";
+	@Inject
+	protected RepoUrlUtils repoUrlUtils;
 	
 	/**
 	 * Custom handler for the welcome view.
@@ -123,7 +117,7 @@ public class SpeciesController {
             return SPECIES_ERROR;
         }
 
-        model.addAttribute("extendedTaxonConcept", fixRepoUrls(etc));
+        model.addAttribute("extendedTaxonConcept", repoUrlUtils.fixRepoUrls(etc));
 		model.addAttribute("commonNames", getCommonNamesString(etc));
 		model.addAttribute("textProperties", filterSimpleProperties(etc));
 		return SPECIES_SHOW;
@@ -147,7 +141,7 @@ public class SpeciesController {
 		SearchResultsDTO<SearchDTO> stcs = searchDao.findByName(IndexedTypes.TAXON, guid, null, 0, 1, "score", "asc");
         if(stcs.getTotalRecords()>0){
         	SearchTaxonConceptDTO st = (SearchTaxonConceptDTO) stcs.getResults().get(0);
-        	model.addAttribute("taxonConcept", fixRepoUrls(st));
+        	model.addAttribute("taxonConcept", repoUrlUtils.fixRepoUrls(st));
         }
 		return stcs;
 	}
@@ -162,7 +156,7 @@ public class SpeciesController {
 	@RequestMapping(value = {"/species/{guid}.json","/species/{guid}.xml"}, method = RequestMethod.GET)
 	public ExtendedTaxonConceptDTO showSpeciesJson(@PathVariable("guid") String guid) throws Exception {
 		logger.info("Retrieving concept with guid: "+guid);
-		return fixRepoUrls(taxonConceptDao.getExtendedTaxonConceptByGuid(guid));
+		return repoUrlUtils.fixRepoUrls(taxonConceptDao.getExtendedTaxonConceptByGuid(guid));
 	}
 
 	/**
@@ -328,59 +322,6 @@ public class SpeciesController {
 	}
 
 	/**
-	 * Fix the repository URLs
-	 * 
-	 * @param searchConceptDTO
-	 * @return
-	 */
-	public SearchTaxonConceptDTO fixRepoUrls(SearchTaxonConceptDTO searchConceptDTO){
-		
-		String thumbnail = searchConceptDTO.getThumbnail();
-		if(thumbnail!=null && thumbnail.contains(repositoryPath)){
-			searchConceptDTO.setThumbnail(thumbnail.replace(repositoryPath, repositoryUrl));
-		}
-		String image = searchConceptDTO.getImage();
-		if(image!=null && image.contains(repositoryPath)){
-			searchConceptDTO.setImage(image.replace(repositoryPath, repositoryUrl));
-		}
-		return searchConceptDTO;
-	}
-	
-	/**
-	 * Fix the repository URLs
-	 * 
-	 * @param searchConceptDTO
-	 * @return
-	 */
-	public ExtendedTaxonConceptDTO fixRepoUrls(ExtendedTaxonConceptDTO taxonConceptDTO){
-		
-		List<Image> images = taxonConceptDTO.getImages();
-		
-		for(Image image: images){
-		
-			String imageLocation = image.getRepoLocation();
-			
-			if(imageLocation!=null && imageLocation.contains(repositoryPath)){
-				imageLocation = imageLocation.replace(repositoryPath, repositoryUrl);
-				image.setRepoLocation(imageLocation);
-			}
-			
-			int lastFileSep = imageLocation.lastIndexOf(File.separatorChar);
-			String baseUrl = imageLocation.substring(0, lastFileSep+1);
-			String fileName = imageLocation.substring(lastFileSep+1);
-			String extension = FilenameUtils.getExtension(fileName);
-			String thumbnail = baseUrl + "thumbnail"+ "." + extension;
-			
-			//set the thumbnail location and DC path
-			image.setDcLocation(baseUrl + FileType.DC.getFilename());
-			image.setThumbnail(thumbnail);
-			
-		}
-		return taxonConceptDTO;
-	}
-	
-	
-	/**
 	 * @param taxonConceptDao the taxonConceptDao to set
 	 */
 	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
@@ -388,16 +329,9 @@ public class SpeciesController {
 	}
 
 	/**
-	 * @param repositoryPath the repositoryPath to set
+	 * @param repoUrlUtils the repoUrlUtils to set
 	 */
-	public void setRepositoryPath(String repositoryPath) {
-		this.repositoryPath = repositoryPath;
-	}
-
-	/**
-	 * @param repositoryUrl the repositoryUrl to set
-	 */
-	public void setRepositoryUrl(String repositoryUrl) {
-		this.repositoryUrl = repositoryUrl;
+	public void setRepoUrlUtils(RepoUrlUtils repoUrlUtils) {
+		this.repoUrlUtils = repoUrlUtils;
 	}
 }

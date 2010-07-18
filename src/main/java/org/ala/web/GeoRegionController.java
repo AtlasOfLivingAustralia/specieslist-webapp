@@ -26,6 +26,7 @@ import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.GeoRegionDao;
 import org.ala.dto.ExtendedGeoRegionDTO;
 import org.ala.dto.SearchResultsDTO;
+import org.ala.dto.SearchTaxonConceptDTO;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,6 +52,8 @@ public class GeoRegionController {
 	/** DAO bean for SOLR search queries */
 	@Inject
 	private FulltextSearchDao searchDao;
+	@Inject
+	protected RepoUrlUtils repoUrlUtils;
 	/** Name of view for an empty search page */
 	private final String GEOREGION_SHOW = "regions/show";
 	private final String GEOREGION_TAXA_SHOW = "regions/taxaShow";
@@ -89,20 +92,29 @@ public class GeoRegionController {
 		
 		//birds counts
 		SearchResultsDTO birds = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Aves", null, 0, 24, "scientificNameRaw", "asc");
-		model.addAttribute("birds", birds);
+		model.addAttribute("birds", repoUrlUtils.fixRepoUrls(birds));
 		
 		//mammal counts
 		SearchResultsDTO mammals = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Mammalia", null, 0, 24, "scientificNameRaw", "asc");
-		model.addAttribute("mammals", mammals);
+		model.addAttribute("mammals", repoUrlUtils.fixRepoUrls(mammals));
 
 		//reptile counts
 		SearchResultsDTO reptiles = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Reptilia", null, 0, 24, "scientificNameRaw", "asc");
-		model.addAttribute("reptiles", reptiles);
+		model.addAttribute("reptiles", repoUrlUtils.fixRepoUrls(reptiles));
 
 		//frog counts
 		SearchResultsDTO frogs = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Amphibia", null, 0, 24, "scientificNameRaw", "asc");
-		model.addAttribute("frogs", frogs);
+		model.addAttribute("frogs", repoUrlUtils.fixRepoUrls(frogs));
+		
+		//acacia counts
+		SearchResultsDTO acacia = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "genus", "Acacia", null, 0, 24, "scientificNameRaw", "asc");
+		model.addAttribute("acacia", repoUrlUtils.fixRepoUrls(acacia));
 
+		//acacia counts
+		SearchResultsDTO eucalypts = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "genus", "Eucalyptus", null, 0, 24, "scientificNameRaw", "asc");
+		model.addAttribute("eucalypts", repoUrlUtils.fixRepoUrls(eucalypts));
+
+		
 		//fish counts
 		List<String> fishTaxa = new ArrayList<String>();
 		fishTaxa.add("Myxini");
@@ -185,7 +197,7 @@ public class GeoRegionController {
 				"state", regionName, rank, taxaList, 
 				null, 0, 100, "scientificNameRaw", "asc");
 		
-		model.addAttribute("searchResults", searchResults);
+		model.addAttribute("searchResults", repoUrlUtils.fixRepoUrls(searchResults));
 		
 		return GEOREGION_TAXA_SHOW;
 	}
@@ -220,7 +232,7 @@ public class GeoRegionController {
 		String[] taxa = higherTaxon.trim().split(",");
 		List<String> taxaList = Arrays.asList(taxa);
 
-		SearchResultsDTO searchResults = searchDao.findAllDifferencesInSpeciesByRegionAndHigherTaxon(
+		SearchResultsDTO<SearchTaxonConceptDTO> searchResults = searchDao.findAllDifferencesInSpeciesByRegionAndHigherTaxon(
 				regionType, regionName, 
 				regionType, altRegionName,
 				rank, taxaList,
@@ -243,5 +255,12 @@ public class GeoRegionController {
 	 */
 	public void setSearchDao(FulltextSearchDao searchDao) {
 		this.searchDao = searchDao;
+	}
+
+	/**
+	 * @param repoUrlUtils the repoUrlUtils to set
+	 */
+	public void setRepoUrlUtils(RepoUrlUtils repoUrlUtils) {
+		this.repoUrlUtils = repoUrlUtils;
 	}
 }
