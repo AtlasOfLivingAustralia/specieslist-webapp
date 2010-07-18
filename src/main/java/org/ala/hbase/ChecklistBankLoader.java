@@ -442,12 +442,16 @@ public class ChecklistBankLoader {
 						}
 					}
 					
-					//load the child concepts
-					List<TaxonConcept> childConcepts = getChildConcepts(guid);
+					//load the child concepts - use the numeric id to lookup child concepts
+					List<TaxonConcept> childConcepts = getChildConcepts(identifier);
 					if(!childConcepts.isEmpty()){
 						for(TaxonConcept childConcept: childConcepts){
 							boolean success = taxonConceptDao.addChildTaxon(guid, childConcept);
-							if(!success) logger.error("Failed to add child concept to "+guid+", line number: "+lineNumber);
+							if(!success){
+								logger.error("Failed to add child concept to "+guid+", line number: "+lineNumber);
+							} else {
+								logger.debug("Added child concept to "+guid+", line number: "+lineNumber);
+							}
 						}
 					}
 					
