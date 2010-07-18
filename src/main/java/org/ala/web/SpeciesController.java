@@ -17,8 +17,12 @@ package org.ala.web;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
@@ -80,7 +84,16 @@ public class SpeciesController {
 	private final String STATUS_LIST = "species/statusList";
 	@Inject
 	protected RepoUrlUtils repoUrlUtils;
-	
+        /** The set of data sources that will not be truncated **/
+        protected Set<String> nonTruncatedSources = new java.util.HashSet<String>();
+        /** The set of data sources that have low priority (ie displayed at the end of the list or removed if other sources available) **/
+        protected Set<String> lowPrioritySources = new java.util.HashSet<String>();
+
+        public SpeciesController(){
+            nonTruncatedSources.add("http://www.environment.gov.au/biodiversity/abrs/online-resources/flora/main/index.html");
+            lowPrioritySources.add("http://en.wikipedia.org/");
+            //lowPrioritySources.add("http://plantnet.rbgsyd.nsw.gov.au/floraonline.htm");
+        }
 	/**
 	 * Custom handler for the welcome view.
 	 * <p>
@@ -312,14 +325,56 @@ public class SpeciesController {
 		List<SimpleProperty> simpleProperties = etc.getSimpleProperties();
 		List<SimpleProperty> textProperties = new ArrayList<SimpleProperty>();
 
+                //we only want the list to store the first type for each source
+                //HashSet<String> processedProperties = new HashSet<String>();
+                Hashtable<String, SimpleProperty> processProperties = new Hashtable<String, SimpleProperty>();
 		for (SimpleProperty sp : simpleProperties) {
-			if (sp.getName().endsWith("Text") || sp.getName().endsWith("hasPopulateEstimate")) {
-				textProperties.add(sp);
+                    String thisProperty = sp.getName() + sp.getInfoSourceName();
+                    if ((sp.getName().endsWith("Text") || sp.getName().endsWith("hasPopulateEstimate"))) {
+                            //attempt to find an existing processed property
+                            SimpleProperty existing = processProperties.get(thisProperty);
+                            if(existing != null){
+                                //separate paragraphs using br's instead of p so that the citation is aligned correctly
+                                existing.setValue(existing.getValue() +"<br><br>" + sp.getValue());
+                            }
+                            else
+                                processProperties.put(thisProperty, sp);
 			}
 		}
+                simpleProperties = Collections.list(processProperties.elements());
+                //sort the simple properties based on low priority and non-truncated infosources
+                Collections.sort(simpleProperties, new SimplePropertyComparator());
+                for(SimpleProperty sp: simpleProperties){
+                    if(!nonTruncatedSources.contains(sp.getInfoSourceURL())){
+                        sp.setValue(truncateText(sp.getValue(), 300));
+                    }
+                    textProperties.add(sp);
+                }
 
 		return textProperties;
 	}
+        /**
+         * Truncates the text at a sentence break after min length
+         * @param text
+         * @param min
+         * @return
+         */
+        private String truncateText(String text, int min){
+            try{
+            if(text != null && text.length()>min){
+                java.text.BreakIterator bi = java.text.BreakIterator.getSentenceInstance();
+                bi.setText(text);
+                int finalIndex =bi.following(min);
+                return text.substring(0,finalIndex) + "...";
+            }
+            }
+            catch(Exception e){
+                logger.debug("Unable to truncate " + text, e);
+            }
+            return text;
+
+
+        }
 
 	/**
 	 * @param taxonConceptDao the taxonConceptDao to set
@@ -334,4 +389,50 @@ public class SpeciesController {
 	public void setRepoUrlUtils(RepoUrlUtils repoUrlUtils) {
 		this.repoUrlUtils = repoUrlUtils;
 	}
+
+    public Set<String> getNonTruncatedSources() {
+        return nonTruncatedSources;
+    }
+
+    public void setNonTruncatedSources(Set<String> nonTruncatedSources) {
+        logger.debug("Setting the non truncated sources");
+        this.nonTruncatedSources = nonTruncatedSources;
+    }
+
+    public Set<String> getLowPrioritySources() {
+        return lowPrioritySources;
+    }
+
+    public void setLowPrioritySources(Set<String> lowPrioritySources) {
+        logger.debug("setting the low priority sources");
+        this.lowPrioritySources = lowPrioritySources;
+    }
+    /**
+     * Comparator to order the Simple Properties based on their natural ordering
+     * and low and high priority info sources.
+     */
+    protected class SimplePropertyComparator implements Comparator<SimpleProperty>{
+
+        @Override
+        public int compare(SimpleProperty o1, SimpleProperty o2) {
+            int value = o1.compareTo(o2);
+            
+            if(value ==0){
+                //we want the low priority items to appear at the end of the list
+                boolean low1 = lowPrioritySources.contains(o1.getInfoSourceURL());
+                boolean low2 = lowPrioritySources.contains(o2.getInfoSourceURL());
+                if(low1 &&low2) return 0;
+                if(low1) return 1;
+                if(low2) return -1;
+                //we want the non-truncated infosources to appear at the top of the list
+                boolean hi1 = nonTruncatedSources.contains(o1.getInfoSourceURL());
+                boolean hi2 = nonTruncatedSources.contains(o2.getInfoSourceURL());
+                if(hi1&&hi2) return 0;
+                if(hi1) return -1;
+                if(hi2) return 1;
+            }
+            return value;
+        }
+
+    }
 }
