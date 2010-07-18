@@ -16,7 +16,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
       <a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}">
         <c:choose>
         <c:when test="${not empty taxonConcept.thumbnail}">
-          <img src="http://${pageContext.request.serverName}:80${fn:replace(taxonConcept.thumbnail,'/data/bie','/repository')}"/>
+          <img src="${taxonConcept.thumbnail}"/>
         </c:when>
         <c:otherwise>
           <img src="${pageContext.request.contextPath}/static/images/noImage100.jpg"/>
@@ -26,7 +26,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
       <br/>
      <span class="scientificName"><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}">${taxonConcept.name}</a></span>
      <br/>
-     <span class="commonName">${taxonConcept.commonName}</span>
+     <span class="commonName">${taxonConcept.commonNameSingle}</span>
   </td>
 
 </c:forEach>
