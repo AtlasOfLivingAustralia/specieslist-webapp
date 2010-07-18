@@ -84,7 +84,7 @@ include file="/common/taglibs.jsp" %>
                 <div id="wrapper_search"> 
 			<form id="search-form" action="${pageContext.request.contextPath}/search" method="get" name="search-form"> 
 				<label for="search">Search</label> 
-				<input type="text" class="filled" id="search" name="search" value="Search the Atlas" /> 
+				<input type="text" class="filled" id="search" name="q" value="Search the Atlas" /> 
 				<span class="search-button-wrapper"><input type="submit" class="search-button" id="search-button" alt="Search" value="Search" /></span> 
 			</form> 
 		</div><!--close wrapper_search-->
