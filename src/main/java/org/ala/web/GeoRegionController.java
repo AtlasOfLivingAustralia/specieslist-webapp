@@ -106,13 +106,13 @@ public class GeoRegionController {
 		SearchResultsDTO frogs = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Amphibia", null, 0, 24, "scientificNameRaw", "asc");
 		model.addAttribute("frogs", repoUrlUtils.fixRepoUrls(frogs));
 		
-		//acacia counts
-		SearchResultsDTO acacia = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "genus", "Acacia", null, 0, 24, "scientificNameRaw", "asc");
-		model.addAttribute("acacia", repoUrlUtils.fixRepoUrls(acacia));
-
-		//acacia counts
-		SearchResultsDTO eucalypts = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "genus", "Eucalyptus", null, 0, 24, "scientificNameRaw", "asc");
-		model.addAttribute("eucalypts", repoUrlUtils.fixRepoUrls(eucalypts));
+//		//acacia counts
+//		SearchResultsDTO acacia = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "genus", "Acacia", null, 0, 24, "scientificNameRaw", "asc");
+//		model.addAttribute("acacia", repoUrlUtils.fixRepoUrls(acacia));
+//
+//		//acacia counts
+//		SearchResultsDTO eucalypts = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "genus", "Eucalyptus", null, 0, 24, "scientificNameRaw", "asc");
+//		model.addAttribute("eucalypts", repoUrlUtils.fixRepoUrls(eucalypts));
 
 		
 		//fish counts
