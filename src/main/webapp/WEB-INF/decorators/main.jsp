@@ -5,9 +5,7 @@
 --%>
 <%@taglib prefix="decorator" uri="http://www.opensymphony.com/sitemesh/decorator" %><%@
 taglib prefix="page" uri="http://www.opensymphony.com/sitemesh/page" %><%@
-taglib prefix="spring" uri="http://www.springframework.org/tags" %><%@
-taglib prefix="form" uri="http://www.springframework.org/tags/form" %><%@
-taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+include file="/common/taglibs.jsp" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
     <head profile="http://gmpg.org/xfn/11">
@@ -83,23 +81,17 @@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
                     
                     <!-- WP Menubar 4.7: end menu nav-site, template Superfish, CSS  -->
                 </div><!--close nav-->
-                <div id="border_search">
-                    <div id="wrapper_search">
-                        <form id="search-form" action="${pageContext.request.contextPath}/search" method="get" name="search-form">
-                            <label for="search">Search</label>
-                            <c:set var="searchQuery"><c:choose><c:when test="${not empty param['q']}">${param['q']}</c:when><c:otherwise>Search the Atlas</c:otherwise></c:choose></c:set>
-                            <input type="text" class="filled" id="search" name="q" value="${searchQuery}" />
-                        </form>
-                    </div>
-                </div><!--close wrapper_search-->
+                <div id="wrapper_search"> 
+			<form id="search-form" action="${pageContext.request.contextPath}/search" method="get" name="search-form"> 
+				<label for="search">Search</label> 
+				<input type="text" class="filled" id="search" name="search" value="Search the Atlas" /> 
+				<span class="search-button-wrapper"><input type="submit" class="search-button" id="search-button" alt="Search" value="Search" /></span> 
+			</form> 
+		</div><!--close wrapper_search-->
             </div><!--close banner-->
-            <div id="wrapper_border"><!--main content area-->
-                <div id="border">
-                    <div id="content">
-                        <decorator:body />
-                    </div><!--close content-->
-                </div><!--close border-->
-            </div><!--close wrapper_border-->
+            <div id="content">
+                <decorator:body />
+            </div><!--close content-->
             <div id="nav-footer">
                 <ul>
                     <!--About the Atlas-->

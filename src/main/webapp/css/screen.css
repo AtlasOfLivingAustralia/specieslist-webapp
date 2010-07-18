@@ -94,7 +94,7 @@ th, td {
     opacity:.50;
 }
 /* header */
-#header {
+#header-off {
     margin: 6px 0 7px 0;
     padding: 2px 6px;
     width: 100%;/* 931px; */
@@ -104,7 +104,7 @@ th, td {
     border-radius: 8px;
     vertical-align:middle;
 }
-#header span {
+#header-off span {
     font-size: 100%;
     font-weight: bold;
     color: #262627;

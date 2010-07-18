@@ -1,8 +1,5 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8" %><%@ 
-taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %><%@ 
-taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %><%@ 
-taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %><%@ 
-taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
+<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ include file="/common/taglibs.jsp" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -12,10 +9,23 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
   <title>Regions - ${geoRegion.regionTypeName} - ${geoRegion.name}</title>
 </head>
 <body>
-<div id="decoratorBody">
-  <h1><a href="${pageContext.request.contextPath}/regions/">Regions</a> &gt; ${geoRegion.regionTypeName} &gt; Explore ${geoRegion.name}</h1>
-  
-  <table id="emblems">
+    <div id="header"> 
+        <div id="breadcrumb">
+            <a href="http://test.ala.org.au">Home</a> 
+            <a href="http://test.ala.org.au/explore">Explore</a> 
+            <a href="${pageContext.request.contextPath}/regions/">Regions</a> 
+            <span class="current">${geoRegion.name}</span>
+        </div>
+        <h1>${geoRegion.name}</h1>
+    </div><!--close header-->
+    <div id="column-two">
+        <div class="section">
+            <img src="${pageContext.request.contextPath}/static/images/map_${geoRegion.name}.png" alt="map of ${geoRegion.name}"/>
+        </div><!--close section-->
+    </div><!--close column-one-->
+    <div id="column-one">
+        <div class="section">
+    <table id="emblems">
   	<tr>
 		<td>Animal emblem</td>
 		<td>
@@ -68,7 +78,10 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
             $('#birdEmblemText').html(data.taxonConcept.commonNameSingle+" (<i>"+data.taxonConcept.name+"</i>)");
         });  
   </script>
-  
+  </div><!--close section-->
+    </div><!--close column-one-->
+    <div id="column-one" class="full-width">
+        <div class="section">
   <ul id="taxonGroups">
   
     <!-- BIRDS -->
@@ -171,7 +184,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
       </script>
     </li>
   </ul>
-  
+        
   <!-- Start of the Comparison Tool -->
   <h2 id="comparisonToolHdr">Compare biodiversity to other states and territories</h2>
   <div id="comparisonTable">
@@ -302,6 +315,7 @@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 
 </script>
 </div>
+    </div>
 </body>
 
 </html>
