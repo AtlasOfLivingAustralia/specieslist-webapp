@@ -453,7 +453,10 @@ public class SearchController {
 		
 		SearchResultsDTO<SearchDTO> searchResults = searchDao.findByName(indexedType, query, filterQuery, startIndex, pageSize, sortField, sortDirection);
                 model.addAttribute("searchResults", searchResults);
-
+        
+        //fix urls
+        repoUrlUtils.fixRepoUrls(searchResults);
+        
         Long totalRecords = searchResults.getTotalRecords();
         model.addAttribute("totalRecords", totalRecords);
         Integer lastPage = (totalRecords.intValue() / pageSize) + 1;
