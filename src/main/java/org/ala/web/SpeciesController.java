@@ -564,7 +564,7 @@ public class SpeciesController {
                 return false;
             }
             if ((this.infoSourceURL == null) ? (other.infoSourceURL != null) : !this.infoSourceURL.equals(other.infoSourceURL)) {
-                return false;
+                //return false;
             }
             return true;
         }
@@ -574,7 +574,7 @@ public class SpeciesController {
             int hash = 5;
             hash = 43 * hash + (this.infoSourceName != null ? this.infoSourceName.hashCode() : 0);
             hash = 43 * hash + (this.infoSourceURL != null ? this.infoSourceURL.hashCode() : 0);
-            hash = 43 * hash + (this.infoSourceId != null ? this.infoSourceId.hashCode() : 0);
+            //hash = 43 * hash + (this.infoSourceId != null ? this.infoSourceId.hashCode() : 0);
             return hash;
         }
 
@@ -610,6 +610,5 @@ public class SpeciesController {
         public void setInfoSourceURL(String infoSourceURL) {
             this.infoSourceURL = infoSourceURL;
         }
-
-            }
+    }
 }

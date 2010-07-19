@@ -138,7 +138,7 @@
             <div id="breadcrumb">
                 <ul>
                     <li><a href="/">Home</a></li>
-                    <li><a href="http://bie.ala.org.au/species/search">Species</a></li>
+                    <li><a href="${pageContext.request.contextPath}/species/search">Species</a></li>
                     <li>${sciNameFormatted}</li>
                 </ul>
             </div>
@@ -338,7 +338,7 @@
                     <ul>
                         <c:forEach var="infoSource" items="${infoSources}">
                             <c:if test="${not empty infoSource.infoSourceURL && not empty infoSource.infoSourceName}">
-                                <li><a href="${infoSource.infoSourceURL}">${infoSource.infoSourceName}</a></li>
+                                <li><a href="${infoSource.infoSourceURL}">${infoSource.infoSourceName}</a><!--${infoSource.infoSourceId}--></li>
                             </c:if>
                         </c:forEach>
                     </ul>
