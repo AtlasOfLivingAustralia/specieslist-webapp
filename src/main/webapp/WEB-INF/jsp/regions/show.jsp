@@ -241,24 +241,24 @@
   </ul>
 
   <!-- Start of the Comparison Tool -->
-  <h2 id="comparisonToolHdr">Compare biodiversity to other states and territories</h2>
+  <h2 id="comparisonToolHdr">Compare biodiversity to other states and territories<a name="compare">&nbsp;</a></h2>
   <div id="comparisonTable">
       <form><!-- JQuery UI buttons -->
           <div id="compareRegions" class="regionSelect">
-              <input type="radio" id="act" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Australian Capital Territory');" />
-              <label for="act">ACT</label>
-              <input type="radio" id="nsw" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','New South Wales');" />
-              <label for="nsw">NSW</label>
-              <input type="radio" id="nt" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Northern Territory');" />
-              <label for="nt">NT</label>
-              <input type="radio" id="qld" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Queensland');" />
-              <label for="qld">QLD</label>
-              <input type="radio" id="sa" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','South Australia');" />
-              <label for="sa">SA</label>
-              <input type="radio" id="tas" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Tasmania');" />
-              <label for="tas">TAS</label>
-              <input type="radio" id="vic" name="radio" checked="checked" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Victoria');"/>
-              <label for="vic">VIC</label>
+              <input type="radio" id="Australian Capital Territory" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Australian Capital Territory');" />
+              <label for="Australian Capital Territory">ACT</label>
+              <input type="radio" id="New South Wales" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','New South Wales');" />
+              <label for="New South Wales">NSW</label>
+              <input type="radio" id="Northern Territory" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Northern Territory');" />
+              <label for="Northern Territory">NT</label>
+              <input type="radio" id="Queensland" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Queensland');" />
+              <label for="Queensland">QLD</label>
+              <input type="radio" id="South Australia" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','South Australia');" />
+              <label for="South Australia">SA</label>
+              <input type="radio" id="Tasmania" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Tasmania');" />
+              <label for="Tasmania">TAS</label>
+              <input type="radio" id="Victoria" name="radio" checked="checked" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Victoria');"/>
+              <label for="Victoria">VIC</label>
           </div>
           <div id="selectedGroup" class="groupSelect">
               <input type="radio" id="birds" name="radio2" checked="checked" onclick="javascript:setSelectedTaxa(this,'birds','Aves','class');" />
@@ -315,7 +315,7 @@
 
         geoRegion = '${geoRegion.name}';
         geoRegionType = 'state'; //FIXME hardcoded state for now
-        compareRegion = '${geoRegion.name !="Victoria" ? "vic" : "tas"}';
+        compareRegion = '${geoRegion.name != "Victoria" ? "Victoria" : "Tasmania"}';
         compareRegionType = 'state';
 
         //default to Victoria for now
@@ -327,8 +327,8 @@
        * Switch currently selected taxa.
        */
       function setSelectedTaxa(currentNode, commonName, taxa, taxonRank){
-        $('#selectedGroup').children().removeClass("selectedCompareGroup");
-        currentNode.parentNode.className = 'selectedCompareGroup';
+        //$('#selectedGroup').children().removeClass("selectedCompareGroup");
+        //currentNode.parentNode.className = 'selectedCompareGroup';
         selectedTaxaSimple = commonName;
         selectedTaxa = taxa;
         selectedTaxonRank = taxonRank;
@@ -340,29 +340,30 @@
        * Loads the taxo that are different between states.
        */
       function loadTaxaDiff(currentNode, regionType, regionName, altRegionType, altRegionName){
-
-        $('#compareRegions').children().removeClass("selectedCompareGroup");
-        currentNode.parentNode.className = 'selectedCompareGroup';
+        //$('#compareRegions').children().removeClass("selectedCompareGroup");
+        //currentNode.parentNode.className = 'selectedCompareGroup';
+        compareRegion = altRegionName;
 
         if(initialised){
             $('#taxaDiff').hide('slow');
-        	  $('#taxaDiff').empty();
+            $('#taxaDiff').empty();
         }
 
         var searchUrl = '${pageContext.request.contextPath}/regions/taxaDiff.json?regionType='+regionType+'&regionName='+regionName+'&altRegionType='+altRegionType+'&altRegionName='+altRegionName+'&higherTaxon='+selectedTaxa+'&rank='+selectedTaxonRank;
         $.getJSON(searchUrl, function(data) {
+          //alert("totalRecords = "+data.searchResults.totalRecords+" | results.length = "+data.searchResults.results.length);
           for(var i=0; i<data.searchResults.results.length; i++){
             var tc = data.searchResults.results[i];
             var commonName = tc.commonNameSingle!=null ? tc.commonNameSingle : '';
             $('#taxaDiff').append('<tr><td><a href="${pageContext.request.contextPath}/species/'+tc.guid+'">'+tc.name+'</td><td>'+commonName+'</td></tr>');
           }
           $('#taxaDiffCount').html('<em>'+regionName+ '</em> has recorded <em>'+data.searchResults.totalRecords+' '+selectedTaxaSimple+'</em> not recorded in <em>'+altRegionName+'</em>');
-          $('#taxaDiff').show('slow');
+          $('#taxaDiff').show('fast');
         });
 
         if(initialised){
-        	 $('#taxaDiff2').hide('slow');
-           $('#taxaDiff2').empty();
+            $('#taxaDiff2').hide();
+            $('#taxaDiff2').empty();
         }
 
         var searchUrl = '${pageContext.request.contextPath}/regions/taxaDiff.json?regionType='+altRegionType+'&regionName='+altRegionName+'&altRegionType='+regionType+'&altRegionName='+regionName+'&higherTaxon='+selectedTaxa+'&rank='+selectedTaxonRank;
@@ -373,10 +374,10 @@
               $('#taxaDiff2').append('<tr><td><a href="${pageContext.request.contextPath}/species/'+tc.guid+'">'+tc.name+'</td><td>'+commonName+'</td></tr>');
             }
             $('#taxaDiffCount2').html('<em>'+altRegionName+ '</em> has recorded <em>'+data.searchResults.totalRecords+' '+selectedTaxaSimple+'</em> not recorded in <em>'+regionName+'</em>');
-            $('#taxaDiff2').show('slow');
+            $('#taxaDiff2').show('fast');
+            if(initialised) window.location.replace("#compare");
+            initialised = true;
         });
-
-        initialised = true;
       }
       </script>
   </div>

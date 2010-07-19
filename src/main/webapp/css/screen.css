@@ -1009,8 +1009,8 @@ em, dfn {
 
 #selectedGroup, #compareRegions { margin:0; }
 #compareRegions { float:right; }
-#selectedGroup li { margin-right: 10px; float: left; display: inline; list-style-type: none;}
-#compareRegions li { margin-left: 20px; float: right; list-style-type: none;}
+/*#selectedGroup li { margin-right: 10px; float: left; display: inline; list-style-type: none;}
+#compareRegions li { margin-left: 20px; float: right; list-style-type: none;}*/
 
 .taxonConceptResult td { width: 120px; padding-bottom:15px;}
 
@@ -1033,7 +1033,7 @@ li.taxonBreakdown { border: 1px solid gray; padding:10px; margin-bottom: 5px; -m
 #taxaDiffComparison { width:100%;  margin-top: 30px;}
 
 #comparisonTable { border: 1px solid gray; padding:10px;  -moz-border-radius: 8px; -webkit-border-radius: 8px; }
-.selectedCompareGroup { font-weight: bold; }
+/*.selectedCompareGroup { font-weight: bold; }*/
 
 .taxaDiffCount { margin:0 0 5px 0; }
 #taxaDiff { margin-top:5px; }
