@@ -72,21 +72,24 @@
             </table>
 
   <script type="text/javascript">
-        var searchUrl = '${pageContext.request.contextPath}/species/info/${extendedGeoRegion.animalEmblem.guid}.json';
-        $.getJSON(searchUrl, function(data) {
-            $('#animalEmblem').html('<img src="'+data.taxonConcept.thumbnail+'" class="emblemThumb" alt="'+data.taxonConcept.name+' image"/>');
-            $('#animalEmblemText').html(data.taxonConcept.commonNameSingle+" (<i>"+data.taxonConcept.name+"</i>)");
-        });
-        searchUrl = '${pageContext.request.contextPath}/species/info/${extendedGeoRegion.plantEmblem.guid}.json';
-        $.getJSON(searchUrl, function(data) {
-            $('#plantEmblem').html('<img src="'+data.taxonConcept.thumbnail+'" class="emblemThumb" alt="'+data.taxonConcept.name+' image"/>');
-            $('#plantEmblemText').html(data.taxonConcept.commonNameSingle+" (<i>"+data.taxonConcept.name+"</i>)");
-        });
-        searchUrl = '${pageContext.request.contextPath}/species/info/${extendedGeoRegion.birdEmblem.guid}.json';
-        $.getJSON(searchUrl, function(data) {
-            $('#birdEmblem').html('<img src="'+data.taxonConcept.thumbnail+'" class="emblemThumb" alt="'+data.taxonConcept.name+' image"/>');
-            $('#birdEmblemText').html(data.taxonConcept.commonNameSingle+" (<i>"+data.taxonConcept.name+"</i>)");
-        });
+        
+        setupEmblem('${pageContext.request.contextPath}/species/info/${extendedGeoRegion.animalEmblem.guid}.json', 'animalEmblem', 'animalEmblemText');
+        setupEmblem('${pageContext.request.contextPath}/species/info/${extendedGeoRegion.plantEmblem.guid}.json', 'plantEmblem', 'plantEmblemText');
+        setupEmblem('${pageContext.request.contextPath}/species/info/${extendedGeoRegion.birdEmblem.guid}.json', 'birdEmblem', 'birdEmblemText');        
+        
+        function setupEmblem(searchUrl, imgTag, textTag){
+          $.getJSON(searchUrl, function(data) {
+        	if(data.taxonConcept.thumbnail!=null){
+	            $('#'+imgTag).html('<img src="'+data.taxonConcept.thumbnail+'" class="emblemThumb" alt="'+data.taxonConcept.name+' image"/>');
+	        }
+            if(data.taxonConcept.commonNameSingle!=null){
+	            $('#'+textTag).html(data.taxonConcept.commonNameSingle+" (<i>"+data.taxonConcept.name+"</i>)");
+	        } else {
+		        $('#'+textTag).html("<i>"+data.taxonConcept.name+"</i>");
+	        }
+          });
+        }
+        
   </script>
   
     </div><!--close column-one-->
