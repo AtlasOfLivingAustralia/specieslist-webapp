@@ -1014,11 +1014,11 @@ em, dfn {
 .taxonConceptResult td { width: 120px; padding-bottom:15px;}
 
 #taxonGroups { list-style: none; padding:0; margin:20px 0 0 0;}
-li.taxonBreakdown { border: 1px solid gray; padding:10px; margin-bottom: 5px;}
+li.taxonBreakdown { border: 1px solid gray; padding:10px; margin-bottom: 5px; -moz-border-radius: 8px; -webkit-border-radius: 8px; }
 
 #comparisonToolHdr {margin-top:20px;}
 
-.taxonGroupActions { float: right; }
+.taxonGroupActions { float: none; }
 .taxonList { margin-top:5px; }
 .taxonList li { border:0; padding:0; margin:0; }
 .taxonGroupTitle { margin-left:35px; }
@@ -1031,15 +1031,17 @@ li.taxonBreakdown { border: 1px solid gray; padding:10px; margin-bottom: 5px;}
 
 #taxaDiffComparison { width:100%;  margin-top: 30px;}
 
-#comparisonTable { border: 1px solid gray; padding:10px; }
+#comparisonTable { border: 1px solid gray; padding:10px;  -moz-border-radius: 8px; -webkit-border-radius: 8px; }
 .selectedCompareGroup { font-weight: bold; }
 
 .taxaDiffCount { margin:0 0 5px 0; }
 #taxaDiff { margin-top:5px; }
 
-.taxonGroupActions a { margin-left:25px; }
+.taxonGroupActions a, .taxonGroupActions  { margin-left:10px; }
 
 .scientificName {font-style: italic; }
 
 .earliestReference { background-color: FFFFCC; }
 .earliestReferenceLabel { color: grey; }
+.downloadButton { padding: 3px 10px; float: right; margin-top: -2px; }
+.downloadButton span.ui-button-text { font-size: 12px; padding: 0 !important; }
