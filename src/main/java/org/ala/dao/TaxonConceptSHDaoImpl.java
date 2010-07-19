@@ -72,6 +72,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.SolrInputDocument;
 import org.gbif.ecat.model.ParsedName;
 import org.gbif.ecat.parser.NameParser;
+import org.springframework.stereotype.Component;
 
 import au.org.ala.checklist.lucene.CBIndexSearch;
 import au.org.ala.checklist.lucene.SearchResultException;
@@ -91,7 +92,7 @@ import au.org.ala.data.util.RankType;
  * 
  * @author Dave Martin
  */
-//@Component("taxonConceptSHDao")
+@Component("taxonConceptDao")
 public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 	protected static Logger logger = Logger.getLogger(TaxonConceptSHDaoImpl.class);
@@ -258,7 +259,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public boolean update(TaxonConcept tc) throws Exception {
 		
-		if (tc.getGuid() == null) {
+		if (tc!=null && tc.getGuid() == null) {
 			throw new IllegalArgumentException("Supplied GUID for the Taxon Concept is null.");
 		}
 		
