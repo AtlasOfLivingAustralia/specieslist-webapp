@@ -98,7 +98,14 @@ public class CassandraHelper implements StoreHelper {
         
         try {
         	col = getConnection().get(keySpace, guid, columnPath, ConsistencyLevel.ONE);
-        } catch (Exception e){
+        } 
+        catch (TTransportException e){
+            //NC: This is a quick fix for communication issues between the webapp server and the cassandra server.
+            //TODO We possibly want to implement connection pooling/management for Cassandra connections
+            logger.info("Unable to contact Cassandra. Attempt to reinitialise the connection next time it is used.");
+            this.clientConnection = null; //reinitialise the connection next time
+        }
+        catch (Exception e){
         	//expected behaviour. current thrift API doesnt seem
         	//to support a retrieve null getter
         }
@@ -131,9 +138,17 @@ public class CassandraHelper implements StoreHelper {
         ColumnOrSuperColumn col = null;
         try {
         	col = getConnection().get(keySpace, guid, columnPath, ConsistencyLevel.ONE);
-        } catch (Exception e){
+        } 
+        catch (TTransportException e){
+            //NC: This is a quick fix for communication issues between the webapp server and the cassandra server.
+            //TODO We possibly want to implement connection pooling/management for Cassandra connections
+            logger.info("Unable to contact Cassandra. Attempt to reinitialise the connection next time it is used.");
+            this.clientConnection = null;//reinitialise the connection next time
+        }
+        catch (Exception e){
         	//expected behaviour. current thrift API doesnt seem
         	//to support a retrieve null getter
+            
         }
 
         //initialise the object mapper
