@@ -143,16 +143,20 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         	StringBuffer queryString = new StringBuffer();
             String cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
             queryString.append("idxtype:"+indexType);
-            queryString.append(" AND ");
-            queryString.append(" (");
-           // queryString.append("commonName:"+cleanQuery);
-            queryString.append(" scientificNameText:"+cleanQuery);
-            //queryString.append(" OR guid:"+cleanQuery);
-//            queryString.append(" OR simpleText:"+cleanQuery);   
-            //queryString.append(" OR name:"+cleanQuery);
-            queryString.append(" OR text:"+cleanQuery);
-            //queryString.append(" OR acronym:"+cleanQuery);
-            queryString.append(")");
+            query = StringUtils.trimToNull(query);
+            if(query!=null){
+            	cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
+	            queryString.append(" AND ");
+	            queryString.append(" (");
+	           // queryString.append("commonName:"+cleanQuery);
+	            queryString.append(" scientificNameText:"+cleanQuery);
+	            //queryString.append(" OR guid:"+cleanQuery);
+	//            queryString.append(" OR simpleText:"+cleanQuery);   
+	            //queryString.append(" OR name:"+cleanQuery);
+	            queryString.append(" OR text:"+cleanQuery);
+	            //queryString.append(" OR acronym:"+cleanQuery);
+	            queryString.append(")");
+            }
             logger.info("search query: "+queryString.toString());
             return doSolrSearch(queryString.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
         } catch (SolrServerException ex) {
