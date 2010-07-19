@@ -123,7 +123,7 @@ public class GeoRegionController {
 		fishTaxa.add("Sarcopterygii");
 		fishTaxa.add("Actinopterygii");
 		SearchResultsDTO fish = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", fishTaxa, null, 0, 24, "scientificNameRaw", "asc");
-		model.addAttribute("fish", fish);
+		model.addAttribute("fish", repoUrlUtils.fixRepoUrls(fish));
 
 		return GEOREGION_SHOW;
 	}
