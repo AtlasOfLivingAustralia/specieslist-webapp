@@ -38,6 +38,18 @@ table.propertyTable th, .propertyTable td {
 .taxaCrumb {
     background-color:#e8eace;
     padding: 0 15px 8px 15px !important;
-
     margin: 0;
 }
+#rank {
+    font-size: 1.2em;
+    padding-top:5px;
+    text-transform: capitalize;
+}
+#infoSourceList { 
+    background-color: #E8EACE;
+    padding: 10px;
+    -moz-border-radius: 0 0 10px 10px; /* FF1+ */
+    -webkit-border-radius: 0 0 10px 10px; /* Saf3+, Chrome */
+    border-radius: 0 0 10px 10px; /* Opera 10.5, IE 9 */
+}
+#infoSourceList h3 { padding: 3px 0 10px 0; }

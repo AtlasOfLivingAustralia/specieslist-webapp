@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
@@ -36,9 +37,12 @@ import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
+import org.ala.model.AttributableObject;
 import org.ala.model.CommonName;
 import org.ala.model.Document;
 import org.ala.model.SimpleProperty;
+import org.ala.model.TaxonConcept;
+import org.ala.model.Image;
 import org.ala.repository.Predicates;
 import org.ala.util.ImageUtils;
 import org.ala.util.MimeType;
@@ -130,9 +134,11 @@ public class SpeciesController {
             return SPECIES_ERROR;
         }
 
+        etc.setCommonNames(fixCommonNames(etc.getCommonNames())); // remove duplicate names
         model.addAttribute("extendedTaxonConcept", repoUrlUtils.fixRepoUrls(etc));
 		model.addAttribute("commonNames", getCommonNamesString(etc));
 		model.addAttribute("textProperties", filterSimpleProperties(etc));
+        model.addAttribute("infoSources", getInfoSource(etc));
 		return SPECIES_SHOW;
 	}
 
@@ -407,6 +413,91 @@ public class SpeciesController {
         logger.debug("setting the low priority sources");
         this.lowPrioritySources = lowPrioritySources;
     }
+
+    /**
+     * Fix for some info sources where multiple common names are produced.
+     * Remove duplicates but assumes input List is ordered so that dupes are sequential.
+     * 
+     * @param commonNames
+     * @return commonNames
+     */
+    private List<CommonName> fixCommonNames(List<CommonName> commonNames) {
+        List<CommonName> newNames = new ArrayList<CommonName>();
+        
+        for (int i = 0; i < commonNames.size(); i++) {
+            CommonName thisCn = commonNames.get(i);
+            if (i > 0 && thisCn.getNameString().trim().equalsIgnoreCase(commonNames.get(i-1).getNameString().trim()) &&
+                    thisCn.getInfoSourceName().trim().equalsIgnoreCase(commonNames.get(i-1).getInfoSourceName().trim())) {
+                logger.debug("Duplicate commonNames detected: "+thisCn);
+            } else {
+                newNames.add(commonNames.get(i));
+            }
+        }
+        
+        return newNames;
+    }
+
+    /**
+     * Create a list of unique infoSources to display on Overview page.
+     * 
+     * @param etc
+     * @return
+     */
+    private Set<InfoSourceDTO> getInfoSource(ExtendedTaxonConceptDTO etc) {
+        Set<InfoSourceDTO> infoSources = new TreeSet<InfoSourceDTO>();
+        // Look in each property of the ExtendedTaxonConceptDTO
+        if (etc.getTaxonConcept() != null) infoSources.add(extractInfoSources(etc.getTaxonConcept()));
+        if (etc.getTaxonName() != null) infoSources.add(extractInfoSources(etc.getTaxonName()));
+        if (etc.getImages() != null) infoSources.addAll(extractAllInfoSources(etc.getImages()));
+        if (etc.getCommonNames() != null) infoSources.addAll(extractAllInfoSources(etc.getCommonNames()));
+        if (etc.getSimpleProperties() != null) infoSources.addAll(extractAllInfoSources(etc.getSimpleProperties()));
+        if (etc.getChildConcepts() != null) infoSources.addAll(extractAllInfoSources(etc.getChildConcepts()));
+        if (etc.getDistributionImages() != null) infoSources.addAll(extractAllInfoSources(etc.getDistributionImages()));
+        if (etc.getPestStatuses() != null) infoSources.addAll(extractAllInfoSources(etc.getPestStatuses()));
+        if (etc.getConservationStatuses() != null) infoSources.addAll(extractAllInfoSources(etc.getConservationStatuses()));
+        if (etc.getExtantStatuses() != null) infoSources.addAll(extractAllInfoSources(etc.getExtantStatuses()));
+        if (etc.getHabitats() != null) infoSources.addAll(extractAllInfoSources(etc.getHabitats()));
+        if (etc.getPublicationReference() != null) infoSources.addAll(extractAllInfoSources(etc.getPublicationReference()));
+        if (etc.getEarliestReference() != null) infoSources.add(extractInfoSources(etc.getEarliestReference()));
+        if (etc.getSynonyms() != null) infoSources.addAll(extractAllInfoSources(etc.getSynonyms()));
+        if (etc.getReferences() != null) infoSources.addAll(extractAllInfoSources(etc.getReferences()));
+        if (etc.getClassification() != null) infoSources.add(extractInfoSources(etc.getClassification()));
+        return infoSources;
+    }
+    
+    /**
+     * Create a list of unique infoSources to display on Overview page.
+     * 
+     * @param etc
+     * @return
+     */
+    private List<InfoSourceDTO> extractAllInfoSources(List<? extends AttributableObject> aos) {
+        List<InfoSourceDTO> infoSources = new ArrayList<InfoSourceDTO>();
+        for (AttributableObject ao : aos) {
+            infoSources.add(extractInfoSources(ao));
+        }
+        
+        return infoSources;
+    }
+
+    /**
+     * Extract an infoSource from an AttributableObject
+     *
+     * @param ao
+     * @return
+     */
+    private InfoSourceDTO extractInfoSources(AttributableObject ao) {
+        InfoSourceDTO is = new InfoSourceDTO();
+        
+        if (ao != null && ao.getInfoSourceName() != null) {
+            is.setInfoSourceName(ao.getInfoSourceName());
+            is.setInfoSourceURL(ao.getInfoSourceURL());
+            is.setInfoSourceId(ao.getInfoSourceId());
+        }
+
+        return is;
+    }
+    
     /**
      * Comparator to order the Simple Properties based on their natural ordering
      * and low and high priority info sources.
@@ -435,4 +526,82 @@ public class SpeciesController {
         }
 
     }
+
+    /**
+     * Inner class to represent infoSource records on a web page
+     */
+    public class InfoSourceDTO implements Comparable<InfoSourceDTO> {
+        private String infoSourceName;
+        private String infoSourceURL;
+        private String infoSourceId;
+
+        public InfoSourceDTO(String infoSourceName, String infoSourceURL, String infoSourceId) {
+            this.infoSourceName = infoSourceName;
+            this.infoSourceURL = infoSourceURL;
+            this.infoSourceId = infoSourceId;
+        }
+
+        public InfoSourceDTO() {}
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final InfoSourceDTO other = (InfoSourceDTO) obj;
+            if ((this.infoSourceName == null) ? (other.infoSourceName != null) : !this.infoSourceName.equals(other.infoSourceName)) {
+                return false;
+            }
+            if ((this.infoSourceURL == null) ? (other.infoSourceURL != null) : !this.infoSourceURL.equals(other.infoSourceURL)) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 5;
+            hash = 43 * hash + (this.infoSourceName != null ? this.infoSourceName.hashCode() : 0);
+            hash = 43 * hash + (this.infoSourceURL != null ? this.infoSourceURL.hashCode() : 0);
+            hash = 43 * hash + (this.infoSourceId != null ? this.infoSourceId.hashCode() : 0);
+            return hash;
+        }
+
+        @Override
+        public int compareTo(InfoSourceDTO o) {
+            //check the infosources
+            if(o.getInfoSourceName()!=null && infoSourceName!=null){
+                return infoSourceName.compareTo(o.getInfoSourceName());
+            }
+            return -1;
+        }
+
+        public String getInfoSourceId() {
+            return infoSourceId;
+        }
+
+        public void setInfoSourceId(String infoSourceId) {
+            this.infoSourceId = infoSourceId;
+        }
+
+        public String getInfoSourceName() {
+            return infoSourceName;
+        }
+
+        public void setInfoSourceName(String infoSourceName) {
+            this.infoSourceName = infoSourceName;
+        }
+
+        public String getInfoSourceURL() {
+            return infoSourceURL;
+        }
+
+        public void setInfoSourceURL(String infoSourceURL) {
+            this.infoSourceURL = infoSourceURL;
+        }
+
+            }
 }

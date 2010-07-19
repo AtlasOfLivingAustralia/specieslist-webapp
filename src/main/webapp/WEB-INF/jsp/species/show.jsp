@@ -143,13 +143,12 @@
                 </ul>
             </div>
             <div class="section full-width">
-                
                 <div class="hrgroup col-8">
                     <h1 class="family">${fn:replace(extendedTaxonConcept.taxonConcept.nameString, extendedTaxonConcept.taxonName.nameComplete, sciNameFormatted)}</h1>
                     <h2>${extendedTaxonConcept.commonNames[0].nameString}</h2>
                 </div>
                 <div class=" col-4">
-                    <h3 style="padding-top:6px;">${extendedTaxonConcept.taxonConcept.rankString} profile</h3>
+                    <h3 id="rank">${extendedTaxonConcept.taxonConcept.rankString} profile</h3>
                     <cite>source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="_blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
                     <cite><a href="#lsidText" id="lsid" class="local" title="Life Science Identifier (pop-up)">LSID</a>
                         | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" class="local" title="JSON web service">JSON</a>
@@ -334,10 +333,14 @@
                         </p>
                     </div>
                 </div><!--close news-->
-                <div class="section tools">
+                <div class="section" id="infoSourceList">
                     <h3>Resources contributing to this page</h3>
                     <ul>
-                        <li><a href="http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/89c4827f-8dc7-4578-bb15-9f7e6e1764e6">Australian Faunal Directory</a></li>
+                        <c:forEach var="infoSource" items="${infoSources}">
+                            <c:if test="${not empty infoSource.infoSourceURL && not empty infoSource.infoSourceName}">
+                                <li><a href="${infoSource.infoSourceURL}">${infoSource.infoSourceName}</a></li>
+                            </c:if>
+                        </c:forEach>
                     </ul>
                 </div><!--close tools-->
             </div><!--close -->
@@ -464,26 +467,28 @@
                 <div class="section">
                     <h2>Parent &amp; Child Taxa</h2>
                     <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) > 0}">
-                        <p><b>Parent <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) > 1}">Taxa</c:if>
-                                <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) < 2}">Taxon</c:if>:</b>
+                        <h5>Parent <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) > 1}">Taxa</c:if>
+                            <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) < 2}">Taxon</c:if></h5>
+                            <ul>
                                 <c:forEach items="${extendedTaxonConcept.parentConcepts}" var="parent">
-                                <a href="<c:url value='/species/${parent.guid}'/>">${parent.nameString}</a><br/>
-                            </c:forEach>
+                                    <li><a href="<c:url value='/species/${parent.guid}'/>">${parent.nameString}</a></li>
+                                </c:forEach>
+                            </ul>
                             <c:if test="${not empty parent.infoSourceName && not empty parent.infoSourceURL}">
                                 <cite>Source: <a href="${parent.infoSourceURL}">${parent.infoSourceURL}</a></cite>
                             </c:if>
-                        </p>
                     </c:if>
                     <c:if test="${fn:length(extendedTaxonConcept.childConcepts) > 0}">
-                        <p><b>Child <c:if test="${fn:length(extendedTaxonConcept.childConcepts) > 1}">Taxa</c:if>
-                                <c:if test="${fn:length(extendedTaxonConcept.childConcepts) < 2}">Taxon</c:if>:</b>
+                        <h5>Child <c:if test="${fn:length(extendedTaxonConcept.childConcepts) > 1}">Taxa</c:if>
+                            <c:if test="${fn:length(extendedTaxonConcept.childConcepts) < 2}">Taxon</c:if>:</h5>
+                            <ul>
                                 <c:forEach items="${extendedTaxonConcept.childConcepts}" var="child">
-                                <a href="<c:url value='/species/${child.guid}'/>">${child.nameString}</a><br/>
-                            </c:forEach>
+                                    <li><a href="<c:url value='/species/${child.guid}'/>">${child.nameString}</a></li>
+                                </c:forEach>
+                            </ul>
                             <c:if test="${not empty child.infoSourceName && not empty child.infoSourceURL}">
                                 <cite>Source: <a href="${child.infoSourceURL}">${child.infoSourceURL}</a></cite>
                             </c:if>
-                        </p>
                     </c:if>
                 </div>
             </div><!--close -->
