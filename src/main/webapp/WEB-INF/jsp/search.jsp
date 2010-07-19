@@ -15,7 +15,7 @@
 <body>
     <div id="decoratorBody">
         <div id="searchBox">
-            <h2>Search for Species and Taxa</h2>
+            <h2>Search for Species and Higher Taxa</h2>
             <p>
             <p id="exampleSeaches">Examples searches:<br/><a href='${pageContext.request.contextPath}/search?q=Pogona+barbata'>Pogona barbata</a> (Eastern Bearded Dragon)<br/>
                 <a href='${pageContext.request.contextPath}/search?q=Hypertropha+chlaenota'>Hypertropha chlaenota</a> (Moth - GELECHIOIDEA family)<br/>
