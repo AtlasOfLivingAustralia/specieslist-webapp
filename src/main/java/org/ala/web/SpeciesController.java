@@ -426,8 +426,16 @@ public class SpeciesController {
         
         for (int i = 0; i < commonNames.size(); i++) {
             CommonName thisCn = commonNames.get(i);
-            if (i > 0 && thisCn.getNameString().trim().equalsIgnoreCase(commonNames.get(i-1).getNameString().trim()) &&
-                    thisCn.getInfoSourceName().trim().equalsIgnoreCase(commonNames.get(i-1).getInfoSourceName().trim())) {
+            
+            String commonName1 = StringUtils.trimToNull(thisCn.getNameString());
+            String infosource1 = StringUtils.trimToNull(thisCn.getInfoSourceName());
+            
+            String commonName2 = StringUtils.trimToNull(commonNames.get(i-1).getNameString());
+            String infosource2 = StringUtils.trimToNull(commonNames.get(i-1).getInfoSourceName());
+            
+            if (i > 0 
+            		&& commonName1!=null && commonName1.equalsIgnoreCase(commonName2) 
+            		&& infosource1!=null && infosource1.equalsIgnoreCase(infosource2)) {
                 logger.debug("Duplicate commonNames detected: "+thisCn);
             } else {
                 newNames.add(commonNames.get(i));
