@@ -49,6 +49,9 @@ public class SearchController {
 	@Inject
 	private FulltextSearchDao searchDao;
 	
+	@Inject
+	protected RepoUrlUtils repoUrlUtils;
+	
 	/** Name of view for list of taxa */
 	private final String COLLECTIONS_LIST = "collections/list";
 	private final String INSTITUTIONS_LIST = "institutions/list";
@@ -146,7 +149,8 @@ public class SearchController {
 			//top hit is species, re-run species search to just get species results
 			if(IndexedTypes.TAXON.toString().equals(topHit.getIdxType())){
 				searchResults = searchDao.findByName(IndexedTypes.TAXON, query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-                                view = SPECIES_LIST;
+				repoUrlUtils.fixRepoUrls(searchResults);
+                view = SPECIES_LIST;
 			}
 			
 			//top hit is species, re-run species search to just get species results
@@ -462,5 +466,12 @@ public class SearchController {
 	 */
 	public void setSearchDao(FulltextSearchDao searchDao) {
 		this.searchDao = searchDao;
+	}
+
+	/**
+	 * @param repoUrlUtils the repoUrlUtils to set
+	 */
+	public void setRepoUrlUtils(RepoUrlUtils repoUrlUtils) {
+		this.repoUrlUtils = repoUrlUtils;
 	}
 }

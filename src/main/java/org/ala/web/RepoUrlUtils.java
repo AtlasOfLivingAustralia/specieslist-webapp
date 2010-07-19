@@ -18,6 +18,7 @@ import java.io.File;
 import java.util.List;
 
 import org.ala.dto.ExtendedTaxonConceptDTO;
+import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.model.Image;
@@ -45,10 +46,12 @@ public class RepoUrlUtils {
 	 * @param searchConceptDTO
 	 * @return
 	 */
-	public SearchResultsDTO<SearchTaxonConceptDTO> fixRepoUrls(SearchResultsDTO<SearchTaxonConceptDTO> searchResults){
-		List<SearchTaxonConceptDTO> dtos = searchResults.getResults();
-		for(SearchTaxonConceptDTO dto : dtos){
-			fixRepoUrls(dto);
+	public SearchResultsDTO<SearchDTO> fixRepoUrls(SearchResultsDTO<SearchDTO> searchResults){
+		List<SearchDTO> dtos = searchResults.getResults();
+		for(SearchDTO dto : dtos){
+			if(dto instanceof SearchTaxonConceptDTO){
+				fixRepoUrls((SearchTaxonConceptDTO) dto);
+			}
 		}
 		return searchResults;
 	}
