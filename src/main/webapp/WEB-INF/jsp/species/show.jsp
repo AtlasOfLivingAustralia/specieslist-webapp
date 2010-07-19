@@ -113,7 +113,61 @@
     </head>
     <body id="page-36" class="page page-id-36 page-parent page-template page-template-default two-column-right">
         <div id="header" class="taxon">
+            <c:set var="taxonConceptTitle">
+                <c:choose>
+                    <c:when test="${fn:length(taxonNames) > 0}">${taxonNames[0].nameComplete}</c:when>
+                    <c:otherwise>${taxonConcept.title}</c:otherwise>
+                </c:choose>
+            </c:set>
+            <c:set var="taxonConceptRank">
+                <c:choose>
+                    <c:when test="${not empty extendedTaxonConcept.taxonConcept}">${extendedTaxonConcept.taxonConcept.rankString}</c:when>
+                    <c:when test="${fn:length(extendedTaxonConcept.taxonName.rankLabel) > 0}">${extendedTaxonConcept.taxonName.rankLabel}</c:when>
+                    <c:otherwise>(rank not known)</c:otherwise>
+                </c:choose>
+            </c:set>
+            <c:set var="sciNameFormatted">
+                <c:choose>
+                    <%--<c:when test="${extendedTaxonConcept.taxonName.nameComplete != null}"><i>${extendedTaxonConcept.taxonName.nameComplete}</i></c:when>--%>
+                    <c:when test="${fn:endsWith(extendedTaxonConcept.taxonName.rankString,'gen')}"><i>${extendedTaxonConcept.taxonName.nameComplete}</i></c:when>
+                    <c:when test="${fn:endsWith(extendedTaxonConcept.taxonName.rankString,'sp')}"><i>${extendedTaxonConcept.taxonName.nameComplete}</i></c:when>
+                    <c:when test="${fn:endsWith(extendedTaxonConcept.taxonName.rankString,'sp')}"><i>${extendedTaxonConcept.taxonName.nameComplete}</i></c:when>
+                    <c:otherwise>${extendedTaxonConcept.taxonConcept.nameString}</c:otherwise>
+                </c:choose>
+            </c:set>
             <div id="breadcrumb">
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="http://bie.ala.org.au/species/search">Species</a></li>
+                    <li>${sciNameFormatted}</li>
+                </ul>
+            </div>
+            <div class="section full-width">
+                
+                <div class="hrgroup col-8">
+                    <h1 class="family">${fn:replace(extendedTaxonConcept.taxonConcept.nameString, extendedTaxonConcept.taxonName.nameComplete, sciNameFormatted)}</h1>
+                    <h2>${extendedTaxonConcept.commonNames[0].nameString}</h2>
+                </div>
+                <div class=" col-4">
+                    <h3 style="padding-top:6px;">${extendedTaxonConcept.taxonConcept.rankString} profile</h3>
+                    <cite>source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="_blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
+                    <cite><a href="#lsidText" id="lsid" class="local" title="Life Science Identifier (pop-up)">LSID</a>
+                        | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" class="local" title="JSON web service">JSON</a>
+                        <!-- | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.xml" class="local" title="XML web service">XML</a> -->
+                    </cite>
+                    <div style="display:none; text-align: left;">
+                        <div id="lsidText" style="text-align: left;">
+                            <b><a href="http://lsids.sourceforge.net/" target="_blank">Life Science Identifier (LSID):</a></b>
+                            <p style="margin: 10px 0;"><a href="http://lsid.tdwg.org/summary/${extendedTaxonConcept.taxonConcept.guid}" target="_blank">${extendedTaxonConcept.taxonConcept.guid}</a></p>
+                            <p style="font-size: 12px;">LSIDs are persistent, location-independent,resource identifiers for uniquely naming biologically
+                                significant resources including species names, concepts, occurrences, genes or proteins,
+                                or data objects that encode information about them. To put it simply,
+                                LSIDs are a way to identify and locate pieces of biological information on the web. </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="breadcrumb" class="taxaCrumb">
                 <ul>
                     <c:set var="classfn" value="${extendedTaxonConcept.classification}"/>
                     <c:set var="rankId" value="${classfn.rankId}"/>
@@ -183,52 +237,6 @@
                     </c:if>
                 </ul>
             </div>
-            <div class="section full-width">
-                <c:set var="taxonConceptTitle">
-                    <c:choose>
-                        <c:when test="${fn:length(taxonNames) > 0}">${taxonNames[0].nameComplete}</c:when>
-                        <c:otherwise>${taxonConcept.title}</c:otherwise>
-                    </c:choose>
-                </c:set>
-                <c:set var="taxonConceptRank">
-                    <c:choose>
-                        <c:when test="${not empty extendedTaxonConcept.taxonConcept}">${extendedTaxonConcept.taxonConcept.rankString}</c:when>
-                        <c:when test="${fn:length(extendedTaxonConcept.taxonName.rankLabel) > 0}">${extendedTaxonConcept.taxonName.rankLabel}</c:when>
-                        <c:otherwise>(rank not known)</c:otherwise>
-                    </c:choose>
-                </c:set>
-                <c:set var="sciNameFormatted">
-                    <c:choose>
-                        <%--<c:when test="${extendedTaxonConcept.taxonName.nameComplete != null}"><i>${extendedTaxonConcept.taxonName.nameComplete}</i></c:when>--%>
-                        <c:when test="${fn:endsWith(extendedTaxonConcept.taxonName.rankString,'gen')}"><i>${extendedTaxonConcept.taxonName.nameComplete}</i></c:when>
-                        <c:when test="${fn:endsWith(extendedTaxonConcept.taxonName.rankString,'sp')}"><i>${extendedTaxonConcept.taxonName.nameComplete}</i></c:when>
-                        <c:when test="${fn:endsWith(extendedTaxonConcept.taxonName.rankString,'sp')}"><i>${extendedTaxonConcept.taxonName.nameComplete}</i></c:when>
-                        <c:otherwise>${extendedTaxonConcept.taxonConcept.nameString}</c:otherwise>
-                    </c:choose>
-                </c:set>
-                <div class="hrgroup col-9">
-                    <h1 class="family">${fn:replace(extendedTaxonConcept.taxonConcept.nameString, extendedTaxonConcept.taxonName.nameComplete, sciNameFormatted)}</h1>
-                    <h2>${extendedTaxonConcept.commonNames[0].nameString}</h2>
-                </div>
-                <div class=" col-3">
-                    <h3 style="padding-top:6px;">${extendedTaxonConcept.taxonConcept.rankString} profile</h3>
-                    <cite>source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="_blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
-                    <cite><a href="#lsidText" id="lsid" class="local" title="Life Science Identifier (pop-up)">LSID</a>
-                        | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" class="local" title="JSON web service">JSON</a>
-                        <!-- | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.xml" class="local" title="XML web service">XML</a> -->
-                    </cite>
-                    <div style="display:none; text-align: left;">
-                        <div id="lsidText" style="text-align: left;">
-                            <b><a href="http://lsids.sourceforge.net/" target="_blank">Life Science Identifier (LSID):</a></b>
-                            <p style="margin: 10px 0;"><a href="http://lsid.tdwg.org/summary/${extendedTaxonConcept.taxonConcept.guid}" target="_blank">${extendedTaxonConcept.taxonConcept.guid}</a></p>
-                            <p style="font-size: 12px;">LSIDs are persistent, location-independent,resource identifiers for uniquely naming biologically
-                                significant resources including species names, concepts, occurrences, genes or proteins,
-                                or data objects that encode information about them. To put it simply,
-                                LSIDs are a way to identify and locate pieces of biological information on the web. </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div id="nav-tabs">
                 <ul>
                     <li><a href="#overview">Overview</a></li>
@@ -236,8 +244,10 @@
                     <li><a href="#identification">Identification</a></li>
                     <li><a href="#names">Names</a></li>
                     <li><a href="#records">Records</a></li>
+<%--
                     <li><a href="#biology">Biology</a></li>
                     <li><a href="#molecular">Molecular</a></li>
+--%>
                     <li><a href="#references">References</a></li>
                 </ul>
             </div>
@@ -507,7 +517,7 @@
                 </div><!--close-->
             </div><!--close -->
         </div><!--close records-->
-        <div id="biology">
+<%--        <div id="biology">
             <div id="column-one">
                 <div class="section">
                     <h2>Biology</h2>
@@ -549,6 +559,7 @@
                 </div><!--close-->
             </div><!--close -->
         </div><!--close molecular-->
+--%>
         <div id="references">
             <div id="column-one" class="full-width">
                 <div class="section">
