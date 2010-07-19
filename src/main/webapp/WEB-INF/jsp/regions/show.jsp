@@ -261,13 +261,13 @@
               <label for="Victoria">VIC</label>
           </div>
           <div id="selectedGroup" class="groupSelect">
-              <input type="radio" id="birds" name="radio2" checked="checked" onclick="javascript:setSelectedTaxa(this,'birds','Aves','class');" />
+              <input type="radio" id="birds" name="radio2" onclick="javascript:setSelectedTaxa(this,'birds','Aves','class');" />
               <label for="birds">Birds</label>
               <input type="radio" id="fish" name="radio2" onclick="javascript:setSelectedTaxa(this,'fish','Myxini,Petromyzontida,Chondrichthyes,Sarcopterygii,Actinopterygii','class');" />
               <label for="fish">Fish</label>
               <input type="radio" id="frogs" name="radio2" onclick="javascript:setSelectedTaxa(this,'frogs','Amphibia','class');" />
               <label for="frogs">Frogs</label>
-              <input type="radio" id="mammals" name="radio2" onclick="javascript:setSelectedTaxa(this,'mammals','Mammalia','class');" />
+              <input type="radio" id="mammals" name="radio2" checked="checked" onclick="javascript:setSelectedTaxa(this,'mammals','Mammalia','class');" />
               <label for="mammals">Mammals</label>
               <input type="radio" id="reptiles" name="radio2" onclick="javascript:setSelectedTaxa(this,'reptiles','Reptilia','class');" />
               <label for="reptiles">Reptiles</label>
