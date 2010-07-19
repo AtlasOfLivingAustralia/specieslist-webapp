@@ -187,7 +187,7 @@ public class SearchController {
         model.addAttribute("totalRecords", searchResults.getTotalRecords());
         model.addAttribute("lastPage", lastPage);
 
-        System.out.println("Selected view: "+view);
+        logger.debug("Selected view: "+view);
         
 		return view;
 	}
@@ -218,7 +218,7 @@ public class SearchController {
 			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
 			@RequestParam(value="title", required=false, defaultValue ="Search Results") String title,
 			Model model) throws Exception {
-            System.out.println("Species sort direction: " + sortDirection);
+            logger.debug("Species sort direction: " + sortDirection);
             return doGenericSearch(query, filterQuery, startIndex, pageSize, sortField,
 				sortDirection, title, model, SPECIES_LIST, IndexedTypes.TAXON);
 	}
@@ -416,10 +416,13 @@ public class SearchController {
 			String defaultView,
 			IndexedTypes indexedType) throws Exception {
 		
-		if (StringUtils.isEmpty(query)) {
+		if (StringUtils.isEmpty(query) && (filterQuery == null || filterQuery.length == 0)) {
 			return SEARCH;
 		}
         // if params are set but empty (e.g. foo=&bar=) then provide sensible defaults
+        if (StringUtils.isEmpty(query)) {
+        	query = "";
+        }
         if (filterQuery != null && filterQuery.length == 0) {
             filterQuery = null;
         }
@@ -435,9 +438,9 @@ public class SearchController {
         if (sortDirection.isEmpty()) {
             sortDirection = "asc";
         }
-                //reverse the sort direction for the "score" field a normal sort should be descending while a reverse sort should be ascending
-                
-                sortDirection = getSortDirection(sortField, sortDirection);
+        
+        //reverse the sort direction for the "score" field a normal sort should be descending while a reverse sort should be ascending
+        sortDirection = getSortDirection(sortField, sortDirection);
 		String queryJsEscaped = StringEscapeUtils.escapeJavaScript(query);
 		model.addAttribute("query", query);
 		model.addAttribute("queryJsEscaped", queryJsEscaped);
