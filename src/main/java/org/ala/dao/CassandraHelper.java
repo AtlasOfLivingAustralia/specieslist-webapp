@@ -56,6 +56,11 @@ public class CassandraHelper implements StoreHelper {
 	protected int port = 9160;
 	
 	protected String charsetEncoding = "UTF-8";
+        
+        //The last time that the connection to cassandra was attempted
+        protected long lastChecked =0;
+        //The minimum time between attempts to connect to cassandra
+        protected long checkFrequency = 10000; //check every 10 seconds
 
 	/**
 	 * @see org.ala.dao.StoreHelper#init()
@@ -72,16 +77,26 @@ public class CassandraHelper implements StoreHelper {
 	 * @throws TTransportException
 	 */
 	public Cassandra.Client getConnection() throws TTransportException {
+            
 		try {
 			if(clientConnection==null){
-				TTransport tr = new TSocket(host, port);
-			    TProtocol proto = new TBinaryProtocol(tr);
-			    this.clientConnection = new Cassandra.Client(proto);
-			    tr.open();
+                            //only initialise the client connection if it is the first time or reached checkFrequency
+                            if(lastChecked ==0 || System.currentTimeMillis() > lastChecked + checkFrequency){
+				lastChecked = System.currentTimeMillis();
+                                TTransport tr = new TSocket(host, port);
+                                TProtocol proto = new TBinaryProtocol(tr);
+                                this.clientConnection = new Cassandra.Client(proto);
+                                tr.open();
+                            }
+                            else{
+                                
+                                throw new TTransportException();
+                            }
 			}
 			return this.clientConnection;
 		} catch (TTransportException e) {
-			logger.error("Unable to initialise connection to Cassandra server. Using host: "+host+", and port:"+port);
+			if(e.getMessage()!= null)
+                            logger.error("Unable to initialise connection to Cassandra server. Using host: "+host+", and port:"+port);
 			throw e;
 		}
 	}
@@ -102,7 +117,8 @@ public class CassandraHelper implements StoreHelper {
         catch (TTransportException e){
             //NC: This is a quick fix for communication issues between the webapp server and the cassandra server.
             //TODO We possibly want to implement connection pooling/management for Cassandra connections
-            logger.info("Unable to contact Cassandra. Attempt to reinitialise the connection next time it is used.");
+            if(e.getMessage() != null)
+                logger.info("Unable to contact Cassandra. Attempt to reinitialise the connection next time it is used.");
             this.clientConnection = null; //reinitialise the connection next time
         }
         catch (Exception e){
@@ -142,7 +158,8 @@ public class CassandraHelper implements StoreHelper {
         catch (TTransportException e){
             //NC: This is a quick fix for communication issues between the webapp server and the cassandra server.
             //TODO We possibly want to implement connection pooling/management for Cassandra connections
-            logger.info("Unable to contact Cassandra. Attempt to reinitialise the connection next time it is used.");
+            if(e.getMessage() != null)
+                logger.info("Unable to contact Cassandra. Attempt to reinitialise the connection next time it is used.");
             this.clientConnection = null;//reinitialise the connection next time
         }
         catch (Exception e){
