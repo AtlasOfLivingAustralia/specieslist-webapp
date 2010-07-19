@@ -173,9 +173,11 @@
             <div class="solrResults">
                 <div id="sortWidget">
                     <div id="searchTerms">
-                        <div class="queryTermBox">
-                            Search: <a href="?q=${queryJsEscaped}">${queryJsEscaped}</a><a name="searchResults">&nbsp;</a>
-                        </div>
+                    	<c:if test="${not empty queryJsEscaped}">
+	                        <div class="queryTermBox">
+    	                        Search: <a href="?q=${queryJsEscaped}">${queryJsEscaped}</a><a name="searchResults">&nbsp;</a>
+        	                </div>
+        	            </c:if>    
                         <c:forEach var="filter" items="${paramValues.fq}">
                             <c:set var="fqField" value="${fn:substringBefore(filter, ':')}"/>
                             <c:set var="fqValue" value="${fn:substringAfter(filter, ':')}"/>
@@ -204,6 +206,9 @@
                         <option value="asc" <c:if test="${param.dir eq 'asc'}">selected</c:if>>normal</option>
                         <option value="desc" <c:if test="${param.dir eq 'desc'}">selected</c:if>>reverse</option>
                     </select>
+                    
+                    <input type="hidden" value="${pageTitle}" name="title"/>
+                    
                 </div>
                 <table>
                     <thead>
