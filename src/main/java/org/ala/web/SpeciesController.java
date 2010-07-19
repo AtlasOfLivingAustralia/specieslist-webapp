@@ -424,8 +424,9 @@ public class SpeciesController {
     private List<CommonName> fixCommonNames(List<CommonName> commonNames) {
         List<CommonName> newNames = new ArrayList<CommonName>();
         
-        for (int i = 0; i < commonNames.size(); i++) {
+        for (int i = 1; i < commonNames.size(); i++) {
             CommonName thisCn = commonNames.get(i);
+            
             
             String commonName1 = StringUtils.trimToNull(thisCn.getNameString());
             String infosource1 = StringUtils.trimToNull(thisCn.getInfoSourceName());
@@ -433,8 +434,7 @@ public class SpeciesController {
             String commonName2 = StringUtils.trimToNull(commonNames.get(i-1).getNameString());
             String infosource2 = StringUtils.trimToNull(commonNames.get(i-1).getInfoSourceName());
             
-            if (i > 0 
-            		&& commonName1!=null && commonName1.equalsIgnoreCase(commonName2) 
+            if (commonName1!=null && commonName1.equalsIgnoreCase(commonName2) 
             		&& infosource1!=null && infosource1.equalsIgnoreCase(infosource2)) {
                 logger.debug("Duplicate commonNames detected: "+thisCn);
             } else {
