@@ -9,6 +9,7 @@
 <%@ attribute name="pageSize" required="true" type="java.lang.Long" %>
 <%@ attribute name="lastPage" required="true" type="java.lang.Integer" %>
 <%@ attribute name="maxPageLinks" required="false" type="java.lang.Integer" %>
+<%@ attribute name="title" required="false" type="java.lang.String" %>
 <span id="navLinks">
     <c:if test="${empty maxPageLinks}"><c:set var="maxPageLinks" value="10"/></c:if>
     <fmt:formatNumber var="pageNumber" value="${(startIndex / pageSize) + 1}" pattern="0" />
@@ -37,7 +38,7 @@
     </c:set>
     <c:choose>
         <c:when test="${startIndex > 0}">
-            <span id="prevPage"><a href="${coreParams}&start=${startIndex - pageSize}${hash}">&lt; Previous</a></span>
+            <span id="prevPage"><a href="${coreParams}&start=${startIndex - pageSize}${hash}&title=${title}">&lt; Previous</a></span>
         </c:when>
         <c:otherwise>
             <span id="prevPage">&nbsp;</span>
@@ -47,13 +48,13 @@
         <span id="pageJumpLink">
             <c:choose>
                 <c:when test="${pageLink == pageNumber}"><span id="currentPage">${pageLink}</span></c:when>
-                <c:otherwise><a href="${coreParams}&start=${(pageLink * pageSize) - pageSize}${hash}">${pageLink}</a></c:otherwise>
+                <c:otherwise><a href="${coreParams}&start=${(pageLink * pageSize) - pageSize}${hash}&title=${title}">${pageLink}</a></c:otherwise>
             </c:choose>
         </span>
     </c:forEach>
     <c:choose>
         <c:when test="${!(pageNumber == lastPage)}">
-            <span id="nextPage"><a href="${coreParams}&start=${startIndex + pageSize}${hash}">Next &gt;</a></span>
+            <span id="nextPage"><a href="${coreParams}&start=${startIndex + pageSize}${hash}&title=${title}">Next &gt;</a></span>
         </c:when>
         <c:otherwise>
             <span id="nextPage">&nbsp;</span>
