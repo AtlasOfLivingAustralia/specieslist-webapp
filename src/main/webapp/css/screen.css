@@ -1046,3 +1046,6 @@ li.taxonBreakdown { border: 1px solid gray; padding:10px; margin-bottom: 5px; -m
 .earliestReferenceLabel { color: grey; }
 .downloadButton { padding: 3px 10px; float: right; margin-top: -2px; }
 .downloadButton span.ui-button-text { font-size: 12px; padding: 0 !important; }
+img.emblemThumb { width: 85px; height: 85px; }
+#emblems td { padding-left: 5px;  }
+#regionMap { padding: 20px 10px 0 20px; }

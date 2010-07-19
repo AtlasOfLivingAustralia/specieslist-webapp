@@ -30,65 +30,65 @@
     </div><!--close header-->
     <div id="column-two">
         <div class="section">
-            <img src="${pageContext.request.contextPath}/static/images/map_${geoRegion.name}.png" alt="map of ${geoRegion.name}"/>
+            <img src="${pageContext.request.contextPath}/static/images/map_${geoRegion.name}.png" alt="map of ${geoRegion.name}" id="regionMap"/>
         </div><!--close section-->
     </div><!--close column-one-->
     <div id="column-one">
-        <div class="section">
-    <table id="emblems">
-  	<tr>
-		<td>Animal emblem</td>
-		<td>
-  			<a id="animalEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.animalEmblem.guid}">
-  				${extendedGeoRegion.animalEmblem.nameString}
-	  		</a>
-	  	</td>
-	  	<td id="animalEmblemText">
-		  	${extendedGeoRegion.animalEmblem.nameString}
-	  	</td>
-  	</tr>
-  	<tr>
-  		<td>Plant emblem</td>
-  		<td>
-  			<a id="plantEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.plantEmblem.guid}">
-  				${extendedGeoRegion.plantEmblem.nameString}
-  			</a>
-  		</td>
-	  	<td id="plantEmblemText">
-		  	${extendedGeoRegion.plantEmblem.nameString}
-	  	</td>
-  	</tr>
-  	<tr>
-  		<td>Bird emblem</td>
-  		<td>
-  			<a id="birdEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.birdEmblem.guid}">
-  				${extendedGeoRegion.birdEmblem.nameString}
-  			</a>
-  		</td>
-	  	<td id="birdEmblemText">
-		  	${extendedGeoRegion.birdEmblem.nameString}
-	  	</td>
-  	</tr>
-  </table>
+        
+            <table id="emblems">
+                <tr>
+                    <td>
+                        <a id="animalEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.animalEmblem.guid}">
+                            <img src="${pageContext.request.contextPath}/static/images/noImage85.jpg" alt="${extendedGeoRegion.animalEmblem.nameString}"/>
+                        </a>
+                    </td>
+                    <td>
+                        <h3>Animal emblem</h3>
+                        <div id="animalEmblemText">${extendedGeoRegion.animalEmblem.nameString}</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a id="plantEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.plantEmblem.guid}">
+                            <img src="${pageContext.request.contextPath}/static/images/noImage85.jpg" alt="${extendedGeoRegion.plantEmblem.nameString}"/>
+                        </a>
+                    </td>
+                    <td>
+                        <h3>Plant emblem</h3>
+                        <div id="plantEmblemText">${extendedGeoRegion.plantEmblem.nameString}</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a id="birdEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.birdEmblem.guid}">
+                            <img src="${pageContext.request.contextPath}/static/images/noImage85.jpg" alt="${extendedGeoRegion.birdEmblem.nameString}"/>
+                        </a>
+                    </td>
+                    <td>
+                        <h3>Bird emblem</h3>
+                        <div id="birdEmblemText">${extendedGeoRegion.birdEmblem.nameString}</div>
+                    </td>
+                </tr>
+            </table>
 
   <script type="text/javascript">
         var searchUrl = '${pageContext.request.contextPath}/species/info/${extendedGeoRegion.animalEmblem.guid}.json';
         $.getJSON(searchUrl, function(data) {
-            $('#animalEmblem').html('<img src="'+data.taxonConcept.thumbnail+'"/>');
+            $('#animalEmblem').html('<img src="'+data.taxonConcept.thumbnail+'" class="emblemThumb" alt="'+data.taxonConcept.name+' image"/>');
             $('#animalEmblemText').html(data.taxonConcept.commonNameSingle+" (<i>"+data.taxonConcept.name+"</i>)");
         });
         searchUrl = '${pageContext.request.contextPath}/species/info/${extendedGeoRegion.plantEmblem.guid}.json';
         $.getJSON(searchUrl, function(data) {
-            $('#plantEmblem').html('<img src="'+data.taxonConcept.thumbnail+'"/>');
+            $('#plantEmblem').html('<img src="'+data.taxonConcept.thumbnail+'" class="emblemThumb" alt="'+data.taxonConcept.name+' image"/>');
             $('#plantEmblemText').html(data.taxonConcept.commonNameSingle+" (<i>"+data.taxonConcept.name+"</i>)");
         });
         searchUrl = '${pageContext.request.contextPath}/species/info/${extendedGeoRegion.birdEmblem.guid}.json';
         $.getJSON(searchUrl, function(data) {
-            $('#birdEmblem').html('<img src="'+data.taxonConcept.thumbnail+'"/>');
+            $('#birdEmblem').html('<img src="'+data.taxonConcept.thumbnail+'" class="emblemThumb" alt="'+data.taxonConcept.name+' image"/>');
             $('#birdEmblemText').html(data.taxonConcept.commonNameSingle+" (<i>"+data.taxonConcept.name+"</i>)");
         });
   </script>
-  </div><!--close section-->
+  
     </div><!--close column-one-->
     <div id="column-one" class="full-width">
         <div class="section">
