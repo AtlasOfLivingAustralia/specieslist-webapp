@@ -118,11 +118,11 @@ public class GeoRegionController {
 		//fish counts
 		List<String> fishTaxa = new ArrayList<String>();
 		fishTaxa.add("Myxini");
-		fishTaxa.add("Petromyzontida");
+//		fishTaxa.add("Petromyzontida");
 		fishTaxa.add("Chondrichthyes");
 		fishTaxa.add("Sarcopterygii");
 		fishTaxa.add("Actinopterygii");
-		SearchResultsDTO fish = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "bioOrder", fishTaxa, null, 0, 24, "scientificNameRaw", "asc");
+		SearchResultsDTO fish = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", fishTaxa, null, 0, 24, "scientificNameRaw", "asc");
 		model.addAttribute("fish", fish);
 
 		return GEOREGION_SHOW;
