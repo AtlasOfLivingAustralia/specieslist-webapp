@@ -11,8 +11,10 @@
   <title>Regions - ${geoRegion.regionTypeName} - ${geoRegion.name}</title>
   <script type="text/javascript">
         $(document).ready(function() {
-            // download button GUI
+            // JQuery UI buttons
             $(".downloadButton").button();
+            $("#selectedGroup").buttonset();
+            $("#compareRegions").buttonset();
         });
    </script>
 </head>
@@ -241,35 +243,51 @@
   <!-- Start of the Comparison Tool -->
   <h2 id="comparisonToolHdr">Compare biodiversity to other states and territories</h2>
   <div id="comparisonTable">
-	  <ul id="selectedGroup" class="groupSelect">
-	    <li><a href="#" onclick="javascript:setSelectedTaxa(this,'birds','Aves','class');">Birds</a></li>
-	    <li><a href="#" onclick="javascript:setSelectedTaxa(this,'fish','Myxini,Petromyzontida,Chondrichthyes,Sarcopterygii,Actinopterygii','class');">Fish</a></li>
-	    <li><a href="#" onclick="javascript:setSelectedTaxa(this,'frogs','Amphibia','class');">Frogs</a></li>
-	    <li class="selectedCompareGroup"><a href="#" onclick="javascript:setSelectedTaxa(this,'mammals','Mammalia','class');">Mammals</a></li>
-	    <li><a href="#" onclick="javascript:setSelectedTaxa(this,'reptiles','Reptilia','class');">Reptiles</a></li>
-	  </ul>
-	  <ul id="compareRegions" class="regionSelect">
-	    <li><a id="Australian Capital Territory" href="#" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Australian Capital Territory');">ACT</a></li>
-	    <li><a id="New South Wales" href="#" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','New South Wales');">NSW</a></li>
-	    <li><a id="Northern Territory" href="#" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Northern Territory');">NT</a></li>
-	    <li><a id="Queensland" href="#" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Queensland');">QLD</a></li>
-	    <li><a id="South Australia" href="#" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','South Australia');">SA</a></li>
-	    <li><a id="Tasmania" href="#" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Tasmania');">TAS</a></li>
-	    <li><a id="Victoria" href="#" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Victoria');">VIC</a></li>
-	  </ul>
-	  <!-- Two panel display -->
-	  <table id="taxaDiffComparison">
-	     <tr>
-	       <td>
-	         <h6 id="taxaDiffCount" class="taxaDiffCount"></h6>
-	         <table id="taxaDiff"></table>
-	       </td>
-	       <td>
-	         <h6 id="taxaDiffCount2" class="taxaDiffCount"></h6>
-	         <table id="taxaDiff2"></table>
-	       </td>
-	     </tr>
-	  </table>
+      <form><!-- JQuery UI buttons -->
+          <div id="compareRegions" class="regionSelect">
+              <input type="radio" id="act" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Australian Capital Territory');" />
+              <label for="act">ACT</label>
+              <input type="radio" id="nsw" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','New South Wales');" />
+              <label for="nsw">NSW</label>
+              <input type="radio" id="nt" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Northern Territory');" />
+              <label for="nt">NT</label>
+              <input type="radio" id="qld" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Queensland');" />
+              <label for="qld">QLD</label>
+              <input type="radio" id="sa" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','South Australia');" />
+              <label for="sa">SA</label>
+              <input type="radio" id="tas" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Tasmania');" />
+              <label for="tas">TAS</label>
+              <input type="radio" id="vic" name="radio" checked="checked" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Victoria');"/>
+              <label for="vic">VIC</label>
+          </div>
+          <div id="selectedGroup" class="groupSelect">
+              <input type="radio" id="birds" name="radio2" checked="checked" onclick="javascript:setSelectedTaxa(this,'birds','Aves','class');" />
+              <label for="birds">Birds</label>
+              <input type="radio" id="fish" name="radio2" onclick="javascript:setSelectedTaxa(this,'fish','Myxini,Petromyzontida,Chondrichthyes,Sarcopterygii,Actinopterygii','class');" />
+              <label for="fish">Fish</label>
+              <input type="radio" id="frogs" name="radio2" onclick="javascript:setSelectedTaxa(this,'frogs','Amphibia','class');" />
+              <label for="frogs">Frogs</label>
+              <input type="radio" id="mammals" name="radio2" onclick="javascript:setSelectedTaxa(this,'mammals','Mammalia','class');" />
+              <label for="mammals">Mammals</label>
+              <input type="radio" id="reptiles" name="radio2" onclick="javascript:setSelectedTaxa(this,'reptiles','Reptilia','class');" />
+              <label for="reptiles">Reptiles</label>
+          </div>
+      </form><!-- END JQuery UI buttons -->
+
+      <!-- Two panel display -->
+      <table id="taxaDiffComparison">
+         <tr>
+           <td>
+             <h6 id="taxaDiffCount" class="taxaDiffCount"></h6>
+             <table id="taxaDiff"></table>
+           </td>
+           <td>
+             <h6 id="taxaDiffCount2" class="taxaDiffCount"></h6>
+             <table id="taxaDiff2"></table>
+           </td>
+         </tr>
+      </table>
+      
       <script type="text/javascript">
       // currently selected grouping
       var selectedTaxaSimple = null;
@@ -297,7 +315,7 @@
 
         geoRegion = '${geoRegion.name}';
         geoRegionType = 'state'; //FIXME hardcoded state for now
-        compareRegion = '${geoRegion.name !="Victoria" ? "Victoria" : "Tasmania"}';
+        compareRegion = '${geoRegion.name !="Victoria" ? "vic" : "tas"}';
         compareRegionType = 'state';
 
         //default to Victoria for now

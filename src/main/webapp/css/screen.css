@@ -1008,6 +1008,7 @@ em, dfn {
 /* Temporary styles add by Dave */
 
 #selectedGroup, #compareRegions { margin:0; }
+#compareRegions { float:right; }
 #selectedGroup li { margin-right: 10px; float: left; display: inline; list-style-type: none;}
 #compareRegions li { margin-left: 20px; float: right; list-style-type: none;}
 
