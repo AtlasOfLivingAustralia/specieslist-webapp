@@ -557,20 +557,18 @@ public class SpeciesController {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj == null) {
-                return false;
+            if(obj!=null && obj instanceof InfoSourceDTO){
+                InfoSourceDTO other = (InfoSourceDTO) obj;
+                if(infoSourceName!=null && infoSourceName.equalsIgnoreCase(other.getInfoSourceName())){
+                    //compare urls if not null
+                    if(other.getInfoSourceURL()!=null && infoSourceURL!=null){
+                        return other.getInfoSourceURL().equals(infoSourceURL);
+                    }
+                    //return true as the names are the same
+                    return true;
+                }
             }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final InfoSourceDTO other = (InfoSourceDTO) obj;
-            if ((this.infoSourceName == null) ? (other.infoSourceName != null) : !this.infoSourceName.equals(other.infoSourceName)) {
-                return false;
-            }
-            if ((this.infoSourceURL == null) ? (other.infoSourceURL != null) : !this.infoSourceURL.equals(other.infoSourceURL)) {
-                return false;
-            }
-            return true;
+            return false;
         }
 
         @Override
