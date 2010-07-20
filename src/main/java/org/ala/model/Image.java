@@ -51,7 +51,6 @@ public class Image extends AttributableObject implements Comparable<Image>{
     /** The rights */
     protected String rights;
 
-
     /**
      * Compare to method
      *
@@ -237,32 +236,17 @@ public class Image extends AttributableObject implements Comparable<Image>{
 	public void setRights(String rights) {
 		this.rights = rights;
 	}
-	
+
 	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Image [contentType=");
-		builder.append(this.contentType);
-		builder.append(", guid=");
-		builder.append(this.guid);
-		builder.append(", identifier=");
-		builder.append(this.identifier);
-		builder.append(", repoLocation=");
-		builder.append(this.repoLocation);
-		builder.append(", title=");
-		builder.append(this.title);
-		builder.append(", documentId=");
-		builder.append(this.documentId);
-		builder.append(", infoSourceId=");
-		builder.append(this.infoSourceId);
-		builder.append(", infoSourceName=");
-		builder.append(this.infoSourceName);
-		builder.append(", infoSourceURL=");
-		builder.append(this.infoSourceURL);
-		builder.append("]");
-		return builder.toString();
+		return "Image [contentType=" + contentType + ", creator=" + creator
+				+ ", dcLocation=" + dcLocation + ", guid=" + guid
+				+ ", identifier=" + identifier + ", isPartOf=" + isPartOf
+				+ ", licence=" + licence + ", locality=" + locality
+				+ ", repoLocation=" + repoLocation + ", rights=" + rights
+				+ ", thumbnail=" + thumbnail + ", title=" + title + "]";
 	}
 }
