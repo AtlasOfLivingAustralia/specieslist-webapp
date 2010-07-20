@@ -10,7 +10,7 @@
   <meta name="pageName" content="geoRegion"/>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8"/>
-  <title>Regions - States</title>
+  <title>Regions - States & Territories</title>
 </head>
 <body>
     <div id="header">
@@ -23,17 +23,17 @@
     </div><!--close header-->
     <div id="column-one">
         <div class="section">
-            <h1>States</h1>
+            <h1>States & Territories</h1>
             <br/>
             <ul>
                 <li><a href="${pageContext.request.contextPath}/regions/aus_states/Australian Capital Territory">Australian Capital Territory</a></li>
                 <li><a href="${pageContext.request.contextPath}/regions/aus_states/New South Wales">New South Wales</a></li>
-                <li><a href="${pageContext.request.contextPath}/regions/aus_states/Victoria">Victoria</a></li>
-                <li><a href="${pageContext.request.contextPath}/regions/aus_states/Western Australia">Western Australia</a></li>
-                <li><a href="${pageContext.request.contextPath}/regions/aus_states/Tasmania">Tasmania</a></li>
                 <li><a href="${pageContext.request.contextPath}/regions/aus_states/Northern Territory">Northern Territory</a></li>
                 <li><a href="${pageContext.request.contextPath}/regions/aus_states/Queensland">Queensland</a></li>
                 <li><a href="${pageContext.request.contextPath}/regions/aus_states/South Australia">South Australia</a></li>
+                <li><a href="${pageContext.request.contextPath}/regions/aus_states/Tasmania">Tasmania</a></li>
+                <li><a href="${pageContext.request.contextPath}/regions/aus_states/Western Australia">Western Australia</a></li>                
+                <li><a href="${pageContext.request.contextPath}/regions/aus_states/Victoria">Victoria</a></li>
             </ul>
         </div>
     </div>
