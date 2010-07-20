@@ -471,8 +471,8 @@ public class SpeciesController {
         if (etc.getReferences() != null) infoSources.addAll(extractAllInfoSources(etc.getReferences()));
         if (etc.getClassification() != null) infoSources.add(extractInfoSources(etc.getClassification()));
         
-        ArrayList<InfoSourceDTO> isList = new ArrayList<InfoSourceDTO>(infoSources);
-        Collections.sort(isList);
+        ArrayList<InfoSourceDTO> isList = new ArrayList<InfoSourceDTO>(infoSources); // convert Set to List (for easy sorting)
+        Collections.sort(isList); // sort by infoSourceId (in comparedTo method of bean)
 
         return isList;
     }
