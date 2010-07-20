@@ -14,7 +14,6 @@
  ***************************************************************************/
 package org.ala.model;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 /**
  * Simple POJO representing an image within the system. 
@@ -23,7 +22,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
  *
  * @author Dave Martin (David.Martin@csiro.au)
  */
-@JsonIgnoreProperties({"thumbnail", "dcLocation"})
+//@JsonIgnoreProperties({"thumbnail", "dcLocation"})
 public class Image extends AttributableObject implements Comparable<Image>{
 
 	/** The guid of this image, typically the URL from whence it came */
