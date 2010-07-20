@@ -101,18 +101,18 @@
        ~ your data set!
       -->                  
       <ColumnFamily Name="tc"
-      				ColumnType="Super"
+              ColumnType="Super"
                     CompareWith="UTF8Type"
                     CompareSubcolumnsWith="UTF8Type"
-                    RowsCached="10000"
-                    KeysCached="100%"
+                    RowsCached="1000"
+                    KeysCached="10%"
                     Comment="The column family for Taxon Concepts"/>
       <ColumnFamily Name="gr"
-      				ColumnType="Super"
+              ColumnType="Super"
                     CompareWith="UTF8Type"
                     CompareSubcolumnsWith="UTF8Type"
-                    RowsCached="10000"
-                    KeysCached="100%"
+                    RowsCached="1000"
+                    KeysCached="10%"
                     Comment="The column family for Geo Regions"/>
 
       <!--
@@ -380,3 +380,4 @@
   -->
   <GCGraceSeconds>864000</GCGraceSeconds>
 </Storage>
+
