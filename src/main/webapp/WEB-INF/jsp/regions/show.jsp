@@ -85,7 +85,7 @@
             if(data.commonNames!=null && data.commonNames.length>0){
 	            $('#'+textTag).html(data.commonNames[0].nameString+" (<i>"+data.taxonConcept.nameString+"</i>)");
 	        } else {
-		        $('#'+textTag).html("<i>"+data.taxonConcept.name+"</i>");
+		        $('#'+textTag).html("<i>"+data.taxonConcept.nameString+"</i>");
 	        }
           });
         }
