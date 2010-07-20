@@ -95,7 +95,6 @@ public class RepoUrlUtils {
 	 * @return
 	 */
 	public ExtendedTaxonConceptDTO fixRepoUrls(ExtendedTaxonConceptDTO taxonConceptDTO){
-		
 		List<Image> images = taxonConceptDTO.getImages();
 		for(Image image: images){
 			fixRepoUrls(image);
@@ -103,7 +102,12 @@ public class RepoUrlUtils {
 		return taxonConceptDTO;
 	}
 
-	private void fixRepoUrls(Image image) {
+	/**
+	 * Fix URLS for images.
+	 * 
+	 * @param image
+	 */
+	public Image fixRepoUrls(Image image) {
 		String imageLocation = image.getRepoLocation();
 		
 		if(imageLocation!=null && imageLocation.contains(repositoryPath)){
@@ -120,6 +124,7 @@ public class RepoUrlUtils {
 		//set the thumbnail location and DC path
 		image.setDcLocation(baseUrl + FileType.DC.getFilename());
 		image.setThumbnail(thumbnail);
+		return image;
 	}
 
 	/**
