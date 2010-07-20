@@ -56,8 +56,13 @@
                     'height' : 180
                 });
 
-                // Dena's tabs implementaation
+                // Dena's tabs implementation (with
                 $('#nav-tabs > ul').tabs();
+                var anchor = $(document).attr('location').hash; // the anchor in the URL
+                var index = $('#tabs div.ui-tabs-panel').index($(anchor)); // in tab index of the anchor in the URL
+                $('#nav-tabs > ul').bind('tabsshow', function(event, ui){
+                    document.location = $(document).attr('location').pathname + '#' + ui.panel.id;
+                }); // change the url anchor when we click on a tab
 
                 // Display full image when thumbnails are clicked
                 function formatTitle(title, currentArray, currentIndex, currentOpts) {
@@ -95,6 +100,9 @@
                 $('.distroImg').load(function() {
                     $('.distroMap').show();
                 });
+
+                // load occurrence breakdowns for states
+                
 
             });  // end document ready function
 
@@ -328,7 +336,7 @@
                         <h3>Distribution Map</h3>
                         <p>
                             <a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">
-                                <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" id="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
+                                <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
                             <a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
                         </p>
                     </div>
@@ -499,6 +507,34 @@
                     <h2>Records</h2>
                     <p><a href="http://biocache.ala.org.au/occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View all occurrence records for this taxon</a></p>
                     <p><a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}">View all map of records for this taxon</a></p>
+                    <div id="stateBreakdowns" style="display:none;">
+                        <h4>By State/Territory</h4>
+                        <ul></ul>
+                    </div>
+                    
+                    <%--
+                    <c:forEach var="regionType" items="${extendedTaxonConcept.regionTypes}">
+                        <c:if test="${fn:containsIgnoreCase(regionType.regionType, 'state') || fn:containsIgnoreCase(regionType.regionType, 'territory')}">
+                            <h4>${regionType.regionType}</h4>
+                            <ul style="list-style-type: circle;">
+                                <c:forEach var="region" items="${regionType.regions}">
+                                    <li>${region.name}:
+                                        <a href="http://biocache.ala.org.au/occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}&fq=state:${region.name}">${region.occurrences}</a>
+                                    </li>
+                                </c:forEach>
+                            </ul>
+                        </c:if>
+                    </c:forEach>
+                    <c:forEach var="regionType" items="${extendedTaxonConcept.regionTypes}">
+                        <c:if test="${fn:containsIgnoreCase(regionType.regionType, 'ibra') || fn:containsIgnoreCase(regionType.regionType, 'imcra')}">
+                            <h4>${regionType.regionType}</h4>
+                            <ul style="list-style-type: circle;">
+                                <c:forEach var="region" items="${regionType.regions}">
+                                    <li>${region.name}: ${region.occurrences}</li>
+                                </c:forEach>
+                            </ul>
+                        </c:if>
+                    </c:forEach> --%>
                 </div>
             </div><!---->
             <div id="column-two">
@@ -515,7 +551,7 @@
                         <h3>Distribution Map</h3>
                         <p>
                             <a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">
-                                <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" id="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
+                                <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
                             <a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
                         </p>
                     </div>
