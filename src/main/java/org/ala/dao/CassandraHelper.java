@@ -124,6 +124,9 @@ public class CassandraHelper implements StoreHelper {
         catch (Exception e){
         	//expected behaviour. current thrift API doesnt seem
         	//to support a retrieve null getter
+        	if(logger.isDebugEnabled()){
+        		logger.debug(e.getMessage(), e);
+        	}
         }
 
         //initialise the object mapper
