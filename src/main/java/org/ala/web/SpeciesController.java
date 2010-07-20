@@ -445,10 +445,12 @@ public class SpeciesController {
      */
     private List<CommonName> fixCommonNames(List<CommonName> commonNames) {
         List<CommonName> newNames = new ArrayList<CommonName>();
+        if(commonNames!=null && commonNames.size()>0){
+        	newNames.add(commonNames.get(0));
+        }
         
         for (int i = 1; i < commonNames.size(); i++) {
             CommonName thisCn = commonNames.get(i);
-            
             
             String commonName1 = StringUtils.trimToNull(thisCn.getNameString());
             String infosource1 = StringUtils.trimToNull(thisCn.getInfoSourceName());

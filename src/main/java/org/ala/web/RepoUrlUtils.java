@@ -24,6 +24,7 @@ import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.model.Image;
 import org.ala.util.FileType;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,6 +35,9 @@ import org.springframework.stereotype.Component;
  */
 @Component("repoUrlUtils")
 public class RepoUrlUtils {
+	
+	/** Logger initialisation */
+	private final static Logger logger = Logger.getLogger(RepoUrlUtils.class);
 	
 	/** The path to the repository */
 	protected String repositoryPath = "/data/bie/";
@@ -64,7 +68,8 @@ public class RepoUrlUtils {
 	 */
 	public List<Image> fixRepoUrls(List<Image> images){
 		for(Image image : images){
-			fixRepoUrls(image);
+			image = fixRepoUrls(image);
+			logger.debug(image);
 		}
 		return images;
 	}
