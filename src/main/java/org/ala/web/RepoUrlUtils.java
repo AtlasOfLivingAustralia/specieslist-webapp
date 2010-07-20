@@ -62,6 +62,25 @@ public class RepoUrlUtils {
 	 * @param searchConceptDTO
 	 * @return
 	 */
+	public List<Image> fixRepoUrls(List<Image> images){
+		
+		for(Image image : images){
+			if(image.getRepoLocation()!=null){
+				image.setRepoLocation(image.getRepoLocation().replace(repositoryPath, repositoryUrl));	
+			}
+			if(image.getThumbnail()!=null){
+				image.setThumbnail(image.getThumbnail().replace(repositoryPath, repositoryUrl));
+			}
+		}
+		return images;
+	}
+	
+	/**
+	 * Fix the repository URLs
+	 * 
+	 * @param searchConceptDTO
+	 * @return
+	 */
 	public SearchTaxonConceptDTO fixRepoUrls(SearchTaxonConceptDTO searchConceptDTO){
 		
 		String thumbnail = searchConceptDTO.getThumbnail();

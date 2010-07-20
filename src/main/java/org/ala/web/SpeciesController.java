@@ -41,8 +41,6 @@ import org.ala.model.AttributableObject;
 import org.ala.model.CommonName;
 import org.ala.model.Document;
 import org.ala.model.SimpleProperty;
-import org.ala.model.TaxonConcept;
-import org.ala.model.Image;
 import org.ala.repository.Predicates;
 import org.ala.util.ImageUtils;
 import org.ala.util.MimeType;
@@ -82,22 +80,24 @@ public class SpeciesController {
 	private String HOME_PAGE = "homePage";
 	/** Name of view for a single taxon */
 	private final String SPECIES_SHOW = "species/show";
+	/** Name of view for a single taxon */
+	private final String SPECIES_SHOW_BRIEF = "species/showBrief";	
     /** Name of view for a taxon error page */
 	private final String SPECIES_ERROR = "species/error";
 	/** Name of view for list of pest/conservation status */
 	private final String STATUS_LIST = "species/statusList";
 	@Inject
 	protected RepoUrlUtils repoUrlUtils;
-        /** The set of data sources that will not be truncated **/
-        protected Set<String> nonTruncatedSources = new java.util.HashSet<String>();
-        /** The set of data sources that have low priority (ie displayed at the end of the list or removed if other sources available) **/
-        protected Set<String> lowPrioritySources = new java.util.HashSet<String>();
+    /** The set of data sources that will not be truncated **/
+    protected Set<String> nonTruncatedSources = new java.util.HashSet<String>();
+    /** The set of data sources that have low priority (ie displayed at the end of the list or removed if other sources available) **/
+    protected Set<String> lowPrioritySources = new java.util.HashSet<String>();
 
-        public SpeciesController(){
-            nonTruncatedSources.add("http://www.environment.gov.au/biodiversity/abrs/online-resources/flora/main/index.html");
-            lowPrioritySources.add("http://en.wikipedia.org/");
-            //lowPrioritySources.add("http://plantnet.rbgsyd.nsw.gov.au/floraonline.htm");
-        }
+    public SpeciesController(){
+        nonTruncatedSources.add("http://www.environment.gov.au/biodiversity/abrs/online-resources/flora/main/index.html");
+        lowPrioritySources.add("http://en.wikipedia.org/");
+        //lowPrioritySources.add("http://plantnet.rbgsyd.nsw.gov.au/floraonline.htm");
+    }
 	/**
 	 * Custom handler for the welcome view.
 	 * <p>
@@ -126,7 +126,7 @@ public class SpeciesController {
             @PathVariable("guid") String guid,
             @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
             Model model) throws Exception {
-		
+		logger.debug("Displaying page for: " + guid +" .....");
         ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
 
         if (etc.getTaxonConcept() == null || etc.getTaxonConcept().getGuid() == null) {
@@ -139,6 +139,7 @@ public class SpeciesController {
 		model.addAttribute("commonNames", getCommonNamesString(etc));
 		model.addAttribute("textProperties", filterSimpleProperties(etc));
         model.addAttribute("infoSources", getInfoSource(etc));
+        logger.debug("Returning page view for: " + guid +" .....");
 		return SPECIES_SHOW;
 	}
 
@@ -152,7 +153,7 @@ public class SpeciesController {
 	 * @throws Exception
 	 */ 
 	@RequestMapping(value = {"/species/info/{guid}.json","/species/info/{guid}.xml"}, method = RequestMethod.GET)
-	public SearchResultsDTO showBriefSpecies(
+	public SearchResultsDTO showInfoSpecies(
             @PathVariable("guid") String guid,
             @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
             Model model) throws Exception {
@@ -163,6 +164,27 @@ public class SpeciesController {
         	model.addAttribute("taxonConcept", repoUrlUtils.fixRepoUrls(st));
         }
 		return stcs;
+	}
+	
+	/**
+	 * Map to a /{guid}.json or /{guid}.xml URI.
+	 * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
+	 * 
+	 * @param guid
+	 * @param model
+	 * @return view name
+	 * @throws Exception
+	 */ 
+	@RequestMapping(value = {"/species/moreInfo/{guid}.json","/species/info/{guid}.xml"}, method = RequestMethod.GET)
+	public String showMoreInfoSpecies(
+            @PathVariable("guid") String guid,
+            @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
+            Model model) throws Exception {
+		
+       	model.addAttribute("taxonConcept", taxonConceptDao.getByGuid(guid));
+       	model.addAttribute("commonNames", taxonConceptDao.getCommonNamesFor(guid));
+       	model.addAttribute("images", repoUrlUtils.fixRepoUrls(taxonConceptDao.getImages(guid)));
+		return SPECIES_SHOW_BRIEF;
 	}
 	
 	/**
