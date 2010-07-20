@@ -73,17 +73,17 @@
 
   <script type="text/javascript">
         
-        setupEmblem('${pageContext.request.contextPath}/species/info/${extendedGeoRegion.animalEmblem.guid}.json', 'animalEmblem', 'animalEmblemText');
-        setupEmblem('${pageContext.request.contextPath}/species/info/${extendedGeoRegion.plantEmblem.guid}.json', 'plantEmblem', 'plantEmblemText');
-        setupEmblem('${pageContext.request.contextPath}/species/info/${extendedGeoRegion.birdEmblem.guid}.json', 'birdEmblem', 'birdEmblemText');        
+        setupEmblem('${pageContext.request.contextPath}/species/moreInfo/${extendedGeoRegion.animalEmblem.guid}.json', 'animalEmblem', 'animalEmblemText');
+        setupEmblem('${pageContext.request.contextPath}/species/moreInfo/${extendedGeoRegion.plantEmblem.guid}.json', 'plantEmblem', 'plantEmblemText');
+        setupEmblem('${pageContext.request.contextPath}/species/moreInfo/${extendedGeoRegion.birdEmblem.guid}.json', 'birdEmblem', 'birdEmblemText');        
         
         function setupEmblem(searchUrl, imgTag, textTag){
           $.getJSON(searchUrl, function(data) {
-        	if(data.taxonConcept.thumbnail!=null){
-	            $('#'+imgTag).html('<img src="'+data.taxonConcept.thumbnail+'" class="emblemThumb" alt="'+data.taxonConcept.name+' image"/>');
+        	if(data.images!=null && data.images.length>0){
+	            $('#'+imgTag).html('<img src="'+data.images[0].thumbnail+'" class="emblemThumb" alt="'+data.taxonConcept.nameString+' image"/>');
 	        }
-            if(data.taxonConcept.commonNameSingle!=null){
-	            $('#'+textTag).html(data.taxonConcept.commonNameSingle+" (<i>"+data.taxonConcept.name+"</i>)");
+            if(data.commonNames!=null && data.commonNames.length>0){
+	            $('#'+textTag).html(data.commonNames[0].nameString+" (<i>"+data.taxonConcept.nameString+"</i>)");
 	        } else {
 		        $('#'+textTag).html("<i>"+data.taxonConcept.name+"</i>");
 	        }
