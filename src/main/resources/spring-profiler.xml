@@ -17,6 +17,7 @@
         <constructor-arg value="/data/lucene/namematching"/>
     </bean>
 
+    <!-- <bean id="cassandraHelper" class="org.ala.dao.CassandraPelopsHelper" init-method="init" lazy-init="true"/> -->
     <bean id="cassandraHelper" class="org.ala.dao.CassandraHelper" init-method="init" lazy-init="true"/>
     
     <bean id="taxonConceptDao" class="org.ala.dao.TaxonConceptSHDaoImpl" lazy-init="true">

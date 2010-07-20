@@ -190,6 +190,12 @@
       <artifactId>thrift</artifactId>
       <version>0.2.0</version>
     </dependency>
+    <!-- PELOPS -->
+    <dependency>
+        <groupId>pelops</groupId>
+        <artifactId>pelops</artifactId>
+        <version>0.804</version>
+    </dependency>
     <!-- GEOTOOLS -->
     <dependency>
       <groupId>org.geotools</groupId>
