@@ -346,7 +346,7 @@
                     <ul>
                         <c:forEach var="infoSource" items="${infoSources}">
                             <c:if test="${not empty infoSource.infoSourceURL && not empty infoSource.infoSourceName}">
-                                <li><a href="${infoSource.infoSourceURL}">${infoSource.infoSourceName}</a><!--${infoSource.infoSourceId}--></li>
+                                <li><a href="${infoSource.infoSourceURL}" target="_blank" class="external">${infoSource.infoSourceName}</a><!--${infoSource.infoSourceId}--></li>
                             </c:if>
                         </c:forEach>
                     </ul>
