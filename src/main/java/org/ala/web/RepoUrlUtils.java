@@ -63,14 +63,8 @@ public class RepoUrlUtils {
 	 * @return
 	 */
 	public List<Image> fixRepoUrls(List<Image> images){
-		
 		for(Image image : images){
-			if(image.getRepoLocation()!=null){
-				image.setRepoLocation(image.getRepoLocation().replace(repositoryPath, repositoryUrl));	
-			}
-			if(image.getThumbnail()!=null){
-				image.setThumbnail(image.getThumbnail().replace(repositoryPath, repositoryUrl));
-			}
+			fixRepoUrls(image);
 		}
 		return images;
 	}
@@ -103,28 +97,29 @@ public class RepoUrlUtils {
 	public ExtendedTaxonConceptDTO fixRepoUrls(ExtendedTaxonConceptDTO taxonConceptDTO){
 		
 		List<Image> images = taxonConceptDTO.getImages();
-		
 		for(Image image: images){
-		
-			String imageLocation = image.getRepoLocation();
-			
-			if(imageLocation!=null && imageLocation.contains(repositoryPath)){
-				imageLocation = imageLocation.replace(repositoryPath, repositoryUrl);
-				image.setRepoLocation(imageLocation);
-			}
-			
-			int lastFileSep = imageLocation.lastIndexOf(File.separatorChar);
-			String baseUrl = imageLocation.substring(0, lastFileSep+1);
-			String fileName = imageLocation.substring(lastFileSep+1);
-			String extension = FilenameUtils.getExtension(fileName);
-			String thumbnail = baseUrl + "thumbnail"+ "." + extension;
-			
-			//set the thumbnail location and DC path
-			image.setDcLocation(baseUrl + FileType.DC.getFilename());
-			image.setThumbnail(thumbnail);
-			
+			fixRepoUrls(image);
 		}
 		return taxonConceptDTO;
+	}
+
+	private void fixRepoUrls(Image image) {
+		String imageLocation = image.getRepoLocation();
+		
+		if(imageLocation!=null && imageLocation.contains(repositoryPath)){
+			imageLocation = imageLocation.replace(repositoryPath, repositoryUrl);
+			image.setRepoLocation(imageLocation);
+		}
+		
+		int lastFileSep = imageLocation.lastIndexOf(File.separatorChar);
+		String baseUrl = imageLocation.substring(0, lastFileSep+1);
+		String fileName = imageLocation.substring(lastFileSep+1);
+		String extension = FilenameUtils.getExtension(fileName);
+		String thumbnail = baseUrl + "thumbnail"+ "." + extension;
+		
+		//set the thumbnail location and DC path
+		image.setDcLocation(baseUrl + FileType.DC.getFilename());
+		image.setThumbnail(thumbnail);
 	}
 
 	/**
