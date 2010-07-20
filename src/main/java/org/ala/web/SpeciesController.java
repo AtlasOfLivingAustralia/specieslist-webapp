@@ -451,7 +451,7 @@ public class SpeciesController {
      * @param etc
      * @return
      */
-    private Set<InfoSourceDTO> getInfoSource(ExtendedTaxonConceptDTO etc) {
+    private List<InfoSourceDTO> getInfoSource(ExtendedTaxonConceptDTO etc) {
         Set<InfoSourceDTO> infoSources = new TreeSet<InfoSourceDTO>();
         // Look in each property of the ExtendedTaxonConceptDTO
         if (etc.getTaxonConcept() != null) infoSources.add(extractInfoSources(etc.getTaxonConcept()));
@@ -470,7 +470,11 @@ public class SpeciesController {
         if (etc.getSynonyms() != null) infoSources.addAll(extractAllInfoSources(etc.getSynonyms()));
         if (etc.getReferences() != null) infoSources.addAll(extractAllInfoSources(etc.getReferences()));
         if (etc.getClassification() != null) infoSources.add(extractInfoSources(etc.getClassification()));
-        return infoSources;
+        
+        ArrayList<InfoSourceDTO> isList = new ArrayList<InfoSourceDTO>(infoSources);
+        Collections.sort(isList);
+
+        return isList;
     }
     
     /**
@@ -541,9 +545,9 @@ public class SpeciesController {
     public class InfoSourceDTO implements Comparable<InfoSourceDTO> {
         private String infoSourceName;
         private String infoSourceURL;
-        private String infoSourceId;
+        private Integer infoSourceId;
 
-        public InfoSourceDTO(String infoSourceName, String infoSourceURL, String infoSourceId) {
+        public InfoSourceDTO(String infoSourceName, String infoSourceURL, Integer infoSourceId) {
             this.infoSourceName = infoSourceName;
             this.infoSourceURL = infoSourceURL;
             this.infoSourceId = infoSourceId;
@@ -564,7 +568,7 @@ public class SpeciesController {
                 return false;
             }
             if ((this.infoSourceURL == null) ? (other.infoSourceURL != null) : !this.infoSourceURL.equals(other.infoSourceURL)) {
-                //return false;
+                return false;
             }
             return true;
         }
@@ -574,25 +578,42 @@ public class SpeciesController {
             int hash = 5;
             hash = 43 * hash + (this.infoSourceName != null ? this.infoSourceName.hashCode() : 0);
             hash = 43 * hash + (this.infoSourceURL != null ? this.infoSourceURL.hashCode() : 0);
-            //hash = 43 * hash + (this.infoSourceId != null ? this.infoSourceId.hashCode() : 0);
+            hash = 43 * hash + (this.infoSourceId != null ? this.infoSourceId.hashCode() : 0);
             return hash;
         }
 
         @Override
         public int compareTo(InfoSourceDTO o) {
             //check the infosources
+            if(o.getInfoSourceId()!=null && infoSourceId!=null){
+                return infoSourceId.compareTo(o.getInfoSourceId());
+            }
             if(o.getInfoSourceName()!=null && infoSourceName!=null){
                 return infoSourceName.compareTo(o.getInfoSourceName());
             }
             return -1;
         }
 
-        public String getInfoSourceId() {
+        public Integer getInfoSourceId() {
             return infoSourceId;
         }
 
-        public void setInfoSourceId(String infoSourceId) {
+        public void setInfoSourceId(Integer infoSourceId) {
             this.infoSourceId = infoSourceId;
+        }
+
+        public void setInfoSourceId(String infoSourceId) {
+            if (infoSourceId == null) {
+                this.infoSourceId = 999999;
+            } else {
+                try {
+                    this.infoSourceId = Integer.parseInt(infoSourceId);
+                } catch (NumberFormatException numberFormatException) {
+                    logger.error("Error setting Integer from String: "+numberFormatException.getLocalizedMessage(), numberFormatException);
+                    this.infoSourceId = 999999;
+                }
+            }
+            
         }
 
         public String getInfoSourceName() {
@@ -600,7 +621,7 @@ public class SpeciesController {
         }
 
         public void setInfoSourceName(String infoSourceName) {
-            this.infoSourceName = infoSourceName;
+            this.infoSourceName = infoSourceName.trim();
         }
 
         public String getInfoSourceURL() {
@@ -608,7 +629,7 @@ public class SpeciesController {
         }
 
         public void setInfoSourceURL(String infoSourceURL) {
-            this.infoSourceURL = infoSourceURL;
+            this.infoSourceURL = infoSourceURL.trim();
         }
     }
 }
