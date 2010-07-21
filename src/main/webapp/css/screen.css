@@ -486,7 +486,7 @@ img.galleryImage {
 }
 
 /* footer */
-#footer {
+/*#footer {
     clear: both;
     border-top: 1px solid #999;
     padding-top: 5px;
@@ -509,7 +509,7 @@ img.galleryImage {
 }
 #footer .tabs a:hover {
     text-decoration: underline;
-}
+}*/
 
 /* Facet links */
 #facets {
