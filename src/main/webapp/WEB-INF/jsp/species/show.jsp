@@ -342,7 +342,7 @@
                     </div>
                 </div><!--close news-->
                 <div class="section" id="infoSourceList">
-                    <h3>Resources contributing to this page</h3>
+                    <h3>Contributors to this page</h3>
                     <ul>
                         <c:forEach var="infoSource" items="${infoSources}">
                             <c:if test="${not empty infoSource.infoSourceURL && not empty infoSource.infoSourceName}">
