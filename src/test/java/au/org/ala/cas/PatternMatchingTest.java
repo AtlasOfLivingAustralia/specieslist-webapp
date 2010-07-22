@@ -9,8 +9,10 @@ import au.org.ala.cas.util.PatternMatchingUtils;
 public class PatternMatchingTest extends TestCase {
 
 	public void testMatches() {
-		String uriPattern = "^/biocache-webapp/$, ^/biocache-webapp/occurrences/\\d+$";
+		String uriPattern = "^$, /, /biocache-webapp/, /biocache-webapp/occurrences/\\d+";
 		List<Pattern> patterns = PatternMatchingUtils.getPatternList(uriPattern);
+		assertTrue(PatternMatchingUtils.matches("", patterns));
+		assertTrue(PatternMatchingUtils.matches("/", patterns));
 		assertTrue(PatternMatchingUtils.matches("/biocache-webapp/", patterns));
 		assertTrue(PatternMatchingUtils.matches("/biocache-webapp/occurrences/35661424", patterns));
 		assertFalse(PatternMatchingUtils.matches("/favicon.ico", patterns));
