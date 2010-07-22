@@ -28,7 +28,7 @@ import au.org.ala.cas.util.PatternMatchingUtils;
      ...
      &lt;context-param&gt;
          &lt;param-name&gt;uriFilterPattern&lt;/param-name&gt;
-         &lt;param-value&gt;^/$, ^/occurrences/\d+$&lt;/param-value&gt;
+         &lt;param-value&gt;/, /occurrences/\d+&lt;/param-value&gt;
      &lt;/context-param&gt;
   
      &lt;!-- CAS Authentication Service filters --&gt;
@@ -62,7 +62,7 @@ public class UriFilter implements Filter {
 	public void init(FilterConfig filterConfig) throws ServletException {
 
 		String includedUrlPattern = filterConfig.getServletContext().getInitParameter("uriFilterPattern");
-		logger.trace("Read includedUrlPattern = '" + includedUrlPattern + "'");
+		logger.debug("Read includedUrlPattern = '" + includedUrlPattern + "'");
 		this.inclusionPatterns = PatternMatchingUtils.getPatternList(includedUrlPattern);
 
 		String className = filterConfig.getInitParameter("filterClass");
@@ -79,7 +79,9 @@ public class UriFilter implements Filter {
 			FilterChain chain) throws IOException, ServletException {
 		
 		String requestUri = ((HttpServletRequest) request).getRequestURI();
-		logger.trace("Request Uri = '" + requestUri + "'");
+		if (filter instanceof AuthenticationFilter) {
+			logger.debug("Request Uri = '" + requestUri + "'");
+		}
 		
 		if (PatternMatchingUtils.matches(requestUri, inclusionPatterns)) {
 			if (filter instanceof AuthenticationFilter) {
