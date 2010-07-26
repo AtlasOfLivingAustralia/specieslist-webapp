@@ -10,6 +10,7 @@
 	<description>
 	 This is prototype quality code for loading and testing HBase with RDF data. 
 	</description>
+	
 	<properties>
 		<!-- This project uses UTF8 for Regular Expressions -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
