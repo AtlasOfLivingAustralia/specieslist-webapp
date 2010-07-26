@@ -38,7 +38,6 @@ public class RepoUrlUtils {
 	
 	/** Logger initialisation */
 	private final static Logger logger = Logger.getLogger(RepoUrlUtils.class);
-	
 	/** The path to the repository */
 	protected String repositoryPath = "/data/bie/";
 	/** The URL to the repository */
@@ -101,6 +100,10 @@ public class RepoUrlUtils {
 	 */
 	public ExtendedTaxonConceptDTO fixRepoUrls(ExtendedTaxonConceptDTO taxonConceptDTO){
 		List<Image> images = taxonConceptDTO.getImages();
+		for(Image image: images){
+			fixRepoUrls(image);
+		}
+		images = taxonConceptDTO.getDistributionImages();
 		for(Image image: images){
 			fixRepoUrls(image);
 		}
