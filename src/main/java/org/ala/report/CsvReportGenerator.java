@@ -18,6 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -82,11 +83,15 @@ public class CsvReportGenerator {
 
 	public void runReport(String inputFile, String outputPath) throws Exception {
 		long start = System.currentTimeMillis();
+		System.out.println("Report process is started.....");
 		DateFormat dateFormat = new SimpleDateFormat("yyMMddHHmm");
 		String fileName = dateFormat.format( new java.util.Date());
 		
+//		OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(outputPath + "/report_" + fileName + ".csv"),"8859_1");		
+//		CSVWriter writer = new CSVWriter(osw, ',');
+		CSVWriter writer = new CSVWriter(new FileWriter(outputPath + "/report_" + fileName + ".csv"), ',');		
 		CSVReader reader = new CSVReader(new FileReader(inputFile));
-		CSVWriter writer = new CSVWriter(new FileWriter(outputPath + "/report_" + fileName + ".csv"), ',');
+		
 		String[] nextLine;
 
 
