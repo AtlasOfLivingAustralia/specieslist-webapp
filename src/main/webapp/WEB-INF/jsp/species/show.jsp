@@ -308,7 +308,7 @@
                         </c:if>
                         <p>${status.status}<cite>source: <a href="${status.identifier}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite></p>
                     </c:forEach>
-                    <c:if test="${not empty extendedTaxonConcept.pestStatuses}"><h3>Pest Status</h3></c:if>
+                    <c:if test="${not empty extendedTaxonConcept.pestStatuses}"><h3>Nativeness</h3></c:if>
                     <c:forEach var="status" items="${extendedTaxonConcept.pestStatuses}">
                         <p>${status.status}
                             <cite>source: <a href="${status.identifier}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
@@ -320,7 +320,7 @@
                             <cite>source: <a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
                         </p>
                     </c:forEach>
-                    <c:if test="${not empty extendedTaxonConcept.habitats}"><h3>Habitat Status</h3></c:if>
+                    <c:if test="${not empty extendedTaxonConcept.habitats}"><h3>Habitat</h3></c:if>
                     <c:forEach var="status" items="${extendedTaxonConcept.habitats}">
                         <c:set var="sourceUrl">
                             <c:choose>
@@ -333,7 +333,7 @@
                         </p>
                     </c:forEach>
                     <div class="distroMap" style="display:none;">
-                        <h3>Distribution Map</h3>
+                        <h3>Mapped records</h3>
                         <p>
                             <a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">
                                 <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
@@ -479,7 +479,7 @@
                             <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) < 2}">Taxon</c:if></h5>
                             <ul>
                                 <c:forEach items="${extendedTaxonConcept.parentConcepts}" var="parent">
-                                    <li><a href="<c:url value='/species/${parent.guid}'/>">${parent.nameString}</a></li>
+                                    <li><a href="<c:url value='/species/${parent.guid}#names'/>">${parent.nameString}</a></li>
                                 </c:forEach>
                             </ul>
                             <c:if test="${not empty parent.infoSourceName && not empty parent.infoSourceURL}">
@@ -491,7 +491,7 @@
                             <c:if test="${fn:length(extendedTaxonConcept.childConcepts) < 2}">Taxon</c:if>:</h5>
                             <ul>
                                 <c:forEach items="${extendedTaxonConcept.childConcepts}" var="child">
-                                    <li><a href="<c:url value='/species/${child.guid}'/>">${child.nameString}</a></li>
+                                    <li><a href="<c:url value='/species/${child.guid}#names'/>">${child.nameString}</a></li>
                                 </c:forEach>
                             </ul>
                             <c:if test="${not empty child.infoSourceName && not empty child.infoSourceURL}">
