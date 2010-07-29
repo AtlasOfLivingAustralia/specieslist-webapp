@@ -58,12 +58,9 @@
 
                 // Dena's tabs implementation (with
                 $('#nav-tabs > ul').tabs();
-                var anchor = $(document).attr('location').hash; // the anchor in the URL
-                var index = $('#tabs div.ui-tabs-panel').index($(anchor)); // in tab index of the anchor in the URL
-                $('#nav-tabs > ul').bind('tabsshow', function(event, ui){
-                    document.location = $(document).attr('location').pathname + '#' + ui.panel.id;
-                }); // change the url anchor when we click on a tab
-
+                $('#nav-tabs > ul').bind("tabsshow", function(event, ui) {
+                    window.location.hash = ui.tab.hash;
+                })
                 // Display full image when thumbnails are clicked
                 function formatTitle(title, currentArray, currentIndex, currentOpts) {
                     return '<div id="tip7-title"><span></span>' +
@@ -102,7 +99,13 @@
                 });
 
                 // load occurrence breakdowns for states
-                
+                var biocachUrl = "http://${pageContext.request.serverName}:80/occurrences/searchByTaxon.json?q=${extendedTaxonConcept.taxonConcept.guid}";
+                $.getJSON(biocachUrl, function(data) {
+                    if (data.searchResult != null && data.searchResult.totalRecords > 0) {
+                        //alert("hi "+data.searchResult.totalRecords);
+
+                    }
+                });
 
             });  // end document ready function
 
@@ -121,27 +124,9 @@
     </head>
     <body id="page-36" class="page page-id-36 page-parent page-template page-template-default two-column-right">
         <div id="header" class="taxon">
-            <c:set var="taxonConceptTitle">
-                <c:choose>
-                    <c:when test="${fn:length(taxonNames) > 0}">${taxonNames[0].nameComplete}</c:when>
-                    <c:otherwise>${taxonConcept.title}</c:otherwise>
-                </c:choose>
-            </c:set>
-            <c:set var="taxonConceptRank">
-                <c:choose>
-                    <c:when test="${not empty extendedTaxonConcept.taxonConcept}">${extendedTaxonConcept.taxonConcept.rankString}</c:when>
-                    <c:when test="${fn:length(extendedTaxonConcept.taxonName.rankLabel) > 0}">${extendedTaxonConcept.taxonName.rankLabel}</c:when>
-                    <c:otherwise>(rank not known)</c:otherwise>
-                </c:choose>
-            </c:set>
+            <c:set var="spatialPortalUrl">http://test.ala.org.au/explore/maps/spatial-portal/</c:set>
             <c:set var="sciNameFormatted">
-                <c:choose>
-                    <%--<c:when test="${extendedTaxonConcept.taxonName.nameComplete != null}"><i>${extendedTaxonConcept.taxonName.nameComplete}</i></c:when>--%>
-                    <c:when test="${fn:endsWith(extendedTaxonConcept.taxonName.rankString,'gen')}"><i>${extendedTaxonConcept.taxonName.nameComplete}</i></c:when>
-                    <c:when test="${fn:endsWith(extendedTaxonConcept.taxonName.rankString,'sp')}"><i>${extendedTaxonConcept.taxonName.nameComplete}</i></c:when>
-                    <c:when test="${fn:endsWith(extendedTaxonConcept.taxonName.rankString,'sp')}"><i>${extendedTaxonConcept.taxonName.nameComplete}</i></c:when>
-                    <c:otherwise>${extendedTaxonConcept.taxonConcept.nameString}</c:otherwise>
-                </c:choose>
+                <alatag:formatSciName name="${extendedTaxonConcept.taxonConcept.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/>
             </c:set>
             <div id="breadcrumb">
                 <ul>
@@ -152,7 +137,7 @@
             </div>
             <div class="section full-width">
                 <div class="hrgroup col-8">
-                    <h1 class="family">${fn:replace(extendedTaxonConcept.taxonConcept.nameString, extendedTaxonConcept.taxonName.nameComplete, sciNameFormatted)}</h1>
+                    <h1 class="family">${sciNameFormatted}</h1>
                     <h2>${extendedTaxonConcept.commonNames[0].nameString}</h2>
                 </div>
                 <div class=" col-4">
@@ -335,9 +320,9 @@
                     <div class="distroMap" style="display:none;">
                         <h3>Mapped records</h3>
                         <p>
-                            <a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">
+                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">
                                 <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
-                            <a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
+                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
                         </p>
                     </div>
                 </div><!--close news-->
@@ -506,7 +491,7 @@
                 <div class="section">
                     <h2>Records</h2>
                     <p><a href="http://biocache.ala.org.au/occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View all occurrence records for this taxon</a></p>
-                    <p><a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}">View all map of records for this taxon</a></p>
+                    <p><a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}">View all map of records for this taxon</a></p>
                     <div id="stateBreakdowns" style="display:none;">
                         <h4>By State/Territory</h4>
                         <ul></ul>
@@ -550,9 +535,9 @@
                     <div class="distroMap" style="display:none;">
                         <h3>Distribution Map</h3>
                         <p>
-                            <a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">
+                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">
                                 <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
-                            <a href="http://spatial.ala.org.au/webportal/?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">Interactive version of this map</a>
+                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">Interactive version of this map</a>
                         </p>
                     </div>
                 </div><!--close-->
