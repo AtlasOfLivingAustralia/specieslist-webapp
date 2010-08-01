@@ -129,8 +129,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     /** The table name */
     private static final String TC_TABLE = "taxonConcept";
     
-    static Pattern abbreviatedCanonical = Pattern.compile("([A-Z]\\. )([a-zA-ZÏËÖÜÄÉÈČÁÀÆŒïëöüäåéèčáàæœóú]{1,})");
-    
     @Inject
     protected Vocabulary vocabulary;
     
@@ -391,7 +389,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getExtendedTaxonConceptByGuid(java.lang.String)
 	 */
 	public ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid) throws Exception {
-
+		
+		logger.debug("Retrieving concept for guid: "+guid);
+		
 		ExtendedTaxonConceptDTO etc = new ExtendedTaxonConceptDTO();
 		
 		guid = getPreferredGuid(guid);
@@ -426,6 +426,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         List<SimpleProperty> simpleProperties = getTextPropertiesFor(guid);
         Collections.sort(simpleProperties);
         etc.setSimpleProperties(simpleProperties);
+        
+        logger.debug("Returned concept for guid: "+guid);
+        
 		return etc;
 	}
 
@@ -1076,16 +1079,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         List<String> consTerms = vocabulary.getTermsForStatusType(StatusType.CONSERVATION);
     	
         SolrServer solrServer = solrUtils.getSolrServer();
+
         logger.info("Clearing existing taxon entries in the search index...");
         solrServer.deleteByQuery("idxtype:"+IndexedTypes.TAXON); // delete everything!
-        logger.info("Cleared existing taxon entries in the search index.");
-    	
-    	//Analyzer analyzer = new KeywordAnalyzer(); - works for exact matches
-    	//KeywordAnalyzer analyzer = new KeywordAnalyzer();
-//        Analyzer analyzer = new StandardAnalyzer();
-//
-//    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
         
+        logger.info("Cleared existing taxon entries in the search index.");
         List<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
 
     	int i = 0;
@@ -1103,185 +1101,16 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				logger.info("Indexed records: "+i+", current guid: "+guid);
 			}
     		
-    		//get taxon concept details
-    		TaxonConcept taxonConcept = getByGuid(guid);
-    		
-            if(taxonConcept!=null){
-            	//get synonyms concepts
-	    		List<TaxonConcept> synonyms = getSynonymsFor(guid);
-	    		
-	    		//get congruent concepts
-	    		List<TaxonConcept> congruentTcs = getCongruentConceptsFor(guid);
-	    		
-	    		//treat congruent objects the same way we do synonyms
-	    		synonyms.addAll(congruentTcs);
-	    		
-	    		//get common names
-	    		List<CommonName> commonNames = getCommonNamesFor(guid);
-	    		
-	    		//add the parent id to enable tree browsing with this index
-	    		List<TaxonConcept> children = getChildConceptsFor(guid);
-	
-	    		//add conservation and pest status'
-	            List<ConservationStatus> conservationStatuses = getConservationStatuses(guid);
-	    		List<PestStatus> pestStatuses = getPestStatuses(guid);
-	
-	            //add text properties
-	            List<SimpleProperty> simpleProperties = getTextPropertiesFor(guid);
-	            
-	    		// save all infosource ids to add in a Set to index at the end
-	    		Set<String> infoSourceIds = new TreeSet<String>();
-	            
-	    		//get alternative ids
-	    		List<String> identifiers = getIdentifiers(guid);
-	    		
-	    		//TODO this index should also include nub ids
-	    		SolrInputDocument doc = new SolrInputDocument();
-	    		doc.addField("idxtype", IndexedTypes.TAXON);
-	            
-	    		if(taxonConcept.getNameString()!=null){
-	    			
-	    			doc.addField("id", taxonConcept.getGuid());
-	    			doc.addField("guid", taxonConcept.getGuid());
-	    			
-	    			for(String identifier: identifiers){
-	    				doc.addField("otherGuid", identifier);
-	    			}
-	    			//add the numeric checklistbank id
-	    			doc.addField("otherGuid", taxonConcept.getId());
-	    			
-	    			addToSetSafely(infoSourceIds, taxonConcept.getInfoSourceId());
-	    			//add multiple forms of the scientific name to the index
-	    			addScientificNameToIndex(doc, taxonConcept.getNameString(), taxonConcept.getRankString());
-		    		
-		    		if(taxonConcept.getParentGuid()!=null){
-		    			doc.addField("parentGuid", taxonConcept.getParentGuid());
-		    		}
-		    		
-		    		//add the nested set values
-		    		doc.addField("left", taxonConcept.getLeft());
-		    		doc.addField("right", taxonConcept.getRight());
-		    		
-	                for (ConservationStatus cs : conservationStatuses) {
-	                    for (String csTerm : consTerms) {
-	                        if (cs.getStatus()!=null && cs.getStatus().toLowerCase().contains(csTerm.toLowerCase())) {
-//	                            Field f = new Field("conservationStatus", csTerm, Store.YES, Index.NOT_ANALYZED);
-//	                            f.setBoost(0.6f);
-	                            doc.addField("conservationStatus", csTerm, 0.6f);
-	                			addToSetSafely(infoSourceIds, cs.getInfoSourceId());
-	                        }
-	                    }
-	                }
-	
-	                for (PestStatus ps : pestStatuses) {
-	                    for (String psTerm : pestTerms) {
-	                        if (ps.getStatus().toLowerCase().contains(psTerm.toLowerCase())) {
-//	                            Field f = new Field("pestStatus", psTerm, Store.YES, Index.NOT_ANALYZED);
-//	                            f.setBoost(0.6f);
-	                            doc.addField("pestStatus", psTerm, 0.6f);
-	                            addToSetSafely(infoSourceIds, ps.getInfoSourceId());
-	                        }
-	                    }
-	                }
-	
-	                for (SimpleProperty sp : simpleProperties) {
-	                    // index *Text properties
-	                    if (sp.getName().endsWith("Text")) {
-//	                        Field textField = new Field("simpleText", sp.getValue(), Store.YES, Index.ANALYZED);
-//	                        textField.setBoost(0.4f);
-	                        doc.addField("simpleText", sp.getValue(), 0.4f);
-	                        addToSetSafely(infoSourceIds, sp.getInfoSourceId());
-	                    }
-	                }
-	
-	                //StringBuffer cnStr = new StringBuffer();
-	                Set<String> commonNameSet = new TreeSet<String>();
-		    		for(CommonName cn: commonNames){
-		    			if(cn.nameString!=null){
-		    				commonNameSet.add(cn.nameString.toLowerCase());
-							addToSetSafely(infoSourceIds, cn.getInfoSourceId());
-	                        //doc.add(new Field("commonName", cn.nameString.toLowerCase(), Store.YES, Index.ANALYZED));
-	                        //cnStr.append(cn.nameString.toLowerCase() + " ");
-		    			}
-		    		}
-	
-	                if (commonNameSet.size() > 0) {
-	                    String commonNamesConcat = StringUtils.deleteWhitespace(StringUtils.join(commonNameSet, " "));
-	                    doc.addField("commonNameSort", commonNamesConcat);
-	                    doc.addField("commonName", StringUtils.join(commonNameSet, " "));
-	                    doc.addField("commonNameDisplay", StringUtils.join(commonNameSet, ", "));
-	                    doc.addField("commonNameSingle", commonNames.get(0).nameString);
-	                }
-		    		
-		    		for(TaxonConcept synonym: synonyms){
-		    			if(synonym.getNameString()!=null){
-		    				logger.debug("adding synonym to index: "+synonym.getNameString());
-		    				//add a new document for each synonym
-		    				SolrInputDocument synonymDoc = new SolrInputDocument();
-		    				synonymDoc.addField("id", synonym.getGuid());
-		    				synonymDoc.addField("guid", taxonConcept.getGuid());
-		    				synonymDoc.addField("idxtype", IndexedTypes.TAXON);
-		    				addScientificNameToIndex(synonymDoc, synonym.getNameString(), null);
-		    				synonymDoc.addField("acceptedConceptName", taxonConcept.getNameString());
-		    				if(!commonNames.isEmpty()){
-		    					synonymDoc.addField("commonNameSort", commonNames.get(0).nameString);
-		    					synonymDoc.addField("commonNameDisplay", StringUtils.join(commonNameSet, ", "));
-		    				}
-		                    addRankToIndex(synonymDoc, taxonConcept.getRankString());
-		    				//add the synonym as a separate document
-		                    docs.add(synonymDoc);
-		                    //store the source
-	                        if (synonym.getInfoSourceId()!=null){
-	                        	infoSourceIds.add(synonym.getInfoSourceId()); // getting NPE
-	                        }
-		    			}
-		    		}
-		    		
-		    		List<OccurrencesInGeoregion> regions = getRegions(guid);
-		    		for(OccurrencesInGeoregion region : regions){
-		    			//FIXME do this nicer using define region types etc....
-		    			if("State".equalsIgnoreCase(region.getRegionType()) || "Territory".equalsIgnoreCase(region.getRegionType())){
-		    				doc.addField("state", region.getName());
-		    			}
-		    		}
-		    		
-		    		List<Classification> classifications = getClassifications(guid);
-		    		for (Classification classification: classifications){
-		    			addIfNotNull(doc, "kingdom", classification.getKingdom());
-		    			addIfNotNull(doc, "phylum", classification.getPhylum());
-		    			addIfNotNull(doc, "class", classification.getClazz());
-		    			addIfNotNull(doc, "bioOrder", classification.getOrder());
-		    			addIfNotNull(doc, "family", classification.getFamily());
-		    		}
-		    		
-		    		List<Image> images = getImages(guid);
-		    		if(!images.isEmpty()){
-		    			//FIXME should be replaced by the highest ranked image
-		    			Image image  = images.get(0);
-		    			doc.addField("image", image.getRepoLocation());
-		    			//Change to adding this in earlier
-		    			String thumbnail = image.getRepoLocation().replace("raw", "thumbnail");
-		    			doc.addField("thumbnail", thumbnail);
-		    		}
-		    		
-	                addRankToIndex(doc, taxonConcept.getRankString());
-		    		
-	    			doc.addField("hasChildren", Boolean.toString(!children.isEmpty()));
-	                doc.addField("dataset", StringUtils.join(infoSourceIds, " "));
-		    		
-			    	//add to index
-//			    	iw.addDocument(doc, analyzer);
-	                docs.add(doc);
-			    	
-			    	if(i%1000==0){
-			    		//iw.commit();
-			    		logger.debug(i + " " + taxonConcept.getGuid()+", adding "+docs.size());
-		                solrServer.add(docs);
-		                solrServer.commit();
-		                docs.clear();
-			    	}
-    			}
-    		}
+			List<SolrInputDocument> docsToAdd = indexTaxonConcept(guid, pestTerms, consTerms);
+            docs.addAll(docsToAdd);
+	    	
+	    	if(i%1000==0){
+	    		//iw.commit();
+	    		logger.debug(i + " " + guid+", adding "+docs.size());
+                solrServer.add(docs);
+                solrServer.commit();
+                docs.clear();
+	    	}
     	}
     	
         if (!docs.isEmpty()) {
@@ -1294,6 +1123,197 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     	logger.info("Index created in: "+((finish-start)/1000)+" seconds with "+ i +" taxon concepts processed.");
 	}
 
+	/**
+	 * Index the supplied taxon concept.
+	 * 
+	 * @param guid
+	 * @return
+	 */
+	public List<SolrInputDocument> indexTaxonConcept(String guid, List<String> pestTerms, List<String> consTerms) throws Exception {
+		
+		List<SolrInputDocument> docsToAdd = new ArrayList<SolrInputDocument>();
+		
+		//get taxon concept details
+		TaxonConcept taxonConcept = getByGuid(guid);
+		
+        if(taxonConcept!=null){
+        	//get synonyms concepts
+    		List<TaxonConcept> synonyms = getSynonymsFor(guid);
+    		
+    		//get congruent concepts
+    		List<TaxonConcept> congruentTcs = getCongruentConceptsFor(guid);
+    		
+    		//treat congruent objects the same way we do synonyms
+    		synonyms.addAll(congruentTcs);
+    		
+    		//get common names
+    		List<CommonName> commonNames = getCommonNamesFor(guid);
+    		
+    		//add the parent id to enable tree browsing with this index
+    		List<TaxonConcept> children = getChildConceptsFor(guid);
+
+    		//add conservation and pest status'
+            List<ConservationStatus> conservationStatuses = getConservationStatuses(guid);
+    		List<PestStatus> pestStatuses = getPestStatuses(guid);
+
+            //add text properties
+            List<SimpleProperty> simpleProperties = getTextPropertiesFor(guid);
+            
+    		// save all infosource ids to add in a Set to index at the end
+    		Set<String> infoSourceIds = new TreeSet<String>();
+            
+    		//get alternative ids
+    		List<String> identifiers = getIdentifiers(guid);
+    		
+    		//TODO this index should also include nub ids
+    		SolrInputDocument doc = new SolrInputDocument();
+    		doc.addField("idxtype", IndexedTypes.TAXON);
+            
+    		if(taxonConcept.getNameString()!=null){
+    			
+    			doc.addField("id", taxonConcept.getGuid());
+    			doc.addField("guid", taxonConcept.getGuid());
+    			
+    			for(String identifier: identifiers){
+    				doc.addField("otherGuid", identifier);
+    			}
+    			//add the numeric checklistbank id
+    			doc.addField("otherGuid", taxonConcept.getId());
+    			
+    			addToSetSafely(infoSourceIds, taxonConcept.getInfoSourceId());
+    			//add multiple forms of the scientific name to the index
+    			addScientificNameToIndex(doc, taxonConcept.getNameString(), taxonConcept.getRankString());
+	    		
+	    		if(taxonConcept.getParentGuid()!=null){
+	    			doc.addField("parentGuid", taxonConcept.getParentGuid());
+	    		}
+	    		
+	    		//add the nested set values
+	    		doc.addField("left", taxonConcept.getLeft());
+	    		doc.addField("right", taxonConcept.getRight());
+	    		
+                for (ConservationStatus cs : conservationStatuses) {
+                    for (String csTerm : consTerms) {
+                        if (cs.getStatus()!=null && cs.getStatus().toLowerCase().contains(csTerm.toLowerCase())) {
+//                            Field f = new Field("conservationStatus", csTerm, Store.YES, Index.NOT_ANALYZED);
+//                            f.setBoost(0.6f);
+                            doc.addField("conservationStatus", csTerm, 0.6f);
+                			addToSetSafely(infoSourceIds, cs.getInfoSourceId());
+                        }
+                    }
+                }
+
+                for (PestStatus ps : pestStatuses) {
+                    for (String psTerm : pestTerms) {
+                        if (ps.getStatus().toLowerCase().contains(psTerm.toLowerCase())) {
+//                            Field f = new Field("pestStatus", psTerm, Store.YES, Index.NOT_ANALYZED);
+//                            f.setBoost(0.6f);
+                            doc.addField("pestStatus", psTerm, 0.6f);
+                            addToSetSafely(infoSourceIds, ps.getInfoSourceId());
+                        }
+                    }
+                }
+
+                for (SimpleProperty sp : simpleProperties) {
+                    // index *Text properties
+                    if (sp.getName().endsWith("Text")) {
+//                        Field textField = new Field("simpleText", sp.getValue(), Store.YES, Index.ANALYZED);
+//                        textField.setBoost(0.4f);
+                        doc.addField("simpleText", sp.getValue(), 0.4f);
+                        addToSetSafely(infoSourceIds, sp.getInfoSourceId());
+                    }
+                }
+
+                //StringBuffer cnStr = new StringBuffer();
+                Set<String> commonNameSet = new TreeSet<String>();
+	    		for(CommonName cn: commonNames){
+	    			if(cn.getNameString()!=null){
+	    				commonNameSet.add(cn.getNameString().toLowerCase());
+						addToSetSafely(infoSourceIds, cn.getInfoSourceId());
+                        //doc.add(new Field("commonName", cn.nameString.toLowerCase(), Store.YES, Index.ANALYZED));
+                        //cnStr.append(cn.nameString.toLowerCase() + " ");
+	    			}
+	    		}
+
+                if (commonNameSet.size() > 0) {
+                    String commonNamesConcat = StringUtils.deleteWhitespace(StringUtils.join(commonNameSet, " "));
+                    doc.addField("commonNameSort", commonNamesConcat);
+                    //add each common name separately
+                    for(String commonName: commonNameSet){
+                    	doc.addField("commonName", commonName);
+                    }
+                    doc.addField("commonNameDisplay", StringUtils.join(commonNameSet, ", "));
+                    doc.addField("commonNameSingle", commonNames.get(0).getNameString());
+                }
+	    		
+	    		for(TaxonConcept synonym: synonyms){
+	    			if(synonym.getNameString()!=null){
+	    				logger.debug("adding synonym to index: "+synonym.getNameString());
+	    				//add a new document for each synonym
+	    				SolrInputDocument synonymDoc = new SolrInputDocument();
+	    				synonymDoc.addField("id", synonym.getGuid());
+	    				synonymDoc.addField("guid", taxonConcept.getGuid());
+	    				synonymDoc.addField("idxtype", IndexedTypes.TAXON);
+	    				addScientificNameToIndex(synonymDoc, synonym.getNameString(), null);
+	    				synonymDoc.addField("acceptedConceptName", taxonConcept.getNameString());
+	    				if(!commonNames.isEmpty()){
+	    					synonymDoc.addField("commonNameSort", commonNames.get(0).getNameString());
+	    					synonymDoc.addField("commonNameDisplay", StringUtils.join(commonNameSet, ", "));
+	    				}
+	                    addRankToIndex(synonymDoc, taxonConcept.getRankString());
+	    				//add the synonym as a separate document
+	                    docsToAdd.add(synonymDoc);
+	                    //store the source
+                        if (synonym.getInfoSourceId()!=null){
+                        	infoSourceIds.add(synonym.getInfoSourceId()); // getting NPE
+                        }
+	    			}
+	    		}
+	    		
+	    		List<OccurrencesInGeoregion> regions = getRegions(guid);
+	    		for(OccurrencesInGeoregion region : regions){
+	    			//FIXME do this nicer using define region types etc....
+	    			if("State".equalsIgnoreCase(region.getRegionType()) || "Territory".equalsIgnoreCase(region.getRegionType())){
+	    				doc.addField("state", region.getName());
+	    			}
+	    			if(region.getRegionType()!=null && region.getRegionType().startsWith("IBRA")){
+	    				doc.addField("ibra", region.getName());
+	    			}
+	    			if(region.getRegionType()!=null && region.getRegionType().startsWith("IMCRA")){
+	    				doc.addField("imcra", region.getName());
+	    			}
+	    		}
+	    		
+	    		List<Classification> classifications = getClassifications(guid);
+	    		for (Classification classification: classifications){
+	    			addIfNotNull(doc, "kingdom", classification.getKingdom());
+	    			addIfNotNull(doc, "phylum", classification.getPhylum());
+	    			addIfNotNull(doc, "class", classification.getClazz());
+	    			addIfNotNull(doc, "bioOrder", classification.getOrder());
+	    			addIfNotNull(doc, "family", classification.getFamily());
+	    		}
+	    		
+	    		List<Image> images = getImages(guid);
+	    		if(!images.isEmpty()){
+	    			//FIXME should be replaced by the highest ranked image
+	    			Image image  = images.get(0);
+	    			doc.addField("image", image.getRepoLocation());
+	    			//Change to adding this in earlier
+	    			String thumbnail = image.getRepoLocation().replace("raw", "thumbnail");
+	    			doc.addField("thumbnail", thumbnail);
+	    		}
+	    		
+                addRankToIndex(doc, taxonConcept.getRankString());
+	    		
+    			doc.addField("hasChildren", Boolean.toString(!children.isEmpty()));
+                doc.addField("dataset", StringUtils.join(infoSourceIds, " "));
+                
+                docsToAdd.add(doc);
+    		}
+        }
+        return docsToAdd;
+	}
+	
 	/**
 	 * Add field if the value is not null
 	 * 
