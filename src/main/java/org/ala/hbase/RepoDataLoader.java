@@ -37,6 +37,7 @@ import org.ala.util.SpringUtils;
 import org.ala.util.TurtleUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -60,6 +61,9 @@ public class RepoDataLoader {
     protected InfoSourceDAO infoSourceDAO;
     @Inject
     protected RepositoryFileUtils repoFileUtils;
+
+	int totalFilesRead = 0;
+	int totalPropertiesSynced = 0;
 	
 	/**
 	 * @param args
@@ -102,65 +106,19 @@ public class RepoDataLoader {
 			}
 		} else {
 			// Scan all sub-directories - FIXME this takes a long time for a large number of subdirectories
-			dirs = file.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
+//			dirs = file.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
+			
+			//list immediate directories
+			dirs = file.listFiles();
 		}
- 
-		for (File currentDir : dirs) {
-			logger.info("Reading directory: " + currentDir.getAbsolutePath());
-			int filesRead = 0;
-			int propertiesSynced = 0;
-			Iterator<File> fileIterator = FileUtils.iterateFiles(currentDir, null, true);
-			while (fileIterator.hasNext()) {
-				File currentFile = fileIterator.next();
-				if (currentFile.getName().equals(FileType.RDF.toString())) {
-					filesRead++;
-					
-					//read the dublin core in the same directory - determine if its an image
-					try {
-	                    logger.debug("Reading file: " + currentFile.getAbsolutePath());
-						FileReader reader = new FileReader(currentFile);
-	                    List<Triple> triples = TurtleUtils.readTurtle(reader);
-	                    //close the reader
-	                    reader.close();
-	                    
-	                    String currentSubject = null;
-	                    List<Triple> splitBySubject = new ArrayList<Triple>();
-	                    
-	                    //iterate through triple, splitting the triples by subject
-	                    for(Triple triple: triples){
-	                    
-							if (currentSubject == null) {
-	                    		currentSubject = triple.subject;
-							} else if (!currentSubject.equals(triple.subject)) {
-	                    		//sync these triples
-								boolean success = sync(currentFile, splitBySubject, currentDir.getName());
-								if (success) {
-									propertiesSynced++;
-								}
-	    	                    //clear list
-	    	                    splitBySubject.clear();
-	    	                    currentSubject = triple.subject;
-	                    	}
-	                    	splitBySubject.add(triple);
-	                    }
-	
-	                    //sort out the buffer
-						if (!splitBySubject.isEmpty()) {
-							boolean success = sync(currentFile, splitBySubject, currentDir.getName());
-							if (success) {
-								propertiesSynced++;
-							}
-						}
-	                    
-	                } catch (Exception e) {
-	                    logger.error("Error reading triples from file: '"+currentFile.getAbsolutePath() +"', "+e.getMessage(), e);
-	                }
-				}
+		
+		for(File childFile: dirs){
+			if(childFile.isDirectory()){
+				File[] dirsToScan = childFile.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
+				scanDirectory(dirsToScan);
 			}
-			logger.info("InfosourceId: " + currentDir.getName() + " - Files read: " + filesRead + ", files matched: " + propertiesSynced);
-			totalFilesRead += filesRead;
-			totalPropertiesSynced += propertiesSynced;
 		}
+
 		logger.info("Files read: "+totalFilesRead+", files matched: "+totalPropertiesSynced);
 		return totalFilesRead;
 	}
@@ -180,6 +138,75 @@ public class RepoDataLoader {
 		return null;
 	}
 
+	/**
+	 * Scan through the supplied directories.
+	 * 
+	 * @param dirs
+	 */
+	public void scanDirectory(File[] dirs){
+		
+		int filesRead = 0;
+		int propertiesSynced = 0;
+		
+		for (File currentDir : dirs) {
+			logger.info("Reading directory: " + currentDir.getAbsolutePath());
+			Iterator<File> fileIterator = FileUtils.iterateFiles(currentDir, null, true);
+			while (fileIterator.hasNext()) {
+				File currentFile = fileIterator.next();
+				if (currentFile.getName().equals(FileType.RDF.toString())) {
+					filesRead++;
+					String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
+					//read the dublin core in the same directory - determine if its an image
+					try {
+	                    logger.debug("Reading file: " + currentFile.getAbsolutePath());
+						FileReader reader = new FileReader(currentFile);
+	                    List<Triple> triples = TurtleUtils.readTurtle(reader);
+	                    //close the reader
+	                    reader.close();
+	                    
+	                    String currentSubject = null;
+	                    List<Triple> splitBySubject = new ArrayList<Triple>();
+	                    
+	                    //iterate through triple, splitting the triples by subject
+	                    for(Triple triple: triples){
+	                    
+							if (currentSubject == null) {
+	                    		currentSubject = triple.subject;
+							} else if (!currentSubject.equals(triple.subject)) {
+	                    		//sync these triples
+//								/data/bie/1036/23/235332/rdf
+								
+								boolean success = sync(currentFile, splitBySubject, infosourceId);
+								if (success) {
+									propertiesSynced++;
+								}
+	    	                    //clear list
+	    	                    splitBySubject.clear();
+	    	                    currentSubject = triple.subject;
+	                    	}
+	                    	splitBySubject.add(triple);
+	                    }
+	
+	                    //sort out the buffer
+						if (!splitBySubject.isEmpty()) {
+							boolean success = sync(currentFile, splitBySubject, infosourceId);
+							if (success) {
+								propertiesSynced++;
+							}
+						}
+	                    
+	                } catch (Exception e) {
+	                    logger.error("Error reading triples from file: '"+currentFile.getAbsolutePath() +"', "+e.getMessage(), e);
+	                }
+				}
+			}
+			logger.info("InfosourceId: " + currentDir.getName() + " - Files read: " + filesRead + ", files matched: " + propertiesSynced);
+			totalFilesRead += filesRead;
+			totalPropertiesSynced += propertiesSynced;
+		}
+	}
+	
+	
 	/**
 	 * Synchronize triples to database.
 	 * 
