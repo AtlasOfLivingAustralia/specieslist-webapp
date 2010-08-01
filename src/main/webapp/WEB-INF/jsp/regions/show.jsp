@@ -34,8 +34,8 @@
         </div><!--close section-->
     </div><!--close column-one-->
     <div id="column-one">
-        
             <table id="emblems">
+               <c:if test="${not empty extendedGeoRegion.animalEmblem}">
                 <tr>
                     <td>
                         <a id="animalEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.animalEmblem.guid}">
@@ -47,6 +47,8 @@
                         <div id="animalEmblemText">${extendedGeoRegion.animalEmblem.nameString}</div>
                     </td>
                 </tr>
+                </c:if>
+               <c:if test="${not empty extendedGeoRegion.plantEmblem}">
                 <tr>
                     <td>
                         <a id="plantEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.plantEmblem.guid}">
@@ -58,6 +60,8 @@
                         <div id="plantEmblemText">${extendedGeoRegion.plantEmblem.nameString}</div>
                     </td>
                 </tr>
+                </c:if>
+                <c:if test="${not empty extendedGeoRegion.birdEmblem}">
                 <tr>
                     <td>
                         <a id="birdEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.birdEmblem.guid}">
@@ -69,13 +73,20 @@
                         <div id="birdEmblemText">${extendedGeoRegion.birdEmblem.nameString}</div>
                     </td>
                 </tr>
+                </c:if>
             </table>
 
   <script type="text/javascript">
         
-        setupEmblem('${pageContext.request.contextPath}/species/moreInfo/${extendedGeoRegion.animalEmblem.guid}.json', 'animalEmblem', 'animalEmblemText');
-        setupEmblem('${pageContext.request.contextPath}/species/moreInfo/${extendedGeoRegion.plantEmblem.guid}.json', 'plantEmblem', 'plantEmblemText');
-        setupEmblem('${pageContext.request.contextPath}/species/moreInfo/${extendedGeoRegion.birdEmblem.guid}.json', 'birdEmblem', 'birdEmblemText');        
+        <c:if test="${not empty extendedGeoRegion.animalEmblem}">
+	        setupEmblem('${pageContext.request.contextPath}/species/moreInfo/${extendedGeoRegion.animalEmblem.guid}.json', 'animalEmblem', 'animalEmblemText');
+        </c:if>
+        <c:if test="${not empty extendedGeoRegion.plantEmblem}">
+	        setupEmblem('${pageContext.request.contextPath}/species/moreInfo/${extendedGeoRegion.plantEmblem.guid}.json', 'plantEmblem', 'plantEmblemText');
+	    </c:if>
+        <c:if test="${not empty extendedGeoRegion.birdEmblem}">
+	        setupEmblem('${pageContext.request.contextPath}/species/moreInfo/${extendedGeoRegion.birdEmblem.guid}.json', 'birdEmblem', 'birdEmblemText');        
+        </c:if>
         
         function setupEmblem(searchUrl, imgTag, textTag){
           $.getJSON(searchUrl, function(data) {
@@ -384,13 +395,7 @@
       }
       </script>
   </div>
-
-<script type="text/javascript"><!--
-
-
-</script>
 </div>
-    </div>
+</div>
 </body>
-
 </html>
