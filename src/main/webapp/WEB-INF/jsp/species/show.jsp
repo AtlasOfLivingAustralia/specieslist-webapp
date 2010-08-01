@@ -533,7 +533,7 @@
                 </div><!--close tools-->
                 <div class="section">
                     <div class="distroMap" style="display:none;">
-                        <h3>Distribution Map</h3>
+                        <h3>Mapped records</h3>
                         <p>
                             <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">
                                 <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
