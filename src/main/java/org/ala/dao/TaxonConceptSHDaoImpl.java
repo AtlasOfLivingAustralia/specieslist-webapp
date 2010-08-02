@@ -1103,7 +1103,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			List<SolrInputDocument> docsToAdd = indexTaxonConcept(guid, pestTerms, consTerms);
             docs.addAll(docsToAdd);
 	    	
-	    	if(i%1000==0){
+	    	if(i>0 && i%1000==0){
 	    		//iw.commit();
 	    		logger.debug(i + " " + guid+", adding "+docs.size());
                 solrServer.add(docs);
