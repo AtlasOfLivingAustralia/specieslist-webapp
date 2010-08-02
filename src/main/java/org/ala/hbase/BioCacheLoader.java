@@ -60,10 +60,10 @@ public class BioCacheLoader {
 		// For testing
 //		taxonConceptDao.setLuceneIndexLocation(LoadUtils.BASE_DIR + "taxonConcept");
 		
-		loadRegions(FAMILY_REGION_OCCURRENCE, "family");
-		loadRegions(GENUS_REGION_OCCURRENCE, "genus");
+//		loadRegions(FAMILY_REGION_OCCURRENCE, "family");
+//		loadRegions(GENUS_REGION_OCCURRENCE, "genus");
 		loadRegions(SPECIES_REGION_OCCURRENCE, "species");
-		loadRegions(SUBSPECIES_REGION_OCCURRENCE, "subspecies");
+//		loadRegions(SUBSPECIES_REGION_OCCURRENCE, "subspecies");
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class BioCacheLoader {
     	String[] values = null;
 		int noOfTaxa = 0;
 		int noOfRegions = 0;
-		String previousGuid = null;
+		String currentGuid = null;
 		List<OccurrencesInGeoregion> regions = new ArrayList<OccurrencesInGeoregion>();
 		while ((values = tr.readNext()) != null) {
     		if (values.length == 5) {
@@ -89,30 +89,31 @@ public class BioCacheLoader {
     			String regionId = values[2];
     			String regionName = values[3];
     			String occurrences = values[4];
-    			if (!guid.equalsIgnoreCase(previousGuid)) {
+    			if (!guid.equals(currentGuid)) {
     				if (!regions.isEmpty()) {
     					// Flush list of regions
-    					taxonConceptDao.addRegions(guid, regions);
-        				logger.trace("Added region list for guid=" + guid );
+    					taxonConceptDao.addRegions(currentGuid, regions);
+    					logger.debug("Added region list for guid = " + currentGuid +", number of regions = "+regions.size());
         				noOfTaxa++;
         				regions.clear();
     				}
-    				previousGuid = guid;
     			}
-    			if (guid != null) {
-    				OccurrencesInGeoregion region = new OccurrencesInGeoregion(guid, regionId, regionName, regionType, Integer.parseInt(occurrences));
-    				logger.trace("Adding guid=" + guid + " Region=" + regionName + " Type=" + regionType + " Occs=" + occurrences);
-    				regions.add(region);
-    				noOfRegions++;
-    			}
+    			
+				OccurrencesInGeoregion region = new OccurrencesInGeoregion(guid, regionId, regionName, regionType, Integer.parseInt(occurrences));
+				logger.trace("Adding guid=" + guid + " Region=" + regionName + " Type=" + regionType + " Occs=" + occurrences);
+				regions.add(region);
+				noOfRegions++;
+    			
+    			currentGuid = guid;
     		} else {
     			logger.error("Incorrect number of fields in tab file - " + regionDatFile);
     		}
+    		
 		}
 		if (!regions.isEmpty()) {
 			// Flush list of regions
-			taxonConceptDao.addRegions(previousGuid, regions);
-			logger.trace("Added region list for guid=" + previousGuid );
+			taxonConceptDao.addRegions(currentGuid, regions);
+			logger.debug("Added region list for guid = " + currentGuid +", number of regions = "+regions.size());
 			noOfTaxa++;
 		}
 		
