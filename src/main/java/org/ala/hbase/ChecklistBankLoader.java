@@ -377,13 +377,13 @@ public class ChecklistBankLoader {
 				String species = cols[25];
 				String dataset = cols[26];
 	
-				if(guid == null){
+				if(StringUtils.isEmpty(guid)){
 					guid = identifier;
 				}
 				
 				int numberAdded = 0;
 	
-				if (guid != null && StringUtils.isEmpty(acceptedNameUsageID)) {
+				if (StringUtils.isNotEmpty(guid) && StringUtils.isEmpty(acceptedNameUsageID)) {
 					
 					//add the base concept
 					TaxonConcept tc = new TaxonConcept();
@@ -482,6 +482,10 @@ public class ChecklistBankLoader {
 	                }
 	                boolean success = taxonConceptDao.addClassification(guid, c);
 					if(!success) logger.error("Failed to add classification to "+guid+", line number: "+lineNumber);
+				} else {
+					if(StringUtils.isEmpty(acceptedNameUsageID)){
+						logger.error("Failed to add line number: "+lineNumber+", guid:"+guid);
+					}
 				}
 				lineNumber++;
     		} catch (Exception e){
