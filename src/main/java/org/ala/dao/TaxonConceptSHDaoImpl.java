@@ -1091,11 +1091,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		
 		byte[] guidAsBytes = null;
 		
-//		while ((guidAsBytes = scanner.getNextGuid())!=null) {
-    	while(i==0){	
-//			String guid = new String(guidAsBytes);
+		while ((guidAsBytes = scanner.getNextGuid())!=null) {
+			String guid = new String(guidAsBytes);
 			
-			String guid = "urn:lsid:biodiversity.org.au:afd.taxon:7bcdf6aa-4eb0-4184-bbd1-ca2b518b749f";
 			i++;
 			
 			if(i%1000==0){
