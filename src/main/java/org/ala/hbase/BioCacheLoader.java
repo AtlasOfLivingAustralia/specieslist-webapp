@@ -57,13 +57,10 @@ public class BioCacheLoader {
 	 * @throws Exception
 	 */
 	private void load() throws Exception {
-		// For testing
-//		taxonConceptDao.setLuceneIndexLocation(LoadUtils.BASE_DIR + "taxonConcept");
-		
-//		loadRegions(FAMILY_REGION_OCCURRENCE, "family");
-//		loadRegions(GENUS_REGION_OCCURRENCE, "genus");
+		loadRegions(FAMILY_REGION_OCCURRENCE, "family");
+		loadRegions(GENUS_REGION_OCCURRENCE, "genus");
 		loadRegions(SPECIES_REGION_OCCURRENCE, "species");
-//		loadRegions(SUBSPECIES_REGION_OCCURRENCE, "subspecies");
+		loadRegions(SUBSPECIES_REGION_OCCURRENCE, "subspecies");
 	}
 
 	/**
