@@ -14,7 +14,6 @@ aus_states/South Australia	Swainsona formosa	plant	urn:lsid:biodiversity.org.au:
 aus_states/Tasmania	Eucalyptus globulus	plant	urn:lsid:biodiversity.org.au:apni.taxon:305457
 aus_states/Victoria	Epacris impressa	plant	urn:lsid:biodiversity.org.au:apni.taxon:289388
 aus_states/Western Australia	Anigozahos manglesii	plant	urn:lsid:biodiversity.org.au:apni.taxon:302290
-aus_states/Australian Capital Territory	Canis lupus dingo	animal	urn:lsid:biodiversity.org.au:afd.taxon:97b1acaf-5fa0-488f-95b2-524aef96c2ef
 aus_states/New South Wales	Ornithorhynchus anatinus	animal	urn:lsid:catalogueoflife.org:taxon:24e81878-60a7-102d-be47-00304854f810:ac2010
 aus_states/Northern Territory	Macropus rufus	animal	urn:lsid:biodiversity.org.au:afd.taxon:aa745ff0-c776-4d0e-851d-369ba0e6f537
 aus_states/Queensland	Phascolarctos cinereus	animal	urn:lsid:catalogueoflife.org:taxon:da23ee16-29c1-102b-9a4a-00304854f820:ac2010
