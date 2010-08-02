@@ -380,7 +380,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#getByGuid(java.lang.String)
 	 */
 	public TaxonConcept getByGuid(String guid) throws Exception {
-//		guid = getPreferredGuid(guid);
 		return (TaxonConcept) storeHelper.get(TC_TABLE, TC_COL_FAMILY, TAXONCONCEPT_COL, guid, TaxonConcept.class);
 	}
 
@@ -1241,7 +1240,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                     doc.addField("commonNameSort", commonNamesConcat);
                     //add each common name separately
                     for(String commonName: commonNameSet){
-                    	doc.addField("commonName", commonName);
+                    	doc.addField("commonName", commonName, 1.2f);
                     }
                     doc.addField("commonNameDisplay", StringUtils.join(commonNameSet, ", "));
                     doc.addField("commonNameSingle", commonNames.get(0).getNameString());
