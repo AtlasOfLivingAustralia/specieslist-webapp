@@ -99,8 +99,8 @@ public class ExternalIndexLoader {
 			String groupType = rs.getString("group_type"); // Collection/Institution (Enum)
 			
 			SolrInputDocument doc = new SolrInputDocument();
-			doc.addField("acronym", acronym);
-			doc.addField("name", name);
+			doc.addField("acronym", acronym, 1.2f);
+			doc.addField("name", name, 1.2f);
 			if("Collection".equalsIgnoreCase(groupType)){
 				doc.addField("guid", baseUrlForCollections+id);
 				doc.addField("url", baseUrlForCollections+id);
