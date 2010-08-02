@@ -1106,9 +1106,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    	if(i>0 && i%1000==0){
 	    		//iw.commit();
 	    		logger.debug(i + " " + guid+", adding "+docs.size());
-                solrServer.add(docs);
-                solrServer.commit();
-                docs.clear();
+	    		if(!docs.isEmpty()){
+	                solrServer.add(docs);
+	                solrServer.commit();
+	                docs.clear();
+	    		}
 	    	}
     	}
     	
