@@ -34,15 +34,18 @@ public class CreateSearchIndex {
 		
         ApplicationContext context = SpringUtils.getContext();
 
-        logger.info("Loading geo regions into search indexes....");
-        GeoRegionDao grDao = (GeoRegionDao) context.getBean(GeoRegionDao.class);
-        grDao.createIndex();
-        logger.info("Finished loading geo regions into search indexes.");
-        
-        logger.info("Creating species indexes...");
-        TaxonConceptDao tcDao = (TaxonConceptDao) context.getBean(TaxonConceptDao.class);
-        tcDao.createIndex();
-        logger.info("Finished creating species indexes.");
+        if(args.length==0 || "-geo".equals(args[0])){
+	        logger.info("Loading geo regions into search indexes....");
+	        GeoRegionDao grDao = (GeoRegionDao) context.getBean(GeoRegionDao.class);
+	        grDao.createIndex();
+	        logger.info("Finished loading geo regions into search indexes.");
+        }
+        if(args.length==0 || "-taxa".equals(args[0])){
+	        logger.info("Creating species indexes...");
+	        TaxonConceptDao tcDao = (TaxonConceptDao) context.getBean(TaxonConceptDao.class);
+	        tcDao.createIndex();
+	        logger.info("Finished creating species indexes.");
+        }
 		
 		System.exit(0);
 //        // Create the autocomplete indexes
