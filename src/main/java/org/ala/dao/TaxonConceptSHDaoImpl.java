@@ -69,6 +69,7 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.SolrInputField;
 import org.gbif.ecat.model.ParsedName;
 import org.gbif.ecat.parser.NameParser;
 import org.springframework.stereotype.Component;
@@ -1090,9 +1091,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		
 		byte[] guidAsBytes = null;
 		
-		while ((guidAsBytes = scanner.getNextGuid())!=null) {
-    		
-			String guid = new String(guidAsBytes);
+//		while ((guidAsBytes = scanner.getNextGuid())!=null) {
+    	while(i==0){	
+//			String guid = new String(guidAsBytes);
+			
+			String guid = "urn:lsid:biodiversity.org.au:afd.taxon:7bcdf6aa-4eb0-4184-bbd1-ca2b518b749f";
 			i++;
 			
 			if(i%1000==0){
@@ -1228,7 +1231,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                 Set<String> commonNameSet = new TreeSet<String>();
 	    		for(CommonName cn: commonNames){
 	    			if(cn.getNameString()!=null){
-	    				commonNameSet.add(cn.getNameString().toLowerCase());
+	    				commonNameSet.add(cn.getNameString());
 						addToSetSafely(infoSourceIds, cn.getInfoSourceId());
                         //doc.add(new Field("commonName", cn.nameString.toLowerCase(), Store.YES, Index.ANALYZED));
                         //cnStr.append(cn.nameString.toLowerCase() + " ");
@@ -1240,7 +1243,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                     doc.addField("commonNameSort", commonNamesConcat);
                     //add each common name separately
                     for(String commonName: commonNameSet){
-                    	doc.addField("commonName", commonName, 1.2f);
+                    	doc.addField("commonName", commonName, 1.4f);
+                    	//pull apart the common name
+                    	String[] parts = commonName.split(" ");
+                    	if(parts.length>1){
+                    		String lastPart = parts[parts.length-1];
+                    		doc.addField("commonName", lastPart, 1.6f);
+                    	}
                     }
                     doc.addField("commonNameDisplay", StringUtils.join(commonNameSet, ", "));
                     doc.addField("commonNameSingle", commonNames.get(0).getNameString());
@@ -1271,16 +1280,23 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    		}
 	    		
 	    		List<OccurrencesInGeoregion> regions = getRegions(guid);
+//	    		SolrInputField states = new SolrInputField("state"); 
+//	    		SolrInputField ibra = new SolrInputField("ibra");
+//	    		SolrInputField imcra = new SolrInputField("imcra");
+	    		
 	    		for(OccurrencesInGeoregion region : regions){
 	    			//FIXME do this nicer using define region types etc....
 	    			if("State".equalsIgnoreCase(region.getRegionType()) || "Territory".equalsIgnoreCase(region.getRegionType())){
 	    				doc.addField("state", region.getName());
+//	    				states.addValue(region.getName(), 1f);
 	    			}
 	    			if(region.getRegionType()!=null && region.getRegionType().startsWith("IBRA")){
 	    				doc.addField("ibra", region.getName());
+//	    				ibra.addValue(region.getName(), 1f);
 	    			}
 	    			if(region.getRegionType()!=null && region.getRegionType().startsWith("IMCRA")){
 	    				doc.addField("imcra", region.getName());
+//	    				imcra.addValue(region.getName(), 1f);
 	    			}
 	    		}
 	    		
@@ -1374,7 +1390,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                 doc.addField(SCI_NAME, sciName);
             }
 
-            Float boost = 1f;
+            Float boost = 0.8f;
 
             if (rankId != null) {
 	            if (rankId == 6000) {
@@ -1394,13 +1410,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     		//add lowercased version if name parser failed
 	    	//doc.add(new Field(SCI_NAME, normalized.toLowerCase(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
             //doc.add(new Field(SCI_NAME_TEXT, normalized.toLowerCase(), Store.YES, Index.ANALYZED));
-            doc.addField(SCI_NAME, normalized.toLowerCase());
-            doc.addField(SCI_NAME_TEXT, normalized.toLowerCase());
+            doc.addField(SCI_NAME, normalized.toLowerCase(), 0.8f);
+            doc.addField(SCI_NAME_TEXT, normalized.toLowerCase(),0.8f);
     	}
 
     	if (scientificName!=null) {
     		//doc.add(new Field(SCI_NAME_RAW, scientificName, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
-            doc.addField(SCI_NAME_RAW, scientificName);
+            doc.addField(SCI_NAME_RAW, scientificName, 0.8f);
     	}
 	}
 	
