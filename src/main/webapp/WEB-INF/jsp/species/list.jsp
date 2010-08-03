@@ -33,14 +33,14 @@
                 $("#accordion").show();
                 $("#refineLess").show();
                 $("#refineMore").hide();
-                $.cookie("bie-refine", "show");
+                $.cookie("bie-refine", "show"); // set cookie
             });
             $("#refineLess a").click(function(e) {
                 e.preventDefault();
                 $("#accordion").hide();
                 $("#refineLess").hide();
                 $("#refineMore").show();
-                $.cookie("bie-refine", "hide");
+                $.cookie("bie-refine", "hide"); // set cookie
             });
             // use cookie to remeber state of the facet links
             var refineState = $.cookie("bie-refine");
