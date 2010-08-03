@@ -264,8 +264,8 @@ public class CassandraBatchDelete {
 	private boolean hasInfoSourceId(JsonNode rootNode, String[] infoSourceIds){
 		boolean b = false;
 		
-		for(String infoSourceId : infoSourceIds){
-			String s = rootNode.path("infoSourceId").getTextValue();
+		String s = rootNode.path("infoSourceId").getTextValue();
+		for(String infoSourceId : infoSourceIds){			
 			if(infoSourceId.equals(s)){
 				return true;
 			}
