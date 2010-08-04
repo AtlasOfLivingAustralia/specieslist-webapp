@@ -1,28 +1,42 @@
 
 package org.ala.dao;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import org.ala.model.TaxonConcept;
 import org.apache.cassandra.thrift.Column;
+import org.apache.cassandra.thrift.ColumnOrSuperColumn;
+import org.apache.cassandra.thrift.ColumnPath;
 import org.apache.cassandra.thrift.ConsistencyLevel;
 import org.apache.cassandra.thrift.SuperColumn;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.wyki.cassandra.pelops.Mutator;
 import org.wyki.cassandra.pelops.Pelops;
 import org.wyki.cassandra.pelops.Policy;
 import org.wyki.cassandra.pelops.Selector;
 
+import org.ala.model.CommonName;
+
 /**
  * A StoreHelper implementation for Cassandra that uses Pelops over the
  * top of Thrift.
  * @author Natasha
+ * 
+ * History:
+ * 4 Aug 2010 (MOK011): implement put, putList, putSingle and getScanner functions based on CassandraHelper.java.
+ * 
  */
 public class CassandraPelopsHelper implements StoreHelper  {
 	protected static Logger logger = Logger.getLogger(CassandraPelopsHelper.class);
 
 	protected static String keySpace = "bie";
+	protected static String superColumn = "tc";
 
 	protected String host = "localhost";
 
@@ -96,22 +110,207 @@ public class CassandraPelopsHelper implements StoreHelper  {
 
     @Override
     public boolean putSingle(String table, String columnFamily, String columnName, String guid, Comparable object) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	Mutator mutator = Pelops.createMutator(pool, keySpace);
+    	
+		guid =  StringUtils.trimToNull(guid);
+		if(guid==null){
+			logger.warn("Null or empty guid supplied. Unable to add to row ["+guid+"] column ["+columnName+"] object: "+object);
+			return false;
+		}
+
+        //initialise the object mapper
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+		
+		//convert to JSON
+		String json = mapper.writeValueAsString(object); 
+		
+		//insert into table
+		try{
+			mutator. writeSubColumn(guid, columnFamily, superColumn, mutator.newColumn(columnName, json));
+			mutator.execute(ConsistencyLevel.ONE);
+		} catch (Exception e){
+			logger.error(e.getMessage(),e);
+			return false;
+		}		
+		return true;
     }
 
     @Override
     public boolean put(String table, String columnFamily, String columnName, String guid, Comparable object) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	Mutator mutator = Pelops.createMutator(pool, keySpace);
+    	Selector selector = Pelops.createSelector(pool, keySpace);
+    	
+		guid =  StringUtils.trimToNull(guid);
+		if(guid==null || object==null){
+			logger.warn("Null or empty guid supplied. Unable to add to row ["+guid+"] column ["+columnName+"] object: "+object);
+			return false;
+		}
+		
+		Column col = null;
+		try{
+			col = selector.getSubColumnFromRow(guid, columnFamily, superColumn, columnName, ConsistencyLevel.ONE);
+		}catch (Exception e){
+        	//expected behaviour. current thrift API doesnt seem
+        	//to support a retrieve null getter
+        	if(logger.isDebugEnabled()){
+        		logger.debug(e.getMessage(), e);
+        	}
+        }
+    	
+        //initialise the object mapper
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+		
+		//read the existing value
+		List<Comparable> objectList = null;
+		if(col!=null){
+			String value = new String(col.value, charsetEncoding);
+			objectList = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, object.getClass()));
+		} else {
+			objectList = new ArrayList<Comparable>();
+		}
+
+		//add to the collection and sort the objects
+		if(objectList.contains(object)){
+			int idx = objectList.indexOf(object);
+			//replace with this version
+			objectList.remove(idx);
+			objectList.add(object);
+		} else {
+			objectList.add(object);
+		}
+		Collections.sort(objectList);
+
+		//convert to JSON
+		String json = mapper.writeValueAsString(objectList); 
+		
+		//insert into table
+		try{
+			mutator. writeSubColumn(guid, columnFamily, superColumn, mutator.newColumn(columnName, json));
+			mutator.execute(ConsistencyLevel.ONE);
+		} catch (Exception e){
+			logger.error(e.getMessage(),e);
+			return false;
+		}
+		return true;    	
     }
 
     @Override
-    public boolean putList(String table, String columnFamily, String columnName, String guid, List<Comparable> object, boolean append) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public boolean putList(String table, String columnFamily, String columnName, String guid, List<Comparable> objects, boolean append) throws Exception {
+    	Mutator mutator = Pelops.createMutator(pool, keySpace);
+    	Selector selector = Pelops.createSelector(pool, keySpace);
+    	
+		guid =  StringUtils.trimToNull(guid);
+		if(guid==null){
+			logger.warn("Null or empty guid supplied. Unable to add to row ["+guid+"] column ["+columnName+"] object: "+objects);
+			return false;
+		}		
+
+		Column col = null;
+		try{
+			col = selector.getSubColumnFromRow(guid, columnFamily, superColumn, columnName, ConsistencyLevel.ONE);
+		}catch (Exception e){
+        	//expected behaviour. current thrift API doesnt seem
+        	//to support a retrieve null getter
+        	if(logger.isDebugEnabled()){
+        		logger.debug(e.getMessage(), e);
+        	}
+        }
+        
+        //initialise the object mapper
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+
+		String json = null;
+		
+		if(append){		
+			//read the existing value
+			List<Comparable> objectList = null;
+			if(col!=null){
+				String value = new String(col.value, charsetEncoding);
+				
+				if(!objects.isEmpty()){
+					Object first = objects.get(0);
+					objectList = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, first.getClass()));
+				} else {
+					objectList = new ArrayList<Comparable>();
+				}
+			} else {
+				objectList = new ArrayList<Comparable>();
+			}
+			//FIXME not currently checking for duplicates
+			objectList.addAll(objects);
+			json = mapper.writeValueAsString(objectList);
+			
+		} else {			
+			Collections.sort(objects);
+			//convert to JSON
+			json = mapper.writeValueAsString(objects);
+		}
+		//insert into table
+		try{
+			mutator. writeSubColumn(guid, columnFamily, superColumn, mutator.newColumn(columnName, json));
+			mutator.execute(ConsistencyLevel.ONE);
+		} catch (Exception e){
+			logger.error(e.getMessage(),e);
+			return false;
+		}
+		return true;        
     }
 
     @Override
     public Scanner getScanner(String table, String columnFamily, String column) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	return new CassandraScanner(Pelops.getDbConnPool(pool).getConnection().getAPI(), keySpace, columnFamily, column);
     }
 
+    public static void main(String[] args) throws Exception {
+    	CassandraPelopsHelper helper = new CassandraPelopsHelper();
+    	helper.init();
+    	
+    	TaxonConcept t = null;	
+    	List<Comparable> l = new ArrayList<Comparable>();
+   	
+		for(int i=0; i< 10; i++){
+	        t =  new TaxonConcept();
+	        t.setId(i);
+	        t.setGuid("urn:lsid:"+i);
+	        t.setNameString("Aus bus");
+	        t.setAuthor("Smith");
+	        t.setAuthorYear("2008");
+	        t.setInfoSourceName("AFD");
+	        t.setInfoSourceURL("http://afd.org.au");
+	        helper.putSingle("taxonConcept", "tc", "taxonConcept", t.getGuid(), t);
+	        
+	        l.add(t);
+	        if(i % 1000==0){
+	        	System.out.println("id: "+i);
+	        }
+		}
+		helper.putList("taxonConcept", "tc", "taxonConcept", "128", l, true);
+/* 		
+//        CommonName c1 = new CommonName();
+//        c1.setNameString("Dave");
+//
+//        CommonName c2 = new CommonName();
+//        c2.setNameString("Frank");
+//
+//        helper.putSingle("taxonConcept", "tc", "taxonConcept", "123", t);
+//        helper.put("taxonConcept", "tc", "commonName", "123", c1);
+//        helper.put("taxonConcept", "tc", "commonName", "123", c2);
+//        helper.putSingle("taxonConcept", "tc", "taxonConcept", "124", t);
+//        
+//        TaxonConcept tc = (TaxonConcept) helper.get("taxonConcept", "tc", "taxonConcept", "123", TaxonConcept.class);
+//        System.out.println("Retrieved: "+tc.getNameString());
+//        
+//        List<CommonName> cns = (List) helper.getList("taxonConcept", "tc", "commonName", "123", CommonName.class);
+//        System.out.println("Retrieved: "+cns);
+*/
+        //cassandra scanning
+    	Scanner scanner = helper.getScanner("taxonConcept", "tc", "taxonConcept");
+    	for(int i = 0; i < 10; i++){
+    		System.out.println(new String(scanner.getNextGuid()));
+    	}
+		System.exit(0);
+    }
 }
