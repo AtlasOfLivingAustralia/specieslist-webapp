@@ -89,7 +89,7 @@ public class ImageRankController {
 		//create a cookie value
 		String cookieValue = RankingCookieUtils.getCookieValue(guid, uri, positive);
 		Cookie cookie = new Cookie(Long.toString(System.currentTimeMillis()), cookieValue);
-//		cookie.setMaxAge(Integer.MAX_VALUE);
+		cookie.setMaxAge(60*60*24*365);
 		response.addCookie(cookie);
 	}
 
