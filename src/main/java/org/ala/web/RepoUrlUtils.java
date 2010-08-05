@@ -100,12 +100,16 @@ public class RepoUrlUtils {
 	 */
 	public ExtendedTaxonConceptDTO fixRepoUrls(ExtendedTaxonConceptDTO taxonConceptDTO){
 		List<Image> images = taxonConceptDTO.getImages();
-		for(Image image: images){
-			fixRepoUrls(image);
+		if(images!=null){
+			for(Image image: images){
+				fixRepoUrls(image);
+			}
 		}
 		images = taxonConceptDTO.getDistributionImages();
-		for(Image image: images){
-			fixRepoUrls(image);
+		if(images!=null){
+			for(Image image: images){
+				fixRepoUrls(image);
+			}
 		}
 		return taxonConceptDTO;
 	}

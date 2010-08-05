@@ -22,11 +22,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ala.dao.DocumentDAO;
@@ -125,6 +127,7 @@ public class SpeciesController {
 	public String showSpecies(
             @PathVariable("guid") String guid,
             @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
+            HttpServletRequest request,
             Model model) throws Exception {
 		logger.debug("Displaying page for: " + guid +" .....");
         ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
@@ -139,6 +142,19 @@ public class SpeciesController {
 		model.addAttribute("commonNames", getCommonNamesString(etc));
 		model.addAttribute("textProperties", filterSimpleProperties(etc));
         model.addAttribute("infoSources", getInfoSource(etc));
+        
+        //retrieve cookies indicating user has ranked
+        List<StoredRanking> srs = RankingCookieUtils.getRankedImageUris(request.getCookies(), guid);
+        //create a list of URLs
+        List<String> rankedUris = new ArrayList<String>();
+        Map<String, Boolean> rankingMap = new HashMap<String, Boolean>();
+        for(StoredRanking sr : srs){
+        	rankedUris.add(sr.getUri());
+        	rankingMap.put(sr.getUri(), sr.isPositive());
+        }
+        //create a map
+        model.addAttribute("rankedImageUris", rankedUris);
+        model.addAttribute("rankedImageUriMap", rankingMap);
         logger.debug("Returning page view for: " + guid +" .....");
 		return SPECIES_SHOW;
 	}
