@@ -395,14 +395,14 @@
                                      	<p class="imageRank-${image.documentId}">
                                         <c:choose>
 	                                        <c:when test="${fn:contains(rankedImageUris,image.identifier)}">
-    	                                    	This has been ranked as 
-    	                                    		<c:if test="${rankedImageUriMap[image.identifier]}">
+    	                                    	You has been ranked as 
+    	                                    		<c:if test="${!rankedImageUriMap[image.identifier]}">
     	                                    			NOT
     	                                    		</c:if>
   	                                    			representative for ${extendedTaxonConcept.taxonConcept.nameString}
         	                                </c:when>
             	                            <c:otherwise>
-            	                            	Is image is representative of this ${extendedTaxonConcept.taxonConcept.rankString} ?  
+            	                            	Is image representative of ${extendedTaxonConcept.taxonConcept.rankString} ?  
    	            	                           <a class="isrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  YES
    	            	                           </a>
@@ -529,7 +529,7 @@
                 <div class="section">
                     <h2>Records</h2>
                     <p><a href="http://biocache.ala.org.au/occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View all occurrence records for this taxon</a></p>
-                    <p><a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}">View all map of records for this taxon</a></p>
+                    <p><a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}">View map of all records for this taxon</a></p>
                     <div id="stateBreakdowns" style="display:none;">
                         <h4>By State/Territory</h4>
                         <ul></ul>
