@@ -49,7 +49,11 @@ public class Image extends AttributableObject implements Comparable<Image>{
     protected String licence;
     /** The rights */
     protected String rights;
-
+    /** Ranking */
+    protected Integer noOfRankings;
+    /** Ranking */
+    protected Integer ranking;
+    
     /**
      * Compare to method
      *
@@ -58,6 +62,15 @@ public class Image extends AttributableObject implements Comparable<Image>{
      */
     @Override
 	public int compareTo(Image o) {
+    	
+    	//compare on rankings
+    	if(o.getRanking()!=null && ranking!=null && !ranking.equals(o.getRanking())){
+    		return o.getRanking().compareTo(ranking);
+    	}
+    	//compare on number of rankings
+    	if(o.getNoOfRankings()!=null && noOfRankings!=null && !noOfRankings.equals(o.getNoOfRankings())){
+    		return o.getNoOfRankings().compareTo(noOfRankings);
+    	}
 		//check the infosources
 		if(o.getRepoLocation()!=null && repoLocation!=null){
 			return o.getRepoLocation().compareTo(repoLocation);
@@ -236,6 +249,34 @@ public class Image extends AttributableObject implements Comparable<Image>{
 		this.rights = rights;
 	}
 
+	/**
+	 * @return the ranking
+	 */
+	public Integer getRanking() {
+		return ranking;
+	}
+
+	/**
+	 * @param ranking the ranking to set
+	 */
+	public void setRanking(Integer ranking) {
+		this.ranking = ranking;
+	}
+	
+	/**
+	 * @return the noOfRankings
+	 */
+	public Integer getNoOfRankings() {
+		return noOfRankings;
+	}
+
+	/**
+	 * @param noOfRankings the noOfRankings to set
+	 */
+	public void setNoOfRankings(Integer noOfRankings) {
+		this.noOfRankings = noOfRankings;
+	}
+	
 	/**
 	 * @see java.lang.Object#toString()
 	 */
