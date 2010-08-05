@@ -54,36 +54,60 @@ public class Image extends AttributableObject implements Comparable<Image>{
     /** Ranking */
     protected Integer ranking;
     
-    /**
-     * Compare to method
+    public Image(String guid, String contentType, String repoLocation,
+			String dcLocation, String thumbnail, String title,
+			String identifier, String creator, String locality,
+			String isPartOf, String licence, String rights,
+			Integer noOfRankings, Integer ranking) {
+		super();
+		this.guid = guid;
+		this.contentType = contentType;
+		this.repoLocation = repoLocation;
+		this.dcLocation = dcLocation;
+		this.thumbnail = thumbnail;
+		this.title = title;
+		this.identifier = identifier;
+		this.creator = creator;
+		this.locality = locality;
+		this.isPartOf = isPartOf;
+		this.licence = licence;
+		this.rights = rights;
+		this.noOfRankings = noOfRankings;
+		this.ranking = ranking;
+	}
+
+    public Image(){}
+    
+	/**
+     * Compare to method to sort the images in descending order of preference.
      *
      * @param o
      * @return
      */
     @Override
 	public int compareTo(Image o) {
-    	
-    	//compare on rankings
-    	if(o.getRanking()!=null && ranking!=null && !ranking.equals(o.getRanking())){
-    		return o.getRanking().compareTo(ranking);
-    	}
-    	
-    	if(o.getRanking()==null && ranking!=null){
-    		return ranking;
+
+    	if(ranking!=null && o.getRanking()==null){
+    		return ranking *-1;
     	}
     	
     	if(o.getRanking()!=null && ranking==null){
-    		return o.getRanking() * -1;
+    		return o.getRanking();
     	}
     	
+    	//compare on rankings
+    	if(!ranking.equals(o.getRanking())){
+    		return o.getRanking().compareTo(ranking);
+    	}
+
     	//compare on number of rankings
     	if(o.getNoOfRankings()!=null && noOfRankings!=null && !noOfRankings.equals(o.getNoOfRankings())){
     		return o.getNoOfRankings().compareTo(noOfRankings);
     	}
-		//check the infosources
-		if(o.getRepoLocation()!=null && repoLocation!=null){
-			return o.getRepoLocation().compareTo(repoLocation);
-		}
+//		//check the infosources
+//		if(o.getRepoLocation()!=null && repoLocation!=null){
+//			return o.getRepoLocation().compareTo(repoLocation);
+//		}
 		return -1;
 	}
 
