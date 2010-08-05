@@ -1,4 +1,17 @@
-
+/***************************************************************************
+ * Copyright (C) 2010 Atlas of Living Australia
+ * All Rights Reserved.
+ *
+ * The contents of this file are subject to the Mozilla Public
+ * License Version 1.1 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of
+ * the License at http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS
+ * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ ***************************************************************************/
 package org.ala.dao;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,10 +19,7 @@ import java.util.List;
 
 import org.ala.model.TaxonConcept;
 import org.apache.cassandra.thrift.Column;
-import org.apache.cassandra.thrift.ColumnOrSuperColumn;
-import org.apache.cassandra.thrift.ColumnPath;
 import org.apache.cassandra.thrift.ConsistencyLevel;
-import org.apache.cassandra.thrift.SuperColumn;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.DeserializationConfig;
@@ -21,8 +31,6 @@ import org.wyki.cassandra.pelops.Pelops;
 import org.wyki.cassandra.pelops.Policy;
 import org.wyki.cassandra.pelops.Selector;
 
-import org.ala.model.CommonName;
-
 /**
  * A StoreHelper implementation for Cassandra that uses Pelops over the
  * top of Thrift.
@@ -30,17 +38,15 @@ import org.ala.model.CommonName;
  * 
  * History:
  * 4 Aug 2010 (MOK011): implement put, putList, putSingle and getScanner functions based on CassandraHelper.java.
- * 
  */
 public class CassandraPelopsHelper implements StoreHelper  {
 	protected static Logger logger = Logger.getLogger(CassandraPelopsHelper.class);
 
 	protected static String keySpace = "bie";
-	protected static String superColumn = "tc";
 
 	protected String host = "localhost";
 
-        protected String pool = "ALA";
+    protected String pool = "ALA";
 
 	protected int port = 9160;
 
@@ -49,7 +55,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
         @Override
 	public void init() throws Exception {
 		//set up the connection pool
-            Pelops.addPool(pool, new String[]{host}, port, false, keySpace, new Policy());
+        Pelops.addPool(pool, new String[]{host}, port, false, keySpace, new Policy());
 	}
 
     @Override
@@ -127,7 +133,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		
 		//insert into table
 		try{
-			mutator. writeSubColumn(guid, columnFamily, superColumn, mutator.newColumn(columnName, json));
+			mutator. writeSubColumn(guid, columnFamily, columnFamily, mutator.newColumn(columnName, json));
 			mutator.execute(ConsistencyLevel.ONE);
 		} catch (Exception e){
 			logger.error(e.getMessage(),e);
@@ -135,9 +141,15 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		}		
 		return true;
     }
+    
 
-    @Override
-    public boolean put(String table, String columnFamily, String columnName, String guid, Comparable object) throws Exception {
+	/**
+	 * @see org.ala.dao.StoreHelper#put(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Comparable)
+	 */
+	@Override
+	public boolean put(String table, String columnFamily, String superColumn,
+			String columnName, String guid, Comparable object) throws Exception {
+		
     	Mutator mutator = Pelops.createMutator(pool, keySpace);
     	Selector selector = Pelops.createSelector(pool, keySpace);
     	
@@ -194,6 +206,11 @@ public class CassandraPelopsHelper implements StoreHelper  {
 			return false;
 		}
 		return true;    	
+	}
+
+    @Override
+    public boolean put(String table, String columnFamily, String columnName, String guid, Comparable object) throws Exception {
+		return put(table, columnFamily, columnFamily, columnName, guid, object);
     }
 
     @Override
@@ -209,7 +226,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
 
 		Column col = null;
 		try{
-			col = selector.getSubColumnFromRow(guid, columnFamily, superColumn, columnName, ConsistencyLevel.ONE);
+			col = selector.getSubColumnFromRow(guid, columnFamily, columnFamily, columnName, ConsistencyLevel.ONE);
 		}catch (Exception e){
         	//expected behaviour. current thrift API doesnt seem
         	//to support a retrieve null getter
@@ -250,7 +267,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		}
 		//insert into table
 		try{
-			mutator. writeSubColumn(guid, columnFamily, superColumn, mutator.newColumn(columnName, json));
+			mutator. writeSubColumn(guid, columnFamily, columnFamily, mutator.newColumn(columnName, json));
 			mutator.execute(ConsistencyLevel.ONE);
 		} catch (Exception e){
 			logger.error(e.getMessage(),e);
@@ -259,6 +276,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		return true;        
     }
 
+    
     @Override
     public Scanner getScanner(String table, String columnFamily, String column) throws Exception {
     	return new CassandraScanner(Pelops.getDbConnPool(pool).getConnection().getAPI(), keySpace, columnFamily, column);
