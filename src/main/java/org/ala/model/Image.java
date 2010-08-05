@@ -59,7 +59,6 @@ public class Image extends AttributableObject implements Comparable<Image>{
 			String identifier, String creator, String locality,
 			String isPartOf, String licence, String rights,
 			Integer noOfRankings, Integer ranking) {
-		super();
 		this.guid = guid;
 		this.contentType = contentType;
 		this.repoLocation = repoLocation;
@@ -96,7 +95,7 @@ public class Image extends AttributableObject implements Comparable<Image>{
     	}
     	
     	//compare on rankings
-    	if(!ranking.equals(o.getRanking())){
+    	if(ranking!=null && !ranking.equals(o.getRanking())){
     		return o.getRanking().compareTo(ranking);
     	}
 

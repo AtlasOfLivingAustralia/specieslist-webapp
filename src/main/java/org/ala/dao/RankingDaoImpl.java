@@ -3,11 +3,13 @@ package org.ala.dao;
 import javax.inject.Inject;
 
 import org.ala.model.Ranking;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 @Component("rankingDao")
 public class RankingDaoImpl implements RankingDao {
 
+	private final static Logger logger = Logger.getLogger(RankingDaoImpl.class);
 	@Inject
 	protected StoreHelper storeHelper;
 	
@@ -40,20 +42,13 @@ set bie.rk['urn:lsid:catalogueoflife.org:taxon:da23ee16-29c1-102b-9a4a-00304854f
 		r.setUserIP(userIP);
 		r.setPositive(positive);
 		
+		//store the ranking event
+		logger.debug("Storing the rank event...");
 		storeHelper.put("rk", "rk", "image", ""+System.currentTimeMillis(), taxonGuid, r);
-
-		//does the ranking exist?
-		
-		
+		logger.debug("Updating the images...");
 		taxonConceptDao.setRankingOnImage(taxonGuid, imageUri, positive);
-		
-		
-		// add a ranking
+		logger.debug("Finished updating ranking");
 		return true;
-		
-		// add the ranking to the taxon concept row		
-		
-		
 	}
 
 	/**

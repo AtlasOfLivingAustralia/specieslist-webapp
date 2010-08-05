@@ -46,18 +46,21 @@ public class CassandraPelopsHelper implements StoreHelper  {
 
 	protected String host = "localhost";
 
-    protected String pool = "ALA";
+	protected String pool = "ALA";
 
 	protected int port = 9160;
 
 	protected String charsetEncoding = "UTF-8";
 
-        @Override
+	@Override
 	public void init() throws Exception {
 		//set up the connection pool
-        Pelops.addPool(pool, new String[]{host}, port, false, keySpace, new Policy());
+		Pelops.addPool(pool, new String[]{host}, port, false, keySpace, new Policy());
 	}
 
+    /**
+     * @see org.ala.dao.StoreHelper#get(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Class)
+     */
     @Override
     public Comparable get(String table, String columnFamily, String columnName, String guid, Class theClass) throws Exception {
         logger.debug("Pelops get table: " + table + " colFamily: " +columnFamily + " guid: " + guid);
@@ -85,6 +88,9 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		}
     }
 
+    /**
+     * @see org.ala.dao.StoreHelper#getList(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Class)
+     */
     @Override
     public List<Comparable> getList(String table, String columnFamily, String columnName, String guid, Class theClass) throws Exception {
         logger.debug("Pelops getList table: " + table + " colFamily: " +columnFamily + " guid: " + guid);
@@ -111,11 +117,16 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		} else {
 			objectList = new ArrayList<Comparable>();
 		}
+		logger.debug("Pelops getList returning.");
 		return objectList;
     }
 
+    /**
+     * @see org.ala.dao.StoreHelper#putSingle(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Comparable)
+     */
     @Override
     public boolean putSingle(String table, String columnFamily, String columnName, String guid, Comparable object) throws Exception {
+    	logger.debug("Pelops putSingle table: " + table + " colFamily: " +columnFamily + " guid: " + guid);
     	Mutator mutator = Pelops.createMutator(pool, keySpace);
     	
 		guid =  StringUtils.trimToNull(guid);
@@ -133,15 +144,15 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		
 		//insert into table
 		try{
-			mutator. writeSubColumn(guid, columnFamily, columnFamily, mutator.newColumn(columnName, json));
+			mutator.writeSubColumn(guid, columnFamily, columnFamily, mutator.newColumn(columnName, json));
 			mutator.execute(ConsistencyLevel.ONE);
+			logger.debug("Pelops putSingle returning");
+			return true;
 		} catch (Exception e){
 			logger.error(e.getMessage(),e);
 			return false;
-		}		
-		return true;
+		}
     }
-    
 
 	/**
 	 * @see org.ala.dao.StoreHelper#put(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Comparable)
@@ -149,7 +160,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
 	@Override
 	public boolean put(String table, String columnFamily, String superColumn,
 			String columnName, String guid, Comparable object) throws Exception {
-		
+		logger.debug("Pelops put table: " + table + " colFamily: " +columnFamily + " guid: " + guid);
     	Mutator mutator = Pelops.createMutator(pool, keySpace);
     	Selector selector = Pelops.createSelector(pool, keySpace);
     	
@@ -201,20 +212,29 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		try{
 			mutator. writeSubColumn(guid, columnFamily, superColumn, mutator.newColumn(columnName, json));
 			mutator.execute(ConsistencyLevel.ONE);
+			logger.debug("Pelops put returning");
+			return true;
 		} catch (Exception e){
 			logger.error(e.getMessage(),e);
 			return false;
 		}
-		return true;    	
 	}
 
+	/**
+	 * @see org.ala.dao.StoreHelper#put(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Comparable)
+	 */
     @Override
     public boolean put(String table, String columnFamily, String columnName, String guid, Comparable object) throws Exception {
+        logger.debug("Pelops put table: " + table + " colFamily: " +columnFamily + " guid: " + guid);
 		return put(table, columnFamily, columnFamily, columnName, guid, object);
     }
 
+    /**
+     * @see org.ala.dao.StoreHelper#putList(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.List, boolean)
+     */
     @Override
     public boolean putList(String table, String columnFamily, String columnName, String guid, List<Comparable> objects, boolean append) throws Exception {
+    	logger.debug("Pelops putList table: " + table + " colFamily: " +columnFamily + " guid: " + guid);
     	Mutator mutator = Pelops.createMutator(pool, keySpace);
     	Selector selector = Pelops.createSelector(pool, keySpace);
     	
@@ -269,14 +289,17 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		try{
 			mutator. writeSubColumn(guid, columnFamily, columnFamily, mutator.newColumn(columnName, json));
 			mutator.execute(ConsistencyLevel.ONE);
+			logger.debug("Pelops putList returning");
+			return true;
 		} catch (Exception e){
 			logger.error(e.getMessage(),e);
 			return false;
 		}
-		return true;        
     }
 
-    
+    /**
+     * @see org.ala.dao.StoreHelper#getScanner(java.lang.String, java.lang.String, java.lang.String)
+     */
     @Override
     public Scanner getScanner(String table, String columnFamily, String column) throws Exception {
     	return new CassandraScanner(Pelops.getDbConnPool(pool).getConnection().getAPI(), keySpace, columnFamily, column);
