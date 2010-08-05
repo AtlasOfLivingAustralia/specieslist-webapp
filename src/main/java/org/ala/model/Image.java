@@ -73,7 +73,7 @@ public class Image extends AttributableObject implements Comparable<Image>{
     	}
     	
     	if(o.getRanking()!=null && ranking==null){
-    		return o.getRanking();
+    		return o.getRanking() * -1;
     	}
     	
     	//compare on number of rankings
