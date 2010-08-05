@@ -114,6 +114,13 @@
                     RowsCached="1000"
                     KeysCached="10%"
                     Comment="The column family for Geo Regions"/>
+      <ColumnFamily Name="rk"
+              ColumnType="Super"
+                    CompareWith="UTF8Type"
+                    CompareSubcolumnsWith="UTF8Type"
+                    RowsCached="1000"
+                    KeysCached="10%"
+                    Comment="The column family for Rankings"/>
 
       <!--
        ~ Strategy: Setting this to the class that implements
@@ -380,4 +387,3 @@
   -->
   <GCGraceSeconds>864000</GCGraceSeconds>
 </Storage>
-
