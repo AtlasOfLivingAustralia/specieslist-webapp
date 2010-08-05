@@ -86,6 +86,19 @@ public interface StoreHelper {
 	boolean put(String table, String columnFamily, String columnName, String guid, Comparable object) throws Exception;
 
 	/**
+	 * Put a single instance into this row, appending to a list if there is data already.
+	 * 
+	 * @param table
+	 * @param columnFamily
+	 * @param columnName
+	 * @param guid
+	 * @param object
+	 * @return true if successful
+	 * @throws Exception
+	 */
+	boolean put(String table, String columnFamily, String superColumn, String columnName, String guid, Comparable object) throws Exception;
+	
+	/**
 	 * Put a list of instances into this row.
 	 * 
 	 * @param table

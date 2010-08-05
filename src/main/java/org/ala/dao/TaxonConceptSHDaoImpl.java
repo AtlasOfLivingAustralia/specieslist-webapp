@@ -69,7 +69,6 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.SolrInputField;
 import org.gbif.ecat.model.ParsedName;
 import org.gbif.ecat.parser.NameParser;
 import org.springframework.stereotype.Component;
@@ -685,6 +684,44 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		return searchTaxonConceptIndexBy("parentGuid", parentGuid, limit);
 	}
 	
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#setRankingOnImage(java.lang.String, java.lang.String, boolean)
+	 */
+	public boolean setRankingOnImage(String guid, String imageUri,
+			boolean positive) throws Exception {
+		List<Image> images = getImages(guid);
+		for(Image image: images){
+			if(imageUri.equals(image.getIdentifier())){
+				Integer ranking = image.getRanking();
+				Integer noOfRankings = image.getNoOfRankings();
+				if(ranking==null){
+					if(positive){
+						ranking = new Integer(1);
+					} else {
+						ranking = new Integer(-1);
+					}
+					noOfRankings = new Integer(1);
+				} else {
+					if(positive)
+						ranking++;
+					else
+						ranking--;
+					noOfRankings++;
+				}
+				image.setRanking(ranking);
+				image.setNoOfRankings(noOfRankings);
+				break;
+			}
+		}
+		
+		//re-sort based on the rankings
+		Collections.sort(images);
+		
+		//write back to database
+		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, IMAGE_COL, guid, (List) images, false);
+	}	
+	
 	/**
 	 * Search the index with the supplied value targetting a specific column.
 	 * 
@@ -1091,9 +1128,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		
 		byte[] guidAsBytes = null;
 		
-		while ((guidAsBytes = scanner.getNextGuid())!=null) {
-			String guid = new String(guidAsBytes);
+//		while ((guidAsBytes = scanner.getNextGuid())!=null) {
+    	while(i==0){	
+//			String guid = new String(guidAsBytes);
 			
+			String guid = "urn:lsid:biodiversity.org.au:afd.taxon:7bcdf6aa-4eb0-4184-bbd1-ca2b518b749f";
 			i++;
 			
 			if(i%1000==0){
