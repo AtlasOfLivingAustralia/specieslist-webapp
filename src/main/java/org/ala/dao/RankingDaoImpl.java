@@ -1,3 +1,17 @@
+/***************************************************************************
+ * Copyright (C) 2010 Atlas of Living Australia
+ * All Rights Reserved.
+ *
+ * The contents of this file are subject to the Mozilla Public
+ * License Version 1.1 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of
+ * the License at http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS
+ * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ ***************************************************************************/
 package org.ala.dao;
 
 import javax.inject.Inject;
@@ -6,6 +20,11 @@ import org.ala.model.Ranking;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+/**
+ * Simple ranking DAO implementation
+ *
+ * @author Dave Martin (David.Martin@csiro.au)
+ */
 @Component("rankingDao")
 public class RankingDaoImpl implements RankingDao {
 
@@ -16,6 +35,9 @@ public class RankingDaoImpl implements RankingDao {
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
 	
+	/**
+	 * @see org.ala.dao.RankingDao#rankImageForTaxon(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Integer, boolean)
+	 */
 	@Override
 	public boolean rankImageForTaxon(
 			String userIP,
@@ -26,22 +48,11 @@ public class RankingDaoImpl implements RankingDao {
 			Integer imageInfoSourceId, 
 			boolean positive) throws Exception {
 		
-		/*
-get <ksp>.<cf>['<key>']['<super>']['<col>'] 
-
-bie.annotation.species-guid.imageAnnotation.url
-	- value = { rating:positive, user:anonymous }
-	- value = { rating:negative, user:davejmartin }
-	
-set bie.rk['urn:lsid:catalogueoflife.org:taxon:da23ee16-29c1-102b-9a4a-00304854f820:ac2010'].['image'].['http://myimage.com/123'] = '0'	
-*/
-		
 		Ranking r = new Ranking();
 		r.setUri(imageUri);
 		r.setUserId(userId);
 		r.setUserIP(userIP);
 		r.setPositive(positive);
-		
 		//store the ranking event
 		logger.debug("Storing the rank event...");
 		storeHelper.put("rk", "rk", "image", ""+System.currentTimeMillis(), taxonGuid, r);
