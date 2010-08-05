@@ -302,12 +302,11 @@ public class CassandraHelper implements StoreHelper {
 		
 		return true;
 	}
-	
+
 	/**
 	 * @see org.ala.dao.StoreHelper#put(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Comparable)
 	 */
-	public boolean put(String table, String columnFamily, String columnName, String guid, Comparable object) throws Exception {
-		
+	public boolean put(String table, String columnFamily, String superColumn, String columnName, String guid, Comparable object) throws Exception {
 		guid =  StringUtils.trimToNull(guid);
 		if(guid==null || object==null){
 			logger.warn("Null or empty guid supplied. Unable to add to row ["+guid+"] column ["+columnName+"] object: "+object);
@@ -315,7 +314,7 @@ public class CassandraHelper implements StoreHelper {
 		}
 		
 		ColumnPath columnPath = new ColumnPath(columnFamily);
-		columnPath.setSuper_column(columnFamily.getBytes());
+		columnPath.setSuper_column(superColumn.getBytes());
 		columnPath.setColumn(columnName.getBytes());
 
         ColumnOrSuperColumn col = null;
@@ -369,7 +368,15 @@ public class CassandraHelper implements StoreHelper {
 			logger.error(e.getMessage(),e);
 			return false;
 		}
-		return true;
+		return true;		
+	}
+	
+	
+	/**
+	 * @see org.ala.dao.StoreHelper#put(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Comparable)
+	 */
+	public boolean put(String table, String columnFamily, String columnName, String guid, Comparable object) throws Exception {
+		return put(table, columnFamily, columnFamily, columnName, guid, object);
 	}
 	
 	/**

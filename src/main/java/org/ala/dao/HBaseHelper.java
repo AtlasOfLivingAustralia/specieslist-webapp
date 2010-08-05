@@ -56,6 +56,13 @@ public class HBaseHelper implements StoreHelper {
 	}
 
 	@Override
+	public boolean put(String table, String columnFamily, String superColumn, String columnName,
+			String guid, Comparable object) throws Exception {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
 	public boolean put(String table, String columnFamily, String columnName,
 			String guid, Comparable object) throws Exception {
 		// TODO Auto-generated method stub
