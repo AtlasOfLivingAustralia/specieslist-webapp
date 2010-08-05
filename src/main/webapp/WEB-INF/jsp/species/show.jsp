@@ -382,7 +382,7 @@
                                             <c:choose>
                                                 <c:when test="${not empty image.isPartOf}">
                                                     ${image.isPartOf}
-                                                </c:when>
+e                                                </c:when>
                                                 <c:when test="${not empty image.identifier}">
                                                     ${image.identifier}
                                                 </c:when>
@@ -395,7 +395,7 @@
                                      	<p class="imageRank-${image.documentId}">
                                         <c:choose>
 	                                        <c:when test="${fn:contains(rankedImageUris,image.identifier)}">
-    	                                    	You has been ranked as 
+    	                                    	You have ranked this image as 
     	                                    		<c:if test="${!rankedImageUriMap[image.identifier]}">
     	                                    			NOT
     	                                    		</c:if>
