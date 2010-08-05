@@ -344,6 +344,22 @@
                     <h2>Gallery</h2>
                     <h3>Images</h3>
                     <div id="imageGallery">
+                    	<script type="text/javascript">
+                    		function rankThisImage(guid, uri, infosourceId, documentId, positive, name){
+                    			 var url = "${pageContext.request.contextPath}/rankTaxonImage?guid="+guid+"&uri="+uri+"&infosourceId="+infosourceId+"&positive="+positive+"&name="+name;
+                    			 //alert(url);
+                    			 $('.imageRank-'+documentId).html('Sending your ranking....');
+				                 $.getJSON(url, function(data){
+				                	 $('.imageRank-'+documentId).each(function(index) {
+				                	 	//alert(this);
+				                	    //alert(index);
+								    	$(this).html('Thanks for your help!');
+  			                	        //alert(index+ ' set' );
+									  });
+				                 	//$('.imageRank-'+documentId).html('Thanks for your help!');
+				                 });
+	                    		}
+                    	</script>
                         <c:choose>
                             <c:when test="${not empty extendedTaxonConcept.images}">
                                 <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
@@ -375,7 +391,29 @@
                                                 </c:otherwise>
                                             </c:choose>
                                         </c:set>
-                                        <cite>Source: <a href="${imageUri}" target="_blank">${image.infoSourceName}</a></cite></div>
+                                        <cite>Source: <a href="${imageUri}" target="_blank">${image.infoSourceName}</a></cite>
+                                     	<p class="imageRank-${image.documentId}">
+                                        <c:choose>
+	                                        <c:when test="${fn:contains(rankedImageUris,image.identifier)}">
+    	                                    	This has been ranked as 
+    	                                    		<c:if test="${rankedImageUriMap[image.identifier]}">
+    	                                    			NOT
+    	                                    		</c:if>
+  	                                    			representative for ${extendedTaxonConcept.taxonConcept.nameString}
+        	                                </c:when>
+            	                            <c:otherwise>
+            	                            	Is image is representative of this ${extendedTaxonConcept.taxonConcept.rankString} ?  
+   	            	                           <a class="isrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
+   	            	                           	  YES
+   	            	                           </a>
+   	            	                           	 |
+   	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
+   	            	                           	  NO
+   	            	                           </a>
+                            	            </c:otherwise>
+                                	        </c:choose>   
+                                	       </p> 
+                                        </div>
                                     </c:forEach>
                                 </c:when>
                                 <c:otherwise>
