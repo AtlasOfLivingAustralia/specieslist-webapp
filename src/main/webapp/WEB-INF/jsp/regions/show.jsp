@@ -126,7 +126,7 @@
                     });
                     $('#birdsList').hide();
                     $('button#birdsDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=FrogsList${geoRegion.acronym}&higherTaxon=Amphibia&rank=class";
+                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=BirdsList${geoRegion.acronym}&higherTaxon=Amphibia&rank=class";
                         window.location.replace(uri);
                     });
                 </script>
@@ -242,7 +242,7 @@
                     });
                     $('#reptilesList').hide();
                     $('button#reptilesDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=MammalsList${geoRegion.acronym}&higherTaxon=Mammalia&rank=class";
+                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=ReptilesList${geoRegion.acronym}&higherTaxon=Mammalia&rank=class";
                         window.location.replace(uri);
                     });
                 </script>
