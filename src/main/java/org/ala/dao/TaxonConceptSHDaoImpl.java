@@ -1315,9 +1315,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
                 //StringBuffer cnStr = new StringBuffer();
                 Set<String> commonNameSet = new TreeSet<String>();
+                List<String> higherPriorityNames = new ArrayList<String>();
 	    		for(CommonName cn: commonNames){
 	    			if(cn.getNameString()!=null){
 	    				commonNameSet.add(cn.getNameString());
+	    				if(cn.isPreferred()!=null && cn.isPreferred()){
+	    					higherPriorityNames.add(cn.getNameString());
+	    				}
 						addToSetSafely(infoSourceIds, cn.getInfoSourceId());
                         //doc.add(new Field("commonName", cn.nameString.toLowerCase(), Store.YES, Index.ANALYZED));
                         //cnStr.append(cn.nameString.toLowerCase() + " ");
@@ -1329,12 +1333,16 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                     doc.addField("commonNameSort", commonNamesConcat);
                     //add each common name separately
                     for(String commonName: commonNameSet){
-                    	doc.addField("commonName", commonName, 1.4f);
+                    	if(higherPriorityNames.contains(commonName)){
+                    		doc.addField("commonName", commonName, 5f);
+                    	} else {
+                    		doc.addField("commonName", commonName, 1.4f);
+                    	}
                     	//pull apart the common name
                     	String[] parts = commonName.split(" ");
                     	if(parts.length>1){
                     		String lastPart = parts[parts.length-1];
-                    		doc.addField("commonName", lastPart, 1.6f);
+                    		doc.addField("commonName", lastPart, 2.5f);
                     	}
                     }
                     doc.addField("commonNameDisplay", StringUtils.join(commonNameSet, ", "));
