@@ -1120,12 +1120,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 		byte[] guidAsBytes = null;
 		int i=0;
-//		while ((guidAsBytes = scanner.getNextGuid())!=null) {
-		while (i==0) {
+		while ((guidAsBytes = scanner.getNextGuid())!=null) {
 			
-			String guid = "urn:lsid:biodiversity.org.au:afd.taxon:c432ad5c-432f-4301-af76-4b09ab085dda";
-			
-//			String guid = new String(guidAsBytes);
+			String guid = new String(guidAsBytes);
     		//get common names
     		List<CommonName> commonNames = getCommonNamesFor(guid);
     		removeForInfosources((List) commonNames, ids);
