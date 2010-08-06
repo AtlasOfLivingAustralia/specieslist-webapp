@@ -31,13 +31,13 @@ public class CommonName extends AttributableObject implements Comparable<CommonN
 	@Override
 	public int compareTo(CommonName o) {
 		//check the infosources
+		if(o.isPreferred!=null && isPreferred!=null && o.isPreferred && !isPreferred)
+			return 1;
+		if(o.isPreferred!=null && isPreferred!=null && !o.isPreferred && isPreferred)
+			return -1;
 		if(o.getNameString()!=null && nameString!=null){
 			return nameString.compareTo(o.getNameString());
 		}
-		if(o.isPreferred && !isPreferred)
-			return 1;
-		if(!o.isPreferred && isPreferred)
-			return -1;
 		return -1;
 	}
 	
