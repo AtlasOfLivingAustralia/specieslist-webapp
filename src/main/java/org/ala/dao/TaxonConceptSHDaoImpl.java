@@ -28,6 +28,7 @@ import javax.inject.Inject;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
+import org.ala.model.AttributableObject;
 import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
@@ -1103,7 +1104,58 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 //    	}
 //    	logger.debug("Raw triples cleared");
 	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#deleteForInfosources(java.lang.String[])
+	 */
+	@Override
+	public boolean deleteForInfosources(String[] infoSourceIds) throws Exception {
+
+		Scanner scanner = storeHelper.getScanner(TC_TABLE, TC_COL_FAMILY, TAXONCONCEPT_COL);
+		
+		List<String> ids = new ArrayList<String>();
+		for(String id: infoSourceIds){
+			ids.add(id);
+		}
+
+		byte[] guidAsBytes = null;
+		int i=0;
+//		while ((guidAsBytes = scanner.getNextGuid())!=null) {
+		while (i==0) {
+			
+			String guid = "urn:lsid:biodiversity.org.au:afd.taxon:c432ad5c-432f-4301-af76-4b09ab085dda";
+			
+//			String guid = new String(guidAsBytes);
+    		//get common names
+    		List<CommonName> commonNames = getCommonNamesFor(guid);
+    		removeForInfosources((List) commonNames, ids);
+    		storeHelper.putList(TC_TABLE, TC_COL_FAMILY, VERNACULAR_COL, guid, (List) commonNames, false);
+    		
+    		//get common names
+    		List<Image> images = getImages(guid);
+    		removeForInfosources((List) images, ids);
+    		storeHelper.putList(TC_TABLE, TC_COL_FAMILY, IMAGE_COL, guid, (List) images, false);
+    		i++;
+    		
+    		if(i%1000==0){
+    			logger.debug(i+" records processed. Last ID: "+guid);
+    		}
+		}
+		return false;
+	}
 	
+	
+	private void removeForInfosources(List<AttributableObject> objects, List<String> ids) {
+		
+		List<AttributableObject> toRemove = new ArrayList<AttributableObject>();
+		for(AttributableObject object: objects){
+			if(object.getInfoSourceId()!=null && ids.contains(object.getInfoSourceId())){
+				toRemove.add(object);
+			}
+		}
+		objects.removeAll(toRemove);
+	}
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#createIndex()
 	 */
@@ -1128,11 +1180,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		
 		byte[] guidAsBytes = null;
 		
-//		while ((guidAsBytes = scanner.getNextGuid())!=null) {
-    	while(i==0){	
-//			String guid = new String(guidAsBytes);
+		while ((guidAsBytes = scanner.getNextGuid())!=null) {
+//    	while(i==0){	
+			String guid = new String(guidAsBytes);
 			
-			String guid = "urn:lsid:biodiversity.org.au:afd.taxon:7bcdf6aa-4eb0-4184-bbd1-ca2b518b749f";
+//			String guid = "urn:lsid:biodiversity.org.au:afd.taxon:7bcdf6aa-4eb0-4184-bbd1-ca2b518b749f";
 			i++;
 			
 			if(i%1000==0){
@@ -1317,22 +1369,25 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    		}
 	    		
 	    		List<OccurrencesInGeoregion> regions = getRegions(guid);
-//	    		SolrInputField states = new SolrInputField("state"); 
-//	    		SolrInputField ibra = new SolrInputField("ibra");
-//	    		SolrInputField imcra = new SolrInputField("imcra");
-	    		
 	    		for(OccurrencesInGeoregion region : regions){
+	    			
 	    			//FIXME do this nicer using define region types etc....
-	    			if("State".equalsIgnoreCase(region.getRegionType()) || "Territory".equalsIgnoreCase(region.getRegionType())){
+	    			Integer regionId = Integer.parseInt(region.getRegionId());
+	    			
+	    			if(regionId < 3){
 	    				doc.addField("state", region.getName());
 //	    				states.addValue(region.getName(), 1f);
 	    			}
-	    			if(region.getRegionType()!=null && region.getRegionType().startsWith("IBRA")){
+	    			if(regionId >= 3 && regionId < 12){
 	    				doc.addField("ibra", region.getName());
 //	    				ibra.addValue(region.getName(), 1f);
 	    			}
-	    			if(region.getRegionType()!=null && region.getRegionType().startsWith("IMCRA")){
+	    			if(regionId == 2000){
 	    				doc.addField("imcra", region.getName());
+//	    				imcra.addValue(region.getName(), 1f);
+	    			}
+	    			if(regionId >= 3000 && regionId < 4000){
+	    				doc.addField("lga", region.getName());
 //	    				imcra.addValue(region.getName(), 1f);
 	    			}
 	    		}
@@ -1344,6 +1399,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    			addIfNotNull(doc, "class", classification.getClazz());
 	    			addIfNotNull(doc, "bioOrder", classification.getOrder());
 	    			addIfNotNull(doc, "family", classification.getFamily());
+	    			addIfNotNull(doc, "genus", classification.getGenus());
 	    		}
 	    		
 	    		List<Image> images = getImages(guid);
@@ -1366,6 +1422,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         }
         return docsToAdd;
 	}
+	
+	
 	
 	/**
 	 * Add field if the value is not null

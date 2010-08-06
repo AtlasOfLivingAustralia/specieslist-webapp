@@ -470,6 +470,15 @@ public interface TaxonConceptDao {
 	 * @throws Exception
 	 */
 	boolean delete(String guid) throws Exception;
+	
+	/**
+	 * Delete the TaxonConcept for the supplied guid
+	 *
+	 * @param guid
+	 * @return true if a delete was performed
+	 * @throws Exception
+	 */
+	boolean deleteForInfosources(String[] infoSourceId) throws Exception;
 
 	/**
 	 * Synchronises these triples to a taxon concept in hbase.

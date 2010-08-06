@@ -501,6 +501,7 @@
    <field name="state" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="ibra" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="imcra" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
+   <field name="lga" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <!-- Multimedia -->
    <field name="image" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="thumbnail" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
