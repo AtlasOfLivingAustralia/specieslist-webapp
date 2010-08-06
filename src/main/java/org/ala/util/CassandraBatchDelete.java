@@ -17,10 +17,12 @@ package org.ala.util;
 import java.util.Iterator;
 import java.util.List;
 
-import org.ala.util.CassandraClientPool;
 import org.apache.log4j.Logger;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.cassandra.thrift.Cassandra.Client;
 import org.apache.cassandra.thrift.Column;
 import org.apache.cassandra.thrift.ColumnOrSuperColumn;
@@ -34,8 +36,9 @@ import org.apache.cassandra.thrift.SliceRange;
 import org.apache.cassandra.thrift.SuperColumn;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.JsonNodeFactory;
-import org.codehaus.jackson.JsonNode;
+import org.wyki.cassandra.pelops.Mutator;
+import org.wyki.cassandra.pelops.Pelops;
+import org.wyki.cassandra.pelops.Policy;
 
 /**
  * Cassandra Batch Delete.
@@ -50,11 +53,11 @@ public class CassandraBatchDelete {
 	public static final int ROWS = 1000;
 	public static final String CHARSET_ENCODING = "UTF-8";
 
-	private CassandraClientPool pool ;	
 	private String host = "localhost";
 	private int port = 9160;
 	private String keyspace = "bie";
 	private String columnFamily = "tc";
+	String poolName = "ALA";
 	
 		
 	/**
@@ -65,15 +68,7 @@ public class CassandraBatchDelete {
 			System.out.println("Please provide a list of infoSourceId....");
 			System.exit(0);
 		}
-		
-//		ApplicationContext context = SpringUtils.getContext();
-//		CassandraBatchDelete casBatch = (CassandraBatchDelete) context.getBean(CassandraBatchDelete.class);
-//		casBatch.doFullScanAndDelete(args);
-		
-//		CassandraHelper cassandraHelper = new CassandraHelper();
-//		CassandraBatchDelete cassandraBatchDelete = cassandraHelper.getBatchDelete("bie", "tc", "localhost", 9160);
-//		cassandraBatchDelete.doFullScanAndDelete(args);	
-		
+				
 		CassandraBatchDelete cassandraBatchDelete = new CassandraBatchDelete();
 		cassandraBatchDelete.doFullScanAndDelete(args);			
 	}
@@ -91,7 +86,7 @@ public class CassandraBatchDelete {
 		this.columnFamily = columnFamily;
 		this.host = host;
 		this.port = port;
-		pool = new CassandraClientPool(host, port);
+		Pelops.addPool(poolName, new String[]{this.host}, this.port, false, this.keyspace, new Policy());
 	}
 	
 	/**
@@ -122,15 +117,19 @@ public class CassandraBatchDelete {
 		SlicePredicate slicePredicate = new SlicePredicate();
 		slicePredicate.setSlice_range(sliceRange);
 
-		Client client = pool.getClient();
-		Client delClient = pool.getClient();
+		Client client = Pelops.getDbConnPool(poolName).getConnection().getAPI();
+		Client delClient = Pelops.getDbConnPool(poolName).getConnection().getAPI();
 		
 		// Iterate over all the rows in a ColumnFamily......
 		// start with the empty string, and after each call use the last key read as the start key 
 		// in the next iteration.
 		// when lastKey == startKey is finish.
 		List<KeySlice> keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
-		List<DeleteItemInfo> delList = getDeleteItemsList(keySlices, infoSourceIds);	
+		List<DeleteItemInfo> delList = getDeleteItemsList(keySlices, infoSourceIds);
+		//dump test case
+		/*
+		delList = getDumpDeleteItemsList();
+		*/
 		int delCtr = doValueUpdate(delList, infoSourceIds, delClient);
 		totalDelCtr += delCtr;
 		logger.debug("Delete Count:" + delCtr);
@@ -149,15 +148,20 @@ public class CassandraBatchDelete {
 				delCtr = doValueUpdate(delList, infoSourceIds, delClient);
 				totalDelCtr += delCtr;
 			}
-			System.out.println("Total Delete Count:" + totalDelCtr);
+			System.out.println("Total Column Update Count:" + totalDelCtr);
 			System.out.println("Row Count:" + (ROWS * ctr++) + " >>>> lastKey: " + lastKey.getKey());
 			System.gc();
-		}
-		pool.returnClient(client);
-		pool.returnClient(delClient);
-		System.out.println("Total time taken: "	+ (System.currentTimeMillis() - start));
+		}		
+		Pelops.shutdown();
+		System.out.println("Total time taken: "	+ ((System.currentTimeMillis() - start)/1000));
 	}
 		
+	private List<DeleteItemInfo> getDumpDeleteItemsList(){
+		List<DeleteItemInfo> l = new ArrayList<DeleteItemInfo>();
+		l.add(new DeleteItemInfo("urn:lsid:biodiversity.org.au:afd.taxon:aa745ff0-c776-4d0e-851d-369ba0e6f537", "tc", "hasImage"));
+		return l;
+	}
+	
 	/**
 	 * do update with cassandra repository.
 	 * @param delList
@@ -178,9 +182,20 @@ public class CassandraBatchDelete {
 	        if(casJson != null && casJson.length() > 0){
 		        // do update ....
 		        String json = doDelete(casJson, infoSourceIds);
+		        logger.debug("guid: " + item.getKey() + " colPath:" + new String(colPath.getSuper_column()) + " : " + new String(colPath.getColumn()));
+		        logger.debug(">>>> Before: " + casJson);
+		        logger.debug("\n\n>>>> After: " + json);
+		        
 		        if(json != null && json.length() > 0){
-			        client.insert(keyspace, item.getKey(), colPath, json.getBytes(CHARSET_ENCODING),
-			        		System.currentTimeMillis(), ConsistencyLevel.ONE);
+		        	Mutator mutator = Pelops.createMutator(poolName, keyspace);
+		        	try{
+		    			mutator.writeSubColumn(item.getKey(), columnFamily, item.getSColName(), mutator.newColumn(item.getColName(), json));
+		    			mutator.execute(ConsistencyLevel.ONE);
+		    		} catch (Exception e){
+		    			logger.error(e.getMessage(),e);
+		    		}			        	
+//			        client.insert(keyspace, item.getKey(), colPath, "abc".getBytes(CHARSET_ENCODING),
+//			        		System.currentTimeMillis(), ConsistencyLevel.ONE);
 		        }
 		        else{
 		        	client.remove(keyspace, item.getKey(), colPath, System.currentTimeMillis(), ConsistencyLevel.ONE);
@@ -254,7 +269,9 @@ public class CassandraBatchDelete {
 		boolean b = false;
 		
 		for(String infoSourceId : infoSourceIds){
-			if(value.indexOf("\"infoSourceId\":\"" + infoSourceId + "\"") != -1){
+			Pattern p = Pattern.compile("\"infoSourceId\":\\s*\"" + infoSourceId + "\"");
+			Matcher m = p.matcher(value);
+			if (m.find()){
 				return true;
 			}
 		}
