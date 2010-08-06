@@ -478,7 +478,7 @@
    <field name="acceptedConceptName" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="conservationStatus" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
    <field name="pestStatus" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
-   <field name="commonName" type="text_ws" indexed="true" stored="true" multiValued="true" omitNorms="false" />
+   <field name="commonName" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="commonNameSort" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
    <field name="commonNameDisplay" type="string" indexed="false" stored="true" multiValued="false" omitNorms="false" />
    <field name="commonNameSingle" type="string" indexed="false" stored="true" multiValued="false" omitNorms="false" />
@@ -585,6 +585,7 @@
    <copyField source="name" dest="text"/>
    <copyField source="acronym" dest="text"/>
    <copyField source="scientificName" dest="text"/>
+   <copyField source="scientificNameRaw" dest="text"/>
    <copyField source="commonName" dest="text"/>
    <copyField source="pestStatus" dest="text"/>
    <copyField source="conservationStatus" dest="text"/>
