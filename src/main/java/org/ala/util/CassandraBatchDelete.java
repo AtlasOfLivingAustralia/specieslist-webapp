@@ -39,6 +39,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.wyki.cassandra.pelops.Mutator;
 import org.wyki.cassandra.pelops.Pelops;
 import org.wyki.cassandra.pelops.Policy;
+import org.wyki.cassandra.pelops.Selector;
 
 /**
  * Cassandra Batch Delete.
@@ -52,12 +53,13 @@ public class CassandraBatchDelete {
 
 	public static final int ROWS = 1000;
 	public static final String CHARSET_ENCODING = "UTF-8";
-
+	public static final String POOL_NAME = "ALA";
+	
 	private String host = "localhost";
 	private int port = 9160;
 	private String keyspace = "bie";
 	private String columnFamily = "tc";
-	String poolName = "ALA";
+	
 	
 		
 	/**
@@ -70,7 +72,8 @@ public class CassandraBatchDelete {
 		}
 				
 		CassandraBatchDelete cassandraBatchDelete = new CassandraBatchDelete();
-		cassandraBatchDelete.doFullScanAndDelete(args);			
+		cassandraBatchDelete.doFullScanAndDelete(args);
+		cassandraBatchDelete.closeConnectionPool();
 	}
 
 	public CassandraBatchDelete(){
@@ -86,7 +89,11 @@ public class CassandraBatchDelete {
 		this.columnFamily = columnFamily;
 		this.host = host;
 		this.port = port;
-		Pelops.addPool(poolName, new String[]{this.host}, this.port, false, this.keyspace, new Policy());
+		Pelops.addPool(POOL_NAME, new String[]{this.host}, this.port, false, this.keyspace, new Policy());
+	}
+	
+	public void closeConnectionPool(){
+		Pelops.shutdown();
 	}
 	
 	/**
@@ -117,8 +124,7 @@ public class CassandraBatchDelete {
 		SlicePredicate slicePredicate = new SlicePredicate();
 		slicePredicate.setSlice_range(sliceRange);
 
-		Client client = Pelops.getDbConnPool(poolName).getConnection().getAPI();
-		Client delClient = Pelops.getDbConnPool(poolName).getConnection().getAPI();
+		Client client = Pelops.getDbConnPool(POOL_NAME).getConnection().getAPI();
 		
 		// Iterate over all the rows in a ColumnFamily......
 		// start with the empty string, and after each call use the last key read as the start key 
@@ -130,7 +136,7 @@ public class CassandraBatchDelete {
 		/*
 		delList = getDumpDeleteItemsList();
 		*/
-		int delCtr = doValueUpdate(delList, infoSourceIds, delClient);
+		int delCtr = doValueUpdate(delList, infoSourceIds);
 		totalDelCtr += delCtr;
 		logger.debug("Delete Count:" + delCtr);
 
@@ -145,24 +151,67 @@ public class CassandraBatchDelete {
 			keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
 			delList = getDeleteItemsList(keySlices, infoSourceIds);
 			if(delList.size() > 0){
-				delCtr = doValueUpdate(delList, infoSourceIds, delClient);
+				delCtr = doValueUpdate(delList, infoSourceIds);
 				totalDelCtr += delCtr;
 			}
 			System.out.println("Total Column Update Count:" + totalDelCtr);
 			System.out.println("Row Count:" + (ROWS * ctr++) + " >>>> lastKey: " + lastKey.getKey());
 			System.gc();
-		}		
-		Pelops.shutdown();
-		System.out.println("Total time taken: "	+ ((System.currentTimeMillis() - start)/1000));
+		}				
+		System.out.println("Total time taken (sec): "	+ ((System.currentTimeMillis() - start)/1000));
 	}
-		
+	
+	/*
 	private List<DeleteItemInfo> getDumpDeleteItemsList(){
 		List<DeleteItemInfo> l = new ArrayList<DeleteItemInfo>();
 		l.add(new DeleteItemInfo("urn:lsid:biodiversity.org.au:afd.taxon:aa745ff0-c776-4d0e-851d-369ba0e6f537", "tc", "hasImage"));
 		return l;
 	}
+	*/
 	
 	/**
+	 * do update with cassandra repository.
+	 * @param delList
+	 * @param infoSourceIds
+	 * @return
+	 * @throws Exception
+	 */
+	private int doValueUpdate(List<DeleteItemInfo> delList, String[] infoSourceIds) throws Exception{
+		int ctr = 0;
+		Selector selector = Pelops.createSelector(POOL_NAME, keyspace);
+		
+		for(DeleteItemInfo item : delList){		
+			//get cassandra value
+			Column col = selector.getSubColumnFromRow(item.getKey(), columnFamily, item.getSColName(), item.getColName(), ConsistencyLevel.ONE);
+	        String casJson = getJsonValue(col);
+	        if(casJson != null && casJson.length() > 0){
+		        // do update ....
+		        String json = doDelete(casJson, infoSourceIds);
+		        System.out.println("guid: " + item.getKey() + " Col Name: " + item.getColName());
+		        System.out.println(">>>> Before: " + casJson);
+		        System.out.println("\n\n>>>> After: " + json);
+		        
+		        Mutator mutator = Pelops.createMutator(POOL_NAME, keyspace);
+		        if(json != null && json.length() > 0){		        	
+		        	try{
+		    			mutator.writeSubColumn(item.getKey(), columnFamily, item.getSColName(), mutator.newColumn(item.getColName(), json));
+		    			mutator.execute(ConsistencyLevel.ONE);
+		    		} catch (Exception e){
+		    			logger.error(e.getMessage(),e);
+		    		}			        	
+		        }
+		        else{
+		        	mutator.deleteSubColumn(item.getKey(), columnFamily, item.getSColName(), item.getColName());
+		        	mutator.execute(ConsistencyLevel.ONE);
+		        }
+	        }
+			ctr++;			
+		}
+		return ctr;
+	}
+
+	/**
+	 * NOT USED
 	 * do update with cassandra repository.
 	 * @param delList
 	 * @param infoSourceIds
@@ -170,6 +219,7 @@ public class CassandraBatchDelete {
 	 * @return
 	 * @throws Exception
 	 */
+	/*
 	private int doValueUpdate(List<DeleteItemInfo> delList, String[] infoSourceIds, Client client) throws Exception{
 		int ctr = 0;
 		ColumnPath colPath = new ColumnPath(columnFamily);
@@ -182,20 +232,9 @@ public class CassandraBatchDelete {
 	        if(casJson != null && casJson.length() > 0){
 		        // do update ....
 		        String json = doDelete(casJson, infoSourceIds);
-		        logger.debug("guid: " + item.getKey() + " colPath:" + new String(colPath.getSuper_column()) + " : " + new String(colPath.getColumn()));
-		        logger.debug(">>>> Before: " + casJson);
-		        logger.debug("\n\n>>>> After: " + json);
-		        
 		        if(json != null && json.length() > 0){
-		        	Mutator mutator = Pelops.createMutator(poolName, keyspace);
-		        	try{
-		    			mutator.writeSubColumn(item.getKey(), columnFamily, item.getSColName(), mutator.newColumn(item.getColName(), json));
-		    			mutator.execute(ConsistencyLevel.ONE);
-		    		} catch (Exception e){
-		    			logger.error(e.getMessage(),e);
-		    		}			        	
-//			        client.insert(keyspace, item.getKey(), colPath, "abc".getBytes(CHARSET_ENCODING),
-//			        		System.currentTimeMillis(), ConsistencyLevel.ONE);
+			        client.insert(keyspace, item.getKey(), colPath, json.getBytes(CHARSET_ENCODING),
+			        		System.currentTimeMillis(), ConsistencyLevel.ONE);
 		        }
 		        else{
 		        	client.remove(keyspace, item.getKey(), colPath, System.currentTimeMillis(), ConsistencyLevel.ONE);
@@ -204,8 +243,22 @@ public class CassandraBatchDelete {
 			ctr++;			
 		}
 		return ctr;
-	}
+	}	
+	 */
 	
+	private String getJsonValue(Column column){
+		String value = "";
+		if (column != null) {
+			try {
+				value = new String(column.getValue(), CHARSET_ENCODING);
+			} catch (UnsupportedEncodingException e) {
+				logger.debug(e.toString());				
+			}
+		}
+		return value;		
+	}
+
+	/*
 	private String getJsonValue(ColumnOrSuperColumn columns){
 		String value = "";
 		if (columns != null && columns.isSetColumn()) {
@@ -222,6 +275,7 @@ public class CassandraBatchDelete {
 		}
 		return value;		
 	}
+	*/
 	
 	/**
 	 * if cassandra column have value of 'infoSourceId', then add the column info into list.
