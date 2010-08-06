@@ -21,9 +21,10 @@ package org.ala.model;
 public class CommonName extends AttributableObject implements Comparable<CommonName> {
 
 	/** Nullable GUID for this common name */
-	public String guid; 
-	public String nameString;
-
+	protected String guid; 
+	protected String nameString;
+	protected Boolean isPreferred = false;
+	
 	/**
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
@@ -33,6 +34,10 @@ public class CommonName extends AttributableObject implements Comparable<CommonN
 		if(o.getNameString()!=null && nameString!=null){
 			return nameString.compareTo(o.getNameString());
 		}
+		if(o.isPreferred && !isPreferred)
+			return 1;
+		if(!o.isPreferred && isPreferred)
+			return -1;
 		return -1;
 	}
 	
@@ -85,7 +90,19 @@ public class CommonName extends AttributableObject implements Comparable<CommonN
 	public void setNameString(String nameString) {
 		this.nameString = nameString;
 	}
+	/**
+	 * @return the isPreferred
+	 */
+	public Boolean isPreferred() {
+		return isPreferred;
+	}
 
+	/**
+	 * @param isPreferred the isPreferred to set
+	 */
+	public void setPreferred(Boolean isPreferred) {
+		this.isPreferred = isPreferred;
+	}
 	/**
 	 * @see java.lang.Object#toString()
 	 */

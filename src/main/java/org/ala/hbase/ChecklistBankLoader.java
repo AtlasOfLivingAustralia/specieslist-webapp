@@ -583,7 +583,7 @@ public class ChecklistBankLoader {
 	 * @param dataFile
 	 * @throws Exception
 	 */
-	private void loadCommonNames(String dataFile) throws Exception {
+	public void loadCommonNames(String dataFile) throws Exception {
 		
 		InfoSource afd = infoSourceDAO.getByUri(AFD_HOME);
 		InfoSource apni = infoSourceDAO.getByUri(APNI_HOME);
@@ -610,6 +610,8 @@ public class ChecklistBankLoader {
     			//do a look up for the correct taxon
     			CommonName commonName = new CommonName();
     			commonName.setGuid(guid);
+    			//set this common name to be the preferred name
+    			commonName.setPreferred(true);
     			//set the attribution
     			if(guid.contains(":apni.")){
     				commonName.setInfoSourceId(Integer.toString(apni.getId()));
