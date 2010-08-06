@@ -112,20 +112,25 @@ public class ChecklistBankLoader {
 		logger.info("Initialise indexes....");
 		l.initIndexes();
 		
-		logger.info("Loading concepts....");
-		l.loadConcepts();
+		if(args.length==0 || "-sci".equals(args[0])){
 		
-		logger.info("Loading synonyms....");
-		l.loadSynonyms();
+			logger.info("Loading concepts....");
+			l.loadConcepts();
+			
+			logger.info("Loading synonyms....");
+			l.loadSynonyms();
+			
+			logger.info("Loading identifiers....");
+			l.loadIdentifiers();
+		}
 		
-		logger.info("Loading identifiers....");
-		l.loadIdentifiers();
-		
-		logger.info("Loading afd common names....");
-		l.loadCommonNames(AFD_COMMON_NAMES);
-		
-		logger.info("Loading apni common names....");
-		l.loadCommonNames(APNI_COMMON_NAMES);
+		if(args.length==0 || "-common".equals(args[0])){
+			logger.info("Loading afd common names....");
+			l.loadCommonNames(AFD_COMMON_NAMES);
+			
+			logger.info("Loading apni common names....");
+			l.loadCommonNames(APNI_COMMON_NAMES);
+		}
 		
 		long finish = System.currentTimeMillis();
 		
@@ -599,7 +604,9 @@ public class ChecklistBankLoader {
     	String[] values = null;
         Pattern p = Pattern.compile(",");
     	int namesAdded = 0;
+    	int linenumber = 0;
 		while ((values = tr.readNext()) != null) {
+			linenumber++;
     		if (values.length > 5) {
     			String guid = values[1];
     			String commonNameString = values[2];
@@ -632,6 +639,8 @@ public class ChecklistBankLoader {
                     	logger.error("Unable to add "+commonName);
                     }
                 }
+    		} else {
+    			logger.error("Skipping line "+linenumber+", number of values: "+values.length);
     		}
 		}
 		
