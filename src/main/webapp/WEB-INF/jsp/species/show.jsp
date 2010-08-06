@@ -399,10 +399,10 @@ e                                                </c:when>
     	                                    		<c:if test="${!rankedImageUriMap[image.identifier]}">
     	                                    			NOT
     	                                    		</c:if>
-  	                                    			representative for ${extendedTaxonConcept.taxonConcept.nameString}
+  	                                    			representative of ${extendedTaxonConcept.taxonConcept.nameString}
         	                                </c:when>
             	                            <c:otherwise>
-            	                            	Is image representative of ${extendedTaxonConcept.taxonConcept.rankString} ?  
+            	                            	Is this image representative of ${extendedTaxonConcept.taxonConcept.rankString} ?  
    	            	                           <a class="isrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  YES
    	            	                           </a>
