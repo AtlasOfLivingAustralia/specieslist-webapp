@@ -497,6 +497,7 @@
    <field name="class" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="bioOrder" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="family" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
+   <field name="genus" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <!-- Australian states, supports the region functionality -->
    <field name="state" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="ibra" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
