@@ -357,4 +357,39 @@ public class CassandraPelopsHelper implements StoreHelper  {
     	}
 		System.exit(0);
     }
+
+	/**
+	 * @param keySpace the keySpace to set
+	 */
+	public static void setKeySpace(String keySpace) {
+		CassandraPelopsHelper.keySpace = keySpace;
+	}
+
+	/**
+	 * @param host the host to set
+	 */
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	/**
+	 * @param pool the pool to set
+	 */
+	public void setPool(String pool) {
+		this.pool = pool;
+	}
+
+	/**
+	 * @param port the port to set
+	 */
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	/**
+	 * @param charsetEncoding the charsetEncoding to set
+	 */
+	public void setCharsetEncoding(String charsetEncoding) {
+		this.charsetEncoding = charsetEncoding;
+	}
 }
