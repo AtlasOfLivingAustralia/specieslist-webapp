@@ -80,12 +80,13 @@ public class BioCacheLoader {
 		String currentGuid = null;
 		List<OccurrencesInGeoregion> regions = new ArrayList<OccurrencesInGeoregion>();
 		while ((values = tr.readNext()) != null) {
-    		if (values.length == 5) {
+    		if (values.length == 6) {
     			String guid = values[0];
     			String regionType = values[1];
     			String regionId = values[2];
     			String regionName = values[3];
-    			String occurrences = values[4];
+    			Integer regionTypeId = Integer.parseInt(values[4]);
+    			String occurrences = values[5];
     			if (!guid.equals(currentGuid)) {
     				if (!regions.isEmpty()) {
     					// Flush list of regions
@@ -96,7 +97,7 @@ public class BioCacheLoader {
     				}
     			}
     			
-				OccurrencesInGeoregion region = new OccurrencesInGeoregion(guid, regionId, regionName, regionType, Integer.parseInt(occurrences));
+				OccurrencesInGeoregion region = new OccurrencesInGeoregion(guid, regionId, regionName, regionTypeId, regionType, Integer.parseInt(occurrences));
 				logger.trace("Adding guid=" + guid + " Region=" + regionName + " Type=" + regionType + " Occs=" + occurrences);
 				regions.add(region);
 				noOfRegions++;

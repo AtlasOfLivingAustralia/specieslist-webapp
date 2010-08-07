@@ -33,6 +33,7 @@ public class OccurrencesInGeoregion extends AttributableObject implements Compar
 	protected String regionId;
 	protected String regionName;
 	protected String regionType;
+	protected Integer regionTypeId;
 	protected int occurrences;
 	
 	/**
@@ -41,11 +42,12 @@ public class OccurrencesInGeoregion extends AttributableObject implements Compar
 	 * @param regionType
 	 * @param occurrences
 	 */
-	public OccurrencesInGeoregion(String taxonId, String regionId, String regionName, String regionType, int occurrences) {
+	public OccurrencesInGeoregion(String taxonId, String regionId, String regionName, Integer regionTypeId, String regionType, int occurrences) {
 		this.taxonId = taxonId;
 		this.regionId = regionId;
 		this.regionName = regionName;
 		this.regionType = regionType;
+		this.regionTypeId = regionTypeId;
 		this.occurrences = occurrences;
 	}
 
@@ -232,6 +234,20 @@ public class OccurrencesInGeoregion extends AttributableObject implements Compar
 		this.regionType = regionType;
 	}
 
+	/**
+	 * @return the regionTypeId
+	 */
+	public Integer getRegionTypeId() {
+		return regionTypeId;
+	}
+
+	/**
+	 * @param regionTypeId the regionTypeId to set
+	 */
+	public void setRegionTypeId(Integer regionTypeId) {
+		this.regionTypeId = regionTypeId;
+	}
+	
 	/**
 	 * @see java.lang.Object#toString()
 	 */
