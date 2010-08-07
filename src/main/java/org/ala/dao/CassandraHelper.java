@@ -43,6 +43,7 @@ import org.codehaus.jackson.map.type.TypeFactory;
  *
  * @author Dave Martin (David.Martin@csiro.au)
  */
+@Deprecated
 public class CassandraHelper implements StoreHelper {
 
 	protected static Logger logger = Logger.getLogger(CassandraHelper.class);

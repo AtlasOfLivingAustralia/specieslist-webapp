@@ -72,6 +72,9 @@ public class CassandraPelopsHelper implements StoreHelper  {
         catch(Exception e){
             //expected behaviour. current thrift API doesnt seem
             //to support a retrieve null getter
+        	if(logger.isTraceEnabled()){
+        		logger.trace(e.getMessage(), e);
+        	}
         }
         //initialise the object mapper
 		ObjectMapper mapper = new ObjectMapper();
