@@ -2,7 +2,7 @@ start_time=$(date +%s)
 
 echo "LOAD : running processing $('date')"
 
-mvn clean package -DskipTests=true
+mvn clean package install -DskipTests=true
 
 cd target
 
@@ -12,6 +12,9 @@ export CLASSPATH=bie-hbase-assembly.jar
 
 echo "LOAD : loading the geographic regions into the BIE $('date')"
 java -classpath $CLASSPATH org.ala.hbase.GeoRegionLoader
+
+echo "LOAD : loading the geographic region emblems into the BIE $('date')"
+java -classpath $CLASSPATH org.ala.hbase.EmblemLoader
 
 echo "LOAD : creating lucene indexes for concept lookups $('date')"
 java -Xmx2g -Xms2g -classpath $CLASSPATH au.org.ala.checklist.lucene.CBCreateLuceneIndex /data/bie-staging/checklistbank/ /data/lucene/namematching
@@ -28,14 +31,11 @@ java -classpath $CLASSPATH org.ala.hbase.ANBGDataLoader
 echo "LOAD : running Col Names Processing $('date')"
 java -classpath $CLASSPATH org.ala.preprocess.ColFamilyNamesProcessor
 
-echo "LOAD : running ANBG common names  $('date')"
-java -classpath $CLASSPATH org.ala.hbase.CommonNamesLoader
-
 echo "LOAD : running Repository Data Loader $('date')"
 java -Xmx1g -Xms1g -classpath $CLASSPATH org.ala.hbase.RepoDataLoader
 
 echo "LOAD : running Bio Cache Loader $('date')"
-java -classpath $CLASSPATH org.ala.hbase.BioCacheLoader
+java -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.hbase.BioCacheLoader
 
 echo "LOAD : running Irmng Loader $('date')"
 java -classpath $CLASSPATH org.ala.hbase.IrmngDataLoader
