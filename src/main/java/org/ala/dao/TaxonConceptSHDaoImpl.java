@@ -1377,22 +1377,19 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    		for(OccurrencesInGeoregion region : regions){
 	    			
 	    			//FIXME do this nicer using define region types etc....
-	    			
-	    			if(region.getRegionTypeId() < 3){
-	    				doc.addField("state", region.getName());
-//	    				states.addValue(region.getName(), 1f);
-	    			}
-	    			if(region.getRegionTypeId() >= 3 && region.getRegionTypeId() < 12){
-	    				doc.addField("ibra", region.getName());
-//	    				ibra.addValue(region.getName(), 1f);
-	    			}
-	    			if(region.getRegionTypeId() == 2000){
-	    				doc.addField("imcra", region.getName());
-//	    				imcra.addValue(region.getName(), 1f);
-	    			}
-	    			if(region.getRegionTypeId() >= 3000 && region.getRegionTypeId() < 4000){
-	    				doc.addField("lga", region.getName());
-//	    				imcra.addValue(region.getName(), 1f);
+	    			if(region.getRegionTypeId()!=null){
+		    			if(region.getRegionTypeId() < 3){
+		    				doc.addField("state", region.getName());
+		    			}
+		    			if(region.getRegionTypeId() >= 3 && region.getRegionTypeId() < 12){
+		    				doc.addField("ibra", region.getName());
+		    			}
+		    			if(region.getRegionTypeId() == 2000){
+		    				doc.addField("imcra", region.getName());
+		    			}
+		    			if(region.getRegionTypeId() >= 3000 && region.getRegionTypeId() < 4000){
+		    				doc.addField("lga", region.getName());
+		    			}
 	    			}
 	    		}
 	    		
