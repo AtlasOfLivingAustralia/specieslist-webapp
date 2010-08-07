@@ -46,8 +46,8 @@ public class OccurrencesInGeoregion extends AttributableObject implements Compar
 		this.taxonId = taxonId;
 		this.regionId = regionId;
 		this.regionName = regionName;
-		this.regionType = regionType;
 		this.regionTypeId = regionTypeId;
+		this.regionType = regionType;
 		this.occurrences = occurrences;
 	}
 

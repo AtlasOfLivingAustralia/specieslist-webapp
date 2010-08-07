@@ -86,19 +86,17 @@ public class BioCacheLoader {
     			String regionId = values[2];
     			String regionName = values[3];
     			Integer regionTypeId = Integer.parseInt(values[4]);
-    			String occurrences = values[5];
-    			if (!guid.equals(currentGuid)) {
-    				if (!regions.isEmpty()) {
-    					// Flush list of regions
-    					taxonConceptDao.addRegions(currentGuid, regions);
-    					logger.debug("Added region list for guid = " + currentGuid +", number of regions = "+regions.size());
-        				noOfTaxa++;
-        				regions.clear();
-    				}
+    			Integer occurrences = Integer.parseInt(values[5]);
+    			if (!guid.equals(currentGuid) && !regions.isEmpty()) {
+					// Flush list of regions
+					taxonConceptDao.addRegions(currentGuid, regions);
+					logger.debug("Added region list for guid = " + currentGuid +", number of regions = "+regions.size());
+    				noOfTaxa++;
+    				regions.clear();
     			}
     			
-				OccurrencesInGeoregion region = new OccurrencesInGeoregion(guid, regionId, regionName, regionTypeId, regionType, Integer.parseInt(occurrences));
-				logger.trace("Adding guid=" + guid + " Region=" + regionName + " Type=" + regionType + " Occs=" + occurrences);
+				OccurrencesInGeoregion region = new OccurrencesInGeoregion(guid, regionId, regionName, regionTypeId, regionType, occurrences);
+				logger.debug("Adding guid=" + guid + " Region=" + regionName + " Type=" + regionType + " regionTypeId=" + regionTypeId + " Occs=" + occurrences);
 				regions.add(region);
 				noOfRegions++;
     			
