@@ -845,9 +845,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 		String scientificName = null;
 		String specificEpithet = null;
+		String subspecies = null;
 		String species = null;
 		String genus = null;
 		String family = null;
+		String superfamily = null;
 		String order = null;
 		String kingdom = null;
 
@@ -877,11 +879,17 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			if(predicate.endsWith("hasFamily")){
 				family = triple.object;
 			}
+			if(predicate.endsWith("hasSuperFamily")){
+				superfamily = triple.object;
+			}
 			if(predicate.endsWith("hasGenus")){
 				genus = triple.object;
 			}
 			if(predicate.endsWith("hasSpecies")){
 				species = triple.object;
+			}
+			if(predicate.endsWith("hasSubSpecies")){
+				subspecies = triple.object;
 			}
 			if(predicate.endsWith("hasSpecificEpithet")){
 				specificEpithet = triple.object;
@@ -891,12 +899,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			}
 		}
 		
-		if (scientificName == null 
+		if (scientificName == null
+				&& subspecies == null
+				&& specificEpithet == null
 				&& species == null 
 				&& genus == null
-				&& family == null 
-				&& order == null
-				&& specificEpithet == null) {
+				&& family == null
+				&& superfamily == null
+				&& order == null) {
 			logger.error("No classification found for document at: " + document.getFilePath());
 			return false; // we have nothing to work with, so give up
 		}
@@ -904,7 +914,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		// Lookup LSID in Checklist Bank data 
 		String rank = null;
 		if (scientificName == null) {
-			if (species != null) {
+			if (subspecies != null) {
+				scientificName = subspecies;
+				rank = "subspecies";
+			} else if (species != null) {
 				scientificName = species;
 				rank = "species";
 			} else if (genus != null) {
@@ -918,6 +931,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			} else if (family != null) {
 				scientificName = family;
 				rank = "family";
+			} else if (superfamily != null) {
+				scientificName = superfamily;
+				rank = "superfamily";
 			} else if (order != null) {
 				scientificName = order;
 				rank = "order";
