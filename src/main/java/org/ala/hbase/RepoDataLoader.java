@@ -37,7 +37,6 @@ import org.ala.util.SpringUtils;
 import org.ala.util.TurtleUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
