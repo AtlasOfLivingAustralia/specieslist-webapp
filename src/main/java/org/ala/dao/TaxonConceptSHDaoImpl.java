@@ -777,6 +777,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		SearchTaxonConceptDTO taxonConcept = new SearchTaxonConceptDTO();
 		taxonConcept.setGuid(doc.get("guid"));
 		taxonConcept.setParentGuid(doc.get("parentGuid"));
+		if(doc.get("parentId")!=null){
+			taxonConcept.setParentId(doc.get("parentId"));
+		}
 		taxonConcept.setName(doc.get("scientificNameRaw"));
 		taxonConcept.setAcceptedConceptName(doc.get("acceptedConceptName"));
 		String hasChildrenAsString = doc.get("hasChildren");
@@ -1291,6 +1294,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    		
 	    		if(taxonConcept.getParentGuid()!=null){
 	    			doc.addField("parentGuid", taxonConcept.getParentGuid());
+	    		}
+	    		if(taxonConcept.getParentId()!=null){
+	    			doc.addField("parentId", taxonConcept.getParentId());
 	    		}
 	    		
 	    		//add the nested set values

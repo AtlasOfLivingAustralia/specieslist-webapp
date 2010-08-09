@@ -19,8 +19,9 @@ package org.ala.dto;
  *
  * @author Dave Martin (David.Martin@csiro.au)
  */
-public class SearchTaxonConceptDTO extends SearchDTO {
+public class SearchTaxonConceptDTO extends SearchDTO implements Comparable<SearchTaxonConceptDTO>{
 	
+	protected String parentId;
 	protected String parentGuid;
 	protected String commonName;
 	protected String commonNameSingle;
@@ -37,6 +38,29 @@ public class SearchTaxonConceptDTO extends SearchDTO {
     protected Integer left;
     protected Integer right;
 
+	/**
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(SearchTaxonConceptDTO o) {
+		if(o.getName()!=null && this.name!=null){
+			return this.name.compareTo(o.getName());
+		}
+		return 0;
+	}
+	
+	/**
+	 * @return the parentId
+	 */
+	public String getParentId() {
+		return parentId;
+	}
+	/**
+	 * @param parentId the parentId to set
+	 */
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
+	}
 	/**
 	 * @return the commonName
 	 */

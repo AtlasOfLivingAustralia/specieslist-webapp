@@ -17,6 +17,7 @@ package org.ala.dao;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,8 +89,34 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
             return searchResults;
         }
     }
-    
+	
     /**
+	 * @see org.ala.dao.FulltextSearchDao#getChildConcepts(int)
+	 */
+	@Override
+	public List<SearchTaxonConceptDTO> getChildConceptsByNS(int leftNS, int rightNS, Integer rankId) throws Exception {
+        try {
+            // set the query
+            StringBuffer queryString = new StringBuffer();
+            queryString.append("idxtype:"+IndexedTypes.TAXON);
+            if(rankId!=null){
+	            queryString.append(" AND ");
+	            queryString.append("rankId:"+rankId);
+            }
+            String[] fq = new String[]{"left:["+leftNS+" TO "+rightNS+"]"};
+            logger.info("search query: "+queryString.toString());
+            SearchResultsDTO<SearchTaxonConceptDTO> tcs =  doSolrSearch(queryString.toString(), fq, 5000, 0, "name", "asc");
+            List<SearchTaxonConceptDTO> stds = tcs.getResults();
+            Collections.sort(stds);
+            return stds;
+        } catch (SolrServerException ex) {
+        	List<SearchTaxonConceptDTO>  searchResults = new ArrayList<SearchTaxonConceptDTO>();
+            logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
+            return searchResults;
+        }
+	}
+
+	/**
 	 * @see org.ala.dao.FulltextSearchDao#findByScientificName(java.lang.String, int)
 	 */
     @Override

@@ -39,6 +39,15 @@ public interface FulltextSearchDao {
 	 */
     SearchResultsDTO getClassificationByLeftNS(int leftNSValue) throws Exception;
 	
+	/**
+	 * Retrieves a classification used nested set logic.
+	 * 
+	 * @param leftNSValue
+	 * @return
+	 * @throws Exception
+	 */
+    List<SearchTaxonConceptDTO> getChildConceptsByNS(int left, int right, Integer rankId) throws Exception;
+    
     /**
      * Search for taxon concept with the following status type
      *
