@@ -46,6 +46,9 @@ import org.wyki.cassandra.pelops.Selector;
  * 
  * @author MOK011
  * 
+ * History:
+ * 9 Aug 10 (MOK011): updated cassandra client to Pelops API.
+ * 
  */
 //@Component
 public class CassandraBatchDelete {
@@ -209,42 +212,6 @@ public class CassandraBatchDelete {
 		}
 		return ctr;
 	}
-
-	/**
-	 * NOT USED
-	 * do update with cassandra repository.
-	 * @param delList
-	 * @param infoSourceIds
-	 * @param client
-	 * @return
-	 * @throws Exception
-	 */
-	/*
-	private int doValueUpdate(List<DeleteItemInfo> delList, String[] infoSourceIds, Client client) throws Exception{
-		int ctr = 0;
-		ColumnPath colPath = new ColumnPath(columnFamily);
-		for(DeleteItemInfo item : delList){		
-			colPath.setSuper_column(item.getSColName().getBytes());
-	        colPath.setColumn(item.getColName().getBytes());
-	        //get cassandra value
-	        ColumnOrSuperColumn columns = client.get(keyspace, item.getKey(), colPath, ConsistencyLevel.ONE);
-	        String casJson = getJsonValue(columns);
-	        if(casJson != null && casJson.length() > 0){
-		        // do update ....
-		        String json = doDelete(casJson, infoSourceIds);
-		        if(json != null && json.length() > 0){
-			        client.insert(keyspace, item.getKey(), colPath, json.getBytes(CHARSET_ENCODING),
-			        		System.currentTimeMillis(), ConsistencyLevel.ONE);
-		        }
-		        else{
-		        	client.remove(keyspace, item.getKey(), colPath, System.currentTimeMillis(), ConsistencyLevel.ONE);
-		        }
-	        }
-			ctr++;			
-		}
-		return ctr;
-	}	
-	 */
 	
 	private String getJsonValue(Column column){
 		String value = "";
@@ -257,25 +224,6 @@ public class CassandraBatchDelete {
 		}
 		return value;		
 	}
-
-	/*
-	private String getJsonValue(ColumnOrSuperColumn columns){
-		String value = "";
-		if (columns != null && columns.isSetColumn()) {
-			Column col = columns.getColumn();
-			try {
-				value = new String(col.getValue(), CHARSET_ENCODING);
-			} catch (UnsupportedEncodingException e) {
-				logger.debug(e.toString());				
-			}
-		}
-		if (columns != null && columns.isSetSuper_column()) {
-			logger.debug(" +++++++++++ getJsonValue(): columns type is super column");	
-			System.out.println(" +++++++++++ getJsonValue(): columns type is super column");
-		}
-		return value;		
-	}
-	*/
 	
 	/**
 	 * if cassandra column have value of 'infoSourceId', then add the column info into list.
