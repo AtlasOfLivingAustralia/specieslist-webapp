@@ -471,6 +471,7 @@
    <field name="name" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="description" type="text" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <!-- Taxa fields -->
+   <field name="parentId" type="string" indexed="true" stored="true" omitNorms="true" />
    <field name="parentGuid" type="string" indexed="true" stored="true" omitNorms="true" />
    <field name="synonym" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="scientificName" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
