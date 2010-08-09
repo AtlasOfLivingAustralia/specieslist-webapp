@@ -190,9 +190,9 @@ public class CassandraBatchDelete {
 	        if(casJson != null && casJson.length() > 0){
 		        // do update ....
 		        String json = doDelete(casJson, infoSourceIds);
-		        System.out.println("guid: " + item.getKey() + " Col Name: " + item.getColName());
-		        System.out.println(">>>> Before: " + casJson);
-		        System.out.println("\n\n>>>> After: " + json);
+//		        logger.debug("guid: " + item.getKey() + " Col Name: " + item.getColName());
+//		        System.out.println(">>>> Before: " + casJson);
+//		        System.out.println("\n\n>>>> After: " + json);
 		        
 		        Mutator mutator = Pelops.createMutator(POOL_NAME, keyspace);
 		        if(json != null && json.length() > 0){		        	
