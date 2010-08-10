@@ -372,11 +372,14 @@
                                         <c:if test="${not empty image.creator}">
                                             Image by: ${image.creator}<br/>
                                         </c:if>
+                                        <c:if test="${not empty image.locality}">
+                                            Locality: ${image.locality}<br/>
+                                        </c:if>
                                         <c:if test="${not empty image.licence}">
-                                            Image licence: ${image.licence}<br/>
+                                            Licence: ${image.licence}<br/>
                                         </c:if>
                                         <c:if test="${not empty image.rights}">
-                                            Image rights: ${image.rights}<br/>
+                                            Rights: ${image.rights}<br/>
                                         </c:if>
                                         <c:set var="imageUri">
                                             <c:choose>
@@ -513,8 +516,14 @@ e                                                </c:when>
                         <h5>Child <c:if test="${fn:length(extendedTaxonConcept.childConcepts) > 1}">Taxa</c:if>
                             <c:if test="${fn:length(extendedTaxonConcept.childConcepts) < 2}">Taxon</c:if>:</h5>
                             <ul>
-                                <c:forEach items="${extendedTaxonConcept.childConcepts}" var="child">
-                                    <li><a href="<c:url value='/species/${child.guid}#names'/>">${child.nameString}</a></li>
+                                <c:forEach items="${childConcepts}" var="child">
+                                    <li><a href="<c:url value='/species/${child.guid}#names'/>">
+                                    	${child.name}
+                                    	<c:if test="${not empty child.commonNameSingle}">
+                                    	 (${child.commonNameSingle})
+                                    	</c:if>
+                                    	</a>
+                                    </li>
                                 </c:forEach>
                             </ul>
                             <c:if test="${not empty child.infoSourceName && not empty child.infoSourceURL}">
