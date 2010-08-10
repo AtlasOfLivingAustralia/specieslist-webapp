@@ -154,8 +154,15 @@ public class SpeciesController {
         	rankingMap.put(sr.getUri(), sr.isPositive());
         }
 
-        //load child concept using search indexes
         TaxonConcept tc = etc.getTaxonConcept();
+        
+        //load the hierarchy
+        if(tc.getLeft()!=null){
+        	SearchResultsDTO<SearchTaxonConceptDTO> taxonHierarchy = searchDao.getClassificationByLeftNS(tc.getLeft());
+        	model.addAttribute("taxonHierarchy", taxonHierarchy.getResults());
+        }
+        
+        //load child concept using search indexes
         List<SearchTaxonConceptDTO> childConcepts = searchDao.getChildConceptsParentId(Integer.toString(tc.getId()));
         model.addAttribute("childConcepts", childConcepts);
         

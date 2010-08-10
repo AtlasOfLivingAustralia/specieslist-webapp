@@ -519,76 +519,25 @@ e                                                </c:when>
                 <div class="section">
                     <h2>Classification</h2>
                     <ul>
-                        <c:set var="classfn" value="${extendedTaxonConcept.classification}"/>
-                        <c:set var="rankId" value="${classfn.rankId}"/>
-                        <c:if test="${rankId >= 1000}">
-                            <li>kingdom: 
-                                <c:choose>
-                                    <c:when test="${classfn.rankId == 1000}">${classfn.scientificName}</c:when>
-                                    <c:when test="${not empty classfn.kingdom}"><a href="${classfn.kingdomGuid}" title="kingdom">${classfn.kingdom}</a></c:when>
-                                </c:choose>
+                    	<c:forEach items="${taxonHierarchy}" var="taxon">
+                            <li>${taxon.rank}: 
+                                <a href="<c:url value='/species/${taxon.guid}#classification'/>" title="${taxon.rank}">
+                                	<c:if test="${taxon.rankId>=6000}"><i></c:if>
+	                                	${taxon.name}
+                                	<c:if test="${taxon.rankId>=6000}"></i></c:if>
+                                	<c:if test="${not empty taxon.commonNameSingle}">
+                                	 (${taxon.commonNameSingle})
+                                	</c:if>
+                                </a>
                             </li>
-                        </c:if>
-                        <c:if test="${rankId >= 2000}">
-                            <li>phylum:
-                                <c:choose>
-                                    <c:when test="${classfn.rankId == 2000}">${classfn.scientificName}</c:when>
-                                    <c:when test="${not empty classfn.phylum}"><a href="${classfn.phylumGuid}" title="phylum">${classfn.phylum}</a></c:when>
-                                </c:choose>
-                            </li>
-                        </c:if>
-                        <c:if test="${rankId >= 3000}">
-                            <li>class:
-                                <c:choose>
-                                    <c:when test="${classfn.rankId == 3000}">${classfn.scientificName}</c:when>
-                                    <c:when test="${not empty classfn.clazz}"><a href="${classfn.clazzGuid}" title="class">${classfn.clazz}</a></c:when>
-                                </c:choose>
-                            </li>
-                        </c:if>
-                        <c:if test="${rankId >= 4000}">
-                            <li>order:
-                                <c:choose>
-                                    <c:when test="${classfn.rankId == 4000}">${classfn.scientificName}</c:when>
-                                    <c:when test="${not empty classfn.order }"><a href="${classfn.orderGuid}" title="order">${classfn.order}</a></c:when>
-                                </c:choose>
-                            </li>
-                        </c:if>
-                        <c:if test="${rankId >= 5000}">
-                            <li>family:
-                                <c:choose>
-                                    <c:when test="${classfn.rankId == 5000}">${classfn.scientificName}</c:when>
-                                    <c:when test="${not empty classfn.familyGuid}"><a href="${classfn.familyGuid}" title="family">${classfn.family}</a></c:when>
-                                </c:choose>
-                            </li>
-                        </c:if>
-                        <c:if test="${rankId >= 6000}">
-                            <li>genus:<i>
-                                <c:choose>
-                                    <c:when test="${classfn.rankId == 6000}">${classfn.scientificName}</c:when>
-                                    <c:when test="${not empty classfn.genus}"><a href="${classfn.genusGuid}" title="genus">${classfn.genus}</a></c:when>
-                                </c:choose></i>
-                            </li>
-                        </c:if>
-                        <c:if test="${rankId >= 7000}">
-                            <li>species:<i>
-                                <c:choose>
-                                    <c:when test="${classfn.rankId == 7000}">${classfn.scientificName}</c:when>
-                                    <c:when test="${not empty classfn.species}"><a href="${classfn.speciesGuid}" title="species">${classfn.species}</a></c:when>
-                                </c:choose></i>
-                            </li>
-                        </c:if>
-                        <c:if test="${rankId >= 8000}">
-                            <li>subspecies:<i>
-                                <c:choose>
-                                    <c:when test="${classfn.rankId == 8000}">${classfn.subspecies}</c:when>
-                                    <c:when test="${not empty classfn.subspecies}"><a href="${classfn.subspeciesGuid}" title="subspecies">${classfn.subspecies}</a></c:when>
-                                </c:choose></i>
-                            </li>
-                        </c:if>
+                    	</c:forEach>
                         <ul>
                             <c:forEach items="${childConcepts}" var="child">
-                                <li><a href="<c:url value='/species/${child.guid}#classification'/>">
+                                <li>${child.rank}:
+                                	<a href="<c:url value='/species/${child.guid}#classification'/>">
+                                	<c:if test="${child.rankId>=6000}"><i></c:if>
                                     ${child.name}
+                                	<c:if test="${child.rankId>=6000}"></i></c:if>
                                     <c:if test="${not empty child.commonNameSingle}">
                                      (${child.commonNameSingle})
                                     </c:if>
