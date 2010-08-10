@@ -39,6 +39,16 @@ public interface FulltextSearchDao {
 	 */
     SearchResultsDTO getClassificationByLeftNS(int leftNSValue) throws Exception;
 	
+    /**
+     * Retrieve the child taxa using the parent ID. This is a numeric ID that is internal to
+     * the system
+     * 
+     * @param parentId
+     * @return
+     * @throws Exception
+     */
+    List<SearchTaxonConceptDTO> getChildConceptsParentId(String parentId) throws Exception;
+    
 	/**
 	 * Retrieves a classification used nested set logic.
 	 * 

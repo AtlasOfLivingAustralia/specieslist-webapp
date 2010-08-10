@@ -115,6 +115,28 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
             return searchResults;
         }
 	}
+	
+    /**
+	 * @see org.ala.dao.FulltextSearchDao#getChildConcepts(int)
+	 */
+	@Override
+	public List<SearchTaxonConceptDTO> getChildConceptsParentId(String parentId) throws Exception {
+        try {
+            // set the query
+            StringBuffer queryString = new StringBuffer();
+            queryString.append("idxtype:"+IndexedTypes.TAXON);
+            String[] fq = new String[]{"parentId:"+parentId};
+            logger.info("search query: "+queryString.toString());
+            SearchResultsDTO<SearchTaxonConceptDTO> tcs =  doSolrSearch(queryString.toString(), fq, 5000, 0, "name", "asc");
+            List<SearchTaxonConceptDTO> stds = tcs.getResults();
+            Collections.sort(stds);
+            return stds;
+        } catch (SolrServerException ex) {
+        	List<SearchTaxonConceptDTO>  searchResults = new ArrayList<SearchTaxonConceptDTO>();
+            logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
+            return searchResults;
+        }
+	}
 
 	/**
 	 * @see org.ala.dao.FulltextSearchDao#findByScientificName(java.lang.String, int)
