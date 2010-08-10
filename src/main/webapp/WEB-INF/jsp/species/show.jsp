@@ -85,12 +85,12 @@
                     }
                 });
 
-                // images in overview tabbed should take you to Multimedia tab and display the image
+                // images in overview tab should trigger lightbox
                 $("#images ul a").click(function(e) {
                     e.preventDefault(); //Cancel the link behavior
-                    $('#nav-tabs > ul').tabs( "select" , 1 );
+                    //$('#nav-tabs > ul').tabs( "select" , 1 );
                     var thumbId = "thumb" + $(this).attr('href');
-                    $("a#"+thumbId).click();
+                    $("a#"+thumbId).click();  // simulate clicking the lightbox links in Gallery tab
                 });
 
                 // Check for valid distribution map img URLs
@@ -124,7 +124,7 @@
     </head>
     <body id="page-36" class="page page-id-36 page-parent page-template page-template-default two-column-right">
         <div id="header" class="taxon">
-            <c:set var="spatialPortalUrl">http://test.ala.org.au/explore/maps/spatial-portal/</c:set>
+            <c:set var="spatialPortalUrl">http://test.ala.org.au/explore/species-maps/</c:set>
             <c:set var="sciNameFormatted">
                 <alatag:formatSciName name="${extendedTaxonConcept.taxonConcept.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/>
             </c:set>
@@ -132,7 +132,7 @@
                 <ul>
                     <li><a href="/">Home</a></li>
                     <li><a href="${pageContext.request.contextPath}/species/search">Species</a></li>
-                    <li>${sciNameFormatted}</li>
+                    <li>${sciNameFormatted} <c:if test="${not empty extendedTaxonConcept.commonNames}">(${extendedTaxonConcept.commonNames[0].nameString})</c:if></li>
                 </ul>
             </div>
             <div class="section full-width">
@@ -142,10 +142,10 @@
                 </div>
                 <div class=" col-4">
                     <h3 id="rank">${extendedTaxonConcept.taxonConcept.rankString} profile</h3>
-                    <cite>source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="_blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
+                    <%--<cite>source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="_blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>--%>
                     <cite><a href="#lsidText" id="lsid" class="local" title="Life Science Identifier (pop-up)">LSID</a>
-                        | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" class="local" title="JSON web service">JSON</a>
-                        <!-- | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.xml" class="local" title="XML web service">XML</a> -->
+                        <%--| <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" class="local" title="JSON web service">JSON</a>
+                        <!-- | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.xml" class="local" title="XML web service">XML</a> -->--%>
                     </cite>
                     <div style="display:none; text-align: left;">
                         <div id="lsidText" style="text-align: left;">
@@ -204,27 +204,27 @@
                         </li>
                     </c:if>
                     <c:if test="${rankId >= 6000}">
-                        <li>
+                        <li><i>
                             <c:choose>
                                 <c:when test="${classfn.rankId == 6000}">${classfn.scientificName}</c:when>
                                 <c:when test="${not empty classfn.genus}"><a href="${classfn.genusGuid}" title="genus">${classfn.genus}</a></c:when>
-                            </c:choose>
+                            </c:choose></i>
                         </li>
                     </c:if>
                     <c:if test="${rankId >= 7000}">
-                        <li>
+                        <li><i>
                             <c:choose>
                                 <c:when test="${classfn.rankId == 7000}">${classfn.scientificName}</c:when>
                                 <c:when test="${not empty classfn.species}"><a href="${classfn.speciesGuid}" title="species">${classfn.species}</a></c:when>
-                            </c:choose>
+                            </c:choose></i>
                         </li>
                     </c:if>
                     <c:if test="${rankId >= 8000}">
-                        <li>
+                        <li><i>
                             <c:choose>
                                 <c:when test="${classfn.rankId == 8000}">${classfn.subspecies}</c:when>
                                 <c:when test="${not empty classfn.subspecies}"><a href="${classfn.subspeciesGuid}" title="subspecies">${classfn.subspecies}</a></c:when>
-                            </c:choose>
+                            </c:choose></i>
                         </li>
                     </c:if>
                 </ul>
@@ -233,13 +233,12 @@
                 <ul>
                     <li><a href="#overview">Overview</a></li>
                     <li><a href="#gallery">Gallery</a></li>
-                    <li><a href="#identification">Identification</a></li>
+                    <%--<li><a href="#identification">Identification</a></li>--%>
                     <li><a href="#names">Names</a></li>
+                    <li><a href="#classification">Classification</a></li>
                     <li><a href="#records">Records</a></li>
-<%--
-                    <li><a href="#biology">Biology</a></li>
-                    <li><a href="#molecular">Molecular</a></li>
---%>
+                    <%--<li><a href="#biology">Biology</a></li>
+                    <li><a href="#molecular">Molecular</a></li>--%>
                     <li><a href="#references">References</a></li>
                 </ul>
             </div>
@@ -278,6 +277,14 @@
                     </ul>
                 </div>
                 <div class="section">
+                    <div class="distroMap" style="display:none;">
+                        <h3>Mapped records</h3>
+                        <p>
+                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">
+                                <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
+                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
+                        </p>
+                    </div>
                     <c:if test="${not empty extendedTaxonConcept.conservationStatuses}"><h3>Conservation Status</h3></c:if>
                     <c:forEach var="status" items="${extendedTaxonConcept.conservationStatuses}">
                         <c:if test="${fn:containsIgnoreCase(status.status,'extinct') || fn:containsIgnoreCase(status.status,'endangered') || fn:containsIgnoreCase(status.status,'vulnerable') || fn:containsIgnoreCase(status.status,'threatened') || fn:containsIgnoreCase(status.status,'concern') || fn:containsIgnoreCase(status.status,'deficient')}">
@@ -317,20 +324,12 @@
                             <cite>source: <a href="${sourceUrl}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
                         </p>
                     </c:forEach>
-                    <div class="distroMap" style="display:none;">
-                        <h3>Mapped records</h3>
-                        <p>
-                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">
-                                <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
-                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
-                        </p>
-                    </div>
                 </div><!--close news-->
                 <div class="section" id="infoSourceList">
                     <h3>Contributors to this page</h3>
                     <ul>
-                        <c:forEach var="infoSource" items="${infoSources}">
-                            <c:if test="${not empty infoSource.infoSourceURL && not empty infoSource.infoSourceName}">
+                        <c:forEach var="infoSource" items="${infoSources}" varStatus="status">
+                            <c:if test="${not empty infoSource.infoSourceURL && not empty infoSource.infoSourceName && status.index > 0 && infoSources[status.index - 1].infoSourceName != infoSource.infoSourceName}">
                                 <li><a href="${infoSource.infoSourceURL}" target="_blank" class="external">${infoSource.infoSourceName}</a><!--${infoSource.infoSourceId}--></li>
                             </c:if>
                         </c:forEach>
@@ -440,7 +439,7 @@ e                                                </c:when>
                 </div><!--close-->
             </div><!--close -->
         </div><!--close multimedia-->
-        <div id="identification">
+        <%--<div id="identification">
             <div id="column-one">
                 <div class="section">
                     <h2>Identification</h2>
@@ -468,44 +467,136 @@ e                                                </c:when>
                     <h2></h2>
                 </div><!--close-->
             </div><!--close -->
-        </div><!--close identification-->
+        </div><!--close identification-->--%>
         <div id="names">
             <div id="column-one">
                 <div class="section">
                     <h2>Names</h2>
-                    <p><b>Accepted Name:</b> <alatag:formatSciName name="${extendedTaxonConcept.taxonConcept.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/>${extendedTaxonConcept.taxonConcept.author}
+                    <h3>Accepted Name</h3>
+                    <p><alatag:formatSciName name="${extendedTaxonConcept.taxonConcept.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/>${extendedTaxonConcept.taxonConcept.author}
                         <cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
                         <c:if test="${not empty extendedTaxonConcept.taxonName.publishedIn}"><cite>Published in: <a href="#">${extendedTaxonConcept.taxonName.publishedIn}</a></cite></c:if>
                     </p>
+                    <c:if test="${not empty extendedTaxonConcept.synonyms}">
+                        <h3>Synonyms</h3>
+                    </c:if>
                     <c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym">
-                        <p><b>Synonym:</b><alatag:formatSciName name="${synonym.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/> ${synonym.author}
+                        <p><alatag:formatSciName name="${synonym.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/> ${synonym.author}
                             <c:choose>
                                 <c:when test="${empty synonym.infoSourceURL}"><cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite></c:when>
                                 <c:otherwise><cite>Source: <a href="${synonym.infoSourceURL}" target="blank">${synonym.infoSourceName}</a></cite></c:otherwise>
                             </c:choose>
-                            <c:if test="${not empty synonym.publishedIn}"><cite>Published in: ${synonym.publishedIn}</cite></c:if>
+                            <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <a name="">${synonym.publishedIn}</a></cite></c:if>
                         </p>
                     </c:forEach>
+                    <c:if test="${not empty extendedTaxonConcept.commonNames}">
+                        <h3>Common Names</h3>
+                    </c:if>
                     <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
-                        <p><b>Common Name:</b> ${commonName.nameString}
+                        <p>${commonName.nameString}
                             <c:choose>
                                 <c:when test="${empty commonName.infoSourceURL}"><cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite></c:when>
                                 <c:otherwise><cite>Source: <a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>
                             </c:choose>
-                            <c:if test="${not empty synonym.publishedIn}"><cite>Published in: ${synonym.publishedIn}</cite></c:if>
+                            <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <a name="">${synonym.publishedIn}</a></cite></c:if>
                         </p>
                     </c:forEach>
                 </div>
             </div><!---->
             <div id="column-two">
                 <div class="section">
-                    <h2>Parent &amp; Child Taxa</h2>
-                    <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) > 0}">
+                </div>
+            </div><!--close -->
+        </div><!--close names-->
+        <div id="classification">
+            <div id="column-one">
+                <div class="section">
+                    <h2>Classification</h2>
+                    <ul>
+                        <c:set var="classfn" value="${extendedTaxonConcept.classification}"/>
+                        <c:set var="rankId" value="${classfn.rankId}"/>
+                        <c:if test="${rankId >= 1000}">
+                            <li>kingdom: 
+                                <c:choose>
+                                    <c:when test="${classfn.rankId == 1000}">${classfn.scientificName}</c:when>
+                                    <c:when test="${not empty classfn.kingdom}"><a href="${classfn.kingdomGuid}" title="kingdom">${classfn.kingdom}</a></c:when>
+                                </c:choose>
+                            </li>
+                        </c:if>
+                        <c:if test="${rankId >= 2000}">
+                            <li>phylum:
+                                <c:choose>
+                                    <c:when test="${classfn.rankId == 2000}">${classfn.scientificName}</c:when>
+                                    <c:when test="${not empty classfn.phylum}"><a href="${classfn.phylumGuid}" title="phylum">${classfn.phylum}</a></c:when>
+                                </c:choose>
+                            </li>
+                        </c:if>
+                        <c:if test="${rankId >= 3000}">
+                            <li>class:
+                                <c:choose>
+                                    <c:when test="${classfn.rankId == 3000}">${classfn.scientificName}</c:when>
+                                    <c:when test="${not empty classfn.clazz}"><a href="${classfn.clazzGuid}" title="class">${classfn.clazz}</a></c:when>
+                                </c:choose>
+                            </li>
+                        </c:if>
+                        <c:if test="${rankId >= 4000}">
+                            <li>order:
+                                <c:choose>
+                                    <c:when test="${classfn.rankId == 4000}">${classfn.scientificName}</c:when>
+                                    <c:when test="${not empty classfn.order }"><a href="${classfn.orderGuid}" title="order">${classfn.order}</a></c:when>
+                                </c:choose>
+                            </li>
+                        </c:if>
+                        <c:if test="${rankId >= 5000}">
+                            <li>family:
+                                <c:choose>
+                                    <c:when test="${classfn.rankId == 5000}">${classfn.scientificName}</c:when>
+                                    <c:when test="${not empty classfn.familyGuid}"><a href="${classfn.familyGuid}" title="family">${classfn.family}</a></c:when>
+                                </c:choose>
+                            </li>
+                        </c:if>
+                        <c:if test="${rankId >= 6000}">
+                            <li>genus:<i>
+                                <c:choose>
+                                    <c:when test="${classfn.rankId == 6000}">${classfn.scientificName}</c:when>
+                                    <c:when test="${not empty classfn.genus}"><a href="${classfn.genusGuid}" title="genus">${classfn.genus}</a></c:when>
+                                </c:choose></i>
+                            </li>
+                        </c:if>
+                        <c:if test="${rankId >= 7000}">
+                            <li>species:<i>
+                                <c:choose>
+                                    <c:when test="${classfn.rankId == 7000}">${classfn.scientificName}</c:when>
+                                    <c:when test="${not empty classfn.species}"><a href="${classfn.speciesGuid}" title="species">${classfn.species}</a></c:when>
+                                </c:choose></i>
+                            </li>
+                        </c:if>
+                        <c:if test="${rankId >= 8000}">
+                            <li>subspecies:<i>
+                                <c:choose>
+                                    <c:when test="${classfn.rankId == 8000}">${classfn.subspecies}</c:when>
+                                    <c:when test="${not empty classfn.subspecies}"><a href="${classfn.subspeciesGuid}" title="subspecies">${classfn.subspecies}</a></c:when>
+                                </c:choose></i>
+                            </li>
+                        </c:if>
+                        <ul>
+                            <c:forEach items="${childConcepts}" var="child">
+                                <li><a href="<c:url value='/species/${child.guid}#classification'/>">
+                                    ${child.name}
+                                    <c:if test="${not empty child.commonNameSingle}">
+                                     (${child.commonNameSingle})
+                                    </c:if>
+                                    </a>
+                                </li>
+                            </c:forEach>
+                        </ul>
+                    </ul>
+                    <%-- <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) > 0}">
                         <h5>Parent <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) > 1}">Taxa</c:if>
                             <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) < 2}">Taxon</c:if></h5>
                             <ul>
                                 <c:forEach items="${extendedTaxonConcept.parentConcepts}" var="parent">
-                                    <li><a href="<c:url value='/species/${parent.guid}#names'/>">${parent.nameString}</a></li>
+                                    <li><a href="<c:url value='/species/${parent.guid}#classification'/>">${parent.nameString}</a></li>
                                 </c:forEach>
                             </ul>
                             <c:if test="${not empty parent.infoSourceName && not empty parent.infoSourceURL}">
@@ -514,10 +605,10 @@ e                                                </c:when>
                     </c:if>
                     <c:if test="${fn:length(extendedTaxonConcept.childConcepts) > 0}">
                         <h5>Child <c:if test="${fn:length(extendedTaxonConcept.childConcepts) > 1}">Taxa</c:if>
-                            <c:if test="${fn:length(extendedTaxonConcept.childConcepts) < 2}">Taxon</c:if>:</h5>
+                            <c:if test="${fn:length(extendedTaxonConcept.childConcepts) < 2}">Taxon</c:if></h5>
                             <ul>
                                 <c:forEach items="${childConcepts}" var="child">
-                                    <li><a href="<c:url value='/species/${child.guid}#names'/>">
+                                    <li><a href="<c:url value='/species/${child.guid}#classification'/>">
                                     	${child.name}
                                     	<c:if test="${not empty child.commonNameSingle}">
                                     	 (${child.commonNameSingle})
@@ -529,17 +620,29 @@ e                                                </c:when>
                             <c:if test="${not empty child.infoSourceName && not empty child.infoSourceURL}">
                                 <cite>Source: <a href="${child.infoSourceURL}">${child.infoSourceURL}</a></cite>
                             </c:if>
-                    </c:if>
+                    </c:if> --%>
+                </div>
+            </div><!---->
+            <div id="column-two">
+                <div class="section">
+
                 </div>
             </div><!--close -->
-        </div><!--close names-->
+        </div><!--close classification-->
         <div id="records">
             <div id="column-one">
                 <div class="section">
                     <h2>Records</h2>
-                    <p><a href="http://biocache.ala.org.au/occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View all occurrence records for this taxon</a></p>
-                    <p><a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}">View map of all records for this taxon</a></p>
-                    <div id="stateBreakdowns" style="display:none;">
+                    <p><a href="http://biocache.ala.org.au/occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View
+                            list of all occurrence records for this taxon</a></p>
+                    <div class="distroMap" style="display:none;">
+                        <h4>Map of Occurrence Records</h4>
+                        <p>
+                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">
+                                <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a><br/>
+                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">Interactive version of this map</a>
+                        </p>
+                    </div><div id="stateBreakdowns" style="display:none;">
                         <h4>By State/Territory</h4>
                         <ul></ul>
                     </div>
@@ -579,14 +682,6 @@ e                                                </c:when>
                     </ul>
                 </div><!--close tools-->
                 <div class="section">
-                    <div class="distroMap" style="display:none;">
-                        <h3>Mapped records</h3>
-                        <p>
-                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">
-                                <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
-                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">Interactive version of this map</a>
-                        </p>
-                    </div>
                 </div><!--close-->
             </div><!--close -->
         </div><!--close records-->
