@@ -105,20 +105,22 @@ public class GeoRegionController {
 		//frog counts
 		SearchResultsDTO frogs = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Amphibia", null, 0, 24, "scientificNameRaw", "asc");
 		model.addAttribute("frogs", repoUrlUtils.fixRepoUrls(frogs));
-		
-//		//acacia counts
-//		SearchResultsDTO acacia = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "genus", "Acacia", null, 0, 24, "scientificNameRaw", "asc");
-//		model.addAttribute("acacia", repoUrlUtils.fixRepoUrls(acacia));
-//
-//		//acacia counts
-//		SearchResultsDTO eucalypts = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "genus", "Eucalyptus", null, 0, 24, "scientificNameRaw", "asc");
-//		model.addAttribute("eucalypts", repoUrlUtils.fixRepoUrls(eucalypts));
 
+		//anthropods counts
+		SearchResultsDTO arthropods = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "phylum", "Arthropoda", null, 0, 24, "scientificNameRaw", "asc");
+		model.addAttribute("arthropods", repoUrlUtils.fixRepoUrls(arthropods));
+		
+		//molluscs counts
+		SearchResultsDTO molluscs = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "phylum", "Mollusca", null, 0, 24, "scientificNameRaw", "asc");
+		model.addAttribute("molluscs", repoUrlUtils.fixRepoUrls(molluscs));
+		
+		//angiosperms counts
+		SearchResultsDTO angiosperms = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "phylum", "Magnoliophyta", null, 0, 24, "scientificNameRaw", "asc");
+		model.addAttribute("angiosperms", repoUrlUtils.fixRepoUrls(angiosperms));
 		
 		//fish counts
 		List<String> fishTaxa = new ArrayList<String>();
 		fishTaxa.add("Myxini");
-//		fishTaxa.add("Petromyzontida");
 		fishTaxa.add("Chondrichthyes");
 		fishTaxa.add("Sarcopterygii");
 		fishTaxa.add("Actinopterygii");

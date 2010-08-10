@@ -1029,9 +1029,11 @@ li.taxonBreakdown { border: 1px solid gray; padding:10px; margin-bottom: 5px; -m
 #frogsBreakdown { background:url("../images/afdgroups/amphibia.png") no-repeat; padding-left:10px; background-position: 5px 3px;}
 #reptilesBreakdown { background:url("../images/afdgroups/reptilia.png") no-repeat ; padding-left:10px; background-position: 5px 3px;}
 #mammalsBreakdown { background:url("../images/afdgroups/mammalia.png") no-repeat; padding-left:10px; background-position: 5px 3px;}
-#plantsBreakdown { background:url("../images/afdgroups/flower.png") no-repeat; padding-left:10px; background-position: 5px 3px;}
-#fungiBreakdown { background:url("../images/afdgroups/fern.png") no-repeat; padding-left:10px; background-position: 5px 3px;}
-#fernsBreakdown { background:url("../images/afdgroups/fungi.png") no-repeat; padding-left:10px; background-position: 5px 3px;}
+#fernsBreakdownfungiBreakdown { background:url("../images/afdgroups/fern.png") no-repeat; padding-left:10px; background-position: 5px 3px;}
+#fungiBreakdown { background:url("../images/afdgroups/fungi.png") no-repeat; padding-left:10px; background-position: 5px 3px;}
+#arthropodsBreakdown { background:url("../images/afdgroups/arthropoda.png") no-repeat; padding-left:10px; background-position: 5px 3px;}
+#molluscsBreakdown{ background:url("../images/afdgroups/mollusca.png") no-repeat; padding-left:10px; background-position: 5px 3px;}
+#angiospermsBreakdown { background:url("../images/afdgroups/floweringplants.png") no-repeat; padding-left:10px; background-position: 5px 3px;}
 
 #taxaDiffComparison { width:100%;  margin-top: 30px;}
 

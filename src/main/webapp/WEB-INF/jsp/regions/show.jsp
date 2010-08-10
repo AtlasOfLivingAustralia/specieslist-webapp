@@ -8,7 +8,7 @@
   <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-ui-1.8.custom.min.js"></script>
   <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bie-theme/jquery-ui-1.8.custom.css" charset="utf-8">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8"/>
-  <title>Regions - ${geoRegion.regionTypeName} - ${geoRegion.name}</title>
+  <title>Regions | ${geoRegion.regionTypeName} | ${geoRegion.name}</title>
   <script type="text/javascript">
         $(document).ready(function() {
             // JQuery UI buttons
@@ -242,7 +242,7 @@
                     });
                     $('#reptilesList').hide();
                     $('button#reptilesDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=ReptilesList${geoRegion.acronym}&higherTaxon=Mammalia&rank=class";
+                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=ReptilesList${geoRegion.acronym}&higherTaxon=Reptilia&rank=class";
                         window.location.replace(uri);
                     });
                 </script>
@@ -252,6 +252,94 @@
             </c:otherwise>
         </c:choose>
     </li>
+    
+    <!-- ARTHROPODS -->
+    <li id="arthropodsBreakdown" class="taxonBreakdown">
+        <c:choose>
+            <c:when test="${arthropods.totalRecords>0}">
+                <span class="taxonGroupTitle">Arthropods: ${arthropods.totalRecords}</span>
+                <span class="taxonGroupActions">
+                    <button id="arthropodsDL" class="downloadButton">Download</button>
+                    <a href="#arthropods" id="viewArthropodsList">Show/Hide<c:if test="${arthropods.totalRecords>25}"> (limited to 25)</c:if></a>
+                </span>
+                <table id="arthropodsList" class="taxonList">
+                    <alatag:renderTaxaList taxonConcepts="${arthropods.results}"/>
+                </table>
+                <script type="text/javascript">
+                    $('#viewArthropodsList').click(function () {
+                        $('#arthropodsList').toggle("slow");
+                    });
+                    $('#arthropodsList').hide();
+                    $('button#arthropodsDL').click(function (e) {
+                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=arthropodsList${geoRegion.acronym}&higherTaxon=Arthropoda&rank=phylum";
+                        window.location.replace(uri);
+                    });
+                </script>
+            </c:when>
+            <c:otherwise>
+                <span class="taxonGroupTitle">arthropods: ${arthropods.totalRecords}</span>
+            </c:otherwise>
+        </c:choose>
+    </li>
+    
+    <!-- MOLLUSCS-->
+    <li id="molluscsBreakdown" class="taxonBreakdown">
+        <c:choose>
+            <c:when test="${molluscs.totalRecords>0}">
+                <span class="taxonGroupTitle">Molluscs: ${molluscs.totalRecords}</span>
+                <span class="taxonGroupActions">
+                    <button id="molluscsDL" class="downloadButton">Download</button>
+                    <a href="#molluscs" id="viewMolluscsList">Show/Hide<c:if test="${molluscs.totalRecords>25}"> (limited to 25)</c:if></a>
+                </span>
+                <table id="molluscsList" class="taxonList">
+                    <alatag:renderTaxaList taxonConcepts="${molluscs.results}"/>
+                </table>
+                <script type="text/javascript">
+                    $('#viewMolluscsList').click(function () {
+                        $('#molluscsList').toggle("slow");
+                    });
+                    $('#molluscsList').hide();
+                    $('button#molluscsDL').click(function (e) {
+                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=MolluscsList${geoRegion.acronym}&higherTaxon=Mollusca&rank=phylum";
+                        window.location.replace(uri);
+                    });
+                </script>
+            </c:when>
+            <c:otherwise>
+                <span class="taxonGroupTitle">molluscs: ${molluscs.totalRecords}</span>
+            </c:otherwise>
+        </c:choose>
+    </li>
+    
+    <!-- ANGIOSPERMS -->
+    <li id="angiospermsBreakdown" class="taxonBreakdown">
+        <c:choose>
+            <c:when test="${angiosperms.totalRecords>0}">
+                <span class="taxonGroupTitle">Flowering plants: ${angiosperms.totalRecords}</span>
+                <span class="taxonGroupActions">
+                    <button id="angiospermsDL" class="downloadButton">Download</button>
+                    <a href="#angiosperms" id="viewAngiospermsList">Show/Hide<c:if test="${angiosperms.totalRecords>25}"> (limited to 25)</c:if></a>
+                </span>
+                <table id="angiospermsList" class="taxonList">
+                    <alatag:renderTaxaList taxonConcepts="${angiosperms.results}"/>
+                </table>
+                <script type="text/javascript">
+                    $('#viewAngiospermsList').click(function () {
+                        $('#angiospermsList').toggle("slow");
+                    });
+                    $('#angiospermsList').hide();
+                    $('button#angiospermsDL').click(function (e) {
+                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=floweringPlantsList${geoRegion.acronym}&higherTaxon=Magnoliophyta&rank=phylum";
+                        window.location.replace(uri);
+                    });
+                </script>
+            </c:when>
+            <c:otherwise>
+                <span class="taxonGroupTitle">angiosperms: ${angiosperms.totalRecords}</span>
+            </c:otherwise>
+        </c:choose>
+    </li>
+    
   </ul>
 
   <!-- Start of the Comparison Tool -->
@@ -285,6 +373,10 @@
               <label for="mammals">Mammals</label>
               <input type="radio" id="reptiles" name="radio2" onclick="javascript:setSelectedTaxa(this,'reptiles','Reptilia','class');" />
               <label for="reptiles">Reptiles</label>
+              <input type="radio" id="anthropods" name="radio2" onclick="javascript:setSelectedTaxa(this,'anthropods','Arthropoda','phylum');" />
+              <label for="anthropods">Arthropods</label>
+              <input type="radio" id="Molluscs" name="radio2" onclick="javascript:setSelectedTaxa(this,'Molluscs','Mollusca','phylum');" />
+              <label for="Molluscs">Molluscs</label>       
           </div>
       </form><!-- END JQuery UI buttons -->
 
