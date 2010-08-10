@@ -336,7 +336,7 @@
                                             <c:choose>
                                                 <c:when test="${not empty image.isPartOf}">
                                                     ${image.isPartOf}
-e                                                </c:when>
+                                                </c:when>
                                                 <c:when test="${not empty image.identifier}">
                                                     ${image.identifier}
                                                 </c:when>
