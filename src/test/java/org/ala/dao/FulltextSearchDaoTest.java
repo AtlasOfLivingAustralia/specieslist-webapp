@@ -12,6 +12,24 @@ import org.ala.util.SpringUtils;
 
 public class FulltextSearchDaoTest extends TestCase {
 
+	public void testGetChildConceptsWithNS() throws Exception {
+		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");
+		List<SearchTaxonConceptDTO> tcs = searchDao.getChildConceptsByNS(2126057,2126076, 7000);
+		for(SearchTaxonConceptDTO stc: tcs){
+			System.out.println(stc.getName()+", "+stc.getRank()+", left: "+stc.getLeft()+", common name: "+stc.getCommonNameSingle());
+		}
+	}
+	
+	public void testGetChildConceptsWithParentId() throws Exception {
+		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");
+		List<SearchTaxonConceptDTO> tcs = searchDao.getChildConceptsParentId("464487");
+		for(SearchTaxonConceptDTO stc: tcs){
+			System.out.println(stc.getName()+", "+stc.getRank()+", left: "+stc.getLeft()+", common name: "+stc.getCommonNameSingle());
+		}
+	}
+
+	
+	
 	public void testGetClassification() throws Exception {
 		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");
 		
@@ -28,6 +46,15 @@ public class FulltextSearchDaoTest extends TestCase {
 			}
 		}
 	}
+
+	public void testFindWithPartial() throws Exception {
+		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");
+		SearchResultsDTO<SearchDTO> srDTO = searchDao.findByName(IndexedTypes.TAXON, "Tachyglossus ac*", null, 0, 10, "score", "asc");
+		for(SearchDTO tc: srDTO.getResults()){
+			System.out.println(tc.getName());
+		}
+		System.out.println("Number of results: "+srDTO.getResults().size());
+	}	
 	
 	public void testFindTaxa() throws Exception {
 		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");
