@@ -43,6 +43,7 @@ import org.ala.model.AttributableObject;
 import org.ala.model.CommonName;
 import org.ala.model.Document;
 import org.ala.model.SimpleProperty;
+import org.ala.model.TaxonConcept;
 import org.ala.repository.Predicates;
 import org.ala.util.ImageUtils;
 import org.ala.util.MimeType;
@@ -152,6 +153,12 @@ public class SpeciesController {
         	rankedUris.add(sr.getUri());
         	rankingMap.put(sr.getUri(), sr.isPositive());
         }
+
+        //load child concept using search indexes
+        TaxonConcept tc = etc.getTaxonConcept();
+        List<SearchTaxonConceptDTO> childConcepts = searchDao.getChildConceptsParentId(Integer.toString(tc.getId()));
+        model.addAttribute("childConcepts", childConcepts);
+        
         //create a map
         model.addAttribute("rankedImageUris", rankedUris);
         model.addAttribute("rankedImageUriMap", rankingMap);
