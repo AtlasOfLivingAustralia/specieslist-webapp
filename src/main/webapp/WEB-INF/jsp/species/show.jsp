@@ -125,6 +125,7 @@
     <body id="page-36" class="page page-id-36 page-parent page-template page-template-default two-column-right">
         <div id="header" class="taxon">
             <c:set var="spatialPortalUrl">http://test.ala.org.au/explore/species-maps/</c:set>
+            <c:set var="wordPressUrl">http://test.ala.org.au/</c:set>
             <c:set var="sciNameFormatted">
                 <alatag:formatSciName name="${extendedTaxonConcept.taxonConcept.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/>
             </c:set>
@@ -257,7 +258,9 @@
                         </p>
                     </c:forEach>
                     <c:if test="${empty textProperties}">
-                        No content message goes here
+                        <p>Of the millions of species in Australia, the Atlas needs to learn more about this one.
+                        <br/>Can you help?
+                        <a href="${wordPressUrl}/contribute">Share your images, data and links now.</a></p>
                     </c:if>
                 </div>
             </div><!---->
