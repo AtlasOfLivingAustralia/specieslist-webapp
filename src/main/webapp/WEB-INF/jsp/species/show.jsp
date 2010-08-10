@@ -346,8 +346,7 @@
         <div id="gallery">
             <div id="column-one">
                 <div class="section">
-                    <h2>Gallery</h2>
-                    <h3>Images</h3>
+                    <h2>Images</h2>
                     <div id="imageGallery">
                     	<script type="text/javascript">
                     		function rankThisImage(guid, uri, infosourceId, documentId, positive, name){
@@ -477,14 +476,13 @@ e                                                </c:when>
         <div id="names">
             <div id="column-one">
                 <div class="section">
-                    <h2>Names</h2>
-                    <h3>Accepted Name</h3>
+                    <h2>Accepted Name</h2>
                     <p><alatag:formatSciName name="${extendedTaxonConcept.taxonConcept.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/>${extendedTaxonConcept.taxonConcept.author}
                         <cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
                         <c:if test="${not empty extendedTaxonConcept.taxonName.publishedIn}"><cite>Published in: <a href="#">${extendedTaxonConcept.taxonName.publishedIn}</a></cite></c:if>
                     </p>
                     <c:if test="${not empty extendedTaxonConcept.synonyms}">
-                        <h3>Synonyms</h3>
+                        <h2>Synonyms</h2>
                     </c:if>
                     <c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym">
                         <p><alatag:formatSciName name="${synonym.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/> ${synonym.author}
@@ -496,7 +494,7 @@ e                                                </c:when>
                         </p>
                     </c:forEach>
                     <c:if test="${not empty extendedTaxonConcept.commonNames}">
-                        <h3>Common Names</h3>
+                        <h2>Common Names</h2>
                     </c:if>
                     <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
                         <p>${commonName.nameString}
