@@ -256,6 +256,9 @@
                             <cite>source: <a href="${textProperty.identifier}" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></cite>
                         </p>
                     </c:forEach>
+                    <c:if test="${empty textProperties}">
+                        No content message goes here
+                    </c:if>
                 </div>
             </div><!---->
             <div id="column-two">
