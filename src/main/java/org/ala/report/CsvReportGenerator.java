@@ -76,6 +76,7 @@ public class CsvReportGenerator {
 		CsvReportGenerator reportGen = (CsvReportGenerator) context
 				.getBean(CsvReportGenerator.class);
 		reportGen.runReport(args[0], args[1]);
+		System.exit(0);
 	}
 
 	public CsvReportGenerator() {
