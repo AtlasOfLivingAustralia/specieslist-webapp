@@ -160,12 +160,10 @@ public class CsvImageReportGenerator {
 			for(i = 0; i < l.size(); i++){
 				Image image = l.get(i);
 				String link = image.getRepoLocation();
-				String url = "";
 				if(link != null && link.startsWith(prefix)){					
-					url = "http://bie.ala.org.au/repo/" + link.substring(prefix.length());
+					String url = "http://bie.ala.org.au/repo/" + link.substring(prefix.length());
 				
-					HttpClient client = new HttpClient();
-		
+					HttpClient client = new HttpClient();		
 					method = new GetMethod(url);
 					// Execute the method.
 					int statusCode = client.executeMethod(method);
