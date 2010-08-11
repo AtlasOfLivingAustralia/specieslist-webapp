@@ -165,13 +165,7 @@
                     	<c:forEach items="${taxonHierarchy}" var="taxon">
                             <li>
                             	<c:if test="${taxon.guid != extendedTaxonConcept.taxonConcept.guid}">
-                                <a href="<c:url value='/species/${taxon.guid}'/>" title="${taxon.rank}">
-                                </c:if>
-                              	<c:if test="${taxon.rankId>=6000}"><i></c:if>
-                                	${taxon.name}
-                               	<c:if test="${taxon.rankId>=6000}"></i></c:if>
-                            	<c:if test="${taxon.guid != extendedTaxonConcept.taxonConcept.guid}">
-                                </a>
+                                <a href="<c:url value='/species/${taxon.guid}'/>" title="${taxon.rank}"></c:if><c:if test="${taxon.rankId>=6000}"><i></c:if>${taxon.name}<c:if test="${taxon.rankId>=6000}"></i></c:if><c:if test="${taxon.guid != extendedTaxonConcept.taxonConcept.guid}"></a>
                                 </c:if>
                             </li>
                     	</c:forEach>
