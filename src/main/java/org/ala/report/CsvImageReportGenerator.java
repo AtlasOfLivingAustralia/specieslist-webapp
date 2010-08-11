@@ -18,6 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.ala.util.SpringUtils;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -102,10 +104,10 @@ public class CsvImageReportGenerator {
 			for(int i = 0; i < imageCtr; i++){
 				csvWriteLine(writer, scientificName, name + "_" + i + ".jpg");
 			}
+			System.out.println("scientificName: " + scientificName);
 		}
 		writer.close();
-		System.out.println("Total time taken: "
-				+ (System.currentTimeMillis() - start));
+		System.out.println("Total time taken (sec): "	+ ((System.currentTimeMillis() - start)/1000));
 
 	}
 		
@@ -161,32 +163,39 @@ public class CsvImageReportGenerator {
 				String url = "";
 				if(link != null && link.startsWith(prefix)){					
 					url = "http://bie.ala.org.au/repo/" + link.substring(prefix.length());
+				
+					HttpClient client = new HttpClient();
+		
+					method = new GetMethod(url);
+					// Execute the method.
+					int statusCode = client.executeMethod(method);
+		
+					if (statusCode != HttpStatus.SC_OK) {
+						logger.debug("Method failed: " + method.getStatusLine());
+					}
+		
+					// Read the response body.
+					InputStream is = method.getResponseBodyAsStream();
+					byte[] responseBody = IOUtils.toByteArray(is);
+					if(responseBody.length > 0){
+						fos = new FileOutputStream(dir + "/" + fileName + "_" + i + ".jpg");
+						fos.write(responseBody);		
+						fos.close();
+					}
 				}
-				HttpClient client = new HttpClient();
-	
-				method = new GetMethod(url);
-				// Execute the method.
-				int statusCode = client.executeMethod(method);
-	
-				if (statusCode != HttpStatus.SC_OK) {
-					logger.debug("Method failed: " + method.getStatusLine());
-				}
-	
-				// Read the response body.
-				byte[] responseBody = method.getResponseBody();
-				if(responseBody.length > 0){
-					fos = new FileOutputStream(dir + "/" + fileName + "_" + i + ".jpg");
-					fos.write(responseBody);		
-					fos.close();
+				else{
+					logger.debug("ERROR...image not found: " + guid + " getRepoLocation():" + link);
 				}
 			}
 		} 
 		catch (Exception e) {
-			logger.debug("ERROR...Distribution image not found: " + guid);
+			logger.debug("ERROR...image not found: " + guid);
 		} 
 		finally {
 			// Release the connection.
-			method.releaseConnection();
+			if(method != null){
+				method.releaseConnection();
+			}
 		}
 		return i;
 	}

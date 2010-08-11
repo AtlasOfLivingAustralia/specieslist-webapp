@@ -18,6 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -35,6 +36,7 @@ import org.ala.util.SpringUtils;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -121,10 +123,11 @@ public class CsvReportGenerator {
 
 			csvWriteLine(writer, scientificName, commonName, description,
 					status, galleryLink, overviewLink, imageLink);
+			
+			System.out.println("scientificName: " + scientificName);
 		}
 		writer.close();
-		System.out.println("Total time taken: "
-				+ (System.currentTimeMillis() - start));
+		System.out.println("Total time taken (sec): "	+ ((System.currentTimeMillis() - start)/1000));
 
 	}
 		
@@ -162,7 +165,9 @@ public class CsvReportGenerator {
 			}
 
 			// Read the response body.
-			byte[] responseBody = method.getResponseBody();
+			InputStream is = method.getResponseBodyAsStream();
+			byte[] responseBody = IOUtils.toByteArray(is);			
+//			byte[] responseBody = method.getResponseBody();
 			if(responseBody.length > 0){
 				fos = new FileOutputStream(dir + "/" + fileName);
 				fos.write(responseBody);		
@@ -174,7 +179,9 @@ public class CsvReportGenerator {
 		} 
 		finally {
 			// Release the connection.
-			method.releaseConnection();
+			if(method != null){
+				method.releaseConnection();
+			}
 		}
 		return fileName;
 	}
