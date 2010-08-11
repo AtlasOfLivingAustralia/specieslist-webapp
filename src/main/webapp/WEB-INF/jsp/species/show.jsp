@@ -141,13 +141,13 @@
                     <h1 class="family">${sciNameFormatted} <span>${extendedTaxonConcept.taxonConcept.author}</span></h1>
                     <h2>${extendedTaxonConcept.commonNames[0].nameString}</h2>
                 </div>
-                <div class=" col-4">
-                    <h3 id="rank">${extendedTaxonConcept.taxonConcept.rankString} profile</h3>
-                    <%--<cite>source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="_blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>--%>
-                    <cite><a href="#lsidText" id="lsid" class="local" title="Life Science Identifier (pop-up)">LSID</a>
+                <div class="col-4 meta">
+                    <h3>Rank</h3><p style="text-transform: capitalize;">${extendedTaxonConcept.taxonConcept.rankString}</p>
+                    <h3>Name source</h3><p><a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="_blank" class="external">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></p>
+                    <h3>Data links</h3><p><a href="#lsidText" id="lsid" class="local" title="Life Science Identifier (pop-up)">LSID</a>
                         | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" class="local" title="JSON web service">JSON</a>
                         <!-- | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.xml" class="local" title="XML web service">XML</a> -->
-                    </cite>
+                    </p>
                     <div style="display:none; text-align: left;">
                         <div id="lsidText" style="text-align: left;">
                             <b><a href="http://lsids.sourceforge.net/" target="_blank">Life Science Identifier (LSID):</a></b>
@@ -206,22 +206,19 @@
                 </div>
             </div><!---->
             <div id="column-two">
-                <div class="section tools">
-                    <h3 class="contribute">Contribute</h3>
-                    <ul>
-                        <li><a href="">Images</a></li>
-                        <li><a href="">Data</a></li>
-                        <li><a href="">Links</a></li>
-                    </ul>
-                </div><!--close tools-->
                 <div id="images" class="section">
                     <ul>
                         <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
-                            <c:if test="${status.index < 6}">
-                                <li><a href="${status.index}" title=""><img src="${image.repoLocation}" width="150" alt="" /></a></li>
+                            <c:if test="${status.index < 1}">
+                                <li><a href="${status.index}" title=""><img src="${image.repoLocation}" style="max-width: 314px" alt="" /></a></li>
                             </c:if>
                         </c:forEach>
                     </ul>
+                </div>
+                <div class="section buttons sighting no-margin-top">
+                    <div class="last">
+                        <h3><a href="">Contribute <span>Sightings, photos and data for the <strong>Eastern Yellow Robin</strong></span></a></h3>
+                    </div>
                 </div>
                 <div class="section">
                     <div class="distroMap" style="display:none;">
