@@ -99,14 +99,14 @@
                     $('.distroMap').show();
                 });
 
-                // load occurrence breakdowns for states
+                <%--// load occurrence breakdowns for states
                 var biocachUrl = "http://${pageContext.request.serverName}:80/occurrences/searchByTaxon.json?q=${extendedTaxonConcept.taxonConcept.guid}";
                 $.getJSON(biocachUrl, function(data) {
                     if (data.searchResult != null && data.searchResult.totalRecords > 0) {
                         //alert("hi "+data.searchResult.totalRecords);
 
                     }
-                });
+                });--%>
 
             });  // end document ready function
 
