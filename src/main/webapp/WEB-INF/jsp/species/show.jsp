@@ -58,9 +58,9 @@
 
                 // Dena's tabs implementation (with
                 $('#nav-tabs > ul').tabs();
-                $('#nav-tabs > ul').bind("tabsshow", function(event, ui) {
-                    window.location.hash = ui.tab.hash;
-                })
+                //$('#nav-tabs > ul').bind("tabsshow", function(event, ui) {
+                //    window.location.hash = ui.tab.hash;
+                //})
                 // Display full image when thumbnails are clicked
                 function formatTitle(title, currentArray, currentIndex, currentOpts) {
                     return '<div id="tip7-title"><span></span>' +
@@ -138,15 +138,15 @@
             </div>
             <div class="section full-width">
                 <div class="hrgroup col-8">
-                    <h1 class="family">${sciNameFormatted}</h1>
+                    <h1 class="family">${sciNameFormatted} <span>${extendedTaxonConcept.taxonConcept.author}</span></h1>
                     <h2>${extendedTaxonConcept.commonNames[0].nameString}</h2>
                 </div>
                 <div class=" col-4">
                     <h3 id="rank">${extendedTaxonConcept.taxonConcept.rankString} profile</h3>
                     <%--<cite>source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="_blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>--%>
                     <cite><a href="#lsidText" id="lsid" class="local" title="Life Science Identifier (pop-up)">LSID</a>
-                        <%--| <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" class="local" title="JSON web service">JSON</a>
-                        <!-- | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.xml" class="local" title="XML web service">XML</a> -->--%>
+                        | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" class="local" title="JSON web service">JSON</a>
+                        <!-- | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.xml" class="local" title="XML web service">XML</a> -->
                     </cite>
                     <div style="display:none; text-align: left;">
                         <div id="lsidText" style="text-align: left;">
@@ -462,7 +462,7 @@
         <div id="classification">
             <div id="column-one">
                 <div class="section">
-                    <h2>Classification</h2>
+                    <h2>Scientific Classification</h2>
                     <ul>
                     	<c:forEach items="${taxonHierarchy}" var="taxon">
                             <li>${taxon.rank}: 
