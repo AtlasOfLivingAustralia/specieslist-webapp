@@ -8,6 +8,7 @@
         <title>ALA Biodiversity Information Explorer: ${extendedTaxonConcept.taxonConcept.nameString}</title>
         <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/jquery.jcarousel.min.js"></script>
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.1.css" media="screen" />
+        <link type="text/css" media="screen" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/colorbox.css" />
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.1.pack.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.colorbox.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.easing.1.3.js"></script>
@@ -119,7 +120,6 @@
             }
 
         </script>
-        <link type="text/css" media="screen" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/colorbox.css" />
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/css/speciesPage.css" media="screen" />
     </head>
     <body id="page-36" class="page page-id-36 page-parent page-template page-template-default two-column-right">
@@ -208,9 +208,19 @@
             <div id="column-two">
                 <div id="images" class="section">
                     <ul>
+                        <c:choose>
+                            <c:when test="${not empty extendedTaxonConcept.taxonConcept.rankID && extendedTaxonConcept.taxonConcept.rankID < 7000}">
+                                <c:set var="imageLimit" value="6"/>
+                                <c:set var="imageSize" value="150"/>
+                            </c:when>
+                            <c:otherwise>
+                                <c:set var="imageLimit" value="1"/>
+                                <c:set var="imageSize" value="314"/>
+                            </c:otherwise>
+                        </c:choose>
                         <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
-                            <c:if test="${status.index < 1}">
-                                <li><a href="${status.index}" title=""><img src="${image.repoLocation}" style="max-width: 314px" alt="" /></a></li>
+                            <c:if test="${status.index < imageLimit}">
+                                <li><a href="${status.index}" title=""><img src="${image.repoLocation}" style="max-width: ${imageSize}px" alt="" /></a></li>
                             </c:if>
                         </c:forEach>
                     </ul>
@@ -233,11 +243,11 @@
                     <c:forEach var="status" items="${extendedTaxonConcept.conservationStatuses}">
                         <c:if test="${fn:containsIgnoreCase(status.status,'extinct') || fn:containsIgnoreCase(status.status,'endangered') || fn:containsIgnoreCase(status.status,'vulnerable') || fn:containsIgnoreCase(status.status,'threatened') || fn:containsIgnoreCase(status.status,'concern') || fn:containsIgnoreCase(status.status,'deficient')}">
                             <ul class="iucn">
-                                <li <c:if test="${fn:endsWith(status.status,'Extinct')}">class="green"</c:if>><abbr title="Extinct">ex</abbr></li>
-                                <li <c:if test="${fn:containsIgnoreCase(status.status,'wild')}">class="green"</c:if>><abbr title="Extinct in the wild">ew</abbr></li>
-                                <li <c:if test="${fn:containsIgnoreCase(status.status,'Critically')}">class="green"</c:if>><abbr title="Critically endangered">cr</abbr></li>
-                                <li <c:if test="${fn:startsWith(status.status,'Endangered')}">class="green"</c:if>><abbr title="Endangered">en</abbr></li>
-                                <li <c:if test="${fn:containsIgnoreCase(status.status,'Vulnerable')}">class="green"</c:if>><abbr title="Vulnerable">vu</abbr></li>
+                                <li <c:if test="${fn:endsWith(status.status,'Extinct')}">class="red"</c:if>><abbr title="Extinct">ex</abbr></li>
+                                <li <c:if test="${fn:containsIgnoreCase(status.status,'wild')}">class="red"</c:if>><abbr title="Extinct in the wild">ew</abbr></li>
+                                <li <c:if test="${fn:containsIgnoreCase(status.status,'Critically')}">class="yellow"</c:if>><abbr title="Critically endangered">cr</abbr></li>
+                                <li <c:if test="${fn:startsWith(status.status,'Endangered')}">class="yellow"</c:if>><abbr title="Endangered">en</abbr></li>
+                                <li <c:if test="${fn:containsIgnoreCase(status.status,'Vulnerable')}">class="yellow"</c:if>><abbr title="Vulnerable">vu</abbr></li>
                                 <li <c:if test="${fn:containsIgnoreCase(status.status,'Near')}">class="green"</c:if>><abbr title="Near threatened">nt</abbr></li>
                                 <li <c:if test="${fn:containsIgnoreCase(status.status,'concern')}">class="green"</c:if>><abbr title="Least concern">lc</abbr></li>
                             </ul>
