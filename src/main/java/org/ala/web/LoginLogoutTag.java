@@ -22,7 +22,6 @@ import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.log4j.Logger;
-import org.jasig.cas.client.authentication.AttributePrincipalImpl;
 
 /**
  * Simple tag that writes out a login/logout anchor element.
