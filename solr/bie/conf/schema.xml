@@ -506,8 +506,8 @@
    <field name="lga" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <!-- Multimedia -->
    <field name="hasImage" type="boolean" indexed="true" stored="true" multiValued="true" omitNorms="false" />
-   <field name="image" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
-   <field name="thumbnail" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
+   <field name="image" type="string" indexed="false" stored="true" multiValued="false" omitNorms="false" />
+   <field name="thumbnail" type="string" indexed="false" stored="true" multiValued="false" omitNorms="false" />
    
    <!-- Collection / Institution -->
    <field name="url" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
