@@ -29,5 +29,18 @@
     </attribute>			  
   </tag>	
 	
+  <tag>
+    <description>Login Logout Tag</description>
+    <name>loginLogoutLink</name>
+    <tag-class>org.ala.web.LoginLogoutTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+     <description>The anchor element to login or logout</description>
+     <name>returnUrlPath</name>
+     <required>true</required>
+     <rtexprvalue>true</rtexprvalue>
+    </attribute>              
+  </tag>    
+ 
  
 </taglib>
