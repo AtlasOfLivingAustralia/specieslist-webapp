@@ -5,7 +5,7 @@
     <head>
         <meta name="pageName" content="species" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>ALA Biodiversity Information Explorer: ${extendedTaxonConcept.taxonConcept.nameString}</title>
+        <title>ALA Species Profile: ${extendedTaxonConcept.taxonConcept.nameString} <c:if test="${not empty extendedTaxonConcept.commonNames}">(${extendedTaxonConcept.commonNames[0].nameString})</c:if></title>
         <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/jquery.jcarousel.min.js"></script>
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.1.css" media="screen" />
         <link type="text/css" media="screen" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/colorbox.css" />
@@ -551,7 +551,6 @@
                         <h4>By State/Territory</h4>
                         <ul></ul>
                     </div>
-                    
                     <%--
                     <c:forEach var="regionType" items="${extendedTaxonConcept.regionTypes}">
                         <c:if test="${fn:containsIgnoreCase(regionType.regionType, 'state') || fn:containsIgnoreCase(regionType.regionType, 'territory')}">
@@ -638,46 +637,48 @@
                 <div class="section">
                     <h2>References</h2>
                     <div id="literature">
-                        <table class="propertyTable" >
-                            <tr>
-                                <th>Scientific&nbsp;Name</th>
-                                <th>Reference</th>
-                                <th>Volume</th>
-                                <th>Author</th>
-                                <th>Year</th>
-                                <th>Source</th>
-                            </tr>
-                            <c:if test="${not empty extendedTaxonConcept.earliestReference}">
-                                <tr class="earliestReference">
-                                    <td>${extendedTaxonConcept.earliestReference.scientificName}</td>
-                                    <td>${extendedTaxonConcept.earliestReference.title}
-                                        <br/><span class="earliestReferenceLabel">(Earliest reference within BHL)</span>
-                                    </td>
-                                    <td>${extendedTaxonConcept.earliestReference.volume}</td>
-                                    <td>${extendedTaxonConcept.earliestReference.authorship}</td>
-                                    <td>${extendedTaxonConcept.earliestReference.year}</td>
-                                    <td><a href="http://library.ala.org.au/page/${extendedTaxonConcept.earliestReference.pageIdentifiers[0]}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
-                                </tr>
-                            </c:if>
-                            <c:forEach items="${extendedTaxonConcept.references}" var="reference">
+                        <c:if test="${not empty extendedTaxonConcept.earliestReference || not empty extendedTaxonConcept.references}">
+                            <table class="propertyTable" >
                                 <tr>
-                                    <td>${reference.scientificName}</td>
-                                    <td>
-                                        <span class="title">${reference.title}</span>
-                                    </td>
-                                    <td>
-                                        <span class="volume"><c:if test="${not empty reference.volume && reference.volume!='NULL'}">${reference.volume}</c:if></span><br/>
-                                    </td>
-                                    <td>
-                                        <span class="authorship">${reference.authorship}</span>
-                                    </td>
-                                    <td>
-                                        <span class="year">${reference.year}</span>
-                                    </td>
-                                    <td><a href="http://library.ala.org.au/page/${reference.pageIdentifiers[0]}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
+                                    <th>Scientific&nbsp;Name</th>
+                                    <th>Reference</th>
+                                    <th>Volume</th>
+                                    <th>Author</th>
+                                    <th>Year</th>
+                                    <th>Source</th>
                                 </tr>
-                            </c:forEach>
-                        </table>
+                                <c:if test="${not empty extendedTaxonConcept.earliestReference}">
+                                    <tr class="earliestReference">
+                                        <td>${extendedTaxonConcept.earliestReference.scientificName}</td>
+                                        <td>${extendedTaxonConcept.earliestReference.title}
+                                            <br/><span class="earliestReferenceLabel">(Earliest reference within BHL)</span>
+                                        </td>
+                                        <td>${extendedTaxonConcept.earliestReference.volume}</td>
+                                        <td>${extendedTaxonConcept.earliestReference.authorship}</td>
+                                        <td>${extendedTaxonConcept.earliestReference.year}</td>
+                                        <td><a href="http://library.ala.org.au/page/${extendedTaxonConcept.earliestReference.pageIdentifiers[0]}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
+                                    </tr>
+                                </c:if>
+                                <c:forEach items="${extendedTaxonConcept.references}" var="reference">
+                                    <tr>
+                                        <td>${reference.scientificName}</td>
+                                        <td>
+                                            <span class="title">${reference.title}</span>
+                                        </td>
+                                        <td>
+                                            <span class="volume"><c:if test="${not empty reference.volume && reference.volume!='NULL'}">${reference.volume}</c:if></span><br/>
+                                        </td>
+                                        <td>
+                                            <span class="authorship">${reference.authorship}</span>
+                                        </td>
+                                        <td>
+                                            <span class="year">${reference.year}</span>
+                                        </td>
+                                        <td><a href="http://library.ala.org.au/page/${reference.pageIdentifiers[0]}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
+                                    </tr>
+                                </c:forEach>
+                            </table>
+                        </c:if>
                     </div>
                 </div>
             </div><!---->
