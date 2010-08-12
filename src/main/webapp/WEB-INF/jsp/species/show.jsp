@@ -227,7 +227,20 @@
                 </div>
                 <div class="section buttons sighting no-margin-top">
                     <div class="last">
-                        <h3><a href="">Contribute <span>Sightings, photos and data for the <strong>Eastern Yellow Robin</strong></span></a></h3>
+                        <h3><a href="">Contribute <span>Sightings, photos and data for the 
+                        	<strong>
+                        		<c:choose>
+                        		<c:when test="${not empty extendedTaxonConcept.commonNames}">
+                        			${extendedTaxonConcept.commonNames[0].nameString}
+                        		</c:when>
+                        		<c:otherwise>
+                        			${extendedTaxonConcept.taxonConcept.nameString}
+                        		</c:otherwise>
+                        		</c:choose>
+                        	</strong>
+                        	</span>
+                       	 </a>
+                        </h3>
                     </div>
                 </div>
                 <div class="section">
