@@ -57,7 +57,8 @@ import au.com.bytecode.opencsv.CSVWriter;
  * @author "Nick dos Remedios <Nick.dosRemedios@csiro.au>"
  */
 @Component("fulltextSearchDaoImplSolr")
-public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implements TaxonConceptDao {
+public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
+	
     /** log4 j logger */
     private static final Logger logger = Logger.getLogger(FulltextSearchDaoImplSolr.class);
     /** field name for dataset */
@@ -181,8 +182,28 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
             return searchResults;
         }
     }
-
+    
     /**
+     * @see org.ala.dao.FulltextSearchDao#findAllRegionsByType(java.lang.String)
+     */
+    @Override
+	public SearchResultsDTO<SearchRegionDTO> findAllRegionsByType(RegionTypes regionType) throws Exception {
+        try {
+        	StringBuffer queryString = new StringBuffer();
+            queryString.append("idxtype:"+IndexedTypes.REGION);
+            String[] fq = new String[]{"regionTypeId:["+regionType.getLowerId() +" TO "+regionType.getHigherId()+"]"};
+//            String[] fq = new String[]{};
+            logger.info("search query: "+queryString.toString());
+            return doSolrSearch(queryString.toString(), fq, 1000, 0, "name", "asc");
+        } catch (SolrServerException ex) {
+            logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
+    		SearchResultsDTO searchResults = new SearchResultsDTO();
+            searchResults.setStatus("ERROR"); // TODO also set a message field on this bean with the error message(?)
+            return searchResults;
+        }
+	}
+
+	/**
 	 * @see org.ala.dao.FulltextSearchDao#findByName(java.lang.String, int)
 	 */
 	@Override
@@ -334,6 +355,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 //                    results.add(createTaxonConceptFromIndex(qr, doc));
             	}
             }
+        } else {
+        	logger.debug("No results for query.");
         }
         searchResults.setResults(results);
         // populate SOLR facet results
@@ -365,13 +388,12 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
     public SearchResultsDTO findAllSpeciesByRegionAndHigherTaxon(String regionType, String regionName, 
     		String rank, String higherTaxon, 
     		String filterQuery, Integer startIndex, Integer pageSize,
-            String sortField, String sortDirection) throws Exception {
+            String sortField, String sortDirection, boolean withImages) throws Exception {
     	
         List<String> higherTaxa = new ArrayList<String>();
         higherTaxa.add(higherTaxon);
-        StringBuffer queryBuffer = constructQueryForRegion(regionType, regionName, rank, higherTaxa);
-        String[] filterQueries = {filterQuery};
-        
+        StringBuffer queryBuffer = constructQueryForRegion(regionType, regionName, rank, higherTaxa, withImages);
+        String[] filterQueries =  new String[]{ filterQuery };
         try {
             return doSolrSearch(queryBuffer.toString(), filterQueries, pageSize, startIndex, sortField, sortDirection);
         } catch (SolrServerException ex) {
@@ -420,10 +442,23 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
     		String rank, List<String> higherTaxa, 
     		String filterQuery, Integer startIndex, Integer pageSize,
             String sortField, String sortDirection) throws Exception {
+    	return findAllSpeciesByRegionAndHigherTaxon(regionType, regionName, rank, higherTaxa, filterQuery, startIndex,pageSize,sortField,sortDirection, false);
+    }
+    
+    public SearchResultsDTO findAllSpeciesByRegionAndHigherTaxon(String regionType, String regionName, 
+    		String rank, List<String> higherTaxa, 
+    		String filterQuery, Integer startIndex, Integer pageSize,
+            String sortField, String sortDirection, boolean withImages) throws Exception {
     	
         try {
-            StringBuffer queryBuffer = constructQueryForRegion(regionType, regionName, rank, higherTaxa);
-            String[] filterQueries = { filterQuery };
+            StringBuffer queryBuffer = constructQueryForRegion(regionType, regionName, rank, higherTaxa, withImages);
+            String[] filterQueries = null;
+            if(withImages){
+            	filterQueries = new String[]{ filterQuery , "image:[* TO '']"};
+            } else {
+            	filterQueries = new String[]{ filterQuery };
+            }
+            
             return doSolrSearch(queryBuffer.toString(), filterQueries, pageSize, startIndex, sortField, sortDirection);
         } catch (SolrServerException ex) {
             logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
@@ -431,6 +466,19 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
         }
     }
 
+
+	@Override
+	public SearchResultsDTO findAllSpeciesByRegionAndHigherTaxon(
+			String regionType, String regionName, String rank,
+			String higherTaxon, String filterQuery, Integer startIndex,
+			Integer pageSize, String sortField, String sortDirection)
+			throws Exception {
+		return findAllSpeciesByRegionAndHigherTaxon(
+				regionType, regionName, rank,
+				higherTaxon, filterQuery, startIndex,
+				pageSize, sortField, sortDirection, false);
+	}
+    
     /**
      * @see org.ala.dao.FulltextSearchDao#writeSpeciesByRegionAndHigherTaxon(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.io.OutputStream)
      */
@@ -449,7 +497,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 			throws Exception {
         int resultsCount = 0;
         try {
-            StringBuffer queryStringBuffer = constructQueryForRegion(regionType, regionName, rank, higherTaxa);
+            StringBuffer queryStringBuffer = constructQueryForRegion(regionType, regionName, rank, higherTaxa, false);
             SolrQuery solrQuery = new SolrQuery();
             solrQuery.setQueryType("standard");
             solrQuery.setRows(1000000);
@@ -504,7 +552,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 		
 		List<String> taxa = new ArrayList<String>(); 
 		taxa.add(higherTaxon);
-		StringBuffer sb = constructQueryForRegion(regionType, regionName, rank, taxa);
+		StringBuffer sb = constructQueryForRegion(regionType, regionName, rank, taxa, false);
 		return doCountQuery(sb.toString());
 	}
 
@@ -514,7 +562,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 	public int countSpeciesByRegionAndHigherTaxon(String regionType,
 			String regionName, String rank, List<String> higherTaxa)
 			throws Exception {
-		StringBuffer sb = constructQueryForRegion(regionType, regionName, rank, higherTaxa);
+		StringBuffer sb = constructQueryForRegion(regionType, regionName, rank, higherTaxa, false);
 		return doCountQuery(sb.toString());
 	}
 
@@ -527,8 +575,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 	 * @param higherTaxa
 	 * @return
 	 */
-	private StringBuffer constructQueryForRegion(String regionType, String regionName,
-			String rank, List<String> higherTaxa) {
+	private StringBuffer constructQueryForRegion(String regionType, String regionName, String rank, List<String> higherTaxa, boolean hasImages) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("( rank:species OR rank:subspecies ) AND ");
 		sb.append("(");
@@ -540,6 +587,9 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {//implement
 		}
 		sb.append(") AND ");
 		sb.append(regionType + ":\"" + regionName+"\"");
+		if(hasImages){
+			sb.append(" AND hasImage:true");
+		}
 		return sb;
 	}
 	

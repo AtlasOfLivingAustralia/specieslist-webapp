@@ -18,4 +18,9 @@ public class GeoRegionDaoTest extends TestCase {
 		System.out.println(grDTO.getAnimalEmblem().getNameString());
 		System.out.println(grDTO.getPlantEmblem().getNameString());
 	}
+	
+	public void testRegionTypes(){
+		
+		System.out.println(RegionTypes.getRegionType(10));
+	}
 }

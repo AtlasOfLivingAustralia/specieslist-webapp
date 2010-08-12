@@ -6,12 +6,21 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.ala.dto.SearchDTO;
+import org.ala.dto.SearchRegionDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.util.SpringUtils;
 
 public class FulltextSearchDaoTest extends TestCase {
 
+	public void testGetRegions() throws Exception {
+		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");
+		SearchResultsDTO<SearchRegionDTO> rs = (SearchResultsDTO<SearchRegionDTO>) searchDao.findAllRegionsByType(RegionTypes.STATE);
+		for(SearchRegionDTO r: rs.getResults()){
+			System.out.println(r.getName());
+		}
+	}
+	
 	public void testGetChildConceptsWithNS() throws Exception {
 		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");
 		List<SearchTaxonConceptDTO> tcs = searchDao.getChildConceptsByNS(2126057,2126076, 7000);
@@ -27,8 +36,6 @@ public class FulltextSearchDaoTest extends TestCase {
 			System.out.println(stc.getName()+", "+stc.getRank()+", left: "+stc.getLeft()+", common name: "+stc.getCommonNameSingle());
 		}
 	}
-
-	
 	
 	public void testGetClassification() throws Exception {
 		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");

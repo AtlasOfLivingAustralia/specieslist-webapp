@@ -126,6 +126,7 @@ public class GeoRegionDaoImpl implements GeoRegionDao {
     		doc.addField("id", geoRegion.getGuid());
     		doc.addField("guid", geoRegion.getGuid());
     		doc.addField("name", geoRegion.getName());
+    		doc.addField("regionTypeId", geoRegion.getRegionType());
     		doc.addField("regionType", geoRegion.getRegionTypeName());
     		doc.addField("acronym", geoRegion.getAcronym());
             solrServer.add(doc);

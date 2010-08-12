@@ -1394,23 +1394,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                         }
 	    			}
 	    		}
-	    		
+
+	    		//add the regions this species has occurred in
 	    		List<OccurrencesInGeoregion> regions = getRegions(guid);
 	    		for(OccurrencesInGeoregion region : regions){
-	    			
-	    			//FIXME do this nicer using define region types etc....
 	    			if(region.getRegionTypeId()!=null){
-		    			if(region.getRegionTypeId() < 3){
-		    				doc.addField("state", region.getName());
-		    			}
-		    			if(region.getRegionTypeId() >= 3 && region.getRegionTypeId() < 12){
-		    				doc.addField("ibra", region.getName());
-		    			}
-		    			if(region.getRegionTypeId() == 2000){
-		    				doc.addField("imcra", region.getName());
-		    			}
-		    			if(region.getRegionTypeId() >= 3000 && region.getRegionTypeId() < 4000){
-		    				doc.addField("lga", region.getName());
+	    				RegionTypes rt = RegionTypes.getRegionType(region.getRegionTypeId());
+		    			if(rt!=null){
+		    				doc.addField(rt.toString(), region.getName());
 		    			}
 	    			}
 	    		}
@@ -1424,9 +1415,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    			addIfNotNull(doc, "family", classification.getFamily());
 	    			addIfNotNull(doc, "genus", classification.getGenus());
 	    		}
-	    		
 	    		List<Image> images = getImages(guid);
-	    		if(!images.isEmpty()){
+	    		boolean hasImages = !images.isEmpty();
+	    		
+	    		if(hasImages){
 	    			//FIXME should be replaced by the highest ranked image
 	    			Image image  = images.get(0);
 	    			doc.addField("image", image.getRepoLocation());
@@ -1434,6 +1426,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    			String thumbnail = image.getRepoLocation().replace("raw", "thumbnail");
 	    			doc.addField("thumbnail", thumbnail);
 	    		}
+	    		doc.addField("hasImage", hasImages);
 	    		
                 addRankToIndex(doc, taxonConcept.getRankString());
 	    		

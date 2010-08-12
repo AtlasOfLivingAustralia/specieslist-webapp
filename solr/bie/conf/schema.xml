@@ -505,6 +505,7 @@
    <field name="imcra" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="lga" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <!-- Multimedia -->
+   <field name="hasImage" type="boolean" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="image" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="thumbnail" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    
@@ -518,6 +519,7 @@
    
    <!-- Georegion fields-->
    <field name="regionType" type="text" indexed="true" stored="true" multiValued="false" omitNorms="false" />
+   <field name="regionTypeId" type="int" indexed="true" stored="true" multiValued="false" omitNorms="false" />   
    
    <!-- end of BIE Lucene Fields -->
 

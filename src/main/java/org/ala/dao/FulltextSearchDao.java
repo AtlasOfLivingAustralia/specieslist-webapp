@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ala.dto.SearchDTO;
+import org.ala.dto.SearchRegionDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.util.StatusType;
@@ -83,6 +84,18 @@ public interface FulltextSearchDao {
     		String filterQuery, Integer startIndex, Integer pageSize,
             String sortField, String sortDirection) throws Exception;
     
+    SearchResultsDTO findAllSpeciesByRegionAndHigherTaxon(String regionType, 
+    		String regionName, String rank, String higherTaxon,
+    		String filterQuery, Integer startIndex, Integer pageSize,
+            String sortField, String sortDirection, boolean withImages) throws Exception;
+    
+    SearchResultsDTO findAllSpeciesByRegionAndHigherTaxon(String regionType, String regionName, 
+    		String rank, List<String> higherTaxa, 
+    		String filterQuery, Integer startIndex, Integer pageSize,
+            String sortField, String sortDirection, boolean withImages) throws Exception;
+      
+
+    SearchResultsDTO<SearchRegionDTO> findAllRegionsByType(RegionTypes regionType) throws Exception;
     
     /**
      * Retrieves a list of species that have been recorded in one region
