@@ -24,14 +24,19 @@
             <a href="http://test.ala.org.au">Home</a>
             <a href="http://test.ala.org.au/explore">Explore</a>
             <a href="${pageContext.request.contextPath}/regions/">Regions</a>
+            <span><spring:message code="regiontype.${regionType.name}"/></span>
             <span class="current">${geoRegion.name}</span>
         </div>
         <h1>${geoRegion.name}</h1>
     </div><!--close header-->
     <div id="column-two">
+    
+   	<c:if test="${regionType.name == 'state'}">
         <div class="section">
             <img src="${pageContext.request.contextPath}/static/images/map_${geoRegion.name}.png" alt="map of ${geoRegion.name}" id="regionMap"/>
         </div><!--close section-->
+    </c:if>
+    
     </div><!--close column-one-->
     <div id="column-one">
             <table id="emblems">
@@ -126,7 +131,7 @@
                     });
                     $('#birdsList').hide();
                     $('button#birdsDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=BirdsList${geoRegion.acronym}&higherTaxon=Amphibia&rank=class";
+                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=BirdsList${geoRegion.acronym}&higherTaxon=Amphibia&rank=class";
                         window.location.replace(uri);
                     });
                 </script>
@@ -155,7 +160,7 @@
                     });
                     $('#fishList').hide();
                     $('button#fishDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=FishList${geoRegion.acronym}&higherTaxon=Myxini,Petromyzontida,Chondrichthyes,Sarcopterygii,Actinopterygii&rank=class";
+                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=FishList${geoRegion.acronym}&higherTaxon=Myxini,Petromyzontida,Chondrichthyes,Sarcopterygii,Actinopterygii&rank=class";
                         window.location.replace(uri);
                     });
                 </script>
@@ -184,7 +189,7 @@
                     });
                     $('#frogsList').hide();
                     $('button#frogsDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=FrogsList${geoRegion.acronym}&higherTaxon=Amphibia&rank=class";
+                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=FrogsList${geoRegion.acronym}&higherTaxon=Amphibia&rank=class";
                         window.location.replace(uri);
                     });
                 </script>
@@ -213,7 +218,7 @@
                     });
                     $('#mammalsList').hide();
                     $('button#mammalsDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=MammalsList${geoRegion.acronym}&higherTaxon=Mammalia&rank=class";
+                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=MammalsList${geoRegion.acronym}&higherTaxon=Mammalia&rank=class";
                         window.location.replace(uri);
                     });
                 </script>
@@ -242,7 +247,7 @@
                     });
                     $('#reptilesList').hide();
                     $('button#reptilesDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=ReptilesList${geoRegion.acronym}&higherTaxon=Reptilia&rank=class";
+                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=ReptilesList${geoRegion.acronym}&higherTaxon=Reptilia&rank=class";
                         window.location.replace(uri);
                     });
                 </script>
@@ -271,13 +276,13 @@
                     });
                     $('#arthropodsList').hide();
                     $('button#arthropodsDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=arthropodsList${geoRegion.acronym}&higherTaxon=Arthropoda&rank=phylum";
+                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=arthropodsList${geoRegion.acronym}&higherTaxon=Arthropoda&rank=phylum";
                         window.location.replace(uri);
                     });
                 </script>
             </c:when>
             <c:otherwise>
-                <span class="taxonGroupTitle">arthropods: ${arthropods.totalRecords}</span>
+                <span class="taxonGroupTitle">Arthropods: ${arthropods.totalRecords}</span>
             </c:otherwise>
         </c:choose>
     </li>
@@ -300,13 +305,13 @@
                     });
                     $('#molluscsList').hide();
                     $('button#molluscsDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=MolluscsList${geoRegion.acronym}&higherTaxon=Mollusca&rank=phylum";
+                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=MolluscsList${geoRegion.acronym}&higherTaxon=Mollusca&rank=phylum";
                         window.location.replace(uri);
                     });
                 </script>
             </c:when>
             <c:otherwise>
-                <span class="taxonGroupTitle">molluscs: ${molluscs.totalRecords}</span>
+                <span class="taxonGroupTitle">Molluscs: ${molluscs.totalRecords}</span>
             </c:otherwise>
         </c:choose>
     </li>
@@ -329,13 +334,13 @@
                     });
                     $('#angiospermsList').hide();
                     $('button#angiospermsDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/state/${geoRegion.name}/download?title=floweringPlantsList${geoRegion.acronym}&higherTaxon=Magnoliophyta&rank=phylum";
+                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=floweringPlantsList${geoRegion.acronym}&higherTaxon=Magnoliophyta&rank=phylum";
                         window.location.replace(uri);
                     });
                 </script>
             </c:when>
             <c:otherwise>
-                <span class="taxonGroupTitle">angiosperms: ${angiosperms.totalRecords}</span>
+                <span class="taxonGroupTitle">Flowering plants: ${angiosperms.totalRecords}</span>
             </c:otherwise>
         </c:choose>
     </li>
@@ -347,20 +352,13 @@
   <div id="comparisonTable">
       <form><!-- JQuery UI buttons -->
           <div id="compareRegions" class="regionSelect">
-              <input type="radio" id="Australian Capital Territory" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Australian Capital Territory');" />
-              <label for="Australian Capital Territory">ACT</label>
-              <input type="radio" id="New South Wales" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','New South Wales');" />
-              <label for="New South Wales">NSW</label>
-              <input type="radio" id="Northern Territory" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Northern Territory');" />
-              <label for="Northern Territory">NT</label>
-              <input type="radio" id="Queensland" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Queensland');" />
-              <label for="Queensland">QLD</label>
-              <input type="radio" id="South Australia" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','South Australia');" />
-              <label for="South Australia">SA</label>
-              <input type="radio" id="Tasmania" name="radio" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Tasmania');" />
-              <label for="Tasmania">TAS</label>
-              <input type="radio" id="Victoria" name="radio" checked="checked" onclick="javascript:loadTaxaDiff(this,'state','${geoRegion.name}','state','Victoria');"/>
-              <label for="Victoria">VIC</label>
+          	<select id="regionSelectInput" onchange="javascript:loadTaxaDiffForRegion('${geoRegion.name}', this,'${regionType.name}');" >
+          		<c:forEach items="${otherRegions}" var="otherRegion">
+          		<c:if test="${otherRegion.name!=geoRegion.name}">
+          			<option value="${otherRegion.name}">${otherRegion.name}</option>
+          		</c:if>
+          		</c:forEach>
+          	</select>
           </div>
           <div id="selectedGroup" class="groupSelect">
               <input type="radio" id="birds" name="radio2" onclick="javascript:setSelectedTaxa(this,'birds','Aves','class');" />
@@ -394,7 +392,7 @@
          </tr>
       </table>
       
-      <script type="text/javascript">
+      <script type="text/javascript"><!--
       // currently selected grouping
       var selectedTaxaSimple = null;
       var selectedTaxa = null;
@@ -419,14 +417,11 @@
         selectedTaxa = 'Mammalia';
         selectedTaxonRank = 'class';
 
-        geoRegion = '${geoRegion.name}';
-        geoRegionType = 'state'; //FIXME hardcoded state for now
-        compareRegion = '${geoRegion.name != "Victoria" ? "Victoria" : "Tasmania"}';
-        compareRegionType = 'state';
+        geoRegion = '${geoRegion.name}'; 
+        compareRegion = '${otherRegions[0].name != geoRegion.name ? otherRegions[0].name : otherRegions[1].name}';
+        geoRegionType = '${regionType.name}';
 
-        //default to Victoria for now
-        currentNode = document.getElementById(compareRegion);
-        loadTaxaDiff(currentNode, geoRegionType, geoRegion, compareRegionType, compareRegion);
+        loadTaxaDiff(geoRegion, compareRegion, geoRegionType);
       }
 
       /**
@@ -438,24 +433,30 @@
         selectedTaxaSimple = commonName;
         selectedTaxa = taxa;
         selectedTaxonRank = taxonRank;
+        
         //reload the taxon comparator
-        loadTaxaDiff(currentNode, geoRegionType, geoRegion, compareRegionType, compareRegion);
+        loadTaxaDiff(geoRegion, compareRegion, geoRegionType);
       }
 
       /**
        * Loads the taxo that are different between states.
        */
-      function loadTaxaDiff(currentNode, regionType, regionName, altRegionType, altRegionName){
-        //$('#compareRegions').children().removeClass("selectedCompareGroup");
-        //currentNode.parentNode.className = 'selectedCompareGroup';
-        compareRegion = altRegionName;
+      function loadTaxaDiffForRegion(regionName, selectInput, regionType){
+    	  compareRegion = selectInput.value;
+    	  loadTaxaDiff(regionName, compareRegion, regionType);
+      }
+      
+      /**
+       * Loads the taxo that are different between states.
+       */
+      function loadTaxaDiff(regionName, altRegionName, regionType){
 
         if(initialised){
             $('#taxaDiff').hide('slow');
             $('#taxaDiff').empty();
         }
 
-        var searchUrl = '${pageContext.request.contextPath}/regions/taxaDiff.json?regionType='+regionType+'&regionName='+regionName+'&altRegionType='+altRegionType+'&altRegionName='+altRegionName+'&higherTaxon='+selectedTaxa+'&rank='+selectedTaxonRank;
+        var searchUrl = '${pageContext.request.contextPath}/regions/taxaDiff.json?regionType='+regionType+'&regionName='+regionName+'&altRegionType='+regionType+'&altRegionName='+altRegionName+'&higherTaxon='+selectedTaxa+'&rank='+selectedTaxonRank;
         $.getJSON(searchUrl, function(data) {
           //alert("totalRecords = "+data.searchResults.totalRecords+" | results.length = "+data.searchResults.results.length);
           for(var i=0; i<data.searchResults.results.length; i++){
@@ -472,7 +473,7 @@
             $('#taxaDiff2').empty();
         }
 
-        var searchUrl = '${pageContext.request.contextPath}/regions/taxaDiff.json?regionType='+altRegionType+'&regionName='+altRegionName+'&altRegionType='+regionType+'&altRegionName='+regionName+'&higherTaxon='+selectedTaxa+'&rank='+selectedTaxonRank;
+        var searchUrl = '${pageContext.request.contextPath}/regions/taxaDiff.json?regionType='+regionType+'&regionName='+altRegionName+'&altRegionType='+regionType+'&altRegionName='+regionName+'&higherTaxon='+selectedTaxa+'&rank='+selectedTaxonRank;
         $.getJSON(searchUrl, function(data) {
             for(var i=0; i<data.searchResults.results.length; i++){
               var tc = data.searchResults.results[i];
@@ -485,7 +486,7 @@
             initialised = true;
         });
       }
-      </script>
+      --></script>
   </div>
 </div>
 </div>

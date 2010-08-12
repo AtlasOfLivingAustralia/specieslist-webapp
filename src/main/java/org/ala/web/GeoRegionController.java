@@ -24,7 +24,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.GeoRegionDao;
+import org.ala.dao.RegionTypes;
 import org.ala.dto.ExtendedGeoRegionDTO;
+import org.ala.dto.SearchRegionDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.apache.log4j.Logger;
@@ -65,7 +67,15 @@ public class GeoRegionController {
 	 * @return
 	 */
 	@RequestMapping("/regions/")
-	public String homePageHandler() {
+	public String homePageHandler(Model model) throws Exception {
+		SearchResultsDTO<SearchRegionDTO> states = searchDao.findAllRegionsByType(RegionTypes.STATE);
+		SearchResultsDTO<SearchRegionDTO> lga = searchDao.findAllRegionsByType(RegionTypes.LGA);
+		SearchResultsDTO<SearchRegionDTO> ibra = searchDao.findAllRegionsByType(RegionTypes.IBRA);
+		SearchResultsDTO<SearchRegionDTO> imcra = searchDao.findAllRegionsByType(RegionTypes.IMCRA);
+		model.addAttribute("states", states.getResults());
+		model.addAttribute("lga", lga.getResults());
+		model.addAttribute("ibra", ibra.getResults());
+		model.addAttribute("imcra", imcra.getResults());
 		return HOME_PAGE;
 	}
 	
@@ -90,33 +100,55 @@ public class GeoRegionController {
 		model.addAttribute("geoRegion", geoRegion.getGeoRegion());
 		model.addAttribute("extendedGeoRegion", geoRegion);
 		
+		Integer regionTypeId = Integer.parseInt(geoRegion.getGeoRegion().getRegionType());
+		RegionTypes rt = RegionTypes.getRegionType(regionTypeId);
+		model.addAttribute("regionType", rt);
+		
+		//retrieve the other regions to compare to
+		SearchResultsDTO<SearchRegionDTO> otherRegions = searchDao.findAllRegionsByType(rt);
+		model.addAttribute("otherRegions", otherRegions.getResults());
+		
 		//birds counts
-		SearchResultsDTO birds = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Aves", null, 0, 24, "scientificNameRaw", "asc");
+		SearchResultsDTO birds = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Aves", null, 0, 24, "scientificNameRaw", "asc", true);
+		int birdsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Aves");
 		model.addAttribute("birds", repoUrlUtils.fixRepoUrls(birds));
+		model.addAttribute("birdsCount", birdsCount);
 		
 		//mammal counts
-		SearchResultsDTO mammals = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Mammalia", null, 0, 24, "scientificNameRaw", "asc");
+		SearchResultsDTO mammals = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Mammalia", null, 0, 24, "scientificNameRaw", "asc", true);
+		int mammalsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Mammalia");
 		model.addAttribute("mammals", repoUrlUtils.fixRepoUrls(mammals));
+		model.addAttribute("mammalsCount", mammalsCount);
 
 		//reptile counts
-		SearchResultsDTO reptiles = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Reptilia", null, 0, 24, "scientificNameRaw", "asc");
+		SearchResultsDTO reptiles = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Reptilia", null, 0, 24, "scientificNameRaw", "asc", true);
+		int reptilesCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Reptilia");
 		model.addAttribute("reptiles", repoUrlUtils.fixRepoUrls(reptiles));
-
+		model.addAttribute("reptilesCount", reptilesCount);
+		
 		//frog counts
-		SearchResultsDTO frogs = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", "Amphibia", null, 0, 24, "scientificNameRaw", "asc");
+		SearchResultsDTO frogs = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Amphibia", null, 0, 24, "scientificNameRaw", "asc", true);
+		int frogsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Amphibia");
 		model.addAttribute("frogs", repoUrlUtils.fixRepoUrls(frogs));
+		model.addAttribute("frogsCount", frogsCount);
 
 		//anthropods counts
-		SearchResultsDTO arthropods = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "phylum", "Arthropoda", null, 0, 24, "scientificNameRaw", "asc");
+		SearchResultsDTO arthropods = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "phylum", "Arthropoda", null, 0, 24, "scientificNameRaw", "asc", true);
+		int arthropodsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Amphibia");
 		model.addAttribute("arthropods", repoUrlUtils.fixRepoUrls(arthropods));
+		model.addAttribute("arthropodsCount", arthropodsCount);
 		
 		//molluscs counts
-		SearchResultsDTO molluscs = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "phylum", "Mollusca", null, 0, 24, "scientificNameRaw", "asc");
+		SearchResultsDTO molluscs = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "phylum", "Mollusca", null, 0, 24, "scientificNameRaw", "asc", true);
+		int molluscsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "phylum", "Mollusca");
 		model.addAttribute("molluscs", repoUrlUtils.fixRepoUrls(molluscs));
+		model.addAttribute("molluscsCount", molluscsCount);
 		
 		//angiosperms counts
-		SearchResultsDTO angiosperms = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "phylum", "Magnoliophyta", null, 0, 24, "scientificNameRaw", "asc");
+		SearchResultsDTO angiosperms = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "phylum", "Magnoliophyta", null, 0, 24, "scientificNameRaw", "asc", true);
+		int angiospermsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "phylum", "Magnoliophyta");
 		model.addAttribute("angiosperms", repoUrlUtils.fixRepoUrls(angiosperms));
+		model.addAttribute("angiospermsCount", angiospermsCount);
 		
 		//fish counts
 		List<String> fishTaxa = new ArrayList<String>();
@@ -125,7 +157,9 @@ public class GeoRegionController {
 		fishTaxa.add("Sarcopterygii");
 		fishTaxa.add("Actinopterygii");
 		SearchResultsDTO fish = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", fishTaxa, null, 0, 24, "scientificNameRaw", "asc");
+		int fishCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", fishTaxa);
 		model.addAttribute("fish", repoUrlUtils.fixRepoUrls(fish));
+		model.addAttribute("fishCount", fishCount);
 
 		return GEOREGION_SHOW;
 	}

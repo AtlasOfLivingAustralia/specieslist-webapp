@@ -26,15 +26,42 @@
             <h1>States & Territories</h1>
             <br/>
             <ul>
-                <li><a href="${pageContext.request.contextPath}/regions/aus_states/Australian Capital Territory">Australian Capital Territory</a></li>
-                <li><a href="${pageContext.request.contextPath}/regions/aus_states/New South Wales">New South Wales</a></li>
-                <li><a href="${pageContext.request.contextPath}/regions/aus_states/Northern Territory">Northern Territory</a></li>
-                <li><a href="${pageContext.request.contextPath}/regions/aus_states/Queensland">Queensland</a></li>
-                <li><a href="${pageContext.request.contextPath}/regions/aus_states/South Australia">South Australia</a></li>
-                <li><a href="${pageContext.request.contextPath}/regions/aus_states/Tasmania">Tasmania</a></li>
-                <li><a href="${pageContext.request.contextPath}/regions/aus_states/Western Australia">Western Australia</a></li>                
-                <li><a href="${pageContext.request.contextPath}/regions/aus_states/Victoria">Victoria</a></li>
+           	<c:forEach items="${states}" var="region">
+                <li><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></li>           	
+           	</c:forEach>
             </ul>
+            
+            <h1>Other regionalisations of Australia</h1>
+            
+            <table style="width:900px;">
+            <tr>
+            <td  style="width:300px;">
+            <h2>Local Government Areas</h2>
+            <ul>
+           	<c:forEach items="${lga}" var="region">
+                <li><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></li>           	
+           	</c:forEach>
+            </ul>
+            </td>
+            <td  style="width:300px;">
+            <h2>IBRA</h2>
+            <ul>
+           	<c:forEach items="${ibra}" var="region">
+                <li><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></li>           	
+           	</c:forEach>
+            </ul>
+            </td>
+            <td  style="width:300px;">
+            <h2>IMCRA</h2>
+            <ul>
+           	<c:forEach items="${imcra}" var="region">
+                <li><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></li>           	
+           	</c:forEach>
+            </ul>
+            </td>
+            </tr>
+            </table>
+            
         </div>
     </div>
 </body>
