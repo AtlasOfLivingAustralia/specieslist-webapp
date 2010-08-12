@@ -110,7 +110,7 @@ include file="/common/taglibs.jsp" %>
                                 <li><a href="http://test.ala.org.au/about/media-centre/" ><span>Media Centre</span></a></li>
                                 <li><a href="http://test.ala.org.au/about/newsevents/" ><span>News & Events</span></a></li>
                                 <li><a href="http://test.ala.org.au/about/resources/" ><span>Resources</span></a></li></ul></li>
-                        <li class="nav-login nav-right"><a href="https://auth.ala.org.au/cas/login"><span>Log in</span></li>
+                        <li class="nav-login nav-right"><a href="https://auth.ala.org.au/cas/login"><span>Log in</span></a></li>
                     </ul>
                     <!-- WP Menubar 4.7: end menu nav-site, template Superfish, CSS  -->
                 </div><!--close nav-->
