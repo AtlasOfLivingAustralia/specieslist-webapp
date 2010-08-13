@@ -1186,6 +1186,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
         logger.info("Clearing existing taxon entries in the search index...");
         solrServer.deleteByQuery("idxtype:"+IndexedTypes.TAXON); // delete everything!
+        solrServer.commit();
         
         logger.info("Cleared existing taxon entries in the search index.");
         List<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
@@ -1199,7 +1200,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		while ((guidAsBytes = scanner.getNextGuid())!=null) {
 //    	while(i==0){	
 			String guid = new String(guidAsBytes);
-			
 //			String guid = "urn:lsid:biodiversity.org.au:afd.taxon:7bcdf6aa-4eb0-4184-bbd1-ca2b518b749f";
 			i++;
 			
@@ -1438,8 +1438,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         }
         return docsToAdd;
 	}
-	
-	
 	
 	/**
 	 * Add field if the value is not null
