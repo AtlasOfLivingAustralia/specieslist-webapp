@@ -112,43 +112,43 @@ public class GeoRegionController {
 		SearchResultsDTO birds = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Aves", null, 0, 24, "scientificNameRaw", "asc", true);
 		int birdsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Aves");
 		model.addAttribute("birds", repoUrlUtils.fixRepoUrls(birds));
-		model.addAttribute("birdsCount", birdsCount);
+		model.addAttribute("birdCount", birdsCount);
 		
 		//mammal counts
 		SearchResultsDTO mammals = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Mammalia", null, 0, 24, "scientificNameRaw", "asc", true);
 		int mammalsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Mammalia");
 		model.addAttribute("mammals", repoUrlUtils.fixRepoUrls(mammals));
-		model.addAttribute("mammalsCount", mammalsCount);
+		model.addAttribute("mammalCount", mammalsCount);
 
 		//reptile counts
 		SearchResultsDTO reptiles = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Reptilia", null, 0, 24, "scientificNameRaw", "asc", true);
 		int reptilesCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Reptilia");
 		model.addAttribute("reptiles", repoUrlUtils.fixRepoUrls(reptiles));
-		model.addAttribute("reptilesCount", reptilesCount);
+		model.addAttribute("reptileCount", reptilesCount);
 		
 		//frog counts
 		SearchResultsDTO frogs = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Amphibia", null, 0, 24, "scientificNameRaw", "asc", true);
 		int frogsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Amphibia");
 		model.addAttribute("frogs", repoUrlUtils.fixRepoUrls(frogs));
-		model.addAttribute("frogsCount", frogsCount);
+		model.addAttribute("frogCount", frogsCount);
 
 		//anthropods counts
 		SearchResultsDTO arthropods = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "phylum", "Arthropoda", null, 0, 24, "scientificNameRaw", "asc", true);
 		int arthropodsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Amphibia");
 		model.addAttribute("arthropods", repoUrlUtils.fixRepoUrls(arthropods));
-		model.addAttribute("arthropodsCount", arthropodsCount);
+		model.addAttribute("arthropodCount", arthropodsCount);
 		
 		//molluscs counts
 		SearchResultsDTO molluscs = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "phylum", "Mollusca", null, 0, 24, "scientificNameRaw", "asc", true);
 		int molluscsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "phylum", "Mollusca");
 		model.addAttribute("molluscs", repoUrlUtils.fixRepoUrls(molluscs));
-		model.addAttribute("molluscsCount", molluscsCount);
+		model.addAttribute("molluscCount", molluscsCount);
 		
 		//angiosperms counts
 		SearchResultsDTO angiosperms = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "phylum", "Magnoliophyta", null, 0, 24, "scientificNameRaw", "asc", true);
 		int angiospermsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "phylum", "Magnoliophyta");
 		model.addAttribute("angiosperms", repoUrlUtils.fixRepoUrls(angiosperms));
-		model.addAttribute("angiospermsCount", angiospermsCount);
+		model.addAttribute("angiospermCount", angiospermsCount);
 		
 		//fish counts
 		List<String> fishTaxa = new ArrayList<String>();
@@ -156,7 +156,7 @@ public class GeoRegionController {
 		fishTaxa.add("Chondrichthyes");
 		fishTaxa.add("Sarcopterygii");
 		fishTaxa.add("Actinopterygii");
-		SearchResultsDTO fish = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", fishTaxa, null, 0, 24, "scientificNameRaw", "asc");
+		SearchResultsDTO fish = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", fishTaxa, null, 0, 24, "scientificNameRaw", "asc", true);
 		int fishCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", fishTaxa);
 		model.addAttribute("fish", repoUrlUtils.fixRepoUrls(fish));
 		model.addAttribute("fishCount", fishCount);

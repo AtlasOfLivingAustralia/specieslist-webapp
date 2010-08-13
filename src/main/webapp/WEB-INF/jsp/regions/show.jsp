@@ -24,7 +24,7 @@
             <a href="http://test.ala.org.au">Home</a>
             <a href="http://test.ala.org.au/explore">Explore</a>
             <a href="${pageContext.request.contextPath}/regions/">Regions</a>
-            <span><spring:message code="regiontype.${regionType.name}"/></span>
+            <span><fmt:message>regiontype.${regionType.name}</fmt:message></span>
             <span class="current">${geoRegion.name}</span>
         </div>
         <h1>${geoRegion.name}</h1>
@@ -117,7 +117,7 @@
     <li id="birdsBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${birds.totalRecords>0}">
-                <span class="taxonGroupTitle">Birds: ${birds.totalRecords}</span>
+                <span class="taxonGroupTitle">Birds: ${birdCount} (Number with images: ${birds.totalRecords})</span>
                 <span class="taxonGroupActions">
                     <button id="birdsDL" class="downloadButton">Download</button>
                     <a href="#Birds" id="viewBirdsList">Show/Hide<c:if test="${birds.totalRecords>25}"> (limited to 25)</c:if></a>
@@ -146,7 +146,7 @@
     <li id="fishBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${fish.totalRecords>0}">
-                <span class="taxonGroupTitle">Fish: ${fish.totalRecords}</span>
+                <span class="taxonGroupTitle">Fish: ${fishCount} (Number with images:${fish.totalRecords})</span>
                 <span class="taxonGroupActions">
                     <button id="fishDL" class="downloadButton">Download</button>
                     <a href="#Fish" id="viewFishList">Show/Hide<c:if test="${fish.totalRecords>25}"> (limited to 25)</c:if></a>
@@ -175,7 +175,7 @@
     <li id="frogsBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${frogs.totalRecords>0}">
-                <span class="taxonGroupTitle">Frogs: ${frogs.totalRecords}</span>
+                <span class="taxonGroupTitle">Frogs: ${frogCount} (Number with images:${frogs.totalRecords})</span>
                 <span class="taxonGroupActions">
                     <button id="frogsDL" class="downloadButton">Download</button>
                     <a href="#Frogs" id="viewFrogsList">Show/Hide<c:if test="${frogs.totalRecords>25}"> (limited to 25)</c:if></a>
@@ -204,7 +204,7 @@
     <li id="mammalsBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${mammals.totalRecords>0}">
-                <span class="taxonGroupTitle">Mammals: ${mammals.totalRecords}</span>
+                <span class="taxonGroupTitle">Mammals: ${mammalCount} (Number with images:${mammals.totalRecords})</span>
                 <span class="taxonGroupActions">
                     <button id="mammalsDL" class="downloadButton">Download</button>
                     <a href="#Mammals" id="viewMammalsList">Show/Hide<c:if test="${mammals.totalRecords>25}"> (limited to 25)</c:if></a>
@@ -233,7 +233,7 @@
     <li id="reptilesBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${reptiles.totalRecords>0}">
-                <span class="taxonGroupTitle">Reptiles: ${reptiles.totalRecords}</span>
+                <span class="taxonGroupTitle">Reptiles: ${reptileCount} (Number with images:${reptiles.totalRecords})</span>
                 <span class="taxonGroupActions">
                     <button id="reptilesDL" class="downloadButton">Download</button>
                     <a href="#Reptiles" id="viewReptilesList">Show/Hide<c:if test="${reptiles.totalRecords>25}"> (limited to 25)</c:if></a>
@@ -262,7 +262,7 @@
     <li id="arthropodsBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${arthropods.totalRecords>0}">
-                <span class="taxonGroupTitle">Arthropods: ${arthropods.totalRecords}</span>
+                <span class="taxonGroupTitle">Arthropods: ${arthropodCount} (Number with images:${arthropods.totalRecords})</span>
                 <span class="taxonGroupActions">
                     <button id="arthropodsDL" class="downloadButton">Download</button>
                     <a href="#arthropods" id="viewArthropodsList">Show/Hide<c:if test="${arthropods.totalRecords>25}"> (limited to 25)</c:if></a>
@@ -291,7 +291,7 @@
     <li id="molluscsBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${molluscs.totalRecords>0}">
-                <span class="taxonGroupTitle">Molluscs: ${molluscs.totalRecords}</span>
+                <span class="taxonGroupTitle">Molluscs: ${molluscCount} (Number with images:${molluscs.totalRecords})</span>
                 <span class="taxonGroupActions">
                     <button id="molluscsDL" class="downloadButton">Download</button>
                     <a href="#molluscs" id="viewMolluscsList">Show/Hide<c:if test="${molluscs.totalRecords>25}"> (limited to 25)</c:if></a>
@@ -320,7 +320,7 @@
     <li id="angiospermsBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${angiosperms.totalRecords>0}">
-                <span class="taxonGroupTitle">Flowering plants: ${angiosperms.totalRecords}</span>
+                <span class="taxonGroupTitle">Flowering plants::${angiospermCount} (Number with images:${angiosperms.totalRecords})</span>
                 <span class="taxonGroupActions">
                     <button id="angiospermsDL" class="downloadButton">Download</button>
                     <a href="#angiosperms" id="viewAngiospermsList">Show/Hide<c:if test="${angiosperms.totalRecords>25}"> (limited to 25)</c:if></a>
