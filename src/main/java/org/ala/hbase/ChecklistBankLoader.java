@@ -622,7 +622,12 @@ public class ChecklistBankLoader {
     			
 //    			if(taxonConceptGuid==null){
     				//try to find the concept for this scientific name
-    			String taxonConceptGuid = cbIdxSearcher.searchForLSID(scientificName, null);
+    			String taxonConceptGuid = null;
+    			try {
+    				taxonConceptGuid = cbIdxSearcher.searchForLSID(scientificName, null);
+    			} catch (Exception e){
+    				logger.error(e.getMessage());
+    			}
 //    			}
     			if(taxonConceptGuid==null){
     				taxonConceptGuid = getPreferredGuid(values[5]);
