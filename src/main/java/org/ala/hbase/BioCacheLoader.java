@@ -51,6 +51,7 @@ public class BioCacheLoader {
 		ApplicationContext context = SpringUtils.getContext();
 		BioCacheLoader l = context.getBean(BioCacheLoader.class);
 		l.load();
+		System.exit(0);
 	}
 	
 	/**
@@ -102,7 +103,7 @@ public class BioCacheLoader {
     			
     			currentGuid = guid;
     		} else {
-    			logger.error("Incorrect number of fields in tab file - " + regionDatFile);
+    			logger.error("Incorrect number of fields in tab file - " + regionDatFile+", found: "+values.length);
     		}
     		
 		}
