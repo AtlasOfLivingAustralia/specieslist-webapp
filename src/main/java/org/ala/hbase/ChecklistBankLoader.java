@@ -110,8 +110,12 @@ public class ChecklistBankLoader {
 		long start = System.currentTimeMillis();
 		
 		logger.info("Creating checklist bank loading index....");
-		l.createLoadingIndex();
-		l.createIdentifierIndex();
+		
+		String skipIndexes = System.getProperty("skipIndexes");
+		if(StringUtils.isEmpty(skipIndexes)){
+			l.createLoadingIndex();
+			l.createIdentifierIndex();
+		}
 		
 		logger.info("Initialise indexes....");
 		l.initIndexes();
@@ -628,7 +632,8 @@ public class ChecklistBankLoader {
     			} catch (Exception e){
     				logger.error(e.getMessage());
     			}
-//    			}
+    			
+    			//if null try and match using the supplied GUID
     			if(taxonConceptGuid==null){
     				taxonConceptGuid = getPreferredGuid(values[5]);
     			}
