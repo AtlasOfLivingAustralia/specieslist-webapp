@@ -44,8 +44,8 @@ import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.index.IndexWriter.MaxFieldLength;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -59,6 +59,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import au.com.bytecode.opencsv.CSVReader;
+import au.org.ala.checklist.lucene.CBIndexSearch;
 
 /**
  * Reads a Darwin Core extracted which contains a classification for a taxon,
@@ -82,6 +83,9 @@ public class ChecklistBankLoader {
 	protected InfoSourceDAO infoSourceDAO;
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
+	
+	@Inject
+	protected CBIndexSearch cbIdxSearcher;
 	
 	//data files
 	private static final String IDENTIFIERS_FILE = "/data/bie-staging/checklistbank/cb_identifiers.txt";
@@ -610,35 +614,49 @@ public class ChecklistBankLoader {
     		if (values.length > 5) {
     			String guid = values[1];
     			String commonNameString = values[2];
-    			String taxonConceptGuid = values[5];
+//    			String taxonConceptGuid = values[5];
+    			String scientificName = values[7];
     			//retrieve the concept - this gets around the use of multiple guids for a single concept
     			//this is the case for APNI/APC concepts.
-    			taxonConceptGuid = getPreferredGuid(taxonConceptGuid);
-    			//do a look up for the correct taxon
-    			CommonName commonName = new CommonName();
-    			commonName.setGuid(guid);
-    			//set this common name to be the preferred name
-    			commonName.setPreferred(true);
-    			//set the attribution
-    			if(guid.contains(":apni.")){
-    				commonName.setInfoSourceId(Integer.toString(apni.getId()));
-    				commonName.setInfoSourceName(apni.getName());
-    				commonName.setInfoSourceURL(apni.getWebsiteUrl());
-    			} else if(guid.contains(":afd.")){
-    				commonName.setInfoSourceId(Integer.toString(afd.getId()));
-    				commonName.setInfoSourceName(afd.getName());
-    				commonName.setInfoSourceURL(afd.getWebsiteUrl());
+//    			taxonConceptGuid = getPreferredGuid(taxonConceptGuid);
+    			
+//    			if(taxonConceptGuid==null){
+    				//try to find the concept for this scientific name
+    			String taxonConceptGuid = cbIdxSearcher.searchForLSID(scientificName, null);
+//    			}
+    			if(taxonConceptGuid==null){
+    				taxonConceptGuid = getPreferredGuid(values[5]);
     			}
-    			//the common name string can be a comma separated list of names
-    			String[] commonNameStrings = p.split(commonNameString);
-                for(String cn: commonNameStrings){
-                    commonName.setNameString(cn);
-                    boolean success = taxonConceptDao.addCommonName(taxonConceptGuid, commonName);
-                    if(success) namesAdded++;
-                    if(!success){
-                    	logger.error("Unable to add "+commonName);
-                    }
-                }
+    			
+    			if(taxonConceptGuid==null){
+	    			//do a look up for the correct taxon
+	    			CommonName commonName = new CommonName();
+	    			commonName.setGuid(guid);
+	    			//set this common name to be the preferred name
+	    			commonName.setPreferred(true);
+	    			//set the attribution
+	    			if(guid.contains(":apni.")){
+	    				commonName.setInfoSourceId(Integer.toString(apni.getId()));
+	    				commonName.setInfoSourceName(apni.getName());
+	    				commonName.setInfoSourceURL(apni.getWebsiteUrl());
+	    			} else if(guid.contains(":afd.")){
+	    				commonName.setInfoSourceId(Integer.toString(afd.getId()));
+	    				commonName.setInfoSourceName(afd.getName());
+	    				commonName.setInfoSourceURL(afd.getWebsiteUrl());
+	    			}
+	    			//the common name string can be a comma separated list of names
+	    			String[] commonNameStrings = p.split(commonNameString);
+	                for(String cn: commonNameStrings){
+	                    commonName.setNameString(cn);
+	                    boolean success = taxonConceptDao.addCommonName(taxonConceptGuid, commonName);
+	                    if(success) namesAdded++;
+	                    if(!success){
+	                    	logger.error("Unable to add "+commonName);
+	                    }
+	                }
+    			} else {
+    				logger.error("Unable to add "+commonNameString+" to taxon: "+scientificName+" -  concept not found.");
+    			}
     		} else {
     			logger.error("Skipping line "+linenumber+", number of values: "+values.length);
     		}
@@ -679,5 +697,9 @@ public class ChecklistBankLoader {
 	 */
 	public void setInfoSourceDAO(InfoSourceDAO infoSourceDAO) {
 		this.infoSourceDAO = infoSourceDAO;
+	}
+
+	public void setCbIdxSearcher(CBIndexSearch cbIdxSearcher) {
+		this.cbIdxSearcher = cbIdxSearcher;
 	}
 }
