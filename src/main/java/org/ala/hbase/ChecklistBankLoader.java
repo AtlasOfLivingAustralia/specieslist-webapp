@@ -638,7 +638,7 @@ public class ChecklistBankLoader {
     				taxonConceptGuid = getPreferredGuid(values[5]);
     			}
     			
-    			if(taxonConceptGuid==null){
+    			if(taxonConceptGuid!=null){
 	    			//do a look up for the correct taxon
 	    			CommonName commonName = new CommonName();
 	    			commonName.setGuid(guid);
