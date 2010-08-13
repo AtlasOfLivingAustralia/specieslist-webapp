@@ -577,7 +577,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 	 */
 	private StringBuffer constructQueryForRegion(String regionType, String regionName, String rank, List<String> higherTaxa, boolean hasImages) {
 		StringBuffer sb = new StringBuffer();
-		sb.append("( rank:species OR rank:subspecies ) AND ");
+		sb.append("( rank:species OR rank:subspecies ) ");
+		sb.append(" AND ");
 		sb.append("(");
 		for(int i=0; i< higherTaxa.size(); i++){
 			if(i>0){
@@ -585,7 +586,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 			}
 			sb.append(rank + ":\"" + higherTaxa.get(i)+"\"");
 		}
-		sb.append(") AND ");
+		sb.append(")");
+		sb.append(" AND ");
 		sb.append(regionType + ":\"" + regionName+"\"");
 		if(hasImages){
 			sb.append(" AND hasImage:true");

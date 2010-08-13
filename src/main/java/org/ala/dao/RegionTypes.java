@@ -27,7 +27,6 @@ public enum RegionTypes {
 	IMCRA("imcra", 3000, 3999);
 	
 	private String name;
-	private String regionalisationName;
 	private int lowerId, higherId;
 	
     private RegionTypes(String name, int lowerId, int higherId) {
