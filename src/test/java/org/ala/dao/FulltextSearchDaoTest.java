@@ -113,15 +113,15 @@ public class FulltextSearchDaoTest extends TestCase {
 				null, 0, 10, "score", "asc");
 		tcs = srDTO.getResults();
 		for(SearchTaxonConceptDTO tc: tcs){
-			System.out.println(tc.getName() + " " + tc.getCommonName());
+			System.out.println(tc.getName() + " " + tc.getCommonName()+" image URL:" +tc.getImage());
 		}
 		
 		//NSW
 		srDTO = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", "New South Wales", "kingdom", "Animalia", 
-				null, 0, 10, "score", "asc");
+				null, 0, 10, "score", "asc", true);
 		tcs = srDTO.getResults();
 		for(SearchTaxonConceptDTO tc: tcs){
-			System.out.println(tc.getName() + " " + tc.getCommonName());
+			System.out.println(tc.getName() + " " + tc.getCommonName()+" image URL:" +tc.getImage());
 		}
 	}
 	
