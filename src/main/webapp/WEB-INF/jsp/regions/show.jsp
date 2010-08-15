@@ -24,7 +24,7 @@
             <a href="http://test.ala.org.au">Home</a>
             <a href="http://test.ala.org.au/explore">Explore</a>
             <a href="${pageContext.request.contextPath}/regions/">Regions</a>
-            <span><fmt:message>regiontype.${regionType.name}</fmt:message></span>
+            <a href="${pageContext.request.contextPath}/regions/"><spring:message code="regiontype.${regionType.name}"/></a>
             <span class="current">${geoRegion.name}</span>
         </div>
         <h1>${geoRegion.name}</h1>
