@@ -69,6 +69,10 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 
     @Inject
     protected SolrUtils solrUtils;
+    
+    protected int maxResultsForChildConcepts = 5000;
+    
+    protected int maxDownloadForConcepts = 1000000;
 
     /**
      * @see org.ala.dao.FulltextSearchDao#getClassificationByLeftNS(int)
@@ -106,7 +110,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             }
             String[] fq = new String[]{"left:["+leftNS+" TO "+rightNS+"]"};
             logger.info("search query: "+queryString.toString());
-            SearchResultsDTO<SearchTaxonConceptDTO> tcs =  doSolrSearch(queryString.toString(), fq, 5000, 0, "name", "asc");
+            SearchResultsDTO<SearchTaxonConceptDTO> tcs =  doSolrSearch(queryString.toString(), fq, maxResultsForChildConcepts, 0, "name", "asc");
             List<SearchTaxonConceptDTO> stds = tcs.getResults();
             Collections.sort(stds);
             return stds;
@@ -128,7 +132,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             queryString.append("idxtype:"+IndexedTypes.TAXON);
             String[] fq = new String[]{"parentId:"+parentId};
             logger.info("search query: "+queryString.toString());
-            SearchResultsDTO<SearchTaxonConceptDTO> tcs =  doSolrSearch(queryString.toString(), fq, 5000, 0, "name", "asc");
+            SearchResultsDTO<SearchTaxonConceptDTO> tcs =  doSolrSearch(queryString.toString(), fq, maxResultsForChildConcepts, 0, "name", "asc");
             List<SearchTaxonConceptDTO> stds = tcs.getResults();
             Collections.sort(stds);
             return stds;
@@ -218,6 +222,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             	cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
 	            queryString.append(" AND ");
 	            queryString.append(" (");
+	            queryString.append(" commonName:"+cleanQuery);
+	            queryString.append(" OR ");
 	            queryString.append(" text:"+cleanQuery);
 	            queryString.append(" OR ");
 	            queryString.append(" scientificNameText:"+cleanQuery);
@@ -238,6 +244,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         try {
         	StringBuffer queryString = new StringBuffer();
             String cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
+            queryString.append(" commonName:"+cleanQuery);
+            queryString.append(" OR ");
             queryString.append(" text:"+cleanQuery);
             queryString.append(" OR ");
             queryString.append(" scientificNameText:"+cleanQuery);
@@ -452,13 +460,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
     	
         try {
             StringBuffer queryBuffer = constructQueryForRegion(regionType, regionName, rank, higherTaxa, withImages);
-            String[] filterQueries = null;
-            if(withImages){
-            	filterQueries = new String[]{ filterQuery , "image:[* TO '']"};
-            } else {
-            	filterQueries = new String[]{ filterQuery };
-            }
-            
+            String[] filterQueries = new String[]{ filterQuery };
             return doSolrSearch(queryBuffer.toString(), filterQueries, pageSize, startIndex, sortField, sortDirection);
         } catch (SolrServerException ex) {
             logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
@@ -500,7 +502,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             StringBuffer queryStringBuffer = constructQueryForRegion(regionType, regionName, rank, higherTaxa, false);
             SolrQuery solrQuery = new SolrQuery();
             solrQuery.setQueryType("standard");
-            solrQuery.setRows(1000000);
+            solrQuery.setRows(maxDownloadForConcepts);
             solrQuery.setQuery(queryStringBuffer.toString());
 
             int startIndex = 0;
@@ -517,7 +519,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             		"Taxon rank",
             });
             
-            while(results.getResults().size()>0 && resultsCount<=1000000){
+            while(results.getResults().size()>0 && resultsCount<=maxDownloadForConcepts){
             	logger.debug("Start index: "+startIndex);
 	            List<SearchTaxonConceptDTO> concepts = results.getResults();
 	            for(SearchTaxonConceptDTO concept : concepts){
@@ -866,5 +868,9 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 	 */
 	public void setSolrUtils(SolrUtils solrUtils) {
 		this.solrUtils = solrUtils;
+	}
+
+	public void setMaxResultsForChildConcepts(int maxResultsForChildConcepts) {
+		this.maxResultsForChildConcepts = maxResultsForChildConcepts;
 	}
 }
