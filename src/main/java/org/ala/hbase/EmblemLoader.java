@@ -56,7 +56,7 @@ public class EmblemLoader {
 		InputStream in = getClass().getResourceAsStream("/stateEmblems.txt");
 		CSVReader r = new CSVReader(new InputStreamReader(in), '\t');
 		String[] cols = r.readNext();
-		while(cols!=null){
+		while(cols!=null && cols.length>=4){
 			
 			String stateGuid = cols[0];
 			String name = cols[1];

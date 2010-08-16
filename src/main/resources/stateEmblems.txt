@@ -25,5 +25,3 @@ aus_states/New South Wales	Achoerodus viridis 	marine	urn:lsid:biodiversity.org.
 aus_states/Queensland	Amphiprion akindynos	marine	urn:lsid:biodiversity.org.au:afd.taxon:ba5f60a3-fa80-498f-a6d4-0a2769b905c4
 aus_states/South Australia	Phycodurus eques	marine	urn:lsid:biodiversity.org.au:afd.taxon:747d23a3-76c2-402a-8f2a-3550a22ef62d
 aus_states/Victoria	Phyllopteryx taeniolatus	marine	urn:lsid:biodiversity.org.au:afd.taxon:8e9cbe54-8069-40ad-8eac-94b259fb620c
-
-
