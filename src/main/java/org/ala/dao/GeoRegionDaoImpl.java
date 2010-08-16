@@ -39,6 +39,7 @@ public class GeoRegionDaoImpl implements GeoRegionDao {
 	
 	private static final String GEOREGION_COL = "geoRegion";
 	private static final String PLANT_EMBLEM_COL = "plantEmblem";
+	private static final String MARINE_EMBLEM_COL = "marineEmblem";
 	private static final String ANIMAL_EMBLEM_COL = "animalEmblem";
 	private static final String BIRD_EMBLEM_COL = "birdEmblem";
 	
@@ -83,6 +84,13 @@ public class GeoRegionDaoImpl implements GeoRegionDao {
 	}
 	
 	/**
+	 * @see org.ala.dao.GeoRegionDao#addEmblem(java.lang.String, org.ala.model.SimpleProperty)
+	 */
+	public boolean addMarineEmblem(String guid, TaxonConcept emblem) throws Exception {
+		return storeHelper.putSingle(GR_TABLE, GR_COL_FAMILY, MARINE_EMBLEM_COL, guid, emblem);
+	}
+	
+	/**
 	 * @see org.ala.dao.GeoRegionDao#getExtendedGeoRegionByGuid(java.lang.String)
 	 */
 	public ExtendedGeoRegionDTO getExtendedGeoRegionByGuid(String guid) throws Exception {
@@ -91,6 +99,7 @@ public class GeoRegionDaoImpl implements GeoRegionDao {
 		g.setBirdEmblem((TaxonConcept) storeHelper.get(GR_TABLE, GR_COL_FAMILY, BIRD_EMBLEM_COL, guid, TaxonConcept.class));
 		g.setPlantEmblem((TaxonConcept) storeHelper.get(GR_TABLE, GR_COL_FAMILY, PLANT_EMBLEM_COL, guid, TaxonConcept.class));
 		g.setAnimalEmblem((TaxonConcept) storeHelper.get(GR_TABLE, GR_COL_FAMILY, ANIMAL_EMBLEM_COL, guid, TaxonConcept.class));
+		g.setMarineEmblem((TaxonConcept) storeHelper.get(GR_TABLE, GR_COL_FAMILY, MARINE_EMBLEM_COL, guid, TaxonConcept.class));
 		return g;
 	}
 	

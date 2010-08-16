@@ -54,4 +54,5 @@ public interface GeoRegionDao {
 	boolean addBirdEmblem(String stateGuid, TaxonConcept tc) throws Exception;
 	boolean addPlantEmblem(String stateGuid, TaxonConcept tc) throws Exception;
 	boolean addAnimalEmblem(String stateGuid, TaxonConcept tc) throws Exception;
+	boolean addMarineEmblem(String stateGuid, TaxonConcept tc) throws Exception;
 }

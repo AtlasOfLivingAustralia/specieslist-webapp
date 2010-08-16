@@ -71,6 +71,8 @@ public class EmblemLoader {
 				geoRegionDao.addPlantEmblem(stateGuid, tc);
 			} else if ("animal".equalsIgnoreCase(emblemType)){
 				geoRegionDao.addAnimalEmblem(stateGuid, tc);
+			} else if ("marine".equalsIgnoreCase(emblemType)){
+				geoRegionDao.addMarineEmblem(stateGuid, tc);
 			}
 			cols = r.readNext();
 		}
