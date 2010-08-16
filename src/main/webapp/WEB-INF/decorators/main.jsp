@@ -110,10 +110,20 @@ include file="/common/taglibs.jsp" %>
                                 <li><a href="http://test.ala.org.au/about/media-centre/" ><span>Media Centre</span></a></li>
                                 <li><a href="http://test.ala.org.au/about/newsevents/" ><span>News & Events</span></a></li>
                                 <li><a href="http://test.ala.org.au/about/resources/" ><span>Resources</span></a></li></ul></li>
-                        <li class="nav-login nav-right"><a href="https://auth.ala.org.au/cas/login?service=http://${pageContext.request.serverName}${pageContext.request.contextPath}${pageContext.request.requestURI}"><span>Log in</span></a></li>
-                    </ul>
+                        <c:choose>
+                            <c:when test="${empty pageContext.request.remoteUser}">
+                                <li class="nav-login nav-right"><ala:loginLogoutLink returnUrlPath="${pageContext.request.requestURL}"/></li>
+                            </c:when>
+                            <c:otherwise>
+                                <li class="nav-logout nav-right"><ala:loginLogoutLink returnUrlPath="${pageContext.request.requestURL}"/></li>
+                            </c:otherwise>
+                        </c:choose>
+                   </ul>
                     <!-- WP Menubar 4.7: end menu nav-site, template Superfish, CSS  -->
                 </div><!--close nav-->
+                <c:if test="${!empty pageContext.request.remoteUser}">
+                    <div id="loginId">Logged in: ${pageContext.request.remoteUser}</div>
+                </c:if>
                 <div id="wrapper_search">
 			<form id="search-form" action="${pageContext.request.contextPath}/search" method="get" name="search-form"> 
 				<label for="search">Search</label> 
@@ -187,7 +197,7 @@ include file="/common/taglibs.jsp" %>
                         <li id="menu-item-1050" class="menu-item menu-item-type-post_type"><a href="http://test.ala.org.au/support/">Support</a></li>
                         <li id="menu-item-1048" class="menu-item menu-item-type-post_type"><a href="http://test.ala.org.au/contact-us/">Contact Us</a></li>
                         <li id="menu-item-1047" class="menu-item menu-item-type-post_type"><a href="http://test.ala.org.au/about/">About the Atlas</a></li>
-                        <li id="menu-item-1052" class="last menu-item menu-item-type-custom"><a href="http://test.ala.org.au">Log in</a></li>
+                        <li id="menu-item-1052" class="last menu-item menu-item-type-custom"><ala:loginLogoutLink returnUrlPath="${pageContext.request.requestUrl}"/></li>
                     </ul>
                     <ul id="menu-footer-legal">
                         <li id="menu-item-3090" class="menu-item menu-item-type-post_type"><a href="http://test.ala.org.au/site-map/">Site Map</a></li>
