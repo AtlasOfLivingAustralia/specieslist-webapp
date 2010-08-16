@@ -19,12 +19,10 @@
             <a href="http://test.ala.org.au/explore">Explore</a>
             Regions
         </div>
-        <h1>${geoRegion.name}</h1>
+        <h1>States & Territories</h1>
     </div><!--close header-->
     <div id="column-one">
         <div class="section">
-            <h1>States & Territories</h1>
-            <br/>
             <ul>
            	<c:forEach items="${states}" var="region">
                 <li><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></li>           	
