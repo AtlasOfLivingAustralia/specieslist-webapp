@@ -139,7 +139,18 @@
             <div class="section full-width">
                 <div class="hrgroup col-8">
                     <h1 class="family">${sciNameFormatted} <span>${extendedTaxonConcept.taxonConcept.author}</span></h1>
-                    <h2>${extendedTaxonConcept.commonNames[0].nameString}</h2>
+                    <h2>
+                    	<c:choose>
+	                    	<c:when test="${extendedTaxonConcept.taxonConcept.rankId>5000">
+	                    		${extendedTaxonConcept.commonNames[0].nameString}
+	                    	</c:when>
+	                    	<c:otherwise>
+	                    		<c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
+	                    			${commonName.nameString}
+	                    		</c:forEach>
+	                    	</c:otherwise>
+                    	</c:choose>
+                    </h2>
                 </div>
                 <div class="col-4 meta">
                     <h3>Rank</h3><p style="text-transform: capitalize;">${extendedTaxonConcept.taxonConcept.rankString}</p>

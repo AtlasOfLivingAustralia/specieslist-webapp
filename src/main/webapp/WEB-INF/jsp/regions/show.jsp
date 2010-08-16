@@ -79,6 +79,19 @@
                     </td>
                 </tr>
                 </c:if>
+                <c:if test="${not empty extendedGeoRegion.marineEmblem}">
+                <tr>
+                    <td>
+                        <a id="marineEmblem" href="${pageContext.request.contextPath}/species/${extendedGeoRegion.marineEmblem.guid}">
+                            <img src="${pageContext.request.contextPath}/static/images/noImage85.jpg" alt="${extendedGeoRegion.marineEmblem.nameString}"/>
+                        </a>
+                    </td>
+                    <td>
+                        <h3>Marine emblem</h3>
+                        <div id="marineEmblemText">${extendedGeoRegion.marineEmblem.nameString}</div>
+                    </td>
+                </tr>
+                </c:if>
             </table>
 
   <script type="text/javascript">
@@ -92,6 +105,9 @@
         <c:if test="${not empty extendedGeoRegion.birdEmblem}">
 	        setupEmblem('${pageContext.request.contextPath}/species/moreInfo/${extendedGeoRegion.birdEmblem.guid}.json', 'birdEmblem', 'birdEmblemText');        
         </c:if>
+        <c:if test="${not empty extendedGeoRegion.marineEmblem}">
+        	setupEmblem('${pageContext.request.contextPath}/species/moreInfo/${extendedGeoRegion.marineEmblem.guid}.json', 'marineEmblem', 'marineEmblemText');        
+    	</c:if>
         
         function setupEmblem(searchUrl, imgTag, textTag){
           $.getJSON(searchUrl, function(data) {
