@@ -49,7 +49,7 @@ public class LoginLogoutTag extends TagSupport {
 		if (principal == null) {
 			html = "<a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a>\n";
 		} else {
-			html = "<a href='" + casServer + "/cas/logout'>Log out</a>\n";
+			html = "<a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a>\n";
 		}
 		
 		try {
