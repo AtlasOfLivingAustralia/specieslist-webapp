@@ -64,7 +64,7 @@
 
     <context-param>
         <param-name>uriFilterPattern</param-name>
-        <param-value>/, /species/urn:lsid.+</param-value>
+        <param-value>/, /search, /species/search, /species/urn:lsid.+, /regions/, /contributors</param-value>
     </context-param>
 
     <!-- CAS Authentication Service filters -->
