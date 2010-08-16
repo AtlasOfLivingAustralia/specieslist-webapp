@@ -141,7 +141,7 @@
                     <h1 class="family">${sciNameFormatted} <span>${extendedTaxonConcept.taxonConcept.author}</span></h1>
                     <h2>
                     	<c:choose>
-	                    	<c:when test="${extendedTaxonConcept.taxonConcept.rankId>5000">
+	                    	<c:when test="${extendedTaxonConcept.taxonConcept.rankID>5000}">
 	                    		${extendedTaxonConcept.commonNames[0].nameString}
 	                    	</c:when>
 	                    	<c:otherwise>
