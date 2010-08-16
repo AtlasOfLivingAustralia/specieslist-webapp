@@ -122,7 +122,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     private static final String EARLIEST_REFERENCE_COL = "hasEarliestReference";
     private static final String PUBLICATION_REFERENCE_COL = "hasPublicationReference";
     private static final String PUBLICATION_COL = "hasPublication";
-
+    private static final String IS_ICONIC = "IsIconic";
+    
     /** Column families */
     private static final String TC_COL_FAMILY = "tc";
 
@@ -186,6 +187,17 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, IMAGE_COL, guid, Image.class);
 	}
 
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#isIconic(java.lang.String)
+	 */
+	public boolean isIconic(String guid) throws Exception {
+		Boolean isIconic = (Boolean) storeHelper.get(TC_TABLE, TC_COL_FAMILY, IS_ICONIC, guid, Boolean.class);
+		if(isIconic==null){
+			return false;
+		}
+		return isIconic;
+	}
+	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getDistributionImages(java.lang.String)
 	 */
@@ -366,6 +378,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public boolean addTextProperty(String guid, SimpleProperty textProperty) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, TEXT_PROPERTY_COL, guid, textProperty);
+	}
+	
+    /**
+	 * @see org.ala.dao.TaxonConceptDao#addTextProperty(java.lang.String, org.ala.model.SimpleProperty)
+	 */
+	public boolean setIsIconic(String guid) throws Exception {
+		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, IS_ICONIC, guid, true);
 	}
 	
 	/**
@@ -1195,6 +1214,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		
 		Scanner scanner = storeHelper.getScanner(TC_TABLE, TC_COL_FAMILY, TAXONCONCEPT_COL);
 		
+		//load iconic species
+		
+		
+		
+		
 		byte[] guidAsBytes = null;
 		
 		while ((guidAsBytes = scanner.getNextGuid())!=null) {
@@ -1207,6 +1231,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				logger.info("Indexed records: "+i+", current guid: "+guid);
 			}
     		
+			//index each taxon
 			List<SolrInputDocument> docsToAdd = indexTaxonConcept(guid, pestTerms, consTerms);
             docs.addAll(docsToAdd);
 	    	
@@ -1277,6 +1302,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     		SolrInputDocument doc = new SolrInputDocument();
     		doc.addField("idxtype", IndexedTypes.TAXON);
             
+    		//is this species iconic
+    		boolean isIconic = isIconic(guid);
+    		
     		if(taxonConcept.getNameString()!=null){
     			
     			doc.addField("id", taxonConcept.getGuid());
@@ -1355,7 +1383,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                     doc.addField("commonNameSort", commonNamesConcat);
                     //add each common name separately
                     for(String commonName: commonNameSet){
-                    	if(higherPriorityNames.contains(commonName)){
+                    	if(isIconic){
+                    		doc.addField("commonName", commonName, 100f);
+                    	} else if(higherPriorityNames.contains(commonName)){
                     		doc.addField("commonName", commonName, 5f);
                     	} else {
                     		doc.addField("commonName", commonName, 1.4f);
@@ -1364,7 +1394,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                     	String[] parts = commonName.split(" ");
                     	if(parts.length>1){
                     		String lastPart = parts[parts.length-1];
-                    		doc.addField("commonName", lastPart, 2.5f);
+                    		if(isIconic){
+                    			doc.addField("commonName", lastPart, 100f);
+                    		} else {
+                    			doc.addField("commonName", lastPart, 2.5f);
+                    		}
                     	}
                     }
                     doc.addField("commonNameDisplay", StringUtils.join(commonNameSet, ", "));

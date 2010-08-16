@@ -574,6 +574,11 @@ public interface TaxonConceptDao {
 
 	boolean setRankingOnImage(String taxonGuid, String imageUri, boolean positive) throws Exception;
 	
+	
+	public boolean setIsIconic(String guid) throws Exception;
+	
+	public boolean isIconic(String guid) throws Exception;
+		
     /**
      * Get the location of an index
      *

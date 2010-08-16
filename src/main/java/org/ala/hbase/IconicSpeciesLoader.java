@@ -19,70 +19,64 @@ import java.io.InputStreamReader;
 
 import javax.inject.Inject;
 
-import org.ala.dao.GeoRegionDao;
-import org.ala.model.TaxonConcept;
+import org.ala.dao.TaxonConceptDao;
 import org.ala.util.SpringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import au.com.bytecode.opencsv.CSVReader;
+import au.org.ala.checklist.lucene.CBIndexSearch;
 
 /**
- * Loads the emblems for each state.
+ * Loads the iconic species.
  *
  * @author Dave Martin (David.Martin@csiro.au)
  */
-@Component("emblemLoader")
-public class EmblemLoader {
+@Component("iconicSpeciesLoader")
+public class IconicSpeciesLoader {
+	protected static Logger logger  = Logger.getLogger(IconicSpeciesLoader.class);
 	
-	protected static Logger logger  = Logger.getLogger(EmblemLoader.class);
-
 	@Inject
-	protected GeoRegionDao geoRegionDao;
+	protected TaxonConceptDao taxonConceptDao;
+	@Inject
+	protected CBIndexSearch cbIdxSearcher;
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
 		ApplicationContext context = SpringUtils.getContext();
-		EmblemLoader l = context.getBean(EmblemLoader.class);
+		IconicSpeciesLoader l = context.getBean(IconicSpeciesLoader.class);
 		l.load();
-		System.exit(0);
 	}
 	
 	public void load() throws Exception {
-		logger.info("Loading emblem species...");
-		InputStream in = getClass().getResourceAsStream("/stateEmblems.txt");
+		logger.info("Loading iconic species...");
+		InputStream in = getClass().getResourceAsStream("/iconicSpecies.txt");
 		CSVReader r = new CSVReader(new InputStreamReader(in), '\t');
 		String[] cols = r.readNext();
 		while(cols!=null){
-			
-			String stateGuid = cols[0];
-			String name = cols[1];
-			String emblemType = cols[2];
-			String guid = cols[3];
-			TaxonConcept tc = new TaxonConcept();
-			tc.setGuid(guid);
-			tc.setNameString(name);
-			if("bird".equalsIgnoreCase(emblemType)){
-				geoRegionDao.addBirdEmblem(stateGuid, tc);
-			} else if ("plant".equalsIgnoreCase(emblemType)){
-				geoRegionDao.addPlantEmblem(stateGuid, tc);
-			} else if ("animal".equalsIgnoreCase(emblemType)){
-				geoRegionDao.addAnimalEmblem(stateGuid, tc);
+			try {
+				String sciName = StringUtils.trim(cols[0]);
+				String guid = cbIdxSearcher.searchForLSID(sciName);
+				logger.debug(sciName+ " " + guid);
+				this.taxonConceptDao.setIsIconic(guid);
+			} catch (Exception e){
+				logger.info(e.getMessage());
 			}
 			cols = r.readNext();
 		}
 		r.close();
-		in.close();
-		logger.info("Loaded emblem species.");
+		logger.info("Loaded iconic species.");
 	}
 
-	/**
-	 * @param geoRegionDao the geoRegionDao to set
-	 */
-	public void setGeoRegionDao(GeoRegionDao geoRegionDao) {
-		this.geoRegionDao = geoRegionDao;
+	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
+		this.taxonConceptDao = taxonConceptDao;
+	}
+
+	public void setCbIdxSearcher(CBIndexSearch cbIdxSearcher) {
+		this.cbIdxSearcher = cbIdxSearcher;
 	}
 }

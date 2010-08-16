@@ -18,11 +18,28 @@ import org.ala.model.OccurrencesInGeoregion;
 import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
+import org.ala.util.SpringUtils;
 
 public class TaxonConceptDaoTest extends TestCase {
 	
 	private final String TEST_TCDAO_GUID = "urn:lsid:afd:taxon:123";
 
+	public void testIsIconic() throws Exception {
+		
+		TaxonConceptDao tcDao = initTaxonConceptDao();
+		boolean success = tcDao.setIsIconic("urn:lsid:biodiversity.org.au:afd.taxon:aa745ff0-c776-4d0e-851d-369ba0e6f537");
+		
+		
+		boolean isIconic = tcDao.isIconic("urn:lsid:biodiversity.org.au:afd.taxon:aa745ff0-c776-4d0e-851d-369ba0e6f537");
+		
+		System.out.println("Is iconic: "+isIconic);
+		
+		
+		isIconic = tcDao.isIconic("urn:lsid:catalogueoflife.org:taxon:24e7d624-60a7-102d-be47-00304854f810:ac2010");
+		System.out.println("Is iconic: "+isIconic);
+		
+	}
+	
 	public void testAddSynonym() throws Exception {
 
 		TaxonConceptDao tcDao = initTaxonConceptDao();
@@ -55,7 +72,6 @@ public class TaxonConceptDaoTest extends TestCase {
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
 
-
 	public void testAddIdentifier() throws Exception {
 		TaxonConceptDao tcDao = initTaxonConceptDao();
 
@@ -69,7 +85,6 @@ public class TaxonConceptDaoTest extends TestCase {
 
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
-
 
 	public void testAddImages() throws Exception {
 		TaxonConceptDao tcDao = initTaxonConceptDao();
@@ -105,7 +120,6 @@ public class TaxonConceptDaoTest extends TestCase {
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
 
-
 	public void testAddTaxonName() throws Exception {
 		TaxonConceptDao tcDao = initTaxonConceptDao();
 		
@@ -123,7 +137,6 @@ public class TaxonConceptDaoTest extends TestCase {
 		
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
-	
 	
 	public void testAddCommonName() throws Exception {
 		TaxonConceptDao tcDao = initTaxonConceptDao();
@@ -144,7 +157,6 @@ public class TaxonConceptDaoTest extends TestCase {
 		
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
-	
 	
 	public void testAddConservationStatus() throws Exception {
 		TaxonConceptDao tcDao = initTaxonConceptDao();
@@ -168,7 +180,6 @@ public class TaxonConceptDaoTest extends TestCase {
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
 	
-	
 	public void testAddPestStatus() throws Exception {
 		TaxonConceptDao tcDao = initTaxonConceptDao();
 		
@@ -188,7 +199,6 @@ public class TaxonConceptDaoTest extends TestCase {
 		
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
-	
 	
 	public void testAddExtantStatus() throws Exception {
 		TaxonConceptDao tcDao = initTaxonConceptDao();
@@ -210,8 +220,7 @@ public class TaxonConceptDaoTest extends TestCase {
 		
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
-	
-	
+		
 	public void testAddHabitat() throws Exception {
 		TaxonConceptDao tcDao = initTaxonConceptDao();
 		
@@ -233,7 +242,6 @@ public class TaxonConceptDaoTest extends TestCase {
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
 
-	
 	public void testAddRegions() throws Exception {
 		TaxonConceptDao tcDao = initTaxonConceptDao();
 		
@@ -263,7 +271,6 @@ public class TaxonConceptDaoTest extends TestCase {
 		
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
-	
 	
 	public void testAddChildTaxon() throws Exception {
 		TaxonConceptDao tcDao = initTaxonConceptDao();
@@ -302,8 +309,7 @@ public class TaxonConceptDaoTest extends TestCase {
 		
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
-	
-	
+		
 	public void testAddTextProperty() throws Exception {
 		TaxonConceptDao tcDao = initTaxonConceptDao();
 		
@@ -337,8 +343,7 @@ public class TaxonConceptDaoTest extends TestCase {
 		
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
-	
-	
+		
 	public void testGetExtendedTaxonConceptByGuid() throws Exception {
 		TaxonConceptDao tcDao = initTaxonConceptDao();
 		
@@ -466,8 +471,7 @@ public class TaxonConceptDaoTest extends TestCase {
 		
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
-	
-	
+		
 	public void testFindByScientificName() throws Exception {
 		TaxonConceptDao tcDao = initTaxonConceptDao();
 		
@@ -479,30 +483,8 @@ public class TaxonConceptDaoTest extends TestCase {
 	}
 	
 	
-//	public void testFindAllByStatus() throws Exception {
-////		ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:spring-profiler.xml");;
-////		
-////		Vocabulary vocabulary = (Vocabulary) context.getBean("vocabulary");
-//		
-//		Vocabulary vocabulary = new VocabularyImpl();
-//		
-//		TaxonConceptDao tcDao = initTaxonConceptDao();
-//		
-//				
-//		SearchResultsDTO sr = tcDao.findAllByStatus(StatusType.CONSERVATION, 0, 10, null, null);
-//		
-//		List<SearchTaxonConceptDTO> stcList = sr.getTaxonConcepts();
-//		
-//		System.out.println(stcList.get(0).getNameString());
-//		
-////		assertEquals(stcList.get(0).getNameString(), "Sarcophilus harrisii");
-//		
-//		tcDao.delete(TEST_TCDAO_GUID);
-//	}
-	
-	
 	private TaxonConceptDao initTaxonConceptDao() throws Exception {
-		TaxonConceptDao tcDao = new TaxonConceptSHDaoImpl();
+		TaxonConceptDao tcDao = SpringUtils.getContext().getBean(TaxonConceptDao.class);
 
 		tcDao.delete(TEST_TCDAO_GUID);
 		
