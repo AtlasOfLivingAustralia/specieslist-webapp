@@ -13,9 +13,6 @@ export CLASSPATH=bie-hbase-assembly.jar
 echo "LOAD : loading the geographic regions into the BIE $('date')"
 java -classpath $CLASSPATH org.ala.hbase.GeoRegionLoader
 
-echo "LOAD : loading the geographic region emblems into the BIE $('date')"
-java -classpath $CLASSPATH org.ala.hbase.EmblemLoader
-
 echo "LOAD : creating lucene indexes for concept lookups $('date')"
 java -Xmx2g -Xms2g -classpath $CLASSPATH au.org.ala.checklist.lucene.CBCreateLuceneIndex /data/bie-staging/checklistbank/ /data/lucene/namematching
 
@@ -42,6 +39,12 @@ java -classpath $CLASSPATH org.ala.hbase.IrmngDataLoader
 
 echo "LOAD : running BHL Data Loader $('date')"
 java -classpath $CLASSPATH org.ala.hbase.BHLDataLoader
+
+echo "LOAD : loading the geographic region emblems into the BIE $('date')"
+java -classpath $CLASSPATH org.ala.hbase.EmblemLoader
+
+echo "LOAD : loading the geographic region emblems into the BIE $('date')"
+java -classpath $CLASSPATH org.ala.hbase.IconicSpeciesLoader
 
 echo "LOAD : running Create Search Indexes from BIE for the Web Application $('date')"
 java -classpath $CLASSPATH org.ala.lucene.CreateSearchIndex
