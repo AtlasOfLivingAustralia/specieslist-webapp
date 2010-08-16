@@ -110,12 +110,13 @@ include file="/common/taglibs.jsp" %>
                                 <li><a href="http://test.ala.org.au/about/media-centre/" ><span>Media Centre</span></a></li>
                                 <li><a href="http://test.ala.org.au/about/newsevents/" ><span>News & Events</span></a></li>
                                 <li><a href="http://test.ala.org.au/about/resources/" ><span>Resources</span></a></li></ul></li>
+                        <c:set var="returnUrlPath" value="http://${pageContext.request.serverName}${pageContext.request.contextPath}${pageContext.request.requestURI}"/>        
                         <c:choose>
                             <c:when test="${empty pageContext.request.remoteUser}">
-                                <li class="nav-login nav-right"><ala:loginLogoutLink returnUrlPath="${pageContext.request.requestURL}"/></li>
+                                <li class="nav-login nav-right"><ala:loginLogoutLink returnUrlPath="${returnUrlPath}"/></li>
                             </c:when>
                             <c:otherwise>
-                                <li class="nav-logout nav-right"><ala:loginLogoutLink returnUrlPath="${pageContext.request.requestURL}"/></li>
+                                <li class="nav-logout nav-right"><ala:loginLogoutLink returnUrlPath="${returnUrlPath}"/></li>
                             </c:otherwise>
                         </c:choose>
                    </ul>
