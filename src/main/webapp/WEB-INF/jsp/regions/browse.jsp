@@ -10,7 +10,7 @@
   <meta name="pageName" content="geoRegion"/>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8"/>
-  <title>Regions - States & Territories</title>
+  <title>Regions - States &amp; Territories</title>
 </head>
 <body>
     <div id="header">
@@ -19,7 +19,7 @@
             <a href="http://test.ala.org.au/explore">Explore</a>
             Regions
         </div>
-        <h1>States & Territories</h1>
+        <h1>States &amp; Territories</h1>
     </div><!--close header-->
     <div id="column-one">
         <div class="section">
@@ -28,9 +28,7 @@
                 <li><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></li>           	
            	</c:forEach>
             </ul>
-            
             <h1>Other regionalisations of Australia</h1>
-            
             <table style="width:900px;">
             <tr>
             <td  style="width:300px;">
@@ -59,7 +57,6 @@
             </td>
             </tr>
             </table>
-            
         </div>
     </div>
 </body>
