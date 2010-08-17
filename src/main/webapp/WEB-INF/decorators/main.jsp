@@ -199,7 +199,8 @@ include file="/common/taglibs.jsp" %>
                         <li id="menu-item-1050" class="menu-item menu-item-type-post_type"><a href="http://test.ala.org.au/support/">Support</a></li>
                         <li id="menu-item-1048" class="menu-item menu-item-type-post_type"><a href="http://test.ala.org.au/contact-us/">Contact Us</a></li>
                         <li id="menu-item-1047" class="menu-item menu-item-type-post_type"><a href="http://test.ala.org.au/about/">About the Atlas</a></li>
-                        <li id="menu-item-1052" class="last menu-item menu-item-type-custom"><ala:loginLogoutLink returnUrlPath="${pageContext.request.requestUrl}"/></li>
+                        <c:set var="returnUrlPath" value="http://${pageContext.request.serverName}${pageContext.request.contextPath}${pageContext.request.requestURI}"/>       
+                        <li id="menu-item-1052" class="last menu-item menu-item-type-custom"><ala:loginLogoutLink returnUrlPath="${returnUrlPath}"/></li>
                     </ul>
                     <ul id="menu-footer-legal">
                         <li id="menu-item-3090" class="menu-item menu-item-type-post_type"><a href="http://test.ala.org.au/site-map/">Site Map</a></li>
