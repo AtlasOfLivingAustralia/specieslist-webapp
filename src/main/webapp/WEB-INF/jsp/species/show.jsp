@@ -471,7 +471,7 @@
                     <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
                         <p>${commonName.nameString}
                             <c:choose>
-                                <c:when test="${empty commonName.infoSourceURL}"><cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite></c:when>
+                                <c:when test="${not empty commonName.identifier}"><cite>Source: <a href="${commonName.identifier}" target="blank">${commonName.infoSourceName}</a></cite></c:when>
                                 <c:otherwise><cite>Source: <a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>
                             </c:choose>
                             <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <a name="">${synonym.publishedIn}</a></cite></c:if>
