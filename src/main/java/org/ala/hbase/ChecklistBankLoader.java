@@ -645,14 +645,24 @@ public class ChecklistBankLoader {
 	    			//set this common name to be the preferred name
 	    			commonName.setPreferred(true);
 	    			//set the attribution
-	    			if(guid.contains(":apni.")){
+	    			if(values[5].contains(":apni.")){
 	    				commonName.setInfoSourceId(Integer.toString(apni.getId()));
 	    				commonName.setInfoSourceName(apni.getName());
 	    				commonName.setInfoSourceURL(apni.getWebsiteUrl());
-	    			} else if(guid.contains(":afd.")){
+	    				if(isLSID(guid)){
+	    					String internalId = values[5].substring(values[5].lastIndexOf(":")+1);
+	    					commonName.setInfoSourceURL("http://biodiversity.org.au/apni.taxon/"+internalId);
+	    					commonName.setIdentifier("http://biodiversity.org.au/apni.taxon/"+internalId);
+	    				}
+	    			} else if(values[5].contains(":afd.")){
 	    				commonName.setInfoSourceId(Integer.toString(afd.getId()));
 	    				commonName.setInfoSourceName(afd.getName());
 	    				commonName.setInfoSourceURL(afd.getWebsiteUrl());
+	    				if(isLSID(guid)){
+	    					String internalId = values[5].substring(values[5].lastIndexOf(":")+1);
+	    					commonName.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+internalId);
+	    					commonName.setIdentifier("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+internalId);
+	    				}
 	    			}
 	    			//the common name string can be a comma separated list of names
 	    			String[] commonNameStrings = p.split(commonNameString);
