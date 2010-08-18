@@ -126,9 +126,21 @@
         <div id="header" class="taxon">
             <c:set var="spatialPortalUrl">http://test.ala.org.au/explore/species-maps/</c:set>
             <c:set var="wordPressUrl">http://test.ala.org.au/</c:set>
-            <c:set var="sciNameFormatted">
-                <alatag:formatSciName name="${extendedTaxonConcept.taxonConcept.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/>
-            </c:set>
+            
+            <c:choose>
+            <c:when test="${not empty extendedTaxonConcept.taxonName && not empty extendedTaxonConcept.taxonName.nameComplete}">
+	            <c:set var="sciNameFormatted">
+	                <alatag:formatSciName name="${extendedTaxonConcept.taxonName.nameComplete}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/>
+	            </c:set>
+            </c:when>
+            <c:otherwise>
+	            <c:set var="sciNameFormatted">
+	                <alatag:formatSciName name="${extendedTaxonConcept.taxonConcept.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/>
+	            </c:set>           
+            </c:otherwise>
+            </c:choose>
+            
+            
             <div id="breadcrumb">
                 <ul>
                     <li><a href="/">Home</a></li>
@@ -449,7 +461,7 @@
             <div id="column-one">
                 <div class="section">
                     <h2>Accepted Name</h2>
-                    <p><alatag:formatSciName name="${extendedTaxonConcept.taxonConcept.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/>${extendedTaxonConcept.taxonConcept.author}
+                    <p>${sciNameFormatted} ${extendedTaxonConcept.taxonConcept.author}
                         <cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
                         <c:if test="${not empty extendedTaxonConcept.taxonName.publishedIn}"><cite>Published in: <a href="#">${extendedTaxonConcept.taxonName.publishedIn}</a></cite></c:if>
                     </p>
@@ -471,7 +483,7 @@
                     <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
                         <p>${commonName.nameString}
                             <c:choose>
-                                <c:when test="${not empty commonName.identifier}"><cite>Source: <a href="${commonName.identifier}" target="blank">${commonName.infoSourceName}</a></cite></c:when>
+                                <c:when test="${not empty commonName.identifier && not empty commonName.infoSourceName}"><cite>Source: <a href="${commonName.identifier}" target="blank">${commonName.infoSourceName}</a></cite></c:when>
                                 <c:otherwise><cite>Source: <a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>
                             </c:choose>
                             <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <a name="">${synonym.publishedIn}</a></cite></c:if>
