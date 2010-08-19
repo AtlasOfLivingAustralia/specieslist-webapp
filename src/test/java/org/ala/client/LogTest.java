@@ -16,7 +16,7 @@ public class LogTest {
 	public static void main(String[] args) {
     	StringBuffer sb = new StringBuffer();
     	
-    	sb.append("[{\"eventTypeId\": 123,");
+    	sb.append("{\"eventTypeId\": 123,");
     	sb.append("\"comment\": \"For doing some research with..\",");
     	sb.append("\"userEmail\" : \"waiman.mok@csiro.au\",");
     	sb.append("\"recordCounts\" : {");
