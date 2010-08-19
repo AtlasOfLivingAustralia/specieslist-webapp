@@ -123,7 +123,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     private static final String PUBLICATION_REFERENCE_COL = "hasPublicationReference";
     private static final String PUBLICATION_COL = "hasPublication";
     private static final String IS_ICONIC = "IsIconic";
-    
+    private static final String IS_AUSTRALIAN= "IsAustralian";
     /** Column families */
     private static final String TC_COL_FAMILY = "tc";
 
@@ -197,6 +197,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 		return isIconic;
 	}
+        public boolean isAustralian(String guid) throws Exception {
+            Boolean isAustralian = (Boolean) storeHelper.get(TC_TABLE, TC_COL_FAMILY, IS_AUSTRALIAN, guid, Boolean.class);
+            if(isAustralian == null)
+                return false;
+            return isAustralian;
+        }
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getDistributionImages(java.lang.String)
@@ -386,7 +392,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean setIsIconic(String guid) throws Exception {
 		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, IS_ICONIC, guid, true);
 	}
-	
+        
+        public boolean setIsAustralian(String guid) throws Exception {
+            return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, IS_AUSTRALIAN, guid, true);
+        }
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#create(java.util.List)
 	 */
@@ -413,7 +422,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		ExtendedTaxonConceptDTO etc = new ExtendedTaxonConceptDTO();
 		
 		guid = getPreferredGuid(guid);
-		
+                
 		//populate the dto
 		etc.setTaxonConcept(getByGuid(guid));
 		etc.setTaxonName(getTaxonNameFor(guid));
@@ -442,6 +451,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         
 		// sort the list of SimpleProperties for display in UI
         List<SimpleProperty> simpleProperties = getTextPropertiesFor(guid);
+        //merge all the text of the same type for the same infosource
         Collections.sort(simpleProperties);
         etc.setSimpleProperties(simpleProperties);
         

@@ -578,6 +578,10 @@ public interface TaxonConceptDao {
 	public boolean setIsIconic(String guid) throws Exception;
 	
 	public boolean isIconic(String guid) throws Exception;
+
+        public boolean setIsAustralian(String guid) throws Exception;
+
+        public boolean isAustralian(String guid) throws Exception;
 		
     /**
      * Get the location of an index
