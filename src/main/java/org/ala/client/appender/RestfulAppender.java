@@ -101,7 +101,7 @@ public class RestfulAppender extends AppenderSkeleton {
         		mapper.readValue(message, LogEventVO.class);        		
         	}
         	else{
-        		errorHandler.error("Could not send message from RestfulAppender [" + name + "]", null, ErrorCode.GENERIC_FAILURE);
+        		errorHandler.error("Could not send message from RestfulAppender [" + name + "]", new Exception("Invalid json format or logEvent object"), ErrorCode.GENERIC_FAILURE);
         		return HttpStatus.SC_NOT_ACCEPTABLE;
         	}
         	
