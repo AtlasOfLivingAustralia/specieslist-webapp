@@ -33,6 +33,8 @@ public class LogEventVO implements Serializable {
 
 	private int eventTypeId;
 
+	private String userIP;
+	
 	private Map<String, Integer> recordCounts = new Hashtable<String, Integer>();
 
 	private String userEmail;
@@ -40,10 +42,11 @@ public class LogEventVO implements Serializable {
     public LogEventVO() {
     }
 
-    public LogEventVO(int eventTypeId, String userEmail, String comment, Map<String, Integer> recordCounts) {
+    public LogEventVO(int eventTypeId, String userEmail, String comment, String userIP, Map<String, Integer> recordCounts) {
     	this.eventTypeId = eventTypeId;
     	this.userEmail = userEmail;
     	this.comment = comment;
+    	this.userIP = userIP;
     	this.recordCounts = recordCounts;
     }
     
@@ -78,11 +81,18 @@ public class LogEventVO implements Serializable {
 	public void setUserEmail(String userEmail) {
 		this.userEmail = userEmail;
 	}
-	
+
+
+	public String getUserIP() {
+		return this.userIP;
+	}
+
+	public void setUserIP(String userIP) {
+		this.userIP = userIP;
+	}
+		
 	/*
 	private String userId;
-
-	private String userIP;
 
 	private int month;
 
@@ -93,15 +103,6 @@ public class LogEventVO implements Serializable {
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
-
-	public String getUserIP() {
-		return this.userIP;
-	}
-
-	public void setUserIP(String userIP) {
-		this.userIP = userIP;
-	}
-	
 	public int getMonth() {
 		return this.month;
 	}
