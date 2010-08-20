@@ -1,5 +1,6 @@
 package org.ala.client;
 
+import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -30,6 +31,7 @@ public class LogTest {
 	*/
 	public static void main(String[] args) {
     	StringBuffer sb = new StringBuffer();
+    	System.out.println(Calendar.getInstance().get(Calendar.YEAR));
     	
     	sb.append("{\"eventTypeId\": 123,");
     	sb.append("\"comment\": \"For doing some research with..\",");
