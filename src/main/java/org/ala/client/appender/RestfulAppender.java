@@ -15,6 +15,8 @@
 
 package org.ala.client.appender;
 
+import java.net.SocketTimeoutException;
+
 import org.ala.client.model.LogEventVO;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
@@ -22,6 +24,8 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.ErrorCode;
 import org.apache.log4j.spi.LoggingEvent;
@@ -40,9 +44,21 @@ public class RestfulAppender extends AppenderSkeleton {
 	private String urlTemplate;
 	private String username;
 	private String password;
-	
-	private MultiThreadedHttpConnectionManager connManager = new MultiThreadedHttpConnectionManager();
+	private int timeout;
 
+	private MultiThreadedHttpConnectionManager connManager = new MultiThreadedHttpConnectionManager();
+	private static HttpConnectionParams httpConnectionParams = new HttpConnectionParams();
+
+	
+	public int getTimeout() {
+		return timeout;
+	}
+
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+		httpConnectionParams.setConnectionTimeout(timeout);
+	}
+	
 	public void setUrlTemplate(String urlTemplate) {
 		this.urlTemplate = urlTemplate;
 	}
@@ -107,13 +123,19 @@ public class RestfulAppender extends AppenderSkeleton {
         	
 	        //create the client to call the logger REST api
 	        HttpClient client = new HttpClient(connManager);
+	        client.getParams().setSoTimeout(timeout);
 	        post = new PostMethod(urlTemplate);
 
 	        RequestEntity entity = new StringRequestEntity(message, "application/json", "utf-8"); 
 	        post.setRequestEntity(entity); 
         
         	statusCode = client.executeMethod(post);
-        } catch(Exception e) {
+        } 
+        catch(SocketTimeoutException se){
+        	statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
+	        errorHandler.error("Could not send message from RestfulAppender [" + name + "]", se, ErrorCode.GENERIC_FAILURE);
+        }
+        catch(Exception e) {
         	statusCode = HttpStatus.SC_NOT_ACCEPTABLE;
 	        errorHandler.error("Could not send message from RestfulAppender [" + name + "]", e, ErrorCode.GENERIC_FAILURE);
         } finally {
