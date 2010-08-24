@@ -45,6 +45,22 @@ public class RestfulAppender extends AppenderSkeleton {
 	private int timeout;
 
 	private MultiThreadedHttpConnectionManager connManager = new MultiThreadedHttpConnectionManager();
+	private HttpClient client;
+	private ObjectMapper serMapper;
+	private ObjectMapper deserMapper;
+	
+	public RestfulAppender(){
+		super();
+        //create the client to call the logger REST api
+        client = new HttpClient(connManager);
+        //set connection timeout
+        client.getParams().setSoTimeout(timeout);
+        
+        serMapper = new ObjectMapper();
+        serMapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+        deserMapper = new ObjectMapper();
+        deserMapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	}
 	
 	public int getTimeout() {
 		return timeout;
@@ -95,33 +111,24 @@ public class RestfulAppender extends AppenderSkeleton {
 		PostMethod post = null;
 		int statusCode = 0;
 		String message = null;
-		ObjectMapper mapper = new ObjectMapper();
 		
         try {
         	Object object = event.getMessage();
-        	if(object instanceof LogEventVO){
-        		mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
-        		
+        	if(object instanceof LogEventVO){       		
         		//convert to JSON
-        		message = mapper.writeValueAsString(object); 
+        		message = serMapper.writeValueAsString(object); 
         	}
         	else if(event.getMessage() instanceof String){
         		message = (String)object;
         		//validate json string
-        		mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        		mapper.readValue(message, LogEventVO.class);        		
+        		deserMapper.readValue(message, LogEventVO.class);        		
         	}
         	else{
         		errorHandler.error("Could not send message from RestfulAppender [" + name + "]", new Exception("Invalid json format or logEvent object"), ErrorCode.GENERIC_FAILURE);
         		return HttpStatus.SC_NOT_ACCEPTABLE;
         	}
         	
-	        //create the client to call the logger REST api
-	        HttpClient client = new HttpClient(connManager);
-	        //set connection timeout
-	        client.getParams().setSoTimeout(timeout);
 	        post = new PostMethod(urlTemplate);
-
 	        RequestEntity entity = new StringRequestEntity(message, "application/json", "utf-8"); 
 	        post.setRequestEntity(entity); 
         
