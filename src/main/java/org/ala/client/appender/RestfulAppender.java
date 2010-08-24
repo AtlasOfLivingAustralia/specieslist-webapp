@@ -24,8 +24,6 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.HttpClientParams;
-import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.ErrorCode;
 import org.apache.log4j.spi.LoggingEvent;
@@ -47,8 +45,6 @@ public class RestfulAppender extends AppenderSkeleton {
 	private int timeout;
 
 	private MultiThreadedHttpConnectionManager connManager = new MultiThreadedHttpConnectionManager();
-	private static HttpConnectionParams httpConnectionParams = new HttpConnectionParams();
-
 	
 	public int getTimeout() {
 		return timeout;
@@ -56,7 +52,6 @@ public class RestfulAppender extends AppenderSkeleton {
 
 	public void setTimeout(int timeout) {
 		this.timeout = timeout;
-		httpConnectionParams.setConnectionTimeout(timeout);
 	}
 	
 	public void setUrlTemplate(String urlTemplate) {
@@ -123,6 +118,7 @@ public class RestfulAppender extends AppenderSkeleton {
         	
 	        //create the client to call the logger REST api
 	        HttpClient client = new HttpClient(connManager);
+	        //set connection timeout
 	        client.getParams().setSoTimeout(timeout);
 	        post = new PostMethod(urlTemplate);
 
