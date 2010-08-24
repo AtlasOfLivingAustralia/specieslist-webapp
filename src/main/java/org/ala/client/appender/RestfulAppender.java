@@ -44,13 +44,14 @@ public class RestfulAppender extends AppenderSkeleton {
 	private String password;
 	private int timeout;
 
-	private MultiThreadedHttpConnectionManager connManager = new MultiThreadedHttpConnectionManager();
+	private MultiThreadedHttpConnectionManager connManager;
 	private HttpClient client;
 	private ObjectMapper serMapper;
 	private ObjectMapper deserMapper;
 	
 	public RestfulAppender(){
 		super();
+		connManager = new MultiThreadedHttpConnectionManager();
         //create the client to call the logger REST api
         client = new HttpClient(connManager);
         //set connection timeout
