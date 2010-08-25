@@ -125,7 +125,7 @@ public class RestfulAppender extends AppenderSkeleton {
         		deserMapper.readValue(message, LogEventVO.class);        		
         	}
         	else{
-        		errorHandler.error("Could not send message from RestfulAppender [" + name + "]", new Exception("Invalid json format or logEvent object"), ErrorCode.GENERIC_FAILURE);
+        		errorHandler.error("Could not send message from RestfulAppender [" + name + "],\nMessage: " + event.getMessage(), new Exception("Invalid json format or logEvent object"), ErrorCode.GENERIC_FAILURE);
         		return HttpStatus.SC_NOT_ACCEPTABLE;
         	}
         	
@@ -137,11 +137,11 @@ public class RestfulAppender extends AppenderSkeleton {
         } 
         catch(SocketTimeoutException se){
         	statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
-	        errorHandler.error("Could not send message from RestfulAppender [" + name + "]", se, ErrorCode.GENERIC_FAILURE);
+	        errorHandler.error("Could not send message from RestfulAppender [" + name + "],\nMessage: " + event.getMessage(), se, ErrorCode.GENERIC_FAILURE);
         }
         catch(Exception e) {
         	statusCode = HttpStatus.SC_NOT_ACCEPTABLE;
-	        errorHandler.error("Could not send message from RestfulAppender [" + name + "]", e, ErrorCode.GENERIC_FAILURE);
+	        errorHandler.error("Could not send message from RestfulAppender [" + name + "],\nMessage: " + event.getMessage(), e, ErrorCode.GENERIC_FAILURE);
         } finally {
         	if(post != null){
         		post.releaseConnection();

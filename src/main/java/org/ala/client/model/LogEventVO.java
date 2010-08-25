@@ -19,6 +19,9 @@ import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 /**
  * VO for JSON
  * 
@@ -90,7 +93,15 @@ public class LogEventVO implements Serializable {
 	public void setUserIP(String userIP) {
 		this.userIP = userIP;
 	}
-		
+	
+    /**
+     * To-string method.
+     */
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+	
 	/*
 	private String userId;
 
