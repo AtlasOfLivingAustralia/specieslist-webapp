@@ -19,7 +19,7 @@
 	<!-- for network logging -->
 	<appender name="ASYNC" class="org.apache.log4j.AsyncAppender">
 	    <param name="BufferSize" value="512" /> <!-- default value is 128 messages -->
-	    <param name="Blocking" value="false" />
+	    <param name="Blocking" value="true" />
 	    <appender-ref ref="ALA_LOGGER"/> 
 	</appender>
 	
