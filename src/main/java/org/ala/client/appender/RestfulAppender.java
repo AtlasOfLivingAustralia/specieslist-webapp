@@ -25,7 +25,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.spi.ErrorCode;
+import org.apache.log4j.helpers.LogLog;
 import org.apache.log4j.spi.LoggingEvent;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -93,15 +93,17 @@ public class RestfulAppender extends AppenderSkeleton {
 			return;
 		}
 
-		int statusCode = sendRestRequest(event);
-		if(statusCode != 200){
-			errorHandler.error("Could not send message from RestfulAppender [" + name + "]. Status Code: " + statusCode);
-		}
+		sendRestRequest(event);
+		
+//		int statusCode = sendRestRequest(event);
+//		if(statusCode != 200){
+//			LogLog.error("Could not send message from RestfulAppender [" + name + "]. Status Code: " + statusCode);
+//		}
 	}
 
 	private boolean checkEntryConditions() {
 		if (urlTemplate == null) {
-			errorHandler.error("No 'urlTemplate' for [" + name + "]");
+			LogLog.error("No 'urlTemplate' for [" + name + "]");
 			return false;						
 		}				
 		return true;
@@ -124,10 +126,6 @@ public class RestfulAppender extends AppenderSkeleton {
         		//validate json string
         		deserMapper.readValue(message, LogEventVO.class);        		
         	}
-        	else{
-        		errorHandler.error("Could not send message from RestfulAppender [" + name + "],\nMessage: " + event.getMessage(), new Exception("Invalid json format or logEvent object"), ErrorCode.GENERIC_FAILURE);
-        		return HttpStatus.SC_NOT_ACCEPTABLE;
-        	}
         	
 	        post = new PostMethod(urlTemplate);
 	        RequestEntity entity = new StringRequestEntity(message, "application/json", "utf-8"); 
@@ -137,11 +135,11 @@ public class RestfulAppender extends AppenderSkeleton {
         } 
         catch(SocketTimeoutException se){
         	statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
-	        errorHandler.error("Could not send message from RestfulAppender [" + name + "],\nMessage: " + event.getMessage(), se, ErrorCode.GENERIC_FAILURE);
+        	LogLog.error("Could not send message from RestfulAppender [" + name + "],\nMessage: " + event.getMessage(), se);
         }
         catch(Exception e) {
         	statusCode = HttpStatus.SC_NOT_ACCEPTABLE;
-	        errorHandler.error("Could not send message from RestfulAppender [" + name + "],\nMessage: " + event.getMessage(), e, ErrorCode.GENERIC_FAILURE);
+	        LogLog.error("Could not send message from RestfulAppender [" + name + "],\nMessage: " + event.getMessage(), e);
         } finally {
         	if(post != null){
         		post.releaseConnection();
