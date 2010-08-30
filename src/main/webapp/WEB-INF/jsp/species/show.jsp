@@ -149,38 +149,42 @@
                 </ul>
             </div>
             <div class="section full-width">
-                <div class="hrgroup col-8">
-                    <h1 class="family">${sciNameFormatted} <span>${extendedTaxonConcept.taxonConcept.author}</span></h1>
-                    <h2>
-                    	<c:choose>
-	                    	<c:when test="${extendedTaxonConcept.taxonConcept.rankID>5000}">
-	                    		${extendedTaxonConcept.commonNames[0].nameString}
-	                    	</c:when>
-	                    	<c:otherwise>
-	                    		<c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
-	                    			${commonName.nameString}
-	                    		</c:forEach>
-	                    	</c:otherwise>
-                    	</c:choose>
-                    </h2>
-                </div>
-                <div class="col-4 meta">
-                    <h3>Rank</h3><p style="text-transform: capitalize;">${extendedTaxonConcept.taxonConcept.rankString}</p>
-                    <h3>Name source</h3><p><a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="_blank" class="external">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></p>
-                    <h3>Data links</h3><p><a href="#lsidText" id="lsid" class="local" title="Life Science Identifier (pop-up)">LSID</a>
-                        | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" class="local" title="JSON web service">JSON</a>
-                        <!-- | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.xml" class="local" title="XML web service">XML</a> -->
-                    </p>
-                    <div style="display:none; text-align: left;">
-                        <div id="lsidText" style="text-align: left;">
-                            <b><a href="http://lsids.sourceforge.net/" target="_blank">Life Science Identifier (LSID):</a></b>
-                            <p style="margin: 10px 0;"><a href="http://lsid.tdwg.org/summary/${extendedTaxonConcept.taxonConcept.guid}" target="_blank">${extendedTaxonConcept.taxonConcept.guid}</a></p>
-                            <p style="font-size: 12px;">LSIDs are persistent, location-independent,resource identifiers for uniquely naming biologically
-                                significant resources including species names, concepts, occurrences, genes or proteins,
-                                or data objects that encode information about them. To put it simply,
-                                LSIDs are a way to identify and locate pieces of biological information on the web. </p>
-                        </div>
-                    </div>
+                <div class="container2"> 
+                    <div class="container1"> 
+                        <div class="hrgroup"> 
+                                <h1>${sciNameFormatted} <span>${extendedTaxonConcept.taxonConcept.author}</span></h1> 
+                                <h2>
+                                    <c:choose>
+                                        <c:when test="${extendedTaxonConcept.taxonConcept.rankID>5000}">
+                                                ${extendedTaxonConcept.commonNames[0].nameString}
+                                        </c:when>
+                                        <c:otherwise>
+                                                <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
+                                                        ${commonName.nameString}
+                                                </c:forEach>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </h2> 
+                        </div> 
+                        <div class="meta"> 
+                            <h3>Rank</h3><p style="text-transform: capitalize;">${extendedTaxonConcept.taxonConcept.rankString}</p>
+                            <h3>Name source</h3><p><a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="_blank" class="external">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></p>
+                            <h3>Data links</h3><p><a href="#lsidText" id="lsid" class="local" title="Life Science Identifier (pop-up)">LSID</a>
+                                | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" class="local" title="JSON web service">JSON</a>
+                                <!-- | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.xml" class="local" title="XML web service">XML</a> -->
+                            </p>
+                            <div style="display:none; text-align: left;">
+                                <div id="lsidText" style="text-align: left;">
+                                    <b><a href="http://lsids.sourceforge.net/" target="_blank">Life Science Identifier (LSID):</a></b>
+                                    <p style="margin: 10px 0;"><a href="http://lsid.tdwg.org/summary/${extendedTaxonConcept.taxonConcept.guid}" target="_blank">${extendedTaxonConcept.taxonConcept.guid}</a></p>
+                                    <p style="font-size: 12px;">LSIDs are persistent, location-independent,resource identifiers for uniquely naming biologically
+                                        significant resources including species names, concepts, occurrences, genes or proteins,
+                                        or data objects that encode information about them. To put it simply,
+                                        LSIDs are a way to identify and locate pieces of biological information on the web. </p>
+                                </div>
+                            </div>
+                        </div> 
+                    </div> 
                 </div>
             </div>
             <div id="breadcrumb" class="taxaCrumb">
