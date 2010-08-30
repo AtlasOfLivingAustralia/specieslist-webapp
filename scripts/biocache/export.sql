@@ -15,7 +15,7 @@ inner join geo_mapping gm on gm.occurrence_id=oc.id
 inner join geo_region gr on gm.geo_region_id=gr.id
 inner join geo_region_type grt on gr.region_type=grt.id
 inner join taxon_concept tc on tc.id=oc.taxon_concept_id
-where tc.rank>7000
+where tc.rank>7000 and tc.priority<>100
 group by tc.id, gr.id
 into outfile '/data/bie-staging/biocache/subspecies_region.txt'
 fields enclosed by '"';
@@ -28,6 +28,7 @@ inner join geo_region gr on gm.geo_region_id=gr.id
 inner join geo_region_type grt on gr.region_type=grt.id
 inner join taxon_concept tc on tc.id=oc.taxon_concept_id
 where tc.rank=7000
+where tc.priority <> 100
 group by tc.id, gr.id
 into outfile '/data/bie-staging/biocache/species_region.txt'
 fields enclosed by '"';
@@ -39,6 +40,7 @@ inner join geo_mapping gm on gm.occurrence_id=oc.id
 inner join geo_region gr on gm.geo_region_id=gr.id
 inner join geo_region_type grt on gr.region_type=grt.id
 inner join taxon_concept tc on tc.id=oc.genus_concept_id
+where tc.priority <> 100
 group by tc.id, gr.id
 into outfile '/data/bie-staging/biocache/genus_region.txt'
 fields enclosed by '"';
@@ -50,6 +52,7 @@ inner join geo_mapping gm on gm.occurrence_id=oc.id
 inner join geo_region gr on gm.geo_region_id=gr.id
 inner join geo_region_type grt on gr.region_type=grt.id
 inner join taxon_concept tc on tc.id=oc.family_concept_id
+where tc.priority <> 100
 group by tc.id, gr.id
 into outfile '/data/bie-staging/biocache/family_region.txt'
 fields enclosed by '"';
