@@ -615,7 +615,7 @@ public class ChecklistBankLoader {
     	int linenumber = 0;
 		while ((values = tr.readNext()) != null) {
 			linenumber++;
-    		if (values.length > 5) {
+    		if (values.length >= 8) {
     			String guid = values[1];
     			String commonNameString = values[2];
 //    			String taxonConceptGuid = values[5];
