@@ -139,11 +139,11 @@
 	            </c:set>           
             </c:otherwise>
             </c:choose>
-            
+            <c:set var="contributeURL" value="${wordPressUrl}contribute?guid=${extendedTaxonConcept.taxonConcept.guid}"/>
             
             <div id="breadcrumb">
                 <ul>
-                    <li><a href="/">Home</a></li>
+                    <li><a href="${wordPressUrl}">Home</a></li>
                     <li><a href="${pageContext.request.contextPath}/species/search">Species</a></li>
                     <li>${sciNameFormatted} <c:if test="${not empty extendedTaxonConcept.commonNames}">(${extendedTaxonConcept.commonNames[0].nameString})</c:if></li>
                 </ul>
@@ -152,19 +152,19 @@
                 <div class="container2"> 
                     <div class="container1"> 
                         <div class="hrgroup"> 
-                                <h1>${sciNameFormatted} <span>${extendedTaxonConcept.taxonConcept.author}</span></h1> 
-                                <h2>
-                                    <c:choose>
-                                        <c:when test="${extendedTaxonConcept.taxonConcept.rankID>5000}">
-                                                ${extendedTaxonConcept.commonNames[0].nameString}
-                                        </c:when>
-                                        <c:otherwise>
-                                                <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
-                                                        ${commonName.nameString}
-                                                </c:forEach>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </h2> 
+                            <h1>${sciNameFormatted} <span>${extendedTaxonConcept.taxonConcept.author}</span></h1>
+                            <h2>
+                                <c:choose>
+                                    <c:when test="${extendedTaxonConcept.taxonConcept.rankID>5000}">
+                                            ${extendedTaxonConcept.commonNames[0].nameString}
+                                    </c:when>
+                                    <c:otherwise>
+                                            <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
+                                                    ${commonName.nameString}
+                                            </c:forEach>
+                                    </c:otherwise>
+                                </c:choose>
+                            </h2> 
                         </div> 
                         <div class="meta"> 
                             <h3>Rank</h3><p style="text-transform: capitalize;">${extendedTaxonConcept.taxonConcept.rankString}</p>
@@ -189,13 +189,13 @@
             </div>
             <div id="breadcrumb" class="taxaCrumb">
                 <ul>
-                    	<c:forEach items="${taxonHierarchy}" var="taxon">
-                            <li>
-                            	<c:if test="${taxon.guid != extendedTaxonConcept.taxonConcept.guid}">
-                                <a href="<c:url value='/species/${taxon.guid}'/>" title="${taxon.rank}"></c:if><c:if test="${taxon.rankId>=6000}"><i></c:if>${taxon.name}<c:if test="${taxon.rankId>=6000}"></i></c:if><c:if test="${taxon.guid != extendedTaxonConcept.taxonConcept.guid}"></a>
-                                </c:if>
-                            </li>
-                    	</c:forEach>
+                    <c:forEach items="${taxonHierarchy}" var="taxon">
+                        <li>
+                            <c:if test="${taxon.guid != extendedTaxonConcept.taxonConcept.guid}">
+                            <a href="<c:url value='/species/${taxon.guid}'/>" title="${taxon.rank}"></c:if><c:if test="${taxon.rankId>=6000}"><i></c:if>${taxon.name}<c:if test="${taxon.rankId>=6000}"></i></c:if><c:if test="${taxon.guid != extendedTaxonConcept.taxonConcept.guid}"></a>
+                            </c:if>
+                        </li>
+                    </c:forEach>
                 </ul>
             </div>
             <div id="nav-tabs">
@@ -226,9 +226,14 @@
                         </p>
                     </c:forEach>
                     <c:if test="${empty textProperties}">
-                        <p>Of the millions of species in Australia, the Atlas needs to learn more about this one.
-                        <br/>Can you help?
-                        <a href="${wordPressUrl}/contribute">Share your images, data and links now.</a></p>
+                        <div class="sorry sighting no-margin-top">
+                            <div>
+                                <h2>Sorry!</h2>
+                                <h3><a href="${contributeURL}">We know the species name, but not much else. Can you help?
+                                    <span><b>Contribute</b> sightings, photos and data for the
+                                    <strong>Jayakar Lizard</strong></span></a></h3>
+                            </div>
+                        </div> 
                     </c:if>
                 </div>
             </div><!---->
@@ -254,7 +259,7 @@
                 </div>
                 <div class="section buttons sighting no-margin-top">
                     <div class="last">
-                        <h3><a href="">Contribute <span>Sightings, photos and data for the 
+                        <h3><a href="${contributeURL}">Contribute <span>Sightings, photos and data for the
                         	<strong>
                         		<c:choose>
                         		<c:when test="${not empty extendedTaxonConcept.commonNames}">
@@ -419,14 +424,24 @@
                 </div>
             </div><!---->
             <div id="column-two">
-                <div class="section tools">
-                    <h3 class="contribute">Contribute</h3>
-                    <ul>
-                        <li><a href="">Images</a></li>
-                        <li><a href="">Data</a></li>
-                        <li><a href="">Links</a></li>
-                    </ul>
-                </div><!--close tools-->
+                <div class="section buttons sighting no-margin-top">
+                    <div class="last">
+                        <h3><a href="${contributeURL}">Contribute <span>Sightings, photos and data for the
+                        	<strong>
+                        		<c:choose>
+                        		<c:when test="${not empty extendedTaxonConcept.commonNames}">
+                        			${extendedTaxonConcept.commonNames[0].nameString}
+                        		</c:when>
+                        		<c:otherwise>
+                        			${extendedTaxonConcept.taxonConcept.nameString}
+                        		</c:otherwise>
+                        		</c:choose>
+                        	</strong>
+                        	</span>
+                       	 </a>
+                        </h3>
+                    </div>
+                </div>
                 <div class="section">
                     <h2></h2>
                 </div><!--close-->
@@ -617,14 +632,24 @@
                 </div>
             </div><!---->
             <div id="column-two">
-                <div class="section tools">
-                    <h3 class="contribute">Contribute</h3>
-                    <ul>
-                        <li><a href="">Images</a></li>
-                        <li><a href="">Data</a></li>
-                        <li><a href="">Links</a></li>
-                    </ul>
-                </div><!--close tools-->
+                <div class="section buttons sighting no-margin-top">
+                    <div class="last">
+                        <h3><a href="${contributeURL}">Contribute <span>Sightings, photos and data for the
+                        	<strong>
+                        		<c:choose>
+                        		<c:when test="${not empty extendedTaxonConcept.commonNames}">
+                        			${extendedTaxonConcept.commonNames[0].nameString}
+                        		</c:when>
+                        		<c:otherwise>
+                        			${extendedTaxonConcept.taxonConcept.nameString}
+                        		</c:otherwise>
+                        		</c:choose>
+                        	</strong>
+                        	</span>
+                       	 </a>
+                        </h3>
+                    </div>
+                </div>
                 <div class="section">
                 </div><!--close-->
             </div><!--close -->
