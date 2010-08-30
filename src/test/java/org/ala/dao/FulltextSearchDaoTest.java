@@ -13,6 +13,42 @@ import org.ala.util.SpringUtils;
 
 public class FulltextSearchDaoTest extends TestCase {
 
+	public void testFindSpecies() throws Exception {
+		
+		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");
+		
+		SearchResultsDTO<SearchDTO> rs = (SearchResultsDTO<SearchDTO>) searchDao.doFullTextSearch("red kangaroo", null, 0, 10, "name", "asc");
+		System.out.println("red kangaroo: " + rs.getResults().size());
+		
+		rs = (SearchResultsDTO<SearchDTO>) searchDao.doFullTextSearch("kangaroos", null, 0, 10, "name", "asc");
+		System.out.println("kangaroos: " + rs.getResults().size());
+
+		rs = (SearchResultsDTO<SearchDTO>) searchDao.doFullTextSearch("kangaroo", null, 0, 10, "name", "asc");
+		System.out.println("kangaroo: " + rs.getResults().size());
+		
+		rs = (SearchResultsDTO<SearchDTO>) searchDao.doFullTextSearch("red *", null, 0, 10, "name", "asc");
+		System.out.println("red *: " + rs.getResults().size());
+		
+		rs = (SearchResultsDTO<SearchDTO>) searchDao.doFullTextSearch("red*", null, 0, 10, "name", "asc");
+		System.out.println("red*: " + rs.getResults().size());
+
+		rs = (SearchResultsDTO<SearchDTO>) searchDao.doFullTextSearch("red k*", null, 0, 10, "name", "asc");
+		System.out.println("red k*: " + rs.getResults().size());
+		
+		rs = (SearchResultsDTO<SearchDTO>) searchDao.doFullTextSearch("redk*", null, 0, 10, "name", "asc");
+		System.out.println("redk*: " + rs.getResults().size());
+		
+		rs = (SearchResultsDTO<SearchDTO>) searchDao.doFullTextSearch("* kangaroo", null, 0, 10, "name", "asc");
+		System.out.println("* kangaroo: " + rs.getResults().size());
+
+		rs = (SearchResultsDTO<SearchDTO>) searchDao.doFullTextSearch("*kangaroo", null, 0, 10, "name", "asc");
+		System.out.println("*kangaroo: " + rs.getResults().size());
+
+		
+		rs = (SearchResultsDTO<SearchDTO>) searchDao.doFullTextSearch("red k", null, 0, 10, "name", "asc");
+		System.out.println("red k: " + rs.getResults().size());		
+	}
+	
 	public void testGetRegions() throws Exception {
 		FulltextSearchDao searchDao = (FulltextSearchDao) SpringUtils.getContext().getBean("fulltextSearchDaoImplSolr");
 		SearchResultsDTO<SearchRegionDTO> rs = (SearchResultsDTO<SearchRegionDTO>) searchDao.findAllRegionsByType(RegionTypes.STATE);
