@@ -392,10 +392,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean setIsIconic(String guid) throws Exception {
 		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, IS_ICONIC, guid, true);
 	}
-        
-        public boolean setIsAustralian(String guid) throws Exception {
-            return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, IS_AUSTRALIAN, guid, true);
-        }
+    
+    public boolean setIsAustralian(String guid) throws Exception {
+        return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, IS_AUSTRALIAN, guid, true);
+    }
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#create(java.util.List)
 	 */
@@ -422,7 +422,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		ExtendedTaxonConceptDTO etc = new ExtendedTaxonConceptDTO();
 		
 		guid = getPreferredGuid(guid);
-                
+		
 		//populate the dto
 		etc.setTaxonConcept(getByGuid(guid));
 		etc.setTaxonName(getTaxonNameFor(guid));
@@ -451,7 +451,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         
 		// sort the list of SimpleProperties for display in UI
         List<SimpleProperty> simpleProperties = getTextPropertiesFor(guid);
-        //merge all the text of the same type for the same infosource
         Collections.sort(simpleProperties);
         etc.setSimpleProperties(simpleProperties);
         
@@ -981,6 +980,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		LinnaeanRankClassification classification = new LinnaeanRankClassification(kingdom, null, null, order, family, genus, scientificName);
 
 		String guid = findLsidByName(scientificName, classification, rank);
+		
 
 		// if null try with the species name
 		if (guid == null && species != null) {
@@ -992,6 +992,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 
 		if (guid != null) {
+			
+			Rank rankObj = Rank.getForName(rank);
 			
 //			Map<String, Object> properties = new HashMap<String,Object>();
 			
@@ -1019,39 +1021,45 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						
 					} else if(triple.predicate.endsWith("hasConservationStatus")){
 						
-						//lookup the vocabulary term
-						ConservationStatus cs = vocabulary.getConservationStatusFor(document.getInfoSourceId(), triple.object);
-						if(cs==null){
-							cs = new ConservationStatus();
-							cs.setStatus(triple.object);
+						//dont add conservation status to higher ranks than species
+						if(rankObj!=null && rankObj.getId() < Rank.SP.getId()){
+						
+							//lookup the vocabulary term
+							ConservationStatus cs = vocabulary.getConservationStatusFor(document.getInfoSourceId(), triple.object);
+							if(cs==null){
+								cs = new ConservationStatus();
+								cs.setStatus(triple.object);
+							}
+		
+							cs.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
+							cs.setDocumentId(Integer.toString(document.getId()));
+		                    cs.setInfoSourceName(dcPublisher);
+		                    cs.setInfoSourceURL(dcSource);
+		                    cs.setTitle(dcTitle);
+		                    cs.setIdentifier(dcIdentifier);
+		                    cs.setRawStatus(triple.object);
+							addConservationStatus(guid, cs);
 						}
-	
-						cs.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
-						cs.setDocumentId(Integer.toString(document.getId()));
-	                    cs.setInfoSourceName(dcPublisher);
-	                    cs.setInfoSourceURL(dcSource);
-	                    cs.setTitle(dcTitle);
-	                    cs.setIdentifier(dcIdentifier);
-	                    cs.setRawStatus(triple.object);
-						addConservationStatus(guid, cs);
 						
 					} else if(triple.predicate.endsWith("hasPestStatus")){
 	
-						//lookup the vocabulary term
-						PestStatus ps = vocabulary.getPestStatusFor(document.getInfoSourceId(), triple.object);
-						if(ps==null){
-							ps = new PestStatus();
-							ps.setStatus(triple.object);
+						if(rankObj!=null && rankObj.getId() < Rank.SP.getId()){
+							//lookup the vocabulary term
+							PestStatus ps = vocabulary.getPestStatusFor(document.getInfoSourceId(), triple.object);
+							if(ps==null){
+								ps = new PestStatus();
+								ps.setStatus(triple.object);
+							}
+							
+							ps.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
+							ps.setDocumentId(Integer.toString(document.getId()));
+		                    ps.setInfoSourceName(dcPublisher);
+		                    ps.setInfoSourceURL(dcSource);
+		                    ps.setTitle(dcTitle);
+		                    ps.setIdentifier(dcIdentifier);
+		                    ps.setRawStatus(triple.object);
+							addPestStatus(guid, ps);
 						}
-						
-						ps.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
-						ps.setDocumentId(Integer.toString(document.getId()));
-	                    ps.setInfoSourceName(dcPublisher);
-	                    ps.setInfoSourceURL(dcSource);
-	                    ps.setTitle(dcTitle);
-	                    ps.setIdentifier(dcIdentifier);
-	                    ps.setRawStatus(triple.object);
-						addPestStatus(guid, ps);
 						
 	                } else if (triple.predicate.endsWith("hasImagePageUrl")) {
 	                    // do nothing but prevent getting caught next - added further down
@@ -1225,9 +1233,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		Scanner scanner = storeHelper.getScanner(TC_TABLE, TC_COL_FAMILY, TAXONCONCEPT_COL);
 		
 		//load iconic species
-		
-		
-		
 		
 		byte[] guidAsBytes = null;
 		
