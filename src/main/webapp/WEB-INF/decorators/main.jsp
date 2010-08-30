@@ -123,9 +123,6 @@ include file="/common/taglibs.jsp" %>
                    </ul>
                     <!-- WP Menubar 4.7: end menu nav-site, template Superfish, CSS  -->
                 </div><!--close nav-->
-                <c:if test="${!empty pageContext.request.remoteUser}">
-                    <div id="loginId">${pageContext.request.remoteUser}</div>
-                </c:if>
                 <div id="wrapper_search">
 			<form id="search-form" action="${pageContext.request.contextPath}/search" method="get" name="search-form"> 
 				<label for="search">Search</label> 
@@ -135,6 +132,9 @@ include file="/common/taglibs.jsp" %>
 		</div><!--close wrapper_search-->
             </div><!--close banner-->
             <div id="content">
+                <c:if test="${!empty pageContext.request.remoteUser}">
+		            <div id="loginId">You are logged in as: ${pageContext.request.remoteUser}</div>
+                </c:if>
                 <decorator:body />
             </div><!--close content-->
             <div id="nav-footer">
