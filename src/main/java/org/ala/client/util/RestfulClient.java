@@ -15,16 +15,16 @@
 
 package org.ala.client.util;
 
-import java.net.SocketTimeoutException;
+import java.io.IOException;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.log4j.Logger;
 
 /**
  * Restful Web Service Client.
@@ -34,7 +34,6 @@ import org.apache.log4j.Logger;
  */
 public class RestfulClient {
 	private static MultiThreadedHttpConnectionManager connManager = new MultiThreadedHttpConnectionManager();
-	private static Logger logger = Logger.getLogger(RestfulClient.class);
 	private static final String JSON_MIME_TYPE = "application/json";
 	private static final String ENCODE_TYPE = "utf-8";
 	
@@ -62,8 +61,11 @@ public class RestfulClient {
 	 * @param url URL Endpoint
 	 * @param jsonRequestBody JSON Object to post to URL
 	 * @return [0]: status code; [1]: a JSON encoded response
+	 * @throws IOException 
+	 * @throws HttpException 
+	 * @throws Exception 
 	 */
-	public Object[] restPost(String url, String jsonRequestBody){
+	public Object[] restPost(String url, String jsonRequestBody) throws HttpException, IOException {
 		PostMethod post = null;
 		String resp = null;
 		int statusCode = 0;
@@ -77,14 +79,6 @@ public class RestfulClient {
         	if(statusCode != HttpStatus.SC_OK){
         		resp = post.getResponseBodyAsString();
         	}
-        } 
-        catch(SocketTimeoutException se){
-        	statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
-        	logger.error("Could not send message!!, jsonRequestBody: " + jsonRequestBody, se);
-        }
-        catch(Exception e) {
-        	statusCode = HttpStatus.SC_NOT_ACCEPTABLE;
-        	logger.error("Could not send message!!, jsonRequestBody: " + jsonRequestBody, e);
         } finally {
         	if(post != null){
         		post.releaseConnection();
@@ -99,8 +93,10 @@ public class RestfulClient {
 	 * 
 	 * @param url URL Endpoint with request parameters.
 	 * @return [0]: status code; [1]: a JSON encoded response.
+	 * @throws IOException 
+	 * @throws HttpException 
 	 */
-	public Object[] restGet(String url){
+	public Object[] restGet(String url) throws HttpException, IOException{
 		GetMethod get = null;
 		String resp = "";
 		int statusCode = 0;
@@ -109,14 +105,6 @@ public class RestfulClient {
         	get = new GetMethod(url);        
         	statusCode = client.executeMethod(get);
         	resp = get.getResponseBodyAsString();
-        } 
-        catch(SocketTimeoutException se){
-        	statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
-        	logger.error("Could not send message!!, url: " + url, se);
-        }
-        catch(Exception e) {
-        	statusCode = HttpStatus.SC_NOT_ACCEPTABLE;
-        	logger.error("Could not send message!!, url: " + url, e);
         } finally {
         	if(get != null){
         		get.releaseConnection();

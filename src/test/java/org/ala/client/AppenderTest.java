@@ -1,8 +1,11 @@
 package org.ala.client;
 
+import java.io.IOException;
+
 import org.ala.client.appender.RestLevel;
 import org.ala.client.util.RestfulClient;
 import org.junit.Test;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.log4j.*;
 
 public class AppenderTest {
@@ -36,8 +39,17 @@ public class AppenderTest {
      @Test
      public void testRestClient(){
     	 RestfulClient restfulClient = new RestfulClient();
-    	 Object[] ar = restfulClient.restGet("http://152.83.198.112:8080/ala-logger/service/logger/get.json?q=dp123&year=2010&eventTypeId=12345");
-    	 System.out.println(ar);
+    	 Object[] ar;
+		try {
+			ar = restfulClient.restGet("http://logger.ala.org.au/ala-logger-service/service/logger/get.json?q=dp123&year=2010&eventTypeId=12345");
+			System.out.println("Status Code: " + ar[0] + ", jsonContent: " + ar[1]);
+		} catch (HttpException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}    	
      }
 }
 
