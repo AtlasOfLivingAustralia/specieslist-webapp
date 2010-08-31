@@ -16,6 +16,7 @@
 package org.ala.client.util;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -25,6 +26,8 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  * Restful Web Service Client.
@@ -36,7 +39,7 @@ public class RestfulClient {
 	private static MultiThreadedHttpConnectionManager connManager = new MultiThreadedHttpConnectionManager();
 	private static final String JSON_MIME_TYPE = "application/json";
 	private static final String ENCODE_TYPE = "utf-8";
-	
+	private ObjectMapper serMapper;
 	private HttpClient client;
 	
 	//client connection timeout.
@@ -52,7 +55,10 @@ public class RestfulClient {
         //create the client to call the logger REST api
         client = new HttpClient(connManager);
         //set connection timeout
-        client.getParams().setSoTimeout(timeout);		
+        client.getParams().setSoTimeout(timeout);
+        
+        serMapper = new ObjectMapper();
+        serMapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 	}
 	
 	/**
@@ -63,20 +69,20 @@ public class RestfulClient {
 	 * @return [0]: status code; [1]: a JSON encoded response
 	 * @throws IOException 
 	 * @throws HttpException 
-	 * @throws Exception 
 	 */
 	public Object[] restPost(String url, String jsonRequestBody) throws HttpException, IOException {
 		PostMethod post = null;
 		String resp = null;
 		int statusCode = 0;
 		
+		System.out.println("**** jsonRequestBody: " + jsonRequestBody);
         try {        	
 	        post = new PostMethod(url);
 	        RequestEntity entity = new StringRequestEntity(jsonRequestBody, JSON_MIME_TYPE, ENCODE_TYPE); 
 	        post.setRequestEntity(entity); 
         
         	statusCode = client.executeMethod(post);
-        	if(statusCode != HttpStatus.SC_OK){
+        	if(statusCode == HttpStatus.SC_OK){
         		resp = post.getResponseBodyAsString();
         	}
         } finally {
@@ -86,6 +92,19 @@ public class RestfulClient {
         }
     	Object[] o = new Object[]{statusCode, resp};        	      
         return o;		
+	}
+	
+	/**
+	 * Makes a POST request to the specified URL and passes the provided JSON Object
+	 * 
+	 * @param url URL Endpoint
+	 * @param jsonRequestBody JSON Object to post to URL
+	 * @return [0]: status code; [1]: a JSON encoded response
+	 * @throws IOException 
+	 * @throws HttpException 
+	 */
+	public Object[] restPost(String url, Collection object) throws HttpException, IOException {
+        return this.restPost(url, serMapper.writeValueAsString(object.toArray()));		
 	}
 	
 	/**
