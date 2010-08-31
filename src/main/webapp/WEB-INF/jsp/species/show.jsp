@@ -230,8 +230,13 @@
                             <div>
                                 <h2>Sorry!</h2>
                                 <h3><a href="${contributeURL}">We know the species name, but not much else. Can you help?
-                                    <span><b>Contribute</b> sightings, photos and data for the
-                                    <strong>Jayakar Lizard</strong></span></a></h3>
+                                    <span><b>Contribute</b> sightings, photos and data for 
+                                        <c:choose>
+                                            <c:when test="${not empty extendedTaxonConcept.commonNames}">the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong></c:when>
+                                            <c:otherwise><c:if test="${extendedTaxonConcept.taxonConcept.rankID <= 6000}">the ${extendedTaxonConcept.taxonConcept.rankString} </c:if><strong>${sciNameFormatted}</strong></c:otherwise>
+                                        </c:choose>
+                                    </span></a>
+                                </h3>
                             </div>
                         </div> 
                     </c:if>
@@ -257,24 +262,24 @@
                         </c:forEach>
                     </ul>
                 </div>
-                <div class="section buttons sighting no-margin-top">
-                    <div class="last">
-                        <h3><a href="${contributeURL}">Contribute <span>Sightings, photos and data for the
-                        	<strong>
-                        		<c:choose>
-                        		<c:when test="${not empty extendedTaxonConcept.commonNames}">
-                        			${extendedTaxonConcept.commonNames[0].nameString}
-                        		</c:when>
-                        		<c:otherwise>
-                        			${extendedTaxonConcept.taxonConcept.nameString}
-                        		</c:otherwise>
-                        		</c:choose>
-                        	</strong>
-                        	</span>
-                       	 </a>
-                        </h3>
+                <c:if test="${not empty textProperties}">
+                    <div class="section buttons sighting no-margin-top">
+                        <div class="last">
+                            <h3>
+                                <a href="${contributeURL}">Contribute <span>Sightings, photos and data for 
+                                    <c:choose>
+                                        <c:when test="${not empty extendedTaxonConcept.commonNames}">
+                                            the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <c:if test="${extendedTaxonConcept.taxonConcept.rankID <= 6000}">the ${extendedTaxonConcept.taxonConcept.rankString} </c:if><strong>${extendedTaxonConcept.taxonConcept.nameString}</strong>
+                                        </c:otherwise>
+                                    </c:choose></span>
+                                </a>
+                            </h3>
+                        </div>
                     </div>
-                </div>
+                </c:if>
                 <div class="section">
                     <div class="distroMap" style="display:none;">
                         <h3>Mapped records</h3>
@@ -519,22 +524,25 @@
             <div id="column-one">
                 <div class="section">
                     <h2>Scientific Classification</h2>
-                    <ul>
+                    <div id="classificationList">
                     	<c:forEach items="${taxonHierarchy}" var="taxon">
-                            <li>${taxon.rank}: 
-                               	<c:if test="${taxon.guid != extendedTaxonConcept.taxonConcept.guid}">
-                                <a href="<c:url value='/species/${taxon.guid}#classification'/>" title="${taxon.rank}">
-                                </c:if>
-                                	<c:if test="${taxon.rankId>=6000}"><i></c:if>
-	                                	${taxon.name}
-                                	<c:if test="${taxon.rankId>=6000}"></i></c:if>
-                                	<c:if test="${not empty taxon.commonNameSingle && taxon.guid == extendedTaxonConcept.taxonConcept.guid}">
-                                	 	(${taxon.commonNameSingle})
-                                	</c:if>
-                            	<c:if test="${taxon.guid != extendedTaxonConcept.taxonConcept.guid}">
-                                </a>
-                                </c:if>
-                            </li>
+                            <ul>
+                               	<c:choose>
+                                    <c:when test="${taxon.guid != extendedTaxonConcept.taxonConcept.guid}">
+                                        <li>${taxon.rank}: <a href="<c:url value='/species/${taxon.guid}#classification'/>" title="${taxon.rank}">
+                                            <alatag:formatSciName name="${taxon.name}" rankId="${taxon.rankId}"/>
+                                            <c:if test="${not empty taxon.commonNameSingle && taxon.guid == extendedTaxonConcept.taxonConcept.guid}">
+                                                (${taxon.commonNameSingle})
+                                            </c:if>
+                                        </a></li>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <li id="currentTaxonConcept">${taxon.rank}: <span><alatag:formatSciName name="${taxon.name}" rankId="${taxon.rankId}"/>
+                                        <c:if test="${not empty taxon.commonNameSingle && taxon.guid == extendedTaxonConcept.taxonConcept.guid}">
+                                                (${taxon.commonNameSingle})
+                                            </c:if></span></li>
+                                    </c:otherwise>
+                                </c:choose>
                     	</c:forEach>
                         <ul>
                             <c:forEach items="${childConcepts}" var="child">
@@ -550,7 +558,10 @@
                                 </li>
                             </c:forEach>
                         </ul>
-                    </ul>
+                        <c:forEach items="${taxonHierarchy}" var="taxon">
+                            </ul>
+                        </c:forEach>
+                    </div>
                     <%-- <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) > 0}">
                         <h5>Parent <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) > 1}">Taxa</c:if>
                             <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) < 2}">Taxon</c:if></h5>

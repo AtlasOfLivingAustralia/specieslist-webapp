@@ -53,3 +53,14 @@ table.propertyTable th, .propertyTable td {
     border-radius: 0 0 10px 10px; /* Opera 10.5, IE 9 */
 }
 #infoSourceList h3 { padding: 3px 0 10px 0; }
+li#currentTaxonConcept {
+    list-style-image:  url('images/right-arrow.gif');
+}
+#currentTaxonConcept span {
+    color: #DD3102;
+    font-weight: bold;
+}
+
+#classificationList ul {
+    margin-left: 15px;
+}
