@@ -363,8 +363,10 @@
     
   </ul>
 
+  <c:if test="${regionType.name != 'state'}">
+
   <!-- Start of the Comparison Tool -->
-  <h2 id="comparisonToolHdr">Compare biodiversity to other states and territories<a name="compare">&nbsp;</a></h2>
+  <h2 id="comparisonToolHdr"><spring:message code="regiontype.${regionType.name}.compareTo"/><a name="compare">&nbsp;</a></h2>
   <div id="comparisonTable">
       <form><!-- JQuery UI buttons -->
           <div id="compareRegions" class="regionSelect">
@@ -407,7 +409,7 @@
            </td>
          </tr>
       </table>
-      
+
       <script type="text/javascript"><!--
       // currently selected grouping
       var selectedTaxaSimple = null;
@@ -504,6 +506,7 @@
       }
       --></script>
   </div>
+  </c:if>
 </div>
 </div>
 </body>
