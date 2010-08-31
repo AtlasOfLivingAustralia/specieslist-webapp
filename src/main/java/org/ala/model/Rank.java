@@ -18,6 +18,8 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Enum to store values of taxon rank extracted from namesIndex.txt dump
  *
@@ -137,10 +139,16 @@ public enum Rank {
      * @return RankFacet the RankFacet
      */
     public static Rank getForField(String field) {
+    	if(StringUtils.isEmpty(field)){
+    		return null;
+    	}
         return fieldLookup.get(field.toLowerCase());
     }
 
     public static Rank getForName(String name) {
+    	if(StringUtils.isEmpty(name)){
+    		return null;
+    	}
         return nameLookup.get(name.toLowerCase());
     }
     /**

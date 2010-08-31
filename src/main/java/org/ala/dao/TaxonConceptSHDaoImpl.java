@@ -944,33 +944,42 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		
 		// Lookup LSID in Checklist Bank data 
 		String rank = null;
+		Rank rankObj = null;
 		if (scientificName == null) {
 			if (subspecies != null) {
 				scientificName = subspecies;
 				rank = "subspecies";
+				rankObj = Rank.SSP;
 			} else if (species != null) {
 				scientificName = species;
 				rank = "species";
+				rankObj = Rank.SP;
 			} else if (genus != null) {
 				if (specificEpithet != null) {
 					scientificName = genus + " " + specificEpithet;
 					rank = "species";
+					rankObj = Rank.SP;
 				} else {
 					scientificName = genus;
 					rank = "genus";
+					rankObj = Rank.GEN;
 				}
 			} else if (family != null) {
 				scientificName = family;
 				rank = "family";
+				rankObj = Rank.FAM;
 			} else if (superfamily != null) {
 				scientificName = superfamily;
 				rank = "superfamily";
+				rankObj = Rank.SUPERFAM;
 			} else if (order != null) {
 				scientificName = order;
 				rank = "order";
+				rankObj = Rank.ORD;
 			} else if (kingdom != null) {
 				scientificName = kingdom;
 				rank = "kingdom";
+				rankObj = Rank.REG;
 			} else {
 				logger.error("Not enough search data for Checklist Bank found for document at: "+document.getFilePath());
 				return false;
@@ -978,9 +987,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 
 		LinnaeanRankClassification classification = new LinnaeanRankClassification(kingdom, null, null, order, family, genus, scientificName);
-
 		String guid = findLsidByName(scientificName, classification, rank);
-		
 
 		// if null try with the species name
 		if (guid == null && species != null) {
@@ -992,8 +999,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 
 		if (guid != null) {
-			
-			Rank rankObj = Rank.getForName(rank);
 			
 //			Map<String, Object> properties = new HashMap<String,Object>();
 			
