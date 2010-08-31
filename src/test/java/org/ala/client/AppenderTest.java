@@ -1,6 +1,7 @@
 package org.ala.client;
 
 import org.ala.client.appender.RestLevel;
+import org.ala.client.util.RestfulClient;
 import org.junit.Test;
 import org.apache.log4j.*;
 
@@ -30,6 +31,13 @@ public class AppenderTest {
     	LogManager.shutdown();
 
     	return;
-    }    
+    }  
+     
+     @Test
+     public void testRestClient(){
+    	 RestfulClient restfulClient = new RestfulClient();
+    	 Object[] ar = restfulClient.restGet("http://152.83.198.112:8080/ala-logger/service/logger/get.json?q=dp123&year=2010&eventTypeId=12345");
+    	 System.out.println(ar);
+     }
 }
 

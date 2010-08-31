@@ -15,15 +15,10 @@
 
 package org.ala.client.appender;
 
-import java.net.SocketTimeoutException;
-
 import org.ala.client.model.LogEventVO;
-import org.apache.commons.httpclient.HttpClient;
+import org.ala.client.util.RestfulClient;
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.helpers.LogLog;
 import org.apache.log4j.spi.LoggingEvent;
@@ -44,19 +39,14 @@ public class RestfulAppender extends AppenderSkeleton {
 	private String password;
 	private int timeout;
 
-	private MultiThreadedHttpConnectionManager connManager;
-	private HttpClient client;
 	private ObjectMapper serMapper;
 	private ObjectMapper deserMapper;
+	private RestfulClient restfulClient;
 	
 	public RestfulAppender(){
 		super();
-		connManager = new MultiThreadedHttpConnectionManager();
-        //create the client to call the logger REST api
-        client = new HttpClient(connManager);
-        //set connection timeout
-        client.getParams().setSoTimeout(timeout);
-        
+		restfulClient = new RestfulClient(timeout);
+		        
         serMapper = new ObjectMapper();
         serMapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
         deserMapper = new ObjectMapper();
@@ -92,13 +82,7 @@ public class RestfulAppender extends AppenderSkeleton {
 		if (!isAsSevereAsThreshold(event.getLevel())){
 			return;
 		}
-
 		sendRestRequest(event);
-		
-//		int statusCode = sendRestRequest(event);
-//		if(statusCode != 200){
-//			LogLog.error("Could not send message from RestfulAppender [" + name + "]. Status Code: " + statusCode);
-//		}
 	}
 
 	private boolean checkEntryConditions() {
@@ -127,16 +111,11 @@ public class RestfulAppender extends AppenderSkeleton {
         		deserMapper.readValue(message, LogEventVO.class);        		
         	}
         	
-	        post = new PostMethod(urlTemplate);
-	        RequestEntity entity = new StringRequestEntity(message, "application/json", "utf-8"); 
-	        post.setRequestEntity(entity); 
-        
-        	statusCode = client.executeMethod(post);
+        	Object[] array = restfulClient.restPost(urlTemplate, message);
+        	if(array != null && array.length > 0){
+        		statusCode = (Integer)array[0];
+        	}
         } 
-        catch(SocketTimeoutException se){
-        	statusCode = HttpStatus.SC_REQUEST_TIMEOUT;
-        	LogLog.error("Could not send message from RestfulAppender [" + name + "],\nMessage: " + event.getMessage(), se);
-        }
         catch(Exception e) {
         	statusCode = HttpStatus.SC_NOT_ACCEPTABLE;
 	        LogLog.error("Could not send message from RestfulAppender [" + name + "],\nMessage: " + event.getMessage(), e);
