@@ -39,13 +39,15 @@ import org.ala.vocabulary.Vocabulary;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.gbif.ecat.model.ParsedName;
+import org.gbif.ecat.parser.NameParser;
 import org.springframework.stereotype.Component;
 
 import au.com.bytecode.opencsv.CSVWriter;
@@ -167,6 +169,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
                 queryString.append(":");
                 queryString.append(ClientUtils.escapeQueryChars(bits[1]).toLowerCase());
             } else {
+            	
                 String cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
                 //queryString.append(ClientUtils.escapeQueryChars(query));
                 queryString.append("idxtype:"+IndexedTypes.TAXON);
@@ -174,6 +177,13 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
                 queryString.append("scientificNameText:"+cleanQuery);
                 queryString.append(" OR commonName:"+cleanQuery);
                 queryString.append(" OR guid:"+cleanQuery);
+                
+        		String canonicalSciName = retrieveCanonicalForm(query);
+                if(canonicalSciName!=null){
+    	            queryString.append(" OR ");
+    	            queryString.append(" text:"+canonicalSciName);
+                }
+                
 //                queryString.append(" OR simpleText:"+cleanQuery);  //commented out for now as this gives confusing results to users
                 queryString.append(")");
             }
@@ -241,6 +251,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 
 	public SearchResultsDTO<SearchDTO> doFullTextSearch(String query, String[] filterQuery, Integer startIndex, Integer pageSize, String sortField, String sortDirection) throws Exception {
         
+		//parse scientific name into a canonical form, strip authorships etc
+		//construct a searchable form of the sci name
         try {
         	StringBuffer queryString = new StringBuffer();
             String cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
@@ -249,6 +261,13 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             queryString.append(" text:"+cleanQuery);
             queryString.append(" OR ");
             queryString.append(" scientificNameText:"+cleanQuery);
+            
+    		String canonicalSciName = retrieveCanonicalForm(query);
+            if(canonicalSciName!=null){
+	            queryString.append(" OR ");
+	            queryString.append(" text:"+canonicalSciName);
+            }
+            
             logger.info("search query: "+queryString.toString());
             return doSolrSearch(queryString.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
         } catch (SolrServerException ex) {
@@ -257,6 +276,20 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             searchResults.setStatus("ERROR"); // TODO also set a message field on this bean with the error message(?)
             return searchResults;
         }
+	}
+
+	/**
+	 * Retrieve a canonical form of the name to search with.
+	 * @param query
+	 * @return
+	 */
+	private String retrieveCanonicalForm(String query) {
+		NameParser np = new NameParser();
+		ParsedName pn = np.parse(query);
+		if(pn!=null){
+			return pn.canonicalName();
+		}
+		return null;
 	}
 	
 	/**
