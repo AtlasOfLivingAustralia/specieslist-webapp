@@ -1,3 +1,17 @@
+/***************************************************************************
+ * Copyright (C) 2010 Atlas of Living Australia
+ * All Rights Reserved.
+ *
+ * The contents of this file are subject to the Mozilla Public
+ * License Version 1.1 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of
+ * the License at http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS
+ * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ ***************************************************************************/
 package au.org.ala.cas.client;
 
 import java.io.IOException;
@@ -23,9 +37,16 @@ import au.org.ala.cas.util.PatternMatchingUtils;
  * is invoked.<p>
  * The list of regex's are delimited by commas and are defined in the <code>&lt;context-param&gt; uriFilterPattern</code>.
  * <p>
+ * The <code>contextPath</code> parameter value (if present) is prefixed to each URI pattern defined in the <code>uriFilterPattern</code> list.
+ * <p>
  * An example of usage is shown in the following web.xml fragment,
  * <p><pre>
      ...
+     &lt;context-param&gt;
+         &lt;param-name&gt;contextPath&lt;/param-name&gt;
+         &lt;param-value&gt;/biocache-webapp&lt;/param-value&gt;
+     &lt;/context-param&gt;
+  
      &lt;context-param&gt;
          &lt;param-name&gt;uriFilterPattern&lt;/param-name&gt;
          &lt;param-value&gt;/, /occurrences/\d+&lt;/param-value&gt;
@@ -57,13 +78,21 @@ public class UriFilter implements Filter {
 	private final static Logger logger = Logger.getLogger(UriFilter.class);
 	
 	private Filter filter;
+	private String contextPath;
 	private List<Pattern> inclusionPatterns;
 	
 	public void init(FilterConfig filterConfig) throws ServletException {
 
+		this.contextPath = filterConfig.getServletContext().getInitParameter("contextPath");
+		if (this.contextPath == null) {
+			this.contextPath = "";
+		} else {
+			logger.debug("Read context path = '" + contextPath + "'");
+		}
+
 		String includedUrlPattern = filterConfig.getServletContext().getInitParameter("uriFilterPattern");
-		logger.debug("Read includedUrlPattern = '" + includedUrlPattern + "'");
-		this.inclusionPatterns = PatternMatchingUtils.getPatternList(includedUrlPattern);
+		logger.debug("Read included URI Pattern = '" + includedUrlPattern + "'");
+		this.inclusionPatterns = PatternMatchingUtils.getPatternList(contextPath, includedUrlPattern);
 
 		String className = filterConfig.getInitParameter("filterClass");
 		try {
