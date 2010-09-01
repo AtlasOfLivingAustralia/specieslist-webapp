@@ -11,6 +11,7 @@ public class PatternMatchingTest extends TestCase {
 	public void testMatches() {
 		String contextPath = "/biocache-webapp";
 		String uriPattern = "/, /occurrences/\\d+";
+
 		List<Pattern> patterns = PatternMatchingUtils.getPatternList(contextPath, uriPattern);
 		assertFalse(PatternMatchingUtils.matches("", patterns));
 		assertFalse(PatternMatchingUtils.matches("/", patterns));
@@ -18,6 +19,11 @@ public class PatternMatchingTest extends TestCase {
 		assertTrue(PatternMatchingUtils.matches("/biocache-webapp/occurrences/35661424", patterns));
 		assertFalse(PatternMatchingUtils.matches("/favicon.ico", patterns));
 
+		List<Pattern> noContextPatterns = PatternMatchingUtils.getPatternList("", uriPattern);
+		assertTrue(PatternMatchingUtils.matches("/", noContextPatterns));
+		assertFalse(PatternMatchingUtils.matches("/biocache-webapp/", noContextPatterns));
+		assertTrue(PatternMatchingUtils.matches("/occurrences/35661424", noContextPatterns));
+		
 		List<Pattern> noPatterns = PatternMatchingUtils.getPatternList(null, null);
 		assertFalse(PatternMatchingUtils.matches("", noPatterns));
 
