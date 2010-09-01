@@ -3,7 +3,7 @@
 -- Export the data provider 
 select tc.guid, dp.id, dp.name, count(*)  as occurrences from occurrence_record oc
 inner join taxon_concept tc on tc.id=oc.taxon_concept_id
-where tc.rank>=7000
+where tc.rank>=7000 and tc.priority <>100
 group by tc.id, dp.id
 into outfile '/data/bie-staging/biocache/tc_dp.txt'
 fields enclosed by '"';
