@@ -72,7 +72,7 @@ public class ANBGDataLoader {
     	loader.load();
     	long finish = System.currentTimeMillis();
     	logger.info("Data loaded in: "+((finish-start)/60000)+" minutes.");
-//    	System.exit(1);
+    	System.exit(1);
 	}
 	
 	/**
