@@ -130,16 +130,18 @@ public class GeoRegionDaoImpl implements GeoRegionDao {
     		
     		//get taxon concept details
 			GeoRegion geoRegion = getByGuid(guid);
-    		SolrInputDocument doc = new SolrInputDocument();
-    		doc.addField("idxtype", IndexedTypes.REGION);
-    		doc.addField("id", geoRegion.getGuid());
-    		doc.addField("guid", geoRegion.getGuid());
-    		doc.addField("name", geoRegion.getName());
-    		doc.addField("regionTypeId", geoRegion.getRegionType());
-    		doc.addField("regionType", geoRegion.getRegionTypeName());
-    		doc.addField("acronym", geoRegion.getAcronym());
-            solrServer.add(doc);
-            solrServer.commit();
+			if(geoRegion!=null){
+	    		SolrInputDocument doc = new SolrInputDocument();
+	    		doc.addField("idxtype", IndexedTypes.REGION);
+	    		doc.addField("id", geoRegion.getGuid());
+	    		doc.addField("guid", geoRegion.getGuid());
+	    		doc.addField("name", geoRegion.getName());
+	    		doc.addField("regionTypeId", geoRegion.getRegionType());
+	    		doc.addField("regionType", geoRegion.getRegionTypeName());
+	    		doc.addField("acronym", geoRegion.getAcronym());
+	            solrServer.add(doc);
+	            solrServer.commit();
+			}
     	}
     	long finish = System.currentTimeMillis();
     	logger.info("Index created in: "+((finish-start)/1000)+" seconds with "+ i +" georegions processed.");
