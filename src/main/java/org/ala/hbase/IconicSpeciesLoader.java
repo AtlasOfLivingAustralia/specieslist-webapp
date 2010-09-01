@@ -50,6 +50,7 @@ public class IconicSpeciesLoader {
 		ApplicationContext context = SpringUtils.getContext();
 		IconicSpeciesLoader l = context.getBean(IconicSpeciesLoader.class);
 		l.load();
+		System.exit(0);
 	}
 	
 	public void load() throws Exception {

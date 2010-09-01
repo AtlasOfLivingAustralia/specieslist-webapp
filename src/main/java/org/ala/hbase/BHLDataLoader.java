@@ -92,6 +92,7 @@ public class BHLDataLoader {
         l.createAnbgBhlIndex();
         l.initIndexes();
         l.load();
+		System.exit(0);
     }
     public void printDistinctLsids()throws Exception{
         
