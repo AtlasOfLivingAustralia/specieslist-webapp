@@ -1,8 +1,9 @@
 -- Export Occurrence data from MySQL DB portal on alaproddb1-cbr.vm.csiro.au
 
 -- Export the data provider 
-select tc.guid, dp.id, dp.name, count(*)  as occurrences from occurrence_record oc
+select tc.guid, dp.uid, dp.name, count(*)  as occurrences from occurrence_record oc
 inner join taxon_concept tc on tc.id=oc.taxon_concept_id
+inner join data_provider dp on dp.id = oc.data_provider_id
 where tc.rank>=7000 and tc.priority <>100
 group by tc.id, dp.id
 into outfile '/data/bie-staging/biocache/tc_dp.txt'
@@ -28,7 +29,7 @@ inner join geo_region gr on gm.geo_region_id=gr.id
 inner join geo_region_type grt on gr.region_type=grt.id
 inner join taxon_concept tc on tc.id=oc.taxon_concept_id
 where tc.rank=7000
-where tc.priority <> 100
+and tc.priority <> 100
 group by tc.id, gr.id
 into outfile '/data/bie-staging/biocache/species_region.txt'
 fields enclosed by '"';
