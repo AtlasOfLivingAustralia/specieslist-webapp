@@ -75,6 +75,7 @@ public class ColFamilyNamesProcessor {
 		p.setInfoSourceDAO((InfoSourceDAO) context.getBean("infoSourceDAO"));
 		p.setRepository((Repository) context.getBean("repository"));
 		p.process();
+		System.exit(1);
 	}
 
 	/**
