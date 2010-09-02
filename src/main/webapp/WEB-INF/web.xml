@@ -63,6 +63,11 @@
     </context-param>
 
     <context-param>
+        <param-name>contextPath</param-name>
+        <param-value></param-value>
+    </context-param>
+
+    <context-param>
         <param-name>uriFilterPattern</param-name>
         <param-value>/, /search, /species/search, /species/urn:lsid.+, /regions/, /contributors</param-value>
     </context-param>
