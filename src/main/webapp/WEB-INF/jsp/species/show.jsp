@@ -126,7 +126,7 @@
         <div id="header" class="taxon">
             <c:set var="spatialPortalUrl">http://test.ala.org.au/explore/species-maps/</c:set>
             <c:set var="wordPressUrl">http://test.ala.org.au/</c:set>
-			<c:set var="biocacheUrl">${biocacheUrl}/</c:set>
+			<c:set var="biocacheUrl">http://biocache.ala.org.au/</c:set>
             
             <c:choose>
             <c:when test="${not empty extendedTaxonConcept.taxonName && not empty extendedTaxonConcept.taxonName.nameComplete}">
