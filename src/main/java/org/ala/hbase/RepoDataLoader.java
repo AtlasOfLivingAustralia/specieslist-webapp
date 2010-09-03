@@ -77,6 +77,7 @@ public class RepoDataLoader {
 		int filesRead = loader.load(filePath, args); //FIX ME - move to config
     	long finish = System.currentTimeMillis();
     	System.out.println(filesRead+" files scanned/loaded in: "+((finish-start)/60000)+" minutes "+((finish-start)/1000)+" seconds.");
+    	System.exit(1);
 	}
 
 	/**

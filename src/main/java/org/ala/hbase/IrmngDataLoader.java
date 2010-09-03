@@ -59,6 +59,7 @@ public class IrmngDataLoader {
 		ApplicationContext context = SpringUtils.getContext();
 		IrmngDataLoader l = context.getBean(IrmngDataLoader.class);
 		l.load();
+		System.exit(1);
 	}
 	
 	/**
