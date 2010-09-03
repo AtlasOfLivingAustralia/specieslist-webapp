@@ -126,6 +126,7 @@
         <div id="header" class="taxon">
             <c:set var="spatialPortalUrl">http://test.ala.org.au/explore/species-maps/</c:set>
             <c:set var="wordPressUrl">http://test.ala.org.au/</c:set>
+			<c:set var="biocacheUrl">${biocacheUrl}/</c:set>
             
             <c:choose>
             <c:when test="${not empty extendedTaxonConcept.taxonName && not empty extendedTaxonConcept.taxonName.nameComplete}">
@@ -139,7 +140,11 @@
 	            </c:set>           
             </c:otherwise>
             </c:choose>
+			
+			<!--             
             <c:set var="contributeURL" value="${wordPressUrl}contribute?guid=${extendedTaxonConcept.taxonConcept.guid}"/>
+             -->
+            <c:set var="contributeURL" value="${biocacheUrl}contribute/sighting/${extendedTaxonConcept.taxonConcept.guid}"/>
             
             <div id="breadcrumb">
                 <ul>
@@ -604,7 +609,7 @@
             <div id="column-one">
                 <div class="section">
                     <h2>Records</h2>
-                    <p><a href="http://biocache.ala.org.au/occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View
+                    <p><a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View
                             list of all occurrence records for this taxon</a></p>
                     <div class="distroMap" style="display:none;">
                         <h4>Map of Occurrence Records</h4>
@@ -624,7 +629,7 @@
                             <ul style="list-style-type: circle;">
                                 <c:forEach var="region" items="${regionType.regions}">
                                     <li>${region.name}:
-                                        <a href="http://biocache.ala.org.au/occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}&fq=state:${region.name}">${region.occurrences}</a>
+                                        <a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}&fq=state:${region.name}">${region.occurrences}</a>
                                     </li>
                                 </c:forEach>
                             </ul>
