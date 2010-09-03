@@ -274,6 +274,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#update(org.ala.model.TaxonConcept)
 	 */
 	public boolean update(TaxonConcept tc) throws Exception {
+
+		if(tc==null) {
+			return false;
+		}
 		
 		if (tc!=null && tc.getGuid() == null) {
 			throw new IllegalArgumentException("Supplied GUID for the Taxon Concept is null.");

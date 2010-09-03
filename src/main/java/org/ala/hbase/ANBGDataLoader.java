@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.lucene.CreateLoadingIndex;
-import org.ala.model.InfoSource;
 import org.ala.model.Publication;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
@@ -272,11 +271,6 @@ public class ANBGDataLoader {
 		LoadUtils loadUtils = new LoadUtils();
 		TabReader tr = new TabReader(TAXON_CONCEPTS);
 		
-		InfoSource afd = infoSourceDAO.getByUri("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/home");
-		InfoSource apc = infoSourceDAO.getByUri("http://www.anbg.gov.au/chah/apc/");
-		InfoSource apni = infoSourceDAO.getByUri("http://www.anbg.gov.au/apni/");
-		InfoSource col = infoSourceDAO.getByUri("http://www.catalogueoflife.org/");
-		
     	String[] record = null;
     	long start = System.currentTimeMillis();
     	int i=0;
@@ -306,31 +300,8 @@ public class ANBGDataLoader {
 			    			tc.setAuthorYear(record[4]);
 			    			tc.setPublishedInCitation(record[5]);
 			    			tc.setPublishedIn(record[6]);
+			    			taxonConceptDao.update(tc);
 	    				}
-
-//		    			String accepted = loadUtils.isAcceptedConcept(record[0]);
-//		    			if("APC".equals(accepted)){
-//		    				tc.setInfoSourceId(Integer.toString(apc.getId()));
-//		    				tc.setInfoSourceName(apc.getName());
-//		    				String internalId = record[0].substring(record[0].lastIndexOf(":")+1);
-//		    				tc.setInfoSourceURL("http://www.anbg.gov.au/cgi-bin/apni?taxon_id="+internalId);
-//		    			} else if(record[0].contains(":apni.")){
-//		    				tc.setInfoSourceId(Integer.toString(apni.getId()));
-//		    				tc.setInfoSourceName(apni.getName());
-//		    				String internalId = record[0].substring(record[0].lastIndexOf(":")+1);
-//		    				tc.setInfoSourceURL("http://www.anbg.gov.au/cgi-bin/apni?taxon_id="+internalId);
-//		    			} else if(record[0].contains("catalogue")){
-//		    				tc.setInfoSourceId(Integer.toString(col.getId()));
-//		    				tc.setInfoSourceName(col.getName());
-//		    				tc.setInfoSourceURL(col.getWebsiteUrl());
-//		    			} else if(record[0].contains(":afd.")){
-//		    				tc.setInfoSourceId(Integer.toString(afd.getId()));
-//		    				tc.setInfoSourceName(afd.getName());
-//		    				tc.setInfoSourceURL(afd.getWebsiteUrl());
-//		    				String internalId = record[0].substring(record[0].lastIndexOf(":")+1);
-//		    				tc.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+internalId);
-//		    			}
-		    			taxonConceptDao.update(tc);
 		    			j++;
 	    			} 
 	    		} else {
