@@ -130,6 +130,7 @@
   <ul id="taxonGroups">
 
     <!-- BIRDS -->
+    <c:if test="${birdCount>0}">
     <li id="birdsBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${birds.totalRecords>0}">
@@ -157,8 +158,10 @@
             </c:otherwise>
         </c:choose>
     </li>
+    </c:if>
 
     <!-- FISH -->
+    <c:if test="${fishCount>0}">
     <li id="fishBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${fish.totalRecords>0}">
@@ -186,8 +189,10 @@
             </c:otherwise>
         </c:choose>
     </li>
-
+	</c:if>
+	
     <!-- FROGS -->
+    <c:if test="${frogCount>0}">
     <li id="frogsBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${frogs.totalRecords>0}">
@@ -215,8 +220,10 @@
             </c:otherwise>
         </c:choose>
     </li>
+    </c:if>
 
     <!-- MAMMALS -->
+    <c:if test="${mammalCount>0}">
     <li id="mammalsBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${mammals.totalRecords>0}">
@@ -244,8 +251,10 @@
             </c:otherwise>
         </c:choose>
     </li>
+    </c:if>
 
     <!-- REPTILES -->
+    <c:if test="${reptileCount>0}">
     <li id="reptilesBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${reptiles.totalRecords>0}">
@@ -273,8 +282,10 @@
             </c:otherwise>
         </c:choose>
     </li>
+    </c:if>
     
     <!-- ARTHROPODS -->
+    <c:if test="${arthropodCount>0}">
     <li id="arthropodsBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${arthropods.totalRecords>0}">
@@ -302,8 +313,10 @@
             </c:otherwise>
         </c:choose>
     </li>
+    </c:if>
     
     <!-- MOLLUSCS-->
+    <c:if test="${molluscCount>0}">
     <li id="molluscsBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${molluscs.totalRecords>0}">
@@ -331,8 +344,10 @@
             </c:otherwise>
         </c:choose>
     </li>
+    </c:if>
     
     <!-- ANGIOSPERMS -->
+    <c:if test="${angiospermCount>0}">
     <li id="angiospermsBreakdown" class="taxonBreakdown">
         <c:choose>
             <c:when test="${angiosperms.totalRecords>0}">
@@ -360,6 +375,7 @@
             </c:otherwise>
         </c:choose>
     </li>
+    </c:if>
   </ul>
 </div>
 
