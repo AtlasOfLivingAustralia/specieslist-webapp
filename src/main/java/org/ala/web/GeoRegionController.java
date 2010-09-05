@@ -134,7 +134,7 @@ public class GeoRegionController {
 
 		//anthropods counts
 		SearchResultsDTO arthropods = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "phylum", "Arthropoda", null, 0, 24, "scientificNameRaw", "asc", true);
-		int arthropodsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Amphibia");
+		int arthropodsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Arthropoda");
 		model.addAttribute("arthropods", repoUrlUtils.fixRepoUrls(arthropods));
 		model.addAttribute("arthropodCount", arthropodsCount);
 		
