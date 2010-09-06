@@ -586,6 +586,7 @@
 
    <!-- BIE additions -->
    <copyField source="guid" dest="text"/>
+   <copyField source="otherGuid" dest="text"/>
    <copyField source="name" dest="text"/>
    <copyField source="acronym" dest="text"/>
    <copyField source="scientificName" dest="text"/>
@@ -593,6 +594,7 @@
    <!-- <copyField source="commonName" dest="text"/> -->
    <copyField source="pestStatus" dest="text"/>
    <copyField source="conservationStatus" dest="text"/>
+   
 
    <!-- Above, multiple source fields are copied to the [text] field.
 	  Another way to map multiple source fields to the same
