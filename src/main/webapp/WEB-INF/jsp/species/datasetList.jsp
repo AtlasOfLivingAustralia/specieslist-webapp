@@ -16,10 +16,10 @@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %><!DOCTYPE html PUBL
 	The Atlas of Living Australia will become the gateway to the country’s most comprehensive collection of Australia’s biodiversity information. 
 	It will draw on, and direct people to, research, literature, images, maps, records, natural history collections and observations on all Australian plants, 
 	animals and microorganisms. However, we cannot complete this task without co-operation and access to data sources. 
-	We are fortunate to have agreements with a range of data providers who are willing to shared their data and allow a comprehensive documentation of Australia’s Biodiversity.
+	We are fortunate to have agreements with a range of data providers who are willing to share their data and allow comprehensive documentation of Australia’s biodiversity.
 	</p>
     <c:if test="${not empty occurrenceInfoSources}">
-        <h3>&bull; Specimen and Observation providers</h3>
+        <h3>&bull; Specimen and Observation records</h3>
         <table class="datasets">
             <tr>
                 <th>Provider name</th>
