@@ -22,7 +22,7 @@ package org.ala.dao;
 public enum RegionTypes {
 
 	STATE("state", 1, 2),
-	LGA("lga", 3, 11),
+	LGA("lga", 3, 12),
 	IBRA("ibra", 2000, 2999),
 	IMCRA("imcra", 3000, 3999);
 	
