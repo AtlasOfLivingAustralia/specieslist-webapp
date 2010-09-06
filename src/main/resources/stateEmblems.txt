@@ -8,7 +8,7 @@ aus_states/Victoria	Lichenostomus melanops cassidix	bird	urn:lsid:biodiversity.o
 aus_states/Western Australia	Cygnus atratus	bird	urn:lsid:biodiversity.org.au:afd.taxon:267befe8-af2f-4de1-9257-cb677b7dd08f
 aus_states/Australian Capital Territory	Wahlenbergia gloriosa	plant	urn:lsid:biodiversity.org.au:apni.taxon:85205
 aus_states/New South Wales	Telopea speciosissima	plant	urn:lsid:biodiversity.org.au:apni.taxon:247599
-aus_states/Northern Territory	Gossypium sturtianum	plant	urn:lsid:biodiversity.org.au:apni.taxon:149577
+aus_states/Northern Territory	Gossypium sturtianum	plant	urn:lsid:biodiversity.org.au:apni.taxon:149575
 aus_states/Queensland	Vappodes phalaenopsis	plant	urn:lsid:biodiversity.org.au:apni.taxon:285790
 aus_states/South Australia	Swainsona formosa	plant	urn:lsid:biodiversity.org.au:apni.taxon:251760
 aus_states/Tasmania	Eucalyptus globulus	plant	urn:lsid:biodiversity.org.au:apni.taxon:305457
