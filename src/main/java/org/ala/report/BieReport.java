@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.ala.model.Classification;
 import org.ala.model.Image;
+import org.ala.model.TaxonConcept;
 import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import org.apache.cassandra.thrift.Cassandra.Client;
@@ -59,19 +60,25 @@ public class BieReport {
 	private String host = "localhost";
 	private int port = 9160;
 	private String keyspace = "bie";
-	private String columnFamily = "tc";
-	
+	private String columnFamily = "tc";	
 	private ObjectMapper mapper;
-	private List<String> invertebrateList;
-	private List<String> vertebrateList;
-	private List<String> plantList;
 	
-	public static final int IMAGE_CTR_INDEX = 0;
-	public static final int VERTEBRATE_CTR_INDEX = 1;
-	public static final int INVERTEBRATE_CTR_INDEX = 2;
-	public static final int PLANT_CTR_INDEX = 3;
-	public static final int OTHER_CTR_INDEX = 4;
-	public static final int NUMBER_OF_COUNTER = 5;
+	public static final List<String> VERTEBRATE_LIST = Arrays.asList("chordata");;
+	public static final List<String> PLANT_LIST = Arrays.asList("plantae");
+	public static final List<String> INVERTEBRATE_LIST = Arrays.asList("acanthocephala" ,"acoelomorpha", "annelida", "arthropoda",
+			"brachiopoda", "bryozoa", "chaetognatha", "cnidaria", "ctenophora", "cycliophora", 
+			"echinodermata", "entoprocta", "gastrotricha", "gnathostomulida", "hemichordata", 
+			"kinorhyncha", "loricifera", "micrognathozoa", "mollusca", "nematoda", "nemertea",
+			"onychophora", "phoronida", "platyhelminthes", "porifera", "priapulida", "rotifera", 
+			"sipuncula", "tardigrada", "xenoturbellida");
+	
+	enum CtrIndex {IMAGE_CTR_INDEX, VERTEBRATE_IMAGE_CTR_INDEX, INVERTEBRATE_IMAGE_CTR_INDEX, PLANT_IMAGE_CTR_INDEX,
+		OTHER_IMAGE_CTR_INDEX, VERTEBRATE_NAME_CTR_INDEX, INVERTEBRATE_NAME_CTR_INDEX, PLANT_NAME_CTR_INDEX,
+		OTHER_NAME_CTR_INDEX}	
+	enum Taxa {VERTEBRATE, INVERTEBRATE, PLANT, OTHER, INVALID}
+	public static final int NUMBER_OF_COUNTER = CtrIndex.values().length;
+	private int invalidImageCtr = 0;
+
 		
 	/**
 	 * @param args
@@ -119,15 +126,6 @@ public class BieReport {
 		Pelops.addPool(POOL_NAME, new String[]{this.host}, this.port, false, this.keyspace, new Policy());
 		mapper = new ObjectMapper();
 		mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		
-		invertebrateList = Arrays.asList("acanthocephala" ,"acoelomorpha", "annelida", "arthropoda",
-				"brachiopoda", "bryozoa", "chaetognatha", "cnidaria", "ctenophora", "cycliophora", 
-				"echinodermata", "entoprocta", "gastrotricha", "gnathostomulida", "hemichordata", 
-				"kinorhyncha", "loricifera", "micrognathozoa", "mollusca", "nematoda", "nemertea",
-				"onychophora", "phoronida", "platyhelminthes", "porifera", "priapulida", "rotifera", 
-				"sipuncula", "tardigrada", "xenoturbellida");
-		vertebrateList = Arrays.asList("chordata");
-		plantList = Arrays.asList("plantae");
 	}
 	
 	public void closeConnectionPool(){
@@ -182,23 +180,25 @@ public class BieReport {
 			keyRange.setStart_key(lastKey.getKey());			
 			keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
 			int[] counters = getBieReportCount(keySlices);
-			totalCtr[IMAGE_CTR_INDEX] += counters[IMAGE_CTR_INDEX];
-			totalCtr[VERTEBRATE_CTR_INDEX] += counters[VERTEBRATE_CTR_INDEX];
-			totalCtr[INVERTEBRATE_CTR_INDEX] += counters[INVERTEBRATE_CTR_INDEX];
-			totalCtr[PLANT_CTR_INDEX] += counters[PLANT_CTR_INDEX];
-			totalCtr[OTHER_CTR_INDEX] += counters[OTHER_CTR_INDEX];
-			
+			for(int i = 0; i < counters.length; i++){
+				totalCtr[i] += counters[i]; 
+			}			
 			System.out.println("Row Count:" + (ROWS * ctr++) + " >>>> lastKey: " + lastKey.getKey());
 			System.gc();
 		}
 		
 		System.out.println("\n==========< Summary >==========");
-		System.out.println("Image Counter: " + totalCtr[IMAGE_CTR_INDEX]);
-		System.out.println("Vertebrate Counter: " + totalCtr[VERTEBRATE_CTR_INDEX]);
-		System.out.println("Invertebrate Counter: " + totalCtr[INVERTEBRATE_CTR_INDEX]);
-		System.out.println("Plant Counter: " + totalCtr[PLANT_CTR_INDEX]);
-		System.out.println("Other Counter: " + totalCtr[OTHER_CTR_INDEX]);
+		System.out.println("All Image Counter: " + totalCtr[CtrIndex.IMAGE_CTR_INDEX.ordinal()]);
+		System.out.println("Vertebrate Image Counter: " + totalCtr[CtrIndex.VERTEBRATE_IMAGE_CTR_INDEX.ordinal()]);
+		System.out.println("Invertebrate Image Counter: " + totalCtr[CtrIndex.INVERTEBRATE_IMAGE_CTR_INDEX.ordinal()]);
+		System.out.println("Plant Image Counter: " + totalCtr[CtrIndex.PLANT_IMAGE_CTR_INDEX.ordinal()]);
+		System.out.println("Other Image Counter: " + totalCtr[CtrIndex.OTHER_IMAGE_CTR_INDEX.ordinal()]);
+		System.out.println("Vertebrate Name Counter: " + totalCtr[CtrIndex.VERTEBRATE_NAME_CTR_INDEX.ordinal()]);
+		System.out.println("Invertebrate Name Counter: " + totalCtr[CtrIndex.INVERTEBRATE_NAME_CTR_INDEX.ordinal()]);
+		System.out.println("Plant Name Counter: " + totalCtr[CtrIndex.PLANT_NAME_CTR_INDEX.ordinal()]);
+		System.out.println("Other Name Counter: " + totalCtr[CtrIndex.OTHER_NAME_CTR_INDEX.ordinal()]);		
 		System.out.println("Row Count:" + ROWS * ctr);
+		System.out.println("No/Invalid Classification Image Count:" + invalidImageCtr);
 		System.out.println("Total time taken (sec): "	+ ((System.currentTimeMillis() - start)/1000));
 		writeToFile(fileName, totalCtr, ROWS * ctr);
 	}
@@ -206,11 +206,15 @@ public class BieReport {
 	private void writeToFile(String fileName, int[] totalCtr, long rowCtr) throws IOException{
 		FileWriter fw = new FileWriter(fileName);
 		
-		fw.write("Image Counter: " + totalCtr[IMAGE_CTR_INDEX] + "\r\n");
-		fw.write("Vertebrate Counter: " + totalCtr[VERTEBRATE_CTR_INDEX] + "\r\n");
-		fw.write("Invertebrate Counter: " + totalCtr[INVERTEBRATE_CTR_INDEX] + "\r\n");
-		fw.write("Plant Counter: " + totalCtr[PLANT_CTR_INDEX] + "\r\n");
-		fw.write("Other Counter: " + totalCtr[OTHER_CTR_INDEX] + "\r\n");
+		fw.write("All Image Counter: " + totalCtr[CtrIndex.IMAGE_CTR_INDEX.ordinal()] + "\r\n");
+		fw.write("Vertebrate Image Counter: " + totalCtr[CtrIndex.VERTEBRATE_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
+		fw.write("Invertebrate Image Counter: " + totalCtr[CtrIndex.INVERTEBRATE_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
+		fw.write("Plant Image Counter: " + totalCtr[CtrIndex.PLANT_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
+		fw.write("Other Image Counter: " + totalCtr[CtrIndex.OTHER_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
+		fw.write("Vertebrate Name Counter: " + totalCtr[CtrIndex.VERTEBRATE_NAME_CTR_INDEX.ordinal()] + "\r\n");
+		fw.write("Invertebrate Name Counter: " + totalCtr[CtrIndex.INVERTEBRATE_NAME_CTR_INDEX.ordinal()] + "\r\n");
+		fw.write("Plant Name Counter: " + totalCtr[CtrIndex.PLANT_NAME_CTR_INDEX.ordinal()] + "\r\n");
+		fw.write("Other Name Counter: " + totalCtr[CtrIndex.OTHER_NAME_CTR_INDEX.ordinal()] + "\r\n");		
 		fw.write("\nRow Counter: " + rowCtr + "\r\n");
 		fw.flush();
 		fw.close();		
@@ -224,25 +228,19 @@ public class BieReport {
 	 * @return
 	 */
 	private int[] getBieReportCount(List<KeySlice> keySlices){
-		int[] ctrs = new int[NUMBER_OF_COUNTER] ;
+		int[] ctrs = new int[NUMBER_OF_COUNTER] ;		
 		
 		for (KeySlice keySlice : keySlices) {
 			for (ColumnOrSuperColumn columns : keySlice.getColumns()) {
 				if (columns.isSetSuper_column()) {
 					SuperColumn scol = columns.getSuper_column();
-					int ctr = getAusImageCount(scol);
-					ctrs[IMAGE_CTR_INDEX] += ctr;
-					
 					int[] taxaCtr = getAusTaxaCount(scol);
-					ctrs[VERTEBRATE_CTR_INDEX] += taxaCtr[VERTEBRATE_CTR_INDEX];
-					ctrs[INVERTEBRATE_CTR_INDEX] += taxaCtr[INVERTEBRATE_CTR_INDEX];
-					ctrs[PLANT_CTR_INDEX] += taxaCtr[PLANT_CTR_INDEX];
-					ctrs[OTHER_CTR_INDEX] += taxaCtr[OTHER_CTR_INDEX];
-					
-					if(ctr > 0 || ctrs[VERTEBRATE_CTR_INDEX] > 0 || ctrs[INVERTEBRATE_CTR_INDEX] > 0 ||
-							ctrs[PLANT_CTR_INDEX] > 0 || ctrs[OTHER_CTR_INDEX] > 0){
-						logger.debug("*** IsAustralian guid: " + keySlice.getKey());
-					}
+					for(int i = 0; i < taxaCtr.length; i++){
+						ctrs[i] += taxaCtr[i];
+					}			
+
+					int ctr = getAusImageCount(scol);
+					ctrs[CtrIndex.IMAGE_CTR_INDEX.ordinal()] += ctr;
 				}
 			}
 		}
@@ -303,11 +301,14 @@ public class BieReport {
 	 */
 	private int[] getAusTaxaCount(SuperColumn scol){
 		int[] ctr = new int[NUMBER_OF_COUNTER];
-		int listSize = 0;
+		int imageCtr = 0;
+		int synonymCtr = 0;
 		String value = null;
 		String colName = null;
 		boolean isAustralian = false;
-		boolean hasClassification = false;
+		boolean hasImages = false;
+		boolean hasSynonym = false;
+		Taxa taxa = Taxa.INVALID;
 		
 		//scan all columns
 		for (Column col : scol.getColumns()) {
@@ -317,85 +318,107 @@ public class BieReport {
 				if("IsAustralian".equalsIgnoreCase(colName) && "true".equalsIgnoreCase(value)){
 					isAustralian = true;
 				}
-				else if("hasClassification".equalsIgnoreCase(colName)){
+				if("hasClassification".equalsIgnoreCase(colName)){
 					List<Classification> classifications = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, Classification.class));
-					listSize = classifications.size();
-					ctr[VERTEBRATE_CTR_INDEX] = getVertebrateCount(classifications);
-					ctr[INVERTEBRATE_CTR_INDEX] = getInvertebrateCount(classifications);
-					ctr[PLANT_CTR_INDEX] = getPlantCount(classifications);
-					ctr[OTHER_CTR_INDEX] = (listSize - (ctr[VERTEBRATE_CTR_INDEX] + ctr[INVERTEBRATE_CTR_INDEX] + ctr[PLANT_CTR_INDEX]));
-					hasClassification = true;
+					taxa = getClassification(classifications);
 				}
+				if("hasImage".equalsIgnoreCase(colName)){
+					List<Image> images = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, Image.class));
+					imageCtr = images.size();
+					hasImages = true;
+				}
+				if("hasSynonym".equalsIgnoreCase(colName)){
+					List<TaxonConcept> synonym = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, TaxonConcept.class));
+					synonymCtr = synonym.size();
+					hasSynonym = true;
+				}
+				
 				logger.debug("col.getName(): " +  colName + " col.getValue(): " + value);
 			} catch (Exception e) {
 				logger.error(e);
 			} 	
 		}	
 		
-		if(!(isAustralian && hasClassification)){
+		//populate counter
+		if(isAustralian && (!Taxa.INVALID.equals(taxa)) && (hasImages || hasSynonym)){
+			switch(taxa){
+				case VERTEBRATE:
+					if(hasImages){
+						ctr[CtrIndex.VERTEBRATE_IMAGE_CTR_INDEX.ordinal()] = imageCtr;
+					}
+					if(hasSynonym){
+						ctr[CtrIndex.VERTEBRATE_NAME_CTR_INDEX.ordinal()] = synonymCtr;
+					}
+					break;
+					
+				case INVERTEBRATE:
+					if(hasImages){
+						ctr[CtrIndex.INVERTEBRATE_IMAGE_CTR_INDEX.ordinal()] = imageCtr;
+					}
+					if(hasSynonym){
+						ctr[CtrIndex.INVERTEBRATE_NAME_CTR_INDEX.ordinal()] = synonymCtr;
+					}					
+					break;
+				
+				case PLANT:
+					if(hasImages){
+						ctr[CtrIndex.PLANT_IMAGE_CTR_INDEX.ordinal()] = imageCtr;
+					}
+					if(hasSynonym){
+						ctr[CtrIndex.PLANT_NAME_CTR_INDEX.ordinal()] = synonymCtr;
+					}					
+					break;
+					
+				case OTHER:
+					if(hasImages){
+						ctr[CtrIndex.OTHER_IMAGE_CTR_INDEX.ordinal()] = imageCtr;
+					}
+					if(hasSynonym){
+						ctr[CtrIndex.OTHER_NAME_CTR_INDEX.ordinal()] = synonymCtr;
+					}					
+					break;
+					
+				default:
+					//reset counter
+					ctr = new int[NUMBER_OF_COUNTER];
+					break;
+				
+			}
+		}
+		else {
 			//reset counter
 			ctr = new int[NUMBER_OF_COUNTER];
-		}
-		else{
-			try {
-				logger.debug("SuperColumn Name(): " +  new String(scol.getName(), CHARSET_ENCODING));
-			} catch (UnsupportedEncodingException e) {
-				//do nothing...
+			if(isAustralian && Taxa.INVALID.equals(taxa) && hasImages){
+				logger.debug("**** No/Invalid classification Image:" + imageCtr);
+				invalidImageCtr += imageCtr;				
 			}
 		}
 		return ctr;
 	}
 	
 	/**
-	 * check classification of vertebrate.
+	 * get taxa type from classification.
 	 * 
 	 * @param classifications
 	 * @return
 	 */
-	private int getVertebrateCount(List<Classification> classifications){
-		int ctr = 0;
+	public static Taxa getClassification(List<Classification> classifications){
+		Taxa taxa = Taxa.OTHER;
 		
-		for (Classification classification : classifications) {
-			if(vertebrateList.contains(classification.getPhylum().toLowerCase())){
-				ctr++;
-			}
+		// No classification
+		if(classifications.size() != 1){
+			return Taxa.INVALID;
 		}
-		return ctr;
-	}
-	
-	/**
-	 * check classification of invertebrate.
-	 * 
-	 * @param classifications
-	 * @return
-	 */
-	private int getInvertebrateCount(List<Classification> classifications){
-		int ctr = 0;
-		
-		for (Classification classification : classifications) {
-			if(invertebrateList.contains(classification.getPhylum().toLowerCase())){
-				ctr++;
-			}
+		if(PLANT_LIST.contains(classifications.get(0).getKingdom().toLowerCase())){
+			taxa = Taxa.PLANT;
 		}
-		return ctr;
-	}
-
-	/**
-	 * check classification of plant.
-	 * 
-	 * @param classifications
-	 * @return
-	 */
-	private int getPlantCount(List<Classification> classifications){
-		int ctr = 0;
-		
-		for (Classification classification : classifications) {
-			if(plantList.contains(classification.getKingdom().toLowerCase()) ||
-					plantList.contains(classification.getPhylum().toLowerCase())){
-				ctr++;
-			}
+		else if(INVERTEBRATE_LIST.contains(classifications.get(0).getPhylum().toLowerCase())){
+			taxa = Taxa.INVERTEBRATE;
 		}
-		return ctr;
+		else if(VERTEBRATE_LIST.contains(classifications.get(0).getPhylum().toLowerCase())){
+			taxa = Taxa.VERTEBRATE;
+		}
+		return taxa;
 	}
 	
 	//========= Getter & Setter ========
