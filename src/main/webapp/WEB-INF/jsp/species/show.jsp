@@ -234,7 +234,7 @@
                         <div class="sorry sighting no-margin-top">
                             <div>
                                 <h2>Sorry!</h2>
-                                <h3><a href="${contributeURL}">We know the species name, but not much else. Can you help?
+                                <h3><a href="${contributeURL}">We know the name, but not much else. Can you help?
                                     <span><b>Contribute</b> sightings, photos and data for 
                                         <c:choose>
                                             <c:when test="${not empty extendedTaxonConcept.commonNames}">the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong></c:when>
