@@ -43,15 +43,16 @@ public class ExternalIndexLoader {
 	@Inject
 	protected DataSource collectoryDataSource;
 	@Inject
-	protected DataSource bioCacheDataSource;
-	@Inject
 	protected SolrUtils solrUtils;
 	
-	protected String baseUrlForCollections = "http://collections.ala.org.au/public/show/";
-	protected String baseUrlForInstitutions = "http://collections.ala.org.au/public/showInstitution/";
-	protected String baseUrlForDataProviders = "http://biocache.ala.org.au/data_provider/";
-	protected String baseUrlForDatasets = "http://biocache.ala.org.au/data_resource/";
-	
+	protected String baseUrlForCollectory = "http://collections.ala.org.au/public/show/";
+
+	/**
+	 * Run the loading of indexes for institutions, collections, data providers and data resources
+	 * 
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
 		
 		String[] locations = {
@@ -82,36 +83,79 @@ public class ExternalIndexLoader {
 	 */
 	public void loadCollections() throws Exception {
 		
-		logger.info("Starting syncing collection and institution information....");
+		logger.info("Starting syncing collection information....");
 		Connection conn = collectoryDataSource.getConnection();
 		Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-		ResultSet rs = stmt.executeQuery("select id, guid, name, acronym, institution_type, group_type from provider_group");
+		ResultSet rs = stmt.executeQuery("select uid, guid, name, acronym, pub_description, sub_collections, notes from collection");
 		
 		SolrServer solrServer = solrUtils.getSolrServer();
 		solrServer.deleteByQuery("idxtype:"+IndexedTypes.COLLECTION); // delete collections!
-		solrServer.deleteByQuery("idxtype:"+IndexedTypes.INSTITUTION); // delete institutions!
 		
 		while (rs.next()) {
-			String id = rs.getString("id");
+			String uid = rs.getString("uid");
+			String externalGuid = rs.getString("guid");
 			String name = rs.getString("name");
 			String acronym = rs.getString("acronym");
-			String institutionType = rs.getString("institution_type"); // university/museum/government
-			String groupType = rs.getString("group_type"); // Collection/Institution (Enum)
 			
 			SolrInputDocument doc = new SolrInputDocument();
 			doc.addField("acronym", acronym, 1.2f);
 			doc.addField("name", name, 1.2f);
-			if("Collection".equalsIgnoreCase(groupType)){
-				doc.addField("guid", baseUrlForCollections+id);
-				doc.addField("url", baseUrlForCollections+id);
-				doc.addField("id", baseUrlForCollections+id);
-				doc.addField("idxtype", IndexedTypes.COLLECTION);
-			} else if ("Institution".equalsIgnoreCase(groupType)){
-				doc.addField("guid", baseUrlForInstitutions+id);
-				doc.addField("url", baseUrlForInstitutions+id);
-				doc.addField("id", baseUrlForInstitutions+id);
-				doc.addField("idxtype", IndexedTypes.INSTITUTION);
+			doc.addField("guid", baseUrlForCollectory+uid);
+			
+			doc.addField("otherGuid", uid); // the internal UID e.g. co1
+			if(externalGuid!=null){
+				doc.addField("otherGuid", externalGuid); // the external GUID e.g. url:lsid:bci:123
 			}
+			
+			doc.addField("url", baseUrlForCollectory+uid);
+			doc.addField("id", baseUrlForCollectory+uid);
+			doc.addField("idxtype", IndexedTypes.COLLECTION);
+
+			solrServer.add(doc);
+			solrServer.commit();
+		}
+		
+		solrServer.optimize();
+		rs.close();
+		stmt.close();
+		conn.close();
+		logger.info("Finished syncing collection information with the collectory.");
+	}
+	
+	/**
+	 * Loads collections and institutions into the BIE search index.
+	 * 
+	 * @throws Exception
+	 */
+	public void loadInstitutions() throws Exception {
+		
+		logger.info("Starting syncing institution information....");
+		Connection conn = collectoryDataSource.getConnection();
+		Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+		ResultSet rs = stmt.executeQuery("select uid, guid, name, acronym, institution_type  from institution");
+		
+		SolrServer solrServer = solrUtils.getSolrServer();
+		solrServer.deleteByQuery("idxtype:"+IndexedTypes.INSTITUTION); // delete institutions!
+		
+		while (rs.next()) {
+			String uid = rs.getString("uid");
+			String externalGuid = rs.getString("guid");
+			String name = rs.getString("name");
+			String acronym = rs.getString("acronym");
+			String institutionType = rs.getString("institution_type"); // university/museum/government
+			
+			SolrInputDocument doc = new SolrInputDocument();
+			doc.addField("acronym", acronym, 1.2f);
+			doc.addField("name", name, 1.2f);
+			doc.addField("guid", baseUrlForCollectory+uid);
+			
+			if(externalGuid!=null){
+				doc.addField("otherGuid", externalGuid);
+			}
+			
+			doc.addField("url", baseUrlForCollectory+uid);
+			doc.addField("id", baseUrlForCollectory+uid);
+			doc.addField("idxtype", IndexedTypes.INSTITUTION);
 			doc.addField("institutionType", institutionType);
 			solrServer.add(doc);
 			solrServer.commit();
@@ -121,33 +165,45 @@ public class ExternalIndexLoader {
 		rs.close();
 		stmt.close();
 		conn.close();
-		logger.info("Finished syncing collection and institution information.");
+		logger.info("Finished syncing institution information.");
 	}
 	
+	/**
+	 * Load the datasets
+	 * 
+	 * @throws Exception
+	 */
 	public void loadDatasets() throws Exception {
 		
-		logger.info("Starting syncing dataset information....");
-		Connection conn = bioCacheDataSource.getConnection();
+		logger.info("Starting syncing data resource information....");
+		Connection conn = collectoryDataSource.getConnection();
 		Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-		ResultSet rs = stmt.executeQuery("select dr.id, dr.name as name, dp.name as data_provider_name, dr.description, dr.basis_of_record " +
+		ResultSet rs = stmt.executeQuery("select dr.uid, dr.guid, dr.name, dr.acronym as acronym, dp.name as data_provider_name, dr.pub_description as description " +
 				"from data_resource dr " +
-				"inner join data_provider dp ON dp.id=dr.data_provider_id " +
-				"where dr.occurrence_count > 0");
+				"inner join data_provider dp ON dp.id=dr.data_provider_id ");
 		
 		SolrServer solrServer = solrUtils.getSolrServer();
 		solrServer.deleteByQuery("idxtype:"+IndexedTypes.DATASET);
 		
 		while (rs.next()) {
-			String id = rs.getString("id");
+			String uid = rs.getString("uid");
+			String externalGuid = rs.getString("guid");			
 			String name = rs.getString("name");
+			String acronym = rs.getString("acronym");
 			String dataProviderName = rs.getString("data_provider_name");
 			String description = rs.getString("description"); 
 			
 			SolrInputDocument doc = new SolrInputDocument();
-			doc.addField("guid", baseUrlForDatasets+id);
-			doc.addField("url", baseUrlForDatasets+id);
-			doc.addField("id", baseUrlForDatasets+id);
+			doc.addField("guid", baseUrlForCollectory+uid);
+			doc.addField("url", baseUrlForCollectory+uid);
+			doc.addField("id", baseUrlForCollectory+uid);
 			doc.addField("name", name);
+			if(externalGuid!=null){
+				doc.addField("otherGuid", externalGuid);
+			}
+			if(acronym!=null){
+				doc.addField("acronym", acronym);
+			}
 			doc.addField("dataProviderName", dataProviderName);
 			doc.addField("description", description);
 			doc.addField("idxtype", IndexedTypes.DATASET);
@@ -159,30 +215,33 @@ public class ExternalIndexLoader {
 		rs.close();
 		stmt.close();
 		conn.close();
-		logger.info("Finished syncing dataset information.");
+		logger.info("Finished syncing data resource information.");
 	}
 	
+	/**
+	 * Load the data providers
+	 * 
+	 * @throws Exception
+	 */
 	public void loadDataProviders() throws Exception {
 		
 		logger.info("Started syncing data provider information....");
-		Connection conn = bioCacheDataSource.getConnection();
+		Connection conn = collectoryDataSource.getConnection();
 		Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-		ResultSet rs = stmt.executeQuery("select dp.id, dp.name, dp.description, dp.occurrence_count, dp.data_resource_count " +
-				"from data_provider dp " +
-				"where dp.occurrence_count>0");
+		ResultSet rs = stmt.executeQuery("select dp.uid, dp.name, dp.pub_description as description from data_provider dp");
 		
 		SolrServer solrServer = solrUtils.getSolrServer();
 		solrServer.deleteByQuery("idxtype:"+IndexedTypes.DATAPROVIDER);
 		
 		while (rs.next()) {
-			String id = rs.getString("id");
+			String uid = rs.getString("uid");
 			String name = rs.getString("name");
 			String description = rs.getString("description"); 
 			
 			SolrInputDocument doc = new SolrInputDocument();
-			doc.addField("guid", baseUrlForDataProviders+id);
-			doc.addField("url", baseUrlForDataProviders+id);
-			doc.addField("id", baseUrlForDataProviders+id);
+			doc.addField("guid", baseUrlForCollectory+uid);
+			doc.addField("url", baseUrlForCollectory+uid);
+			doc.addField("id", baseUrlForCollectory+uid);
 			doc.addField("name", name);
 			doc.addField("description", description);
 			doc.addField("idxtype", IndexedTypes.DATAPROVIDER);
@@ -212,23 +271,16 @@ public class ExternalIndexLoader {
 	}
 
 	/**
-	 * @param baseUrlForCollections the baseUrlForCollections to set
+	 * @return the collectoryDataSource
 	 */
-	public void setBaseUrlForCollections(String baseUrlForCollections) {
-		this.baseUrlForCollections = baseUrlForCollections;
+	public DataSource getCollectoryDataSource() {
+		return collectoryDataSource;
 	}
 
 	/**
-	 * @param baseUrlForDataProviders the baseUrlForDataProviders to set
+	 * @param baseUrlForCollectory the baseUrlForCollectory to set
 	 */
-	public void setBaseUrlForDataProviders(String baseUrlForDataProviders) {
-		this.baseUrlForDataProviders = baseUrlForDataProviders;
-	}
-
-	/**
-	 * @param baseUrlForDatasets the baseUrlForDatasets to set
-	 */
-	public void setBaseUrlForDatasets(String baseUrlForDatasets) {
-		this.baseUrlForDatasets = baseUrlForDatasets;
+	public void setBaseUrlForCollectory(String baseUrlForCollectory) {
+		this.baseUrlForCollectory = baseUrlForCollectory;
 	}
 }
