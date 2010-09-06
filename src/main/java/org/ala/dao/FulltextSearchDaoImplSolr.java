@@ -237,6 +237,13 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 	            queryString.append(" text:"+cleanQuery);
 	            queryString.append(" OR ");
 	            queryString.append(" scientificNameText:"+cleanQuery);
+	            
+	    		String canonicalSciName = retrieveCanonicalForm(query);
+	            if(canonicalSciName!=null){
+		            queryString.append(" OR ");
+		            queryString.append(" text:"+canonicalSciName);
+	            }
+	            
 	            queryString.append(")");
             }
             logger.info("search query: "+queryString.toString());
