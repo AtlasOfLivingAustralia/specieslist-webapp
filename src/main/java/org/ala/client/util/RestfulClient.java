@@ -75,7 +75,6 @@ public class RestfulClient {
 		String resp = null;
 		int statusCode = 0;
 		
-		System.out.println("**** jsonRequestBody: " + jsonRequestBody);
         try {        	
 	        post = new PostMethod(url);
 	        RequestEntity entity = new StringRequestEntity(jsonRequestBody, JSON_MIME_TYPE, ENCODE_TYPE); 
