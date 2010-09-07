@@ -16,7 +16,6 @@ package org.ala.report;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -238,59 +237,10 @@ public class BieReport {
 					for(int i = 0; i < taxaCtr.length; i++){
 						ctrs[i] += taxaCtr[i];
 					}			
-
-					int ctr = getAusImageCount(scol);
-					ctrs[CtrIndex.IMAGE_CTR_INDEX.ordinal()] += ctr;
 				}
 			}
 		}
 		return ctrs;
-	}
-	
-	/**
-	 * do counting of aus image.
-	 * 
-	 * @param scol
-	 * @return
-	 */
-	private int getAusImageCount(SuperColumn scol){
-		int ctr = 0;
-		String value = null;
-		String colName = null;
-		boolean isAustralian = false;
-		boolean hasImages = false;
-		
-		//scan all columns
-		for (Column col : scol.getColumns()) {
-			try {
-				value = new String(col.getValue(), CHARSET_ENCODING);
-				colName = new String(col.getName(), CHARSET_ENCODING);
-				if("IsAustralian".equalsIgnoreCase(colName) && "true".equalsIgnoreCase(value)){
-					isAustralian = true;
-				}
-				if("hasImage".equalsIgnoreCase(colName)){
-					List<Image> images = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, Image.class));
-					ctr = images.size();
-					hasImages = true;
-				}
-				logger.debug("col.getName(): " +  colName + " col.getValue(): " + value);
-			} catch (Exception e) {
-				logger.error(e);
-			} 	
-		}	
-		
-		if(!(isAustralian && hasImages)){
-			//reset counter
-			ctr = 0;
-		}
-		else{
-			try {
-				logger.debug("SuperColumn Name(): " +  new String(scol.getName(), CHARSET_ENCODING));
-			} catch (UnsupportedEncodingException e) {
-				//do nothing...
-			}
-		}		
-		return ctr;
 	}
 		
 	/**
@@ -393,6 +343,10 @@ public class BieReport {
 				invalidImageCtr += imageCtr;				
 			}
 		}
+		//populate total image count.
+		if(isAustralian && hasImages){
+			ctr[CtrIndex.IMAGE_CTR_INDEX.ordinal()] = imageCtr;
+		}		
 		return ctr;
 	}
 	
