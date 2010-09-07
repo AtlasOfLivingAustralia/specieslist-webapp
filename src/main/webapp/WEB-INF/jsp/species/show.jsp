@@ -62,7 +62,7 @@
                     'titleShow' : false,
                     'autoDimensions' : false,
                     'width' : 680,
-                    'height' : 180
+                    'height' : 210
                 });
 
                 // Dena's tabs implementation (with
@@ -773,29 +773,34 @@
             </div><!---->
         </div><!--close references-->
         <div style="display: none;">
-            <div class="section buttons" id="contributeOverlay" style="text-align: left !important">
-                <h2>Contribute</h2>
-                <div class="sightings">
-                    <h3><a href="${contributeURL}">Sightings
-                            <span>Record sightings for
-                                <c:choose>
-                                    <c:when test="${not empty extendedTaxonConcept.commonNames}">the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong></c:when>
-                                    <c:otherwise><c:if test="${extendedTaxonConcept.taxonConcept.rankID <= 6000}">the ${extendedTaxonConcept.taxonConcept.rankString} </c:if><strong>${sciNameFormatted}</strong></c:otherwise>
-                                </c:choose>
-                            </span></a></h3>
+            <div id="contributeOverlay">
+                <div class="section buttons"  style="text-align: left !important">
+                    <h2>Contribute</h2>
+                    <div class="sightings">
+                        <h3><a href="${contributeURL}">Sightings
+                                <span>Record sightings for
+                                    <c:choose>
+                                        <c:when test="${not empty extendedTaxonConcept.commonNames}">the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong></c:when>
+                                        <c:otherwise><c:if test="${extendedTaxonConcept.taxonConcept.rankID <= 6000}">the ${extendedTaxonConcept.taxonConcept.rankString} </c:if><strong>${sciNameFormatted}</strong></c:otherwise>
+                                    </c:choose>
+                                </span></a></h3>
+                    </div>
+                    <div class="photos">
+                        <h3><a href="http://test.ala.org.au/contribute/share-images/">Photos
+                             <span>Upload your images</span></a></h3>
+                    </div>
+                    <div class="analogue-data">
+                        <h3><a href="http://test.ala.org.au/contribute/share-analogue-data/">Non-digital data
+                                <span>Share your paper-based notes, journals and references</span></a></h3>
+                    </div>
+                    <div class="digital-data last">
+                        <h3><a href="http://test.ala.org.au/contribute/share-data/">Digital data
+                                <span>Upload your spreadsheets, databases &amp; more</span></a></h3>
+                    </div>
                 </div>
-                <div class="photos">
-                    <h3><a href="http://test.ala.org.au/contribute/share-images/">Photos
-                         <span>Upload your images</span></a></h3>
-                </div>
-                <div class="analogue-data">
-                    <h3><a href="http://test.ala.org.au/contribute/share-analogue-data/">Non-digital data
-                            <span>Share your paper-based notes, journals and references</span></a></h3>
-                </div>
-                <div class="digital-data last">
-                    <h3><a href="http://test.ala.org.au/contribute/share-data/">Digital data
-                            <span>Upload your spreadsheets, databases &amp; more</span></a></h3>
-                </div>
+                <br/>
+                <p>And don't forget to send us your favourite <a href="http://test.ala.org.au/contribute/share-links/">links
+                        to good <strong>web sites</strong>, <strong>ideas</strong> and <strong>information</strong></a>.</p>
             </div>
         </div>
     </body>
