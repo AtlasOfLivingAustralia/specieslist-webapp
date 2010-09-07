@@ -237,6 +237,19 @@
                             ${textProperty.value}
                             <cite>source: <a href="${textProperty.identifier}" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></cite>
                         </p>
+                        <c:if test="${(fn:length(textProperties) < 3 && status.last) || status.count == 3}">
+                            <div class="hr">&nbsp;</div>
+                            <h2>A big thanks</h2>
+                            <p>Without our data contributors, this page would be empty!</p>
+                            <ul class="friends">
+                                <c:forEach var="infoSource" items="${infoSources}" varStatus="status">
+                                    <c:if test="${not empty infoSource.infoSourceURL && not empty infoSource.infoSourceName && status.index > 0 && infoSources[status.index - 1].infoSourceName != infoSource.infoSourceName}">
+                                        <li><a href="${infoSource.infoSourceURL}" target="_blank" class="external">${infoSource.infoSourceName}</a><!--${infoSource.infoSourceId}--></li>
+                                    </c:if>
+                                </c:forEach>
+                            </ul>
+                            <div class="hr">&nbsp;</div>
+                        </c:if>
                     </c:forEach>
                     <c:if test="${empty textProperties}">
                         <div class="sorry sighting no-margin-top">
@@ -252,6 +265,17 @@
                                 </h3>
                             </div>
                         </div> 
+                        <div class="hr">&nbsp;</div>
+                        <h2>A big thanks</h2>
+                        <p>Without our data contributors, this page would be empty!</p>
+                        <ul class="friends">
+                            <c:forEach var="infoSource" items="${infoSources}" varStatus="status">
+                                <c:if test="${not empty infoSource.infoSourceURL && not empty infoSource.infoSourceName && status.index > 0 && infoSources[status.index - 1].infoSourceName != infoSource.infoSourceName}">
+                                    <li><a href="${infoSource.infoSourceURL}" target="_blank" class="external">${infoSource.infoSourceName}</a><!--${infoSource.infoSourceId}--></li>
+                                </c:if>
+                            </c:forEach>
+                        </ul>
+                        <div class="hr">&nbsp;</div>
                     </c:if>
                 </div>
             </div><!---->
@@ -342,15 +366,8 @@
                         </p>
                     </c:forEach>
                 </div><!--close news-->
-                <div class="section" id="infoSourceList">
-                    <h3>Contributors to this page</h3>
-                    <ul>
-                        <c:forEach var="infoSource" items="${infoSources}" varStatus="status">
-                            <c:if test="${not empty infoSource.infoSourceURL && not empty infoSource.infoSourceName && status.index > 0 && infoSources[status.index - 1].infoSourceName != infoSource.infoSourceName}">
-                                <li><a href="${infoSource.infoSourceURL}" target="_blank" class="external">${infoSource.infoSourceName}</a><!--${infoSource.infoSourceId}--></li>
-                            </c:if>
-                        </c:forEach>
-                    </ul>
+                <div class="section">
+                    
                 </div><!--close tools-->
             </div><!--close -->
         </div><!--close overview-->
