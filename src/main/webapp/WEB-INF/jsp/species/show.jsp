@@ -777,7 +777,7 @@
                 <h2>Contribute</h2>
                 <div class="sightings">
                     <h3><a href="${contributeURL}">Sightings
-                            <span>Record sighting for for
+                            <span>Record sightings for
                                 <c:choose>
                                     <c:when test="${not empty extendedTaxonConcept.commonNames}">the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong></c:when>
                                     <c:otherwise><c:if test="${extendedTaxonConcept.taxonConcept.rankID <= 6000}">the ${extendedTaxonConcept.taxonConcept.rankString} </c:if><strong>${sciNameFormatted}</strong></c:otherwise>
