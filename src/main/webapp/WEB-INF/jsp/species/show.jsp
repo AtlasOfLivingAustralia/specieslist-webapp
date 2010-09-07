@@ -56,6 +56,14 @@
                     'width' : 600,
                     'height' : 180
                 });
+                
+                $("a.contributeLink").fancybox({
+                    'hideOnContentClick' : false,
+                    'titleShow' : false,
+                    'autoDimensions' : false,
+                    'width' : 680,
+                    'height' : 180
+                });
 
                 // Dena's tabs implementation (with
                 $('#nav-tabs > ul').tabs();
@@ -234,7 +242,7 @@
                         <div class="sorry sighting no-margin-top">
                             <div>
                                 <h2>Sorry!</h2>
-                                <h3><a href="${contributeURL}">We know the name, but not much else. Can you help?
+                                <h3><a href="#contributeOverlay" class="contributeLink">We know the name, but not much else. Can you help?
                                     <span><b>Contribute</b> sightings, photos and data for 
                                         <c:choose>
                                             <c:when test="${not empty extendedTaxonConcept.commonNames}">the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong></c:when>
@@ -271,7 +279,7 @@
                     <div class="section buttons sighting no-margin-top">
                         <div class="last">
                             <h3>
-                                <a href="${contributeURL}">Contribute <span>Sightings, photos and data for 
+                                <a href="#contributeOverlay" class="contributeLink">Contribute <span>Sightings, photos and data for
                                     <c:choose>
                                         <c:when test="${not empty extendedTaxonConcept.commonNames}">
                                             the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong>
@@ -436,7 +444,7 @@
             <div id="column-two">
                 <div class="section buttons sighting no-margin-top">
                     <div class="last">
-                        <h3><a href="${contributeURL}">Contribute <span>Sightings, photos and data for the
+                        <h3><a href="#contributeOverlay" class="contributeLink">Contribute <span>Sightings, photos and data for the
                         	<strong>
                         		<c:choose>
                         		<c:when test="${not empty extendedTaxonConcept.commonNames}">
@@ -650,7 +658,7 @@
             <div id="column-two">
                 <div class="section buttons sighting no-margin-top">
                     <div class="last">
-                        <h3><a href="${contributeURL}">Contribute <span>Sightings, photos and data for the
+                        <h3><a href="#contributeOverlay" class="contributeLink">Contribute <span>Sightings, photos and data for the
                         	<strong>
                         		<c:choose>
                         		<c:when test="${not empty extendedTaxonConcept.commonNames}">
@@ -764,5 +772,31 @@
                 </div>
             </div><!---->
         </div><!--close references-->
+        <div style="display: none;">
+            <div class="section buttons" id="contributeOverlay" style="text-align: left !important">
+                <h2>Contribute</h2>
+                <div class="sightings">
+                    <h3><a href="${contributeURL}">Sightings
+                            <span>Record sighting for for
+                                <c:choose>
+                                    <c:when test="${not empty extendedTaxonConcept.commonNames}">the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong></c:when>
+                                    <c:otherwise><c:if test="${extendedTaxonConcept.taxonConcept.rankID <= 6000}">the ${extendedTaxonConcept.taxonConcept.rankString} </c:if><strong>${sciNameFormatted}</strong></c:otherwise>
+                                </c:choose>
+                            </span></a></h3>
+                </div>
+                <div class="photos">
+                    <h3><a href="http://test.ala.org.au/contribute/share-images/">Photos
+                         <span>Upload your images</span></a></h3>
+                </div>
+                <div class="analogue-data">
+                    <h3><a href="http://test.ala.org.au/contribute/share-analogue-data/">Non-digital data
+                            <span>Share your paper-based notes, journals and references</span></a></h3>
+                </div>
+                <div class="digital-data last">
+                    <h3><a href="http://test.ala.org.au/contribute/share-data/">Digital data
+                            <span>Upload your spreadsheets, databases &amp; more</span></a></h3>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
