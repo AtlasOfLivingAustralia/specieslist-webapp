@@ -24,6 +24,7 @@
                         $("img."+options.iconClass).error(function () {
                             $(this).unbind("error").attr("src", "../static/images/page_white_go.png");
                         });
+                        $("img."+options.iconClass).css('height','16px').css('width','16px');
 		});
 	}
 })(jQuery);
