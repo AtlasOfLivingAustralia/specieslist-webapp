@@ -225,7 +225,7 @@
                     <li><a href="#records">Records</a></li>
                     <%--<li><a href="#biology">Biology</a></li>
                     <li><a href="#molecular">Molecular</a></li>--%>
-                    <li><a href="#references">References</a></li>
+                    <li><a href="#literature">Literature</a></li>
                 </ul>
             </div>
         </div><!--close section_page-->
@@ -742,10 +742,10 @@
             </div><!--close -->
         </div><!--close molecular-->
 --%>
-        <div id="references">
+        <div id="literature">
             <div id="column-one" class="full-width">
                 <div class="section">
-                    <h2>References</h2>
+                    <h2>Literature</h2>
                     <div id="literature">
                         <c:if test="${not empty extendedTaxonConcept.earliestReference || not empty extendedTaxonConcept.references}">
                             <table class="propertyTable" >

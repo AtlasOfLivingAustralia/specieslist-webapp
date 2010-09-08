@@ -4,7 +4,8 @@
 		var defaults = {
 			iconClass    : 'favoriteIcon',
 			insertMethod : 'appendTo',
-			iconSearched : 'favicon.ico'
+			iconSearched : 'favicon.ico',
+                        missingImgUrl: 'http://test.ala.org.au/wp-content/themes/ala/images/external.png'
 		};
 		var options = $.extend(defaults, options);
 		$(this).filter(function(){
@@ -22,9 +23,9 @@
                         }
                         // check for broken favicon URL and replace with plain icon
                         $("img."+options.iconClass).error(function () {
-                            $(this).unbind("error").attr("src", "../static/images/page_white_go.png");
+                            $(this).unbind("error").attr("src", options.missingImgUrl);
                         });
-                        $("img."+options.iconClass).css('height','16px').css('width','16px');
+                        $("img."+options.iconClass).css('max-height','16px').css('max-width','16px');
 		});
 	}
 })(jQuery);
