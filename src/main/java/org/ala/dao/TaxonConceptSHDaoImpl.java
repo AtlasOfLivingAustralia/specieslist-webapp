@@ -1052,7 +1052,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						
 					} else if(triple.predicate.endsWith("hasPestStatus")){
 	
-						if(rankObj!=null && rankObj.getId() < Rank.SP.getId()){
+						if(rankObj!=null && rankObj.getId() >= Rank.SP.getId()){
 							//lookup the vocabulary term
 							PestStatus ps = vocabulary.getPestStatusFor(document.getInfoSourceId(), triple.object);
 							if(ps==null){
