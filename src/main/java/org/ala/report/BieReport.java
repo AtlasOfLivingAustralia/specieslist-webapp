@@ -80,6 +80,8 @@ public class BieReport {
 
 		
 	/**
+	 * Usage: outputFileName [option: cassandraAddress cassandraPort]
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
@@ -99,13 +101,21 @@ public class BieReport {
 			bieReport = new BieReport(args[1], Integer.parseInt(args[2]));
 		}
 		
-		if(bieReport != null){
-			bieReport.doFullScanAndCount(args[0]);
-			bieReport.closeConnectionPool();
+		try{
+			if(bieReport != null){
+				bieReport.doFullScanAndCount(args[0]);
+				bieReport.closeConnectionPool();
+			}
+			else{
+				System.out.println("Invalid input arguments ...." + args);
+				System.exit(0);			
+			}
 		}
-		else{
-			System.out.println("Invalid input arguments ...." + args);
-			System.exit(0);			
+		catch(Exception e){			
+			System.out.println("***** Fatal Error !!!.... shutdown cassandra connection.");
+			e.printStackTrace();
+			bieReport.closeConnectionPool();
+			System.exit(0);	
 		}
 	}
 
