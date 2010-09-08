@@ -1031,7 +1031,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					} else if(triple.predicate.endsWith("hasConservationStatus")){
 						
 						//dont add conservation status to higher ranks than species
-						if(rankObj!=null && rankObj.getId() < Rank.SP.getId()){
+						if(rankObj!=null && rankObj.getId() >= Rank.SP.getId()){
 						
 							//lookup the vocabulary term
 							ConservationStatus cs = vocabulary.getConservationStatusFor(document.getInfoSourceId(), triple.object);
