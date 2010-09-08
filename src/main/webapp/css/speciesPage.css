@@ -64,3 +64,8 @@ li#currentTaxonConcept {
 #classificationList ul {
     margin-left: 15px;
 }
+
+img.favoriteIcon {
+/*    float: left;*/
+    margin-right: 4px;
+}

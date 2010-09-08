@@ -12,8 +12,7 @@
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.1.pack.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.colorbox.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.easing.1.3.js"></script>
-        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-galleryview-1.1/jquery.galleryview-1.1.js"></script>
-        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-galleryview-1.1/jquery.timers-1.1.2.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.favoriteIcon.js"></script>
         <script type="text/javascript">
             /**
              * Dena's carousel callback
@@ -115,6 +114,11 @@
 
                     }
                 });--%>
+
+                $("ul.friends a").favoriteIcon({
+                    iconClass : 'favoriteIcon',
+                    insertMethod: 'insertBefore'
+                });
 
             });  // end document ready function
 
@@ -244,7 +248,7 @@
                             <ul class="friends">
                                 <c:forEach var="infoSource" items="${infoSources}" varStatus="status">
                                     <c:if test="${not empty infoSource.infoSourceURL && not empty infoSource.infoSourceName && status.index > 0 && infoSources[status.index - 1].infoSourceName != infoSource.infoSourceName}">
-                                        <li><a href="${infoSource.infoSourceURL}" target="_blank" class="external">${infoSource.infoSourceName}</a><!--${infoSource.infoSourceId}--></li>
+                                        <li><a href="${infoSource.infoSourceURL}" target="_blank" class="">${infoSource.infoSourceName}</a><!--${infoSource.infoSourceId}--></li>
                                     </c:if>
                                 </c:forEach>
                             </ul>
