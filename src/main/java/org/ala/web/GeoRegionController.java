@@ -230,7 +230,7 @@ public class GeoRegionController {
 		List<String> taxaList = Arrays.asList(taxa);
 		
 		SearchResultsDTO searchResults = searchDao.findAllSpeciesByRegionAndHigherTaxon(
-				"state", regionName, rank, taxaList, 
+				regionType, regionName, rank, taxaList, 
 				null, 0, 100, "scientificNameRaw", "asc");
 		
 		model.addAttribute("searchResults", repoUrlUtils.fixRepoUrls(searchResults));

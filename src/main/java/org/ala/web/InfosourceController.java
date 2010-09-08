@@ -73,7 +73,7 @@ public class InfosourceController {
 	 * @param model
 	 * @return view name
 	 */
-	@RequestMapping(value = "/contributors", method = RequestMethod.GET)
+	@RequestMapping(value = "/contributors*", method = RequestMethod.GET)
 	public String listContributors (Model model) throws Exception  {
 		List<InfoSource> infoSources = infoSourceDAO.getAllByDatasetType();
 		List<Integer> infoSourceIDWithVocabulariesMapList = new ArrayList<Integer>();
