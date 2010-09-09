@@ -98,6 +98,7 @@ public class SpeciesController {
 
     public SpeciesController(){
         nonTruncatedSources.add("http://www.environment.gov.au/biodiversity/abrs/online-resources/flora/main/index.html");
+        lowPrioritySources.add("http://www.ozanimals.com/");
         lowPrioritySources.add("http://en.wikipedia.org/");
         //lowPrioritySources.add("http://plantnet.rbgsyd.nsw.gov.au/floraonline.htm");
     }
