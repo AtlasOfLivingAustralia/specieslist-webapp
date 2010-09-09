@@ -133,7 +133,7 @@
                                 // dataTable for chart
                                 var data = new google.visualization.DataTable();
                                 var chart;
-                                data.addColumn('string', facet.fieldName);
+                                data.addColumn('string', facetLabels[facet.fieldName]);
                                 data.addColumn('number', 'Records');
                                 // HTML content 
                                 var isoDateSuffix = '-01-01T12:00:00Z';
@@ -158,7 +158,7 @@
                                         data.addRow([label, li.count]);
                                     }
                                 });
-                                content = content + '</ul><div id="'+facet.fieldName+'_chart_div"></div>';
+                                content = content + '</ul><div id="'+facet.fieldName+'_chart_div" style="margin: -15px;"></div>';
                                 $('#recordBreakdowns').append(content);
                                 
                                 if (facet.fieldName == 'occurrence_date') {
