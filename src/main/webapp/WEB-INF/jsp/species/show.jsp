@@ -1,7 +1,9 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ include file="/common/taglibs.jsp" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<c:set var="spatialPortalUrl">http://test.ala.org.au/explore/species-maps/</c:set>
+<c:set var="wordPressUrl">http://test.ala.org.au/</c:set>
+<c:set var="biocacheUrl">http://biocache.ala.org.au/</c:set><html>
     <head>
         <meta name="pageName" content="species" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -13,7 +15,11 @@
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.colorbox.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.easing.1.3.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.favoriteIcon.js"></script>
+        <script type="text/javascript" src="http://www.google.com/jsapi"></script>
         <script type="text/javascript">
+
+            google.load("visualization", "1", {packages:["corechart"]});
+            
             /**
              * Dena's carousel callback
              */
@@ -105,15 +111,75 @@
                 $('.distroImg').load(function() {
                     $('.distroMap').show();
                 });
-
-                <%--// load occurrence breakdowns for states
-                var biocachUrl = "http://${pageContext.request.serverName}:80/occurrences/searchByTaxon.json?q=${extendedTaxonConcept.taxonConcept.guid}";
+                // mapping for facet names to display labels
+                var facetLabels = {
+                    state: "State &amp; Territiory",
+                    data_resource: "Dataset",
+                    data_provider: "Dataset",  // not used but potentially could be
+                    occurrence_date: "Date (by decade)"
+                };
+                // load occurrence breakdowns for states
+                var biocachUrl = "http://${pageContext.request.serverName}/occurrences/searchByTaxon.json?q=${extendedTaxonConcept.taxonConcept.guid}";
                 $.getJSON(biocachUrl, function(data) {
                     if (data.searchResult != null && data.searchResult.totalRecords > 0) {
                         //alert("hi "+data.searchResult.totalRecords);
-
+                        $('#occurenceCount').html(data.searchResult.totalRecords);
+                        //console.log('facets: ', data.searchResult.facetResults);
+                        var facets = data.searchResult.facetResults;
+                        $.each(facets, function(index, facet) {
+                            //console.log(node.fieldName, node.fieldResult);
+                            //if (node.fieldName == 'state' || node.fieldName == 'state' ||node.fieldName == 'state') {
+                            if (facet.fieldName in facetLabels) {
+                                // dataTable for chart
+                                var data = new google.visualization.DataTable();
+                                var chart;
+                                data.addColumn('string', facet.fieldName);
+                                data.addColumn('number', 'Records');
+                                // HTML content 
+                                var isoDateSuffix = '-01-01T12:00:00Z';
+                                var content = '<h4>By '+ facetLabels[facet.fieldName] +'</h4>';
+                                content = content +'<ul>';
+                                $.each(facet.fieldResult, function(i, li) {
+                                    if (li.count > 0) {
+                                        var label = li.fieldValue;
+                                        var link = '<a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}&fq='
+                                        if (facet.fieldName == 'occurrence_date') {
+                                            label = label.replace(isoDateSuffix, '');
+                                            var toValue = parseInt(label) + 10;
+                                            label = label + '-' + toValue;
+                                            toValue = toValue + isoDateSuffix;
+                                            link = link + facet.fieldName+':['+li.fieldValue+' TO '+toValue+']">';
+                                        } else {
+                                            link = link + facet.fieldName+':'+li.fieldValue+'">';
+                                            
+                                        }
+                                        content = content +'<li>'+label+': '+link+li.count+' records</a></li>';
+                                        // add values to chart
+                                        data.addRow([label, li.count]);
+                                    }
+                                });
+                                content = content + '</ul><div id="'+facet.fieldName+'_chart_div"></div>';
+                                $('#recordBreakdowns').append(content);
+                                
+                                if (facet.fieldName == 'occurrence_date') {
+                                    chart = new google.visualization.BarChart(document.getElementById(facet.fieldName+'_chart_div'));
+                                    chart.draw(data, {width: 630, height: 300, legend: 'none', vAxis: {title: 'Decade'}, hAxis: {title: 'Count'}});
+                                } else {
+                                    chart = new google.visualization.PieChart(document.getElementById(facet.fieldName+'_chart_div'));
+                                    chart.draw(data, {width: 630, height: 300, legend: 'left'});
+                                }
+                                 
+//                                google.visualization.events.addListener(chart, 'onmouseover', function(row, column) {
+//                                    console.log("event", row, chart.getSelection());
+//                                    $('#chartArea').css('cursor','hand');
+//                                    //document.body.style.cursor = 'pointer';
+//                                });
+                                // draw the chart
+                                
+                            }
+                        });
                     }
-                });--%>
+                });
 
                 $("ul.friends a").favoriteIcon({
                     iconClass : 'favoriteIcon',
@@ -136,9 +202,6 @@
     </head>
     <body id="page-36" class="page page-id-36 page-parent page-template page-template-default two-column-right">
         <div id="header" class="taxon">
-            <c:set var="spatialPortalUrl">http://test.ala.org.au/explore/species-maps/</c:set>
-            <c:set var="wordPressUrl">http://test.ala.org.au/</c:set>
-			<c:set var="biocacheUrl">http://biocache.ala.org.au/</c:set>
             
             <c:choose>
             <c:when test="${not empty extendedTaxonConcept.taxonName && not empty extendedTaxonConcept.taxonName.nameComplete}">
@@ -637,19 +700,10 @@
         <div id="records">
             <div id="column-one">
                 <div class="section">
-                    <h2>Records</h2>
+                    <h2>Occurrence Records</h2>
                     <p><a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View
-                            list of all occurrence records for this taxon</a></p>
-                    <div class="distroMap" style="display:none;">
-                        <h4>Map of Occurrence Records</h4>
-                        <p>
-                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">
-                                <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a><br/>
-                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">Interactive version of this map</a>
-                        </p>
-                    </div><div id="stateBreakdowns" style="display:none;">
-                        <h4>By State/Territory</h4>
-                        <ul></ul>
+                            list of all <span id="occurenceCount"></span> occurrence records for this taxon</a></p>
+                    <div id="recordBreakdowns" style="display: block">
                     </div>
                     <%--
                     <c:forEach var="regionType" items="${extendedTaxonConcept.regionTypes}">
@@ -696,6 +750,14 @@
                     </div>
                 </div>
                 <div class="section">
+                    <div class="distroMap" style="display:none;">
+                        <h4>Map of Occurrence Records</h4>
+                        <p>
+                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">
+                                <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a><br/>
+                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">Interactive version of this map</a>
+                        </p>
+                    </div>
                 </div><!--close-->
             </div><!--close -->
         </div><!--close records-->
