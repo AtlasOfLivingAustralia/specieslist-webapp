@@ -46,7 +46,10 @@ import org.wyki.cassandra.pelops.Policy;
  * 
  * @author MOK011
  * 
+ * History:
  * init version: 3 Sept 2010.
+ * 10-Sept-10 (MOK011): added new counter for australian spices & asutralian species with image.
+ * 
  * 
  */
 public class BieReport {
@@ -62,6 +65,7 @@ public class BieReport {
 	private String columnFamily = "tc";	
 	private ObjectMapper mapper;
 	
+	public static final String AUSTRALIAN_GUID_PREFIX = "urn:lsid:biodiversity";
 	public static final List<String> VERTEBRATE_LIST = Arrays.asList("chordata");;
 	public static final List<String> PLANT_LIST = Arrays.asList("plantae");
 	public static final List<String> INVERTEBRATE_LIST = Arrays.asList("acanthocephala" ,"acoelomorpha", "annelida", "arthropoda",
@@ -73,11 +77,11 @@ public class BieReport {
 	
 	enum CtrIndex {IMAGE_CTR_INDEX, VERTEBRATE_IMAGE_CTR_INDEX, INVERTEBRATE_IMAGE_CTR_INDEX, PLANT_IMAGE_CTR_INDEX,
 		OTHER_IMAGE_CTR_INDEX, VERTEBRATE_NAME_CTR_INDEX, INVERTEBRATE_NAME_CTR_INDEX, PLANT_NAME_CTR_INDEX,
-		OTHER_NAME_CTR_INDEX}	
+		OTHER_NAME_CTR_INDEX, VERTEBRATE_WITH_IMAGE_CTR_INDEX, INVERTEBRATE_WITH_IMAGE_CTR_INDEX, PLANT_WITH_IMAGE_CTR_INDEX,
+		OTHER_WITH_IMAGE_CTR_INDEX, VERTEBRATE_CTR_INDEX, INVERTEBRATE_CTR_INDEX, PLANT_CTR_INDEX,
+		OTHER_CTR_INDEX}	
 	enum Taxa {VERTEBRATE, INVERTEBRATE, PLANT, OTHER, INVALID}
 	public static final int NUMBER_OF_COUNTER = CtrIndex.values().length;
-	private int invalidImageCtr = 0;
-
 		
 	/**
 	 * Usage: outputFileName [option: cassandraAddress cassandraPort]
@@ -87,6 +91,7 @@ public class BieReport {
 	public static void main(String[] args) throws Exception {
 		BieReport bieReport = null;
 		
+		//check input arguments
 		if (args.length < 1) {
 			System.out.println("Output File Name Missing ....");
 			System.exit(0);
@@ -101,6 +106,7 @@ public class BieReport {
 			bieReport = new BieReport(args[1], Integer.parseInt(args[2]));
 		}
 		
+		// do report
 		try{
 			if(bieReport != null){
 				bieReport.doFullScanAndCount(args[0]);
@@ -137,6 +143,9 @@ public class BieReport {
 		mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}
 	
+	/**
+	 * close cassandra connection pool.
+	 */
 	public void closeConnectionPool(){
 		Pelops.shutdown();
 	}
@@ -181,7 +190,7 @@ public class BieReport {
 
 		while (keySlices.size() > 0){
 			lastKey = keySlices.get(keySlices.size()-1);
-			//end of row ?
+			//end of scan ?
 			if(lastKey.equals(startKey)){
 				break;
 			}
@@ -197,6 +206,15 @@ public class BieReport {
 		}
 		
 		System.out.println("\n==========< Summary >==========");
+		System.out.println("Australian vertebrates: " + totalCtr[CtrIndex.VERTEBRATE_CTR_INDEX.ordinal()]);
+		System.out.println("Australian invertebrates: " + totalCtr[CtrIndex.INVERTEBRATE_CTR_INDEX.ordinal()]);
+		System.out.println("Australian plants: " + totalCtr[CtrIndex.PLANT_CTR_INDEX.ordinal()]);
+		System.out.println("Australian other: " + totalCtr[CtrIndex.OTHER_CTR_INDEX.ordinal()]);
+		System.out.println("Australian vertebrates with at least one image: " + totalCtr[CtrIndex.VERTEBRATE_WITH_IMAGE_CTR_INDEX.ordinal()]);
+		System.out.println("Australian invertebrates with at least one image: " + totalCtr[CtrIndex.INVERTEBRATE_WITH_IMAGE_CTR_INDEX.ordinal()]);
+		System.out.println("Australian plants with at least one image: " + totalCtr[CtrIndex.PLANT_WITH_IMAGE_CTR_INDEX.ordinal()]);
+		System.out.println("Australian other with at least one image: " + totalCtr[CtrIndex.OTHER_WITH_IMAGE_CTR_INDEX.ordinal()]);
+		
 		System.out.println("All Image Counter: " + totalCtr[CtrIndex.IMAGE_CTR_INDEX.ordinal()]);
 		System.out.println("Vertebrate Image Counter: " + totalCtr[CtrIndex.VERTEBRATE_IMAGE_CTR_INDEX.ordinal()]);
 		System.out.println("Invertebrate Image Counter: " + totalCtr[CtrIndex.INVERTEBRATE_IMAGE_CTR_INDEX.ordinal()]);
@@ -206,14 +224,30 @@ public class BieReport {
 		System.out.println("Invertebrate Name Counter: " + totalCtr[CtrIndex.INVERTEBRATE_NAME_CTR_INDEX.ordinal()]);
 		System.out.println("Plant Name Counter: " + totalCtr[CtrIndex.PLANT_NAME_CTR_INDEX.ordinal()]);
 		System.out.println("Other Name Counter: " + totalCtr[CtrIndex.OTHER_NAME_CTR_INDEX.ordinal()]);		
-		System.out.println("Row Count:" + ROWS * ctr);
-		System.out.println("No/Invalid Classification Image Count:" + invalidImageCtr);
+		
+		System.out.println("Row Count:" + ROWS * ctr);		
 		System.out.println("Total time taken (sec): "	+ ((System.currentTimeMillis() - start)/1000));
 		writeToFile(fileName, totalCtr, ROWS * ctr);
 	}
 	
+	/**
+	 * write report into file.
+	 * 
+	 * @param fileName
+	 * @param totalCtr
+	 * @param rowCtr
+	 * @throws IOException
+	 */
 	private void writeToFile(String fileName, int[] totalCtr, long rowCtr) throws IOException{
 		FileWriter fw = new FileWriter(fileName);
+		fw.write("Australian vertebrates: " + totalCtr[CtrIndex.VERTEBRATE_CTR_INDEX.ordinal()] + "\r\n");
+		fw.write("Australian invertebrates: " + totalCtr[CtrIndex.INVERTEBRATE_CTR_INDEX.ordinal()] + "\r\n");
+		fw.write("Australian plants: " + totalCtr[CtrIndex.PLANT_CTR_INDEX.ordinal()] + "\r\n");
+		fw.write("Australian other: " + totalCtr[CtrIndex.OTHER_CTR_INDEX.ordinal()] + "\r\n");
+		fw.write("Australian vertebrates with at least one image: " + totalCtr[CtrIndex.VERTEBRATE_WITH_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
+		fw.write("Australian invertebrates with at least one image: " + totalCtr[CtrIndex.INVERTEBRATE_WITH_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
+		fw.write("Australian plants with at least one image: " + totalCtr[CtrIndex.PLANT_WITH_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
+		fw.write("Australian other with at least one image: " + totalCtr[CtrIndex.OTHER_WITH_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
 		
 		fw.write("All Image Counter: " + totalCtr[CtrIndex.IMAGE_CTR_INDEX.ordinal()] + "\r\n");
 		fw.write("Vertebrate Image Counter: " + totalCtr[CtrIndex.VERTEBRATE_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
@@ -243,7 +277,7 @@ public class BieReport {
 			for (ColumnOrSuperColumn columns : keySlice.getColumns()) {
 				if (columns.isSetSuper_column()) {
 					SuperColumn scol = columns.getSuper_column();
-					int[] taxaCtr = getAusTaxaCount(scol);
+					int[] taxaCtr = getAusTaxaCount(scol, keySlice.getKey());
 					for(int i = 0; i < taxaCtr.length; i++){
 						ctrs[i] += taxaCtr[i];
 					}			
@@ -259,25 +293,25 @@ public class BieReport {
 	 * @param scol
 	 * @return
 	 */
-	private int[] getAusTaxaCount(SuperColumn scol){
+	private int[] getAusTaxaCount(SuperColumn scol, String guid){
 		int[] ctr = new int[NUMBER_OF_COUNTER];
 		int imageCtr = 0;
 		int synonymCtr = 0;
 		String value = null;
 		String colName = null;
-		boolean isAustralian = false;
 		boolean hasImages = false;
 		boolean hasSynonym = false;
 		Taxa taxa = Taxa.INVALID;
+		
+		if(guid == null || !guid.trim().startsWith(AUSTRALIAN_GUID_PREFIX)){
+			return ctr;
+		}				
 		
 		//scan all columns
 		for (Column col : scol.getColumns()) {
 			try {
 				value = new String(col.getValue(), CHARSET_ENCODING);
 				colName = new String(col.getName(), CHARSET_ENCODING);
-				if("IsAustralian".equalsIgnoreCase(colName) && "true".equalsIgnoreCase(value)){
-					isAustralian = true;
-				}
 				if("hasClassification".equalsIgnoreCase(colName)){
 					List<Classification> classifications = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, Classification.class));
 					taxa = getClassification(classifications);
@@ -292,19 +326,19 @@ public class BieReport {
 					synonymCtr = synonym.size();
 					hasSynonym = true;
 				}
-				
-				logger.debug("col.getName(): " +  colName + " col.getValue(): " + value);
 			} catch (Exception e) {
 				logger.error(e);
 			} 	
 		}	
 		
 		//populate counter
-		if(isAustralian && (!Taxa.INVALID.equals(taxa)) && (hasImages || hasSynonym)){
+		if(!Taxa.INVALID.equals(taxa)){
 			switch(taxa){
 				case VERTEBRATE:
+					ctr[CtrIndex.VERTEBRATE_CTR_INDEX.ordinal()]++;
 					if(hasImages){
 						ctr[CtrIndex.VERTEBRATE_IMAGE_CTR_INDEX.ordinal()] = imageCtr;
+						ctr[CtrIndex.VERTEBRATE_WITH_IMAGE_CTR_INDEX.ordinal()]++;
 					}
 					if(hasSynonym){
 						ctr[CtrIndex.VERTEBRATE_NAME_CTR_INDEX.ordinal()] = synonymCtr;
@@ -312,8 +346,10 @@ public class BieReport {
 					break;
 					
 				case INVERTEBRATE:
+					ctr[CtrIndex.INVERTEBRATE_CTR_INDEX.ordinal()]++;
 					if(hasImages){
 						ctr[CtrIndex.INVERTEBRATE_IMAGE_CTR_INDEX.ordinal()] = imageCtr;
+						ctr[CtrIndex.INVERTEBRATE_WITH_IMAGE_CTR_INDEX.ordinal()]++;
 					}
 					if(hasSynonym){
 						ctr[CtrIndex.INVERTEBRATE_NAME_CTR_INDEX.ordinal()] = synonymCtr;
@@ -321,8 +357,10 @@ public class BieReport {
 					break;
 				
 				case PLANT:
+					ctr[CtrIndex.PLANT_CTR_INDEX.ordinal()]++;
 					if(hasImages){
 						ctr[CtrIndex.PLANT_IMAGE_CTR_INDEX.ordinal()] = imageCtr;
+						ctr[CtrIndex.PLANT_WITH_IMAGE_CTR_INDEX.ordinal()]++;
 					}
 					if(hasSynonym){
 						ctr[CtrIndex.PLANT_NAME_CTR_INDEX.ordinal()] = synonymCtr;
@@ -330,8 +368,10 @@ public class BieReport {
 					break;
 					
 				case OTHER:
+					ctr[CtrIndex.OTHER_CTR_INDEX.ordinal()]++;
 					if(hasImages){
 						ctr[CtrIndex.OTHER_IMAGE_CTR_INDEX.ordinal()] = imageCtr;
+						ctr[CtrIndex.OTHER_WITH_IMAGE_CTR_INDEX.ordinal()]++;
 					}
 					if(hasSynonym){
 						ctr[CtrIndex.OTHER_NAME_CTR_INDEX.ordinal()] = synonymCtr;
@@ -341,20 +381,13 @@ public class BieReport {
 				default:
 					//reset counter
 					ctr = new int[NUMBER_OF_COUNTER];
+					logger.info("****** INVALID AUSTRALIAN CLASSIFICATION: " + guid);
 					break;
 				
 			}
 		}
-		else {
-			//reset counter
-			ctr = new int[NUMBER_OF_COUNTER];
-			if(isAustralian && Taxa.INVALID.equals(taxa) && hasImages){
-				logger.debug("**** No/Invalid classification Image:" + imageCtr);
-				invalidImageCtr += imageCtr;				
-			}
-		}
 		//populate total image count.
-		if(isAustralian && hasImages){
+		if(hasImages){
 			ctr[CtrIndex.IMAGE_CTR_INDEX.ordinal()] = imageCtr;
 		}		
 		return ctr;
@@ -385,7 +418,7 @@ public class BieReport {
 		return taxa;
 	}
 	
-	//========= Getter & Setter ========
+	//========= Getter =======
 	public static int getRows() {
 		return ROWS;
 	}
