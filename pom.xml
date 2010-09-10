@@ -43,6 +43,14 @@
 	  	<scope>compile</scope>
 	  </dependency>
 	</dependencies>
+
+	<distributionManagement>
+	  <repository>
+	    <id>ala-repository</id>
+		<uniqueVersion>false</uniqueVersion>
+	    <url>scp://maven.ala.org.au/srv/data/maven</url>
+	  </repository>
+	</distributionManagement>
 	
 	<build>
 		<plugins>
