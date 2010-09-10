@@ -71,6 +71,14 @@
 	    </plugins>
 	</build>
 
+    <distributionManagement>
+      <repository>
+        <id>ala-repository</id>
+        <uniqueVersion>false</uniqueVersion>
+        <url>scp://maven.ala.org.au/data/maven</url>
+      </repository>
+    </distributionManagement>
+    
 	<repositories>
 		<repository>
 			<id>ala-repository</id>
