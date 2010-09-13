@@ -14,6 +14,7 @@
  ***************************************************************************/
 package org.ala.util;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -61,21 +62,46 @@ public class CassandraBatchDelete {
 	private String host = "localhost";
 	private int port = 9160;
 	private String keyspace = "bie";
-	private String columnFamily = "tc";
-	
-	
+	private String columnFamily = "tc";	
 		
 	/**
+	 * 
+	 * Usage: option[--ColumnName...] infoSourceId...
+	 * 
+	 * eg: --hasImage --hasRegion 1013
+	 * remove particular column have same infoSourceId and columnName.
+	 * 
+	 * eg: --hasImage --hasRegion
+	 * if infoSourceId is empty then remove whole column that equal to input columnName
+	 * 
+	 * eg: 1013
+	 * if columnName is empty then remove column data that contains same infoSourceId.
+	 * 
 	 * @param args
 	 */
-	public static void main(String[] args) throws Exception {		
+	public static void main(String[] args) throws Exception {
+		List<String> columnNameList = new ArrayList<String>();
+		List<String> infoSrcIdList = new ArrayList<String>();
+		String prefix = "--";
+		
 		if (args.length < 1) {
-			System.out.println("Please provide a list of infoSourceId....");
+			System.out.println("Please provide a list of infoSourceIds or columnNames....");
 			System.exit(0);
 		}
-				
+		
+		//setup args option list
+		for(int i = 0; i < args.length; i++){
+			String tmp = args[i].trim();
+			if(tmp.startsWith("--")){
+				columnNameList.add(tmp.substring(prefix.length()).toLowerCase());
+			}
+			else{
+				infoSrcIdList.add(tmp);
+			}
+		}
 		CassandraBatchDelete cassandraBatchDelete = new CassandraBatchDelete();
-		cassandraBatchDelete.doFullScanAndDelete(args);
+		String[] cast = new String[]{};
+		cassandraBatchDelete.doFullScanAndDelete(infoSrcIdList.toArray(cast), columnNameList.toArray(cast));
 		cassandraBatchDelete.closeConnectionPool();
 	}
 
@@ -105,7 +131,7 @@ public class CassandraBatchDelete {
 	 * @param infoSourceIds 
 	 * @throws Exception
 	 */
-	public void doFullScanAndDelete(String[] infoSourceIds) throws Exception {
+	public void doFullScanAndDelete(String[] infoSourceIds, String[] columnNames) throws Exception {
 		long start = System.currentTimeMillis();
 		long ctr = 1;
 		long totalDelCtr = 0;
@@ -134,12 +160,12 @@ public class CassandraBatchDelete {
 		// in the next iteration.
 		// when lastKey == startKey is finish.
 		List<KeySlice> keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
-		List<DeleteItemInfo> delList = getDeleteItemsList(keySlices, infoSourceIds);
+		List<DeleteItemInfo> delList = getDeleteItemsList(keySlices, infoSourceIds, columnNames);
 		//dump test case
 		/*
 		delList = getDumpDeleteItemsList();
 		*/
-		int delCtr = doValueUpdate(delList, infoSourceIds);
+		int delCtr = doValueUpdate(delList, infoSourceIds, columnNames);
 		totalDelCtr += delCtr;
 		logger.debug("Delete Count:" + delCtr);
 
@@ -152,9 +178,9 @@ public class CassandraBatchDelete {
 			startKey = lastKey;
 			keyRange.setStart_key(lastKey.getKey());			
 			keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
-			delList = getDeleteItemsList(keySlices, infoSourceIds);
+			delList = getDeleteItemsList(keySlices, infoSourceIds, columnNames);
 			if(delList.size() > 0){
-				delCtr = doValueUpdate(delList, infoSourceIds);
+				delCtr = doValueUpdate(delList, infoSourceIds, columnNames);
 				totalDelCtr += delCtr;
 			}
 			System.out.println("Total Column Update Count:" + totalDelCtr);
@@ -179,36 +205,45 @@ public class CassandraBatchDelete {
 	 * @return
 	 * @throws Exception
 	 */
-	private int doValueUpdate(List<DeleteItemInfo> delList, String[] infoSourceIds) throws Exception{
+	private int doValueUpdate(List<DeleteItemInfo> delList, String[] infoSourceIds, String[] columnNames) throws Exception{
 		int ctr = 0;
 		Selector selector = Pelops.createSelector(POOL_NAME, keyspace);
 		
 		for(DeleteItemInfo item : delList){		
 			//get cassandra value
 			Column col = selector.getSubColumnFromRow(item.getKey(), columnFamily, item.getSColName(), item.getColName(), ConsistencyLevel.ONE);
-	        String casJson = getJsonValue(col);
-	        if(casJson != null && casJson.length() > 0){
-		        // do update ....
-		        String json = doDelete(casJson, infoSourceIds);
-//		        logger.debug("guid: " + item.getKey() + " Col Name: " + item.getColName());
-//		        System.out.println(">>>> Before: " + casJson);
-//		        System.out.println("\n\n>>>> After: " + json);
-		        
-		        Mutator mutator = Pelops.createMutator(POOL_NAME, keyspace);
-		        if(json != null && json.length() > 0){		        	
-		        	try{
-		    			mutator.writeSubColumn(item.getKey(), columnFamily, item.getSColName(), mutator.newColumn(item.getColName(), json));
-		    			mutator.execute(ConsistencyLevel.ONE);
-		    		} catch (Exception e){
-		    			logger.error(e.getMessage(),e);
-		    		}			        	
-		        }
-		        else{
+			Mutator mutator = Pelops.createMutator(POOL_NAME, keyspace);
+			
+			// infoSourceIds is empty... remove whole column
+			if(infoSourceIds.length < 1){
+				if(hasColumnName(item.getColName(), columnNames)){
+					// remove whole column
 		        	mutator.deleteSubColumn(item.getKey(), columnFamily, item.getSColName(), item.getColName());
 		        	mutator.execute(ConsistencyLevel.ONE);
-		        }
-	        }
-			ctr++;			
+				}
+			}
+			// else remove each infosourceId column content record 
+			else if(hasColumnName(item.getColName(), columnNames)){
+				String casJson = getJsonValue(col);
+		        if(casJson != null && casJson.length() > 0){
+			        // do update ....
+			        String json = doInfoSourceDelete(casJson, infoSourceIds);
+			        if(json != null && json.length() > 0){		        	
+			        	try{
+			    			mutator.writeSubColumn(item.getKey(), columnFamily, item.getSColName(), mutator.newColumn(item.getColName(), json));
+			    			mutator.execute(ConsistencyLevel.ONE);
+			    		} catch (Exception e){
+			    			logger.error(e.getMessage(),e);
+			    		}			        	
+			        }
+			        // empty content then remove whole column
+			        else{			        	
+			        	mutator.deleteSubColumn(item.getKey(), columnFamily, item.getSColName(), item.getColName());
+			        	mutator.execute(ConsistencyLevel.ONE);
+			        }
+		        }				
+			}
+			ctr++;
 		}
 		return ctr;
 	}
@@ -232,7 +267,7 @@ public class CassandraBatchDelete {
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */
-	private List<DeleteItemInfo> getDeleteItemsList(List<KeySlice> keySlices, String[] infoSourceIds) throws UnsupportedEncodingException{
+	private List<DeleteItemInfo> getDeleteItemsList(List<KeySlice> keySlices, String[] infoSourceIds, String[] columnNames) throws UnsupportedEncodingException{
 		List<DeleteItemInfo> l = new ArrayList<DeleteItemInfo>();
 		
 		String value = null;
@@ -240,26 +275,29 @@ public class CassandraBatchDelete {
 		String sColName = null;
 		for (KeySlice keySlice : keySlices) {
 			for (ColumnOrSuperColumn columns : keySlice.getColumns()) {
+				if(keySlice.getKey().equalsIgnoreCase("103070868")){
+					logger.debug("103070868");
+				}
 				if (columns.isSetSuper_column()) {
 					SuperColumn scol = columns.getSuper_column();
 					sColName = new String(scol.getName(), CHARSET_ENCODING);
 					for (Column col : scol.getColumns()) {
 						value = new String(col.getValue(), CHARSET_ENCODING);
-						colName = new String(col.getName(), CHARSET_ENCODING);
-						logger.debug("SuperColumn: col.getName(): " +  colName + " col.getValue(): " + value + " lastKey = " + keySlice.getKey());
+						colName = new String(col.getName(), CHARSET_ENCODING);						
 						// check column infoSourceId
-						if(hasInfoSourceId(value, infoSourceIds)){
+						if(hasInfoSourceId(value, infoSourceIds) && hasColumnName(colName, columnNames)){
 							l.add(new DeleteItemInfo(keySlice.getKey(), sColName, colName));
+							logger.debug("** col.getName(): " +  colName + ", Key = " + keySlice.getKey() + ", col.getValue(): " + value);
 						}						
 					}
 				} else {
 					Column col = columns.getColumn();
 					value = new String(col.getValue(), CHARSET_ENCODING);
-					colName = new String(col.getName(), CHARSET_ENCODING);
-					logger.debug("Column: col.getName(): " +  colName + " col.getValue(): " + value + " lastKey = " + keySlice.getKey());
+					colName = new String(col.getName(), CHARSET_ENCODING);					
 					// check column infoSourceId
-					if(hasInfoSourceId(value, infoSourceIds)){
+					if(hasInfoSourceId(value, infoSourceIds) && hasColumnName(colName, columnNames)){
 						l.add(new DeleteItemInfo(keySlice.getKey(), colName));
+						logger.debug("col.getName(): " +  colName + ", Key = " + keySlice.getKey() + ", col.getValue(): " + value );
 					}																				
 				}
 			}
@@ -270,6 +308,11 @@ public class CassandraBatchDelete {
 	private boolean hasInfoSourceId(String value, String[] infoSourceIds){
 		boolean b = false;
 		
+		// no infoSourceIds condition then return true 
+		if(infoSourceIds == null || infoSourceIds.length < 1){
+			return true;
+		}
+		
 		for(String infoSourceId : infoSourceIds){
 			Pattern p = Pattern.compile("\"infoSourceId\":\\s*\"" + infoSourceId + "\"");
 			Matcher m = p.matcher(value);
@@ -279,7 +322,7 @@ public class CassandraBatchDelete {
 		}
 		return b;
 	}
-
+	
 	private boolean hasInfoSourceId(JsonNode rootNode, String[] infoSourceIds){
 		boolean b = false;
 		
@@ -291,6 +334,21 @@ public class CassandraBatchDelete {
 		}
 		return b;
 	}
+
+	private boolean hasColumnName(String columnName, String[] columnNames){
+		boolean b = false;
+		
+		// no columnNames condition then return true 
+		if(columnNames == null || columnNames.length < 1){
+			return true;
+		}
+		
+		List<String> list = Arrays.asList(columnNames);
+		if(list.contains(columnName.toLowerCase())){
+			return true;
+		}
+		return b;
+	}
 	
 	/**
 	 * convert json string to Jackson tree model, rebuild tree node without infoSourceId node.
@@ -298,7 +356,7 @@ public class CassandraBatchDelete {
 	 * @param infoSourceIds
 	 * @return jsonString
 	 */
-	private String doDelete(String json, String[] infoSourceIds){
+	private String doInfoSourceDelete(String json, String[] infoSourceIds){
 		String jStr = "";
 		List<JsonNode> objectList = new ArrayList<JsonNode>();
 		ObjectMapper mapper = new ObjectMapper();		
@@ -306,7 +364,7 @@ public class CassandraBatchDelete {
 		try {			
 			rootNode = mapper.readValue(json, JsonNode.class);
 			if(!rootNode.isArray()){
-				if(!this.hasInfoSourceId(rootNode, infoSourceIds)){
+				if(!(hasInfoSourceId(rootNode, infoSourceIds))){
 					jStr = json;
 				}
 			}
@@ -315,8 +373,7 @@ public class CassandraBatchDelete {
 				Iterator<JsonNode> it = rootNode.iterator();
 				while(it.hasNext()){
 					next = it.next();
-					logger.debug(next.toString());
-					if(!this.hasInfoSourceId(next, infoSourceIds)){				
+					if(!(hasInfoSourceId(next, infoSourceIds))){				
 						objectList.add(next);
 					}				
 				}
