@@ -65,6 +65,7 @@ public class BieReport {
 	private String columnFamily = "tc";	
 	private ObjectMapper mapper;
 	
+	public static final String CARRIAGE_RETURN = "\r\n";
 	public static final String AUSTRALIAN_GUID_PREFIX = "urn:lsid:biodiversity";
 	public static final List<String> VERTEBRATE_LIST = Arrays.asList("chordata");;
 	public static final List<String> PLANT_LIST = Arrays.asList("plantae");
@@ -240,25 +241,27 @@ public class BieReport {
 	 */
 	private void writeToFile(String fileName, int[] totalCtr, long rowCtr) throws IOException{
 		FileWriter fw = new FileWriter(fileName);
-		fw.write("Australian vertebrates: " + totalCtr[CtrIndex.VERTEBRATE_CTR_INDEX.ordinal()] + "\r\n");
-		fw.write("Australian invertebrates: " + totalCtr[CtrIndex.INVERTEBRATE_CTR_INDEX.ordinal()] + "\r\n");
-		fw.write("Australian plants: " + totalCtr[CtrIndex.PLANT_CTR_INDEX.ordinal()] + "\r\n");
-		fw.write("Australian other: " + totalCtr[CtrIndex.OTHER_CTR_INDEX.ordinal()] + "\r\n");
-		fw.write("Australian vertebrates with at least one image: " + totalCtr[CtrIndex.VERTEBRATE_WITH_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
-		fw.write("Australian invertebrates with at least one image: " + totalCtr[CtrIndex.INVERTEBRATE_WITH_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
-		fw.write("Australian plants with at least one image: " + totalCtr[CtrIndex.PLANT_WITH_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
-		fw.write("Australian other with at least one image: " + totalCtr[CtrIndex.OTHER_WITH_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
-		
-		fw.write("All Image Counter: " + totalCtr[CtrIndex.IMAGE_CTR_INDEX.ordinal()] + "\r\n");
-		fw.write("Vertebrate Image Counter: " + totalCtr[CtrIndex.VERTEBRATE_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
-		fw.write("Invertebrate Image Counter: " + totalCtr[CtrIndex.INVERTEBRATE_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
-		fw.write("Plant Image Counter: " + totalCtr[CtrIndex.PLANT_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
-		fw.write("Other Image Counter: " + totalCtr[CtrIndex.OTHER_IMAGE_CTR_INDEX.ordinal()] + "\r\n");
-		fw.write("Vertebrate Name Counter: " + totalCtr[CtrIndex.VERTEBRATE_NAME_CTR_INDEX.ordinal()] + "\r\n");
-		fw.write("Invertebrate Name Counter: " + totalCtr[CtrIndex.INVERTEBRATE_NAME_CTR_INDEX.ordinal()] + "\r\n");
-		fw.write("Plant Name Counter: " + totalCtr[CtrIndex.PLANT_NAME_CTR_INDEX.ordinal()] + "\r\n");
-		fw.write("Other Name Counter: " + totalCtr[CtrIndex.OTHER_NAME_CTR_INDEX.ordinal()] + "\r\n");		
-		fw.write("\nRow Counter: " + rowCtr + "\r\n");
+		fw.write(CARRIAGE_RETURN + "===========<Australian Species Count>===========" + CARRIAGE_RETURN);
+		fw.write("Australian Species : where guid = '" + AUSTRALIAN_GUID_PREFIX + "*'; rankString = 'species'" + CARRIAGE_RETURN);
+		fw.write("Australian vertebrates: " + totalCtr[CtrIndex.VERTEBRATE_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);
+		fw.write("Australian invertebrates: " + totalCtr[CtrIndex.INVERTEBRATE_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);
+		fw.write("Australian plants: " + totalCtr[CtrIndex.PLANT_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);
+		fw.write("Australian other: " + totalCtr[CtrIndex.OTHER_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);
+		fw.write("Australian vertebrates with at least one image: " + totalCtr[CtrIndex.VERTEBRATE_WITH_IMAGE_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);
+		fw.write("Australian invertebrates with at least one image: " + totalCtr[CtrIndex.INVERTEBRATE_WITH_IMAGE_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);
+		fw.write("Australian plants with at least one image: " + totalCtr[CtrIndex.PLANT_WITH_IMAGE_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);
+		fw.write("Australian other with at least one image: " + totalCtr[CtrIndex.OTHER_WITH_IMAGE_CTR_INDEX.ordinal()] + CARRIAGE_RETURN + CARRIAGE_RETURN);
+		fw.write(CARRIAGE_RETURN + "===========<Australian Image & Synonym Name Count>===========" + CARRIAGE_RETURN);
+		fw.write("All Australian Species Image Counter (no rankString check): " + totalCtr[CtrIndex.IMAGE_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);
+		fw.write("Australian Australian Vertebrate Image Counter (with rankString = 'species'): " + totalCtr[CtrIndex.VERTEBRATE_IMAGE_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);
+		fw.write("Australian Invertebrate Image Counter (with rankString = 'species'): " + totalCtr[CtrIndex.INVERTEBRATE_IMAGE_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);
+		fw.write("Australian Plant Image Counter (with rankString = 'species'): " + totalCtr[CtrIndex.PLANT_IMAGE_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);
+		fw.write("Australian Other Image Counter (with rankString = 'species'): " + totalCtr[CtrIndex.OTHER_IMAGE_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);
+		fw.write("Australian Vertebrate Synonym Name Counter (with rankString = 'species'): " + totalCtr[CtrIndex.VERTEBRATE_NAME_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);
+		fw.write("Australian Invertebrate Synonym Name Counter (with rankString = 'species'): " + totalCtr[CtrIndex.INVERTEBRATE_NAME_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);
+		fw.write("Australian Plant Synonym Name Counter (with rankString = 'species'): " + totalCtr[CtrIndex.PLANT_NAME_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);
+		fw.write("Australian Other Synonym Name Counter (with rankString = 'species'): " + totalCtr[CtrIndex.OTHER_NAME_CTR_INDEX.ordinal()] + CARRIAGE_RETURN);		
+		fw.write("\nRow Counter: " + rowCtr + CARRIAGE_RETURN);
 		fw.flush();
 		fw.close();		
 	}
@@ -301,6 +304,7 @@ public class BieReport {
 		String colName = null;
 		boolean hasImages = false;
 		boolean hasSynonym = false;
+		boolean isSpecies = false;
 		Taxa taxa = Taxa.INVALID;
 		
 		if(guid == null || !guid.trim().startsWith(AUSTRALIAN_GUID_PREFIX)){
@@ -326,13 +330,19 @@ public class BieReport {
 					synonymCtr = synonym.size();
 					hasSynonym = true;
 				}
+				if("taxonConcept".equalsIgnoreCase(colName)){
+					TaxonConcept taxonConcept = mapper.readValue(value, TaxonConcept.class);
+					if("species".equalsIgnoreCase(taxonConcept.getRankString().trim())){
+						isSpecies = true;
+					}
+				}
 			} catch (Exception e) {
 				logger.error(e);
 			} 	
 		}	
-		
+
 		//populate counter
-		if(!Taxa.INVALID.equals(taxa)){
+		if(!Taxa.INVALID.equals(taxa) && isSpecies){
 			switch(taxa){
 				case VERTEBRATE:
 					ctr[CtrIndex.VERTEBRATE_CTR_INDEX.ordinal()]++;
