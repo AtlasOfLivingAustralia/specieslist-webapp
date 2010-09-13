@@ -58,6 +58,15 @@ group by tc.id, gr.id
 into outfile '/data/bie-staging/biocache/family_region.txt'
 fields enclosed by '"';
 
+-- Export the occurrence count information
+
+select tc.guid, count(*) as occurrences from occurrence_record oc
+inner join taxon_concept tc on oc.taxon_concept_id = tc.id
+where tc.priority <>100
+group by tc.guid
+into outfile '/data/bie-staging/biocache/taxa_occurrence_count.txt'
+fields enclosed by '"';
+
 
 -- subspecies, species, genus, family, order
 -- retrieve a count of specimens per species
