@@ -14,7 +14,6 @@
  ***************************************************************************/
 package org.ala.util;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,7 +27,6 @@ import org.apache.cassandra.thrift.Cassandra.Client;
 import org.apache.cassandra.thrift.Column;
 import org.apache.cassandra.thrift.ColumnOrSuperColumn;
 import org.apache.cassandra.thrift.ColumnParent;
-import org.apache.cassandra.thrift.ColumnPath;
 import org.apache.cassandra.thrift.ConsistencyLevel;
 import org.apache.cassandra.thrift.KeyRange;
 import org.apache.cassandra.thrift.KeySlice;
@@ -49,15 +47,17 @@ import org.wyki.cassandra.pelops.Selector;
  * 
  * History:
  * 9 Aug 10 (MOK011): updated cassandra client to Pelops API.
+ * 14 Sept 10 (MOK011): added remove column & remove infoSource from particular column functions 
  * 
  */
-//@Component
+
 public class CassandraBatchDelete {
 	protected Logger logger = Logger.getLogger(this.getClass());
 
 	public static final int ROWS = 1000;
 	public static final String CHARSET_ENCODING = "UTF-8";
 	public static final String POOL_NAME = "ALA";
+	public static final String PREFIX = "--";
 	
 	private String host = "localhost";
 	private int port = 9160;
@@ -69,20 +69,19 @@ public class CassandraBatchDelete {
 	 * Usage: option[--ColumnName...] infoSourceId...
 	 * 
 	 * eg: --hasImage --hasRegion 1013
-	 * remove particular column have same infoSourceId and columnName.
+	 * remove infoSourceId data from particular column [hasImage & hasRegion].
 	 * 
 	 * eg: --hasImage --hasRegion
 	 * if infoSourceId is empty then remove whole column that equal to input columnName
 	 * 
 	 * eg: 1013
-	 * if columnName is empty then remove column data that contains same infoSourceId.
+	 * if columnName is empty then remove infoSource data from all columns.
 	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
 		List<String> columnNameList = new ArrayList<String>();
 		List<String> infoSrcIdList = new ArrayList<String>();
-		String prefix = "--";
 		
 		if (args.length < 1) {
 			System.out.println("Please provide a list of infoSourceIds or columnNames....");
@@ -92,8 +91,8 @@ public class CassandraBatchDelete {
 		//setup args option list
 		for(int i = 0; i < args.length; i++){
 			String tmp = args[i].trim();
-			if(tmp.startsWith("--")){
-				columnNameList.add(tmp.substring(prefix.length()).toLowerCase());
+			if(tmp.startsWith(PREFIX)){
+				columnNameList.add(tmp.substring(PREFIX.length()));
 			}
 			else{
 				infoSrcIdList.add(tmp);
@@ -189,15 +188,7 @@ public class CassandraBatchDelete {
 		}				
 		System.out.println("Total time taken (sec): "	+ ((System.currentTimeMillis() - start)/1000));
 	}
-	
-	/*
-	private List<DeleteItemInfo> getDumpDeleteItemsList(){
-		List<DeleteItemInfo> l = new ArrayList<DeleteItemInfo>();
-		l.add(new DeleteItemInfo("urn:lsid:biodiversity.org.au:afd.taxon:aa745ff0-c776-4d0e-851d-369ba0e6f537", "tc", "hasImage"));
-		return l;
-	}
-	*/
-	
+		
 	/**
 	 * do update with cassandra repository.
 	 * @param delList
@@ -275,9 +266,11 @@ public class CassandraBatchDelete {
 		String sColName = null;
 		for (KeySlice keySlice : keySlices) {
 			for (ColumnOrSuperColumn columns : keySlice.getColumns()) {
+				// set break point for debug only 
 				if(keySlice.getKey().equalsIgnoreCase("103070868")){
 					logger.debug("103070868");
 				}
+				
 				if (columns.isSetSuper_column()) {
 					SuperColumn scol = columns.getSuper_column();
 					sColName = new String(scol.getName(), CHARSET_ENCODING);
@@ -343,9 +336,10 @@ public class CassandraBatchDelete {
 			return true;
 		}
 		
-		List<String> list = Arrays.asList(columnNames);
-		if(list.contains(columnName.toLowerCase())){
-			return true;
+		for(String colName : columnNames){
+			if(columnName.trim().equalsIgnoreCase(colName)){
+				return true;
+			}
 		}
 		return b;
 	}
