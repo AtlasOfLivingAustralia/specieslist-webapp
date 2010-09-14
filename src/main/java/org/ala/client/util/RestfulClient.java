@@ -65,19 +65,20 @@ public class RestfulClient {
 	 * Makes a POST request to the specified URL and passes the provided JSON Object
 	 * 
 	 * @param url URL Endpoint
+	 * @param mimeType return mimeType
 	 * @param jsonRequestBody JSON Object to post to URL
 	 * @return [0]: status code; [1]: a JSON encoded response
 	 * @throws IOException 
 	 * @throws HttpException 
 	 */
-	public Object[] restPost(String url, String jsonRequestBody) throws HttpException, IOException {
+	public Object[] restPost(String url, String mimeType, String jsonRequestBody) throws HttpException, IOException {
 		PostMethod post = null;
 		String resp = null;
 		int statusCode = 0;
 		
         try {        	
 	        post = new PostMethod(url);
-	        RequestEntity entity = new StringRequestEntity(jsonRequestBody, JSON_MIME_TYPE, ENCODE_TYPE); 
+	        RequestEntity entity = new StringRequestEntity(jsonRequestBody, mimeType, ENCODE_TYPE); 
 	        post.setRequestEntity(entity); 
         
         	statusCode = client.executeMethod(post);
@@ -91,6 +92,19 @@ public class RestfulClient {
         }
     	Object[] o = new Object[]{statusCode, resp};        	      
         return o;		
+	}
+	
+	/**
+	 * Makes a POST request to the specified URL and passes the provided JSON Object
+	 * 
+	 * @param url URL Endpoint
+	 * @param jsonRequestBody JSON Object to post to URL
+	 * @return [0]: status code; [1]: a JSON encoded response
+	 * @throws IOException 
+	 * @throws HttpException 
+	 */
+	public Object[] restPost(String url, String jsonRequestBody) throws HttpException, IOException {
+		return this.restPost(url, JSON_MIME_TYPE, jsonRequestBody);
 	}
 	
 	/**
