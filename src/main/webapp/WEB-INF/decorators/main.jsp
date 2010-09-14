@@ -10,7 +10,6 @@ include file="/common/taglibs.jsp" %>
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
     <head profile="http://gmpg.org/xfn/11">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-
         <title><decorator:title default="Atlas of Living Australia" /></title>
 		<link rel="stylesheet" href="http://test.ala.org.au/wp-content/themes/ala/style.css" type="text/css" media="screen" /> 
 		<link rel="icon" type="image/x-icon" href="http://test.ala.org.au/wp-content/themes/ala/images/favicon.ico" /> 
@@ -111,7 +110,7 @@ include file="/common/taglibs.jsp" %>
                                 <li><a href="http://test.ala.org.au/about/media-centre/" ><span>Media Centre</span></a></li>
                                 <li><a href="http://test.ala.org.au/about/newsevents/" ><span>News & Events</span></a></li>
                                 <li><a href="http://test.ala.org.au/about/resources/" ><span>Resources</span></a></li></ul></li>
-                        <c:set var="returnUrlPath" value="${initParam.serverName}${pageContext.request.requestURI}"/>
+                                <c:set var="returnUrlPath" value="${initParam.serverName}${pageContext.request.contextPath}${pageContext.request.requestURI}"/>
                         <c:choose>
                             <c:when test="${empty pageContext.request.remoteUser}">
                                 <li class="nav-login nav-right"><ala:loginLogoutLink returnUrlPath="${returnUrlPath}"/></li>
