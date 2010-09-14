@@ -66,7 +66,7 @@ public class CassandraBatchDelete {
 		
 	/**
 	 * 
-	 * Usage: option[--ColumnName...] infoSourceId...
+	 * Usage: [--ColumnName...] [infoSourceId...]
 	 * 
 	 * eg: --hasImage --hasRegion 1013
 	 * remove infoSourceId data from particular column [hasImage & hasRegion].
