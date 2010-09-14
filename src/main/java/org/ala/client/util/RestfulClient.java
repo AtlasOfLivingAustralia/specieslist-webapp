@@ -116,8 +116,8 @@ public class RestfulClient {
 	 * @throws IOException 
 	 * @throws HttpException 
 	 */
-	public Object[] restPost(String url, Collection object) throws HttpException, IOException {
-        return this.restPost(url, serMapper.writeValueAsString(object.toArray()));		
+	public Object[] restPost(String url, String mimeType, Collection object) throws HttpException, IOException {
+        return this.restPost(url, mimeType, serMapper.writeValueAsString(object.toArray()));		
 	}
 	
 	/**
