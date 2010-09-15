@@ -179,9 +179,10 @@
                                 content = content + '</ul><div id="'+facet.fieldName+'_chart_div" style="margin: -15px;"></div>';
                                 $('#recordBreakdowns').append(content); 
                                 
-                                if (facet.fieldName == 'occurrence_date') {
+                                if (facet.fieldName == 'occurrence_date' || facet.fieldName == 'month') {
+                                    var dateLabel = (facet.fieldName == 'occurrence_date') ? 'Decade' : 'Month';
                                     chart = new google.visualization.BarChart(document.getElementById(facet.fieldName+'_chart_div'));
-                                    chart.draw(data, {width: 630, height: 300, legend: 'none', vAxis: {title: 'Decade'}, hAxis: {title: 'Count'}});
+                                    chart.draw(data, {width: 630, height: 300, legend: 'none', vAxis: {title: dateLabel}, hAxis: {title: 'Count'}});
                                 } else {
                                     chart = new google.visualization.PieChart(document.getElementById(facet.fieldName+'_chart_div'));
                                     chart.draw(data, {width: 630, height: 300, legend: 'left'});
