@@ -115,15 +115,30 @@
                 var facetLabels = {
                     state: "State &amp; Territiory",
                     data_resource: "Dataset",
-                    data_provider: "Dataset",  // not used but potentially could be
+                    month: "Date (by month)", 
                     occurrence_date: "Date (by decade)"
+                };
+                var months = {
+                    1: "January",
+                    2: "February",
+                    3: "March",
+                    4: "April",
+                    5: "May",
+                    6: "June",
+                    7: "July",
+                    8: "August",
+                    9: "September",
+                    10: "October",
+                    11: "November",
+                    12: "December"
                 };
                 // load occurrence breakdowns for states
                 var biocachUrl = "/occurrences/searchByTaxon.json?q=${extendedTaxonConcept.taxonConcept.guid}";
                 $.getJSON(biocachUrl, function(data) {
                     if (data.searchResult != null && data.searchResult.totalRecords > 0) {
                         //alert("hi "+data.searchResult.totalRecords);
-                        $('#occurenceCount').html(data.searchResult.totalRecords);
+                        var count = data.searchResult.totalRecords + ""; // concat of emtyp string forces var to a String
+                        $('#occurenceCount').html(count.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")); // update link text at top with count (formatted)
                         //console.log('facets: ', data.searchResult.facetResults);
                         var facets = data.searchResult.facetResults;
                         $.each(facets, function(index, facet) {
@@ -142,6 +157,7 @@
                                 $.each(facet.fieldResult, function(i, li) {
                                     if (li.count > 0) {
                                         var label = li.fieldValue;
+                                        var displayCount = (li.count + "").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                                         var link = '<a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}&fq='
                                         if (facet.fieldName == 'occurrence_date') {
                                             label = label.replace(isoDateSuffix, '');
@@ -149,17 +165,19 @@
                                             label = label + '-' + toValue;
                                             toValue = toValue + isoDateSuffix;
                                             link = link + facet.fieldName+':['+li.fieldValue+' TO '+toValue+']">';
+                                        } else if (facet.fieldName == 'month') {
+                                            link = link + facet.fieldName+':'+li.fieldValue+'">';
+                                            label = months[label]; // substitiute month name for int value
                                         } else {
                                             link = link + facet.fieldName+':'+li.fieldValue+'">';
-                                            
                                         }
-                                        content = content +'<li>'+label+': '+link+li.count+' records</a></li>';
+                                        content = content +'<li>'+label+': ' + link + displayCount + ' records</a></li>';
                                         // add values to chart
                                         data.addRow([label, li.count]);
                                     }
                                 });
                                 content = content + '</ul><div id="'+facet.fieldName+'_chart_div" style="margin: -15px;"></div>';
-                                $('#recordBreakdowns').append(content);
+                                $('#recordBreakdowns').append(content); 
                                 
                                 if (facet.fieldName == 'occurrence_date') {
                                     chart = new google.visualization.BarChart(document.getElementById(facet.fieldName+'_chart_div'));
