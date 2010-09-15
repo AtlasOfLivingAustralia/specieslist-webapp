@@ -244,7 +244,7 @@
                 </c:if>
                 <div id="searchTypes">
                     <ul>
-                        <li><a href="#">Site Pages</a></li>
+                        <!-- <li><a href="#">Site Pages</a></li>  -->
                         <li class="active">Species</li>
                         <c:if test="${not empty region}">
                             <li><a href="${pageContext.request.contextPath}/regions/search?q=${param['q']}">Regions</a></li>

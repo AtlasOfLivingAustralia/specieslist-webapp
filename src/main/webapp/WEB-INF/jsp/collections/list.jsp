@@ -226,7 +226,7 @@
                 </c:if>
                 <div id="searchTypes">
                     <ul>
-                        <li><a href="#">Site Pages</a></li>
+<!-- <li><a href="#">Site Pages</a></li>  -->
                         <c:if test="${not empty taxon}">
                             <li><a href="${pageContext.request.contextPath}/species/search?q=${param['q']}">Species</a></li>
                         </c:if>
