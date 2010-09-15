@@ -2,6 +2,7 @@
 <%@ include file="/common/taglibs.jsp" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <c:set var="spatialPortalUrl">http://test.ala.org.au/explore/species-maps/</c:set>
+<c:set var="spatialPortalWMSUrl">http://spatial-dev.ala.org.au/alaspatial/</c:set>
 <c:set var="wordPressUrl">http://test.ala.org.au/</c:set>
 <c:set var="biocacheUrl">http://biocache.ala.org.au/</c:set><html>
     <head>
@@ -408,7 +409,7 @@
                         <h3>Mapped records</h3>
                         <p>
                             <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">
-                                <img src="http://spatial-dev.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
+                                <img src="${spatialPortalWMSUrl}ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
                             <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
                         </p>
                     </div>
@@ -773,7 +774,7 @@
                         <h4>Map of Occurrence Records</h4>
                         <p>
                             <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">
-                                <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a><br/>
+                                <img src="${spatialPortalWMSUrl}ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a><br/>
                             <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">Interactive version of this map</a>
                         </p>
                     </div>
