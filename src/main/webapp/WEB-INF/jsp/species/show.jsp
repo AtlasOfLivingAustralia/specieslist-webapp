@@ -408,7 +408,7 @@
                         <h3>Mapped records</h3>
                         <p>
                             <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">
-                                <img src="http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
+                                <img src="http://spatial-dev.ala.org.au/alaspatial/ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
                             <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
                         </p>
                     </div>
