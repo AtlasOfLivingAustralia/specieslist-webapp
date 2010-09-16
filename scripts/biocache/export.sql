@@ -62,7 +62,8 @@ fields enclosed by '"';
 
 select tc.guid, count(*) as occurrences from occurrence_record oc
 inner join taxon_concept tc on oc.taxon_concept_id = tc.id
-where tc.priority <>100
+inner join data_resource dr on oc.data_resource_id = dr.id
+where tc.priority <>100 and dr.release_flag
 group by tc.guid
 into outfile '/data/bie-staging/biocache/taxa_occurrence_count.txt'
 fields enclosed by '"';

@@ -124,6 +124,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     private static final String PUBLICATION_COL = "hasPublication";
     private static final String IS_ICONIC = "IsIconic";
     private static final String IS_AUSTRALIAN= "IsAustralian";
+    public static final String OCCURRENCE_RECORDS_COUNT_COL = "hasOccurrenceRecords";
     /** Column families */
     private static final String TC_COL_FAMILY = "tc";
 
@@ -149,7 +150,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     protected static final String SCI_NAME = "scientificName";
     protected static final String SCI_NAME_RAW = "scientificNameRaw";
     protected static final String SCI_NAME_TEXT = "scientificNameText";
-	
+    	
 	/**
 	 * Initialise the DAO, setting up the HTable instance.
 	 * 
@@ -326,6 +327,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addRegions(String guid, List<OccurrencesInGeoregion> regions) throws Exception {
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, REGION_COL, guid, (List) regions, false);
 	}
+
+        public boolean setOccurrenceRecordsCount(String guid, Integer count) throws Exception{
+            
+            return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, OCCURRENCE_RECORDS_COUNT_COL, guid, count);
+        }
 	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addImage(java.lang.String, org.ala.model.Image)
@@ -1328,6 +1334,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
             
     		//is this species iconic
     		boolean isIconic = isIconic(guid);
+                //does this taxon have occurrence records associated with it?
+                Integer count = getOccurrenceRecordCount(guid);
+                //boolean isGs=count != null && count.size() >0 && count.get(0)>0;
+                if(count != null)
+                    doc.addField("occurrenceCount", count);
     		
     		if(taxonConcept.getNameString()!=null){
     			
@@ -1702,6 +1713,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
      */
     public List<Reference> getPublicationReferencesFor(String guid) throws Exception{
         return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, PUBLICATION_REFERENCE_COL, guid, Reference.class);
+    }
+
+    public Integer getOccurrenceRecordCount(String guid) throws Exception{
+        return (Integer) storeHelper.get(TC_TABLE, TC_COL_FAMILY, OCCURRENCE_RECORDS_COUNT_COL, guid, Integer.class);
     }
 	
     /**

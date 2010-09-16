@@ -43,6 +43,7 @@ public class BioCacheLoader {
 	private static final String GENUS_REGION_OCCURRENCE = "/data/bie-staging/biocache/genus_region.txt";
 	private static final String SPECIES_REGION_OCCURRENCE = "/data/bie-staging/biocache/species_region.txt";
 	private static final String SUBSPECIES_REGION_OCCURRENCE = "/data/bie-staging/biocache/subspecies_region.txt";
+        private static final String OCCURRENCE_COUNT = "/data/bie-staging/biocache/taxa_occurrence_count.txt";
 	
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
@@ -62,7 +63,28 @@ public class BioCacheLoader {
 		loadRegions(GENUS_REGION_OCCURRENCE, "genus");
 		loadRegions(SPECIES_REGION_OCCURRENCE, "species");
 		loadRegions(SUBSPECIES_REGION_OCCURRENCE, "subspecies");
+                loadOccurrenceCounts();
 	}
+
+        private void loadOccurrenceCounts() throws Exception {
+            long start = System.currentTimeMillis();
+            logger.info("Starting to load the occurrence counts");
+            int t=0;
+            CSVReader tr = new CSVReader(new FileReader(OCCURRENCE_COUNT), '\t', '"');
+            String[] values = null;
+            while ((values = tr.readNext()) != null) {
+                t++;
+                if(values.length == 2){
+                    String guid = values[0];
+                    Integer count = Integer.parseInt(values[1]);
+                    taxonConceptDao.setOccurrenceRecordsCount(guid, count);
+                }
+                if(t%1000 ==0)
+                    logger.debug("Finished processing " + t + " taxa " + (System.currentTimeMillis()-start) + " ms");
+            }
+            long finish = System.currentTimeMillis();
+            logger.info("Occurrence counts for "+ t+ " taxa finished in "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
+        }
 
 	/**
 	 * @param regionDatFile

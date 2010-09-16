@@ -203,6 +203,14 @@ public interface TaxonConceptDao {
      */
     List<Reference> getPublicationReferencesFor(String guid) throws Exception;
 
+    /**
+     * Retrieves the occurrence count for this taxon concept
+     * @param guid
+     * @return
+     * @throws Exception
+     */
+    Integer getOccurrenceRecordCount(String guid) throws Exception;
+
 	/**
 	 * Store the following taxon concept
 	 *
@@ -283,6 +291,15 @@ public interface TaxonConceptDao {
 	 * @throws Exception
 	 */
 	boolean addRegions(String guid, List<OccurrencesInGeoregion> regions) throws Exception;
+
+        /**
+         * Adds the number of BioCache occurrences for the Taxon Concept.
+         * @param guid
+         * @param count
+         * @return
+         * @throws Exception
+         */
+        boolean setOccurrenceRecordsCount(String guid, Integer count) throws Exception;
 
 	/**
 	 * Add this image to the Taxon Concept.
