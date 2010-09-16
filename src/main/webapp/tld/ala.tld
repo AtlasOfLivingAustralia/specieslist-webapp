@@ -13,7 +13,7 @@
   <tag>
     <description>Property Loader Tag</description>
     <name>propertyLoader</name>
-    <tag-class>org.ala.biocache.web.PropertyLoaderTag</tag-class>
+    <tag-class>au.org.ala.commonui.tag.PropertyLoaderTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
      <description>The bundle name</description>
@@ -28,19 +28,32 @@
      <rtexprvalue>true</rtexprvalue>
     </attribute>			  
   </tag>	
-	
+
   <tag>
-    <description>Login Logout Tag</description>
-    <name>loginLogoutLink</name>
-    <tag-class>org.ala.web.LoginLogoutTag</tag-class>
+    <description>Banner Menu Tag</description>
+    <name>bannerMenu</name>
+    <tag-class>au.org.ala.commonui.tag.BannerMenuTag</tag-class>
     <body-content>JSP</body-content>
     <attribute>
-     <description>The anchor element to login or logout</description>
-     <name>returnUrlPath</name>
-     <required>true</required>
-     <rtexprvalue>true</rtexprvalue>
-    </attribute>              
-  </tag>    
- 
+      <description>The return url path for the login/logout anchor</description>
+      <name>returnUrlPath</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+
+  <tag>
+    <description>Footer Menu Tag</description>
+    <name>footerMenu</name>
+    <tag-class>au.org.ala.commonui.tag.FooterMenuTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+      <description>The return url path for the login/logout anchor</description>
+      <name>returnUrlPath</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+
  
 </taglib>
