@@ -250,6 +250,35 @@
       </analyzer>
     </fieldType>
 
+	  <!-- A text field that has been "n-gramed" to allow partial term matching
+        for use in auto completion
+    -->
+    <fieldType name="auto_text" class="solr.TextField">
+        <analyzer type="index">
+            <tokenizer class="solr.KeywordTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory" />
+			<filter class="solr.NGramFilterFactory" minGramSize="3" maxGramSize="30" />
+        </analyzer>
+		<analyzer type="query">
+            <tokenizer class="solr.KeywordTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>
+	<!-- Allows the hits at the start of the words to score higher that middle when used in
+	conjunction with the auto_text fieldType in a search
+	-->
+	    <fieldType name="auto_text_edge" class="solr.TextField">
+        <analyzer type="index">
+            <tokenizer class="solr.KeywordTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory" />
+			<filter class="solr.EdgeNGramFilterFactory" minGramSize="3" maxGramSize="30" />
+        </analyzer>
+		<analyzer type="query">
+            <tokenizer class="solr.KeywordTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>
+
     <!-- BIE - A text field that uses WordDelimiterFilter to enable splitting and matching of
         words on case-change, alpha numeric boundaries, and non-alphanumeric chars,
         so that a query of "wifi" or "wi fi" could match a document containing "Wi-Fi".
@@ -489,6 +518,7 @@
    <field name="simpleText" type="text_ws" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="scientificNameText" type="text_ws" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="dataset" type="string" indexed="true" stored="true" required="false" omitNorms="true" multiValued="true" />
+   <field name="occurrenceCount" type="int" indexed="true" stored="true" multiValued="false" omitNorms="true" />
    <!-- nested set functionality -->
    <field name="left" type="int" indexed="true" stored="true" required="false" omitNorms="true" multiValued="false" />
    <field name="right" type="int" indexed="true" stored="true" required="false" omitNorms="true" multiValued="false" />
@@ -526,6 +556,8 @@
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
    <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
+   <field name="auto_text" type="auto_text" indexed="true" stored="false" multiValued="true" omitNorms="true" omitTermFreqAndPositions="true"/>
+   <field name="auto_text_edge" type="auto_text_edge" indexed="true" stored="false" multiValued="true" omitNorms="true" omitTermFreqAndPositions="true"/>
 
    <!-- catchall text field that indexes tokens both normally and in reverse for efficient
         leading wildcard queries. -->
@@ -594,6 +626,11 @@
    <!-- <copyField source="commonName" dest="text"/> -->
    <copyField source="pestStatus" dest="text"/>
    <copyField source="conservationStatus" dest="text"/>
+   <!-- copy fields required for the auto complete -->
+   <copyField source="scientificName" dest="auto_text"/>
+   <copyField source="commonName" dest="auto_text"/>
+   <copyField source="scientificName" dest="auto_text_edge"/>
+   <copyField source="commonName" dest="auto_text_edge"/>
    
 
    <!-- Above, multiple source fields are copied to the [text] field.

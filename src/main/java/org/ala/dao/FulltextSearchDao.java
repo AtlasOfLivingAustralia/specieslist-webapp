@@ -17,6 +17,7 @@ package org.ala.dao;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import org.ala.dto.AutoCompleteDTO;
 
 import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchRegionDTO;
@@ -196,4 +197,16 @@ public interface FulltextSearchDao {
      * @throws Exception
      */
     Map<String, Long> getAllDatasetCounts() throws Exception;
+
+    /**
+     * Provides a list of auto complete DTO's that for the value text. Preference is
+     * given for matches at the start of the term.
+     * @param value
+     * @param indexType
+     * @param gsOnly
+     * @param maxTerms
+     * @return
+     * @throws Exception
+     */
+    List<AutoCompleteDTO> getAutoCompleteList(String value,IndexedTypes indexType, boolean gsOnly, int maxTerms) throws Exception;
 }

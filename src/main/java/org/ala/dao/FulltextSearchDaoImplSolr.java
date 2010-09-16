@@ -51,6 +51,8 @@ import org.gbif.ecat.parser.NameParser;
 import org.springframework.stereotype.Component;
 
 import au.com.bytecode.opencsv.CSVWriter;
+import java.util.regex.Pattern;
+import org.ala.dto.AutoCompleteDTO;
 
 /**
  * SOLR implementation of {@see org.ala.dao.FulltextSearchDao}. Used for searching against Lucene
@@ -913,4 +915,126 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 	public void setMaxResultsForChildConcepts(int maxResultsForChildConcepts) {
 		this.maxResultsForChildConcepts = maxResultsForChildConcepts;
 	}
+     /**
+      * Applies a prefix and suffix to higlight the search terms in the
+      * supplied list.
+      *
+      * NC: This is a workaround as I can not get SOLR highlighting to work for partial term matches.
+      *
+      * @param names
+      * @param m
+      * @return
+      */
+     private List<String> getHighlightedNames(List<String> names, java.util.regex.Matcher m, String prefix, String suffix){
+        List<String> hlnames =null;
+        if(names != null){
+            hlnames = new ArrayList<String>();
+            for(String name : names){
+                m.reset(name);
+                if(m.find()){
+                    //insert <b> and </b>at the start and end index
+                    name = name.substring(0, m.start()) + prefix + name.substring(m.start(), m.end()) + suffix + name.substring(m.end(), name.length());
+                    hlnames.add(name);
+                }
+            }
+            if(hlnames.isEmpty())
+                hlnames = null;
+        }
+        return hlnames;
+    }
+    /**
+     * Creates an auto complete DTO from the supplied result.
+     * @param qr
+     * @param doc
+     * @param value
+     * @return
+     */
+    private AutoCompleteDTO createAutoCompleteFromIndex(QueryResponse qr, SolrDocument doc, String value){
+        AutoCompleteDTO autoDto = new AutoCompleteDTO();
+        autoDto.setGuid((String) doc.getFirstValue("guid"));
+        autoDto.setName((String) doc.getFirstValue("scientificNameRaw"));
+        autoDto.setCommonName((String) doc.getFirstValue("commonNameDisplay"));
+        autoDto.setOccurrenceCount((Integer)doc.getFirstValue("occurrenceCount"));
+        Pattern p =Pattern.compile(value, Pattern.CASE_INSENSITIVE);
+        
+        java.util.regex.Matcher m = p.matcher(value);
+        if(autoDto.getCommonName() != null){
+            List<String> commonNames = org.springframework.util.CollectionUtils.arrayToList(((String)doc.get("commonNameDisplay")).split(","));
+            autoDto.setCommonNameMatches(getHighlightedNames(commonNames, m, "<b>", "</b>"));
+        }
+        List<String> scientificNames = org.springframework.util.CollectionUtils.arrayToList(((String)doc.get("scientificNameRaw")).split(","));
+        autoDto.setScientificNameMatches(getHighlightedNames(scientificNames, m, "<b>", "</b>"));
+
+        //get the highlighted values
+        //NC TODO get partial term matching highlighting to work - I am not sure on the SOLR configurations that are required
+//        if(qr.getHighlighting() != null && qr.getHighlighting().get(autoDto.getGuid()) != null){
+//            Map<String, List<String>> fieldHighlights = qr.getHighlighting().get(autoDto.getGuid());
+//            //get the scientific names
+//            if(fieldHighlights.containsKey("scientificNameHL"))
+//                autoDto.setScientificNameMatches(fieldHighlights.get("scientificNameHL"));
+//            else if(fieldHighlights.containsKey("commonName"))
+//                autoDto.setCommonNameMatches(fieldHighlights.get("commonName"));
+//        }
+        return autoDto;
+    }
+
+    /**
+     * @see org.ala.dao.FulltextSearchDao#getAutoCompleteList(String, String[], int)
+     */
+    public List<AutoCompleteDTO> getAutoCompleteList(String value, IndexedTypes indexType, boolean gsOnly, int maxTerms) throws Exception {
+        StringBuffer queryString = new StringBuffer();
+
+
+
+        String cleanQuery = ClientUtils.escapeQueryChars(value);//.toLowerCase();
+        if (StringUtils.trimToNull(cleanQuery) != null && cleanQuery.length() >= 3) {
+            if(indexType != null){
+                queryString.append("idxtype:" + indexType);
+                
+                queryString.append(" AND ");
+            }
+            if(gsOnly){
+                    queryString.append("occurrenceCount:[1 TO *]");
+                    queryString.append(" AND ");
+                }
+            queryString.append("(");
+            List<AutoCompleteDTO> items = new ArrayList<AutoCompleteDTO>();
+            SolrQuery solrQuery = new SolrQuery();
+            queryString.append("auto_text:" + cleanQuery);
+            queryString.append(" OR ");
+            queryString.append("auto_text_edge:" + cleanQuery); //This field ensures that matches at the start of the term have a higher ranking
+            queryString.append(")");
+            solrQuery.setQuery(queryString.toString());
+            solrQuery.setQueryType("standard");
+            solrQuery.setFields("*", "score");
+
+            QueryResponse qr = solrUtils.getSolrServer().query(solrQuery);
+
+            SolrDocumentList sdl = qr.getResults();
+            if (sdl != null && !sdl.isEmpty()) {
+                for (SolrDocument doc : sdl) {
+                    if (IndexedTypes.TAXON.toString().equalsIgnoreCase((String) doc.getFieldValue("idxtype"))) {
+                        items.add(createAutoCompleteFromIndex(qr, doc, value));
+
+                    }
+//                else if(IndexedTypes.COLLECTION.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
+//                    results.add(createCollectionFromIndex(qr, doc));
+//            	} else if(IndexedTypes.INSTITUTION.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
+//                    results.add(createInstitutionFromIndex(qr, doc));
+//            	} else if(IndexedTypes.DATAPROVIDER.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
+//            		results.add(createDataProviderFromIndex(qr, doc));
+//            	} else if(IndexedTypes.DATASET.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
+//                    results.add(createDatasetFromIndex(qr, doc));
+//            	} else if(IndexedTypes.REGION.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
+//            		results.add(createRegionFromIndex(qr, doc));
+//            	} else if(IndexedTypes.LOCALITY.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
+////                    results.add(createTaxonConceptFromIndex(qr, doc));
+//            	}
+                }
+            }
+            return items;
+        }
+        return null;
+    }
+   
 }
