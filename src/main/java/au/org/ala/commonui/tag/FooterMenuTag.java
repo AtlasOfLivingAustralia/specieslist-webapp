@@ -39,27 +39,36 @@ public class FooterMenuTag extends TagSupport {
 	 * @see javax.servlet.jsp.tagext.TagSupport#doStartTag()
 	 */
 	public int doStartTag() throws JspException {
-		
-		HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-		Principal principal = request.getUserPrincipal();
-		String casServer = pageContext.getServletContext().getInitParameter("casServerName");
 
-		String loginLogoutAnchor;
-		if (principal == null) {
-			loginLogoutAnchor = "<a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a>";
-		} else {
-			loginLogoutAnchor = "<a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a>";
-		}
-
-		String html = 
+		StringBuilder html = new StringBuilder(
 			"<div id='footer-nav'>" +
 				"<ul id='menu-footer-site'>" +
 					"<li id='menu-item-1046' class='menu-item menu-item-type-post_type current-menu-item page_item page-item-97 current_page_item menu-item-1046'><a href='http://test.ala.org.au/'>Home</a></li>" +
 					"<li id='menu-item-1051' class='menu-item menu-item-type-post_type menu-item-1051'><a href='http://test.ala.org.au/tools-services/'>Tools</a></li>" +
 					"<li id='menu-item-1050' class='menu-item menu-item-type-post_type menu-item-1050'><a href='http://test.ala.org.au/support/'>Support</a></li>" +
-					"<li id='menu-item-1048' class='menu-item menu-item-type-post_type menu-item-1048'><a href='http://test.ala.org.au/contact-us/'>Contact Us</a></li>" +
+					"<li id='menu-item-1048' class='menu-item menu-item-type-post_type menu-item-1048'><a href='http://test.ala.org.au/contact-us/'>Contact Us</a></li>");
+		
+		if (returnUrlPath.equals("")) {
+			html.append(
+					"<li id='menu-item-1047' class='last menu-item menu-item-type-post_type menu-item-1047'><a href='http://test.ala.org.au/about/'>About the Atlas</a></li>");
+		} else {
+			HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+			Principal principal = request.getUserPrincipal();
+			String casServer = pageContext.getServletContext().getInitParameter("casServerName");
+
+			String loginLogoutAnchor;
+			if (principal == null) {
+				loginLogoutAnchor = "<a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a>";
+			} else {
+				loginLogoutAnchor = "<a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a>";
+			}
+
+			html.append(
 					"<li id='menu-item-1047' class='menu-item menu-item-type-post_type menu-item-1047'><a href='http://test.ala.org.au/about/'>About the Atlas</a></li>" +
-					"<li id='menu-item-1052' class='last menu-item menu-item-type-custom menu-item-1052'>" + loginLogoutAnchor + "</li>" +
+					"<li id='menu-item-1052' class='last menu-item menu-item-type-custom menu-item-1052'>" + loginLogoutAnchor + "</li>");
+		}
+
+		html.append(
 				"</ul>" +
 				"<ul id='menu-footer-legal'>" +
 					"<li id='menu-item-3090' class='menu-item menu-item-type-post_type menu-item-3090'><a href='http://test.ala.org.au/site-map/'>Site Map</a></li>" +
@@ -74,10 +83,10 @@ public class FooterMenuTag extends TagSupport {
 						"<img src='http://test.ala.org.au/wp-content/themes/ala/images/somerights20.png' width='88' height='31' alt=''/>" +
 					"</a>This work is licensed under a <a href='http://creativecommons.org/licenses/by/2.5/au/' title='External link to Creative Commons'>Creative Commons Attribution 2.5 Australia License</a>" +
 				"</p>" +
-			"</div>";
+			"</div>");
 		
 		try {
-			pageContext.getOut().print(html);
+			pageContext.getOut().print(html.toString());
 		} catch (Exception e) {
 			logger.error("FooterMenuTag: " + e.getMessage(), e);
 			throw new JspTagException("FooterMenuTag: " + e.getMessage());

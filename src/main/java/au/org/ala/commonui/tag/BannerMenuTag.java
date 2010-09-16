@@ -40,15 +40,19 @@ public class BannerMenuTag extends TagSupport {
 	 */
 	public int doStartTag() throws JspException {
 		
-		HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-		Principal principal = request.getUserPrincipal();
-		String casServer = pageContext.getServletContext().getInitParameter("casServerName");
-
 		String loginLogoutListItem;
-		if (principal == null) {
-			loginLogoutListItem = "<li class='nav-login nav-right'><a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a></li>";
+		if (returnUrlPath.equals("")) {
+			loginLogoutListItem = "";
 		} else {
-			loginLogoutListItem = "<li class='nav-logout nav-right'><a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a></li>";
+			HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+			Principal principal = request.getUserPrincipal();
+			String casServer = pageContext.getServletContext().getInitParameter("casServerName");
+
+			if (principal == null) {
+				loginLogoutListItem = "<li class='nav-login nav-right'><a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a></li>";
+			} else {
+				loginLogoutListItem = "<li class='nav-logout nav-right'><a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a></li>";
+			}
 		}
 
 		String html =
@@ -56,7 +60,7 @@ public class BannerMenuTag extends TagSupport {
 				"<!-- WP Menubar 4.7: start menu nav-site, template Superfish, CSS  -->" +
 				"<ul class='sf'>" +
 					"<li class='nav-home'><a href='http://test.ala.org.au/'><span>Home</span></a></li>" +
-					"<li class='nav-explore selected'><a href='http://test.ala.org.au/explore/'><span>Explore</span></a>" +
+					"<li class='nav-explore'><a href='http://test.ala.org.au/explore/'><span>Explore</span></a>" +
 						"<ul>" +
 							"<li><a href='http://biocache.ala.org.au/explore/your-area'><span>Your Area</span></a></li>" +
 							"<li><a href='http://bie.ala.org.au/regions/'><span>States &amp; Territories</span></a></li>" +
