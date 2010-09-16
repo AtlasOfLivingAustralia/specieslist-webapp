@@ -36,6 +36,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- ALA common UI -->
+        <dependency>
+            <groupId>au.org.ala</groupId>
+            <artifactId>ala-common-ui</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>  
         <!-- Jackson -->
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
