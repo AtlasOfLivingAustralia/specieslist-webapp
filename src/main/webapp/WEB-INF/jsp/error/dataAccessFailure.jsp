@@ -25,7 +25,7 @@
     </head>
     <body>
         <h2/>Internal Error</h2>
-        <p>Oops something bad has happened. If this error persists you might like to let us
+        <p>Data access failure has occurred. If this error persists you might like to let us
             know <a href="mailto:webmaster@ala.org.au?subject=${pageContext.request.serverName} Error">via email</a>.</p>
         <p></p>
         <p><a href="#" class="showHideLink">Show/Hide Stacktrace</a></p>
