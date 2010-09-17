@@ -24,6 +24,7 @@ import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.IndexedTypes;
 import org.ala.dto.FacetResultDTO;
 import org.ala.dto.FieldResultDTO;
+import org.ala.dto.AutoCompleteDTO;
 import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -374,6 +375,29 @@ public class SearchController {
 		return doGenericSearch(query, filterQuery, startIndex, pageSize, sortField,
 				sortDirection, title, model, INSTITUTIONS_LIST, IndexedTypes.INSTITUTION);
 	}
+        /**
+         * Provides the auto complete service.
+         * @param query The value to auto complete
+         * @param geoRefOnly When true only include results that have some geospatial occurrence records
+         * @param idxType The index type to limit see bie-hbase/src/main/java/org/ala/dao/IndexedTypes
+         * @param maxTerms The maximum number of results to return
+         * @param model
+         * @throws Exception
+         */
+        @RequestMapping(value="/search/auto.json*", method = RequestMethod.GET)
+        public void searchForAutocompleteValues(
+                        @RequestParam(value="q", required=true) String query,
+                        @RequestParam(value="geoOnly", required=false) boolean geoRefOnly,
+                        @RequestParam(value="idxType", required=false) String idxType,
+                        @RequestParam(value="limit", required=false, defaultValue ="10") int maxTerms,
+                        Model model)throws Exception {
+
+            logger.debug("Autocomplete on " + query + " geoOnly: " + geoRefOnly  );
+            IndexedTypes it = idxType != null ? IndexedTypes.valueOf(idxType.toUpperCase()):null;
+            List<AutoCompleteDTO> autoCompleteList =searchDao.getAutoCompleteList(query,it, geoRefOnly , maxTerms);
+            model.addAttribute("autoCompleteList", autoCompleteList);
+
+        }
         
         /**
          * Changes the direction of the sore if the sortField is score
