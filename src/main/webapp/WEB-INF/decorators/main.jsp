@@ -48,6 +48,10 @@ include file="/common/taglibs.jsp" %>
 						dropShadows:false
 					});
 				});
+	            // highlight explore menu tab
+	            jQuery(document).ready(function() {
+	                jQuery("div#nav li.nav-explore").addClass("selected");
+	            });
 		
 		</script> 
 		<meta name="robots" content="noindex,nofollow"/> 
