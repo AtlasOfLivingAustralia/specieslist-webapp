@@ -1054,3 +1054,5 @@ li.taxonBreakdown { border: 1px solid gray; padding:10px; margin-bottom: 5px; -m
 img.emblemThumb { width: 85px; height: 85px; }
 #emblems td { padding-left: 5px;  }
 #regionMap { padding: 20px 10px 0 20px; }
+
+.recordMapOtherSource { padding: 10px 0 20px 0 }

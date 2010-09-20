@@ -725,6 +725,24 @@
                             list of all <span id="occurenceCount"></span> occurrence records for this taxon</a></p>
                     <div id="recordBreakdowns" style="display: block">
                     </div>
+                    
+                    <%-- Distribution map images --%>
+                    <c:if test="${not empty extendedTaxonConcept.distributionImages}">
+	                    <h2>Record maps from other sources</h2>
+	                    <c:forEach items="${extendedTaxonConcept.distributionImages}" var="distribImage">
+						<div class="recordMapOtherSource" style="display: block">
+							<c:set var="imageLink">${not empty distribImage.isPartOf ? distribImage.isPartOf : distribImage.infoSourceURL}</c:set>
+							<a href="${imageLink}">
+							<img src="${distribImage.repoLocation}"/>
+							</a>
+							<br/>
+							<cite>Source: 
+								<a href="${imageLink}" target="blank">${distribImage.infoSourceName}</a>
+							</cite>
+	                    </div>
+	                    </c:forEach>
+                    </c:if>
+                    
                     <%--
                     <c:forEach var="regionType" items="${extendedTaxonConcept.regionTypes}">
                         <c:if test="${fn:containsIgnoreCase(regionType.regionType, 'state') || fn:containsIgnoreCase(regionType.regionType, 'territory')}">
