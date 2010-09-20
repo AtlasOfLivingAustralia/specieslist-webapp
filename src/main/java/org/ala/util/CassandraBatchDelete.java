@@ -58,6 +58,8 @@ public class CassandraBatchDelete {
 	public static final String CHARSET_ENCODING = "UTF-8";
 	public static final String POOL_NAME = "ALA";
 	public static final String PREFIX = "--";
+	public static final String HOST_PREFIX = "-host=";
+	public static final String PORT_PREFIX = "-port=";
 	
 	private String host = "localhost";
 	private int port = 9160;
@@ -66,7 +68,7 @@ public class CassandraBatchDelete {
 		
 	/**
 	 * 
-	 * Usage: [--ColumnName...] [infoSourceId...]
+	 * Usage: [-host=ala-biedb1.vm.csiro.au][-port=9160][--ColumnName...] [infoSourceId...]
 	 * 
 	 * eg: --hasImage --hasRegion 1013
 	 * remove infoSourceId data from particular column [hasImage & hasRegion].
@@ -74,7 +76,7 @@ public class CassandraBatchDelete {
 	 * eg: --hasImage --hasRegion
 	 * if infoSourceId is empty then remove whole column that equal to input columnName
 	 * 
-	 * eg: 1013
+	 * eg: -host=ala-biedb1.vm.csiro.au -port=9160 1013
 	 * if columnName is empty then remove infoSource data from all columns.
 	 * 
 	 * @param args
@@ -82,6 +84,8 @@ public class CassandraBatchDelete {
 	public static void main(String[] args) throws Exception {
 		List<String> columnNameList = new ArrayList<String>();
 		List<String> infoSrcIdList = new ArrayList<String>();
+		String host = "localhost";
+		int port = 9160;
 		
 		if (args.length < 1) {
 			System.out.println("Please provide a list of infoSourceIds or columnNames....");
@@ -94,11 +98,19 @@ public class CassandraBatchDelete {
 			if(tmp.startsWith(PREFIX)){
 				columnNameList.add(tmp.substring(PREFIX.length()));
 			}
+			else if(tmp.startsWith(HOST_PREFIX)){
+				host = tmp.substring(HOST_PREFIX.length());
+			}
+			else if(tmp.startsWith(PREFIX)){
+				port = Integer.parseInt(tmp.substring(PORT_PREFIX.length()));
+			}
 			else{
 				infoSrcIdList.add(tmp);
 			}
 		}
-		CassandraBatchDelete cassandraBatchDelete = new CassandraBatchDelete();
+		
+		System.out.println("Connecting to: " + host + " port: " + port);
+		CassandraBatchDelete cassandraBatchDelete = new CassandraBatchDelete(host, port);
 		String[] cast = new String[]{};
 		cassandraBatchDelete.doFullScanAndDelete(infoSrcIdList.toArray(cast), columnNameList.toArray(cast));
 		cassandraBatchDelete.closeConnectionPool();
