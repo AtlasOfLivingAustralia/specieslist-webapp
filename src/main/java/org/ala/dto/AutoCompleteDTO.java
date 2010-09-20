@@ -12,10 +12,14 @@ public class AutoCompleteDTO {
     protected String guid;
     protected String name;
     protected Integer occurrenceCount;
+    protected Integer georeferencedCount;
     protected List<String> scientificNameMatches;
     protected List<String> commonNameMatches;
     protected String commonName;
-
+    protected Integer rankId;
+    protected String rankString;
+    protected Integer left;
+    protected Integer right;
 
     public String getCommonName() {
         return commonName;
@@ -62,6 +66,73 @@ public class AutoCompleteDTO {
 		this.name = name;
 	}
 
-    
+	/**
+	 * @return the georeferencedCount
+	 */
+	public Integer getGeoreferencedCount() {
+		return georeferencedCount;
+	}
 
+	/**
+	 * @param georeferencedCount the georeferencedCount to set
+	 */
+	public void setGeoreferencedCount(Integer georeferencedCount) {
+		this.georeferencedCount = georeferencedCount;
+	}
+
+	/**
+	 * @return the rankId
+	 */
+	public Integer getRankId() {
+		return rankId;
+	}
+
+	/**
+	 * @param rankId the rankId to set
+	 */
+	public void setRankId(Integer rankId) {
+		this.rankId = rankId;
+	}
+
+	/**
+	 * @return the rankString
+	 */
+	public String getRankString() {
+		return rankString;
+	}
+
+	/**
+	 * @param rankString the rankString to set
+	 */
+	public void setRankString(String rankString) {
+		this.rankString = rankString;
+	}
+
+	/**
+	 * @return the left
+	 */
+	public Integer getLeft() {
+		return left;
+	}
+
+	/**
+	 * @param left the left to set
+	 */
+	public void setLeft(Integer left) {
+		this.left = left;
+	}
+
+	/**
+	 * @return the right
+	 */
+	public Integer getRight() {
+		return right;
+	}
+
+	/**
+	 * @param right the right to set
+	 */
+	public void setRight(Integer right) {
+		this.right = right;
+	}
 }

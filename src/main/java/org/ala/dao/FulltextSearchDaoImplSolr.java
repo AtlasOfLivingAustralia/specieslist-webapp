@@ -955,7 +955,15 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         autoDto.setName((String) doc.getFirstValue("scientificNameRaw"));
         autoDto.setCommonName((String) doc.getFirstValue("commonNameDisplay"));
         autoDto.setOccurrenceCount((Integer)doc.getFirstValue("occurrenceCount"));
-        Pattern p =Pattern.compile(value, Pattern.CASE_INSENSITIVE);
+        
+//        autoDto.setGeoreferencedCount((Integer)doc.getFirstValue("occurrenceCount"));
+        autoDto.setRankId((Integer)doc.getFirstValue("rankId"));
+        autoDto.setRankString((String)doc.getFirstValue("rankString"));
+        autoDto.setLeft((Integer)doc.getFirstValue("left"));
+        autoDto.setRight((Integer)doc.getFirstValue("right"));
+        
+        
+        Pattern p = Pattern.compile(value, Pattern.CASE_INSENSITIVE);
         
         java.util.regex.Matcher m = p.matcher(value);
         if(autoDto.getCommonName() != null){
