@@ -219,22 +219,22 @@
             <div id="subnavlist">
                 <ul>
 <!--                    <li><a href="#">Site pages</a> <span>(43)</span></li>-->
-                    <li class="active">Species</li>
+                    <li class="active">Species (${taxon})</li>
                     <c:if test="${not empty region}">
-                        <li><a href="${pageContext.request.contextPath}/regions/search?q=${param['q']}">Regions</a></li>
+                        <li><a href="${pageContext.request.contextPath}/regions/search?q=${param['q']}">Regions</a> (${region})</li>
                     </c:if>
 <!--                        <li><a href="/biocache-webapp/occurrences/search?q=${param['q']}"><strike>Occurrence Records</strike></a></li>-->
                     <c:if test="${not empty institution}">
-                        <li><a href="${pageContext.request.contextPath}/institutions/search?q=${param['q']}">Institutions</a></li>
+                        <li><a href="${pageContext.request.contextPath}/institutions/search?q=${param['q']}">Institutions</a> (${institution})</li>
                     </c:if>
                     <c:if test="${not empty collection}">
-                        <li><a href="${pageContext.request.contextPath}/collections/search?q=${param['q']}">Collections</a></li>
+                        <li><a href="${pageContext.request.contextPath}/collections/search?q=${param['q']}">Collections</a> (${collection})</li>
                     </c:if>
                     <c:if test="${not empty dataprovider}">
-                        <li><a href="${pageContext.request.contextPath}/dataproviders/search?q=${param['q']}">Data Providers</a></li>
+                        <li><a href="${pageContext.request.contextPath}/dataproviders/search?q=${param['q']}">Data Providers</a> (${dataprovider})</li>
                     </c:if>
                     <c:if test="${not empty dataset}">
-                        <li><a href="${pageContext.request.contextPath}/datasets/search?q=${param['q']}">Data Sets</a></li>
+                        <li><a href="${pageContext.request.contextPath}/datasets/search?q=${param['q']}">Data Sets</a> (${dataset})</li>
                     </c:if>
                 </ul>
             </div>
