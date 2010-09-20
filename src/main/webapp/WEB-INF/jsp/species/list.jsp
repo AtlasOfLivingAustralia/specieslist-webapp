@@ -314,19 +314,19 @@
             </div><!--drop downs-->
             <div class="results">
                 <c:forEach var="taxonConcept" items="${searchResults.results}">
-                    <h4><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${taxonConcept.rankId}" name="${taxonConcept.name}" acceptedName="${taxonConcept.acceptedConceptName}"/></a></h4>
                     <c:set var="imageUrl">
                         <c:choose>
                             <c:when test="${not empty taxonConcept.thumbnail}">${taxonConcept.thumbnail}</c:when>
                             <c:otherwise>${pageContext.request.contextPath}/static/images/noImage100.jpg</c:otherwise>
                         </c:choose>
                     </c:set>
-                    <p><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><img class="alignright" src="${imageUrl}" width="91" height="91" alt="species image thumbnail"/></a>
+                    <h4><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><img class="alignright" src="${imageUrl}" width="91" height="91" alt="species image thumbnail"/></a>
+                    <a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${taxonConcept.rankId}" name="${taxonConcept.name}" acceptedName="${taxonConcept.acceptedConceptName}"/></a></h4>
+                    <p>
                         ${taxonConcept.commonName} 
                         <span><strong>Rank</strong>: ${taxonConcept.rank}</span>
                         <c:if test="${not empty taxonConcept.highlight}"><span><b>...</b> ${taxonConcept.highlight} <b>...</b></span></c:if>
                     </p>
-                    
                 </c:forEach>
             </div><!--close results-->
             <div id="searchNavBar">
