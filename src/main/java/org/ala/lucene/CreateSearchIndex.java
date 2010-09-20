@@ -14,7 +14,6 @@
  ***************************************************************************/
 package org.ala.lucene;
 
-
 import org.ala.dao.GeoRegionDao;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.util.SpringUtils;
@@ -22,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 
 /**
- * Creates a basic SOLR index for the taxon concepts and regions.
+ * Creates a SOLR index for the taxon concepts and regions.
  *
  * @author Dave Martin (David.Martin@csiro.au)
  */
