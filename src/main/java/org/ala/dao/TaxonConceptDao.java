@@ -292,14 +292,23 @@ public interface TaxonConceptDao {
 	 */
 	boolean addRegions(String guid, List<OccurrencesInGeoregion> regions) throws Exception;
 
-        /**
-         * Adds the number of BioCache occurrences for the Taxon Concept.
-         * @param guid
-         * @param count
-         * @return
-         * @throws Exception
-         */
-        boolean setOccurrenceRecordsCount(String guid, Integer count) throws Exception;
+    /**
+     * Adds the number of BioCache occurrences for the Taxon Concept.
+     * @param guid
+     * @param count
+     * @return
+     * @throws Exception
+     */
+    boolean setOccurrenceRecordsCount(String guid, Integer count) throws Exception;
+
+    /**
+     * Adds the number of BioCache occurrences for the Taxon Concept.
+     * @param guid
+     * @param count
+     * @return
+     * @throws Exception
+     */
+    boolean setGeoreferencedRecordsCount(String guid, Integer count) throws Exception;
 
 	/**
 	 * Add this image to the Taxon Concept.

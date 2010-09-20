@@ -50,6 +50,7 @@ import org.ala.util.MimeType;
 import org.ala.util.StatusType;
 import org.ala.vocabulary.Vocabulary;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.analysis.SimpleAnalyzer;
@@ -125,6 +126,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     private static final String IS_ICONIC = "IsIconic";
     private static final String IS_AUSTRALIAN= "IsAustralian";
     public static final String OCCURRENCE_RECORDS_COUNT_COL = "hasOccurrenceRecords";
+    public static final String GEOREF_RECORDS_COUNT_COL = "hasGeoReferencedRecords";
+    
     /** Column families */
     private static final String TC_COL_FAMILY = "tc";
 
@@ -328,11 +331,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, REGION_COL, guid, (List) regions, false);
 	}
 
-        public boolean setOccurrenceRecordsCount(String guid, Integer count) throws Exception{
-            
-            return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, OCCURRENCE_RECORDS_COUNT_COL, guid, count);
-        }
-	
+    public boolean setOccurrenceRecordsCount(String guid, Integer count) throws Exception{
+        return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, OCCURRENCE_RECORDS_COUNT_COL, guid, count);
+    }
+    
+    public boolean setGeoreferencedRecordsCount(String guid, Integer count) throws Exception{
+        return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, GEOREF_RECORDS_COUNT_COL, guid, count);
+    }
+    
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addImage(java.lang.String, org.ala.model.Image)
 	 */
@@ -1025,7 +1031,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					if(triple.predicate.endsWith("hasCommonName")){
 						
 						CommonName commonName = new CommonName();
-						commonName.setNameString(triple.object);
+						String commonNameString = WordUtils.capitalizeFully(triple.object);
+						commonName.setNameString(commonNameString);
 						commonName.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
 						commonName.setDocumentId(Integer.toString(document.getId()));
 	                    commonName.setInfoSourceName(dcPublisher);
@@ -1403,13 +1410,15 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                 List<String> higherPriorityNames = new ArrayList<String>();
 	    		for(CommonName cn: commonNames){
 	    			if(cn.getNameString()!=null){
-	    				commonNameSet.add(cn.getNameString());
+	    				//normalise the common names for display
+	    				String commonNameString = WordUtils.capitalizeFully(cn.getNameString());
+	    				commonNameString.trim();
+	    				commonNameSet.add(commonNameString);
+	    				
 	    				if(cn.isPreferred()!=null && cn.isPreferred()){
 	    					higherPriorityNames.add(cn.getNameString());
 	    				}
 						addToSetSafely(infoSourceIds, cn.getInfoSourceId());
-                        //doc.add(new Field("commonName", cn.nameString.toLowerCase(), Store.YES, Index.ANALYZED));
-                        //cnStr.append(cn.nameString.toLowerCase() + " ");
 	    			}
 	    		}
 
@@ -1436,9 +1445,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                     		}
                     	}
                     }
+                    
                     doc.addField("commonNameDisplay", StringUtils.join(commonNameSet, ", "));
                     doc.addField("commonNameSingle", commonNames.get(0).getNameString());
                 }
+                
 	    		
 	    		for(TaxonConcept synonym: synonyms){
 	    			if(synonym.getNameString()!=null){

@@ -956,15 +956,13 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         autoDto.setCommonName((String) doc.getFirstValue("commonNameDisplay"));
         autoDto.setOccurrenceCount((Integer)doc.getFirstValue("occurrenceCount"));
         
-//        autoDto.setGeoreferencedCount((Integer)doc.getFirstValue("occurrenceCount"));
+        autoDto.setGeoreferencedCount((Integer)doc.getFirstValue("georeferencedCount"));
         autoDto.setRankId((Integer)doc.getFirstValue("rankId"));
-        autoDto.setRankString((String)doc.getFirstValue("rankString"));
+        autoDto.setRankString((String)doc.getFirstValue("rank"));
         autoDto.setLeft((Integer)doc.getFirstValue("left"));
         autoDto.setRight((Integer)doc.getFirstValue("right"));
         
-        
         Pattern p = Pattern.compile(value, Pattern.CASE_INSENSITIVE);
-        
         java.util.regex.Matcher m = p.matcher(value);
         if(autoDto.getCommonName() != null){
             List<String> commonNames = org.springframework.util.CollectionUtils.arrayToList(((String)doc.get("commonNameDisplay")).split(","));
@@ -992,8 +990,6 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
     public List<AutoCompleteDTO> getAutoCompleteList(String value, IndexedTypes indexType, boolean gsOnly, int maxTerms) throws Exception {
         StringBuffer queryString = new StringBuffer();
 
-
-
         String cleanQuery = ClientUtils.escapeQueryChars(value);//.toLowerCase();
         if (StringUtils.trimToNull(cleanQuery) != null && cleanQuery.length() >= 3) {
             if(indexType != null){
@@ -1002,7 +998,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
                 queryString.append(" AND ");
             }
             if(gsOnly){
-                    queryString.append("occurrenceCount:[1 TO *]");
+                    queryString.append("georeferencedCount:[1 TO *]");
                     queryString.append(" AND ");
                 }
             queryString.append("(");
@@ -1042,7 +1038,6 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             }
             return items;
         }
-        return null;
+        return new ArrayList<AutoCompleteDTO>();
     }
-   
 }
