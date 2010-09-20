@@ -15,6 +15,7 @@
 package org.ala.web;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -136,7 +137,8 @@ public class SearchController {
 				}
 			}
 		}
-		
+        
+        
 		String view = SPECIES_LIST;
 		//what was the top hit?
 		if(!searchResults.getResults().isEmpty()){
@@ -151,6 +153,7 @@ public class SearchController {
 			if(IndexedTypes.TAXON.toString().equals(topHit.getIdxType())){
 				searchResults = searchDao.findByName(IndexedTypes.TAXON, query, filterQuery, startIndex, pageSize, sortField, sortDirection);
 				repoUrlUtils.fixRepoUrls(searchResults);
+                model.addAttribute("facetMap", addFacetMap(filterQuery));
                 view = SPECIES_LIST;
 			}
 			
@@ -487,6 +490,34 @@ public class SearchController {
         model.addAttribute("lastPage", lastPage);
         return defaultView;
 	}
+
+    private HashMap<String, String> addFacetMap(String[] filterQuery) {
+        //get facets - and counts to model for each idx type
+//		Collection<FacetResultDTO> facetResults = searchResults.getFacetResults();
+//		Iterator<FacetResultDTO> facetIter = facetResults.iterator();
+//        HashMap<String, String> facetMap = new HashMap<String, String>();
+//
+//
+//		while(facetIter.hasNext()){
+//			FacetResultDTO facetResultDTO = facetIter.next();
+//			List<FieldResultDTO> fieldResults = facetResultDTO.getFieldResult();
+//            for(FieldResultDTO fieldResult: fieldResults){
+//                facetMap.put(facetResultDTO.getFieldName(), fieldResult.getLabel());
+//            }
+//		}
+        HashMap<String, String> facetMap = new HashMap<String, String>();
+
+        if (filterQuery != null && filterQuery.length > 0) {
+            logger.debug("filterQuery = "+StringUtils.join(filterQuery, "|"));
+            for (String fq : filterQuery) {
+                if (fq != null && !fq.isEmpty()) {
+                    String[] fqBits = StringUtils.split(fq, ":", 2);
+                    facetMap.put(fqBits[0], fqBits[1]);
+                }
+            }
+        }
+        return facetMap;
+    }
 	
 	/**
 	 * @param searchDao the searchDao to set
