@@ -68,6 +68,16 @@ group by tc.guid
 into outfile '/data/bie-staging/biocache/taxa_occurrence_count.txt'
 fields enclosed by '"';
 
+-- Export the georeferenced occurrence count information
+
+select tc.guid, count(*) as occurrences from occurrence_record oc
+inner join taxon_concept tc on oc.taxon_concept_id = tc.id
+inner join data_resource dr on oc.data_resource_id = dr.id
+where tc.priority <>100 and dr.release_flag and oc.cell_id is not NULL
+group by tc.guid
+into outfile '/data/bie-staging/biocache/taxa_georef_occurrence_count.txt'
+fields enclosed by '"';
+
 
 -- subspecies, species, genus, family, order
 -- retrieve a count of specimens per species
