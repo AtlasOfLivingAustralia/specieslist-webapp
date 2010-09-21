@@ -193,7 +193,7 @@
                     <c:if test="${not empty wordpress}">
                         <li><a href="http://test.ala.org.au/search/?s=${param['q']}">Site pages</a> (${wordpress})</li>
                     </c:if>
-                    <li class="active">Species (${taxon})</li>
+                    <li class="active"><b>Species Pages (${taxon})</b></li>
                     <c:if test="${not empty region}">
                         <li><a href="${pageContext.request.contextPath}/regions/search?q=${param['q']}">Regions</a> (${region})</li>
                     </c:if>
@@ -237,10 +237,9 @@
                                                 (<fmt:formatNumber value="${fieldResult.count}" pattern="#,###,###"/>)</li>
                                         </c:when>
                                         <c:when test="${fn:endsWith(fieldResult.label, 'before')}"><%-- skip --%></c:when>
-                                        <c:when test="${not empty facetMap[facetResult.fieldName] && fn:containsIgnoreCase(fieldResult.label, facetMap[facetResult.fieldName])}">
+                                        <c:when test="${not empty facetMap[facetResult.fieldName] && fieldResult.label == facetMap[facetResult.fieldName]}">
                                             <li><a href="#" onClick="removeFacet('${facetResult.fieldName}:${fieldResult.label}'); return false;" class="facetCancelLink">&lt; Any <fmt:message key="facet.${facetResult.fieldName}"/></a><br/>
                                             <b><fmt:message key="${fieldResult.label}"/></b></li>
-                                            <%-- foo[${facetResult.fieldName}]: ${facetMap[facetResult.fieldName]} | ${fieldResult.label} | bar:${facetMap['kingdom']} --%>
                                         </c:when>
                                         <c:otherwise>
                                             <li><a href="?${queryParam}&fq=${facetResult.fieldName}:${fieldResult.label}"><fmt:message key="${fieldResult.label}"/></a>
@@ -267,6 +266,7 @@
                     </select>
                 </div>
                 <div id="sortWidget">
+                    Sort by
                     <select id="sort" name="sort">
                         <option value="score" <c:if test="${param.sort eq 'score'}">selected</c:if>>best match</option>
                         <option value="scientificNameRaw" <c:if test="${param.sort eq 'scientificNameRaw'}">selected</c:if>>scientific name</option>
@@ -274,7 +274,7 @@
                         <option value="commonNameSort" <c:if test="${param.sort eq 'commonNameSort'}">selected</c:if>>common name</option>
                         <option value="rank" <c:if test="${param.sort eq 'rank'}">selected</c:if>>taxon rank</option>
                     </select>
-                    sort order
+                    Sort order
                     <select id="dir" name="dir">
                         <option value="asc" <c:if test="${param.dir eq 'asc'}">selected</c:if>>normal</option>
                         <option value="desc" <c:if test="${param.dir eq 'desc'}">selected</c:if>>reverse</option>
@@ -286,14 +286,11 @@
             </div><!--drop downs-->
             <div class="results">
                 <c:forEach var="taxonConcept" items="${searchResults.results}">
-                    <c:set var="imageUrl">
-                        <c:choose>
-                            <c:when test="${not empty taxonConcept.thumbnail}">${taxonConcept.thumbnail}</c:when>
-                            <c:otherwise>${pageContext.request.contextPath}/static/images/noImage100.jpg</c:otherwise>
-                        </c:choose>
-                    </c:set>
-                    <h4><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><img class="alignright" src="${imageUrl}" width="91" height="91" alt="species image thumbnail"/></a>
-                    <a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${taxonConcept.rankId}" name="${taxonConcept.name}" acceptedName="${taxonConcept.acceptedConceptName}"/></a></h4>
+                    <h4>
+                        <c:if test="${not empty taxonConcept.thumbnail}"><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><img class="alignright" src="${taxonConcept.thumbnail}" width="91" height="91" alt="species image thumbnail"/></a></c:if>
+                        <c:if test="${empty taxonConcept.thumbnail}"><div class="alignright" style="width:91px; height:50px;"></div></c:if>
+                        <a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${taxonConcept.rankId}" name="${taxonConcept.name}" acceptedName="${taxonConcept.acceptedConceptName}"/></a>
+                    </h4>
                     <p>
                         ${fn:substring(taxonConcept.commonName, 0, 220)}<c:if test="${fn:length(taxonConcept.commonName) > 220}">...</c:if>
                         <span><strong>Rank</strong>: ${taxonConcept.rank}</span>
