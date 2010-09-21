@@ -18,37 +18,7 @@
                 $("#facetBar > h4").hide();
                 $("#facetBar #navlist").hide();
             }
-
-            /* Accordion widget */
-            var icons = {
-                header: "ui-icon-circle-arrow-e",
-                headerSelected: "ui-icon-circle-arrow-s"
-            };
-            $("#accordion0").accordion({
-                icons: icons,
-                collapsible: true,
-                autoHeight: false
-            });
-            // more/fewer search option links
-            $("#refineMore a").click(function(e) {
-                e.preventDefault();
-                $("#accordion").show();
-                $("#refineLess").show();
-                $("#refineMore").hide();
-                $.cookie("bie-refine", "show"); // set cookie
-            });
-            $("#refineLess a").click(function(e) {
-                e.preventDefault();
-                $("#accordion").hide();
-                $("#refineLess").hide();
-                $("#refineMore").show();
-                $.cookie("bie-refine", "hide"); // set cookie
-            });
-            // use cookie to remeber state of the facet links
-            var refineState = $.cookie("bie-refine");
-            if (refineState == "show") {
-                $("#refineMore a").click();
-            }
+            
             // listeners for sort widgets
             $("select#sort").change(function() {
                 var val = $("option:selected", this).val();
@@ -164,17 +134,19 @@
     <style type="text/css" media="screen">
         .highlight { font-weight: bold; }
         div.results span.highlight { display: inline; }
-        span.FieldName { padding-left: 5px; }
         #facets > h3 {
             border-bottom: 1px solid #E8EACE;
-            border-top: 1px solid #E8EACE;
             font-size: 1em;
             font-weight: bold;
             line-height: 2em;
         }
+        #facets  h3 {
+            padding: 3px 4px;
+        }
         #subnavlist li {
             text-transform: capitalize;
         }
+        #facets #accordion { display: block; }
     </style>
     <title>Species Search - ${query}</title>
     <link rel="stylesheet" href="http://test.ala.org.au/wp-content/themes/ala/css/bie.css" type="text/css" media="screen" charset="utf-8"/>
@@ -218,7 +190,9 @@
             <h3><span class="FieldName">Section</span></h3>
             <div id="subnavlist">
                 <ul>
-<!--                    <li><a href="#">Site pages</a> <span>(43)</span></li>-->
+                    <c:if test="${not empty wordpress}">
+                        <li><a href="http://test.ala.org.au/search/?s=${param['q']}">Site pages</a> (${wordpress})</li>
+                    </c:if>
                     <li class="active">Species (${taxon})</li>
                     <c:if test="${not empty region}">
                         <li><a href="${pageContext.request.contextPath}/regions/search?q=${param['q']}">Regions</a> (${region})</li>
@@ -238,7 +212,6 @@
                     </c:if>
                 </ul>
             </div>
-            <div id="refineMore"><a href="#">More Search Options</a></div>
             <div id="accordion">
                 <c:if test="${not empty query}">
                     <c:set var="queryParam">q=<c:out value="${query}" escapeXml="true"/><c:if test="${not empty param.fq}">&fq=${fn:join(paramValues.fq, "&fq=")}</c:if></c:set>
@@ -281,7 +254,6 @@
                     </c:if>
                 </c:forEach>
             </div>
-            <div id="refineLess"><a href="#">Fewer Search Options</a></div>
         </div><!--facets-->
         <div class="solrResults">
             <div id="dropdowns">
@@ -323,7 +295,7 @@
                     <h4><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><img class="alignright" src="${imageUrl}" width="91" height="91" alt="species image thumbnail"/></a>
                     <a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${taxonConcept.rankId}" name="${taxonConcept.name}" acceptedName="${taxonConcept.acceptedConceptName}"/></a></h4>
                     <p>
-                        ${taxonConcept.commonName} 
+                        ${fn:substring(taxonConcept.commonName, 0, 220)}<c:if test="${fn:length(taxonConcept.commonName) > 220}">...</c:if>
                         <span><strong>Rank</strong>: ${taxonConcept.rank}</span>
                         <c:if test="${not empty taxonConcept.highlight}"><span><b>...</b> ${taxonConcept.highlight} <b>...</b></span></c:if>
                     </p>

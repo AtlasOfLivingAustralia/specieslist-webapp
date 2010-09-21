@@ -28,9 +28,13 @@ import org.ala.dto.FieldResultDTO;
 import org.ala.dto.AutoCompleteDTO;
 import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONValue;
+import org.json.simple.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,6 +66,7 @@ public class SearchController {
 	private final String REGIONS_LIST = "regions/list";
 	private final String SPECIES_LIST = "species/list";
 	private final String SEARCH = "search"; //default view when empty query submitted
+    private String WP_SOLR_URL = "http://alaprodweb1-cbr:8080/solr/select/?wt=json&q=";
 	
 	/**
 	 * Performs a search across all objects, and selects to show the view for the closest match.
@@ -187,6 +192,17 @@ public class SearchController {
 				view = REGIONS_LIST;
 			}
 		}
+
+        // Site search - get number of hits
+        try {
+            String jsonString = getUrlContentAsString(WP_SOLR_URL + query);
+            JSONObject obj = (JSONObject) JSONValue.parse(jsonString);
+            JSONObject obj2 = (JSONObject) obj.get("response");
+            Long obj3 = (Long) obj2.get("numFound");
+            model.addAttribute("wordpress", obj3);
+        } catch (Exception ex) {
+            logger.error("Failed to load counts from Wordpress SOLR index: "+ex.getMessage(), ex);
+        }
 
         Long totalRecords = searchResults.getTotalRecords();
         Integer lastPage = (totalRecords.intValue() / pageSize) + 1;
@@ -518,6 +534,24 @@ public class SearchController {
         }
         return facetMap;
     }
+
+    /**
+	 * Retrieve content as String.
+	 *
+	 * @param url
+	 * @return
+	 * @throws Exception
+	 */
+	public static String getUrlContentAsString(String url) throws Exception {
+		HttpClient httpClient = new HttpClient();
+		GetMethod gm = new GetMethod(url);
+		gm.setFollowRedirects(true);
+		httpClient.executeMethod(gm);
+		// String requestCharset = gm.getRequestCharSet();
+		String content = gm.getResponseBodyAsString();
+		// content = new String(content.getBytes(requestCharset), "UTF-8");
+		return content;
+	}
 	
 	/**
 	 * @param searchDao the searchDao to set
