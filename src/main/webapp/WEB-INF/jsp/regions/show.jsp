@@ -268,7 +268,7 @@
            });
            $('#arthropodsList').hide();
            $('button#arthropodsDL').click(function (e) {
-               var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=arthropodsList${geoRegion.acronym}&higherTaxon=Arthropoda&rank=phylum";
+               var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=ArthropodsList${geoRegion.acronym}&higherTaxon=Arthropoda&rank=phylum";
                window.location.replace(uri);
            });
        </script>
@@ -316,7 +316,7 @@
                     });
                     $('#angiospermsList').hide();
                     $('button#angiospermsDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=floweringPlantsList${geoRegion.acronym}&higherTaxon=Magnoliophyta&rank=phylum";
+                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=FloweringPlantsList${geoRegion.acronym}&higherTaxon=Magnoliophyta&rank=phylum";
                         window.location.replace(uri);
                     });
                 </script>

@@ -197,7 +197,7 @@ public class GeoRegionController {
         response.setContentType("application/vnd.ms-excel");
         ServletOutputStream out = response.getOutputStream();
         try {
-        	searchDao.writeSpeciesByRegionAndHigherTaxon("state", regionName, rank, taxaList, out);
+        	searchDao.writeSpeciesByRegionAndHigherTaxon(regionType, regionName, rank, taxaList, out);
         } catch (Exception e){
         	e.printStackTrace();
         }
