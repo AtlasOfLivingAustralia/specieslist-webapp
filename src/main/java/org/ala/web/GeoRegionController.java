@@ -222,6 +222,8 @@ public class GeoRegionController {
 			@RequestParam("higherTaxon") String higherTaxa,
 			@RequestParam("rank") String rank,
 			@RequestParam(value="withImages", defaultValue="false") boolean withImages,
+			@RequestParam(value="start", defaultValue="0") int startIndex,
+			@RequestParam(value="limit", defaultValue="100") int limit,
 			Model model) throws Exception {
 
 		if(higherTaxa==null)
@@ -232,7 +234,7 @@ public class GeoRegionController {
 		
 		SearchResultsDTO searchResults = searchDao.findAllSpeciesByRegionAndHigherTaxon(
 				regionType, regionName, rank, taxaList, 
-				null, 0, 100, "scientificNameRaw", "asc", withImages);
+				null, startIndex, limit, "scientificNameRaw", "asc", withImages);
 		
 		model.addAttribute("searchResults", repoUrlUtils.fixRepoUrls(searchResults));
 		
