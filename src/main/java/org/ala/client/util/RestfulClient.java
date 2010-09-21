@@ -17,6 +17,9 @@ package org.ala.client.util;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -46,7 +49,8 @@ public class RestfulClient {
 	public int timeout;
 	
 	public RestfulClient(){
-		this(5000);
+		//default is no timeout.
+		this(0);
 	}
 
 	public RestfulClient(int timeout){
@@ -71,14 +75,14 @@ public class RestfulClient {
 	 * @throws IOException 
 	 * @throws HttpException 
 	 */
-	public Object[] restPost(String url, String mimeType, String jsonRequestBody) throws HttpException, IOException {
+	public Object[] restPost(String url, String contentType, String jsonRequestBody) throws HttpException, IOException {
 		PostMethod post = null;
 		String resp = null;
 		int statusCode = 0;
 		
         try {        	
 	        post = new PostMethod(url);
-	        RequestEntity entity = new StringRequestEntity(jsonRequestBody, mimeType, ENCODE_TYPE); 
+	        RequestEntity entity = new StringRequestEntity(jsonRequestBody, contentType, ENCODE_TYPE); 
 	        post.setRequestEntity(entity); 
         
         	statusCode = client.executeMethod(post);
@@ -121,7 +125,7 @@ public class RestfulClient {
 	}
 	
 	/**
-	 * Makes a GET request to the specified url and returns a JSON Object.
+	 * Makes a GET request to the specified url.
 	 * 
 	 * @param url URL Endpoint with request parameters.
 	 * @return [0]: status code; [1]: a JSON encoded response.
@@ -129,12 +133,34 @@ public class RestfulClient {
 	 * @throws HttpException 
 	 */
 	public Object[] restGet(String url) throws HttpException, IOException{
+        return restGet(url, null);		
+	}	
+	
+	/**
+	 * Makes a GET request to the specified url. 
+	 * if header is null then server will return default data type.
+	 * 
+	 * @param url URL Endpoint with request parameters.
+	 * @param header eg: "Accept" "application/json"; "Accept" "text/xml"
+	 * @return [0]: status code; [1]: a JSON encoded response.
+	 * @throws IOException 
+	 * @throws HttpException 
+	 */
+	public Object[] restGet(String url, Map<String, String> header) throws HttpException, IOException{
 		GetMethod get = null;
 		String resp = "";
 		int statusCode = 0;
 		
         try {        	
-        	get = new GetMethod(url);        
+        	get = new GetMethod(url);
+        	if(header != null && !header.isEmpty()){
+        		Set<String> keys = header.keySet();
+        		Iterator<String> it = keys.iterator();
+        		while(it.hasNext()){
+        			String key = it.next();
+        			get.setRequestHeader(key, header.get(key));
+        		}
+        	}
         	statusCode = client.executeMethod(get);
         	resp = get.getResponseBodyAsString();
         } finally {
@@ -144,5 +170,5 @@ public class RestfulClient {
         }
     	Object[] o = new Object[]{statusCode, resp};        	
         return o;		
-	}	
+	}		
 }
