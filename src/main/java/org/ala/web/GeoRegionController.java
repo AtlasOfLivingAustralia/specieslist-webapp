@@ -156,7 +156,7 @@ public class GeoRegionController {
 		fishTaxa.add("Chondrichthyes");
 		fishTaxa.add("Sarcopterygii");
 		fishTaxa.add("Actinopterygii");
-		SearchResultsDTO fish = searchDao.findAllSpeciesByRegionAndHigherTaxon("state", regionName, "class", fishTaxa, null, 0, 24, "scientificNameRaw", "asc", true);
+		SearchResultsDTO fish = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", fishTaxa, null, 0, 24, "scientificNameRaw", "asc", true);
 		int fishCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", fishTaxa);
 		model.addAttribute("fish", repoUrlUtils.fixRepoUrls(fish));
 		model.addAttribute("fishCount", fishCount);
