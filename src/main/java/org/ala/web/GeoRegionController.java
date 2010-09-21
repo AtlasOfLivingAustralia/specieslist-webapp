@@ -134,7 +134,7 @@ public class GeoRegionController {
 
 		//anthropods counts
 		SearchResultsDTO arthropods = searchDao.findAllSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "phylum", "Arthropoda", null, 0, 24, "scientificNameRaw", "asc", true);
-		int arthropodsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "class", "Arthropoda");
+		int arthropodsCount = searchDao.countSpeciesByRegionAndHigherTaxon(rt.toString(), regionName, "phylum", "Arthropoda");
 		model.addAttribute("arthropods", repoUrlUtils.fixRepoUrls(arthropods));
 		model.addAttribute("arthropodCount", arthropodsCount);
 		
@@ -221,6 +221,7 @@ public class GeoRegionController {
 			@RequestParam("regionName") String regionName, 
 			@RequestParam("higherTaxon") String higherTaxa,
 			@RequestParam("rank") String rank,
+			@RequestParam(value="withImages", defaultValue="false") boolean withImages,
 			Model model) throws Exception {
 
 		if(higherTaxa==null)
@@ -231,7 +232,7 @@ public class GeoRegionController {
 		
 		SearchResultsDTO searchResults = searchDao.findAllSpeciesByRegionAndHigherTaxon(
 				regionType, regionName, rank, taxaList, 
-				null, 0, 100, "scientificNameRaw", "asc");
+				null, 0, 100, "scientificNameRaw", "asc", withImages);
 		
 		model.addAttribute("searchResults", repoUrlUtils.fixRepoUrls(searchResults));
 		

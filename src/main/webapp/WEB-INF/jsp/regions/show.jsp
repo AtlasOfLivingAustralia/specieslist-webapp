@@ -132,225 +132,176 @@
     <!-- BIRDS -->
     <c:if test="${birdCount>0}">
     <li id="birdsBreakdown" class="taxonBreakdown">
-        <c:choose>
-            <c:when test="${birds.totalRecords>0}">
-                <span class="taxonGroupTitle">Birds: ${birdCount} (Number with images: ${birds.totalRecords})</span>
-                <span class="taxonGroupActions">
-                    <button id="birdsDL" class="downloadButton">Download</button>
-                    <a href="#Birds" id="viewBirdsList">Show/Hide<c:if test="${birds.totalRecords>25}"> (limited to 25)</c:if></a>
-                </span>
-                <table id="birdsList" class="taxonList">
-                    <alatag:renderTaxaList taxonConcepts="${birds.results}"/>
-                </table>
-                <script type="text/javascript">
-                    $('#viewBirdsList').click(function () {
-                        $('#birdsList').toggle("slow");
-                    });
-                    $('#birdsList').hide();
-                    $('button#birdsDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=BirdsList${geoRegion.acronym}&higherTaxon=Amphibia&rank=class";
-                        window.location.replace(uri);
-                    });
-                </script>
-            </c:when>
-            <c:otherwise>
-                <span class="taxonGroupTitle">Birds: ${birds.totalRecords}</span>
-            </c:otherwise>
-        </c:choose>
+       <span class="taxonGroupTitle">Birds: ${birdCount} (Number with images: ${birds.totalRecords})</span>
+       <span class="taxonGroupActions">
+           <button id="birdsDL" class="downloadButton">Download</button>
+           <a href="#Birds" id="viewBirdsList">Show/Hide<c:if test="${birds.totalRecords>25}"> (limited to 25)</c:if></a>
+       </span>
+       <table id="birdsList" class="taxonList">
+           <alatag:renderTaxaList taxonConcepts="${birds.results}"/>
+       </table>
+       <script type="text/javascript">
+           $('#viewBirdsList').click(function () {
+               $('#birdsList').toggle("slow");
+           });
+           $('#birdsList').hide();
+           $('button#birdsDL').click(function (e) {
+               var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=BirdsList${geoRegion.acronym}&higherTaxon=Aves&rank=class";
+               window.location.replace(uri);
+           });
+       </script>
     </li>
     </c:if>
 
     <!-- FISH -->
     <c:if test="${fishCount>0}">
     <li id="fishBreakdown" class="taxonBreakdown">
-        <c:choose>
-            <c:when test="${fish.totalRecords>0}">
-                <span class="taxonGroupTitle">Fish: ${fishCount} (Number with images:${fish.totalRecords})</span>
-                <span class="taxonGroupActions">
-                    <button id="fishDL" class="downloadButton">Download</button>
-                    <a href="#Fish" id="viewFishList">Show/Hide<c:if test="${fish.totalRecords>25}"> (limited to 25)</c:if></a>
-                </span>
-                <table id="fishList" class="taxonList">
-                    <alatag:renderTaxaList taxonConcepts="${fish.results}"/>
-                </table>
-                <script type="text/javascript">
-                    $('#viewFishList').click(function () {
-                        $('#fishList').toggle("slow");
-                    });
-                    $('#fishList').hide();
-                    $('button#fishDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=FishList${geoRegion.acronym}&higherTaxon=Myxini,Petromyzontida,Chondrichthyes,Sarcopterygii,Actinopterygii&rank=class";
-                        window.location.replace(uri);
-                    });
-                </script>
-            </c:when>
-            <c:otherwise>
-                <span class="taxonGroupTitle">Fish: ${fish.totalRecords}</span>
-            </c:otherwise>
-        </c:choose>
+       <span class="taxonGroupTitle">Fish: ${fishCount} (Number with images:${fish.totalRecords})</span>
+       <span class="taxonGroupActions">
+           <button id="fishDL" class="downloadButton">Download</button>
+           <c:if test="${not empty fish.totalRecords}">
+           	<a href="#Fish" id="viewFishList">Show/Hide<c:if test="${fish.totalRecords>25}"> (limited to 25)</c:if></a>
+           </c:if>
+       </span>
+       <table id="fishList" class="taxonList">
+           <alatag:renderTaxaList taxonConcepts="${fish.results}"/>
+       </table>
+       <script type="text/javascript">
+           $('#viewFishList').click(function () {
+               $('#fishList').toggle("slow");
+           });
+           $('#fishList').hide();
+           $('button#fishDL').click(function (e) {
+               var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=FishList${geoRegion.acronym}&higherTaxon=Myxini,Petromyzontida,Chondrichthyes,Sarcopterygii,Actinopterygii&rank=class";
+               window.location.replace(uri);
+           });
+       </script>
     </li>
 	</c:if>
 	
     <!-- FROGS -->
     <c:if test="${frogCount>0}">
     <li id="frogsBreakdown" class="taxonBreakdown">
-        <c:choose>
-            <c:when test="${frogs.totalRecords>0}">
-                <span class="taxonGroupTitle">Frogs: ${frogCount} (Number with images:${frogs.totalRecords})</span>
-                <span class="taxonGroupActions">
-                    <button id="frogsDL" class="downloadButton">Download</button>
-                    <a href="#Frogs" id="viewFrogsList">Show/Hide<c:if test="${frogs.totalRecords>25}"> (limited to 25)</c:if></a>
-                </span>
-                <table id="frogsList" class="taxonList">
-                    <alatag:renderTaxaList taxonConcepts="${frogs.results}"/>
-                </table>
-                <script type="text/javascript">
-                    $('#viewFrogsList').click(function () {
-                        $('#frogsList').toggle("slow");
-                    });
-                    $('#frogsList').hide();
-                    $('button#frogsDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=FrogsList${geoRegion.acronym}&higherTaxon=Amphibia&rank=class";
-                        window.location.replace(uri);
-                    });
-                </script>
-            </c:when>
-            <c:otherwise>
-                <span class="taxonGroupTitle">Frogs: ${frogs.totalRecords}</span>
-            </c:otherwise>
-        </c:choose>
+       <span class="taxonGroupTitle">Frogs: ${frogCount} (Number with images:${frogs.totalRecords})</span>
+       <span class="taxonGroupActions">
+           <button id="frogsDL" class="downloadButton">Download</button>
+           <a href="#Frogs" id="viewFrogsList">Show/Hide<c:if test="${frogs.totalRecords>25}"> (limited to 25)</c:if></a>
+       </span>
+       <table id="frogsList" class="taxonList">
+           <alatag:renderTaxaList taxonConcepts="${frogs.results}"/>
+       </table>
+       <script type="text/javascript">
+           $('#viewFrogsList').click(function () {
+               $('#frogsList').toggle("slow");
+           });
+           $('#frogsList').hide();
+           $('button#frogsDL').click(function (e) {
+               var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=FrogsList${geoRegion.acronym}&higherTaxon=Amphibia&rank=class";
+               window.location.replace(uri);
+           });
+       </script>
     </li>
     </c:if>
 
     <!-- MAMMALS -->
     <c:if test="${mammalCount>0}">
     <li id="mammalsBreakdown" class="taxonBreakdown">
-        <c:choose>
-            <c:when test="${mammals.totalRecords>0}">
-                <span class="taxonGroupTitle">Mammals: ${mammalCount} (Number with images:${mammals.totalRecords})</span>
-                <span class="taxonGroupActions">
-                    <button id="mammalsDL" class="downloadButton">Download</button>
-                    <a href="#Mammals" id="viewMammalsList">Show/Hide<c:if test="${mammals.totalRecords>25}"> (limited to 25)</c:if></a>
-                </span>
-                <table id="mammalsList" class="taxonList">
-                    <alatag:renderTaxaList taxonConcepts="${mammals.results}"/>
-                </table>
-                <script type="text/javascript">
-                    $('#viewMammalsList').click(function () {
-                        $('#mammalsList').toggle("slow");
-                    });
-                    $('#mammalsList').hide();
-                    $('button#mammalsDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=MammalsList${geoRegion.acronym}&higherTaxon=Mammalia&rank=class";
-                        window.location.replace(uri);
-                    });
-                </script>
-            </c:when>
-            <c:otherwise>
-                <span class="taxonGroupTitle">Mammals: ${mammals.totalRecords}</span>
-            </c:otherwise>
-        </c:choose>
+       <span class="taxonGroupTitle">Mammals: ${mammalCount} (Number with images:${mammals.totalRecords})</span>
+       <span class="taxonGroupActions">
+           <button id="mammalsDL" class="downloadButton">Download</button>
+           <a href="#Mammals" id="viewMammalsList">Show/Hide<c:if test="${mammals.totalRecords>25}"> (limited to 25)</c:if></a>
+       </span>
+       <table id="mammalsList" class="taxonList">
+           <alatag:renderTaxaList taxonConcepts="${mammals.results}"/>
+       </table>
+       <script type="text/javascript">
+           $('#viewMammalsList').click(function () {
+               $('#mammalsList').toggle("slow");
+           });
+           $('#mammalsList').hide();
+           $('button#mammalsDL').click(function (e) {
+               var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=MammalsList${geoRegion.acronym}&higherTaxon=Mammalia&rank=class";
+               window.location.replace(uri);
+           });
+       </script>
     </li>
     </c:if>
 
     <!-- REPTILES -->
     <c:if test="${reptileCount>0}">
     <li id="reptilesBreakdown" class="taxonBreakdown">
-        <c:choose>
-            <c:when test="${reptiles.totalRecords>0}">
-                <span class="taxonGroupTitle">Reptiles: ${reptileCount} (Number with images:${reptiles.totalRecords})</span>
-                <span class="taxonGroupActions">
-                    <button id="reptilesDL" class="downloadButton">Download</button>
-                    <a href="#Reptiles" id="viewReptilesList">Show/Hide<c:if test="${reptiles.totalRecords>25}"> (limited to 25)</c:if></a>
-                </span>
-                <table id="reptilesList" class="taxonList">
-                    <alatag:renderTaxaList taxonConcepts="${reptiles.results}"/>
-                </table>
-                <script type="text/javascript">
-                    $('#viewReptilesList').click(function () {
-                        $('#reptilesList').toggle("slow");
-                    });
-                    $('#reptilesList').hide();
-                    $('button#reptilesDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=ReptilesList${geoRegion.acronym}&higherTaxon=Reptilia&rank=class";
-                        window.location.replace(uri);
-                    });
-                </script>
-            </c:when>
-            <c:otherwise>
-                <span class="taxonGroupTitle">Reptiles: ${reptiles.totalRecords}</span>
-            </c:otherwise>
-        </c:choose>
+       <span class="taxonGroupTitle">Reptiles: ${reptileCount} (Number with images:${reptiles.totalRecords})</span>
+       <span class="taxonGroupActions">
+           <button id="reptilesDL" class="downloadButton">Download</button>
+           <a href="#Reptiles" id="viewReptilesList">Show/Hide<c:if test="${reptiles.totalRecords>25}"> (limited to 25)</c:if></a>
+       </span>
+       <table id="reptilesList" class="taxonList">
+           <alatag:renderTaxaList taxonConcepts="${reptiles.results}"/>
+       </table>
+       <script type="text/javascript">
+           $('#viewReptilesList').click(function () {
+               $('#reptilesList').toggle("slow");
+           });
+           $('#reptilesList').hide();
+           $('button#reptilesDL').click(function (e) {
+               var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=ReptilesList${geoRegion.acronym}&higherTaxon=Reptilia&rank=class";
+               window.location.replace(uri);
+           });
+       </script>
     </li>
     </c:if>
     
     <!-- ARTHROPODS -->
     <c:if test="${arthropodCount>0}">
     <li id="arthropodsBreakdown" class="taxonBreakdown">
-        <c:choose>
-            <c:when test="${arthropods.totalRecords>0}">
-                <span class="taxonGroupTitle">Arthropods: ${arthropodCount} (Number with images:${arthropods.totalRecords})</span>
-                <span class="taxonGroupActions">
-                    <button id="arthropodsDL" class="downloadButton">Download</button>
-                    <a href="#arthropods" id="viewArthropodsList">Show/Hide<c:if test="${arthropods.totalRecords>25}"> (limited to 25)</c:if></a>
-                </span>
-                <table id="arthropodsList" class="taxonList">
-                    <alatag:renderTaxaList taxonConcepts="${arthropods.results}"/>
-                </table>
-                <script type="text/javascript">
-                    $('#viewArthropodsList').click(function () {
-                        $('#arthropodsList').toggle("slow");
-                    });
-                    $('#arthropodsList').hide();
-                    $('button#arthropodsDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=arthropodsList${geoRegion.acronym}&higherTaxon=Arthropoda&rank=phylum";
-                        window.location.replace(uri);
-                    });
-                </script>
-            </c:when>
-            <c:otherwise>
-                <span class="taxonGroupTitle">Arthropods: ${arthropods.totalRecords}</span>
-            </c:otherwise>
-        </c:choose>
+       <span class="taxonGroupTitle">Arthropods: ${arthropodCount} (Number with images:${arthropods.totalRecords})</span>
+       <span class="taxonGroupActions">
+           <button id="arthropodsDL" class="downloadButton">Download</button>
+           <a href="#arthropods" id="viewArthropodsList">Show/Hide<c:if test="${arthropods.totalRecords>25}"> (limited to 25)</c:if></a>
+       </span>
+       <table id="arthropodsList" class="taxonList">
+           <alatag:renderTaxaList taxonConcepts="${arthropods.results}"/>
+       </table>
+       <script type="text/javascript">
+           $('#viewArthropodsList').click(function () {
+               $('#arthropodsList').toggle("slow");
+           });
+           $('#arthropodsList').hide();
+           $('button#arthropodsDL').click(function (e) {
+               var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=arthropodsList${geoRegion.acronym}&higherTaxon=Arthropoda&rank=phylum";
+               window.location.replace(uri);
+           });
+       </script>
     </li>
     </c:if>
     
     <!-- MOLLUSCS-->
     <c:if test="${molluscCount>0}">
     <li id="molluscsBreakdown" class="taxonBreakdown">
-        <c:choose>
-            <c:when test="${molluscs.totalRecords>0}">
-                <span class="taxonGroupTitle">Molluscs: ${molluscCount} (Number with images:${molluscs.totalRecords})</span>
-                <span class="taxonGroupActions">
-                    <button id="molluscsDL" class="downloadButton">Download</button>
-                    <a href="#molluscs" id="viewMolluscsList">Show/Hide<c:if test="${molluscs.totalRecords>25}"> (limited to 25)</c:if></a>
-                </span>
-                <table id="molluscsList" class="taxonList">
-                    <alatag:renderTaxaList taxonConcepts="${molluscs.results}"/>
-                </table>
-                <script type="text/javascript">
-                    $('#viewMolluscsList').click(function () {
-                        $('#molluscsList').toggle("slow");
-                    });
-                    $('#molluscsList').hide();
-                    $('button#molluscsDL').click(function (e) {
-                        var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=MolluscsList${geoRegion.acronym}&higherTaxon=Mollusca&rank=phylum";
-                        window.location.replace(uri);
-                    });
-                </script>
-            </c:when>
-            <c:otherwise>
-                <span class="taxonGroupTitle">Molluscs: ${molluscs.totalRecords}</span>
-            </c:otherwise>
-        </c:choose>
+       <span class="taxonGroupTitle">Molluscs: ${molluscCount} (Number with images:${molluscs.totalRecords})</span>
+       <span class="taxonGroupActions">
+           <button id="molluscsDL" class="downloadButton">Download</button>
+           <a href="#molluscs" id="viewMolluscsList">Show/Hide<c:if test="${molluscs.totalRecords>25}"> (limited to 25)</c:if></a>
+       </span>
+       <table id="molluscsList" class="taxonList">
+           <alatag:renderTaxaList taxonConcepts="${molluscs.results}"/>
+       </table>
+       <script type="text/javascript">
+           $('#viewMolluscsList').click(function () {
+               $('#molluscsList').toggle("slow");
+           });
+           $('#molluscsList').hide();
+           $('button#molluscsDL').click(function (e) {
+               var uri = "${pageContext.request.contextPath}/regions/${regionType.name}/${geoRegion.name}/download?title=MolluscsList${geoRegion.acronym}&higherTaxon=Mollusca&rank=phylum";
+               window.location.replace(uri);
+           });
+       </script>
     </li>
     </c:if>
     
     <!-- ANGIOSPERMS -->
     <c:if test="${angiospermCount>0}">
     <li id="angiospermsBreakdown" class="taxonBreakdown">
-        <c:choose>
-            <c:when test="${angiosperms.totalRecords>0}">
                 <span class="taxonGroupTitle">Flowering plants::${angiospermCount} (Number with images:${angiosperms.totalRecords})</span>
                 <span class="taxonGroupActions">
                     <button id="angiospermsDL" class="downloadButton">Download</button>
@@ -369,11 +320,6 @@
                         window.location.replace(uri);
                     });
                 </script>
-            </c:when>
-            <c:otherwise>
-                <span class="taxonGroupTitle">Flowering plants: ${angiosperms.totalRecords}</span>
-            </c:otherwise>
-        </c:choose>
     </li>
     </c:if>
   </ul>
