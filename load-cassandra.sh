@@ -55,6 +55,9 @@ java -classpath $CLASSPATH org.ala.lucene.CreateSearchIndex
 echo "LOAD : running Create Search Indexes from External databases for the Web Application $('date')"
 java -classpath $CLASSPATH org.ala.lucene.ExternalIndexLoader
 
+echo "LOAD : optimising indexes $('date')"
+java -classpath $CLASSPATH org.ala.lucene.OptimizeIndex
+
 echo "LOAD : processing complete at $('date')"
 
 finish_time=$(date +%s)
