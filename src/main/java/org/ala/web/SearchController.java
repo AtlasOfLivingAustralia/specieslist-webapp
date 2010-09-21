@@ -66,7 +66,7 @@ public class SearchController {
 	private final String REGIONS_LIST = "regions/list";
 	private final String SPECIES_LIST = "species/list";
 	private final String SEARCH = "search"; //default view when empty query submitted
-    private String WP_SOLR_URL = "http://alaprodweb1-cbr:8080/solr/select/?wt=json&q=";
+    private String WP_SOLR_URL = "http://alaprodweb1-cbr.vm.csiro.au:8080/solr/select/?wt=json&q=";
 	
 	/**
 	 * Performs a search across all objects, and selects to show the view for the closest match.
