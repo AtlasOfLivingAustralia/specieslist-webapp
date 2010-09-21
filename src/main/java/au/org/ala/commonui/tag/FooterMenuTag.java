@@ -32,7 +32,7 @@ public class FooterMenuTag extends TagSupport {
 
 	private static final long serialVersionUID = -6406031197753714478L;
 	protected static Logger logger = Logger.getLogger(FooterMenuTag.class);
-	
+	private static final String GOOGLE_ANALYTICS_KEY = "UA-4355440-1";
 	private String returnUrlPath = "";
 	
 	/**
@@ -83,7 +83,16 @@ public class FooterMenuTag extends TagSupport {
 						"<img src='http://test.ala.org.au/wp-content/themes/ala/images/somerights20.png' width='88' height='31' alt=''/>" +
 					"</a>This work is licensed under a <a href='http://creativecommons.org/licenses/by/2.5/au/' title='External link to Creative Commons'>Creative Commons Attribution 2.5 Australia License</a>" +
 				"</p>" +
-			"</div>");
+			"</div>\n" +
+            "<script type='text/javascript'> " +
+                "var gaJsHost = (('https:' == document.location.protocol) ? 'https://ssl.' : 'http://www.');" +
+                "document.write(unescape('%3Cscript src='' + gaJsHost + 'google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E'));" +
+            "</script> " +
+            "<script type='text/javascript'> " +
+                "var pageTracker = _gat._getTracker('" + GOOGLE_ANALYTICS_KEY + "');" +
+                "pageTracker._initData();" +
+                "pageTracker._trackPageview();" +
+            "</script>\n" );
 		
 		try {
 			pageContext.getOut().print(html.toString());
