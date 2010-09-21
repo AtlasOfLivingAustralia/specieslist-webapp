@@ -114,6 +114,7 @@ public class CassandraBatchDelete {
 		String[] cast = new String[]{};
 		cassandraBatchDelete.doFullScanAndDelete(infoSrcIdList.toArray(cast), columnNameList.toArray(cast));
 		cassandraBatchDelete.closeConnectionPool();
+		System.exit(1);
 	}
 
 	public CassandraBatchDelete(){
