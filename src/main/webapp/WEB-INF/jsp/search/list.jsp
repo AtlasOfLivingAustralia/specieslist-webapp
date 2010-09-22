@@ -277,8 +277,8 @@
                                 <a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${result.rankId}" name="${result.name}" acceptedName="${result.acceptedConceptName}"/></a>
                             </h4>
                             <p>
-                                <c:if test="${not empty result.highlight}"><span><b>...</b> ${result.highlight} <b>...</b></span></c:if>
                                 <span>${fn:substring(result.commonName, 0, 220)}<c:if test="${fn:length(result.commonName) > 220}">...</c:if></span>
+                                <c:if test="${not empty result.highlight}"><span><b>...</b> ${result.highlight} <b>...</b></span></c:if>
                                 <span><strong>Rank</strong>: ${result.rank}</span>
                                 ${sectionText}
                             </p>
