@@ -203,7 +203,7 @@
                                         (<fmt:formatNumber value="${lastElement.count}" pattern="#,###,###"/>)
                                     </li>
                                 </c:if>
-                                <c:if test="${fn:containsIgnoreCase(facetResult.fieldName, 'idxtype') && not empty wordpress && wordpress > 0 && empty facetMap[facetResult.fieldName]}">
+                                <c:if test="${fn:containsIgnoreCase(facetResult.fieldName, 'idxtype') && not empty wordpress && wordpress > 0 && empty param.fq}">
                                     <li><a href="http://test.ala.org.au/search/?s=${param['q']}">Site pages</a> (${wordpress})</li>
                                 </c:if>
                                 <c:forEach var="fieldResult" items="${facetResult.fieldResult}" varStatus="vs">
