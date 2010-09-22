@@ -31,7 +31,7 @@ public class OptimizeIndex {
 	public static void main(String[] args) throws Exception {
         ApplicationContext context = SpringUtils.getContext();
         SolrUtils solrUtils = (SolrUtils) context.getBean(SolrUtils.class);
-        solrUtils.getServer().optimize();
+        solrUtils.getSolrServer().optimize();
 		System.exit(0);
 	}
 }

@@ -48,11 +48,4 @@ public class SolrUtils {
 	public void setSolrHome(String solrHome) {
 		this.solrHome = solrHome;
 	}
-
-	/**
-	 * @return the server
-	 */
-	public SolrServer getServer() {
-		return server;
-	}
 }
