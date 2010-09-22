@@ -187,37 +187,12 @@
                 <c:set var="dataprovider" scope="session"><c:out value="${DATAPROVIDER}"/></c:set>
                 <c:set var="dataset" scope="session"><c:out value="${DATASET}"/></c:set>
             </c:if>
-            <h3><span class="FieldName">Section</span></h3>
-            <div id="subnavlist">
-                <ul>
-                    <c:if test="${not empty wordpress}">
-                        <li><a href="http://test.ala.org.au/search/?s=${param['q']}">Site pages</a> (${wordpress})</li>
-                    </c:if>
-                    <li class="active"><b>Species Pages (${taxon})</b></li>
-                    <c:if test="${not empty region}">
-                        <li><a href="${pageContext.request.contextPath}/regions/search?q=${param['q']}">Regions</a> (${region})</li>
-                    </c:if>
-<!--                        <li><a href="/biocache-webapp/occurrences/search?q=${param['q']}"><strike>Occurrence Records</strike></a></li>-->
-                    <c:if test="${not empty institution}">
-                        <li><a href="${pageContext.request.contextPath}/institutions/search?q=${param['q']}">Institutions</a> (${institution})</li>
-                    </c:if>
-                    <c:if test="${not empty collection}">
-                        <li><a href="${pageContext.request.contextPath}/collections/search?q=${param['q']}">Collections</a> (${collection})</li>
-                    </c:if>
-                    <c:if test="${not empty dataprovider}">
-                        <li><a href="${pageContext.request.contextPath}/dataproviders/search?q=${param['q']}">Data Providers</a> (${dataprovider})</li>
-                    </c:if>
-                    <c:if test="${not empty dataset}">
-                        <li><a href="${pageContext.request.contextPath}/datasets/search?q=${param['q']}">Data Sets</a> (${dataset})</li>
-                    </c:if>
-                </ul>
-            </div>
             <div id="accordion">
                 <c:if test="${not empty query}">
                     <c:set var="queryParam">q=<c:out value="${query}" escapeXml="true"/><c:if test="${not empty param.fq}">&fq=${fn:join(paramValues.fq, "&fq=")}</c:if></c:set>
                 </c:if>
                 <c:forEach var="facetResult" items="${searchResults.facetResults}">
-                    <c:if test="${!fn:containsIgnoreCase(facetQuery, facetResult.fieldResult[0].label) && !fn:containsIgnoreCase(facetResult.fieldName, 'idxtype')}">
+                    <c:if test="${!fn:containsIgnoreCase(facetQuery, facetResult.fieldResult[0].label) && !fn:containsIgnoreCase(facetResult.fieldName, 'idxtype1')}">
                         <h3><span class="FieldName"><fmt:message key="facet.${facetResult.fieldName}"/></span></h3>
                         <div id="subnavlist">
                             <ul>
@@ -228,6 +203,9 @@
                                         (<fmt:formatNumber value="${lastElement.count}" pattern="#,###,###"/>)
                                     </li>
                                 </c:if>
+                                <c:if test="${fn:containsIgnoreCase(facetResult.fieldName, 'idxtype') && not empty wordpress && wordpress > 0 && empty facetMap[facetResult.fieldName]}">
+                                    <li><a href="http://test.ala.org.au/search/?s=${param['q']}">Site pages</a> (${wordpress})</li>
+                                </c:if>
                                 <c:forEach var="fieldResult" items="${facetResult.fieldResult}" varStatus="vs">
                                     <c:set var="dateRangeTo"><c:choose><c:when test="${vs.last}">*</c:when><c:otherwise>${facetResult.fieldResult[vs.count].label}</c:otherwise></c:choose></c:set>
                                     <c:choose>
@@ -237,7 +215,7 @@
                                                 (<fmt:formatNumber value="${fieldResult.count}" pattern="#,###,###"/>)</li>
                                         </c:when>
                                         <c:when test="${fn:endsWith(fieldResult.label, 'before')}"><%-- skip --%></c:when>
-                                        <c:when test="${not empty facetMap[facetResult.fieldName] && fieldResult.label == facetMap[facetResult.fieldName]}">
+                                       <c:when test="${not empty facetMap[facetResult.fieldName] && fieldResult.label == facetMap[facetResult.fieldName]}">
                                             <li><a href="#" onClick="removeFacet('${facetResult.fieldName}:${fieldResult.label}'); return false;" class="facetCancelLink">&lt; Any <fmt:message key="facet.${facetResult.fieldName}"/></a><br/>
                                             <b><fmt:message key="${fieldResult.label}"/></b></li>
                                         </c:when>
@@ -285,38 +263,72 @@
                 </div><!--sortWidget-->
             </div><!--drop downs-->
             <div class="results">
-                <c:forEach var="taxonConcept" items="${searchResults.results}">
-                    <h4>
-                        <c:if test="${not empty taxonConcept.thumbnail}"><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><img class="alignright" src="${taxonConcept.thumbnail}" width="91" height="91" alt="species image thumbnail"/></a></c:if>
-                        <c:if test="${empty taxonConcept.thumbnail}"><div class="alignright" style="width:91px; height:50px;"></div></c:if>
-                        <a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${taxonConcept.rankId}" name="${taxonConcept.name}" acceptedName="${taxonConcept.acceptedConceptName}"/></a>
-                    </h4>
-                    <p>
-                        ${fn:substring(taxonConcept.commonName, 0, 220)}<c:if test="${fn:length(taxonConcept.commonName) > 220}">...</c:if>
-                        <span><strong>Rank</strong>: ${taxonConcept.rank}</span>
-                        <c:if test="${not empty taxonConcept.highlight}"><span><b>...</b> ${taxonConcept.highlight} <b>...</b></span></c:if>
-                    </p>
+                <c:forEach var="result" items="${searchResults.results}">
+                    <c:set var="sectionText">
+                        <c:if test="${empty facetMap.idxtype}">
+                            <span><b>Section:</b> <fmt:message key="idxType.${result.idxType}"/></span>
+                        </c:if>
+                    </c:set>
+                    <c:choose>
+                        <c:when test="${result.class.name == 'org.ala.dto.SearchTaxonConceptDTO'}">
+                            <h4> 
+                                <c:if test="${not empty result.thumbnail}"><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><img class="alignright" src="${result.thumbnail}" width="91" height="91" alt="species image thumbnail"/></a></c:if>
+                                <c:if test="${empty result.thumbnail}"><div class="alignright" style="width:91px; height:50px;"></div></c:if>
+                                <a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${result.rankId}" name="${result.name}" acceptedName="${result.acceptedConceptName}"/></a>
+                            </h4>
+                            <p>
+                                <c:if test="${not empty result.highlight}"><span><b>...</b> ${result.highlight} <b>...</b></span></c:if>
+                                <span>${fn:substring(result.commonName, 0, 220)}<c:if test="${fn:length(result.commonName) > 220}">...</c:if></span>
+                                <span><strong>Rank</strong>: ${result.rank}</span>
+                                ${sectionText}
+                            </p>
+                        </c:when>
+                        <c:when test="${result.class.name == 'org.ala.dto.SearchRegionDTO'}">
+                            <h4>
+                                <c:if test="${result.regionTypeName=='State' || result.regionTypeName=='Territory'}">
+                                    <a href="${pageContext.request.contextPath}/regions/${result.guid}">
+                                </c:if>
+                                    ${result.name}
+                                <c:if test="${result.regionTypeName=='State' || result.regionTypeName=='Territory'}">
+                                    </a>
+                                </c:if>
+                            </h4>
+                            <p>
+                                <span>Region type: ${result.regionTypeName}</span>
+                                ${sectionText}
+                            </p>
+                        </c:when>
+                        <c:when test="${result.class.name == 'org.ala.dto.SearchCollectionDTO'}">
+                            <h4><a href="${result.guid}">${result.name}</a></h4>
+                            <p>
+                                <span>${result.institutionName}</span>
+                                ${sectionText}
+                            </p>
+                        </c:when>
+                        <c:when test="${result.class.name == 'org.ala.dto.SearchInstitutionDTO'}">
+                            <h4><a href="${result.guid}">${result.name}</a></h4>
+                            <p>
+                                <span>${result.acronym}</span>
+                                ${sectionText}
+                            </p>
+                        </c:when>
+                        <c:when test="${result.class.name == 'org.ala.dto.SearchDataProviderDTO'}">
+                            <h4><a href="${result.guid}">${result.name}</a></h4>
+                            <p>
+                                <span>${result.description}</span>
+                                ${sectionText}
+                            </p>
+                        </c:when>
+                        <c:otherwise>
+                            <h4><a href="${result.guid}">${result.name}</a></h4>
+                            <p>${sectionText}</p>
+                        </c:otherwise>
+                    </c:choose>
                 </c:forEach>
             </div><!--close results-->
             <div id="searchNavBar">
                 <alatag:searchNavigationLinks totalRecords="${searchResults.totalRecords}" startIndex="${searchResults.startIndex}"
                      lastPage="${lastPage}" pageSize="${searchResults.pageSize}"/>
-            </div>
-            <div id="searchNavBar" style="display: none">
-                <ul>
-                    <!-- coreParams = ?q=kangaroo&sort=&dir=&pageSize=10 || lastPage = 10 || startIndex = 0 || pageNumber = 1 -->
-                    <li id="prevPage">&laquo; Previous</li>
-                    <li class="currentPage">1</li>
-                    <li><a href="?q=kangaroo&sort=&dir=&pageSize=10&start=10&title=Search Results">2</a></li>
-                    <li><a href="?q=kangaroo&sort=&dir=&pageSize=10&start=20&title=Search Results">3</a></li>
-                    <li><a href="?q=kangaroo&sort=&dir=&pageSize=10&start=30&title=Search Results">4</a></li>
-                    <li><a href="?q=kangaroo&sort=&dir=&pageSize=10&start=40&title=Search Results">5</a></li>
-                    <li><a href="?q=kangaroo&sort=&dir=&pageSize=10&start=50&title=Search Results">6</a></li>
-                    <li><a href="?q=kangaroo&sort=&dir=&pageSize=10&start=60&title=Search Results">7</a></li>
-                    <li><a href="?q=kangaroo&sort=&dir=&pageSize=10&start=70&title=Search Results">8</a></li>
-                    <li><a href="?q=kangaroo&sort=&dir=&pageSize=10&start=80&title=Search Results">9</a></li>
-                    <li id="nextPage"><a href="?q=kangaroo&sort=&dir=&pageSize=10&start=10&title=Search Results">Next &raquo;</a></li>
-                </ul>
             </div>
         </div><!--solrResults-->
     </div>

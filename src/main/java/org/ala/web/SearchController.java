@@ -15,9 +15,11 @@
 package org.ala.web;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -37,6 +39,7 @@ import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -59,12 +62,7 @@ public class SearchController {
 	protected RepoUrlUtils repoUrlUtils;
 	
 	/** Name of view for list of taxa */
-	private final String COLLECTIONS_LIST = "collections/list";
-	private final String INSTITUTIONS_LIST = "institutions/list";
-	private final String DATASETS_LIST = "datasets/list";
-	private final String DATAPROVIDERS_LIST = "dataproviders/list";
-	private final String REGIONS_LIST = "regions/list";
-	private final String SPECIES_LIST = "species/list";
+	private final String SEARCH_LIST = "search/list"; // "species/list" || "search/species"
 	private final String SEARCH = "search"; //default view when empty query submitted
     private final String WP_SOLR_URL = "http://alaprodweb1-cbr.vm.csiro.au/solr/select/?wt=json&q=";
 	
@@ -129,7 +127,9 @@ public class SearchController {
 		
 		logger.debug("Initial query = "+query);
 		SearchResultsDTO<SearchDTO> searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-		
+		repoUrlUtils.fixRepoUrls(searchResults);
+        model.addAttribute("facetMap", addFacetMap(filterQuery));
+        
 		//get facets - and counts to model for each idx type
 		Collection<FacetResultDTO> facetResults = searchResults.getFacetResults();
 		Iterator<FacetResultDTO> facetIter = facetResults.iterator();
@@ -143,55 +143,7 @@ public class SearchController {
 			}
 		}
         
-        
-		String view = SPECIES_LIST;
-		//what was the top hit?
-		if(!searchResults.getResults().isEmpty()){
-			
-			SearchDTO topHit = searchResults.getResults().get(0);
-			logger.debug("Top Hit: "+topHit.getName()+", idxtype: "+topHit.getIdxType() + ", total number results: "+ searchResults.getResults().size());
-//                        for(SearchDTO result : searchResults.getResults()){
-//                            logger.debug("Name: " + result.getName() + " idxType: " + result.getIdxType() + " score: " + result.getScore());
-//                        }
-                        
-			//top hit is species, re-run species search to just get species results
-			if(IndexedTypes.TAXON.toString().equals(topHit.getIdxType())){
-				searchResults = searchDao.findByName(IndexedTypes.TAXON, query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-				repoUrlUtils.fixRepoUrls(searchResults);
-                model.addAttribute("facetMap", addFacetMap(filterQuery));
-                view = SPECIES_LIST;
-			}
-			
-			//top hit is species, re-run species search to just get species results
-			if(IndexedTypes.COLLECTION.toString().equals(topHit.getIdxType())){
-				searchResults = searchDao.findByName(IndexedTypes.COLLECTION, query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-				view = COLLECTIONS_LIST;
-			}
-
-			//top hit is species, re-run species search to just get species results
-			if(IndexedTypes.INSTITUTION.toString().equals(topHit.getIdxType())){
-				searchResults = searchDao.findByName(IndexedTypes.INSTITUTION, query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-				view = INSTITUTIONS_LIST;
-			}
-			
-			//top hit is species, re-run species search to just get species results
-			if(IndexedTypes.DATASET.toString().equals(topHit.getIdxType())){
-				searchResults = searchDao.findByName(IndexedTypes.DATASET, query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-				view = DATASETS_LIST;
-			}
-			
-			//top hit is species, re-run species search to just get species results
-			if(IndexedTypes.DATAPROVIDER.toString().equals(topHit.getIdxType())){
-				searchResults = searchDao.findByName(IndexedTypes.DATAPROVIDER, query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-				view = DATAPROVIDERS_LIST;
-			}
-			
-			//top hit is species, re-run species search to just get species results
-			if(IndexedTypes.REGION.toString().equals(topHit.getIdxType())){
-				searchResults = searchDao.findByName(IndexedTypes.REGION, query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-				view = REGIONS_LIST;
-			}
-		}
+		String view = SEARCH_LIST;
 
         // Site search - get number of hits
         try {
@@ -216,312 +168,56 @@ public class SearchController {
 		return view;
 	}
 	
-	/**
-	 * Map to a /search URI - perform a full-text SOLR search
-	 * Note: adding .json to URL will result in JSON output and
-	 * adding .xml will result in XML output.
-	 *
-	 * @param query
-	 * @param filterQuery
-	 * @param startIndex
-	 * @param pageSize
-	 * @param sortField
-	 * @param sortDirection
-	 * @param title
-	 * @param model
-	 * @return view name
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/species/search*", method = RequestMethod.GET)
-	public String searchSpecies(
-			@RequestParam(value="q", required=false) String query,
-			@RequestParam(value="fq", required=false) String[] filterQuery,
-			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
-			@RequestParam(value="pageSize", required=false, defaultValue ="10") Integer pageSize,
-			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
-			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
-			@RequestParam(value="title", required=false, defaultValue ="Search Results") String title,
-			Model model) throws Exception {
-            logger.debug("Species sort direction: " + sortDirection);
-            return doGenericSearch(query, filterQuery, startIndex, pageSize, sortField,
-				sortDirection, title, model, SPECIES_LIST, IndexedTypes.TAXON);
-	}
+    /**
+     * Provides the auto complete service.
+     * @param query The value to auto complete
+     * @param geoRefOnly When true only include results that have some geospatial occurrence records
+     * @param idxType The index type to limit see bie-hbase/src/main/java/org/ala/dao/IndexedTypes
+     * @param maxTerms The maximum number of results to return
+     * @param model
+     * @throws Exception
+     */
+    @RequestMapping(value="/search/auto.json*", method = RequestMethod.GET)
+    public void searchForAutocompleteValues(
+                    @RequestParam(value="q", required=true) String query,
+                    @RequestParam(value="geoOnly", required=false) boolean geoRefOnly,
+                    @RequestParam(value="idxType", required=false) String idxType,
+                    @RequestParam(value="limit", required=false, defaultValue ="10") int maxTerms,
+                    Model model)throws Exception {
 
+        logger.debug("Autocomplete on " + query + " geoOnly: " + geoRefOnly  );
+        IndexedTypes it = idxType != null ? IndexedTypes.valueOf(idxType.toUpperCase()):null;
+        List<AutoCompleteDTO> autoCompleteList =searchDao.getAutoCompleteList(query,it, geoRefOnly , maxTerms);
+        model.addAttribute("autoCompleteList", autoCompleteList);
+
+    }
+
+    /**
+     * Changes the direction of the sore if the sortField is score
+     * @param sortField
+     * @param sortDirection
+     * @return
+     */
+    private String getSortDirection(String sortField, String sortDirection){
+        String direction = sortDirection;
+        if(sortField.equals("score")){
+                if(sortDirection.equals("asc"))
+                    direction = "desc";
+                else
+                    direction = "asc";
+            }
+        return direction;
+
+    }
 	
-	/**
-	 * Map to a /search URI - perform a full-text SOLR search
-	 * Note: adding .json to URL will result in JSON output and
-	 * adding .xml will result in XML output.
-	 *
-	 * @param query
-	 * @param filterQuery
-	 * @param startIndex
-	 * @param pageSize
-	 * @param sortField
-	 * @param sortDirection
-	 * @param title
-	 * @param model
-	 * @return view name
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/collections/search*", method = RequestMethod.GET)
-	public String searchCollections(
-			@RequestParam(value="q", required=false) String query,
-			@RequestParam(value="fq", required=false) String[] filterQuery,
-			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
-			@RequestParam(value="pageSize", required=false, defaultValue ="10") Integer pageSize,
-			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
-			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
-			@RequestParam(value="title", required=false, defaultValue ="Search Results") String title,
-			Model model) throws Exception {
-		return doGenericSearch(query, filterQuery, startIndex, pageSize, sortField,
-				sortDirection, title, model, COLLECTIONS_LIST, IndexedTypes.COLLECTION);
-	}
-
-	/**
-	 * 
-	 * @param query
-	 * @param filterQuery
-	 * @param startIndex
-	 * @param pageSize
-	 * @param sortField
-	 * @param sortDirection
-	 * @param title
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/regions/search*", method = RequestMethod.GET)
-	public String searchRegions(
-			@RequestParam(value="q", required=false) String query,
-			@RequestParam(value="fq", required=false) String[] filterQuery,
-			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
-			@RequestParam(value="pageSize", required=false, defaultValue ="10") Integer pageSize,
-			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
-			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
-			@RequestParam(value="title", required=false, defaultValue ="Search Results") String title,
-			Model model) throws Exception {
-		return doGenericSearch(query, filterQuery, startIndex, pageSize, sortField,
-				sortDirection, title, model, REGIONS_LIST, IndexedTypes.REGION);
-	}
-
-	/**
-	 * Map to a /search URI - perform a full-text SOLR search
-	 * Note: adding .json to URL will result in JSON output and
-	 * adding .xml will result in XML output.
-	 *
-	 * @param query
-	 * @param filterQuery
-	 * @param startIndex
-	 * @param pageSize
-	 * @param sortField
-	 * @param sortDirection
-	 * @param title
-	 * @param model
-	 * @return view name
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/datasets/search*", method = RequestMethod.GET)
-	public String searchDatasets(
-			@RequestParam(value="q", required=false) String query,
-			@RequestParam(value="fq", required=false) String[] filterQuery,
-			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
-			@RequestParam(value="pageSize", required=false, defaultValue ="10") Integer pageSize,
-			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
-			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
-			@RequestParam(value="title", required=false, defaultValue ="Search Results") String title,
-			Model model) throws Exception {
-		return doGenericSearch(query, filterQuery, startIndex, pageSize, sortField,
-				sortDirection, title, model, DATASETS_LIST, IndexedTypes.DATASET);
-	}
-	
-	/**
-	 * Map to a /search URI - perform a full-text SOLR search
-	 * Note: adding .json to URL will result in JSON output and
-	 * adding .xml will result in XML output.
-	 *
-	 * @param query
-	 * @param filterQuery
-	 * @param startIndex
-	 * @param pageSize
-	 * @param sortField
-	 * @param sortDirection
-	 * @param title
-	 * @param model
-	 * @return view name
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/dataproviders/search*", method = RequestMethod.GET)
-	public String searchDataProviders(
-			@RequestParam(value="q", required=false) String query,
-			@RequestParam(value="fq", required=false) String[] filterQuery,
-			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
-			@RequestParam(value="pageSize", required=false, defaultValue ="10") Integer pageSize,
-			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
-			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
-			@RequestParam(value="title", required=false, defaultValue ="Search Results") String title,
-			Model model) throws Exception {
-		return doGenericSearch(query, filterQuery, startIndex, pageSize, sortField,
-				sortDirection, title, model, DATAPROVIDERS_LIST, IndexedTypes.DATAPROVIDER);
-	}
-	
-	/**
-	 * Map to a /search URI - perform a full-text SOLR search
-	 * Note: adding .json to URL will result in JSON output and
-	 * adding .xml will result in XML output.
-	 *
-	 * @param query
-	 * @param filterQuery
-	 * @param startIndex
-	 * @param pageSize
-	 * @param sortField
-	 * @param sortDirection
-	 * @param title
-	 * @param model
-	 * @return view name
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/institutions/search*", method = RequestMethod.GET)
-	public String searchInstitutions(
-			@RequestParam(value="q", required=false) String query,
-			@RequestParam(value="fq", required=false) String[] filterQuery,
-			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
-			@RequestParam(value="pageSize", required=false, defaultValue ="10") Integer pageSize,
-			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
-			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
-			@RequestParam(value="title", required=false, defaultValue ="Search Results") String title,
-			Model model) throws Exception {
-		return doGenericSearch(query, filterQuery, startIndex, pageSize, sortField,
-				sortDirection, title, model, INSTITUTIONS_LIST, IndexedTypes.INSTITUTION);
-	}
-        /**
-         * Provides the auto complete service.
-         * @param query The value to auto complete
-         * @param geoRefOnly When true only include results that have some geospatial occurrence records
-         * @param idxType The index type to limit see bie-hbase/src/main/java/org/ala/dao/IndexedTypes
-         * @param maxTerms The maximum number of results to return
-         * @param model
-         * @throws Exception
-         */
-        @RequestMapping(value="/search/auto.json*", method = RequestMethod.GET)
-        public void searchForAutocompleteValues(
-                        @RequestParam(value="q", required=true) String query,
-                        @RequestParam(value="geoOnly", required=false) boolean geoRefOnly,
-                        @RequestParam(value="idxType", required=false) String idxType,
-                        @RequestParam(value="limit", required=false, defaultValue ="10") int maxTerms,
-                        Model model)throws Exception {
-
-            logger.debug("Autocomplete on " + query + " geoOnly: " + geoRefOnly  );
-            IndexedTypes it = idxType != null ? IndexedTypes.valueOf(idxType.toUpperCase()):null;
-            List<AutoCompleteDTO> autoCompleteList =searchDao.getAutoCompleteList(query,it, geoRefOnly , maxTerms);
-            model.addAttribute("autoCompleteList", autoCompleteList);
-
-        }
-        
-        /**
-         * Changes the direction of the sore if the sortField is score
-         * @param sortField
-         * @param sortDirection
-         * @return
-         */
-        private String getSortDirection(String sortField, String sortDirection){
-            String direction = sortDirection;
-            if(sortField.equals("score")){
-                    if(sortDirection.equals("asc"))
-                        direction = "desc";
-                    else
-                        direction = "asc";
-                }
-            return direction;
-
-        }
-	
-	/**
-	 * Perform an generic free text search.
-	 * 
-	 * @param query
-	 * @param filterQuery
-	 * @param startIndex
-	 * @param pageSize
-	 * @param sortField
-	 * @param sortDirection
-	 * @param title
-	 * @param model
-	 * @param defaultView
-	 * @param indexedType
-	 * @return
-	 * @throws Exception
-	 */
-	private String doGenericSearch(String query, 
-			String[] filterQuery,
-			Integer startIndex, 
-			Integer pageSize, 
-			String sortField,
-			String sortDirection, 
-			String title, 
-			Model model,
-			String defaultView,
-			IndexedTypes indexedType) throws Exception {
-		
-		if (StringUtils.isEmpty(query) && (filterQuery == null || filterQuery.length == 0)) {
-			return SEARCH;
-		}
-        // if params are set but empty (e.g. foo=&bar=) then provide sensible defaults
-        if (StringUtils.isEmpty(query)) {
-        	query = "";
-        }
-        if (filterQuery != null && filterQuery.length == 0) {
-            filterQuery = null;
-        }
-        if (startIndex == null) {
-            startIndex = 0;
-        }
-        if (pageSize == null) {
-            pageSize = 20;
-        }
-        if (sortField.isEmpty()) {
-            sortField = "score";
-        }
-        if (sortDirection.isEmpty()) {
-            sortDirection = "asc";
-        }
-        
-        //reverse the sort direction for the "score" field a normal sort should be descending while a reverse sort should be ascending
-        sortDirection = getSortDirection(sortField, sortDirection);
-		String queryJsEscaped = StringEscapeUtils.escapeJavaScript(query);
-		model.addAttribute("query", query);
-		model.addAttribute("queryJsEscaped", queryJsEscaped);
-		model.addAttribute("title", StringEscapeUtils.escapeJavaScript(title));
-		logger.debug("query = "+query);
-		
-		SearchResultsDTO<SearchDTO> searchResults = searchDao.findByName(indexedType, query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-                model.addAttribute("searchResults", searchResults);
-        
-        //fix urls
-        repoUrlUtils.fixRepoUrls(searchResults);
-        
-        Long totalRecords = searchResults.getTotalRecords();
-        model.addAttribute("totalRecords", totalRecords);
-        Integer lastPage = (totalRecords.intValue() / pageSize) + 1;
-        model.addAttribute("lastPage", lastPage);
-        return defaultView;
-	}
-
+    /**
+     * Create a HashMap for the filter queries
+     *
+     * @param filterQuery
+     * @return
+     */
     private HashMap<String, String> addFacetMap(String[] filterQuery) {
-        //get facets - and counts to model for each idx type
-//		Collection<FacetResultDTO> facetResults = searchResults.getFacetResults();
-//		Iterator<FacetResultDTO> facetIter = facetResults.iterator();
-//        HashMap<String, String> facetMap = new HashMap<String, String>();
-//
-//
-//		while(facetIter.hasNext()){
-//			FacetResultDTO facetResultDTO = facetIter.next();
-//			List<FieldResultDTO> fieldResults = facetResultDTO.getFieldResult();
-//            for(FieldResultDTO fieldResult: fieldResults){
-//                facetMap.put(facetResultDTO.getFieldName(), fieldResult.getLabel());
-//            }
-//		}
-        HashMap<String, String> facetMap = new HashMap<String, String>();
+               HashMap<String, String> facetMap = new HashMap<String, String>();
 
         if (filterQuery != null && filterQuery.length > 0) {
             logger.debug("filterQuery = "+StringUtils.join(filterQuery, "|"));
@@ -566,4 +262,5 @@ public class SearchController {
 	public void setRepoUrlUtils(RepoUrlUtils repoUrlUtils) {
 		this.repoUrlUtils = repoUrlUtils;
 	}
+
 }
