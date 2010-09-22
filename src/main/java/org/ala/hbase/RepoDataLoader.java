@@ -254,7 +254,7 @@ public class RepoDataLoader {
      * Read dc file and populate a Document with values from file
      *
      * @param currentFile
-     * @return doc the Docuement to return
+     * @return doc the Document to return
      */
     private Document readDcFile(File currentFile) {
         Document doc = new Document();
@@ -289,7 +289,6 @@ public class RepoDataLoader {
      * @return doc the Docuement to return
      */
     private Map<String,String> readDcFileAsMap(File currentFile) {
-        Document doc = new Document();
         String rdfFileName = currentFile.getAbsolutePath();
         String dcFileName = rdfFileName.replaceFirst("rdf", "dc");
         File dcfile = new File(dcFileName);
