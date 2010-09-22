@@ -108,7 +108,7 @@ public class GeoRegionLoader {
 		ResultSet rs = stmt.executeQuery("select gr.id, gr.name, gr.source, gr.acronym, gr.region_type, grt.name as grt_name " +
 				"from geo_region gr " +
 				"inner join geo_region_type grt ON grt.id=gr.region_type " +
-				"where grt.id<6000");
+				"where grt.id<5000");
 		
 		int i=0;
 		long startTime = System.currentTimeMillis();
