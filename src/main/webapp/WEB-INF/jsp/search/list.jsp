@@ -284,15 +284,7 @@
                             </p>
                         </c:when>
                         <c:when test="${result.class.name == 'org.ala.dto.SearchRegionDTO'}">
-                            <h4>
-                                <c:if test="${result.regionTypeName=='State' || result.regionTypeName=='Territory'}">
-                                    <a href="${pageContext.request.contextPath}/regions/${result.guid}">
-                                </c:if>
-                                    ${result.name}
-                                <c:if test="${result.regionTypeName=='State' || result.regionTypeName=='Territory'}">
-                                    </a>
-                                </c:if>
-                            </h4>
+                            <h4><a href="${pageContext.request.contextPath}/regions/${result.guid}">${result.name}</a></h4>
                             <p>
                                 <span>Region type: ${result.regionTypeName}</span>
                                 ${sectionText}
