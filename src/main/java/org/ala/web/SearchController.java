@@ -31,10 +31,12 @@ import org.ala.dto.AutoCompleteDTO;
 import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
 import org.springframework.stereotype.Controller;
@@ -147,7 +149,7 @@ public class SearchController {
 
         // Site search - get number of hits
         try {
-            String jsonString = getUrlContentAsString(WP_SOLR_URL + query);
+            String jsonString = getUrlContentAsString(new URI(WP_SOLR_URL + query, false).getEscapedURI());
             JSONObject obj = (JSONObject) JSONValue.parse(jsonString);
             JSONObject obj2 = (JSONObject) obj.get("response");
             Long obj3 = (Long) obj2.get("numFound");
