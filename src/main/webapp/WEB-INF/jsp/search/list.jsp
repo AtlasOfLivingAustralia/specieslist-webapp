@@ -272,7 +272,7 @@
                     <c:choose>
                         <c:when test="${result.class.name == 'org.ala.dto.SearchTaxonConceptDTO'}">
                             <h4> 
-                                <c:if test="${not empty result.thumbnail}"><a href="${pageContext.request.contextPath}/species/${taxonConcept.guid}" class="occurrenceLink"><img class="alignright" src="${result.thumbnail}" width="91" height="91" alt="species image thumbnail"/></a></c:if>
+                                <c:if test="${not empty result.thumbnail}"><a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><img class="alignright" src="${result.thumbnail}" width="91" height="91" alt="species image thumbnail"/></a></c:if>
                                 <c:if test="${empty result.thumbnail}"><div class="alignright" style="width:91px; height:50px;"></div></c:if>
                                 <a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${result.rankId}" name="${result.name}" acceptedName="${result.acceptedConceptName}"/></a>
                             </h4>
