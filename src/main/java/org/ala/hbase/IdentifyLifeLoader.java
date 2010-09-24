@@ -75,10 +75,11 @@ public class IdentifyLifeLoader {
 				List<IdentificationKey> idKeyList = new ArrayList<IdentificationKey> ();
 				IdentificationKey idKey = toIdentificationKey(nextLine);
 				nextLine = reader.readNext();
+				// have guid & infosource ....
 				if(idKey != null){
-					logger.debug("*** guid: " + idKey.getIdentifier());	
+					logger.warn("*** guid: " + idKey.getIdentifier());	
 					idKeyList.add(idKey);
-					// next line is same TAXONOMICSCOPE name (same guid), add into same list (same cassandra column)
+					// more than one idKey for same guid, add into same list (same cassandra column)
 					while (nextLine != null) {
 						System.out.println("*** idKey: " + nextLine[IdentifyLifeHarvester.IDLIFE_IDX.ID.ordinal()] + 
 								", taxon: " + nextLine[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()]);	
@@ -121,10 +122,11 @@ public class IdentifyLifeLoader {
 	private IdentificationKey toIdentificationKey(String[] idLifeData){
 		IdentificationKey idKey = null;
 		
-		String guid = getGuid(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()].trim());		
-		if(guid != null && guid.length() > 0){
-			idKey = new IdentificationKey();
-			InfoSource infosource = infoSourceDao.getByUri(idLifeURI);
+		// get guid & infosource
+		String guid = taxonConceptDao.findLsidByName(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()].trim());
+		InfoSource infosource = infoSourceDao.getByUri(idLifeURI);
+		if(guid != null && guid.length() > 0 && infosource != null){
+			idKey = new IdentificationKey();			
 			idKey.setInfoSourceId("" + infosource.getId());
 			idKey.setInfoSourceName(infosource.getName());
 			idKey.setInfoSourceURL(idLifeWSURI + "Keys/" + idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.ID.ordinal()]);
@@ -148,10 +150,6 @@ public class IdentifyLifeLoader {
 			logger.warn("Unable to find LSID for '" + idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()].trim() + "'");
 		}
 		return idKey;
-	}
-	
-	private String getGuid(String taxonomicscope){
-		return taxonConceptDao.findLsidByName(taxonomicscope);
 	}	
 }
 

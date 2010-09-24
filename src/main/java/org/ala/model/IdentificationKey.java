@@ -121,8 +121,8 @@ public class IdentificationKey extends AttributableObject implements Comparable<
 
 	@Override
 	public int compareTo(IdentificationKey o) {
-		if (o.getId() != null && this.getId() != null) {
-			return this.getId().compareTo(o.getId());
+		if (o.getTaxonomicscope() != null && this.getTaxonomicscope() != null) {
+			return this.getTaxonomicscope().compareTo(o.getTaxonomicscope());
 		}
 		return -1;
 	}
