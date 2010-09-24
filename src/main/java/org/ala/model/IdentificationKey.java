@@ -1,6 +1,6 @@
 package org.ala.model;
 
-public class IdentificationKey extends AttributableObject {
+public class IdentificationKey extends AttributableObject implements Comparable<IdentificationKey>{
 	private String id;
 	private String title;
 	private String url;
@@ -117,5 +117,13 @@ public class IdentificationKey extends AttributableObject {
 
 	public void setImagery(String imagery) {
 		this.imagery = imagery;
+	}
+
+	@Override
+	public int compareTo(IdentificationKey o) {
+		if (o.getId() != null && this.getId() != null) {
+			return this.getId().compareTo(o.getId());
+		}
+		return -1;
 	}
 }
