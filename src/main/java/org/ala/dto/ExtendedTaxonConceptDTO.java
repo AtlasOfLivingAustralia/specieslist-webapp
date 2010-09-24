@@ -21,6 +21,7 @@ import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
 import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
+import org.ala.model.IdentificationKey;
 import org.ala.model.Image;
 import org.ala.model.PestStatus;
 import org.ala.model.Reference;
@@ -54,6 +55,14 @@ public class ExtendedTaxonConceptDTO {
 	protected List<Reference> references;
 	protected Reference earliestReference;
 	protected List<Reference> publicationReference;
+	protected List<IdentificationKey> identificationKeys;
+	
+	public List<IdentificationKey> getIdentificationKeys() {
+		return identificationKeys;
+	}
+	public void setIdentificationKeys(List<IdentificationKey> identificationKeys) {
+		this.identificationKeys = identificationKeys;
+	}
 	
 	/**
 	 * @return the publicationReference
