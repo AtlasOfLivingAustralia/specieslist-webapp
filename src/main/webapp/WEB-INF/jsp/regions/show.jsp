@@ -115,7 +115,7 @@
 	            $('#'+imgTag).html('<img src="'+data.images[0].thumbnail+'" class="emblemThumb" alt="'+data.taxonConcept.nameString+' image"/>');
 	        }
             if(data.commonNames!=null && data.commonNames.length>0){
-	            $('#'+textTag).html(data.commonNames[0].nameString+" (<i>"+data.taxonConcept.nameString+"</i>)");
+	            $('#'+textTag).html("<i>"+data.taxonConcept.nameString+"</i><br/>"+data.commonNames[0].nameString);
 	        } else {
 		        $('#'+textTag).html("<i>"+data.taxonConcept.nameString+"</i>");
 	        }
