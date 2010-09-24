@@ -469,6 +469,8 @@ public interface TaxonConceptDao {
 	 */
 	String findLsidByName(String scientificName, String taxonRank);
 	
+	String findLsidByName(String scientificName);
+	
 	/**
 	 * Get Checklist Bank entry by scientific name.
 	 * 

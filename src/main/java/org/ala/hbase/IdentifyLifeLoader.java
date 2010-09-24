@@ -15,25 +15,28 @@
 package org.ala.hbase;
 
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.inject.Inject;
 import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.harvester.IdentifyLifeHarvester;
-import org.ala.model.ExtantStatus;
-import org.ala.model.Habitat;
 import org.ala.model.IdentificationKey;
 import org.ala.model.InfoSource;
 import org.ala.util.SpringUtils;
-import org.ala.util.TabReader;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Component;
 
 import au.com.bytecode.opencsv.CSVReader;
+
+/**
+ * This class loads data from IdentifyLifeHarvester data file (data.csv) into the Cassandra
+ * 
+ * @author MOK011
+ *
+ */
 
 @Component
 public class IdentifyLifeLoader {	
@@ -43,44 +46,82 @@ public class IdentifyLifeLoader {
 	
 	private static final String INPUT_FILE_NAME = "/data/bie-staging/identifylife/data.csv";
 	@Inject
-	protected InfoSourceDAO infoSourceDao;
-	
+	protected InfoSourceDAO infoSourceDao;	
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
 	
-	public static void main(String[] args) throws Exception {
-		String[] locations = {"classpath*:spring.xml"};
-		ApplicationContext context = new ClassPathXmlApplicationContext(locations);		
-//		ApplicationContext context = SpringUtils.getContext();
+	public static void main(String[] args) {
+		ApplicationContext context = SpringUtils.getContext();
 		IdentifyLifeLoader l = context.getBean(IdentifyLifeLoader.class);
-		l.load();
+		try {
+			l.load();
+		} catch (Exception e) {			
+			e.printStackTrace();
+			System.exit(0);
+		}
 		System.exit(1);
 	}
 		
-	/**
-	 * @throws Exception
-	 */
-	private void load() throws Exception {
-		String[] nextLine;
-			
-		CSVReader reader = new CSVReader(new FileReader(INPUT_FILE_NAME));
-		while ((nextLine = reader.readNext()) != null) {
-			System.out.println("*** " + nextLine[IdentifyLifeHarvester.IDLIFE_IDX.ID.ordinal()] + ", taxon: " + nextLine[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()]);			
-			List<IdentificationKey> idKeyList = new ArrayList<IdentificationKey> ();	
-			IdentificationKey idKey = toIdentificationKey(nextLine);
-			if(idKey != null){
-				System.out.println("*** guid: " + idKey.getIdentifier());	
-				idKeyList.add(idKey);
-//				taxonConceptDao.addIdentificationKeys(idKey.getIdentifier(), idKeyList);
-			}			
+	private void load(){
+		String[] nextLine = null;
+		CSVReader reader = null;
+
+		try{
+			reader = new CSVReader(new FileReader(INPUT_FILE_NAME));
+			nextLine = reader.readNext();
+			while (nextLine != null) {
+				System.out.println("*** idKey: " + nextLine[IdentifyLifeHarvester.IDLIFE_IDX.ID.ordinal()] + 
+						", taxon: " + nextLine[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()]);					
+				List<IdentificationKey> idKeyList = new ArrayList<IdentificationKey> ();
+				IdentificationKey idKey = toIdentificationKey(nextLine);
+				nextLine = reader.readNext();
+				if(idKey != null){
+					logger.debug("*** guid: " + idKey.getIdentifier());	
+					idKeyList.add(idKey);
+					// next line is same TAXONOMICSCOPE name (same guid), add into same list (same cassandra column)
+					while (nextLine != null) {
+						System.out.println("*** idKey: " + nextLine[IdentifyLifeHarvester.IDLIFE_IDX.ID.ordinal()] + 
+								", taxon: " + nextLine[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()]);	
+						IdentificationKey nextKey = toIdentificationKey(nextLine);
+						if(nextKey != null && idKey.getTaxonomicscope().equals(nextKey.getTaxonomicscope())){
+							idKeyList.add(nextKey);
+							nextLine = reader.readNext();
+						}
+						else{
+							break;
+						}
+					}
+				}
+				if(!idKeyList.isEmpty() && idKey.getIdentifier() != null && idKey.getIdentifier().length() > 0){
+					try {
+						taxonConceptDao.addIdentificationKeys(idKey.getIdentifier(), idKeyList);
+					} catch (Exception e) {
+						logger.error(e);
+						e.printStackTrace();
+					}
+				}
+			}
 		}
-		reader.close();
+		catch (IOException e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+		finally{
+			if(reader != null){
+				try {
+					reader.close();
+				} catch (IOException e) {
+					logger.error(e);
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	private IdentificationKey toIdentificationKey(String[] idLifeData){
 		IdentificationKey idKey = null;
 		
-		String guid = getGuid(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()]);		
+		String guid = getGuid(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()].trim());		
 		if(guid != null && guid.length() > 0){
 			idKey = new IdentificationKey();
 			InfoSource infosource = infoSourceDao.getByUri(idLifeURI);
@@ -89,102 +130,28 @@ public class IdentifyLifeLoader {
 			idKey.setInfoSourceURL(idLifeWSURI + "Keys/" + idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.ID.ordinal()]);
 			idKey.setIdentifier(guid);
 					
-			idKey.setId(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.ID.ordinal()]);
-			idKey.setTitle(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TITLE.ordinal()]);
-			idKey.setUrl(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.URL.ordinal()]);
-			idKey.setDescription(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.DESCRIPTION.ordinal()]);
-			idKey.setPublisher(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.PUBLISHER.ordinal()]);
-			idKey.setPublishedyear(Integer.parseInt(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.PUBLISHYEAR.ordinal()]));
-			idKey.setTaxonomicscope(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()]);
-			idKey.setGeographicscope(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.GEOGRAPHICSCOPE.ordinal()]);
-			idKey.setKeytype(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.KEYTYPE.ordinal()]);
-			idKey.setAccessibility(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.ACCESSIBILITY.ordinal()]);
-			idKey.setVocabulary(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.VOCABULARY.ordinal()]);
-			idKey.setTechnicalskills(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TECHNICALSKILLS.ordinal()]);
-			idKey.setImagery(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.IMAGERY.ordinal()]);
+			idKey.setId(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.ID.ordinal()].trim());
+			idKey.setTitle(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TITLE.ordinal()].trim());
+			idKey.setUrl(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.URL.ordinal()].trim());
+			idKey.setDescription(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.DESCRIPTION.ordinal()].trim());
+			idKey.setPublisher(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.PUBLISHER.ordinal()].trim());
+			idKey.setPublishedyear(Integer.parseInt(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.PUBLISHYEAR.ordinal()].trim()));
+			idKey.setTaxonomicscope(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()].trim());
+			idKey.setGeographicscope(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.GEOGRAPHICSCOPE.ordinal()].trim());
+			idKey.setKeytype(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.KEYTYPE.ordinal()].trim());
+			idKey.setAccessibility(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.ACCESSIBILITY.ordinal()].trim());
+			idKey.setVocabulary(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.VOCABULARY.ordinal()].trim());
+			idKey.setTechnicalskills(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TECHNICALSKILLS.ordinal()].trim());
+			idKey.setImagery(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.IMAGERY.ordinal()].trim());
 		}
 		else{
-			logger.warn("Unable to find LSID for '" + idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()] + "'");
+			logger.warn("Unable to find LSID for '" + idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()].trim() + "'");
 		}
 		return idKey;
 	}
 	
 	private String getGuid(String taxonomicscope){
-		return taxonConceptDao.findLsidByName(taxonomicscope, "genus");
-	}
-	
-	private void loadIrmngData(String irmngDataFile, String rank, String baseUrl) throws Exception {
-		logger.info("Starting to load IRMNG data from " + irmngDataFile);
-		
-		
-		InfoSource infosource = infoSourceDao.getByUri(idLifeURI);
-		
-    	long start = System.currentTimeMillis();
-    	
-    	// add the taxon concept regions
-    	TabReader tr = new TabReader(irmngDataFile);
-    	String[] values = null;
-		int i = 0;
-		String guid = null;
-		String previousScientificName = null;
-		while ((values = tr.readNext()) != null) {
-    		if (values.length == 5) {
-    			String identifier = values[0];
-    			String currentScientificName = values[1];
-    			String extantCode = values[3];
-    			String habitatCode = values[4];
-    			
-    			if (!currentScientificName.equalsIgnoreCase(previousScientificName)) {
-					guid = taxonConceptDao.findLsidByName(currentScientificName, rank);
-        			if (guid == null) {
-        				logger.warn("Unable to find LSID for '" + currentScientificName + "'");
-        			} else {
-        				logger.debug("Found LSID for '" + currentScientificName + "' - " + guid);
-        			}
-    				previousScientificName = currentScientificName;
-    			}
-    			if (guid != null) {
-    				
-    				List<ExtantStatus> extantStatusList = new ArrayList<ExtantStatus>();
-    				ExtantStatus e = new ExtantStatus(extantCode);
-    				e.setInfoSourceId(Integer.toString(infosource.getId()));
-    				e.setInfoSourceName(infosource.getName());
-    				e.setInfoSourceURL(baseUrl+identifier);
-    				extantStatusList.add(e);
-    				
-    				List<Habitat> habitatList = new ArrayList<Habitat>();
-    				Habitat h = new Habitat(habitatCode);
-    				h.setInfoSourceId(Integer.toString(infosource.getId()));
-    				h.setInfoSourceName(infosource.getName());
-    				h.setInfoSourceURL(baseUrl+identifier);
-    				habitatList.add(h);
-    				
-    				logger.trace("Adding guid=" + guid + " SciName=" + currentScientificName + " Extant=" + extantCode + " Habitat=" + habitatCode);
-    				taxonConceptDao.addExtantStatus(guid, extantStatusList);
-    				taxonConceptDao.addHabitat(guid, habitatList);
-    				i++;
-    			}
-    		} else {
-    			logger.error("Incorrect number of fields in tab file - " + irmngDataFile);
-    		}
-		}
-    	tr.close();
-		long finish = System.currentTimeMillis();
-		logger.info(i+" IRMNG records loaded. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
-	}
-
-	/**
-	 * @param taxonConceptDao the taxonConceptDao to set
-	 */
-	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
-		this.taxonConceptDao = taxonConceptDao;
-	}
-
-	/**
-	 * @param infoSourceDao the infoSourceDao to set
-	 */
-	public void setInfoSourceDao(InfoSourceDAO infoSourceDao) {
-		this.infoSourceDao = infoSourceDao;
-	}
+		return taxonConceptDao.findLsidByName(taxonomicscope);
+	}	
 }
 

@@ -709,6 +709,16 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		return lsid;
 	}
 	
+	public String findLsidByName(String scientificName){
+		String lsid = null;
+		try {
+			lsid = cbIdxSearcher.searchForLSID(scientificName);
+		} catch (SearchResultException e) {
+			logger.warn("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
+		}
+		return lsid;
+	}
+	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#findCBDataByName(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
 	 */
