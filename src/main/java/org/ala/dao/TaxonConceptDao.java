@@ -26,6 +26,7 @@ import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
 import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
+import org.ala.model.IdentificationKey;
 import org.ala.model.Image;
 import org.ala.model.PestStatus;
 import org.ala.model.Publication;
@@ -616,4 +617,7 @@ public interface TaxonConceptDao {
      */
     String getIndexLocation();
 
+	public boolean addIdentificationKeys(String guid, List<IdentificationKey> identificationKeyList) throws Exception;	
+	public List<IdentificationKey> getIdentificationKeys(String guid) throws Exception;
+    
 }

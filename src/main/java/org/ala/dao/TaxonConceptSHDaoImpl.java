@@ -44,6 +44,7 @@ import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.model.Triple;
+import org.ala.model.IdentificationKey;
 import org.ala.repository.Predicates;
 import org.ala.util.FileType;
 import org.ala.util.MimeType;
@@ -1788,4 +1789,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public void setSolrUtils(SolrUtils solrUtils) {
 		this.solrUtils = solrUtils;
 	}
+	
+	private static final String IDENTIFICATION_KEY_COL = "hasIdentificationKey";
+	public boolean addIdentificationKeys(String guid, List<IdentificationKey> identificationKeyList) throws Exception {
+		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, IDENTIFICATION_KEY_COL, guid, (List)identificationKeyList, false);
+	}
+	
+	public List<IdentificationKey> getIdentificationKeys(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, IDENTIFICATION_KEY_COL, guid, IdentificationKey.class);
+	}	
 }
