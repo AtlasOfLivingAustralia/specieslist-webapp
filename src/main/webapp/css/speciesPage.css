@@ -69,3 +69,7 @@ img.favoriteIcon {
 /*    float: left;*/
     margin-right: 4px;
 }
+
+.earliestReference { background-color: #F8F2E5; }
+.earliestReferenceLabel { color: grey; }
+
