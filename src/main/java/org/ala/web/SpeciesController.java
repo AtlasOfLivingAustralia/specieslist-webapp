@@ -49,6 +49,7 @@ import org.ala.util.ImageUtils;
 import org.ala.util.MimeType;
 import org.ala.util.RepositoryFileUtils;
 import org.ala.util.StatusType;
+import org.ala.util.WebUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -116,6 +117,24 @@ public class SpeciesController {
 		return HOME_PAGE;
 	}
 
+	/**
+	 * Map to a /{guid} URI.
+	 * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
+	 * 
+	 * @param guid
+	 * @param model
+	 * @return view name
+	 * @throws Exception
+	 */ 
+	@RequestMapping(value = "/species/charts/{guid}*", method = RequestMethod.GET)
+	public String showChartInfo(@PathVariable("guid") String guid,
+            HttpServletResponse response) throws Exception {
+		String contentAsString = WebUtils.getUrlContentAsString("http://biocache.ala.org.au/occurrences/searchByTaxon.json?q="+guid);
+		response.setContentType("application/json");
+		response.getWriter().write(contentAsString);
+		return null;
+	}
+	
 	/**
 	 * Map to a /{guid} URI.
 	 * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
