@@ -134,7 +134,7 @@
                     12: "December"
                 };
                 // load occurrence breakdowns for states
-                var biocachUrl = "/occurrences/searchByTaxon.json?q=${extendedTaxonConcept.taxonConcept.guid}";
+                var biocachUrl = "/species/charts/${extendedTaxonConcept.taxonConcept.guid}";
                 $.getJSON(biocachUrl, function(data) {
                     if (data.searchResult != null && data.searchResult.totalRecords > 0) {
                         //alert("hi "+data.searchResult.totalRecords);
