@@ -154,6 +154,11 @@ public class SearchController {
             JSONObject obj2 = (JSONObject) obj.get("response");
             Long obj3 = (Long) obj2.get("numFound");
             model.addAttribute("wordpress", obj3);
+            // add count to overall search hit count
+            if (filterQuery == null || (filterQuery.length == 1 && filterQuery[0].isEmpty())) {
+                Long totalCount = searchResults.getTotalRecords() + obj3;
+                searchResults.setTotalRecords(totalCount);
+            }
         } catch (Exception ex) {
             logger.error("Failed to load counts from Wordpress SOLR index: "+ex.getMessage(), ex);
         }
