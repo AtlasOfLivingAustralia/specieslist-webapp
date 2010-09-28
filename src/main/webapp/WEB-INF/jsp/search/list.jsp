@@ -34,7 +34,7 @@
             });
             // highlight search terms in results
             //$('.results p').highlight('${queryJsEscaped}');
-            var words = '${queryJsEscaped}';
+            var words = '${queryJsEscaped}'.replace(/^\s+|\s+$/g,''); // remove leading + trailing white space
             $.each(words.split(" "), function(idx, val) { $('.results p').highlight(val); });
         });
 
@@ -278,7 +278,7 @@
                             </h4>
                             <p>
                                 <span>${fn:substring(result.commonName, 0, 220)}<c:if test="${fn:length(result.commonName) > 220}">...</c:if></span>
-                                <c:if test="${not empty result.highlight}"><span><b>...</b> ${result.highlight} <b>...</b></span></c:if>
+                                <c:if test="${false && not empty result.highlight}"><span><b>...</b> ${result.highlight} <b>...</b></span></c:if>
                                 <span><strong>Rank</strong>: ${result.rank}</span>
                                 ${sectionText}
                             </p>
