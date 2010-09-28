@@ -42,7 +42,7 @@ import au.com.bytecode.opencsv.CSVReader;
 public class IdentifyLifeLoader {	
 	protected static Logger logger  = Logger.getLogger(IdentifyLifeLoader.class);	
 	protected String idLifeURI = "http://www.identifylife.org/";
-	protected String idLifeWSURI = "http://www.identifylife.org:8001/";
+	protected String idLifeRsURI = "http://www.identifylife.org:8001/";
 	
 	private static final String INPUT_FILE_NAME = "/data/bie-staging/identifylife/data.csv";
 	@Inject
@@ -50,10 +50,23 @@ public class IdentifyLifeLoader {
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
 	
+	/**
+	 * 
+	 * Usage: [idLifeURI][idLifeRsURI]
+	 * eg: http://www.identifylife.org/ http://www.identifylife.org:8001/
+	 * 
+	 */	
 	public static void main(String[] args) {
 		ApplicationContext context = SpringUtils.getContext();
 		IdentifyLifeLoader l = context.getBean(IdentifyLifeLoader.class);
 		try {
+			if (args.length == 1) {
+				l.setIdLifeURI(args[0]);
+			}
+			else if (args.length == 2) {
+				l.setIdLifeURI(args[0]);
+				l.setIdLifeRsURI(args[1]);
+			}
 			l.load();
 		} catch (Exception e) {			
 			e.printStackTrace();
@@ -61,7 +74,10 @@ public class IdentifyLifeLoader {
 		}
 		System.exit(1);
 	}
-		
+	
+	/**
+	 * data load process
+	 */
 	private void load(){
 		String[] nextLine = null;
 		CSVReader reader = null;
@@ -113,12 +129,17 @@ public class IdentifyLifeLoader {
 					reader.close();
 				} catch (IOException e) {
 					logger.error(e);
-					e.printStackTrace();
 				}
 			}
 		}
 	}
 
+	/**
+	 * populate data into identificationKey.
+	 * 
+	 * @param idLifeData csv data line
+	 * @return
+	 */
 	private IdentificationKey toIdentificationKey(String[] idLifeData){
 		IdentificationKey idKey = null;
 		
@@ -129,7 +150,7 @@ public class IdentifyLifeLoader {
 			idKey = new IdentificationKey();			
 			idKey.setInfoSourceId("" + infosource.getId());
 			idKey.setInfoSourceName(infosource.getName());
-			idKey.setInfoSourceURL(idLifeWSURI + "Keys/" + idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.ID.ordinal()]);
+			idKey.setInfoSourceURL(idLifeRsURI + "Keys/" + idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.ID.ordinal()]);
 			idKey.setIdentifier(guid);
 					
 			idKey.setId(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.ID.ordinal()].trim());
@@ -150,6 +171,22 @@ public class IdentifyLifeLoader {
 			logger.warn("Unable to find LSID for '" + idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()].trim() + "'");
 		}
 		return idKey;
+	}
+	
+	public String getIdLifeURI() {
+		return idLifeURI;
+	}
+
+	public void setIdLifeURI(String idLifeURI) {
+		this.idLifeURI = idLifeURI;
+	}
+
+	public String getIdLifeRsURI() {
+		return idLifeRsURI;
+	}
+
+	public void setIdLifeRsURI(String idLifeRsURI) {
+		this.idLifeRsURI = idLifeRsURI;
 	}	
 }
 
