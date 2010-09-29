@@ -287,7 +287,7 @@
                     </div> 
                 </div>
             </div>
-            <div id="breadcrumb" class="taxaCrumb">
+            <div id="taxacrumb">
                 <ul>
                     <c:forEach items="${taxonHierarchy}" var="taxon">
                         <li>
