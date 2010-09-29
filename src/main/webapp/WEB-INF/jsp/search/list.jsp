@@ -34,7 +34,7 @@
             });
             // highlight search terms in results
             //$('.results p').highlight('${queryJsEscaped}');
-            var words = '${queryJsEscaped}'.replace(/^\s+|\s+$/g,''); // remove leading + trailing white space
+            var words = '${fn:trim(queryJsEscaped)}'; // remove leading + trailing white space
             $.each(words.split(" "), function(idx, val) { $('.results p').highlight(val); });
         });
 
@@ -147,6 +147,10 @@
             text-transform: capitalize;
         }
         #facets #accordion { display: block; }
+        div.results span.commonNameSummary {
+            display: inline;
+            color: #222;
+        }
     </style>
     <title>Species Search - ${query}</title>
     <link rel="stylesheet" href="http://test.ala.org.au/wp-content/themes/ala/css/bie.css" type="text/css" media="screen" charset="utf-8"/>
@@ -272,48 +276,58 @@
                     <c:choose>
                         <c:when test="${result.class.name == 'org.ala.dto.SearchTaxonConceptDTO'}">
                             <h4> 
-                                <c:if test="${not empty result.thumbnail}"><a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><img class="alignright" src="${result.thumbnail}" width="91" height="91" alt="species image thumbnail"/></a></c:if>
-                                <c:if test="${empty result.thumbnail}"><div class="alignright" style="width:91px; height:50px;"></div></c:if>
+                                <c:if test="${not empty result.thumbnail}"><a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><img class="alignright" src="${result.thumbnail}" width="85" height="85" alt="species image thumbnail"/></a></c:if>
+                                <c:if test="${empty result.thumbnail}"><div class="alignright" style="width:85px; height:40px;"></div></c:if>
+                                <span style="text-transform: capitalize; display: inline;">${result.rank}</span>:
                                 <a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${result.rankId}" name="${result.name}" acceptedName="${result.acceptedConceptName}"/></a>
+                                <c:if test="${not empty result.commonNameSingle}"><span class="commonNameSummary">&nbsp;&ndash;&nbsp; ${result.commonNameSingle}</span></c:if>
                             </h4>
                             <p>
-                                <span>${fn:substring(result.commonName, 0, 220)}<c:if test="${fn:length(result.commonName) > 220}">...</c:if></span>
-                                <c:if test="${false && not empty result.highlight}"><span><b>...</b> ${result.highlight} <b>...</b></span></c:if>
-                                <span><strong>Rank</strong>: ${result.rank}</span>
-                                ${sectionText}
+                                <c:if test="${not empty result.commonNameSingle && result.commonNameSingle != result.commonName}">
+                                    <span>${fn:substring(result.commonName, 0, 220)}<c:if test="${fn:length(result.commonName) > 220}">...</c:if></span>
+                                </c:if>
+                                <c:if test="${false && not empty result.highlight}">
+                                    <span><b>...</b> ${result.highlight} <b>...</b></span>
+                                </c:if>
+                                <!-- <span><strong>Rank</strong>: ${result.rank}</span>
+                                ${sectionText} -->
                             </p>
                         </c:when>
                         <c:when test="${result.class.name == 'org.ala.dto.SearchRegionDTO'}">
-                            <h4><a href="${pageContext.request.contextPath}/regions/${result.guid}">${result.name}</a></h4>
+                            <h4><fmt:message key="idxType.${result.idxType}"/>:
+                                <a href="${pageContext.request.contextPath}/regions/${result.guid}">${result.name}</a></h4>
                             <p>
                                 <span>Region type: ${result.regionTypeName}</span>
-                                ${sectionText}
+                                <!-- ${sectionText} -->
                             </p>
                         </c:when>
                         <c:when test="${result.class.name == 'org.ala.dto.SearchCollectionDTO'}">
-                            <h4><a href="${result.guid}">${result.name}</a></h4>
+                            <h4><fmt:message key="idxType.${result.idxType}"/>:
+                                <a href="${result.guid}">${result.name}</a></h4>
                             <p>
                                 <span>${result.institutionName}</span>
-                                ${sectionText}
+                                <!-- ${sectionText} -->
                             </p>
                         </c:when>
                         <c:when test="${result.class.name == 'org.ala.dto.SearchInstitutionDTO'}">
-                            <h4><a href="${result.guid}">${result.name}</a></h4>
+                            <h4><fmt:message key="idxType.${result.idxType}"/>:
+                                <a href="${result.guid}">${result.name}</a></h4>
                             <p>
                                 <span>${result.acronym}</span>
-                                ${sectionText}
+                                <!-- ${sectionText} -->
                             </p>
                         </c:when>
                         <c:when test="${result.class.name == 'org.ala.dto.SearchDataProviderDTO'}">
-                            <h4><a href="${result.guid}">${result.name}</a></h4>
+                            <h4><fmt:message key="idxType.${result.idxType}"/>:
+                                <a href="${result.guid}">${result.name}</a></h4>
                             <p>
                                 <span>${result.description}</span>
-                                ${sectionText}
+                                <!-- ${sectionText} -->
                             </p>
                         </c:when>
                         <c:otherwise>
-                            <h4><a href="${result.guid}">${result.name}</a></h4>
-                            <p>${sectionText}</p>
+                            <h4><fmt:message key="idxType.${result.idxType}"/>: <a href="${result.guid}">${result.name}</a></h4>
+                            <p><!-- ${sectionText} --></p>
                         </c:otherwise>
                     </c:choose>
                 </c:forEach>
