@@ -35,11 +35,6 @@ table.propertyTable th {
 table.propertyTable th, .propertyTable td {
     padding: 5px;
 }
-.taxaCrumb {
-    background-color:#e8eace;
-    padding: 0 15px 8px 15px !important;
-    margin: 0;
-}
 #rank {
     font-size: 1.2em;
     padding-top:5px;
