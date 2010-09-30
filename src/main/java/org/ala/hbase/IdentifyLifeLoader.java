@@ -57,6 +57,7 @@ public class IdentifyLifeLoader {
 	 * 
 	 */	
 	public static void main(String[] args) {
+		System.out.println("Starting IdentifyLifeLoader process.....");
 		ApplicationContext context = SpringUtils.getContext();
 		IdentifyLifeLoader l = context.getBean(IdentifyLifeLoader.class);
 		try {
@@ -67,7 +68,9 @@ public class IdentifyLifeLoader {
 				l.setIdLifeURI(args[0]);
 				l.setIdLifeRsURI(args[1]);
 			}
+			System.out.println("Starting load process.....");
 			l.load();
+			System.out.println("load process finished.....");
 		} catch (Exception e) {			
 			e.printStackTrace();
 			System.exit(0);
