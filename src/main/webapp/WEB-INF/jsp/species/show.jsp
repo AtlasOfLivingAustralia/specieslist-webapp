@@ -206,6 +206,9 @@
                     insertMethod: 'insertBefore'
                 });
 
+                // change body id for Dena's custom CSS
+                $("body").attr("id","taxon");
+
             });  // end document ready function
 
             /**
@@ -220,7 +223,7 @@
         </script>
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/css/speciesPage.css" media="screen" />
     </head>
-    <body id="page-36" class="page page-id-36 page-parent page-template page-template-default two-column-right">
+    <body id="taxon">
         <div id="header" class="taxon">
             
             <c:choose>
