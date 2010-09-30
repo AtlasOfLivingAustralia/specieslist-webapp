@@ -212,6 +212,16 @@
       </analyzer>
     </fieldType>
 
+    <!-- A text field that only splits on whitespace for lower case matching of words
+         Used by SOLR WordPress plugin -->
+    <fieldType name="text_lws" class="solr.TextField" positionIncrementGap="100">
+        <analyzer>
+            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>
+
+
     <!-- A text field that uses WordDelimiterFilter to enable splitting and matching of
         words on case-change, alpha numeric boundaries, and non-alphanumeric chars,
         so that a query of "wifi" or "wi fi" could match a document containing "Wi-Fi".
@@ -563,6 +573,20 @@
    <!-- catchall text field that indexes tokens both normally and in reverse for efficient
         leading wildcard queries. -->
    <field name="text_rev" type="text_rev" indexed="true" stored="false" multiValued="true"/>
+
+    <!--  Fields for the SOLR WordPress plugin
+          http://www.mattweber.org/2009/04/21/solr-for-wordpress/  -->
+    <field name="permalink" type="string" indexed="true" stored="true"/>
+    <field name="title" type="text_lws" indexed="true" stored="true"/>
+    <field name="content" type="text" indexed="true" stored="true"/>
+    <field name="numcomments" type="int" indexed="true" stored="true"/>
+    <field name="categories" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="categoriessrch" type="text_lws" indexed="true" stored="false" multiValued="true"/>
+    <field name="tags" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="tagssrch" type="text_lws" indexed="true" stored="false" multiValued="true"/>
+    <field name="author" type="string" indexed="true" stored="true"/>
+    <field name="type" type="string" indexed="true" stored="true"/>
+
 
    <!-- Dynamic field definitions.  If a field name is not found, dynamicFields
         will be used if the name matches any of the patterns.
