@@ -13,6 +13,10 @@
  * rights and limitations under the License.
  ***************************************************************************/
 package org.ala.model;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Conservation status for a species. 
  *
@@ -30,6 +34,13 @@ public class ConservationStatus extends AttributableObject implements Comparable
 	protected String region;
 	/** This is the URI or identifier for the region */
 	protected String regionId;
+        /** A map of the region URI to display regions where the conservation is valid
+         * This is used to store regions in which a national conservation code is
+         * applicable
+         */
+        protected Map<String,String> otherRegions;
+        /** The raw code that was used by the source record that maps to the raw status */
+        protected String rawCode;
 	
 	/**
 	 * @return the status
@@ -63,6 +74,20 @@ public class ConservationStatus extends AttributableObject implements Comparable
 		}
 		return -1;
 	}
+        /**
+	 * @see java.lang.Object#equals(java.lang.Object)
+         * Conservation Statuses are equal when the info sources and raw values are identical
+	 */
+	@Override
+	public boolean equals(Object obj) {
+            if(obj instanceof ConservationStatus){
+                ConservationStatus csobj = (ConservationStatus)obj;
+                return csobj.getInfoSourceId().equals(infoSourceId)
+                        && csobj.getRawStatus().equals(rawStatus)
+                        && (csobj.getRawCode() == null  || csobj.getRawCode().equals(rawCode));
+            }
+            return false;
+        }
 	/**
 	 * @return the system
 	 */
@@ -100,13 +125,40 @@ public class ConservationStatus extends AttributableObject implements Comparable
 	public void setRegionId(String regionId) {
 		this.regionId = regionId;
 	}
+        public Map<String, String> getOtherRegions(){
+            return otherRegions;
+        }
+        public void setOtherRegions(Map<String,String> regions){
+            this.otherRegions = regions;
+        }
+        /**
+         * Puts a new region into the map
+         * @param region
+         * @param uri
+         */
+        public void addOtherRegion(String region, String uri){
+            if(otherRegions == null)
+                otherRegions = new HashMap<String,String>();
+            if(!otherRegions.containsKey(uri))
+                otherRegions.put(uri, region);
+        }
+
+    public String getRawCode() {
+        return rawCode;
+    }
+
+    public void setRawCode(String rawCode) {
+        this.rawCode = rawCode;
+    }
+
+
 	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "ConservationStatus [rawStatus=" + rawStatus + ", region="
+		return "ConservationStatus [rawCode="+rawCode+", rawStatus=" + rawStatus + ", region="
 				+ region + ", regionId=" + regionId + ", status=" + status
-				+ ", system=" + system + "]";
+				+ ", system=" + system + ", regions=" +otherRegions+ "]";
 	}
 }

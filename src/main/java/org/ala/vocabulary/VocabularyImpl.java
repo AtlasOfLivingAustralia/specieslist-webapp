@@ -77,15 +77,23 @@ public class VocabularyImpl implements Vocabulary {
 		
 		ConservationStatus conservationStatus = new ConservationStatus();
 		for(Term term: terms){
-			//map the region term if present
+			//map the status term if present
 			if(term.getPredicate().endsWith("hasConservationStatus")){
 				conservationStatus.setStatus(term.getTermString());
 			}
-			//map the status term if present
+			//map the region term if present
 			if(term.getPredicate().endsWith("hasRegion")){
 				conservationStatus.setRegion(term.getTermString());
 			}
+                        //NC We want to have the rawStatus as the display string if one exists for the supplied 
+                        if(term.getPredicate().endsWith("hasDisplayConservationStatus")){
+                            conservationStatus.setRawStatus(term.getTermString());
+                            conservationStatus.setRawCode(rawValue);
+                        }
 		}
+                //set the raw value if it has not already been set by the vocabulary
+                if(conservationStatus.getRawStatus() == null)
+                    conservationStatus.setRawStatus(rawValue);
 		return conservationStatus;
 	}
 
