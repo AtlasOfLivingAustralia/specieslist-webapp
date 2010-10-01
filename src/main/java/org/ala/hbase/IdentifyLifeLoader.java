@@ -171,7 +171,12 @@ public class IdentifyLifeLoader {
 			idKey.setImagery(idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.IMAGERY.ordinal()].trim());
 		}
 		else{
-			logger.warn("Unable to find LSID for '" + idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()].trim() + "'");
+			if(infosource == null){
+				logger.warn("Unable to find infosource : " + idLifeURI);
+			}
+			else{
+				logger.warn("Unable to find LSID for '" + idLifeData[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()].trim() + "'");				
+			}			
 		}
 		return idKey;
 	}
