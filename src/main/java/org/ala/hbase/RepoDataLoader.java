@@ -158,7 +158,7 @@ public class RepoDataLoader {
 					String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
 					//read the dublin core in the same directory - determine if its an image
 					try {
-	                    logger.debug("Reading file: " + currentFile.getAbsolutePath());
+	                    logger.info("Reading file: " + currentFile.getAbsolutePath());
 						FileReader reader = new FileReader(currentFile);
 	                    List<Triple> triples = TurtleUtils.readTurtle(reader);
 	                    //close the reader
