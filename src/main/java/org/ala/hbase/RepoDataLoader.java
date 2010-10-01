@@ -228,9 +228,9 @@ public class RepoDataLoader {
 		document.setFilePath(currentFile.getParentFile().getAbsolutePath());
 		Map<String, String> dc = readDcFileAsMap(currentFile);
 		// Sync the triples and associated DC data
-		logger.debug("Attempting to sync triple where Scientific Name = " + getScientificName(triples));
+		logger.info("Attempting to sync triple where Scientific Name = " + getScientificName(triples));
 		boolean success = taxonConceptDao.syncTriples(document, triples, dc);
-		logger.debug("Processed file: "+currentFile.getAbsolutePath() + ", Scientific Name = " + getScientificName(triples) + ", success: "+success);
+		logger.info("Processed file: "+currentFile.getAbsolutePath() + ", Scientific Name = " + getScientificName(triples) + ", success: "+success);
 		return success;
 	}
 
