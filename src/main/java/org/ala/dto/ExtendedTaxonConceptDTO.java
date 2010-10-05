@@ -26,6 +26,7 @@ import org.ala.model.Image;
 import org.ala.model.PestStatus;
 import org.ala.model.Reference;
 import org.ala.model.SimpleProperty;
+import org.ala.model.SpecimenHolding;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 /**
@@ -56,7 +57,14 @@ public class ExtendedTaxonConceptDTO {
 	protected Reference earliestReference;
 	protected List<Reference> publicationReference;
 	protected List<IdentificationKey> identificationKeys;
+	protected List<SpecimenHolding> specimenHolding;
 	
+	public List<SpecimenHolding> getSpecimenHolding() {
+		return specimenHolding;
+	}
+	public void setSpecimenHolding(List<SpecimenHolding> specimenHolding) {
+		this.specimenHolding = specimenHolding;
+	}
 	public List<IdentificationKey> getIdentificationKeys() {
 		return identificationKeys;
 	}
