@@ -974,7 +974,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		// Lookup LSID in Checklist Bank data 
 		String rank = null;
 		Rank rankObj = null;
-		if (scientificName == null) {
+//		if (scientificName == null) {
 			if (subspecies != null) {
 				scientificName = subspecies;
 				rank = "subspecies";
@@ -1013,7 +1013,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				System.out.println("Not enough search data for Checklist Bank found for document at: "+document.getFilePath());
 				return false;
 			}
-		}
+//		}
 
 		LinnaeanRankClassification classification = new LinnaeanRankClassification(kingdom, null, null, order, family, genus, scientificName);
 		String guid = findLsidByName(scientificName, classification, rank);
