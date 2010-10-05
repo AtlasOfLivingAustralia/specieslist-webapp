@@ -60,9 +60,9 @@ public class SpecimenHoldingLoader {
 			System.out.println("load process finished.....");
 		} catch (Exception e) {			
 			e.printStackTrace();
-			System.exit(0);
+			System.exit(1);
 		}
-		System.exit(1);
+		System.exit(0);
 	}
 	
 	/**
