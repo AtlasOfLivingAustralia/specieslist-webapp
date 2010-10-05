@@ -6,8 +6,8 @@
 <%@taglib prefix="decorator" uri="http://www.opensymphony.com/sitemesh/decorator" %><%@
 taglib prefix="page" uri="http://www.opensymphony.com/sitemesh/page" %><%@
 include file="/common/taglibs.jsp" %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+<!DOCTYPE html>
+<html dir="ltr" lang="en-US">
     <head profile="http://gmpg.org/xfn/11">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title><decorator:title default="Atlas of Living Australia" /></title>
@@ -21,39 +21,98 @@ include file="/common/taglibs.jsp" %>
 		<link rel="stylesheet" type="text/css" media="screen" href="http://test.ala.org.au/wp-content/themes/ala/css/auth.css" /> 
 		
 		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/form.js"></script> 
-		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/jquery-1.4.2.min.js"></script> 
-		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/ui.core.js"></script> 
-		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/ui.tabs.js"></script> 
+		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/jquery-1.4.2.min.js"></script>
 		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/hoverintent-min.js"></script> 
-		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/superfish/superfish.js"></script> 
-		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/jquery.jcarousel.min.js"></script> 
+		<script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/superfish/superfish.js"></script>
+                <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.autocomplete.js"></script>
+                <link rel="stylesheet" type="text/css" media="screen" href="${pageContext.request.contextPath}/static/css/jquery.autocomplete.css" />
 		<script type="text/javascript">
-                                //add the indexOf method for IE7
-                                if(!Array.indexOf){
-                                    Array.prototype.indexOf = function(obj){
-                                        for(var i=0; i<this.length; i++){
-                                            if(this[i]===obj){
-                                                return i;
-                                            }
-                                        }
-                                        return -1;
-                                    }
+                    //add the indexOf method for IE7
+                    if(!Array.indexOf){
+                        Array.prototype.indexOf = function(obj){
+                            for(var i=0; i<this.length; i++){
+                                if(this[i]===obj){
+                                    return i;
                                 }
-		
-				// initialise plugins
-				jQuery(function(){
-					jQuery('ul.sf').superfish( {
-						delay:500,
-						autoArrows:false,
-						dropShadows:false
-					});
-				});
-	            // highlight explore menu tab
+                            }
+                            return -1;
+                        }
+                    }
+
+                    function stripHTML(string) {
+                        if (string) {
+                            string = string.replace(/<(.|\n)*?>/g, '');
+                        }
+                        return string;
+                    }
+
+                    // initialise plugins
+                    jQuery(function(){
+                            jQuery('ul.sf').superfish( {
+                                    delay:500,
+                                    autoArrows:false,
+                                    dropShadows:false
+                            });
+                    });
+	            
 	            jQuery(document).ready(function() {
-	                jQuery("div#nav li.nav-explore").addClass("selected");
-	            });
+	                // highlight explore menu tab
+                        jQuery("div#nav li.nav-explore").addClass("selected");
+                        // autocomplete for search input
+                        $("form#search-form input#search").autocomplete('${pageContext.request.contextPath}/search/auto.jsonp', {
+                                extraParams: {limit:100},
+                                dataType: 'jsonp',
+                                parse: function(data) {
+                                    var rows = new Array();
+                                    data = data.autoCompleteList;
+                                    
+                                    for(var i=0; i<data.length; i++){
+                                        rows[i] = { 
+                                            data:data[i],
+                                            value: data[i].matchedNames[0],
+                                            result: data[i].matchedNames[0]
+                                        };
+                                    }
+                                    return rows;
+                                },
+                                //highlight: false,
+                                matchSubset: false,
+                                formatItem: function(row, i, n) {
+                                    return row.matchedNames[0]; // + ' (' + row.rankString + ')';
+                                },
+//                                formatResult: function(row, i, n) {
+//                                    return "foo"; //(row.commonName.length > 0) ? row.commonNameMatches[0] : row.name; // + ' (' + row.rankString + ')';
+//                                },
+                                minChars: 3,
+                                scroll: false,
+                                //matchContains: false,
+                                max: 10,
+                                selectFirst: false
+                        });
+
+//                        $("form#search-form input#search").autocomplete({
+//                            source: function( request, response ) {
+//                                $.ajax({
+//                                    url: "${pageContext.request.contextPath}/search/auto.jsonp",
+//                                    dataType: "jsonp",
+//                                    data: {
+//                                        q: request.term
+//                                    },
+//                                    success: function( data ) {
+//                                        response( $.map( data.autoCompleteList, function( item ) {
+//                                            return {
+//                                                label: item.name, // + (item.adminName1 ? ", " + item.adminName1 : "") + ", " + item.countryName,
+//                                                value: item.name
+//                                            }
+//                                        }));
+//                                    }
+//                                });
+//                            },
+//                            minLength: 2
+//                        });
+	            }); // End docuemnt ready
 		
-		</script> 
+		</script>
 		<meta name="robots" content="noindex,nofollow"/> 
 		<link rel="alternate" type="application/rss+xml" title="Atlas Living Australia NG &raquo; Feed" href="http://test.ala.org.au/feed/" /> 
 		<link rel="alternate" type="application/rss+xml" title="Atlas Living Australia NG &raquo; Comments Feed" href="http://test.ala.org.au/comments/feed/" /> 
@@ -72,7 +131,7 @@ include file="/common/taglibs.jsp" %>
         <!-- WP Menubar 4.7: end CSS -->
 
     </head>
-    <body id="page-97" class="page page-id-97 page-parent page-template page-template-default two-column-right">
+    <body class="two-column-right">
         <div id="wrapper">
             <div id="banner">
                 <div id="logo">

@@ -7,7 +7,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <!--    <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-ui-1.8.custom.min.js"></script>
     <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bie-theme/jquery-ui-1.8.custom.css" charset="utf-8">-->
-    <script type="text/javascript" src="http://bie.ala.org.au/static/js/jquery-ui-1.8.custom.min.js"></script>
     <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.cookie.js"></script>
     <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.highlight-3.js"></script>
     <script type="text/javascript">
@@ -134,6 +133,9 @@
     <style type="text/css" media="screen">
         .highlight { font-weight: bold; }
         div.results span.highlight { display: inline; }
+        #facets {
+            margin-top:-1px;
+        }
         #facets > h3 {
             border-bottom: 1px solid #E8EACE;
             font-size: 1em;

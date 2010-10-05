@@ -1,6 +1,6 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ include file="/common/taglibs.jsp" %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML">
 <c:set var="spatialPortalUrl">http://test.ala.org.au/explore/species-maps/</c:set>
 <c:set var="spatialPortalWMSUrl">http://spatial-dev.ala.org.au/alaspatial/</c:set>
 <c:set var="wordPressUrl">http://test.ala.org.au/</c:set>
@@ -9,9 +9,10 @@
         <meta name="pageName" content="species" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>ALA Species Profile: ${extendedTaxonConcept.taxonConcept.nameString} <c:if test="${not empty extendedTaxonConcept.commonNames}">(${extendedTaxonConcept.commonNames[0].nameString})</c:if></title>
-        <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/jquery.jcarousel.min.js"></script>
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.1.css" media="screen" />
         <link type="text/css" media="screen" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/colorbox.css" />
+        <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/ui.core.js"></script>
+        <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/ui.tabs.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.1.pack.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.colorbox.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.easing.1.3.js"></script>
@@ -21,32 +22,6 @@
 
             google.load("visualization", "1", {packages:["corechart"]});
             
-            /**
-             * Dena's carousel callback
-             */
-            function mycarousel_initCallback(carousel) {
-                jQuery('.jcarousel-control a').bind('click', function() {
-                    carousel.scroll(jQuery.jcarousel.intval(jQuery(this).text()));
-                    carousel.startAuto(0);
-                    return false;
-                });
-                // Disable autoscrolling if the user clicks the prev or next button.
-                carousel.buttonNext.bind('click', function() {
-                    carousel.startAuto(0);
-                });
-
-                carousel.buttonPrev.bind('click', function() {
-                    carousel.startAuto(0);
-                });
-
-                // Pause autoscrolling if the user moves with the cursor over the clip.
-                carousel.clip.hover(function() {
-                    carousel.stopAuto();
-                }, function() {
-                    carousel.startAuto();
-                });
-            };
-
             var solrServer = "${solrServerUrl}"; //
 
             /*
@@ -71,7 +46,7 @@
                     'height' : 210
                 });
 
-                // Dena's tabs implementation (with
+                // Dena's tabs implementation
                 $('#nav-tabs > ul').tabs();
                 //$('#nav-tabs > ul').bind("tabsshow", function(event, ui) {
                 //    window.location.hash = ui.tab.hash;
@@ -134,7 +109,7 @@
                     "12": "December"
                 };
                 // load occurrence breakdowns for states
-                var biocachUrl = "/species/charts/${extendedTaxonConcept.taxonConcept.guid}";
+                var biocachUrl = "${pageContext.request.contextPath}/species/charts/${extendedTaxonConcept.taxonConcept.guid}";
                 $.getJSON(biocachUrl, function(data) {
                     if (data.searchResult != null && data.searchResult.totalRecords > 0) {
                         //alert("hi "+data.searchResult.totalRecords);

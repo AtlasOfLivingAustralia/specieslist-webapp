@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.IndexedTypes;
@@ -66,6 +68,8 @@ public class SearchController {
 	/** Name of view for list of taxa */
 	private final String SEARCH_LIST = "search/list"; // "species/list" || "search/species"
 	private final String SEARCH = "search"; //default view when empty query submitted
+    private final String AUTO_JSON = "search/autoJson";
+    /** WordPress SOLR URI */
     private final String WP_SOLR_URL = "http://alaprodweb1-cbr.vm.csiro.au/solr/select/?wt=json&q=";
 	
 	/**
@@ -150,15 +154,10 @@ public class SearchController {
         // Site search - get number of hits
         try {
             String jsonString = getUrlContentAsString(new URI(WP_SOLR_URL + query, false).getEscapedURI());
-            JSONObject obj = (JSONObject) JSONValue.parse(jsonString);
-            JSONObject obj2 = (JSONObject) obj.get("response");
-            Long obj3 = (Long) obj2.get("numFound");
-            model.addAttribute("wordpress", obj3);
-            // add count to overall search hit count
-            if (filterQuery == null || (filterQuery.length == 1 && filterQuery[0].isEmpty())) {
-                Long totalCount = searchResults.getTotalRecords() + obj3;
-                searchResults.setTotalRecords(totalCount);
-            }
+            JSONObject jsonObj = (JSONObject) JSONValue.parse(jsonString);
+            JSONObject responseObj = (JSONObject) jsonObj.get("response");
+            Long numFound = (Long) responseObj.get("numFound");
+            model.addAttribute("wordpress", numFound);
         } catch (Exception ex) {
             logger.error("Failed to load counts from Wordpress SOLR index: "+ex.getMessage(), ex);
         }
@@ -176,7 +175,9 @@ public class SearchController {
 	}
 	
     /**
-     * Provides the auto complete service.
+     * Provides the auto complete service. Note: if called as auto.jsonp then can be used
+     * as jsonp by providing a callback param (which uses a JSP to format output instead of Jackson)
+     *
      * @param query The value to auto complete
      * @param geoRefOnly When true only include results that have some geospatial occurrence records
      * @param idxType The index type to limit see bie-hbase/src/main/java/org/ala/dao/IndexedTypes
@@ -185,17 +186,50 @@ public class SearchController {
      * @throws Exception
      */
     @RequestMapping(value="/search/auto.json*", method = RequestMethod.GET)
-    public void searchForAutocompleteValues(
+    public String searchForAutocompleteValues(
                     @RequestParam(value="q", required=true) String query,
                     @RequestParam(value="geoOnly", required=false) boolean geoRefOnly,
                     @RequestParam(value="idxType", required=false) String idxType,
                     @RequestParam(value="limit", required=false, defaultValue ="10") int maxTerms,
+                    @RequestParam(value="callback", required=false) String callback,
                     Model model)throws Exception {
 
         logger.debug("Autocomplete on " + query + " geoOnly: " + geoRefOnly  );
         IndexedTypes it = idxType != null ? IndexedTypes.valueOf(idxType.toUpperCase()):null;
-        List<AutoCompleteDTO> autoCompleteList =searchDao.getAutoCompleteList(query,it, geoRefOnly , maxTerms);
+        List<AutoCompleteDTO> autoCompleteList = searchDao.getAutoCompleteList(query,it, geoRefOnly , maxTerms);
         model.addAttribute("autoCompleteList", autoCompleteList);
+        return AUTO_JSON;
+    }
+
+    /**
+     * Provides a plain text-based auto complete service for Jquery autocomplete plugin:
+     *
+     * http://code.google.com/p/jquery-autocomplete/
+     *
+     * @param query The value to auto complete
+     * @param geoRefOnly When true only include results that have some geospatial occurrence records
+     * @param idxType The index type to limit see bie-hbase/src/main/java/org/ala/dao/IndexedTypes
+     * @param maxTerms The maximum number of results to return
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping(value="/search/autocomplete*", method = RequestMethod.GET)
+    public void searchForAutocompleteTerms(
+                    @RequestParam(value="q", required=true) String query,
+                    @RequestParam(value="geoOnly", required=false) boolean geoRefOnly,
+                    @RequestParam(value="idxType", required=false) String idxType,
+                    @RequestParam(value="limit", required=false, defaultValue ="10") int maxTerms,
+                    HttpServletResponse response) throws Exception {
+
+        logger.debug("Autocomplete (list) on " + query + "; geoOnly: " + geoRefOnly + "; maxTerms: " + maxTerms );
+        IndexedTypes it = idxType != null ? IndexedTypes.valueOf(idxType.toUpperCase()):null;
+        List<AutoCompleteDTO> autoCompleteList = searchDao.getAutoCompleteList(query,it, geoRefOnly , maxTerms);
+        response.setContentType("text/plain");
+
+        for (AutoCompleteDTO ac : autoCompleteList) {
+            String match = (ac.getCommonName() != null) ? StringUtils.substring(ac.getCommonName(), 0, 200) : ac.getName();
+            response.getWriter().write(match+"\n");
+        }
 
     }
 
