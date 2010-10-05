@@ -33,6 +33,7 @@ import org.ala.model.Publication;
 import org.ala.model.Reference;
 import org.ala.model.OccurrencesInGeoregion;
 import org.ala.model.SimpleProperty;
+import org.ala.model.SpecimenHolding;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.model.Triple;
@@ -622,4 +623,7 @@ public interface TaxonConceptDao {
 	public boolean addIdentificationKeys(String guid, List<IdentificationKey> identificationKeyList) throws Exception;	
 	public List<IdentificationKey> getIdentificationKeys(String guid) throws Exception;
     
+	public boolean addSpecimenHoldings(String guid, List<SpecimenHolding> specimenHoldingList) throws Exception;	
+	public List<SpecimenHolding> getSpecimenHoldings(String guid) throws Exception;
+	
 }
