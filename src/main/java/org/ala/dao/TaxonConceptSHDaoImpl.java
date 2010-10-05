@@ -41,6 +41,7 @@ import org.ala.model.Publication;
 import org.ala.model.Rank;
 import org.ala.model.Reference;
 import org.ala.model.SimpleProperty;
+import org.ala.model.SpecimenHolding;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.model.Triple;
@@ -1829,5 +1830,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	
 	public List<IdentificationKey> getIdentificationKeys(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, IDENTIFICATION_KEY_COL, guid, IdentificationKey.class);
+	}	
+	
+	private static final String SPECIMEN_HOLDING_COL = "hasSpecimenHolding";
+	public boolean addSpecimenHoldings(String guid, List<SpecimenHolding> specimenHoldingList) throws Exception {
+		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, SPECIMEN_HOLDING_COL, guid, (List)specimenHoldingList, false);
+	}
+	
+	public List<SpecimenHolding> getSpecimenHoldings(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, SPECIMEN_HOLDING_COL, guid, SpecimenHolding.class);
 	}	
 }
