@@ -103,7 +103,7 @@ public class IdentifyLifeLoader {
 						System.out.println("*** idKey: " + nextLine[IdentifyLifeHarvester.IDLIFE_IDX.ID.ordinal()] + 
 								", taxon: " + nextLine[IdentifyLifeHarvester.IDLIFE_IDX.TAXONOMICSCOPE.ordinal()]);	
 						IdentificationKey nextKey = toIdentificationKey(nextLine);
-						if(nextKey != null && idKey.getTaxonomicscope().equals(nextKey.getTaxonomicscope())){
+						if(nextKey != null && idKey.getIdentifier().equals(nextKey.getIdentifier())){
 							idKeyList.add(nextKey);
 							nextLine = reader.readNext();
 						}
