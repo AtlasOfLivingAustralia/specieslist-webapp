@@ -1011,6 +1011,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             solrQuery.setQuery(queryString.toString());
             solrQuery.setQueryType("standard");
             solrQuery.setFields("*", "score");
+            solrQuery.setRows(maxTerms);
 
             QueryResponse qr = solrUtils.getSolrServer().query(solrQuery);
 
