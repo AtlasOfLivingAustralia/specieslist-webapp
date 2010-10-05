@@ -964,13 +964,21 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         
         Pattern p = Pattern.compile(value, Pattern.CASE_INSENSITIVE);
         java.util.regex.Matcher m = p.matcher(value);
+        List<String> matchedNames = new ArrayList<String>(); // temp list to stored matched names
+
         if(autoDto.getCommonName() != null){
             List<String> commonNames = org.springframework.util.CollectionUtils.arrayToList(((String)doc.get("commonNameDisplay")).split(","));
             autoDto.setCommonNameMatches(getHighlightedNames(commonNames, m, "<b>", "</b>"));
+            if (autoDto.getCommonNameMatches() != null) {
+                matchedNames.addAll(getHighlightedNames(commonNames, m, "", ""));
+            }
         }
         List<String> scientificNames = org.springframework.util.CollectionUtils.arrayToList(((String)doc.get("scientificNameRaw")).split(","));
         autoDto.setScientificNameMatches(getHighlightedNames(scientificNames, m, "<b>", "</b>"));
-
+        if (autoDto.getScientificNameMatches() != null) {
+            matchedNames.addAll(getHighlightedNames(scientificNames, m, "", ""));
+        }
+        autoDto.setMatchedNames(matchedNames);
         //get the highlighted values
         //NC TODO get partial term matching highlighting to work - I am not sure on the SOLR configurations that are required
 //        if(qr.getHighlighting() != null && qr.getHighlighting().get(autoDto.getGuid()) != null){

@@ -29,6 +29,7 @@ public class AutoCompleteDTO {
     protected List<String> scientificNameMatches;
     protected List<String> commonNameMatches;
     protected String commonName;
+    protected List<String> matchedNames;
     protected Integer rankId;
     protected String rankString;
     protected Integer left;
@@ -165,4 +166,17 @@ public class AutoCompleteDTO {
 	public void setRight(Integer right) {
 		this.right = right;
 	}
+    /**
+     * @return
+     */
+    public List<String> getMatchedNames() {
+        return matchedNames;
+    }
+    /**
+     * @param matchedNames
+     */
+    public void setMatchedNames(List<String> matchedNames) {
+        this.matchedNames = matchedNames;
+    }
+   
 }
