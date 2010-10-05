@@ -65,7 +65,6 @@ include file="/common/taglibs.jsp" %>
                                 parse: function(data) {
                                     var rows = new Array();
                                     data = data.autoCompleteList;
-                                    
                                     for(var i=0; i<data.length; i++){
                                         rows[i] = { 
                                             data:data[i],
@@ -75,41 +74,16 @@ include file="/common/taglibs.jsp" %>
                                     }
                                     return rows;
                                 },
-                                //highlight: false,
-                                matchSubset: false,
+                                matchSubset: true,
                                 formatItem: function(row, i, n) {
                                     return row.matchedNames[0]; // + ' (' + row.rankString + ')';
                                 },
-//                                formatResult: function(row, i, n) {
-//                                    return "foo"; //(row.commonName.length > 0) ? row.commonNameMatches[0] : row.name; // + ' (' + row.rankString + ')';
-//                                },
+                                cacheLength: 10,
                                 minChars: 3,
                                 scroll: false,
-                                //matchContains: false,
                                 max: 10,
                                 selectFirst: false
                         });
-
-//                        $("form#search-form input#search").autocomplete({
-//                            source: function( request, response ) {
-//                                $.ajax({
-//                                    url: "${pageContext.request.contextPath}/search/auto.jsonp",
-//                                    dataType: "jsonp",
-//                                    data: {
-//                                        q: request.term
-//                                    },
-//                                    success: function( data ) {
-//                                        response( $.map( data.autoCompleteList, function( item ) {
-//                                            return {
-//                                                label: item.name, // + (item.adminName1 ? ", " + item.adminName1 : "") + ", " + item.countryName,
-//                                                value: item.name
-//                                            }
-//                                        }));
-//                                    }
-//                                });
-//                            },
-//                            minLength: 2
-//                        });
 	            }); // End docuemnt ready
 		
 		</script>
