@@ -690,9 +690,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public String findLsidByName(String scientificName, LinnaeanRankClassification classification, String taxonRank) {
 		String lsid = null;
 		try {
+			System.out.println("Get LSID for sci name: " + scientificName + ", and rank: " + taxonRank);
 			lsid = cbIdxSearcher.searchForLSID(scientificName, classification, RankType.getForName(taxonRank));
 		} catch (SearchResultException e) {
-			logger.warn("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
+			System.out.println("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
 		}
 		return lsid;
 	}
