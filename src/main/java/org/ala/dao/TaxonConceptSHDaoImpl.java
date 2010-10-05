@@ -967,7 +967,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				&& family == null
 				&& superfamily == null
 				&& order == null) {
-			logger.error("No classification found for document at: " + document.getFilePath());
+			System.out.println("No classification found for document at: " + document.getFilePath());
 			return false; // we have nothing to work with, so give up
 		}
 		
@@ -1010,7 +1010,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				rank = "kingdom";
 				rankObj = Rank.REG;
 			} else {
-				logger.error("Not enough search data for Checklist Bank found for document at: "+document.getFilePath());
+				System.out.println("Not enough search data for Checklist Bank found for document at: "+document.getFilePath());
 				return false;
 			}
 		}
@@ -1155,11 +1155,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				}
 			}
 			
-//			logger.debug("Adding content to: "+guid+", using scientific name: "+scientificName+", genus: "+genus);
+			System.out.println("Adding content to: "+guid+", using scientific name: "+scientificName+", genus: "+genus);
 //			addLiteralValues(guid, infoSourceId,Integer.toString(document.getId()), properties);
 			
 			return true;
 		} else {
+			System.out.println("GUID null");
 			return false;
 		}
 	}
