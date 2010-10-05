@@ -101,7 +101,7 @@ public class CassandraBatchDelete {
 			else if(tmp.startsWith(HOST_PREFIX)){
 				host = tmp.substring(HOST_PREFIX.length());
 			}
-			else if(tmp.startsWith(PREFIX)){
+			else if(tmp.startsWith(PORT_PREFIX)){
 				port = Integer.parseInt(tmp.substring(PORT_PREFIX.length()));
 			}
 			else{
@@ -280,8 +280,8 @@ public class CassandraBatchDelete {
 		for (KeySlice keySlice : keySlices) {
 			for (ColumnOrSuperColumn columns : keySlice.getColumns()) {
 				// set break point for debug only 
-				if(keySlice.getKey().equalsIgnoreCase("103070868")){
-					logger.debug("103070868");
+				if(keySlice.getKey().equalsIgnoreCase("urn:lsid:biodiversity.org.au:apni.taxon:359404")){
+					logger.debug("urn:lsid:biodiversity.org.au:apni.taxon:359404");
 				}
 				
 				if (columns.isSetSuper_column()) {
