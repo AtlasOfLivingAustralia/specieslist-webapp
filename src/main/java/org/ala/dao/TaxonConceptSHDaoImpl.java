@@ -912,6 +912,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		String family = null;
 		String superfamily = null;
 		String order = null;
+		String phylum = null;
+		String klass = null;
 		String kingdom = null;
 
         String dcSource = null;
@@ -933,6 +935,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 			if(predicate.endsWith("hasKingdom")){
 				kingdom = triple.object;
+			}
+			if(predicate.endsWith("hasPhylum")){
+				phylum = triple.object;
+			}
+			if(predicate.endsWith("hasClass")){
+				klass = triple.object;
 			}
 			if(predicate.endsWith("hasOrder")){
 				order = triple.object;
@@ -967,7 +975,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				&& genus == null
 				&& family == null
 				&& superfamily == null
-				&& order == null) {
+				&& order == null 
+				&& klass == null
+				&& phylum == null) {
 			System.out.println("No classification found for document at: " + document.getFilePath());
 			return false; // we have nothing to work with, so give up
 		}
@@ -1006,6 +1016,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				scientificName = order;
 				rank = "order";
 				rankObj = Rank.ORD;
+			} else if (klass != null) {
+				scientificName = klass;
+				rank = "class";
+				rankObj = Rank.CL;
+			} else if (phylum != null) {
+				scientificName = phylum;
+				rank = "phylum";
+				rankObj = Rank.PHYLUM;
 			} else if (kingdom != null) {
 				scientificName = kingdom;
 				rank = "kingdom";
@@ -1016,7 +1034,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			}
 //		}
 
-		LinnaeanRankClassification classification = new LinnaeanRankClassification(kingdom, null, null, order, family, genus, scientificName);
+		LinnaeanRankClassification classification = new LinnaeanRankClassification(kingdom, phylum, klass, order, family, genus, scientificName);
 		String guid = findLsidByName(scientificName, classification, rank);
 
 		// if null try with the species name
