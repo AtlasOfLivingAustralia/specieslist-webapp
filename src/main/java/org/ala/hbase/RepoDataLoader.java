@@ -89,7 +89,7 @@ public class RepoDataLoader {
 	 * @throws Exception
 	 */
 	private int load(String filePath, String[] repoDirs) throws Exception {
-		logger.info("Scanning directory: "+filePath);
+		System.out.println("Scanning directory: "+filePath);
 		
 		int totalFilesRead = 0;
 		int totalPropertiesSynced = 0;
@@ -119,7 +119,7 @@ public class RepoDataLoader {
 			}
 		}
 
-		logger.info("Files read: "+totalFilesRead+", files matched: "+totalPropertiesSynced);
+		System.out.println("Files read: "+totalFilesRead+", files matched: "+totalPropertiesSynced);
 		return totalFilesRead;
 	}
 
@@ -200,7 +200,7 @@ public class RepoDataLoader {
 	                }
 				}
 			}
-			logger.info("InfosourceId: " + currentDir.getName() + " - Files read: " + filesRead + ", files matched: " + propertiesSynced);
+			System.out.println("InfosourceId: " + currentDir.getName() + " - Files read: " + filesRead + ", files matched: " + propertiesSynced);
 			totalFilesRead += filesRead;
 			totalPropertiesSynced += propertiesSynced;
 		}
@@ -228,9 +228,9 @@ public class RepoDataLoader {
 		document.setFilePath(currentFile.getParentFile().getAbsolutePath());
 		Map<String, String> dc = readDcFileAsMap(currentFile);
 		// Sync the triples and associated DC data
-		logger.info("Attempting to sync triple where Scientific Name = " + getScientificName(triples));
+		System.out.println("Attempting to sync triple where Scientific Name = " + getScientificName(triples));
 		boolean success = taxonConceptDao.syncTriples(document, triples, dc);
-		logger.info("Processed file: "+currentFile.getAbsolutePath() + ", Scientific Name = " + getScientificName(triples) + ", success: "+success);
+		System.out.println("Processed file: "+currentFile.getAbsolutePath() + ", Scientific Name = " + getScientificName(triples) + ", success: "+success);
 		return success;
 	}
 
@@ -247,7 +247,7 @@ public class RepoDataLoader {
                 infoSourceMap.put(id, infoSourceDAO.getById(id));
             }
         }
-        logger.info("loaded infoSource map: "+infoSourceMap.size());
+        System.out.println("loaded infoSource map: "+infoSourceMap.size());
     }
 
     /**
