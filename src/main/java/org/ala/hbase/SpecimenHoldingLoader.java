@@ -29,6 +29,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import au.com.bytecode.opencsv.CSVReader;
+import au.org.ala.checklist.lucene.model.NameSearchResult;
 
 /**
  * This class loads data from Botanical Gardens data file (data.csv) into the Cassandra
@@ -91,12 +92,12 @@ public class SpecimenHoldingLoader {
 				// have guid & infosource ....
 				if(sh != null){
 					list.add(sh);
-					// more than one idKey for same guid, add into same list (same cassandra column)
+					// more than one row have same guid, ignore it
 					while (nextLine != null) {
 						SpecimenHolding nextKey = toSpecimenHolding(nextLine);																		
 						if(nextKey != null && sh.getIdentifier().equals(nextKey.getIdentifier())){
 							System.out.println("*** SCIENCETIFIC_NAME: " + nextLine[BOTANTICAL_GARDENS_IDX.SCIENCETIFIC_NAME.ordinal()] + ", guid: " + nextKey.getIdentifier());
-							list.add(nextKey);
+//							list.add(nextKey);
 							nextLine = reader.readNext();
 						}
 						else{
@@ -138,9 +139,38 @@ public class SpecimenHoldingLoader {
 	private SpecimenHolding toSpecimenHolding(String[] data){
 		SpecimenHolding o = null;
 		String tmp = null;
+		String guid = "";
 		
 		// get guid & infosource
-		String guid = taxonConceptDao.findLsidByName(data[BOTANTICAL_GARDENS_IDX.SCIENCETIFIC_NAME.ordinal()].trim());
+		if("".equals(data[BOTANTICAL_GARDENS_IDX.SCIENCETIFIC_NAME.ordinal()].trim())){
+			String scientificName = "";
+			if(data[BOTANTICAL_GARDENS_IDX.CULTIVAR.ordinal()].trim().startsWith("'")){
+				scientificName = data[BOTANTICAL_GARDENS_IDX.GENUS.ordinal()].trim() + " " + 
+					data[BOTANTICAL_GARDENS_IDX.CULTIVAR.ordinal()].trim();
+			}
+			else{
+				scientificName = data[BOTANTICAL_GARDENS_IDX.GENUS.ordinal()].trim() + " '" + 
+				data[BOTANTICAL_GARDENS_IDX.CULTIVAR.ordinal()].trim() + "'";
+			}
+			try {				
+				NameSearchResult rs = taxonConceptDao.findCBDataByName(scientificName, null, null);
+				logger.info("*** findCBDataByName(SCIENCETIFIC_NAME): " + scientificName + ", NameSearchResult: " + rs);
+				if(rs != null && "Genus".equalsIgnoreCase(rs.getRank().name())){
+					guid = rs.getLsid();
+				}
+				else{
+					return o;
+				}
+			} catch (Exception e) {
+				logger.error(e);
+				return o;
+			}
+		}
+		else{
+		
+			guid = taxonConceptDao.findLsidByName(data[BOTANTICAL_GARDENS_IDX.SCIENCETIFIC_NAME.ordinal()].trim());
+		}
+		
 		InfoSource infosource = infoSourceDao.getByUri(data[BOTANTICAL_GARDENS_IDX.URL.ordinal()].trim());
 		logger.debug("guid: " + guid + ", infosourceId: " + infosource);
 		if(guid != null && guid.length() > 0 && infosource != null){			
