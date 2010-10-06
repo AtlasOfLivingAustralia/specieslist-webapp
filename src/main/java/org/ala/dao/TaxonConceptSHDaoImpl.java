@@ -468,6 +468,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         etc.setPublicationReference(getPublicationReferencesFor(guid));
         
         etc.setIdentificationKeys(getIdentificationKeys(guid));
+        etc.setSpecimenHolding(getSpecimenHoldings(guid)); 
         
 		// sort the list of SimpleProperties for display in UI
         List<SimpleProperty> simpleProperties = getTextPropertiesFor(guid);
