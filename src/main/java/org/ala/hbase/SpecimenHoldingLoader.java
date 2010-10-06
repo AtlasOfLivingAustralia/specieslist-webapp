@@ -45,7 +45,7 @@ public class SpecimenHoldingLoader {
 	@Inject
 	protected InfoSourceDAO infoSourceDao;	
 	@Inject
-	protected TaxonConceptDao taxonConceptDao;
+	protected TaxonConceptDao taxonConceptDao;	
 	
     public static enum BOTANTICAL_GARDENS_IDX {URL, INSTITUTION, SITE_NAME, FAMILY, GENUS, HYBRID_Q, SPECIES,
 		SCIENCETIFIC_NAME, INFRASPECIFIC_Q, INFRASPECIFIC_NAME, CULTIVAR, COMMON_NAME, NOTES, COUNT}    
@@ -70,6 +70,7 @@ public class SpecimenHoldingLoader {
 	 * data load process
 	 */
 	private void load(){
+		int ctr = 0;
 		String[] nextLine = null;
 		CSVReader reader = null;
 
@@ -107,6 +108,7 @@ public class SpecimenHoldingLoader {
 				}
 				if(!list.isEmpty() && sh.getIdentifier() != null && sh.getIdentifier().length() > 0){
 					try {
+						ctr += list.size();
 						taxonConceptDao.addSpecimenHoldings(sh.getIdentifier(), list);
 					} catch (Exception e) {
 						logger.error(e);
@@ -120,6 +122,7 @@ public class SpecimenHoldingLoader {
 			e.printStackTrace();
 		}
 		finally{
+			System.out.println("*** Total Records Updated: " + ctr);
 			if(reader != null){
 				try {
 					reader.close();
