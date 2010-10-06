@@ -126,4 +126,19 @@ public class IdentificationKey extends AttributableObject implements Comparable<
 		}
 		return -1;
 	}
+	
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if(obj!=null && obj instanceof SpecimenHolding){
+			IdentificationKey sh = (IdentificationKey) obj;
+			if(sh.getId()!=null && this.id!=null && this.taxonomicscope != null && sh.getTaxonomicscope() != null){
+				return (sh.getId().equals(this.id) && sh.getTaxonomicscope().equals(this.taxonomicscope));
+			}
+		}
+		return false;
+	}	
+	
 }
