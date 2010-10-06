@@ -84,10 +84,10 @@ public class SpecimenHoldingLoader {
 				List<SpecimenHolding> list = new ArrayList<SpecimenHolding> ();
 				SpecimenHolding sh = toSpecimenHolding(nextLine);
 				if(sh == null){
-					System.out.println("*** SCIENCETIFIC_NAME: " + nextLine[BOTANTICAL_GARDENS_IDX.SCIENCETIFIC_NAME.ordinal()] + ", guid: ");	
+					logger.debug("*** SCIENCETIFIC_NAME: " + nextLine[BOTANTICAL_GARDENS_IDX.SCIENCETIFIC_NAME.ordinal()] + ", guid: ");	
 				}
 				else{
-					System.out.println("*** SCIENCETIFIC_NAME: " + nextLine[BOTANTICAL_GARDENS_IDX.SCIENCETIFIC_NAME.ordinal()] + ", guid: " + sh.getIdentifier());
+					logger.debug("*** SCIENCETIFIC_NAME: " + nextLine[BOTANTICAL_GARDENS_IDX.SCIENCETIFIC_NAME.ordinal()] + ", guid: " + sh.getIdentifier());
 				}
 				nextLine = reader.readNext();
 				// have guid & infosource ....
@@ -97,7 +97,7 @@ public class SpecimenHoldingLoader {
 					while (nextLine != null) {
 						SpecimenHolding nextKey = toSpecimenHolding(nextLine);																		
 						if(nextKey != null && sh.getIdentifier().equals(nextKey.getIdentifier())){
-							System.out.println("*** SCIENCETIFIC_NAME: " + nextLine[BOTANTICAL_GARDENS_IDX.SCIENCETIFIC_NAME.ordinal()] + ", guid: " + nextKey.getIdentifier());
+							logger.debug("*** SCIENCETIFIC_NAME: " + nextLine[BOTANTICAL_GARDENS_IDX.SCIENCETIFIC_NAME.ordinal()] + ", guid: " + nextKey.getIdentifier());
 //							list.add(nextKey);
 							nextLine = reader.readNext();
 						}
@@ -157,7 +157,7 @@ public class SpecimenHoldingLoader {
 			}
 			try {				
 				NameSearchResult rs = taxonConceptDao.findCBDataByName(scientificName, null, null);
-				logger.info("*** findCBDataByName(SCIENCETIFIC_NAME): " + scientificName + ", NameSearchResult: " + rs);
+				logger.debug("*** findCBDataByName(SCIENCETIFIC_NAME): " + scientificName + ", NameSearchResult: " + rs);
 				if(rs != null && "Genus".equalsIgnoreCase(rs.getRank().name())){
 					guid = rs.getLsid();
 				}
