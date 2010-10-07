@@ -37,6 +37,8 @@ public class SearchTaxonConceptDTO extends SearchDTO implements Comparable<Searc
     protected String thumbnail;
     protected Integer left;
     protected Integer right;
+    protected String kingdom;
+    protected String author;
 
 	/**
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
@@ -241,4 +243,28 @@ public class SearchTaxonConceptDTO extends SearchDTO implements Comparable<Searc
 	public void setCommonNameSingle(String commonNameSingle) {
 		this.commonNameSingle = commonNameSingle;
 	}
+    /**
+	 * @return the kingdom
+	 */
+    public String getKingdom() {
+        return kingdom;
+    }
+    /**
+	 * @param kingdom the kingdom to set
+	 */
+    public void setKingdom(String kingdom) {
+        this.kingdom = kingdom;
+    }
+    /**
+	 * @return the author
+	 */
+    public String getAuthor() {
+        return author;
+    }
+    /**
+	 * @param author the author to set
+	 */
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 }

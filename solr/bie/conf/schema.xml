@@ -515,6 +515,7 @@
    <field name="synonym" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="scientificName" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="scientificNameRaw" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
+   <field name="author" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="acceptedConceptName" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="conservationStatus" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
    <field name="pestStatus" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />

@@ -1407,6 +1407,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    		//add the nested set values
 	    		doc.addField("left", taxonConcept.getLeft());
 	    		doc.addField("right", taxonConcept.getRight());
+                doc.addField("author", taxonConcept.getAuthor());
 	    		
                 for (ConservationStatus cs : conservationStatuses) {
                     for (String csTerm : consTerms) {

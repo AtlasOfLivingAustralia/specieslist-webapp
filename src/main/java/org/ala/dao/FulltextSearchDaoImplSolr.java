@@ -833,6 +833,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         taxonConcept.setRank((String) doc.getFirstValue("rank"));
         taxonConcept.setLeft((Integer) doc.getFirstValue("left"));
         taxonConcept.setRight((Integer) doc.getFirstValue("right"));
+        taxonConcept.setKingdom((String) doc.getFirstValue("kingdom"));
+        taxonConcept.setAuthor((String) doc.getFirstValue("author"));
         try {
             taxonConcept.setRankId( (Integer) doc.getFirstValue("rankId"));
         } catch (NumberFormatException ex) {
