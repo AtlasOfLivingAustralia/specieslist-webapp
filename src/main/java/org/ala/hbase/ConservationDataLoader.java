@@ -54,8 +54,8 @@ public class ConservationDataLoader {
     private static final String saVasculaFile = "/data/bie-staging/conservation/sa/vascula-plants-bdbsa-taxonomy-2.csv";
     private static final String vicDSEFile = "/data/bie-staging/conservation/vic/DSEAdvisory-VBA23-09-2010.csv";
     private static final String vicFFGFile = "/data/bie-staging/conservation/vic/FFGlisted-VBA23-09-2010.csv";
-    private static final String nswCavsFile = "/data/bie-staging/conservation/nsw/CAVS.txt";
-    private static final String nswCapsFile = "/data/bie-staging/conservation/nsw/CAPS.txt";
+    private static final String nswCavsFile = "/data/bie-staging/conservation/nsw/CAVS.TXT";
+    private static final String nswCapsFile = "/data/bie-staging/conservation/nsw/CAPS.TXT";
 
     public static void main(String args[]) {
         try {
