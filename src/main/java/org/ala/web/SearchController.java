@@ -202,38 +202,6 @@ public class SearchController {
     }
 
     /**
-     * Provides a plain text-based auto complete service for Jquery autocomplete plugin:
-     *
-     * http://code.google.com/p/jquery-autocomplete/
-     *
-     * @param query The value to auto complete
-     * @param geoRefOnly When true only include results that have some geospatial occurrence records
-     * @param idxType The index type to limit see bie-hbase/src/main/java/org/ala/dao/IndexedTypes
-     * @param maxTerms The maximum number of results to return
-     * @param response
-     * @throws Exception
-     */
-    @RequestMapping(value="/search/autocomplete*", method = RequestMethod.GET)
-    public void searchForAutocompleteTerms(
-                    @RequestParam(value="q", required=true) String query,
-                    @RequestParam(value="geoOnly", required=false) boolean geoRefOnly,
-                    @RequestParam(value="idxType", required=false) String idxType,
-                    @RequestParam(value="limit", required=false, defaultValue ="10") int maxTerms,
-                    HttpServletResponse response) throws Exception {
-
-        logger.debug("Autocomplete (list) on " + query + "; geoOnly: " + geoRefOnly + "; maxTerms: " + maxTerms );
-        IndexedTypes it = idxType != null ? IndexedTypes.valueOf(idxType.toUpperCase()):null;
-        List<AutoCompleteDTO> autoCompleteList = searchDao.getAutoCompleteList(query,it, geoRefOnly , maxTerms);
-        response.setContentType("text/plain");
-
-        for (AutoCompleteDTO ac : autoCompleteList) {
-            String match = (ac.getCommonName() != null) ? StringUtils.substring(ac.getCommonName(), 0, 200) : ac.getName();
-            response.getWriter().write(match+"\n");
-        }
-
-    }
-
-    /**
      * Changes the direction of the sore if the sortField is score
      * @param sortField
      * @param sortDirection
