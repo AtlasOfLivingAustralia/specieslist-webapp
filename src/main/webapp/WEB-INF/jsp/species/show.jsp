@@ -89,7 +89,7 @@
                 });
                 // mapping for facet names to display labels
                 var facetLabels = {
-                    state: "State &amp; Territiory",
+                    state: "State &amp; Territory",
                     data_resource: "Dataset",
                     month: "Date (by month)", 
                     occurrence_date: "Date (by decade)"
