@@ -575,20 +575,6 @@
         leading wildcard queries. -->
    <field name="text_rev" type="text_rev" indexed="true" stored="false" multiValued="true"/>
 
-    <!--  Fields for the SOLR WordPress plugin
-          http://www.mattweber.org/2009/04/21/solr-for-wordpress/  -->
-    <field name="permalink" type="string" indexed="true" stored="true"/>
-    <field name="title" type="text_lws" indexed="true" stored="true"/>
-    <field name="content" type="text" indexed="true" stored="true"/>
-    <field name="numcomments" type="int" indexed="true" stored="true"/>
-    <field name="categories" type="string" indexed="true" stored="true" multiValued="true"/>
-    <field name="categoriessrch" type="text_lws" indexed="true" stored="false" multiValued="true"/>
-    <field name="tags" type="string" indexed="true" stored="true" multiValued="true"/>
-    <field name="tagssrch" type="text_lws" indexed="true" stored="false" multiValued="true"/>
-    <field name="author" type="string" indexed="true" stored="true"/>
-    <field name="type" type="string" indexed="true" stored="true"/>
-
-
    <!-- Dynamic field definitions.  If a field name is not found, dynamicFields
         will be used if the name matches any of the patterns.
         RESTRICTION: the glob-like pattern in the name attribute must have
