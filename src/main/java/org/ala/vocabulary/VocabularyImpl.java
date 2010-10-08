@@ -90,6 +90,9 @@ public class VocabularyImpl implements Vocabulary {
                             conservationStatus.setRawStatus(term.getTermString());
                             conservationStatus.setRawCode(rawValue);
                         }
+                        if(term.getPredicate().endsWith("hasLegalAct")){
+                            conservationStatus.setSystem(term.getTermString());
+                        }
 		}
                 //set the raw value if it has not already been set by the vocabulary
                 if(conservationStatus.getRawStatus() == null)

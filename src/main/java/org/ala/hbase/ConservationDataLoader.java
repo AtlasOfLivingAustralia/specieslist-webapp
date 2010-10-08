@@ -56,6 +56,9 @@ public class ConservationDataLoader {
     private static final String vicFFGFile = "/data/bie-staging/conservation/vic/FFGlisted-VBA23-09-2010.csv";
     private static final String nswCavsFile = "/data/bie-staging/conservation/nsw/CAVS.TXT";
     private static final String nswCapsFile = "/data/bie-staging/conservation/nsw/CAPS.TXT";
+    private static final String actFile = "/data/bie-staging/conservation/act/ACT_threatened_species.csv";
+    private static final String ntFaunaFile = "/data/bie-staging/conservation/nt/NT_fauna.csv";
+    private static final String ntFloraFile = "/data/bie-staging/conservation/nt/NT_flora.csv";
 
     public static void main(String args[]) {
         try {
@@ -68,14 +71,19 @@ public class ConservationDataLoader {
             loader.loadWAFauna();
             loader.loadWAFlora();
             //load the SA files using the generic load method
-            loader.loadGenericState(saVertebratesFile, "South Australia",  "Vertebrates", 504, 5, 6, 7, "NPWSA Act");
-            loader.loadGenericState(saVasculaFile, "South Australia", "Vascula Plants", 504, 4,5,6, "NPWSA Act");
+            loader.loadGenericState(saVertebratesFile, "South Australia",  "Vertebrates", 504, 5, 6, 7);
+            loader.loadGenericState(saVasculaFile, "South Australia", "Vascula Plants", 504, 4,5,6 );
             //load the Vic files using the generic load method
-            loader.loadGenericState(vicDSEFile, "Victoria", "DSE Advisory", 505, 0, 1, 3, "DSE Advisory");
-            loader.loadGenericState(vicFFGFile, "Victoria", "FFG Listed", 505, 0, 1, 4, "Flora and Fauna Guarantee Act");
+            loader.loadGenericState(vicDSEFile, "Victoria", "DSE Advisory", 505, 0, 1, 3);
+            loader.loadGenericState(vicFFGFile, "Victoria", "FFG Listed", 505, 0, 1, 4);
             //load NSW (has higher level classifications)
             loader.loadNSW(nswCavsFile, "CAVS", 6, 1, 3, 7, 8);
             loader.loadNSW(nswCapsFile, "CAPS", 7, 1, 3, 9, 10);
+            //load ACT using the generic load method
+            loader.loadGenericState(actFile, "Australian Capital Territory", "Threatened", 507, 1, 0, 2);
+            //load NT using generic
+            loader.loadGenericState(ntFaunaFile, "Northern Territory", "Fauna", 508, 0, 2, 1);
+            loader.loadGenericState(ntFloraFile, "Northern Territory", "Flora", 508, 1, 2, 3);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -138,7 +146,6 @@ public class ConservationDataLoader {
                     String conservationStatus = values[2];
                     String comments = values[4];
                     ConservationStatus cs = vocabulary.getConservationStatusFor(500, conservationStatus);
-                    cs.setSystem("EPBC Act Threatened Species in Australia");
                     //add the info source information
                     addCSInfo(cs, is, "Australia", null);//This is the national list
 
@@ -197,15 +204,17 @@ public class ConservationDataLoader {
     private void addCommonName(String guid, String cn, InfoSource is) throws Exception {
         CommonName commonName = new CommonName();
         commonName.setNameString(cn);
-        commonName.setInfoSourceId(Integer.toString(is.getId()));
-        commonName.setInfoSourceName(is.getName());
-        commonName.setInfoSourceURL(is.getWebsiteUrl());
+        if(is != null){
+            commonName.setInfoSourceId(Integer.toString(is.getId()));
+            commonName.setInfoSourceName(is.getName());
+            commonName.setInfoSourceURL(is.getWebsiteUrl());
+        }
         //System.out.println("Common Name: " + commonName);
         taxonConceptDao.addCommonName(guid, commonName);
     }
 
     /**
-     * loads the queensland conservation status
+     * loads the Queensland conservation status
      * @throws Exception
      */
     public void loadQueensland() throws Exception {
@@ -227,7 +236,7 @@ public class ConservationDataLoader {
                     ConservationStatus cs = vocabulary.getConservationStatusFor(501, values[7]);
                     //some of the species do not have a qld conservation status
                     if (cs != null) {
-                        cs.setSystem("Nature Conservation Act 1992");
+                        
                         //System.out.println("The qld conservation status = " + cs);
                         //set the region and region id  (all records will be the same thus not in the vocabulary)
                         addCSInfo(cs, is, "Queensland", "aus_states/Queensland");
@@ -328,7 +337,7 @@ public class ConservationDataLoader {
                     }
                     if (cs != null) {
                         loaded++;
-                        addCSInfo(cs, is, "Western Australia", "aus_states/Western Australia");
+                        addCSInfo(cs, is, "Western Australia", "aus_states/Western Australia");                        
 //                        System.out.println(cs);
                         taxonConceptDao.addConservationStatus(guid, cs);
                     }
@@ -359,8 +368,7 @@ public class ConservationDataLoader {
                     ConservationStatus cs = vocabulary.getConservationStatusFor(506, values[statusIdx]);
                     if (cs != null) {
                         loaded++;
-                        addCSInfo(cs, is, "New South Wales", "aus_states/New South Wales");
-                        cs.setSystem("TSC Act 1995");
+                        addCSInfo(cs, is, "New South Wales", "aus_states/New South Wales");                        
                         taxonConceptDao.addConservationStatus(guid, cs);
                     }
                     //common name
@@ -393,7 +401,7 @@ public class ConservationDataLoader {
      * @param system The system that conservation status is part of
      * @throws Exception
      */
-    public void loadGenericState(String filename, String state, String type, int infosourceId, int sciIdx, int cnIdx, int statusIdx, String system) throws Exception {
+    public void loadGenericState(String filename, String state, String type, int infosourceId, int sciIdx, int cnIdx, int statusIdx) throws Exception {
         logger.info("Loading the " + state + " " + type + " Conservation Status...");
         CSVReader reader = CSVReader.buildReader(new File(filename), "UTF-8", ',', '"', 1);
         InfoSource is = infoSourceDAO.getById(infosourceId);
@@ -411,8 +419,7 @@ public class ConservationDataLoader {
                     ConservationStatus cs = vocabulary.getConservationStatusFor(infosourceId, values[statusIdx]);
                     if (cs != null) {
                         loaded++;
-                        addCSInfo(cs, is, state, "aus_states/" + state);
-                        cs.setSystem(system);
+                        addCSInfo(cs, is, state, "aus_states/" + state);                        
 //                        System.out.println(cs);
                         taxonConceptDao.addConservationStatus(guid, cs);
                     }
