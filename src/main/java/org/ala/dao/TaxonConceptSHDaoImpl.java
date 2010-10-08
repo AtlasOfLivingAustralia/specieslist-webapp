@@ -129,6 +129,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     private static final String IS_AUSTRALIAN= "IsAustralian";
     public static final String OCCURRENCE_RECORDS_COUNT_COL = "hasOccurrenceRecords";
     public static final String GEOREF_RECORDS_COUNT_COL = "hasGeoReferencedRecords";
+	private static final String SPECIMEN_HOLDING_COL = "hasSpecimenHolding";
+	private static final String IDENTIFICATION_KEY_COL = "hasIdentificationKey";
     
     /** Column families */
     private static final String TC_COL_FAMILY = "tc";
@@ -1537,10 +1539,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    		if(hasImages){
 	    			//FIXME should be replaced by the highest ranked image
 	    			Image image  = images.get(0);
-	    			doc.addField("image", image.getRepoLocation());
-	    			//Change to adding this in earlier
-	    			String thumbnail = image.getRepoLocation().replace("raw", "thumbnail");
-	    			doc.addField("thumbnail", thumbnail);
+	    			if(image.getRepoLocation()!=null){
+		    			doc.addField("image", image.getRepoLocation());
+		    			//Change to adding this in earlier
+		    			String thumbnail = image.getRepoLocation().replace("raw", "thumbnail");
+		    			doc.addField("thumbnail", thumbnail);
+	    			} else {
+	    				logger.error("Error adding image to concept: "+image);
+	    			}
 	    		}
 	    		doc.addField("hasImage", hasImages);
 	    		
@@ -1765,7 +1771,24 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     public Integer getOccurrenceRecordCount(String guid) throws Exception{
         return (Integer) storeHelper.get(TC_TABLE, TC_COL_FAMILY, OCCURRENCE_RECORDS_COUNT_COL, guid, Integer.class);
     }
+
+	public boolean addIdentificationKeys(String guid, List<IdentificationKey> identificationKeyList) throws Exception {
+		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, IDENTIFICATION_KEY_COL, guid, (List)identificationKeyList, false);
+	}
 	
+	public List<IdentificationKey> getIdentificationKeys(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, IDENTIFICATION_KEY_COL, guid, IdentificationKey.class);
+	}	
+	
+
+	public boolean addSpecimenHoldings(String guid, List<SpecimenHolding> specimenHoldingList) throws Exception {
+		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, SPECIMEN_HOLDING_COL, guid, (List)specimenHoldingList, false);
+	}
+	
+	public List<SpecimenHolding> getSpecimenHoldings(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, SPECIMEN_HOLDING_COL, guid, SpecimenHolding.class);
+	}	
+    
     /**
      * @see org.ala.dao.TaxonConceptDao#getIndexLocation()
      */
@@ -1824,22 +1847,4 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public void setSolrUtils(SolrUtils solrUtils) {
 		this.solrUtils = solrUtils;
 	}
-	
-	private static final String IDENTIFICATION_KEY_COL = "hasIdentificationKey";
-	public boolean addIdentificationKeys(String guid, List<IdentificationKey> identificationKeyList) throws Exception {
-		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, IDENTIFICATION_KEY_COL, guid, (List)identificationKeyList, false);
-	}
-	
-	public List<IdentificationKey> getIdentificationKeys(String guid) throws Exception {
-		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, IDENTIFICATION_KEY_COL, guid, IdentificationKey.class);
-	}	
-	
-	private static final String SPECIMEN_HOLDING_COL = "hasSpecimenHolding";
-	public boolean addSpecimenHoldings(String guid, List<SpecimenHolding> specimenHoldingList) throws Exception {
-		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, SPECIMEN_HOLDING_COL, guid, (List)specimenHoldingList, false);
-	}
-	
-	public List<SpecimenHolding> getSpecimenHoldings(String guid) throws Exception {
-		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, SPECIMEN_HOLDING_COL, guid, SpecimenHolding.class);
-	}	
 }
