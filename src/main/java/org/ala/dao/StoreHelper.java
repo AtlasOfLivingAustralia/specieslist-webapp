@@ -15,6 +15,7 @@
 package org.ala.dao;
 
 import java.util.List;
+import java.util.Map;
 /**
  * A store helper provides basic DAO functionality on top of a backend store.
  * This is intended to hide the details of the underlying backend store in use
@@ -122,4 +123,6 @@ public interface StoreHelper {
 	 * @throws Exception
 	 */
 	Scanner getScanner(String table, String columnFamily, String column) throws Exception;
+	
+	public Map<String, Object> getSubColumnsByGuid(String guid) throws Exception;
 }

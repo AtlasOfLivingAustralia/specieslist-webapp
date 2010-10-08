@@ -17,6 +17,7 @@ package org.ala.dao;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.ala.model.TaxonConcept;
 import org.apache.cassandra.thrift.Cassandra;
@@ -482,5 +483,9 @@ public class CassandraHelper implements StoreHelper {
 	 */
 	public void setPort(int port) {
 		this.port = port;
+	}
+	
+	public Map<String, Object> getSubColumnsByGuid(String guid) throws Exception{
+		throw new NoSuchMethodException("No such method implementation in this class : " + this.getClass().getName());
 	}
 }

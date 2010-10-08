@@ -15,9 +15,13 @@
 package org.ala.dao;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import org.ala.model.TaxonConcept;
+import org.ala.util.CassandraSubColumnType;
 import org.apache.cassandra.thrift.Column;
 import org.apache.cassandra.thrift.ConsistencyLevel;
 import org.apache.commons.lang.StringUtils;
@@ -38,6 +42,7 @@ import org.wyki.cassandra.pelops.Selector;
  * 
  * History:
  * 4 Aug 2010 (MOK011): implement put, putList, putSingle and getScanner functions based on CassandraHelper.java.
+ * 8 Oct 2010 (MOK011): added getSubColumnsByGuid function
  */
 public class CassandraPelopsHelper implements StoreHelper  {
 	protected static Logger logger = Logger.getLogger(CassandraPelopsHelper.class);
@@ -50,7 +55,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
 
 	protected int port = 9160;
 
-	protected String charsetEncoding = "UTF-8";
+	protected String charsetEncoding = "UTF-8";	
 
 	@Override
 	public void init() throws Exception {
@@ -58,6 +63,60 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		Pelops.addPool(pool, new String[]{host}, port, false, keySpace, new Policy());
 	}
 
+    public Map<String, Object> getSubColumnsByGuid(String guid) throws Exception {
+    	Map<String, Object> map = new HashMap<String, Object>();
+    	
+        logger.debug("Pelops get guid: " + guid);
+        Selector selector = Pelops.createSelector(pool, keySpace);
+        List<Column> cols = null;
+        try{
+            //initialise the object mapper
+    		ObjectMapper mapper = new ObjectMapper();
+    		mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            cols = selector.getSubColumnsFromRow(guid, CassandraSubColumnType.COLUMN_FAMILY_NAME, 
+            		CassandraSubColumnType.SUPER_COLUMN_NAME,
+            		Selector.newColumnsPredicateAll(true, 10000), ConsistencyLevel.ONE);
+            // convert json string to Java object and add into Map object.
+            for(Column col : cols){
+            	String name = new String(col.name, charsetEncoding);
+            	String value = new String(col.value, charsetEncoding);
+            	CassandraSubColumnType type = CassandraSubColumnType.getCassandraSubColumnType(name);
+            	Object o = null;
+            	try{
+            		if(type != null){
+            			// convertion is based on pre-define CassandraSubColumnType.
+		            	if(!type.isList()){
+		            		o = mapper.readValue(value, type.getClazz());
+		            	}
+		            	else{
+		            		o = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, type.getClazz()));
+//		            		if(o == null){
+//		            			o = new ArrayList();
+//		            		}
+		            	}
+            		}
+	            }
+            	catch(Exception ex){
+            		logger.error(ex);
+            	}
+            	
+            	if(o != null){
+            		map.put(name, o);
+            	}
+            	logger.debug("*** name: " + name + ", value: " + value);            	
+            }
+        }
+        catch(Exception e){
+            //expected behaviour. current thrift API doesnt seem
+            //to support a retrieve null getter
+        	if(logger.isTraceEnabled()){
+        		logger.trace(e.getMessage(), e);
+        	}
+        }
+		return map;
+    }
+    
     /**
      * @see org.ala.dao.StoreHelper#get(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Class)
      */
@@ -315,9 +374,25 @@ public class CassandraPelopsHelper implements StoreHelper  {
     	CassandraPelopsHelper helper = new CassandraPelopsHelper();
     	helper.init();
     	
-    	TaxonConcept t = null;	
-    	List<Comparable> l = new ArrayList<Comparable>();
+    	Map<String, Object> map = helper.getSubColumnsByGuid("103067807");
+    	Set<String> keys = map.keySet();
+    	Iterator<String> it = keys.iterator();
+    	while(it.hasNext()){
+    		String key = it.next();
+    		CassandraSubColumnType type = CassandraSubColumnType.getCassandraSubColumnType(key);
+    		Object o = map.get(type.getColumnName());
+    		if(o instanceof List){
+    			List l = (List)o;
+    		}
+    		else{
+    			Comparable c = (Comparable)o;
+    		}
+    	}
    	
+/*  
+		TaxonConcept t = null;	
+    	List<Comparable> l = new ArrayList<Comparable>();
+
 		for(int i=0; i< 10; i++){
 	        t =  new TaxonConcept();
 	        t.setId(i);
@@ -335,23 +410,23 @@ public class CassandraPelopsHelper implements StoreHelper  {
 	        }
 		}
 		helper.putList("taxonConcept", "tc", "taxonConcept", "128", l, true);
-/* 		
-//        CommonName c1 = new CommonName();
-//        c1.setNameString("Dave");
-//
-//        CommonName c2 = new CommonName();
-//        c2.setNameString("Frank");
-//
-//        helper.putSingle("taxonConcept", "tc", "taxonConcept", "123", t);
-//        helper.put("taxonConcept", "tc", "commonName", "123", c1);
-//        helper.put("taxonConcept", "tc", "commonName", "123", c2);
-//        helper.putSingle("taxonConcept", "tc", "taxonConcept", "124", t);
-//        
-//        TaxonConcept tc = (TaxonConcept) helper.get("taxonConcept", "tc", "taxonConcept", "123", TaxonConcept.class);
-//        System.out.println("Retrieved: "+tc.getNameString());
-//        
-//        List<CommonName> cns = (List) helper.getList("taxonConcept", "tc", "commonName", "123", CommonName.class);
-//        System.out.println("Retrieved: "+cns);
+		
+        CommonName c1 = new CommonName();
+        c1.setNameString("Dave");
+
+        CommonName c2 = new CommonName();
+        c2.setNameString("Frank");
+
+        helper.putSingle("taxonConcept", "tc", "taxonConcept", "123", t);
+        helper.put("taxonConcept", "tc", "commonName", "123", c1);
+        helper.put("taxonConcept", "tc", "commonName", "123", c2);
+        helper.putSingle("taxonConcept", "tc", "taxonConcept", "124", t);
+        
+        TaxonConcept tc = (TaxonConcept) helper.get("taxonConcept", "tc", "taxonConcept", "123", TaxonConcept.class);
+        System.out.println("Retrieved: "+tc.getNameString());
+        
+        List<CommonName> cns = (List) helper.getList("taxonConcept", "tc", "commonName", "123", CommonName.class);
+        System.out.println("Retrieved: "+cns);
 */
         //cassandra scanning
     	Scanner scanner = helper.getScanner("taxonConcept", "tc", "taxonConcept");

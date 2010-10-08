@@ -15,6 +15,7 @@
 package org.ala.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
@@ -94,4 +95,8 @@ public class HBaseHelper implements StoreHelper {
 	public Scanner getScanner(String table, String columnFamily, String column) throws Exception {
 		return new HBaseScanner(htable, columnFamily);
 	}
+	
+	public Map<String, Object> getSubColumnsByGuid(String guid) throws Exception{
+		throw new NoSuchMethodException("No such method implementation in this class : " + this.getClass().getName());
+	}	
 }
