@@ -393,6 +393,7 @@
                     </div>
                     <c:if test="${not empty extendedTaxonConcept.conservationStatuses}"><h3>Conservation Status</h3></c:if>
                     <c:forEach var="status" items="${extendedTaxonConcept.conservationStatuses}">
+                    	<!-- 
                         <c:if test="${fn:containsIgnoreCase(status.status,'extinct') || fn:containsIgnoreCase(status.status,'endangered') || fn:containsIgnoreCase(status.status,'vulnerable') || fn:containsIgnoreCase(status.status,'threatened') || fn:containsIgnoreCase(status.status,'concern') || fn:containsIgnoreCase(status.status,'deficient')}">
                             <ul class="iucn">
                                 <li <c:if test="${fn:endsWith(status.status,'Extinct')}">class="red"</c:if>><abbr title="Extinct">ex</abbr></li>
@@ -404,6 +405,7 @@
                                 <li <c:if test="${fn:containsIgnoreCase(status.status,'concern')}">class="green"</c:if>><abbr title="Least concern">lc</abbr></li>
                             </ul>
                         </c:if>
+                         -->
                         <p> Status: ${status.status}<br/>
                         	Region: ${status.region}<br/>
 	                        <cite>source: <a href="${status.identifier}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
