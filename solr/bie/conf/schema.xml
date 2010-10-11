@@ -260,7 +260,7 @@
       </analyzer>
     </fieldType>
 
-	  <!-- A text field that has been "n-gramed" to allow partial term matching
+  	  <!-- A text field that has been "n-gramed" to allow partial term matching
         for use in auto completion
     -->
     <fieldType name="auto_text" class="solr.TextField">
@@ -520,6 +520,7 @@
    <field name="conservationStatus" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
    <field name="pestStatus" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
    <field name="commonName" type="text" indexed="true" stored="true" multiValued="true" omitNorms="false" />
+   <field name="commonNameExact" type="lowercase" indexed="true" stored="false" multiValued="true" omitNorms="false"/>
    <field name="commonNameSort" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
    <field name="commonNameDisplay" type="string" indexed="false" stored="true" multiValued="false" omitNorms="false" />
    <field name="commonNameSingle" type="string" indexed="false" stored="true" multiValued="false" omitNorms="false" />
@@ -570,7 +571,9 @@
    <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
    <field name="auto_text" type="auto_text" indexed="true" stored="false" multiValued="true" omitNorms="true" omitTermFreqAndPositions="true"/>
    <field name="auto_text_edge" type="auto_text_edge" indexed="true" stored="false" multiValued="true" omitNorms="true" omitTermFreqAndPositions="true"/>
-
+   <!-- Fields used to rank exact matches higher -->
+   <field name="exact_text" type="lowercase" indexed="true" stored="false" multiValued="true"/>
+   
    <!-- catchall text field that indexes tokens both normally and in reverse for efficient
         leading wildcard queries. -->
    <field name="text_rev" type="text_rev" indexed="true" stored="false" multiValued="true"/>
@@ -644,6 +647,11 @@
    <copyField source="commonName" dest="auto_text"/>
    <copyField source="scientificName" dest="auto_text_edge"/>
    <copyField source="commonName" dest="auto_text_edge"/>
+   <copyField source="name" dest="exact_text"/>
+   <copyField source="acronym" dest="exact_text"/>
+   <copyField source="scientificName" dest="exact_text"/>
+   <copyField source="scientificNameRaw" dest="exact_text"/>
+   <copyField source="commonNameExact" dest="exact_text"/>
    
 
    <!-- Above, multiple source fields are copied to the [text] field.

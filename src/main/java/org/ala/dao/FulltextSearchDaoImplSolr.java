@@ -270,6 +270,12 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             queryString.append(" text:"+cleanQuery);
             queryString.append(" OR ");
             queryString.append(" scientificNameText:"+cleanQuery);
+            //make the exact matches score higher
+            //The boost is 100000000000 because this is how much of a boost is required to make the "Acacia" exact matches appear first.
+            //Acacia farnesiana has many terms that match with "Acacia" thus the high level boost required.
+            queryString.append(" OR ");
+            queryString.append(" exact_text:" + cleanQuery + "^100000000000");
+            
             
     		String canonicalSciName = retrieveCanonicalForm(query);
             if(canonicalSciName!=null){

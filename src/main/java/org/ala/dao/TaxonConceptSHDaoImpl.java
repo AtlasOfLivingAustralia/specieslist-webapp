@@ -86,66 +86,66 @@ import au.org.ala.data.util.RankType;
 
 /**
  * Database agnostic implementation if Taxon concept DAO.
- * 
+ *
  * This implementation hands off java objects to an instance of <code>StoreHelper</code>
  * that hides the complexities of the underlying datastore in use.
- * 
+ *
  * @see StoreHelper
  * @see HBaseHelper
  * @see CassandraHelper
- * 
+ *
  * @author Dave Martin
  */
 @Component("taxonConceptDao")
 public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 	protected static Logger logger = Logger.getLogger(TaxonConceptSHDaoImpl.class);
-	
+
 	/** The location for the lucene index */
 	public static final String TC_INDEX_DIR = "/data/solr/bie/index";
-    
+
     /** Column families */
     private static final String TC_COL_FAMILY = "tc";
 
     /** The table name */
     private static final String TC_TABLE = "taxonConcept";
-    
+
     @Inject
     protected Vocabulary vocabulary;
-    
+
 	protected IndexSearcher tcIdxSearcher;
-	
+
 	@Inject
 	protected CBIndexSearch cbIdxSearcher;
-	
+
 	/** The spring wired store helper to use */
 	protected StoreHelper storeHelper;
-	
+
 	@Inject
 	protected SolrUtils solrUtils;
-	
+
     /* Final fields */
     protected static final String DATASET = "dataset";
     protected static final String SCI_NAME = "scientificName";
     protected static final String SCI_NAME_RAW = "scientificNameRaw";
     protected static final String SCI_NAME_TEXT = "scientificNameText";
-    	
+
 	/**
 	 * Initialise the DAO, setting up the HTable instance.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public TaxonConceptSHDaoImpl() throws Exception {}
 
 	/**
 	 * Initialise the connection to HBase
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void init() throws Exception {
 		storeHelper.init();
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getSynonymsFor(java.lang.String)
 	 */
@@ -159,7 +159,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public List<TaxonConcept> getCongruentConceptsFor(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_CONGRUENT_TO_COL.getColumnName(), guid, TaxonConcept.class);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getImages(java.lang.String)
 	 */
@@ -183,14 +183,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                 return false;
             return isAustralian;
         }
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getDistributionImages(java.lang.String)
 	 */
 	public List<Image> getDistributionImages(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.DIST_IMAGE_COL.getColumnName(), guid, Image.class);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getPestStatuses(java.lang.String)
 	 */
@@ -211,14 +211,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public List<TaxonConcept> getChildConceptsFor(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_PARENT_COL_OF.getColumnName(), guid, TaxonConcept.class);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getParentConceptsFor(java.lang.String)
-	 */	
+	 */
 	public List<TaxonConcept> getParentConceptsFor(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_CHILD_COL_OF.getColumnName(), guid, TaxonConcept.class);
-	}		
-	
+	}
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getCommonNamesFor(java.lang.String)
 	 */
@@ -232,24 +232,24 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public List<SimpleProperty> getTextPropertiesFor(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.TEXT_PROPERTY_COL.getColumnName(), guid, SimpleProperty.class);
 	}
-	
+
 	/**
 	 * FIXME Switch to using a single column for TaxonConcept
-	 * 
+	 *
 	 * @see org.ala.dao.TaxonConceptDao#create(org.ala.model.TaxonConcept)
 	 */
 	public boolean create(TaxonConcept tc) throws Exception {
 		if(tc==null){
 			throw new IllegalArgumentException("Supplied TaxonConcept was null.");
 		}
-		
+
 		if(tc.getGuid()==null){
 			throw new IllegalArgumentException("Supplied TaxonConcept has a null Guid value.");
 		}
-		
+
 		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.TAXONCONCEPT_COL.getColumnName(), tc.getGuid(), tc);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#update(org.ala.model.TaxonConcept)
 	 */
@@ -258,15 +258,15 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		if(tc==null) {
 			return false;
 		}
-		
+
 		if (tc!=null && tc.getGuid() == null) {
 			throw new IllegalArgumentException("Supplied GUID for the Taxon Concept is null.");
 		}
-		
+
 		//FIXME this is here to update some information not available in the export from checklist bank
 		// This should refactored out at some stage
 		TaxonConcept current = (TaxonConcept) storeHelper.get(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.TAXONCONCEPT_COL.getColumnName(), tc.getGuid(), TaxonConcept.class);
-		if(current==null){ 
+		if(current==null){
 			return false;
 		}
 		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.TAXONCONCEPT_COL.getColumnName(), tc.getGuid(), current);
@@ -278,28 +278,28 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addTaxonName(String guid, TaxonName taxonName) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.TAXONNAME_COL.getColumnName(), guid, taxonName);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addCommonName(java.lang.String, org.ala.model.CommonName)
 	 */
 	public boolean addCommonName(String guid, CommonName commonName) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.VERNACULAR_COL.getColumnName(), guid, commonName);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addConservationStatus(java.lang.String, org.ala.model.ConservationStatus)
 	 */
 	public boolean addConservationStatus(String guid, ConservationStatus conservationStatus) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.CONSERVATION_STATUS_COL.getColumnName(), guid, conservationStatus);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addPestStatus(java.lang.String, org.ala.model.PestStatus)
 	 */
 	public boolean addPestStatus(String guid, PestStatus pestStatus) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.PEST_STATUS_COL.getColumnName(), guid, pestStatus);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addRegions(java.lang.String, java.util.List)
 	 */
@@ -310,60 +310,60 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     public boolean setOccurrenceRecordsCount(String guid, Integer count) throws Exception{
         return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.OCCURRENCE_RECORDS_COUNT_COL.getColumnName(), guid, count);
     }
-    
+
     public boolean setGeoreferencedRecordsCount(String guid, Integer count) throws Exception{
         return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.GEOREF_RECORDS_COUNT_COL.getColumnName(), guid, count);
     }
-    
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addImage(java.lang.String, org.ala.model.Image)
 	 */
 	public boolean addImage(String guid, Image image) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IMAGE_COL.getColumnName(), guid, image);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addDistributionImage(java.lang.String, org.ala.model.Image)
 	 */
 	public boolean addDistributionImage(String guid, Image image) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.DIST_IMAGE_COL.getColumnName(), guid, image);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addSynonym(java.lang.String, org.ala.model.TaxonConcept)
 	 */
 	public boolean addSynonym(String guid, TaxonConcept synonym) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.SYNONYM_COL.getColumnName(), guid, synonym);
-	}	
-	
+	}
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addIsCongruentTo(java.lang.String, org.ala.model.TaxonConcept)
 	 */
 	public boolean addIsCongruentTo(String guid, TaxonConcept congruent) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_CONGRUENT_TO_COL.getColumnName(), guid, congruent);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addChildTaxon(java.lang.String, org.ala.model.TaxonConcept)
 	 */
 	public boolean addChildTaxon(String guid, TaxonConcept childConcept) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_PARENT_COL_OF.getColumnName(), guid, childConcept);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addIdentifier(java.lang.String, java.lang.String)
 	 */
 	public boolean addIdentifier(String guid, String alternativeIdentifier) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IDENTIFIER_COL.getColumnName(), guid, alternativeIdentifier);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getIdentifiers(java.lang.String)
 	 */
 	public List<String> getIdentifiers(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IDENTIFIER_COL.getColumnName(), guid, String.class);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addParentTaxon(java.lang.String, org.ala.model.TaxonConcept)
 	 */
@@ -377,14 +377,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addTextProperty(String guid, SimpleProperty textProperty) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.TEXT_PROPERTY_COL.getColumnName(), guid, textProperty);
 	}
-	
+
     /**
 	 * @see org.ala.dao.TaxonConceptDao#addTextProperty(java.lang.String, org.ala.model.SimpleProperty)
 	 */
 	public boolean setIsIconic(String guid) throws Exception {
 		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_ICONIC.getColumnName(), guid, true);
 	}
-    
+
     public boolean setIsAustralian(String guid) throws Exception {
         return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_AUSTRALIAN.getColumnName(), guid, true);
     }
@@ -396,7 +396,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			create(tc);
 		}
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getByGuid(java.lang.String)
 	 */
@@ -406,7 +406,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	
 	/**
 	 * Use the Lucene indexes to find the correct (accepted) guid.
-	 * 
+	 *
 	 * @param guid
 	 * @return
 	 * @throws Exception
@@ -419,7 +419,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 		return guid;
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getTaxonNameFor(java.lang.String)
 	 */
@@ -437,12 +437,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public List<TaxonName> getTaxonNamesFor(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.TAXONNAME_COL.getColumnName(), guid, TaxonName.class);
-	}	
-	
+	}
+
 	/**
 	 * Retrieve all properties for this row as a Map. Useful for debug
 	 * interfaces only.
-	 * 
+	 *
 	 * @param guid
 	 * @return
 	 * @throws Exception
@@ -452,22 +452,22 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 //		if (result.isEmpty()) {
 //			return null;
 //		}
-//		
+//
 //		//treemaps are sorted
 //		TreeMap<String, String> properties = new TreeMap<String,String>();
-//		
+//
 //		for (Map.Entry<byte[], NavigableMap<byte[], byte[]>> entry : result.getNoVersionMap().entrySet()) {
 //			for (Map.Entry<byte[], byte[]> familyEntry : entry.getValue().entrySet()) {
-//				properties.put(Bytes.toString(entry.getKey()) + ":" + Bytes.toString(familyEntry.getKey()), 
+//				properties.put(Bytes.toString(entry.getKey()) + ":" + Bytes.toString(familyEntry.getKey()),
 //						Bytes.toString(familyEntry.getValue()));
 //			}
 //		}
-//		
+//
 //		//sort by key
 //		return properties;
 		return null;
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#findByScientificName(java.lang.String, int)
 	 */
@@ -486,7 +486,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		if(input==null){
 			return new SearchResultsDTO();
 		}
-		
+
 		//lower case everything
 		input = input.toLowerCase();
 
@@ -507,7 +507,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         // run the search
         return sortPageSearch(scientificNameQuery, startIndex, pageSize, sortField, sortDirection);
     }
-    
+
     /**
 	 * @see org.ala.dao.TaxonConceptDao#findByScientificName(java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String)
 	 */
@@ -518,7 +518,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		if(input==null){
 			return new SearchResultsDTO();
 		}
-		
+
 		//include a query against the GUIDs
 		Query guidQuery = new TermQuery(new Term("guid", input));
 		Query otherGuidQuery = new TermQuery(new Term("otherGuid", input));
@@ -548,7 +548,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         if (sortDirection != null && !sortDirection.isEmpty() && sortDirection.equalsIgnoreCase("desc")) {
             direction = true;
         }
-        
+
         Sort sort = new Sort();
 
         if (sortField != null && !sortField.isEmpty() && !sortField.equalsIgnoreCase("score")) {
@@ -576,7 +576,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         searchResults.setSort(sortField);
         searchResults.setDir(sortDirection);
         searchResults.setQuery(searchQuery.toString());
-        
+
         return searchResults;
     }
 
@@ -616,14 +616,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public String findLsidByName(String scientificName, LinnaeanRankClassification classification, String taxonRank) {
 		String lsid = null;
 		try {
-			System.out.println("Get LSID for sci name: " + scientificName + ", and rank: " + taxonRank);
+			//System.out.println("Get LSID for sci name: " + scientificName + ", and rank: " + taxonRank);
 			lsid = cbIdxSearcher.searchForLSID(scientificName, classification, RankType.getForName(taxonRank));
 		} catch (SearchResultException e) {
-			System.out.println("Checklist Bank lookup exception - " + e.getMessage() + e.getResults());
+			logger.warn("Checklist Bank lookup exception ("+scientificName+") - " + e.getMessage() + e.getResults());
 		}
 		return lsid;
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#findLsidByName(java.lang.String, java.lang.String)
 	 */
@@ -637,7 +637,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 		return lsid;
 	}
-	
+
 	public String findLsidByName(String scientificName){
 		String lsid = null;
 		try {
@@ -647,7 +647,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 		return lsid;
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#findCBDataByName(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
 	 */
@@ -668,7 +668,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 		return searchTaxonConceptIndexBy("parentGuid", parentGuid, limit);
 	}
-	
+
 
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#setRankingOnImage(java.lang.String, java.lang.String, boolean)
@@ -699,17 +699,17 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				break;
 			}
 		}
-		
+
 		//re-sort based on the rankings
 		Collections.sort(images);
-		
+
 		//write back to database
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IMAGE_COL.getColumnName(), guid, (List) images, false);
-	}	
-	
+	}
+
 	/**
 	 * Search the index with the supplied value targetting a specific column.
-	 * 
+	 *
 	 * @param columnName
 	 * @param value
 	 * @param limit
@@ -726,10 +726,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		for(ScoreDoc scoreDoc: topDocs.scoreDocs){
 			Document doc = tcIdxSearcher.doc(scoreDoc.doc);
 			tcs.add(createTaxonConceptFromIndex(doc, scoreDoc.score));
-		}	
+		}
 		return tcs;
 	}
-	
+
 	/**
 	 * Retrieves the index search for taxon concepts, initialising if
 	 * necessary.
@@ -753,7 +753,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 	/**
 	 * Populate a TaxonConcept from the data in the lucene index.
-	 * 
+	 *
 	 * @param doc
 	 * @return
 	 */
@@ -767,7 +767,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		taxonConcept.setName(doc.get("scientificNameRaw"));
 		taxonConcept.setAcceptedConceptName(doc.get("acceptedConceptName"));
 		String hasChildrenAsString = doc.get("hasChildren");
-		
+
 		String[] commonNames = doc.getValues("commonName");
 		if(commonNames.length>0){
 			taxonConcept.setCommonName(commonNames[0]);
@@ -782,7 +782,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         } catch (NumberFormatException e) {
         	//expected if left and right values are unavailable
         }
-        
+
         try {
             taxonConcept.setRankId(Integer.parseInt(doc.get("rankId")));
         } catch (NumberFormatException ex) {
@@ -790,7 +790,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         }
         taxonConcept.setPestStatus(doc.get(StatusType.PEST.toString()));
         taxonConcept.setConservationStatus(doc.get(StatusType.CONSERVATION.toString()));
-        
+
         //add image detais
         taxonConcept.setImage(doc.get("image"));
         taxonConcept.setThumbnail(doc.get("thumbnail"));
@@ -801,7 +801,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#delete(java.lang.String)
 	 */
 	public boolean delete(String guid) throws Exception {
-		
+
 		//TODO add to interface
 //		if (getTable().exists(new Get(Bytes.toBytes(guid)))) {
 //			getTable().delete(new Delete(Bytes.toBytes(guid)));
@@ -809,7 +809,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 //		}
 		return false;
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addClassification(java.lang.String, org.ala.model.Classification)
 	 */
@@ -817,7 +817,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addClassification(String guid, Classification classification) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.CLASSIFICATION_COL.getColumnName(), guid, classification);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getClassifications(java.lang.String)
 	 */
@@ -853,10 +853,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
             dcIdentifier = document.getIdentifier();
             dcTitle = document.getTitle();
         }
-		
+
 		//iterate through triples and find scientific names and genus
 		for(Triple triple: triples){
-			
+
 			String predicate = triple.predicate.substring(triple.predicate.lastIndexOf("#")+1);
 
 			if(predicate.endsWith("hasKingdom")){
@@ -893,11 +893,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				scientificName = triple.object;
 			}
 		}
-		
+
 		if (scientificName == null
 				&& subspecies == null
 				&& specificEpithet == null
-				&& species == null 
+				&& species == null
 				&& genus == null
 				&& family == null
 				&& superfamily == null
@@ -907,8 +907,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			System.out.println("No classification found for document at: " + document.getFilePath());
 			return false; // we have nothing to work with, so give up
 		}
-		
-		// Lookup LSID in Checklist Bank data 
+
+		// Lookup LSID in Checklist Bank data
 		String rank = null;
 		Rank rankObj = null;
 //		if (scientificName == null) {
@@ -973,21 +973,21 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 
 		if (guid != null) {
-			
+
 //			Map<String, Object> properties = new HashMap<String,Object>();
-			
+
 			for(Triple triple: triples){
-				
+
 				//check for an empty object
 				String object = StringUtils.trimToNull(triple.object);
-				
+
 				if(object!=null){
-				
+
 					logger.trace(triple.predicate);
-					
+
 					//check here for predicates of complex objects
 					if(triple.predicate.endsWith("hasCommonName")){
-						
+
 						CommonName commonName = new CommonName();
 						String commonNameString = WordUtils.capitalizeFully(triple.object);
 						commonName.setNameString(commonNameString);
@@ -998,19 +998,19 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	                    commonName.setTitle(dcTitle);
 	                    commonName.setIdentifier(dcIdentifier);
 						addCommonName(guid, commonName);
-						
+
 					} else if(triple.predicate.endsWith("hasConservationStatus")){
-						
+
 						//dont add conservation status to higher ranks than species
 						if(rankObj!=null && rankObj.getId() >= Rank.SP.getId()){
-						
+
 							//lookup the vocabulary term
 							ConservationStatus cs = vocabulary.getConservationStatusFor(document.getInfoSourceId(), triple.object);
 							if(cs==null){
 								cs = new ConservationStatus();
 								cs.setStatus(triple.object);
 							}
-		
+
 							cs.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
 							cs.setDocumentId(Integer.toString(document.getId()));
 		                    cs.setInfoSourceName(dcPublisher);
@@ -1020,9 +1020,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		                    cs.setRawStatus(triple.object);
 							addConservationStatus(guid, cs);
 						}
-						
+
 					} else if(triple.predicate.endsWith("hasPestStatus")){
-	
+
 						if(rankObj!=null && rankObj.getId() >= Rank.SP.getId()){
 							//lookup the vocabulary term
 							PestStatus ps = vocabulary.getPestStatusFor(document.getInfoSourceId(), triple.object);
@@ -1030,7 +1030,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 								ps = new PestStatus();
 								ps.setStatus(triple.object);
 							}
-							
+
 							ps.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
 							ps.setDocumentId(Integer.toString(document.getId()));
 		                    ps.setInfoSourceName(dcPublisher);
@@ -1040,13 +1040,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		                    ps.setRawStatus(triple.object);
 							addPestStatus(guid, ps);
 						}
-						
+
 	                } else if (triple.predicate.endsWith("hasImagePageUrl")) {
 	                    // do nothing but prevent getting caught next - added further down
 	                } else if(!Predicates.getTaxonomicPredicates().contains(triple.predicate)){
-	
+
 	                	// FIXME - this feels mighty unscalable...
-	                	// essentially we are putting all other field values in one very 
+	                	// essentially we are putting all other field values in one very
 	                	// large cell
 	                	// if this becomes a performance problem we should split
 	                	// on the predicate value. i.e. tc:hasHabitatText,
@@ -1064,7 +1064,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	                }
 				}
 			}
-			
+
 			//retrieve the content type
 			if(document.getFilePath()!=null){
 
@@ -1083,7 +1083,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                     image.setInfoSourceURL(dcSource);
                     image.setIdentifier(dcIdentifier);
                     image.setTitle(dcTitle);
-                    
+
                     if(dublinCore!=null){
                     	image.setCreator(dublinCore.get(Predicates.DC_CREATOR.toString()));
                     	image.setLocality(dublinCore.get(Predicates.LOCALITY.toString()));
@@ -1091,7 +1091,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                     	image.setLicence(dublinCore.get(Predicates.DC_LICENSE.toString()));
                     	image.setRights(dublinCore.get(Predicates.DC_RIGHTS.toString()));
                     }
-                    
+
                     if(hasPredicate(triples,Predicates.DIST_MAP_IMG_URL)){
                     	addDistributionImage(guid, image);
                     } else {
@@ -1099,17 +1099,17 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                     }
 				}
 			}
-			
+
 			System.out.println("Adding content to: "+guid+", using scientific name: "+scientificName+", genus: "+genus);
 //			addLiteralValues(guid, infoSourceId,Integer.toString(document.getId()), properties);
-			
+
 			return true;
 		} else {
 			System.out.println("GUID null");
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Returns true if the predicate is present.
 	 * @param triples
@@ -1129,7 +1129,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#clearRawProperties()
 	 */
 	public void clearRawProperties() throws Exception {
-		
+
 //    	ResultScanner scanner = getTable().getScanner(Bytes.toBytes(TC_COL_FAMILY));
 //    	Iterator<Result> iter = scanner.iterator();
 //		int i = 0;
@@ -1149,7 +1149,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean deleteForInfosources(String[] infoSourceIds) throws Exception {
 
 		Scanner scanner = storeHelper.getScanner(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.TAXONCONCEPT_COL.getColumnName());
-		
+
 		List<String> ids = new ArrayList<String>();
 		for(String id: infoSourceIds){
 			ids.add(id);
@@ -1158,29 +1158,29 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		byte[] guidAsBytes = null;
 		int i=0;
 		while ((guidAsBytes = scanner.getNextGuid())!=null) {
-			
+
 			String guid = new String(guidAsBytes);
     		//get common names
     		List<CommonName> commonNames = getCommonNamesFor(guid);
     		removeForInfosources((List) commonNames, ids);
     		storeHelper.putList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.VERNACULAR_COL.getColumnName(), guid, (List) commonNames, false);
-    		
+
     		//get common names
     		List<Image> images = getImages(guid);
     		removeForInfosources((List) images, ids);
     		storeHelper.putList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IMAGE_COL.getColumnName(), guid, (List) images, false);
     		i++;
-    		
+
     		if(i%1000==0){
     			logger.debug(i+" records processed. Last ID: "+guid);
     		}
 		}
 		return false;
 	}
-	
-	
+
+
 	private void removeForInfosources(List<AttributableObject> objects, List<String> ids) {
-		
+
 		List<AttributableObject> toRemove = new ArrayList<AttributableObject>();
 		for(AttributableObject object: objects){
 			if(object.getInfoSourceId()!=null && ids.contains(object.getInfoSourceId())){
@@ -1194,43 +1194,43 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#createIndex()
 	 */
 	public void createIndex() throws Exception {
-		
+
 		long start = System.currentTimeMillis();
-		
+
         List<String> pestTerms = vocabulary.getTermsForStatusType(StatusType.PEST);
         List<String> consTerms = vocabulary.getTermsForStatusType(StatusType.CONSERVATION);
-    	
+
         SolrServer solrServer = solrUtils.getSolrServer();
 
         logger.info("Clearing existing taxon entries in the search index...");
         solrServer.deleteByQuery("idxtype:"+IndexedTypes.TAXON); // delete everything!
         solrServer.commit();
-        
+
         logger.info("Cleared existing taxon entries in the search index.");
         List<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
 
     	int i = 0;
-		
+
 		Scanner scanner = storeHelper.getScanner(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.TAXONCONCEPT_COL.getColumnName());
-		
+
 		//load iconic species
-		
+
 		byte[] guidAsBytes = null;
-		
+
 		while ((guidAsBytes = scanner.getNextGuid())!=null) {
-//    	while(i==0){	
+//    	while(i==0){
 			String guid = new String(guidAsBytes);
 //			String guid = "urn:lsid:biodiversity.org.au:afd.taxon:7bcdf6aa-4eb0-4184-bbd1-ca2b518b749f";
 			i++;
-			
+
 			if(i%1000==0){
 				logger.info("Indexed records: "+i+", current guid: "+guid);
 			}
-    		
+
 			//index each taxon
 			List<SolrInputDocument> docsToAdd = indexTaxonConcept(guid, pestTerms, consTerms);
             docs.addAll(docsToAdd);
-	    	
+
 	    	if(i>0 && i%1000==0){
 	    		//iw.commit();
 	    		logger.debug(i + " " + guid+", adding "+docs.size());
@@ -1241,43 +1241,43 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    		}
 	    	}
     	}
-    	
+
         if (!docs.isEmpty()) {
         	logger.debug(i + "  adding "+docs.size()+" documents to index");
         	solrServer.add(docs);
         	solrServer.commit();
         }
-    	
+
     	long finish = System.currentTimeMillis();
     	logger.info("Index created in: "+((finish-start)/1000)+" seconds with "+ i +" taxon concepts processed.");
 	}
 
 	/**
 	 * Index the supplied taxon concept.
-	 * 
+	 *
 	 * @param guid
 	 * @return
 	 */
 	public List<SolrInputDocument> indexTaxonConcept(String guid, List<String> pestTerms, List<String> consTerms) throws Exception {
-		
+
 		List<SolrInputDocument> docsToAdd = new ArrayList<SolrInputDocument>();
-		
+
 		//get taxon concept details
 		TaxonConcept taxonConcept = getByGuid(guid);
-		
+
         if(taxonConcept!=null){
         	//get synonyms concepts
     		List<TaxonConcept> synonyms = getSynonymsFor(guid);
-    		
+
     		//get congruent concepts
     		List<TaxonConcept> congruentTcs = getCongruentConceptsFor(guid);
-    		
+
     		//treat congruent objects the same way we do synonyms
     		synonyms.addAll(congruentTcs);
-    		
+
     		//get common names
     		List<CommonName> commonNames = getCommonNamesFor(guid);
-    		
+
     		//add the parent id to enable tree browsing with this index
     		List<TaxonConcept> children = getChildConceptsFor(guid);
 
@@ -1287,17 +1287,17 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
             //add text properties
             List<SimpleProperty> simpleProperties = getTextPropertiesFor(guid);
-            
+
     		// save all infosource ids to add in a Set to index at the end
     		Set<String> infoSourceIds = new TreeSet<String>();
-            
+
     		//get alternative ids
     		List<String> identifiers = getIdentifiers(guid);
-    		
+
     		//TODO this index should also include nub ids
     		SolrInputDocument doc = new SolrInputDocument();
     		doc.addField("idxtype", IndexedTypes.TAXON);
-            
+
     		//is this species iconic
     		boolean isIconic = isIconic(guid);
                 //does this taxon have occurrence records associated with it?
@@ -1305,29 +1305,29 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                 //boolean isGs=count != null && count.size() >0 && count.get(0)>0;
                 if(count != null)
                     doc.addField("occurrenceCount", count);
-    		
+
     		if(taxonConcept.getNameString()!=null){
-    			
+
     			doc.addField("id", taxonConcept.getGuid());
     			doc.addField("guid", taxonConcept.getGuid());
-    			
+
     			for(String identifier: identifiers){
     				doc.addField("otherGuid", identifier);
     			}
     			//add the numeric checklistbank id
     			doc.addField("otherGuid", taxonConcept.getId());
-    			
+
     			addToSetSafely(infoSourceIds, taxonConcept.getInfoSourceId());
     			//add multiple forms of the scientific name to the index
     			addScientificNameToIndex(doc, taxonConcept.getNameString(), taxonConcept.getRankString());
-	    		
+
 	    		if(taxonConcept.getParentGuid()!=null){
 	    			doc.addField("parentGuid", taxonConcept.getParentGuid());
 	    		}
 	    		if(taxonConcept.getParentId()!=null){
 	    			doc.addField("parentId", taxonConcept.getParentId());
 	    		}
-	    		
+
 	    		//add the nested set values
 	    		doc.addField("left", taxonConcept.getLeft());
 	    		doc.addField("right", taxonConcept.getRight());
@@ -1374,7 +1374,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    				String commonNameString = WordUtils.capitalizeFully(cn.getNameString());
 	    				commonNameString.trim();
 	    				commonNameSet.add(commonNameString);
-	    				
+
 	    				if(cn.isPreferred()!=null && cn.isPreferred()){
 	    					higherPriorityNames.add(cn.getNameString());
 	    				}
@@ -1386,13 +1386,17 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                     String commonNamesConcat = StringUtils.deleteWhitespace(StringUtils.join(commonNameSet, " "));
                     doc.addField("commonNameSort", commonNamesConcat);
                     //add each common name separately
+                    //We need to add all common names to the commonNameExact because the CommonName also stores the "parts" of the common name
                     for(String commonName: commonNameSet){
                     	if(isIconic){
                     		doc.addField("commonName", commonName, 100f);
+                                doc.addField("commonNameExact", commonName, 100f);
                     	} else if(higherPriorityNames.contains(commonName)){
                     		doc.addField("commonName", commonName, 5f);
+                                doc.addField("commonNameExact", commonName, 5f);
                     	} else {
                     		doc.addField("commonName", commonName, 1.4f);
+                                doc.addField("commonNameExact", commonName, 1.4f);
                     	}
                     	//pull apart the common name
                     	String[] parts = commonName.split(" ");
@@ -1405,12 +1409,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                     		}
                     	}
                     }
-                    
+
                     doc.addField("commonNameDisplay", StringUtils.join(commonNameSet, ", "));
                     doc.addField("commonNameSingle", commonNames.get(0).getNameString());
                 }
-                
-	    		
+
+
 	    		for(TaxonConcept synonym: synonyms){
 	    			if(synonym.getNameString()!=null){
 	    				logger.debug("adding synonym to index: "+synonym.getNameString());
@@ -1445,7 +1449,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		    			}
 	    			}
 	    		}
-	    		
+
 	    		List<Classification> classifications = getClassifications(guid);
 	    		for (Classification classification: classifications){
 	    			addIfNotNull(doc, "kingdom", classification.getKingdom());
@@ -1457,7 +1461,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    		}
 	    		List<Image> images = getImages(guid);
 	    		boolean hasImages = !images.isEmpty();
-	    		
+
 	    		if(hasImages){
 	    			//FIXME should be replaced by the highest ranked image
 	    			Image image  = images.get(0);
@@ -1471,21 +1475,21 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    			}
 	    		}
 	    		doc.addField("hasImage", hasImages);
-	    		
+
                 addRankToIndex(doc, taxonConcept.getRankString());
-	    		
+
     			doc.addField("hasChildren", Boolean.toString(!children.isEmpty()));
                 doc.addField("dataset", StringUtils.join(infoSourceIds, " "));
-                
+
                 docsToAdd.add(doc);
     		}
         }
         return docsToAdd;
 	}
-	
+
 	/**
 	 * Add field if the value is not null
-	 * 
+	 *
 	 * @param doc
 	 * @param classification
 	 * @param fieldName
@@ -1572,7 +1576,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
             doc.addField(SCI_NAME_RAW, scientificName, 0.8f);
     	}
 	}
-	
+
     /**
 	 * Add the rank to the search document.
 	 *
@@ -1597,14 +1601,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		    }
 		}
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addReference(org.ala.model.Reference)
 	 */
 	public boolean addReferences(String guid, List<org.ala.model.Reference> references) throws Exception {
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.REFERENCE_COL.getColumnName(), guid, (List)references, false);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addEarliestReference(java.lang.String, org.ala.model.Reference)
 	 */
@@ -1618,7 +1622,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addPublicationReference(String guid, List<Reference> references) throws Exception{
     	return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.PUBLICATION_REFERENCE_COL.getColumnName(), guid, (List)references, false);
     }
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addPublication(java.lang.String, org.ala.model.Publication)
 	 */
@@ -1633,7 +1637,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public List<ExtantStatus> getExtantStatuses(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.EXTANT_STATUS_COL.getColumnName(), guid, ExtantStatus.class);
 	}
-		
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getHabitats(java.lang.String)
 	 */
@@ -1641,7 +1645,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public List<Habitat> getHabitats(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.HABITAT_COL.getColumnName(), guid, Habitat.class);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addExtantStatus(java.lang.String, org.ala.model.ExtantStatus)
 	 */
@@ -1668,21 +1672,21 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 	/**
 	 * Retrieve the references for the concept with the supplied GUID.
-	 * 
+	 *
 	 * @see org.ala.dao.TaxonConceptDao#getReferencesFor(java.lang.String)
 	 */
 	public List<Reference> getReferencesFor(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.REFERENCE_COL.getColumnName(), guid, Reference.class);
 	}
-	
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getEarliestReferenceFor(java.lang.String)
 	 */
     public Reference getEarliestReferenceFor(String guid) throws Exception{
         return (Reference) storeHelper.get(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.EARLIEST_REFERENCE_COL.getColumnName(), guid, Reference.class);
-        
+
     }
-    
+
     /**
      * @see org.ala.dao.TaxonConceptDao#getPublicationReferencesFor(java.lang.String)
      */
@@ -1718,11 +1722,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     public String getIndexLocation() {
         return TC_INDEX_DIR;
     }
-    
+
     /**
      * Prevent adding a null to a set.
-     * 
-     * @param set 
+     *
+     * @param set
      * @param object
      */
     private void addToSetSafely(Set set, Object object) {
@@ -1730,7 +1734,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     		set.add(object);
     	}
     }
-//    
+//
 //    /**
 //     * @param guid
 //     * @return
@@ -1739,7 +1743,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 //    	Get getter = new Get(Bytes.toBytes(guid)).addFamily(Bytes.toBytes(TC_COL_FAMILY));
 //    	return getter;
 //    }
-//    
+//
 //    /**
 //     * @param guid
 //     * @return
@@ -1748,14 +1752,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 //    	Get getter = new Get(Bytes.toBytes(guid)).addFamily(Bytes.toBytes(TN_COL_FAMILY));
 //    	return getter;
 //    }
-    
+
 	/**
 	 * @param storeHelper the storeHelper to set
 	 */
 	public void setStoreHelper(StoreHelper storeHelper) {
 		this.storeHelper = storeHelper;
 	}
-	
+
     /**
 	 * @see org.ala.dao.TaxonConceptDao#setVocabulary(org.ala.vocabulary.Vocabulary)
 	 */
@@ -1769,7 +1773,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public void setSolrUtils(SolrUtils solrUtils) {
 		this.solrUtils = solrUtils;
 	}
-	
+
 	// ===============<ExtendedtaxonConcept>=========
 	private Object getColumnValue(Map<String, Object> map, CassandraSubColumnType columnType){
 		Object o = map.get(columnType.getColumnName());
@@ -1778,7 +1782,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 		return o;
 	}
-	
+
 	private Object getFirstItem(List list){
 		if(list == null || list.isEmpty()){
 			return null;
