@@ -91,10 +91,10 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		            	}
 		            	else{
 		            		o = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, type.getClazz()));
-//		            		if(o == null){
-//		            			o = new ArrayList();
-//		            		}
 		            	}
+            		}
+            		else{
+            			logger.info("CassandraSubColumnType lookup failed. Invalid SubColumn Name: " + name);
             		}
 	            }
             	catch(Exception ex){

@@ -403,58 +403,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public TaxonConcept getByGuid(String guid) throws Exception {
 		return (TaxonConcept) storeHelper.get(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.TAXONCONCEPT_COL.getColumnName(), guid, TaxonConcept.class);
 	}
-
-	/**
-	 * @see org.ala.dao.TaxonConceptDao#getExtendedTaxonConceptByGuid(java.lang.String)
-	 */
-	/*
-	public ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid) throws Exception {
-		
-		logger.debug("Retrieving concept for guid: "+guid);
-		
-		ExtendedTaxonConceptDTO etc = new ExtendedTaxonConceptDTO();
-		
-		guid = getPreferredGuid(guid);
-		
-		//populate the dto
-		etc.setTaxonConcept(getByGuid(guid));
-		etc.setTaxonName(getTaxonNameFor(guid));
-		
-		List<Classification> classifications = getClassifications(guid);
-		if(!classifications.isEmpty()){
-			etc.setClassification(classifications.get(0));
-		}
-		
-		etc.setIdentifiers(getIdentifiers(guid));
-		etc.setSynonyms(getSynonymsFor(guid));
-		etc.setCommonNames(getCommonNamesFor(guid));
-		etc.setChildConcepts(getChildConceptsFor(guid));
-		etc.setParentConcepts(getParentConceptsFor(guid));
-		etc.setPestStatuses(getPestStatuses(guid));
-		etc.setConservationStatuses(getConservationStatuses(guid));
-		etc.setImages(getImages(guid));
-		etc.setDistributionImages(getDistributionImages(guid));
-        etc.setExtantStatuses(getExtantStatuses(guid));
-        etc.setHabitats(getHabitats(guid));
-        etc.setRegionTypes(OccurrencesInGeoregion.getRegionsByType(getRegions(guid)));
-        etc.setReferences(getReferencesFor(guid));
-		
-        etc.setEarliestReference(getEarliestReferenceFor(guid));
-        etc.setPublicationReference(getPublicationReferencesFor(guid));
-        
-        etc.setIdentificationKeys(getIdentificationKeys(guid));
-        etc.setSpecimenHolding(getSpecimenHoldings(guid)); 
-        
-		// sort the list of SimpleProperties for display in UI
-        List<SimpleProperty> simpleProperties = getTextPropertiesFor(guid);
-        Collections.sort(simpleProperties);
-        etc.setSimpleProperties(simpleProperties);
-        
-        logger.debug("Returned concept for guid: "+guid);
-        
-		return etc;
-	}
-	*/
 	
 	/**
 	 * Use the Lucene indexes to find the correct (accepted) guid.
@@ -1838,7 +1786,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			return list.get(0);
 		}		
 	}
-
+	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getExtendedTaxonConceptByGuid(java.lang.String)
+	 */
 	public ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid) throws Exception {		
 		logger.debug("Retrieving concept for guid: "+guid);		
 		ExtendedTaxonConceptDTO etc = new ExtendedTaxonConceptDTO();
