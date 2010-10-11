@@ -33,6 +33,8 @@ import org.ala.model.SimpleProperty;
 import org.ala.model.SpecimenHolding;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
  * Cassandra SubColumn name and data type.
@@ -108,6 +110,6 @@ public enum CassandraSubColumnType {
 	
     @Override
     public String toString() {
-        return this.columnName;
+    	return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }	
 }
