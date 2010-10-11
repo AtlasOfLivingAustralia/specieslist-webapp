@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -514,8 +515,8 @@ public class SpeciesController {
             } else {
                 newNames.add(commonNames.get(i));
             }
-        }
-        
+        }        
+        Collections.sort(newNames); 
         return newNames;
     }
 
