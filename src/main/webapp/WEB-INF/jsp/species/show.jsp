@@ -404,7 +404,10 @@
                                 <li <c:if test="${fn:containsIgnoreCase(status.status,'concern')}">class="green"</c:if>><abbr title="Least concern">lc</abbr></li>
                             </ul>
                         </c:if>
-                        <p>${status.status}<cite>source: <a href="${status.identifier}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite></p>
+                        <p> Status: ${status.status}<br/>
+                        	Region: ${status.region}<br/>
+	                        <cite>source: <a href="${status.identifier}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
+	                    </p>
                     </c:forEach>
                     <c:if test="${not empty extendedTaxonConcept.pestStatuses}"><h3>Nativeness</h3></c:if>
                     <c:forEach var="status" items="${extendedTaxonConcept.pestStatuses}">
