@@ -58,8 +58,9 @@ public class ExtendedTaxonConceptDTO {
 	protected List<Reference> publicationReference;
 	protected List<IdentificationKey> identificationKeys;
 	protected List<SpecimenHolding> specimenHolding;
-	
-	public List<SpecimenHolding> getSpecimenHolding() {
+    protected Boolean isAustralian;
+
+    public List<SpecimenHolding> getSpecimenHolding() {
 		return specimenHolding;
 	}
 	public void setSpecimenHolding(List<SpecimenHolding> specimenHolding) {
@@ -304,4 +305,16 @@ public class ExtendedTaxonConceptDTO {
 	public void setDistributionImages(List<Image> distributionImages) {
 		this.distributionImages = distributionImages;
 	}
+    /**
+	 * @param isAustralian the isAustralian to set
+	 */
+    public Boolean getIsAustralian() {
+        return isAustralian;
+    }
+    /**
+	 * @return the isAustralian
+	 */
+    public void setIsAustralian(Boolean isAustralian) {
+        this.isAustralian = isAustralian;
+    }
 }

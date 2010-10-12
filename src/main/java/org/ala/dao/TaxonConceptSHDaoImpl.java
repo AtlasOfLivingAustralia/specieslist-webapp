@@ -1826,9 +1826,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         
         etc.setIdentificationKeys((List<IdentificationKey>)getColumnValue(map, CassandraSubColumnType.IDENTIFICATION_KEY_COL));
         etc.setSpecimenHolding((List<SpecimenHolding>)getColumnValue(map, CassandraSubColumnType.SPECIMEN_HOLDING_COL)); 
-        
+
+        etc.setIsAustralian((Boolean) getColumnValue(map, CassandraSubColumnType.IS_AUSTRALIAN));
+
 		// sort the list of SimpleProperties for display in UI
         List<SimpleProperty> simpleProperties = (List<SimpleProperty>)getColumnValue(map, CassandraSubColumnType.TEXT_PROPERTY_COL);
+
         Collections.sort(simpleProperties);
         etc.setSimpleProperties(simpleProperties);
         
