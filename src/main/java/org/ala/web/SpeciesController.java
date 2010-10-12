@@ -159,7 +159,14 @@ public class SpeciesController {
             return SPECIES_ERROR;
         }
 
-        etc.setCommonNames(fixCommonNames(etc.getCommonNames())); // remove duplicate names
+        
+        //common name with many infosources
+        List<CommonName> names = fixCommonNames(etc.getCommonNames()); // remove duplicate names
+        Map<String, List<CommonName>> namesMap = sortCommonNameSources(names);
+        model.addAttribute("sortCommonNameSources", namesMap);
+        model.addAttribute("sortCommonNameKeys", namesMap.keySet().toArray());
+        
+        etc.setCommonNames(names); 
         model.addAttribute("extendedTaxonConcept", repoUrlUtils.fixRepoUrls(etc));
 		model.addAttribute("commonNames", getCommonNamesString(etc));
 		model.addAttribute("textProperties", filterSimpleProperties(etc));
@@ -518,6 +525,43 @@ public class SpeciesController {
         }        
         Collections.sort(newNames); 
         return newNames;
+    }
+
+    /**
+     * key-pair-value for commonNames & list of infosource
+     * 
+     * @param names
+     * @return
+     */
+    private Map<String, List<CommonName>> sortCommonNameSources(List<CommonName> names){
+    	CommonName prevName = null;
+    	Map<String, List<CommonName>> map = new Hashtable<String, List<CommonName>>();
+    	List<CommonName> list = new ArrayList<CommonName>();
+    	
+    	Iterator<CommonName> it = names.iterator();
+    	if(it.hasNext()){
+    		prevName = it.next();
+    		list.add(prevName);
+    	}
+    	
+    	while(it.hasNext()){
+    		CommonName curName = it.next();
+    		if(prevName.getNameString().replaceAll("[^a-zA-Z0-9]", "").equalsIgnoreCase(
+    				curName.getNameString().replaceAll("[^a-zA-Z0-9]", ""))){
+    			list.add(curName);
+    		}
+    		else{
+    			map.put(prevName.getNameString(), list);
+    			
+    			list = new ArrayList<CommonName>();
+    			list.add(curName);
+    			prevName = curName;    			
+    		}
+    	}
+    	if(prevName != null){
+    		map.put(prevName.getNameString(), list);
+    	}
+    	return map;
     }
 
     /**

@@ -604,23 +604,17 @@
                     <c:if test="${not empty extendedTaxonConcept.commonNames}">
                         <h2>Common Names</h2>
                     </c:if>
-                    <c:set value="" var="curName"/>
-                    <c:set value="true" var="firstTime"/>
-                    <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
-                    	<c:if test="${curName != fn:toLowerCase(commonName.nameString)}">
-                   			<c:if test="${not firstTime}">
-                   				</p>
-                   			</c:if>
-                   			<p>${commonName.nameString}                    	
-                    	</c:if>
-						<c:choose>
-						    <c:when test="${not empty commonName.identifier && not empty commonName.infoSourceName}"><cite>Source: <a href="${commonName.identifier}" target="blank">${commonName.infoSourceName}</a></cite></c:when>
-						    <c:otherwise><cite>Source: <a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>
-						</c:choose>
-						<c:if test="${not empty synonym.publishedIn}"><cite>Published in: <a name="">${synonym.publishedIn}</a></cite></c:if>                    		                    		
-  						<c:set value="${fn:toLowerCase(commonName.nameString)}" var="curName"/>
-  						<c:set value="false" var="firstTime"/>                 	
-                    </c:forEach>
+                    <c:forEach items="${sortCommonNameKeys}" var="nkey">
+                    	<p>${nkey}
+	                     	<c:forEach items="${sortCommonNameSources[nkey]}" var="commonName">
+	                            <c:choose>
+	                                <c:when test="${not empty commonName.identifier && not empty commonName.infoSourceName}"><cite>Source: <a href="${commonName.identifier}" target="blank">${commonName.infoSourceName}</a></cite></c:when>
+	                                <c:otherwise><cite>Source: <a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>
+	                            </c:choose>
+	                            <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <a name="">${synonym.publishedIn}</a></cite></c:if>                       
+	                     	</c:forEach>
+                    	</p>
+                    </c:forEach>                   
                 </div>
             </div><!---->
             <div id="column-two">
