@@ -408,7 +408,7 @@
                          -->
                         <p> Status: ${status.status}<br/>
                         	Region: ${status.region}<br/>
-	                        <cite>source: <a href="${status.identifier}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
+	                        <cite>source: <a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
 	                    </p>
                     </c:forEach>
                     <c:if test="${not empty extendedTaxonConcept.pestStatuses}"><h3>Nativeness</h3></c:if>
