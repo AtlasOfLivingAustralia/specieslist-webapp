@@ -8,7 +8,7 @@
   <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-ui-1.8.custom.min.js"></script>
   <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bie-theme/jquery-ui-1.8.custom.css" charset="utf-8">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8"/>
-  <title>Regions | ${geoRegion.regionTypeName} | ${geoRegion.name}</title>
+  <title>${geoRegion.name}  | ${geoRegion.regionTypeName} | Regions | Atlas of Living Australia</title>
   <script type="text/javascript">
         $(document).ready(function() {
             // JQuery UI buttons
