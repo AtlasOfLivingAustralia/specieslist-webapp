@@ -62,6 +62,12 @@
         <param-value>https://auth.ala.org.au</param-value>
     </context-param>
 
+	<!-- The Central Server hosting the CMS -->
+    <context-param>
+        <param-name>centralServer</param-name>
+        <param-value>http://test.ala.org.au</param-value>
+    </context-param>
+
     <context-param>
         <param-name>contextPath</param-name>
         <param-value></param-value>
