@@ -357,7 +357,7 @@
                         ${descriptionBlock}
                     </c:if>
 
-                    <h3>Online resources</h3>
+                    <h2>Online resources</h2>
                     <table cellpadding="0" cellspacing="0" id="onlineResources">
                         <colgroup style="width:50%;"></colgroup> 
                         <colgroup></colgroup> 
@@ -393,17 +393,6 @@
                                 </h3>
                             </div>
                         </div> 
-                        <div class="hr">&nbsp;</div>
-                        <h2>A big thanks</h2>
-                        <p>Without our data contributors, this page would be empty!</p>
-                        <ul class="friends">
-                            <c:forEach var="infoSource" items="${infoSources}" varStatus="status">
-                                <c:if test="${not empty infoSource.infoSourceURL && not empty infoSource.infoSourceName && status.index > 0 && infoSources[status.index - 1].infoSourceName != infoSource.infoSourceName}">
-                                    <li><a href="${infoSource.infoSourceURL}" target="_blank" class="external">${infoSource.infoSourceName}</a><!--${infoSource.infoSourceId}--></li>
-                                </c:if>
-                            </c:forEach>
-                        </ul>
-                        <div class="hr">&nbsp;</div>
                     </c:if>
                 </div>
             </div><!---->
@@ -424,14 +413,16 @@
                         <div>WA<span class="iucn marine">&nbsp;</span>Marine</div> 
                         <div class="last">IUCN<span class="iucn green">LC</span>least concern</div>
                         --%>
-                        <c:choose>
-                            <c:when test="${extendedTaxonConcept.isAustralian}">
-                                <div>Australia<span class="iucn native">&nbsp;</span>Recorded In</div>
-                            </c:when>
-                            <c:otherwise>
-                                <div>Australia<span class="iucn nonnative">&nbsp;</span>Not Recorded In</div>
-                            </c:otherwise>
-                        </c:choose>
+                        <c:if test="${extendedTaxonConcept.taxonConcept.rankID >= 7000}">
+                            <c:choose>
+                                <c:when test="${extendedTaxonConcept.isAustralian}">
+                                    <div>Australia<span class="iucn native">&nbsp;</span>Recorded In</div>
+                                </c:when>
+                                <c:otherwise>
+                                    <div>Australia<span class="iucn nonnative">&nbsp;</span>Not Recorded In</div>
+                                </c:otherwise>
+                            </c:choose>
+                        </c:if>
                         <c:forEach var="status" items="${extendedTaxonConcept.conservationStatuses}">
                             <c:if test="${fn:containsIgnoreCase(status.status,'extinct') || fn:containsIgnoreCase(status.status,'endangered') || fn:containsIgnoreCase(status.status,'vulnerable') || fn:containsIgnoreCase(status.status,'threatened') || fn:containsIgnoreCase(status.status,'concern') || fn:containsIgnoreCase(status.status,'deficient')}">
                                 <div><fmt:message key="region.${status.region}"/>
