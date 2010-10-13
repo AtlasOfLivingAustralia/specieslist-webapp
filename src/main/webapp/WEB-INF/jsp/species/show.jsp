@@ -434,14 +434,14 @@
                         </c:choose>
                         <c:forEach var="status" items="${extendedTaxonConcept.conservationStatuses}">
                             <c:if test="${fn:containsIgnoreCase(status.status,'extinct') || fn:containsIgnoreCase(status.status,'endangered') || fn:containsIgnoreCase(status.status,'vulnerable') || fn:containsIgnoreCase(status.status,'threatened') || fn:containsIgnoreCase(status.status,'concern') || fn:containsIgnoreCase(status.status,'deficient')}">
-                                <div>${status.region}
-                                    <span <c:if test="${fn:endsWith(status.status,'Extinct')}">class="iucn red"</c:if>>EX</span>
-                                    <span <c:if test="${fn:containsIgnoreCase(status.status,'wild')}">class="iucn red"</c:if>>EW</span>
-                                    <span <c:if test="${fn:containsIgnoreCase(status.status,'Critically')}">class="iucn yellow"</c:if>>CR</span>
-                                    <span <c:if test="${fn:startsWith(status.status,'Endangered')}">class="iucn yellow"</c:if>>EN</span>
-                                    <span <c:if test="${fn:containsIgnoreCase(status.status,'Vulnerable')}">class="iucn yellow"</c:if>>VU</span>
-                                    <span <c:if test="${fn:containsIgnoreCase(status.status,'Near')}">class="iucn green"</c:if>>NT</span>
-                                    <span <c:if test="${fn:containsIgnoreCase(status.status,'concern')}">class="iucn green"</c:if>>LC</span>
+                                <div><fmt:message key="region.${status.region}"/>
+                                    <c:if test="${fn:endsWith(status.status,'Extinct')}"><span class="iucn red">EX</span></c:if>
+                                    <c:if test="${fn:containsIgnoreCase(status.status,'wild')}"><span class="iucn red">EW</span></c:if>
+                                    <c:if test="${fn:containsIgnoreCase(status.status,'Critically')}"><span class="iucn yellow">CR</span></c:if>
+                                    <c:if test="${fn:startsWith(status.status,'Endangered')}"><span class="iucn yellow">EN</span></c:if>
+                                    <c:if test="${fn:containsIgnoreCase(status.status,'Vulnerable')}"><span class="iucn yellow">VU</span></c:if>
+                                    <c:if test="${fn:containsIgnoreCase(status.status,'Near')}"><span class="iucn green">NT</span></c:if>
+                                    <c:if test="${fn:containsIgnoreCase(status.status,'concern')}"><span class="iucn green">LC</span></c:if>
                                     ${status.status}
                                 </div>
                             </c:if>
