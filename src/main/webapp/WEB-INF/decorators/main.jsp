@@ -74,7 +74,7 @@ include file="/common/taglibs.jsp" %>
                             }
                             return rows;
                         },
-                        matchSubset: true,
+                        matchSubset: false,
                         formatItem: function(row, i, n) {
                             return row.matchedNames[0]; // + ' (' + row.rankString + ')';
                         },
