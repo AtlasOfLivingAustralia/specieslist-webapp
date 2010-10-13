@@ -669,7 +669,12 @@ public class SpeciesController {
                     is.setText(text);
                 }
                 if (!section.isEmpty()) {
-                    Set<String> sections = new LinkedHashSet<String>(is.getSections());
+                    Set<String> sections = null;
+                    if (is.getSections() != null) {
+                        sections = new LinkedHashSet<String>(is.getSections());
+                    } else {
+                        sections = new LinkedHashSet<String>();
+                    }
                     sections.add(section);
                     is.setSections(sections);
                 }
