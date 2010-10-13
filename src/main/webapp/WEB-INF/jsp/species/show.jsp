@@ -190,7 +190,7 @@
 
                 var statusIconsCount = $('div.toggle div#status div').length;
                 //alert("Number of status icons: "+statusIconsCount);
-                if (statusIconsCount > 4) {
+                if (statusIconsCount > 12) {
                     $('p.trigger').show();
                 }
 
