@@ -4,6 +4,7 @@ import au.org.ala.data.model.LinnaeanRankClassification;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
@@ -19,6 +20,11 @@ import org.gbif.ecat.parser.NameParser;
 import org.gbif.file.CSVReader;
 import org.springframework.stereotype.Component;
 import org.ala.vocabulary.Vocabulary;
+import org.gbif.dwc.record.DarwinCoreRecord;
+import org.gbif.dwc.terms.ConceptTerm;
+import org.gbif.dwc.terms.GbifTerm;
+import org.gbif.dwc.text.Archive;
+import org.gbif.dwc.text.ArchiveFactory;
 import org.gbif.ecat.model.ParsedName;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -59,6 +65,8 @@ public class ConservationDataLoader {
     private static final String actFile = "/data/bie-staging/conservation/act/ACT_threatened_species.csv";
     private static final String ntFaunaFile = "/data/bie-staging/conservation/nt/NT_fauna.csv";
     private static final String ntFloraFile = "/data/bie-staging/conservation/nt/NT_flora.csv";
+    private static final String iucnDirectory = "/data/bie-staging/conservation/iucn";
+    private static final String iucnFile = "/data/bie-staging/conservation/iucn/2008_REDLIST.csv";
 
     public static void main(String args[]) {
         try {
@@ -84,6 +92,8 @@ public class ConservationDataLoader {
             //load NT using generic
             loader.loadGenericState(ntFaunaFile, "Northern Territory", "Fauna", 508, 0, 2, 1);
             loader.loadGenericState(ntFloraFile, "Northern Territory", "Flora", 508, 1, 2, 3);
+            loader.loadIUCN();
+//            loader.processIUCN();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -438,6 +448,79 @@ public class ConservationDataLoader {
         }
         logger.info("Finished adding " + processed + "(" + loaded + ") conservation status.  Failed to locate " + failed);
     }
+
+    private void loadIUCN() throws Exception {
+        logger.info("Loading the IUCN Redlist...");
+        CSVReader reader = CSVReader.buildReader(new File(iucnFile), "UTF-8", ',', '"', 1);
+        InfoSource is = infoSourceDAO.getById(510);
+        int processed = 0, failed = 0;
+
+        while(reader.hasNext()){
+            String[] values = reader.readNext();
+            if(values != null && values.length >= 24){
+                String sciName = values[23];
+                String k = StringUtils.capitalize(values[1].toLowerCase());
+                String p = StringUtils.capitalize(values[2].toLowerCase());
+                String c = StringUtils.capitalize(values[3].toLowerCase());
+                String o = StringUtils.capitalize(values[4].toLowerCase());
+                String f = StringUtils.capitalize(values[5].toLowerCase());
+                String g = values[6];
+                LinnaeanRankClassification cl = new LinnaeanRankClassification(k,p,c,o,f,g,sciName);
+                String guid = taxonConceptDao.findLsidByName(sciName, cl, null);
+               
+                if(guid != null){
+                    processed++;
+                    ConservationStatus cs = vocabulary.getConservationStatusFor(510, values[17]);
+                    addCSInfo(cs, is, null, null);
+                    taxonConceptDao.addConservationStatus(guid, cs);
+
+                    String commonName = StringUtils.trimToNull(values[14]);
+                    if(commonName != null){
+                        addCommonName(guid, commonName, is);
+                    }
+                }
+                else{
+                    failed++;
+                    logger.info("Unable to locate scientific name " + sciName);
+                }
+            }
+        }
+        logger.info("Finished adding " + processed +" conservation status.  Failed to locate " + failed);
+    }
+
+//    private void processIUCN() throws Exception{
+//        //the IUCN is in the form of a DWC Archive.
+//        Archive archive = ArchiveFactory.openArchive(new File(iucnDirectory),true);
+//        Iterator<DarwinCoreRecord> iter = archive.iteratorDwc();
+//        while(iter.hasNext()){
+//            DarwinCoreRecord dwcr = iter.next();
+//            if(dwcr!= null){
+//                //get the scietific name
+//                String name = dwcr.getScientificName();
+//                LinnaeanRankClassification cl = new LinnaeanRankClassification(dwcr.getKingdom(), dwcr.getPhylum(), dwcr.getClasss(), dwcr.getOrder(),dwcr.getFamily(), dwcr.getGenus(), name);
+//                String guid = taxonConceptDao.findLsidByName(name, cl, null);
+//                if(guid != null){
+//                    //we have found a record that needs to be processed
+//
+//                    String status = StringUtils.trimToNull(dwcr.getProperty(GbifTerm.threatStatus));
+//                    if(status != null){
+//                        System.out.println(dwcr.getIdentificationID() + " has scientific name " + name + " status : " + status);
+//                    }
+//
+//                    //only process the English common names
+//                    String commonName = StringUtils.trimToNull(dwcr.getVernacularName());
+//                    String language = StringUtils.trimToNull(dwcr.getLanguage());
+//                    if(commonName!=null && language != null){
+//                        if(language.equalsIgnoreCase("en")){
+//                            System.out.println(dwcr.getIdentificationID() + " " + name + " has common name: "+ commonName);
+////                            addCommonName(guid, commonName, is);
+//                        }
+//                    }
+//                }
+//
+//            }
+//        }
+//    }
 
     public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
 
