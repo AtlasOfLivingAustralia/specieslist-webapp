@@ -22,8 +22,6 @@
 
             google.load("visualization", "1", {packages:["corechart"]});
             
-            var solrServer = "${solrServerUrl}"; //
-
             /*
              * OnLoad equivilent in JQuery
              */
@@ -184,6 +182,18 @@
                 // change body id for Dena's custom CSS
                 $("body").attr("id","taxon");
 
+                //Switch the "Open" and "Close" state per click then slide up/down (depending on open/close state)
+                $('p.trigger').click(function(){
+                    $(this).toggleClass('active').prev().toggleClass('full');
+                    //$(this).toggleClass('active').next().toggleClass('full').slideToggle('slow');
+                });
+
+                var statusIconsCount = $('div.toggle div#status div').length;
+                //alert("Number of status icons: "+statusIconsCount);
+                if (statusIconsCount > 4) {
+                    $('p.trigger').show();
+                }
+
             });  // end document ready function
 
             /**
@@ -200,7 +210,6 @@
     </head>
     <body id="taxon">
         <div id="header" class="taxon">
-            
             <c:choose>
             <c:when test="${not empty extendedTaxonConcept.taxonName && not empty extendedTaxonConcept.taxonName.nameComplete}">
 	            <c:set var="sciNameFormatted">
@@ -213,12 +222,7 @@
 	            </c:set>           
             </c:otherwise>
             </c:choose>
-			
-			<!--             
-            <c:set var="contributeURL" value="${wordPressUrl}contribute?guid=${extendedTaxonConcept.taxonConcept.guid}"/>
-             -->
             <c:set var="contributeURL" value="${biocacheUrl}contribute/sighting/${extendedTaxonConcept.taxonConcept.guid}"/>
-            
             <div id="breadcrumb">
                 <ul>
                     <li><a href="${wordPressUrl}">Home</a></li>
@@ -268,11 +272,16 @@
             <div id="taxacrumb">
                 <ul>
                     <c:forEach items="${taxonHierarchy}" var="taxon">
-                        <li>
-                            <c:if test="${taxon.guid != extendedTaxonConcept.taxonConcept.guid}">
-                            <a href="<c:url value='/species/${taxon.guid}'/>" title="${taxon.rank}"></c:if><c:if test="${taxon.rankId>=6000}"><i></c:if>${taxon.name}<c:if test="${taxon.rankId>=6000}"></i></c:if><c:if test="${taxon.guid != extendedTaxonConcept.taxonConcept.guid}"></a>
-                            </c:if>
-                        </li>
+                        <c:if test="${taxon.rankId % 1000 == 0}"><%-- Only display major ranks. NdR --%>
+                            <li>
+                                <c:if test="${taxon.guid != extendedTaxonConcept.taxonConcept.guid}">
+                                    <a href="<c:url value='/species/${taxon.guid}'/>" title="${taxon.rank}">
+                                </c:if>
+                                <c:if test="${taxon.rankId>=6000}"><i></c:if>${taxon.name}<c:if test="${taxon.rankId>=6000}"></i></c:if>
+                                <c:if test="${taxon.guid != extendedTaxonConcept.taxonConcept.guid}"></a>
+                                </c:if>
+                            </li>
+                        </c:if>
                     </c:forEach>
                 </ul>
             </div>
@@ -293,29 +302,81 @@
         <div id="overview">
             <div id="column-one">
                 <div class="section">
-                    <c:forEach var="textProperty" items="${textProperties}" varStatus="status">
-                        <c:if test="${status.index == 0 || !fn:contains(textProperty.name, textProperties[(status.index -1)].name)}">
-                            <!-- Only show heading for first occurrence -->
-                            <h2><fmt:message key="${fn:substringAfter(textProperty.name, '#')}"/></h2>
-                        </c:if>
+                    <h2>Species overview</h2>
+                    <div class="distroMap section no-margin">
+                        <h3>Mapped occurrence records</h3>
                         <p>
-                            ${textProperty.value}
-                            <cite>source: <a href="${textProperty.identifier}" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></cite>
+                            <a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View occurrence records list</a>
+                            | <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="View interactive map">View interactive map</a>
                         </p>
-                        <c:if test="${(fn:length(textProperties) < 3 && status.last) || status.count == 3}">
-                            <div class="hr">&nbsp;</div>
-                            <h2>A big thanks</h2>
-                            <p>Without our data contributors, this page would be empty!</p>
-                            <ul class="friends">
-                                <c:forEach var="infoSource" items="${infoSources}" varStatus="status">
-                                    <c:if test="${not empty infoSource.infoSourceURL && not empty infoSource.infoSourceName && status.index > 0 && infoSources[status.index - 1].infoSourceName != infoSource.infoSourceName}">
-                                        <li><a href="${infoSource.infoSourceURL}" target="_blank" class="">${infoSource.infoSourceName}</a><!--${infoSource.infoSourceId}--></li>
-                                    </c:if>
-                                </c:forEach>
-                            </ul>
-                            <div class="hr">&nbsp;</div>
-                        </c:if>
-                    </c:forEach>
+                        <div class="left">
+                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="View interactive map"><img src="${spatialPortalWMSUrl}ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" width="462" alt=""/></a>
+                        </div>
+                        <div class="right" style="width:149px; font-size: 90%">
+                            <table>
+                                <caption>Number of records</caption>
+                                <tr>
+                                    <td style="background-color:#ffff00;color:#ffff00;">yel</td>
+                                    <td>1&ndash;9</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color:#ffcc00;color:#ffcc00;">yel or</td>
+                                    <td>10&ndash;49</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color:#ff9900;color:#ff9900;">or</td>
+                                    <td>50&ndash;99</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color:#ff6600;color:#ff6600;">or red</td>
+                                    <td>100&ndash;249</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color:#ff3300;color:#ff3300;">lt red</td>
+                                    <td>250&ndash;499</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color:#cc0000;color:#cc0000;">red</td>
+                                    <td>500+</td>
+                                </tr>
+                                <tr>
+                            </table>
+                        </div>
+                    </div>
+                    <c:set var="descriptionBlock">
+                        <c:forEach var="textProperty" items="${textProperties}" varStatus="status">
+                            <c:if test="${fn:endsWith(textProperty.name, 'hasDescriptiveText') && status.count < 3}">
+                                <p>${textProperty.value} <cite>source: <a href="${textProperty.identifier}" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></cite></p>
+                            </c:if>
+                        </c:forEach>
+                    </c:set>
+                    <c:if test="${not empty descriptionBlock}">
+                        <h3>Description</h3>
+                        ${descriptionBlock}
+                    </c:if>
+
+                    <h3>Online resources</h3>
+                    <table cellpadding="0" cellspacing="0"> 
+                        <colgroup style="width:50%;"></colgroup> 
+                        <colgroup></colgroup> 
+                        <tbody> 
+                            <c:forEach var="entry" items="${infoSources}" varStatus="status">
+                                <c:set var="infoSource" value="${entry.value}"/>
+                                <tr class="border-top">
+                                    <td><a href="${infoSource.infoSourceURL}" target="_blank" class="">${infoSource.infoSourceName}</a><!--${status.count}--></td>
+                                    <td class="small-font">
+                                        <c:forEach items="${infoSource.sections}" var="section" varStatus="s">
+                                            <fmt:message key="${section}"/><c:if test="${!s.last}">,</c:if>
+                                        </c:forEach>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><p>${infoSource.text}</p></td>
+                                </tr>
+                            </c:forEach>
+                        </tbody> 
+                    </table> 
+                    
                     <c:if test="${empty textProperties}">
                         <div class="sorry sighting no-margin-top">
                             <div>
@@ -345,6 +406,60 @@
                 </div>
             </div><!---->
             <div id="column-two">
+                <div class="toggle section half-padding-bottom"> 
+                    <div id="status"class="status"> 
+                        <%--
+                        <div>Habitat<span class="iucn terrestrial">&nbsp;</span>Terrestrial</div> 
+                        <div>Australia<span class="iucn green">LC</span>Least Concern</div> 
+                        <div>NSW<span class="iucn green">LC</span>Least Concern</div> 
+                        <div class="last">ACT<span class="iucn green">LC</span>Least Concern</div> 
+                        <div>Nativeness<span class="iucn native">&nbsp;</span>Native</div> 
+                        <div>NT<span class="iucn yellow">EN</span>endangered</div> 
+                        <div>QLD<span class="iucn green">CD</span>conservation dependent</div> 
+                        <div class="last">Tas<span class="iucn yellow">EN</span>endangered</div> 
+                        <div>SA<span class="iucn">?</span>no data</div> 
+                        <div>VIC<span class="iucn nonnative">&nbsp;</span>non-native</div> 
+                        <div>WA<span class="iucn marine">&nbsp;</span>Marine</div> 
+                        <div class="last">IUCN<span class="iucn green">LC</span>least concern</div>
+                        --%>
+                        <c:choose>
+                            <c:when test="${extendedTaxonConcept.isAustralian}">
+                                <div>Australia<span class="iucn native">&nbsp;</span>Recorded In</div>
+                            </c:when>
+                            <c:otherwise>
+                                <div>Australia<span class="iucn nonnative">&nbsp;</span>Not Recorded In</div>
+                            </c:otherwise>
+                        </c:choose>
+                        <c:forEach var="status" items="${extendedTaxonConcept.conservationStatuses}">
+                            <c:if test="${fn:containsIgnoreCase(status.status,'extinct') || fn:containsIgnoreCase(status.status,'endangered') || fn:containsIgnoreCase(status.status,'vulnerable') || fn:containsIgnoreCase(status.status,'threatened') || fn:containsIgnoreCase(status.status,'concern') || fn:containsIgnoreCase(status.status,'deficient')}">
+                                <div>${status.region}
+                                    <span <c:if test="${fn:endsWith(status.status,'Extinct')}">class="iucn red"</c:if>>EX</span>
+                                    <span <c:if test="${fn:containsIgnoreCase(status.status,'wild')}">class="iucn red"</c:if>>EW</span>
+                                    <span <c:if test="${fn:containsIgnoreCase(status.status,'Critically')}">class="iucn yellow"</c:if>>CR</span>
+                                    <span <c:if test="${fn:startsWith(status.status,'Endangered')}">class="iucn yellow"</c:if>>EN</span>
+                                    <span <c:if test="${fn:containsIgnoreCase(status.status,'Vulnerable')}">class="iucn yellow"</c:if>>VU</span>
+                                    <span <c:if test="${fn:containsIgnoreCase(status.status,'Near')}">class="iucn green"</c:if>>NT</span>
+                                    <span <c:if test="${fn:containsIgnoreCase(status.status,'concern')}">class="iucn green"</c:if>>LC</span>
+                                    ${status.status}
+                                </div>
+                            </c:if>
+                        </c:forEach>
+                        <c:forEach var="habitat" items="${extendedTaxonConcept.habitats}">
+                            <c:set var="divMarine">
+                                <div>Habitat <span class="iucn marine">&nbsp;</span> Marine</div>
+                            </c:set>
+                            <c:set var="divTerrestrial">
+                                <div>Habitat <span class="iucn terrestrial">&nbsp;</span> Terrestrial</div>
+                            </c:set>
+                            <c:choose>
+                                <c:when test="${habitat.status == 'M'}">${divMarine}</c:when>
+                                <c:when test="${habitat.status == 'N'}">${divTerrestrial}</c:when>
+                                <c:otherwise>${divMarine} ${divTerrestrial}</c:otherwise>
+                            </c:choose>
+                        </c:forEach>
+                    </div> 
+                    <p class="trigger left no-padding-bottom" style="display: none"><a href="#">View all statuses</a></p>
+                </div>
                 <div id="images" class="section">
                     <ul>
                         <c:choose>
@@ -382,6 +497,7 @@
                         </div>
                     </div>
                 </c:if>
+                <%--
                 <div class="section">
                     <div class="distroMap" style="display:none;">
                         <h3>Mapped records</h3>
@@ -436,6 +552,7 @@
                         </p>
                     </c:forEach>
                 </div><!--close news-->
+                --%>
                 <div class="section">
                     
                 </div><!--close tools-->

@@ -17,14 +17,17 @@ package org.ala.web;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
@@ -42,7 +45,14 @@ import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.model.AttributableObject;
 import org.ala.model.CommonName;
+import org.ala.model.ConservationStatus;
 import org.ala.model.Document;
+import org.ala.model.ExtantStatus;
+import org.ala.model.Habitat;
+import org.ala.model.Image;
+import org.ala.model.PestStatus;
+import org.ala.model.Publication;
+import org.ala.model.Reference;
 import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
 import org.ala.repository.Predicates;
@@ -570,63 +580,114 @@ public class SpeciesController {
      * @param etc
      * @return
      */
-    private List<InfoSourceDTO> getInfoSource(ExtendedTaxonConceptDTO etc) {
-        Set<InfoSourceDTO> infoSources = new TreeSet<InfoSourceDTO>();
+    private Map<String, InfoSourceDTO> getInfoSource(ExtendedTaxonConceptDTO etc) {
+        Map<String, InfoSourceDTO> infoSourceMap = new TreeMap<String, InfoSourceDTO>();
+
         // Look in each property of the ExtendedTaxonConceptDTO
-        if (etc.getTaxonConcept() != null) infoSources.add(extractInfoSources(etc.getTaxonConcept()));
-        if (etc.getTaxonName() != null) infoSources.add(extractInfoSources(etc.getTaxonName()));
-        if (etc.getImages() != null) infoSources.addAll(extractAllInfoSources(etc.getImages()));
-        if (etc.getCommonNames() != null) infoSources.addAll(extractAllInfoSources(etc.getCommonNames()));
-        if (etc.getSimpleProperties() != null) infoSources.addAll(extractAllInfoSources(etc.getSimpleProperties()));
-        if (etc.getChildConcepts() != null) infoSources.addAll(extractAllInfoSources(etc.getChildConcepts()));
-        if (etc.getDistributionImages() != null) infoSources.addAll(extractAllInfoSources(etc.getDistributionImages()));
-        if (etc.getPestStatuses() != null) infoSources.addAll(extractAllInfoSources(etc.getPestStatuses()));
-        if (etc.getConservationStatuses() != null) infoSources.addAll(extractAllInfoSources(etc.getConservationStatuses()));
-        if (etc.getExtantStatuses() != null) infoSources.addAll(extractAllInfoSources(etc.getExtantStatuses()));
-        if (etc.getHabitats() != null) infoSources.addAll(extractAllInfoSources(etc.getHabitats()));
-        if (etc.getPublicationReference() != null) infoSources.addAll(extractAllInfoSources(etc.getPublicationReference()));
-        if (etc.getEarliestReference() != null) infoSources.add(extractInfoSources(etc.getEarliestReference()));
-        if (etc.getSynonyms() != null) infoSources.addAll(extractAllInfoSources(etc.getSynonyms()));
-        if (etc.getReferences() != null) infoSources.addAll(extractAllInfoSources(etc.getReferences()));
-        if (etc.getClassification() != null) infoSources.add(extractInfoSources(etc.getClassification()));
-        
-        ArrayList<InfoSourceDTO> isList = new ArrayList<InfoSourceDTO>(infoSources); // convert Set to List (for easy sorting)
-        Collections.sort(isList); // sort by infoSourceId (in comparedTo method of bean)
-
-        return isList;
-    }
-    
-    /**
-     * Create a list of unique infoSources to display on Overview page.
-     * 
-     * @param etc
-     * @return
-     */
-    private List<InfoSourceDTO> extractAllInfoSources(List<? extends AttributableObject> aos) {
-        List<InfoSourceDTO> infoSources = new ArrayList<InfoSourceDTO>();
-        for (AttributableObject ao : aos) {
-            infoSources.add(extractInfoSources(ao));
+        if (etc.getTaxonConcept() != null) {
+            String text = etc.getTaxonConcept().getNameString() + " " + etc.getTaxonConcept().getAuthor();
+            extractInfoSources(etc.getTaxonConcept(), infoSourceMap, text, "Names");
         }
-        
-        return infoSources;
+        if (etc.getTaxonName() != null) {
+            extractInfoSources(etc.getTaxonName(), infoSourceMap, etc.getTaxonName().getNameComplete(), "Names");
+        }
+        if (etc.getCommonNames() != null) {
+            for (CommonName cn : etc.getCommonNames()) {
+                extractInfoSources(cn, infoSourceMap, cn.getNameString(), "Names");
+            }
+        }
+        if (etc.getSimpleProperties() != null) {
+            for (SimpleProperty sp : etc.getSimpleProperties()) {
+                String label = StringUtils.substringAfter(sp.getName(), "#");
+                extractInfoSources(sp, infoSourceMap, sp.getValue(), label);
+            }
+        }
+        if (etc.getPestStatuses() != null) {
+            for (PestStatus ps : etc.getPestStatuses()) {
+                extractInfoSources(ps, infoSourceMap, ps.getStatus() + " status", "Status");
+            }
+        }
+        if (etc.getConservationStatuses() != null) {
+            for (ConservationStatus cs : etc.getConservationStatuses()) {
+                extractInfoSources(cs, infoSourceMap, cs.getStatus() + " status", "Status");
+            }
+        }
+        if (etc.getExtantStatuses() != null) {
+            for (ExtantStatus es : etc.getExtantStatuses()) {
+                extractInfoSources(es, infoSourceMap, es.getStatusAsString() + " status", "Status");
+            }
+        }
+        if (etc.getHabitats() != null) {
+            for (Habitat hb : etc.getHabitats()) {
+                extractInfoSources(hb, infoSourceMap, hb.getStatusAsString() + " status", "Status");
+            }
+        }
+        if (etc.getImages() != null) {
+            for (Image img : etc.getImages()) {
+                StringBuilder text = new StringBuilder("Image from " + img.getInfoSourceName());
+                if (img.getCreator() != null) {
+                    text.append("(by ").append(img.getCreator()).append(")");
+                }
+                extractInfoSources(img, infoSourceMap, text.toString(), "Images");
+            }
+        }
+        if (etc.getDistributionImages() != null) {
+            for (Image img : etc.getDistributionImages()) {
+                StringBuilder text = new StringBuilder("Distribution image from " + img.getInfoSourceName());
+                if (img.getCreator() != null) {
+                    text.append("(by ").append(img.getCreator()).append(")");
+                }
+                extractInfoSources(img, infoSourceMap, text.toString(), "Images");
+            }
+        }
+        if (etc.getPublicationReference() != null) {
+            for (Reference ref : etc.getPublicationReference()) {
+                extractInfoSources(ref, infoSourceMap, ref.getTitle(), "Publication");
+            }
+        }
+
+        return infoSourceMap;
     }
 
     /**
-     * Extract an infoSource from an AttributableObject
+     * Extract Info Source information from various AttributableObject's to create a Map of
+     * Info Sources for display on web page.
      *
      * @param ao
-     * @return
+     * @param infoSourceMap
+     * @param text
+     * @param section
      */
-    private InfoSourceDTO extractInfoSources(AttributableObject ao) {
-        InfoSourceDTO is = new InfoSourceDTO();
-        
+    private void extractInfoSources(AttributableObject ao, Map<String, InfoSourceDTO> infoSourceMap, String text, String section) {
         if (ao != null && ao.getInfoSourceName() != null) {
-            is.setInfoSourceName(ao.getInfoSourceName());
-            is.setInfoSourceURL(ao.getInfoSourceURL());
-            is.setInfoSourceId(ao.getInfoSourceId());
-        }
+            String infoSourceName = ao.getInfoSourceName();
 
-        return is;
+            if (infoSourceMap.containsKey(infoSourceName)) {
+                // key exists so add to existing object
+                InfoSourceDTO is = infoSourceMap.get(infoSourceName);
+                if (is.getText() == null || is.getText().isEmpty()) {
+                    is.setText(text);
+                }
+                if (!section.isEmpty()) {
+                    Set<String> sections = new LinkedHashSet<String>(is.getSections());
+                    sections.add(section);
+                    is.setSections(sections);
+                }
+            } else {
+                // no key so create one
+                InfoSourceDTO is = new InfoSourceDTO();
+                is.setInfoSourceName(infoSourceName);
+                is.setInfoSourceURL(ao.getInfoSourceURL());
+                is.setInfoSourceId(ao.getInfoSourceId());
+                is.setText(text);
+                if (!section.isEmpty()) {
+                    Set<String> sections = new LinkedHashSet<String>();
+                    sections.add(section);
+                    is.setSections(sections);
+                }
+                infoSourceMap.put(infoSourceName, is);
+            }
+        }
     }
     
     /**
@@ -656,97 +717,5 @@ public class SpeciesController {
             return value;
         }
 
-    }
-
-    /**
-     * Inner class to represent infoSource records on a web page
-     */
-    public class InfoSourceDTO implements Comparable<InfoSourceDTO> {
-        private String infoSourceName;
-        private String infoSourceURL;
-        private Integer infoSourceId;
-
-        public InfoSourceDTO(String infoSourceName, String infoSourceURL, Integer infoSourceId) {
-            this.infoSourceName = infoSourceName;
-            this.infoSourceURL = infoSourceURL;
-            this.infoSourceId = infoSourceId;
-        }
-
-        public InfoSourceDTO() {}
-
-        @Override
-        public boolean equals(Object obj) {
-            if(obj!=null && obj instanceof InfoSourceDTO){
-                InfoSourceDTO other = (InfoSourceDTO) obj;
-                if(infoSourceName!=null && infoSourceName.equalsIgnoreCase(other.getInfoSourceName())){
-                    //compare urls if not null
-                    if(other.getInfoSourceURL()!=null && infoSourceURL!=null){
-                        return other.getInfoSourceURL().equals(infoSourceURL);
-                    }
-                    //return true as the names are the same
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 5;
-            hash = 43 * hash + (this.infoSourceName != null ? this.infoSourceName.hashCode() : 0);
-            hash = 43 * hash + (this.infoSourceURL != null ? this.infoSourceURL.hashCode() : 0);
-            hash = 43 * hash + (this.infoSourceId != null ? this.infoSourceId.hashCode() : 0);
-            return hash;
-        }
-
-        @Override
-        public int compareTo(InfoSourceDTO o) {
-            //check the infosources
-            if(o.getInfoSourceId()!=null && infoSourceId!=null){
-                return infoSourceId.compareTo(o.getInfoSourceId());
-            }
-            if(o.getInfoSourceName()!=null && infoSourceName!=null){
-                return infoSourceName.compareTo(o.getInfoSourceName());
-            }
-            return -1;
-        }
-
-        public Integer getInfoSourceId() {
-            return infoSourceId;
-        }
-
-        public void setInfoSourceId(Integer infoSourceId) {
-            this.infoSourceId = infoSourceId;
-        }
-
-        public void setInfoSourceId(String infoSourceId) {
-            if (infoSourceId == null) {
-                this.infoSourceId = 999999;
-            } else {
-                try {
-                    this.infoSourceId = Integer.parseInt(infoSourceId);
-                } catch (NumberFormatException numberFormatException) {
-                    logger.error("Error setting Integer from String: "+numberFormatException.getLocalizedMessage(), numberFormatException);
-                    this.infoSourceId = 999999;
-                }
-            }
-            
-        }
-
-        public String getInfoSourceName() {
-            return infoSourceName;
-        }
-
-        public void setInfoSourceName(String infoSourceName) {
-            this.infoSourceName = infoSourceName.trim();
-        }
-
-        public String getInfoSourceURL() {
-            return infoSourceURL;
-        }
-
-        public void setInfoSourceURL(String infoSourceURL) {
-            this.infoSourceURL = infoSourceURL.trim();
-        }
     }
 }

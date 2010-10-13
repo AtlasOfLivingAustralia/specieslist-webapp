@@ -132,7 +132,13 @@
     </script>
     <style type="text/css" media="screen">
         .highlight { font-weight: bold; }
-        div.results span.highlight { display: inline; }
+        div.results span .resultsLabel {
+            color: #555;
+            font-weight: normal;
+        }
+        div.results span.highlight {
+            display: inline;
+        }
         #facets {
             margin-top:-1px;
         }
@@ -281,7 +287,7 @@
                                 <c:if test="${not empty result.thumbnail}"><a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><img class="alignright" src="${result.thumbnail}" width="85" height="85" alt="species image thumbnail"/></a></c:if>
                                 <c:if test="${empty result.thumbnail}"><div class="alignright" style="width:85px; height:40px;"></div></c:if>
                                 <span style="text-transform: capitalize; display: inline;">${result.rank}</span>:
-                                <a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${result.rankId}" name="${result.name}" acceptedName="${result.acceptedConceptName}"/></a>
+                                <a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${result.rankId}" name="${result.name}" acceptedName="${result.acceptedConceptName}"/>${result.author}</a>
                                 <c:if test="${not empty result.commonNameSingle}"><span class="commonNameSummary">&nbsp;&ndash;&nbsp; ${result.commonNameSingle}</span></c:if>
                             </h4>
                             <p>
@@ -291,8 +297,10 @@
                                 <c:if test="${false && not empty result.highlight}">
                                     <span><b>...</b> ${result.highlight} <b>...</b></span>
                                 </c:if>
-                                <!-- <span><strong>Rank</strong>: ${result.rank}</span>
-                                ${sectionText} -->
+                                <c:if test="${not empty result.kingdom}">
+                                    <span><strong class="resultsLabel">Kingdom</strong>: ${result.kingdom}</span>
+                                </c:if>
+                                <!-- ${sectionText} -->
                             </p>
                         </c:when>
                         <c:when test="${result.class.name == 'org.ala.dto.SearchRegionDTO'}">
