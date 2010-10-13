@@ -174,9 +174,11 @@
                     }
                 });
 
-                $("ul.friends a").favoriteIcon({
+                // Adds an icon (favicon taken from URL) for a given link
+                $("#onlineResources a.infosource").favoriteIcon({
                     iconClass : 'favoriteIcon',
-                    insertMethod: 'insertBefore'
+                    insertMethod: 'insertBefore',
+                    missingImgUrl: null
                 });
 
                 // change body id for Dena's custom CSS
@@ -356,14 +358,14 @@
                     </c:if>
 
                     <h3>Online resources</h3>
-                    <table cellpadding="0" cellspacing="0"> 
+                    <table cellpadding="0" cellspacing="0" id="onlineResources">
                         <colgroup style="width:50%;"></colgroup> 
                         <colgroup></colgroup> 
                         <tbody> 
                             <c:forEach var="entry" items="${infoSources}" varStatus="status">
                                 <c:set var="infoSource" value="${entry.value}"/>
                                 <tr class="border-top">
-                                    <td><a href="${infoSource.infoSourceURL}" target="_blank" class="">${infoSource.infoSourceName}</a><!--${status.count}--></td>
+                                    <td><a href="${infoSource.infoSourceURL}" target="_blank" class="infosource">${infoSource.infoSourceName}</a><!--${status.count}--></td>
                                     <td class="small-font">
                                         <c:forEach items="${infoSource.sections}" var="section" varStatus="s">
                                             <fmt:message key="${section}"/><c:if test="${!s.last}">,</c:if>
