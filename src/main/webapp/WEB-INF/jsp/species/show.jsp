@@ -398,21 +398,7 @@
             </div><!---->
             <div id="column-two">
                 <div class="toggle section half-padding-bottom"> 
-                    <div id="status"class="status"> 
-                        <%--
-                        <div>Habitat<span class="iucn terrestrial">&nbsp;</span>Terrestrial</div> 
-                        <div>Australia<span class="iucn green">LC</span>Least Concern</div> 
-                        <div>NSW<span class="iucn green">LC</span>Least Concern</div> 
-                        <div class="last">ACT<span class="iucn green">LC</span>Least Concern</div> 
-                        <div>Nativeness<span class="iucn native">&nbsp;</span>Native</div> 
-                        <div>NT<span class="iucn yellow">EN</span>endangered</div> 
-                        <div>QLD<span class="iucn green">CD</span>conservation dependent</div> 
-                        <div class="last">Tas<span class="iucn yellow">EN</span>endangered</div> 
-                        <div>SA<span class="iucn">?</span>no data</div> 
-                        <div>VIC<span class="iucn nonnative">&nbsp;</span>non-native</div> 
-                        <div>WA<span class="iucn marine">&nbsp;</span>Marine</div> 
-                        <div class="last">IUCN<span class="iucn green">LC</span>least concern</div>
-                        --%>
+                    <div id="status"class="status">
                         <c:if test="${extendedTaxonConcept.taxonConcept.rankID >= 7000}">
                             <c:choose>
                                 <c:when test="${extendedTaxonConcept.isAustralian}">
@@ -426,13 +412,15 @@
                         <c:forEach var="status" items="${extendedTaxonConcept.conservationStatuses}">
                             <c:if test="${fn:containsIgnoreCase(status.status,'extinct') || fn:containsIgnoreCase(status.status,'endangered') || fn:containsIgnoreCase(status.status,'vulnerable') || fn:containsIgnoreCase(status.status,'threatened') || fn:containsIgnoreCase(status.status,'concern') || fn:containsIgnoreCase(status.status,'deficient')}">
                                 <div><fmt:message key="region.${status.region}"/>
-                                    <c:if test="${fn:endsWith(status.status,'Extinct')}"><span class="iucn red">EX</span></c:if>
-                                    <c:if test="${fn:containsIgnoreCase(status.status,'wild')}"><span class="iucn red">EW</span></c:if>
-                                    <c:if test="${fn:containsIgnoreCase(status.status,'Critically')}"><span class="iucn yellow">CR</span></c:if>
-                                    <c:if test="${fn:startsWith(status.status,'Endangered')}"><span class="iucn yellow">EN</span></c:if>
-                                    <c:if test="${fn:containsIgnoreCase(status.status,'Vulnerable')}"><span class="iucn yellow">VU</span></c:if>
-                                    <c:if test="${fn:containsIgnoreCase(status.status,'Near')}"><span class="iucn green">NT</span></c:if>
-                                    <c:if test="${fn:containsIgnoreCase(status.status,'concern')}"><span class="iucn green">LC</span></c:if>
+                                    <c:choose>
+                                        <c:when test="${fn:endsWith(status.status,'Extinct')}"><span class="iucn red">EX</span></c:when>
+                                        <c:when test="${fn:containsIgnoreCase(status.status,'wild')}"><span class="iucn red">EW</span></c:when>
+                                        <c:when test="${fn:containsIgnoreCase(status.status,'Critically')}"><span class="iucn yellow">CR</span></c:when>
+                                        <c:when test="${fn:startsWith(status.status,'Endangered')}"><span class="iucn yellow">EN</span></c:when>
+                                        <c:when test="${fn:containsIgnoreCase(status.status,'Vulnerable')}"><span class="iucn yellow">VU</span></c:when>
+                                        <c:when test="${fn:containsIgnoreCase(status.status,'Near')}"><span class="iucn green">NT</span></c:when>
+                                        <c:when test="${fn:containsIgnoreCase(status.status,'concern')}"><span class="iucn green">LC</span></c:when>
+                                    </c:choose>
                                     ${status.status}
                                 </div>
                             </c:if>
