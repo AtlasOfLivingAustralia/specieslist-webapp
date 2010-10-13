@@ -160,7 +160,7 @@
             color: #222;
         }
     </style>
-    <title>Species Search - ${query}</title>
+    <title>${query} | Search | Atlas of Living Australia</title>
     <link rel="stylesheet" href="http://test.ala.org.au/wp-content/themes/ala/css/bie.css" type="text/css" media="screen" charset="utf-8"/>
 <!--    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8"/>-->
 </head>
