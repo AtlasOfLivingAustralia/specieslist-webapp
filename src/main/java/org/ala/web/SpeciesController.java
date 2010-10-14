@@ -682,7 +682,12 @@ public class SpeciesController {
                 // no key so create one
                 InfoSourceDTO is = new InfoSourceDTO();
                 is.setInfoSourceName(infoSourceName);
-                is.setInfoSourceURL(ao.getInfoSourceURL());
+                String identifier = ao.getIdentifier();
+                if (identifier != null && !identifier.isEmpty()) {
+                    is.setInfoSourceURL(identifier);
+                } else {
+                    is.setInfoSourceURL(ao.getInfoSourceURL());
+                }
                 is.setInfoSourceId(ao.getInfoSourceId());
                 is.setText(text);
                 if (!section.isEmpty()) {

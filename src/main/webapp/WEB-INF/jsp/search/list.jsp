@@ -161,8 +161,7 @@
         }
     </style>
     <title>${query} | Search | Atlas of Living Australia</title>
-    <link rel="stylesheet" href="http://test.ala.org.au/wp-content/themes/ala/css/bie.css" type="text/css" media="screen" charset="utf-8"/>
-<!--    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8"/>-->
+    <link rel="stylesheet" href="${initParam.centralServer}/wp-content/themes/ala/css/bie.css" type="text/css" media="screen" charset="utf-8"/>
 </head>
 <body>
 <c:if test="${empty searchResults.results}">
@@ -175,8 +174,8 @@
     </c:set>
     <div id="header">
         <div id="breadcrumb">
-            <a href="http://test.ala.org.au">Home</a>
-            <a href="http://test.ala.org.au/explore/">Explore</a>
+            <a href="${initParam.centralServer}">Home</a>
+            <a href="${initParam.centralServer}/explore/">Explore</a>
             <span class="current">Search the Atlas</span>
         </div>
         <div class="astrisk" style="display:none">
@@ -216,7 +215,7 @@
                                     </li>
                                 </c:if>
                                 <c:if test="${fn:containsIgnoreCase(facetResult.fieldName, 'idxtype') && not empty wordpress && wordpress > 0 && empty param.fq}">
-                                    <li><a href="http://test.ala.org.au/search/?s=${param['q']}">Site pages</a> (${wordpress})</li>
+                                    <li><a href="${initParam.centralServer}/search/?s=${param['q']}">Site pages</a> (${wordpress})</li>
                                 </c:if>
                                 <c:forEach var="fieldResult" items="${facetResult.fieldResult}" varStatus="vs">
                                     <c:set var="dateRangeTo"><c:choose><c:when test="${vs.last}">*</c:when><c:otherwise>${facetResult.fieldResult[vs.count].label}</c:otherwise></c:choose></c:set>

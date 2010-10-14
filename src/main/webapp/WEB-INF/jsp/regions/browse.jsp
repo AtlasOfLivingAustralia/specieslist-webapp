@@ -15,8 +15,8 @@
 <body>
     <div id="header">
         <div id="breadcrumb">
-            <a href="http://test.ala.org.au">Home</a>
-            <a href="http://test.ala.org.au/explore">Explore</a>
+            <a href="${initParam.centralServer}">Home</a>
+            <a href="${initParam.centralServer}/explore">Explore</a>
             Regions
         </div>
         <h1>States &amp; Territories</h1>

@@ -1,9 +1,9 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ include file="/common/taglibs.jsp" %>
 <!DOCTYPE HTML">
-<c:set var="spatialPortalUrl">http://test.ala.org.au/explore/species-maps/</c:set>
-<c:set var="spatialPortalWMSUrl">http://spatial-dev.ala.org.au/alaspatial/</c:set>
-<c:set var="wordPressUrl">http://test.ala.org.au/</c:set>
+<c:set var="spatialPortalUrl">${initParam.centralServer}/explore/species-maps/</c:set>
+<c:set var="spatialPortalWMSUrl">http://spatial.ala.org.au/alaspatial/</c:set>
+<c:set var="wordPressUrl">${initParam.centralServer}</c:set>
 <c:set var="biocacheUrl">http://biocache.ala.org.au/</c:set><html>
     <head>
         <meta name="pageName" content="species" />
@@ -11,8 +11,8 @@
         <title>${extendedTaxonConcept.taxonConcept.nameString} <c:if test="${not empty extendedTaxonConcept.commonNames}">(${extendedTaxonConcept.commonNames[0].nameString})</c:if> | Atlas of Living Australia</title>
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.1.css" media="screen" />
         <link type="text/css" media="screen" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/colorbox.css" />
-        <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/ui.core.js"></script>
-        <script language="JavaScript" type="text/javascript" src="http://test.ala.org.au/wp-content/themes/ala/scripts/ui.tabs.js"></script>
+        <script language="JavaScript" type="text/javascript" src="${wordPressUrl}/wp-content/themes/ala/scripts/ui.core.js"></script>
+        <script language="JavaScript" type="text/javascript" src="${wordPressUrl}/wp-content/themes/ala/scripts/ui.tabs.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.1.pack.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.colorbox.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.easing.1.3.js"></script>
@@ -82,8 +82,8 @@
                 });
 
                 // Check for valid distribution map img URLs
-                $('.distroImg').load(function() {
-                    $('.distroMap').show();
+                $('.distroImg').error(function() {
+                    $('.distroMap').hide();
                 });
                 // mapping for facet names to display labels
                 var facetLabels = {
@@ -161,14 +161,6 @@
                                     chart = new google.visualization.PieChart(document.getElementById(facet.fieldName+'_chart_div'));
                                     chart.draw(data, {width: 630, height: 300, legend: 'left'});
                                 }
-                                 
-//                                google.visualization.events.addListener(chart, 'onmouseover', function(row, column) {
-//                                    console.log("event", row, chart.getSelection());
-//                                    $('#chartArea').css('cursor','hand');
-//                                    //document.body.style.cursor = 'pointer';
-//                                });
-                                // draw the chart
-                                
                             }
                         });
                     }
@@ -178,7 +170,7 @@
                 $("#onlineResources a.infosource").favoriteIcon({
                     iconClass : 'favoriteIcon',
                     insertMethod: 'insertBefore',
-                    missingImgUrl: null
+                    missingImgUrl: ''
                 });
 
                 // change body id for Dena's custom CSS
@@ -196,6 +188,17 @@
                     $('p.trigger').show();
                 }
 
+                // truncate text to 250 chars
+                var limit = 250;
+                $('span.truncate').each(function(i, el) {
+                    var length = $(this).html().length;
+                    //console.log("truncate length " + i, length);
+                    if (length > limit) {
+                        var html = $(this).html().substring(0,limit);
+                        $(this).html(html).append('...');
+                    }
+                });
+
             });  // end document ready function
 
             /**
@@ -208,7 +211,7 @@
             }
 
         </script>
-        <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/css/speciesPage.css" media="screen" />
+        <link rel="stylesheet" type="text/css" href="${wordPressUrl}/wp-content/themes/ala/css/speciesPage.css" media="screen" />
     </head>
     <body id="taxon">
         <div id="header" class="taxon">
@@ -304,7 +307,7 @@
         <div id="overview">
             <div id="column-one">
                 <div class="section">
-                    <h2>Species overview</h2>
+                    <h2 style="text-transform: capitalize;">${extendedTaxonConcept.taxonConcept.rankString} overview</h2>
                     <div class="distroMap section no-margin">
                         <h3>Mapped occurrence records</h3>
                         <p>
@@ -373,7 +376,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2"><p>${infoSource.text}</p></td>
+                                    <td colspan="2"><p><span class="truncate">${infoSource.text}</span> <a href="${infoSource.infoSourceURL}" target="_blank">more</a></p></td>
                                 </tr>
                             </c:forEach>
                         </tbody> 
@@ -421,7 +424,7 @@
                                         <c:when test="${fn:containsIgnoreCase(status.status,'Near')}"><span class="iucn green">NT</span></c:when>
                                         <c:when test="${fn:containsIgnoreCase(status.status,'concern')}"><span class="iucn green">LC</span></c:when>
                                     </c:choose>
-                                    ${status.status}
+                                    ${status.rawStatus}
                                 </div>
                             </c:if>
                         </c:forEach>
@@ -990,20 +993,20 @@
                                 </span></a></h3>
                     </div>
                     <div class="photos">
-                        <h3><a href="http://test.ala.org.au/contribute/share-images/">Photos
+                        <h3><a href="${initParam.centralServer}/contribute/share-images/">Photos
                              <span>Upload your images</span></a></h3>
                     </div>
                     <div class="analogue-data">
-                        <h3><a href="http://test.ala.org.au/contribute/share-analogue-data/">Non-digital data
+                        <h3><a href="${initParam.centralServer}/contribute/share-analogue-data/">Non-digital data
                                 <span>Share your paper-based notes, journals and references</span></a></h3>
                     </div>
                     <div class="digital-data last">
-                        <h3><a href="http://test.ala.org.au/contribute/share-data/">Digital data
+                        <h3><a href="${initParam.centralServer}/contribute/share-data/">Digital data
                                 <span>Upload your spreadsheets, databases &amp; more</span></a></h3>
                     </div>
                 </div>
                 <br/>
-                <p>And don't forget to send us your favourite <a href="http://test.ala.org.au/contribute/share-links/">links
+                <p>And don't forget to send us your favourite <a href="${initParam.centralServer}/contribute/share-links/">links
                         to good <strong>web sites</strong>, <strong>ideas</strong> and <strong>information</strong></a>.</p>
             </div>
         </div>

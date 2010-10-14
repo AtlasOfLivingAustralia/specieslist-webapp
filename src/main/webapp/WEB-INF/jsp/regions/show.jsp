@@ -21,8 +21,8 @@
 <body>
     <div id="header">
         <div id="breadcrumb">
-            <a href="http://test.ala.org.au">Home</a>
-            <a href="http://test.ala.org.au/explore">Explore</a>
+            <a href="${initParam.centralServer}">Home</a>
+            <a href="${initParam.centralServer}/explore">Explore</a>
             <a href="${pageContext.request.contextPath}/regions/">Regions</a>
             <a href="${pageContext.request.contextPath}/regions/"><spring:message code="regiontype.${regionType.name}"/></a>
             <span class="current">${geoRegion.name}</span>
