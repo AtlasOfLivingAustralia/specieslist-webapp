@@ -92,16 +92,17 @@ public class BannerMenuTag extends TagSupport {
 							"<li><a href='" + centralServer + "/tools-services/taxonomic-databases-working-group/'><span>TDWG</span></a></li>" +
 						"</ul>" +
 					"</li>" +
-					"<li class='nav-contribute'><a href='" + centralServer + "/contribute/' title='Contribute - links, images, images, literature, your time'><span>Contribute</span></a>" +
-						"<ul>" +
-							"<li><a href='" + centralServer + "/contribute/general-contribute/'><span>General Comments</span></a></li>" +
-							"<li><a href='" + centralServer + "/contribute/sighting/'><span>Record Sightings</span></a></li>" +
-							"<li><a href='" + centralServer + "/contribute/share-links/'><span>share links, ideas, information</span></a></li>" +
-							"<li><a href='" + centralServer + "/contribute/share-images/'><span>Share Photos</span></a></li>" +
-							"<li><a href='" + centralServer + "/contribute/share-data/'><span>Upload Data Sets</span></a></li>" +
-							"<li><a href='" + centralServer + "/contribute/share-analogue-data/'><span>Non-digital Information</span></a></li>" +
-						"</ul>" +
-					"</li>" +
+                    "<li class='nav-share'><a href='" + centralServer + "/share/' title='Share - links, images, images, literature, your time'><span>Share</span></a>" +
+                        "<ul>" +
+                            "<li><a href='" + centralServer + "/share/general-contribute/'><span>General Comments</span></a></li>" +
+                            "<li><a href='" + centralServer + "/share/sighting/'><span>Record Sightings</span></a></li>" +
+                            "<li><a href='" + centralServer + "/share/share-links/'><span>Share links, ideas, information</span></a></li>" +
+                            "<li><a href='" + centralServer + "/share/share-images/'><span>Share Photos</span></a></li>" +
+                            "<li><a href='" + centralServer + "/share/share-data/'><span>Upload Data Sets</span></a></li>" +
+                            "<li><a href='" + centralServer + "/share/share-analogue-data/'><span>Non-digital Information</span></a></li>" +
+                            "<li><a href='" + centralServer + "/share/about-sharing/'><span>About Sharing</span></a></li>" +
+                        "</ul>" +
+                    "</li>" +
 					"<li class='nav-support'><a href='" + centralServer + "/support/'><span>Support</span></a>" +
 						"<ul>" +
 							"<li><a href='" + centralServer + "/support/get-started/'><span>Get Started</span></a></li>" +
