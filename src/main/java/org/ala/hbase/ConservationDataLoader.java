@@ -458,30 +458,39 @@ public class ConservationDataLoader {
         while(reader.hasNext()){
             String[] values = reader.readNext();
             if(values != null && values.length >= 24){
+                //check to see if we want to load this record
+                //We are only loading records that are not related to a specific population
+                String pop = StringUtils.trimToNull(values[12]);
                 String sciName = values[23];
-                String k = StringUtils.capitalize(values[1].toLowerCase());
-                String p = StringUtils.capitalize(values[2].toLowerCase());
-                String c = StringUtils.capitalize(values[3].toLowerCase());
-                String o = StringUtils.capitalize(values[4].toLowerCase());
-                String f = StringUtils.capitalize(values[5].toLowerCase());
-                String g = values[6];
-                LinnaeanRankClassification cl = new LinnaeanRankClassification(k,p,c,o,f,g,sciName);
-                String guid = taxonConceptDao.findLsidByName(sciName, cl, null);
-               
-                if(guid != null){
-                    processed++;
-                    ConservationStatus cs = vocabulary.getConservationStatusFor(510, values[17]);
-                    addCSInfo(cs, is, null, null);
-                    taxonConceptDao.addConservationStatus(guid, cs);
+                if(pop == null){
+                    
+                    String k = StringUtils.capitalize(values[1].toLowerCase());
+                    String p = StringUtils.capitalize(values[2].toLowerCase());
+                    String c = StringUtils.capitalize(values[3].toLowerCase());
+                    String o = StringUtils.capitalize(values[4].toLowerCase());
+                    String f = StringUtils.capitalize(values[5].toLowerCase());
+                    String g = values[6];
+                    LinnaeanRankClassification cl = new LinnaeanRankClassification(k,p,c,o,f,g,sciName);
+                    String guid = taxonConceptDao.findLsidByName(sciName, cl, null);
 
-                    String commonName = StringUtils.trimToNull(values[14]);
-                    if(commonName != null){
-                        addCommonName(guid, commonName, is);
+                    if(guid != null){
+                        processed++;
+                        ConservationStatus cs = vocabulary.getConservationStatusFor(510, values[17]);
+                        addCSInfo(cs, is, null, null);
+                        taxonConceptDao.addConservationStatus(guid, cs);
+
+                        String commonName = StringUtils.trimToNull(values[14]);
+                        if(commonName != null){
+                            addCommonName(guid, commonName, is);
+                        }
+                    }
+                    else{
+                        failed++;
+                        logger.info("Unable to locate scientific name " + sciName);
                     }
                 }
                 else{
-                    failed++;
-                    logger.info("Unable to locate scientific name " + sciName);
+                    System.out.println("Will not process " + sciName + " population " + pop);
                 }
             }
         }
