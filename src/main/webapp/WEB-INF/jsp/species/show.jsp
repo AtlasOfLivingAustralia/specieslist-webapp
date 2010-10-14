@@ -5,7 +5,8 @@
 <c:set var="spatialPortalWMSUrl">http://spatial.ala.org.au/alaspatial/</c:set>
 <c:set var="wordPressUrl">${initParam.centralServer}</c:set>
 <c:set var="biocacheUrl">http://biocache.ala.org.au/</c:set>
-<c:set var="collectoryUrl">http://collections.ala.org.au</c:set><html>
+<c:set var="collectoryUrl">http://collections.ala.org.au</c:set>
+<html>
     <head>
         <meta name="pageName" content="species" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -109,10 +110,8 @@
                 };
                 
                 // load the collections that contain specimens
-                var colSpecUrl = "${pageContext.request.contextPath}/species/source/${extendedTaxonConcept.taxonConcept.guid}";
-                    
-                $.getJSON(colSpecUrl, function(data){
-                     
+                var colSpecUrl = "${pageContext.request.contextPath}/species/source/${extendedTaxonConcept.taxonConcept.guid}"; 
+                $.getJSON(colSpecUrl, function(data) {
                     if (data != null &&data.occurrenceSources != null && data.occurrenceSources.length >0){
                         var content = '<h4>Collections that hold specimens: </h4>';
                         content = content +'<ul>';
@@ -129,6 +128,7 @@
                         $('#recordBreakdowns').append(content);
                     }
                 });
+
                 // load occurrence breakdowns for states
                 var biocachUrl = "${pageContext.request.contextPath}/species/charts/${extendedTaxonConcept.taxonConcept.guid}";
                 $.getJSON(biocachUrl, function(data) {
@@ -907,7 +907,7 @@
                     </div>
                 </div>
                 <div class="section">
-                    <div class="distroMap" style="display:none;">
+                    <div class="distroMap">
                         <h4>Map of Occurrence Records</h4>
                         <p>
                             <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">
