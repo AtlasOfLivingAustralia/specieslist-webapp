@@ -186,6 +186,9 @@
                                 }
                             }
                         });
+                    } else {
+                        // hide the occurrence record section if no data or biocache is offline
+                        $('#occurrenceRecords').html("No records found");
                     }
                 });
 
@@ -338,7 +341,7 @@
                             | <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="View interactive map">View interactive map</a>
                         </p>
                         <div class="left">
-                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="View interactive map"><img src="${spatialPortalWMSUrl}ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" width="462" alt=""/></a>
+                            <img src="${spatialPortalWMSUrl}ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" width="462" alt=""/>
                         </div>
                         <div class="right" style="width:149px; font-size: 90%">
                             <table>
@@ -382,7 +385,14 @@
                         <h3>Description</h3>
                         ${descriptionBlock}
                     </c:if>
-
+                    <c:if test="${not empty extendedTaxonConcept.identificationKeys}">
+                        <h3>Identification Keys</h3>
+                        <ul>
+                            <c:forEach var="idKey" items="${extendedTaxonConcept.identificationKeys}">
+                                <li><a href="${idKey.url}" target="_blank">${idKey.title}</a></li>
+                            </c:forEach>
+                        </ul>
+                    </c:if>
                     <h2>Online resources</h2>
                     <table cellpadding="0" cellspacing="0" id="onlineResources">
                         <colgroup style="width:50%;"></colgroup> 
@@ -830,28 +840,29 @@
             <div id="column-one">
                 <div class="section">
                     <h2>Occurrence Records</h2>
-                    <p><a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View
-                            list of all <span id="occurenceCount"></span> occurrence records for this taxon</a></p>
-                    <div id="recordBreakdowns" style="display: block">
+                    <div id="occurrenceRecords">
+                        <p><a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View
+                                list of all <span id="occurenceCount"></span> occurrence records for this taxon</a></p>
+                        <div id="recordBreakdowns" style="display: block">
+                        </div>
+
+                        <%-- Distribution map images --%>
+                        <c:if test="${not empty extendedTaxonConcept.distributionImages}">
+                                <h2>Record maps from other sources</h2>
+                                <c:forEach items="${extendedTaxonConcept.distributionImages}" var="distribImage">
+                                                    <div class="recordMapOtherSource" style="display: block">
+                                                            <c:set var="imageLink">${not empty distribImage.isPartOf ? distribImage.isPartOf : distribImage.infoSourceURL}</c:set>
+                                                            <a href="${imageLink}">
+                                                            <img src="${distribImage.repoLocation}"/>
+                                                            </a>
+                                                            <br/>
+                                                            <cite>Source:
+                                                                    <a href="${imageLink}" target="blank">${distribImage.infoSourceName}</a>
+                                                            </cite>
+                                </div>
+                                </c:forEach>
+                        </c:if>
                     </div>
-                    
-                    <%-- Distribution map images --%>
-                    <c:if test="${not empty extendedTaxonConcept.distributionImages}">
-	                    <h2>Record maps from other sources</h2>
-	                    <c:forEach items="${extendedTaxonConcept.distributionImages}" var="distribImage">
-						<div class="recordMapOtherSource" style="display: block">
-							<c:set var="imageLink">${not empty distribImage.isPartOf ? distribImage.isPartOf : distribImage.infoSourceURL}</c:set>
-							<a href="${imageLink}">
-							<img src="${distribImage.repoLocation}"/>
-							</a>
-							<br/>
-							<cite>Source: 
-								<a href="${imageLink}" target="blank">${distribImage.infoSourceName}</a>
-							</cite>
-	                    </div>
-	                    </c:forEach>
-                    </c:if>
-                    
                     <%--
                     <c:forEach var="regionType" items="${extendedTaxonConcept.regionTypes}">
                         <c:if test="${fn:containsIgnoreCase(regionType.regionType, 'state') || fn:containsIgnoreCase(regionType.regionType, 'territory')}">
@@ -881,18 +892,17 @@
                 <div class="section buttons sighting no-margin-top">
                     <div class="last">
                         <h3><a href="#contributeOverlay" class="contributeLink">Contribute <span>Sightings, photos and data for the
-                        	<strong>
-                        		<c:choose>
-                        		<c:when test="${not empty extendedTaxonConcept.commonNames}">
-                        			${extendedTaxonConcept.commonNames[0].nameString}
-                        		</c:when>
-                        		<c:otherwise>
-                        			${extendedTaxonConcept.taxonConcept.nameString}
-                        		</c:otherwise>
-                        		</c:choose>
-                        	</strong>
-                        	</span>
-                       	 </a>
+                                <strong>
+                                    <c:choose>
+                                        <c:when test="${not empty extendedTaxonConcept.commonNames}">
+                                            ${extendedTaxonConcept.commonNames[0].nameString}
+                                        </c:when>
+                                        <c:otherwise>
+                                            ${extendedTaxonConcept.taxonConcept.nameString}
+                                        </c:otherwise>
+                                    </c:choose>
+                                </strong>
+                            </span></a>
                         </h3>
                     </div>
                 </div>
@@ -905,6 +915,16 @@
                             <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">Interactive version of this map</a>
                         </p>
                     </div>
+                    <c:if test="${not empty extendedTaxonConcept.specimenHolding}">
+                        <div class="section">
+                            <h3>Specimen Holdings</h3>
+                            <ul>
+                                <c:forEach var="specimenHolding" items="${extendedTaxonConcept.specimenHolding}">
+                                    <li><a href="${specimenHolding.url}" target="_blank">${specimenHolding.institutionName}</a> (specimens:&nbsp;${specimenHolding.count})</li>
+                                </c:forEach>
+                            </ul>
+                        </div>
+                    </c:if>
                 </div><!--close-->
             </div><!--close -->
         </div><!--close records-->
