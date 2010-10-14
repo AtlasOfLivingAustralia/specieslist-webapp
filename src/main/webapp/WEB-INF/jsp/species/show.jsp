@@ -4,7 +4,8 @@
 <c:set var="spatialPortalUrl">${initParam.centralServer}/explore/species-maps/</c:set>
 <c:set var="spatialPortalWMSUrl">http://spatial.ala.org.au/alaspatial/</c:set>
 <c:set var="wordPressUrl">${initParam.centralServer}</c:set>
-<c:set var="biocacheUrl">http://biocache.ala.org.au/</c:set><html>
+<c:set var="biocacheUrl">http://biocache.ala.org.au/</c:set>
+<c:set var="collectoryUrl">http://collections.ala.org.au</c:set><html>
     <head>
         <meta name="pageName" content="species" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -106,6 +107,28 @@
                     "11": "November",
                     "12": "December"
                 };
+                
+                // load the collections that contain specimens
+                var colSpecUrl = "${pageContext.request.contextPath}/species/source/${extendedTaxonConcept.taxonConcept.guid}";
+                    
+                $.getJSON(colSpecUrl, function(data){
+                     
+                    if (data != null &&data.occurrenceSources != null && data.occurrenceSources.length >0){
+                        var content = '<h4>Collections that hold specimens: </h4>';
+                        content = content +'<ul>';
+                        $.each(data.occurrenceSources, function(i, li) {
+                            if(li.uid.match("^co")=="co"){
+                                var link1 = '<a href="${collectoryUrl}/public/show/' + li.uid +'">' + li.name + '</a>';
+                                var link2 = '(<a href="${biocacheUrl}/occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}&fq=collection_code_uid:'
+                                link2 = link2 + li.uid +'&fq=basis_of_record:specimen">' + li.count + ' records</a>)';
+                                content = content+'<li>' + link1 + ' ' + link2+'</li>';
+
+                            }
+                        });
+                        content = content + '</ul>';
+                        $('#recordBreakdowns').append(content);
+                    }
+                });
                 // load occurrence breakdowns for states
                 var biocachUrl = "${pageContext.request.contextPath}/species/charts/${extendedTaxonConcept.taxonConcept.guid}";
                 $.getJSON(biocachUrl, function(data) {

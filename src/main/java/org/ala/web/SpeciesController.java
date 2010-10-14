@@ -145,6 +145,21 @@ public class SpeciesController {
 		response.getWriter().write(contentAsString);
 		return null;
 	}
+        /**
+         * Get the list of collections, institutes, data resources and data providers that have specimens for the supplied taxon concept guid
+         * Wrapper around the biocache service: http://biocache.ala.org.au/biocache-webapp/occurrences/sourceByTaxon
+         * @param guid
+         * @param response
+         * @throws Exception
+         */
+        @RequestMapping(value = "/species/source/{guid}*", method = RequestMethod.GET)
+        public void showSourceInfo(@PathVariable("guid") String guid,
+                HttpServletResponse response) throws Exception {
+            String contentAsString = WebUtils.getUrlContentAsString("http://biocache.ala.org.au/biocache-webapp/occurrences/sourceByTaxon/" +guid +".json?fq=basis_of_record:specimen");
+            response.setContentType("application/json");
+            response.getWriter().write(contentAsString);
+        }
+
 	
 	/**
 	 * Map to a /{guid} URI.
