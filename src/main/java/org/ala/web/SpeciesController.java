@@ -188,8 +188,10 @@ public class SpeciesController {
         //common name with many infosources
         List<CommonName> names = fixCommonNames(etc.getCommonNames()); // remove duplicate names
         Map<String, List<CommonName>> namesMap = sortCommonNameSources(names);
+        String[] keyArray = namesMap.keySet().toArray(new String[0]);
+        Arrays.sort(keyArray, String.CASE_INSENSITIVE_ORDER);
         model.addAttribute("sortCommonNameSources", namesMap);
-        model.addAttribute("sortCommonNameKeys", namesMap.keySet().toArray());
+        model.addAttribute("sortCommonNameKeys", keyArray);
         
         etc.setCommonNames(names); 
         model.addAttribute("extendedTaxonConcept", repoUrlUtils.fixRepoUrls(etc));
@@ -548,7 +550,6 @@ public class SpeciesController {
                 newNames.add(commonNames.get(i));
             }
         }        
-        Collections.sort(newNames); 
         return newNames;
     }
 
@@ -563,6 +564,7 @@ public class SpeciesController {
     	Map<String, List<CommonName>> map = new Hashtable<String, List<CommonName>>();
     	List<CommonName> list = new ArrayList<CommonName>();
     	
+    	Collections.sort(names, new CommonNameComparator());
     	Iterator<CommonName> it = names.iterator();
     	if(it.hasNext()){
     		prevName = it.next();
@@ -713,6 +715,13 @@ public class SpeciesController {
                 infoSourceMap.put(infoSourceName, is);
             }
         }
+    }
+
+    protected class CommonNameComparator implements Comparator<CommonName>{
+    	@Override
+        public int compare(CommonName o1, CommonName o2) {
+    		return o1.getNameString().compareToIgnoreCase(o2.getNameString());
+    	}
     }
     
     /**
