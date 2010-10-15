@@ -82,7 +82,7 @@ include file="/common/taglibs.jsp" %>
                         minChars: 3,
                         scroll: false,
                         max: 10,
-                        selectFirst: true
+                        selectFirst: false
                 });
             }); // End docuemnt ready
 

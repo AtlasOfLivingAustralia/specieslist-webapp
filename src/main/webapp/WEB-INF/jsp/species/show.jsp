@@ -83,10 +83,20 @@
                     $("a#"+thumbId).click();  // simulate clicking the lightbox links in Gallery tab
                 });
 
-                // Check for valid distribution map img URLs
-                $('.distroImg').error(function() {
-                    $('.distroMap').hide();
+                // Check for valid distribution map img URLs (Hacked for IE)
+                $('img.distroImg').each(function(i, n) {
+                    // if img doesn't load, then hide its surround div
+                    $(this).error(function() {
+                        //alert("img error");
+                        $(this).parent().parent().hide();
+                    });
+                    // IE hack as IE doesn't trigger the error handler
+                    if ($.browser.msie && !n.complete) {
+                        //alert("IE img error");
+                        $(this).parent().parent().hide();
+                    }
                 });
+                
                 // mapping for facet names to display labels
                 var facetLabels = {
                     state: "State &amp; Territory",
@@ -213,6 +223,13 @@
                 if (statusIconsCount > 12) {
                     $('p.trigger').show();
                 }
+                // Add the class 'last' to every 4th status div
+                $('div.toggle div#status div').each(function(i, el) {
+                    if ((i+1) % 4 == 0) {
+                        //console.log("4th div? ", i);
+                        $(this).addClass("last");
+                    }
+                });
 
                 // truncate text to 250 chars
                 var limit = 250;
@@ -389,7 +406,10 @@
                         <h3>Identification Keys</h3>
                         <ul>
                             <c:forEach var="idKey" items="${extendedTaxonConcept.identificationKeys}">
-                                <li><a href="${idKey.url}" target="_blank">${idKey.title}</a></li>
+                                <li>
+                                    <a href="${idKey.url}" target="_blank">${idKey.title}</a>
+                                    <c:if test="${not empty idKey.infoSourceURL}">(source: <a href="${idKey.infoSourceURL}" target="_blank">${idKey.infoSourceName}</a>)</c:if>
+                                </li>
                             </c:forEach>
                         </ul>
                     </c:if>
@@ -514,64 +534,7 @@
                         </div>
                     </div>
                 </c:if>
-                <%--
                 <div class="section">
-                    <div class="distroMap" style="display:none;">
-                        <h3>Mapped records</h3>
-                        <p>
-                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">
-                                <img src="${spatialPortalWMSUrl}ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a>
-                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool">Interactive version of this map</a>
-                        </p>
-                    </div>
-                    <c:if test="${not empty extendedTaxonConcept.conservationStatuses}"><h3>Conservation Status</h3></c:if>
-                    <c:forEach var="status" items="${extendedTaxonConcept.conservationStatuses}">
-                    	<!-- 
-                        <c:if test="${fn:containsIgnoreCase(status.status,'extinct') || fn:containsIgnoreCase(status.status,'endangered') || fn:containsIgnoreCase(status.status,'vulnerable') || fn:containsIgnoreCase(status.status,'threatened') || fn:containsIgnoreCase(status.status,'concern') || fn:containsIgnoreCase(status.status,'deficient')}">
-                            <ul class="iucn">
-                                <li <c:if test="${fn:endsWith(status.status,'Extinct')}">class="red"</c:if>><abbr title="Extinct">ex</abbr></li>
-                                <li <c:if test="${fn:containsIgnoreCase(status.status,'wild')}">class="red"</c:if>><abbr title="Extinct in the wild">ew</abbr></li>
-                                <li <c:if test="${fn:containsIgnoreCase(status.status,'Critically')}">class="yellow"</c:if>><abbr title="Critically endangered">cr</abbr></li>
-                                <li <c:if test="${fn:startsWith(status.status,'Endangered')}">class="yellow"</c:if>><abbr title="Endangered">en</abbr></li>
-                                <li <c:if test="${fn:containsIgnoreCase(status.status,'Vulnerable')}">class="yellow"</c:if>><abbr title="Vulnerable">vu</abbr></li>
-                                <li <c:if test="${fn:containsIgnoreCase(status.status,'Near')}">class="green"</c:if>><abbr title="Near threatened">nt</abbr></li>
-                                <li <c:if test="${fn:containsIgnoreCase(status.status,'concern')}">class="green"</c:if>><abbr title="Least concern">lc</abbr></li>
-                            </ul>
-                        </c:if>
-                         -->
-                        <p> Status: ${status.status}<br/>
-                        	Region: ${status.region}<br/>
-	                        <cite>source: <a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
-	                    </p>
-                    </c:forEach>
-                    <c:if test="${not empty extendedTaxonConcept.pestStatuses}"><h3>Nativeness</h3></c:if>
-                    <c:forEach var="status" items="${extendedTaxonConcept.pestStatuses}">
-                        <p>${status.status}
-                            <cite>source: <a href="${status.identifier}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
-                        </p>
-                    </c:forEach>
-                    <c:if test="${not empty extendedTaxonConcept.extantStatusus}"><h3>Extant Status</h3></c:if>
-                    <c:forEach var="status" items="${extendedTaxonConcept.extantStatusus}">
-                        <p><fmt:message key="status.${status.status}"/>
-                            <cite>source: <a href="${status.infoSourceURL}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
-                        </p>
-                    </c:forEach>
-                    <c:if test="${not empty extendedTaxonConcept.habitats}"><h3>Habitat</h3></c:if>
-                    <c:forEach var="status" items="${extendedTaxonConcept.habitats}">
-                        <c:set var="sourceUrl">
-                            <c:choose>
-                                <c:when test="${not empty status.identifier}">${status.identifier}</c:when>
-                                <c:otherwise>${status.infoSourceURL}</c:otherwise>
-                            </c:choose>
-                        </c:set>
-                        <p><fmt:message key="habitat.${status.status}"/>
-                            <cite>source: <a href="${sourceUrl}" target="_blank" title="${status.infoSourceName}">${status.infoSourceName}</a></cite>
-                        </p>
-                    </c:forEach>
-                </div><!--close news-->
-                --%>
-                <div class="section">
-                    
                 </div><!--close tools-->
             </div><!--close -->
         </div><!--close overview-->
@@ -732,7 +695,7 @@
                                 <c:when test="${empty synonym.infoSourceURL}"><cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite></c:when>
                                 <c:otherwise><cite>Source: <a href="${synonym.infoSourceURL}" target="blank">${synonym.infoSourceName}</a></cite></c:otherwise>
                             </c:choose>
-                            <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <a name="">${synonym.publishedIn}</a></cite></c:if>
+                            <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <span class="publishedIn">${synonym.publishedIn}</span></cite></c:if>
                         </p>
                     </c:forEach>
                     <c:if test="${not empty extendedTaxonConcept.commonNames}">
@@ -745,7 +708,7 @@
 	                                <c:when test="${not empty commonName.identifier && not empty commonName.infoSourceName}"><cite>Source: <a href="${commonName.identifier}" target="blank">${commonName.infoSourceName}</a></cite></c:when>
 	                                <c:otherwise><cite>Source: <a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>
 	                            </c:choose>
-	                            <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <a name="">${synonym.publishedIn}</a></cite></c:if>                       
+	                            <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <span class="publishedIn">${synonym.publishedIn}</span></cite></c:if>
 	                     	</c:forEach>
                     	</p>
                     </c:forEach>                   
