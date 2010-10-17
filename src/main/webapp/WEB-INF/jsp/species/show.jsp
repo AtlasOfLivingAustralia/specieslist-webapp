@@ -220,9 +220,14 @@
 
                 var statusIconsCount = $('div.toggle div#status div').length;
                 //alert("Number of status icons: "+statusIconsCount);
-                if (statusIconsCount > 12) {
+                if (statusIconsCount > 4) {
+                    $('div.status').css('height','18em');
+                } else if (statusIconsCount > 8) {
+                    $('div.status').css('height','28em');
+                } else if (statusIconsCount > 12) {
                     $('p.trigger').show();
                 }
+
                 // Add the class 'last' to every 4th status div
                 $('div.toggle div#status div').each(function(i, el) {
                     if ((i+1) % 4 == 0) {
@@ -467,26 +472,27 @@
                         </c:if>
                         <c:forEach var="status" items="${extendedTaxonConcept.conservationStatuses}">
                             <c:if test="${fn:containsIgnoreCase(status.status,'extinct') || fn:containsIgnoreCase(status.status,'endangered') || fn:containsIgnoreCase(status.status,'vulnerable') || fn:containsIgnoreCase(status.status,'threatened') || fn:containsIgnoreCase(status.status,'concern') || fn:containsIgnoreCase(status.status,'deficient')}">
-                                <div><fmt:message key="region.${status.region}"/>
+                                <div><fmt:message key="region.${status.region}"/><a href="${status.infoSourceURL}" title="${status.infoSourceName}" target="_blank">
                                     <c:choose>
-                                        <c:when test="${fn:endsWith(status.status,'Extinct')}"><span class="iucn red">EX</span></c:when>
-                                        <c:when test="${fn:containsIgnoreCase(status.status,'wild')}"><span class="iucn red">EW</span></c:when>
-                                        <c:when test="${fn:containsIgnoreCase(status.status,'Critically')}"><span class="iucn yellow">CR</span></c:when>
-                                        <c:when test="${fn:startsWith(status.status,'Endangered')}"><span class="iucn yellow">EN</span></c:when>
-                                        <c:when test="${fn:containsIgnoreCase(status.status,'Vulnerable')}"><span class="iucn yellow">VU</span></c:when>
-                                        <c:when test="${fn:containsIgnoreCase(status.status,'Near')}"><span class="iucn green">NT</span></c:when>
-                                        <c:when test="${fn:containsIgnoreCase(status.status,'concern')}"><span class="iucn green">LC</span></c:when>
+                                        <c:when test="${fn:endsWith(status.status,'Extinct')}"><span class="iucn red"><!--EX--></span></c:when>
+                                        <c:when test="${fn:containsIgnoreCase(status.status,'wild')}"><span class="iucn red"><!--EW--></span></c:when>
+                                        <c:when test="${fn:containsIgnoreCase(status.status,'Critically')}"><span class="iucn yellow"><!--CR--></span></c:when>
+                                        <c:when test="${fn:startsWith(status.status,'Endangered')}"><span class="iucn yellow"><!--EN--></span></c:when>
+                                        <c:when test="${fn:containsIgnoreCase(status.status,'Vulnerable')}"><span class="iucn yellow"><!--VU--></span></c:when>
+                                        <c:when test="${fn:containsIgnoreCase(status.status,'Near')}"><span class="iucn green"><!--NT--></span></c:when>
+                                        <c:when test="${fn:containsIgnoreCase(status.status,'concern')}"><span class="iucn green"><!--LC--></span></c:when>
                                     </c:choose>
-                                    ${status.rawStatus}
+                                    ${status.rawStatus}</a>
                                 </div>
                             </c:if>
                         </c:forEach>
+                        
                         <c:forEach var="habitat" items="${extendedTaxonConcept.habitats}">
                             <c:set var="divMarine">
-                                <div>Habitat <span class="iucn marine">&nbsp;</span> Marine</div>
+                                <div>Habitat <a href="${habitat.infoSourceURL}" title="${habitat.infoSourceName}" target="_blank"><span class="iucn marine">&nbsp;</span> Marine</a></div>
                             </c:set>
                             <c:set var="divTerrestrial">
-                                <div>Habitat <span class="iucn terrestrial">&nbsp;</span> Terrestrial</div>
+                                <div>Habitat <a href="${habitat.infoSourceURL}" title="${habitat.infoSourceName}" target="_blank"><span class="iucn terrestrial">&nbsp;</span> Terrestrial</a></div>
                             </c:set>
                             <c:choose>
                                 <c:when test="${habitat.status == 'M'}">${divMarine}</c:when>
