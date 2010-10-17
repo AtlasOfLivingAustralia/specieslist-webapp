@@ -560,21 +560,25 @@ public class SpeciesController {
      * @return
      */
     private Map<String, List<CommonName>> sortCommonNameSources(List<CommonName> names){
+    	String pattern = "[^a-zA-Z0-9]";
     	CommonName prevName = null;
     	Map<String, List<CommonName>> map = new Hashtable<String, List<CommonName>>();
     	List<CommonName> list = new ArrayList<CommonName>();
     	
-    	Collections.sort(names, new CommonNameComparator());
-    	Iterator<CommonName> it = names.iterator();
+    	//made a copy of names, so sorting doesn't effect original list order ....
+    	List<CommonName> newArrayList = (List<CommonName>)((ArrayList<CommonName>)names).clone();
+    	Collections.sort(newArrayList, new CommonNameComparator());
+    	Iterator<CommonName> it = newArrayList.iterator();
     	if(it.hasNext()){
     		prevName = it.next();
     		list.add(prevName);
     	}
     	
+    	// group the name with infosource, compare the name with alphabet & number only.
     	while(it.hasNext()){
     		CommonName curName = it.next();
-    		if(prevName.getNameString().replaceAll("[^a-zA-Z0-9]", "").equalsIgnoreCase(
-    				curName.getNameString().replaceAll("[^a-zA-Z0-9]", ""))){
+    		if(prevName.getNameString().replaceAll(pattern, "").equalsIgnoreCase(
+    				curName.getNameString().replaceAll(pattern, ""))){
     			list.add(curName);
     		}
     		else{
