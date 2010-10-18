@@ -95,7 +95,7 @@ public class BannerMenuTag extends TagSupport {
                     "<li class='nav-share'><a href='" + centralServer + "/share/' title='Share - links, images, images, literature, your time'><span>Share</span></a>" +
                         "<ul>" +
                             "<li><a href='" + centralServer + "/share/general-contribute/'><span>General Comments</span></a></li>" +
-                            "<li><a href='" + centralServer + "/share/sighting/'><span>Record Sightings</span></a></li>" +
+                            "<li><a href='http://bie.ala.org.au/share/sighting/'><span>Record Sightings</span></a></li>" +
                             "<li><a href='" + centralServer + "/share/share-links/'><span>Share links, ideas, information</span></a></li>" +
                             "<li><a href='" + centralServer + "/share/share-images/'><span>Share Photos</span></a></li>" +
                             "<li><a href='" + centralServer + "/share/share-data/'><span>Upload Data Sets</span></a></li>" +
