@@ -14,7 +14,7 @@
 <div id="header">
     <div id="breadcrumb">
        <a href="${initParam.centralServer}">Home</a>
-       <a href="${initParam.centralServer}/contribute">Share</a>
+       <a href="${initParam.centralServer}/share">Share</a>
        <span class="current">Record Sightings</span>
    	</div>
 	<h1>Record Sightings - find a species</h1>
