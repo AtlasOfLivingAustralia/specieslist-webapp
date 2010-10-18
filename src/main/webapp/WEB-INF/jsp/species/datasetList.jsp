@@ -75,7 +75,7 @@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %><!DOCTYPE html PUBL
                 <c:if test="${fn:contains(dataset.datasetType, '3')}">
                     <tr>
                         <td><a class="external" href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a> 
-                        	<c:if test="${fn:contains(infoSourceIDWithVocabulariesMapList, dataset.id)}">
+                        	<c:if test="${param['showVocabMapping'] && fn:contains(infoSourceIDWithVocabulariesMapList, dataset.id)}">
                         		<span class="termMappingLink">(see <a href="${pageContext.request.contextPath}/species/vocabularies/${dataset.id}">term mapping</a>)</span>
                         	</c:if>
                         </td>
@@ -104,7 +104,7 @@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %><!DOCTYPE html PUBL
                 <c:if test="${fn:contains(dataset.datasetType, '2')}">
                     <tr>
                         <td><a class="external" href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a> 
-                        	<c:if test="${fn:contains(infoSourceIDWithVocabulariesMapList, dataset.id)}">
+                        	<c:if test="${param['showVocabMapping'] && fn:contains(infoSourceIDWithVocabulariesMapList, dataset.id)}">
                         		<span class="termMappingLink">(see <a href="${pageContext.request.contextPath}/species/vocabularies/${dataset.id}">term mapping</a>)</span>
                         	</c:if>
                         </td>
