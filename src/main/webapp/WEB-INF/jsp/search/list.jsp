@@ -341,10 +341,12 @@
                     </c:choose>
                 </c:forEach>
             </div><!--close results-->
+            <c:if test="${not empty searchResults}">
             <div id="searchNavBar">
                 <alatag:searchNavigationLinks totalRecords="${searchResults.totalRecords}" startIndex="${searchResults.startIndex}"
                      lastPage="${lastPage}" pageSize="${searchResults.pageSize}"/>
             </div>
+            </c:if>
         </div><!--solrResults-->
     </div>
 </c:if>
