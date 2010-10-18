@@ -14,6 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+/**
+ * Simple controller providing quick search mechanisms before
+ * routing off to separate tools.
+ * 
+ * @author Dave Martin
+ */
 @Controller("speciesSearchController")
 public class SpeciesSearchController {
 
