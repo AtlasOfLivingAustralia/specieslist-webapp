@@ -65,11 +65,12 @@
 </c:forEach>
     
 </div><!-- results -->
-
+<c:if test="${not empty searchResults}">
 <div id="searchNavBar">
     <alatag:searchNavigationLinks totalRecords="${searchResults.totalRecords}" startIndex="${searchResults.startIndex}"
          lastPage="${lastPage}" pageSize="${searchResults.pageSize}"/>
 </div>
+</c:if>
 
 </div><!-- solrResults -->
 
