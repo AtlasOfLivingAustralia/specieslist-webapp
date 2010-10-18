@@ -625,7 +625,7 @@
                                     </c:forEach>
                                 </c:when>
                                 <c:otherwise>
-                                There are no images for this taxa.
+                                There are no images for this taxon.
                             </c:otherwise>
                         </c:choose>
                     </div>
