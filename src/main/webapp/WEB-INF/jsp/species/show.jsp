@@ -275,7 +275,7 @@
 	            </c:set>           
             </c:otherwise>
             </c:choose>
-            <c:set var="contributeURL" value="${biocacheUrl}contribute/sighting/${extendedTaxonConcept.taxonConcept.guid}"/>
+            <c:set var="contributeURL" value="${biocacheUrl}share/sighting/${extendedTaxonConcept.taxonConcept.guid}"/>
             <div id="breadcrumb">
                 <ul>
                     <li><a href="${wordPressUrl}">Home</a></li>
@@ -445,7 +445,7 @@
                             <div>
                                 <h2>Sorry!</h2>
                                 <h3><a href="#contributeOverlay" class="contributeLink">We know the name, but not much else. Can you help?
-                                    <span><b>Contribute</b> sightings, photos and data for 
+                                    <span><b>Share</b> sightings, photos and data for 
                                         <c:choose>
                                             <c:when test="${not empty extendedTaxonConcept.commonNames}">the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong></c:when>
                                             <c:otherwise><c:if test="${extendedTaxonConcept.taxonConcept.rankID <= 6000}">the ${extendedTaxonConcept.taxonConcept.rankString} </c:if><strong>${sciNameFormatted}</strong></c:otherwise>
@@ -526,7 +526,7 @@
                     <div class="section buttons sighting no-margin-top">
                         <div class="last">
                             <h3>
-                                <a href="#contributeOverlay" class="contributeLink">Contribute <span>Sightings, photos and data for
+                                <a href="#contributeOverlay" class="contributeLink">Share <span>Sightings, photos and data for
                                     <c:choose>
                                         <c:when test="${not empty extendedTaxonConcept.commonNames}">
                                             the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong>
@@ -634,7 +634,7 @@
             <div id="column-two">
                 <div class="section buttons sighting no-margin-top">
                     <div class="last">
-                        <h3><a href="#contributeOverlay" class="contributeLink">Contribute <span>Sightings, photos and data for the
+                        <h3><a href="#contributeOverlay" class="contributeLink">Share <span>Sightings, photos and data for the
                         	<strong>
                         		<c:choose>
                         		<c:when test="${not empty extendedTaxonConcept.commonNames}">
@@ -860,7 +860,7 @@
             <div id="column-two">
                 <div class="section buttons sighting no-margin-top">
                     <div class="last">
-                        <h3><a href="#contributeOverlay" class="contributeLink">Contribute <span>Sightings, photos and data for the
+                        <h3><a href="#contributeOverlay" class="contributeLink">Share <span>Sightings, photos and data for the
                                 <strong>
                                     <c:choose>
                                         <c:when test="${not empty extendedTaxonConcept.commonNames}">
@@ -994,7 +994,7 @@
         <div style="display: none;">
             <div id="contributeOverlay">
                 <div class="section buttons"  style="text-align: left !important">
-                    <h2>Contribute</h2>
+                    <h2>Share</h2>
                     <div class="sightings">
                         <h3><a href="${contributeURL}">Sightings
                                 <span>Record sightings for
@@ -1005,20 +1005,20 @@
                                 </span></a></h3>
                     </div>
                     <div class="photos">
-                        <h3><a href="${initParam.centralServer}/contribute/share-images/">Photos
+                        <h3><a href="${initParam.centralServer}/share/share-images/">Photos
                              <span>Upload your images</span></a></h3>
                     </div>
                     <div class="analogue-data">
-                        <h3><a href="${initParam.centralServer}/contribute/share-analogue-data/">Non-digital data
+                        <h3><a href="${initParam.centralServer}/share/share-analogue-data/">Non-digital data
                                 <span>Share your paper-based notes, journals and references</span></a></h3>
                     </div>
                     <div class="digital-data last">
-                        <h3><a href="${initParam.centralServer}/contribute/share-data/">Digital data
+                        <h3><a href="${initParam.centralServer}/share/share-data/">Digital data
                                 <span>Upload your spreadsheets, databases &amp; more</span></a></h3>
                     </div>
                 </div>
                 <br/>
-                <p>And don't forget to send us your favourite <a href="${initParam.centralServer}/contribute/share-links/">links
+                <p>And don't forget to send us your favourite <a href="${initParam.centralServer}/share/share-links/">links
                         to good <strong>web sites</strong>, <strong>ideas</strong> and <strong>information</strong></a>.</p>
             </div>
         </div>
