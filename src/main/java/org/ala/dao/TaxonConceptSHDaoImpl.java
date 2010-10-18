@@ -1270,10 +1270,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     		List<TaxonConcept> synonyms = getSynonymsFor(guid);
 
     		//get congruent concepts
-    		List<TaxonConcept> congruentTcs = getCongruentConceptsFor(guid);
+//    		List<TaxonConcept> congruentTcs = getCongruentConceptsFor(guid);
 
     		//treat congruent objects the same way we do synonyms
-    		synonyms.addAll(congruentTcs);
+//    		synonyms.addAll(congruentTcs);
 
     		//get common names
     		List<CommonName> commonNames = getCommonNamesFor(guid);
@@ -1283,7 +1283,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
     		//add conservation and pest status'
             List<ConservationStatus> conservationStatuses = getConservationStatuses(guid);
-    		List<PestStatus> pestStatuses = getPestStatuses(guid);
+//    		List<PestStatus> pestStatuses = getPestStatuses(guid);
 
             //add text properties
             List<SimpleProperty> simpleProperties = getTextPropertiesFor(guid);
