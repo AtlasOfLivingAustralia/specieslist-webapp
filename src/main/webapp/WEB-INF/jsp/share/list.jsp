@@ -25,7 +25,7 @@
 <div id="focussedSearch">
 	<h2>Find a species to record</h2>
 	<div id="inpage_search">
-		<form id="search-inpage" action="${pageContext.request.contextPath}/share/sighting" method="get" name="search-form">
+		<form id="search-inpage" action="${pageContext.request.contextPath}/share/sighting/" method="get" name="search-form">
 		<label for="search">Search</label>
 		<input type="text" class="filled" id="search" name="qs" placeholder="Find a species"  <c:if test="${not empty param['qs']}">value="${param['qs']}"</c:if>/>
 		<input type="hidden" name="fq" value="idxtype:TAXON"/>
