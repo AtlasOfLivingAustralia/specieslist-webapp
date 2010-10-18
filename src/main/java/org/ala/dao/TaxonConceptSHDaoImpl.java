@@ -1197,8 +1197,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 		long start = System.currentTimeMillis();
 
-        List<String> pestTerms = vocabulary.getTermsForStatusType(StatusType.PEST);
-        List<String> consTerms = vocabulary.getTermsForStatusType(StatusType.CONSERVATION);
+//        List<String> pestTerms = vocabulary.getTermsForStatusType(StatusType.PEST);
+//        List<String> consTerms = vocabulary.getTermsForStatusType(StatusType.CONSERVATION);
 
         SolrServer solrServer = solrUtils.getSolrServer();
 
@@ -1228,7 +1228,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			}
 
 			//index each taxon
-			List<SolrInputDocument> docsToAdd = indexTaxonConcept(guid, pestTerms, consTerms);
+			List<SolrInputDocument> docsToAdd = indexTaxonConcept(guid);
             docs.addAll(docsToAdd);
 
 	    	if(i>0 && i%1000==0){
@@ -1258,7 +1258,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @param guid
 	 * @return
 	 */
-	public List<SolrInputDocument> indexTaxonConcept(String guid, List<String> pestTerms, List<String> consTerms) throws Exception {
+	public List<SolrInputDocument> indexTaxonConcept(String guid) throws Exception {
 
 		List<SolrInputDocument> docsToAdd = new ArrayList<SolrInputDocument>();
 
@@ -1334,26 +1334,26 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                 doc.addField("author", taxonConcept.getAuthor());
 	    		
                 for (ConservationStatus cs : conservationStatuses) {
-                    for (String csTerm : consTerms) {
-                        if (cs.getStatus()!=null && cs.getStatus().toLowerCase().contains(csTerm.toLowerCase())) {
+//                    for (String csTerm : consTerms) {
+                        if (cs.getRawStatus()!=null) {
 //                            Field f = new Field("conservationStatus", csTerm, Store.YES, Index.NOT_ANALYZED);
 //                            f.setBoost(0.6f);
-                            doc.addField("conservationStatus", csTerm, 0.6f);
+                            doc.addField("conservationStatus", cs.getRawStatus(), 0.6f);
                 			addToSetSafely(infoSourceIds, cs.getInfoSourceId());
                         }
-                    }
+//                    }
                 }
 
-                for (PestStatus ps : pestStatuses) {
-                    for (String psTerm : pestTerms) {
-                        if (ps.getStatus().toLowerCase().contains(psTerm.toLowerCase())) {
-//                            Field f = new Field("pestStatus", psTerm, Store.YES, Index.NOT_ANALYZED);
-//                            f.setBoost(0.6f);
-                            doc.addField("pestStatus", psTerm, 0.6f);
-                            addToSetSafely(infoSourceIds, ps.getInfoSourceId());
-                        }
-                    }
-                }
+//                for (PestStatus ps : pestStatuses) {
+////                    for (String psTerm : pestTerms) {
+//                        if (ps.getStatus().toLowerCase().contains(psTerm.toLowerCase())) {
+////                            Field f = new Field("pestStatus", psTerm, Store.YES, Index.NOT_ANALYZED);
+////                            f.setBoost(0.6f);
+//                            doc.addField("pestStatus", psTerm, 0.6f);
+//                            addToSetSafely(infoSourceIds, ps.getInfoSourceId());
+//                        }
+////                    }
+//                }
 
                 for (SimpleProperty sp : simpleProperties) {
                     // index *Text properties
