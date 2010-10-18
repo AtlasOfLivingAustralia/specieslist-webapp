@@ -41,7 +41,7 @@ import au.org.ala.checklist.lucene.model.NameSearchResult;
 @Component("specimenHoldingLoader")
 public class SpecimenHoldingLoader {	
 	protected static Logger logger  = Logger.getLogger(SpecimenHoldingLoader.class);	
-	private static final String INPUT_FILE_NAME = "/data/bie-staging/botanticalGardens/data.csv";
+	private static final String INPUT_FILE_NAME = "/data/bie-staging/specimenHolding/";
 	@Inject
 	protected InfoSourceDAO infoSourceDao;	
 	@Inject
@@ -50,14 +50,22 @@ public class SpecimenHoldingLoader {
     public static enum BOTANTICAL_GARDENS_IDX {URL, INSTITUTION, SITE_NAME, FAMILY, GENUS, HYBRID_Q, SPECIES,
 		SCIENCETIFIC_NAME, INFRASPECIFIC_Q, INFRASPECIFIC_NAME, CULTIVAR, COMMON_NAME, NOTES, COUNT, UNKNOWN}    
 	
-
+	/**
+	 * Usage: inputFileName
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
+		if (args.length != 1) {
+			System.out.println("Input File Name Missing ....");
+			System.exit(0);
+		}		
 		System.out.println("Starting SpecimenHoldingLoader process.....");
 		ApplicationContext context = SpringUtils.getContext();
 		SpecimenHoldingLoader l = context.getBean(SpecimenHoldingLoader.class);
 		try {
 			System.out.println("Starting load process.....");
-			l.load();
+			l.load(args[0]);
 			System.out.println("load process finished.....");
 		} catch (Exception e) {			
 			e.printStackTrace();
@@ -69,13 +77,13 @@ public class SpecimenHoldingLoader {
 	/**
 	 * data load process
 	 */
-	private void load(){
+	private void load(String fileName){
 		int ctr = 0;
 		String[] nextLine = null;
 		CSVReader reader = null;
 
 		try{
-			reader = new CSVReader(new FileReader(INPUT_FILE_NAME));
+			reader = new CSVReader(new FileReader(INPUT_FILE_NAME + fileName));
 			//ignore first header line
 			nextLine = reader.readNext();
 			//first data line
