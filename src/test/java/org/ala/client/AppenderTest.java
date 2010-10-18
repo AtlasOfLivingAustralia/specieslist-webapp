@@ -15,8 +15,8 @@ public class AppenderTest {
      @Test
     public void testLogger(){
     	StringBuffer sb = new StringBuffer();
-    	for(int i = 0; i < 1; i++){
-	    	sb.append("{\"eventTypeId\": 123,");
+    	for(int i = 0; i < 10; i++){
+	    	sb.append("{\"eventTypeId\": 1,");
 	    	sb.append("\"comment\": \"For doing some research with..\",");
 	    	sb.append("\"userEmail\" : \"waiman.mok@csiro.au\",");
 	    	sb.append("\"userIP\" : \"123.11.01.112\",");
@@ -41,7 +41,7 @@ public class AppenderTest {
     	 RestfulClient restfulClient = new RestfulClient();
     	 Object[] ar;
 		try {
-			ar = restfulClient.restGet("http://logger.ala.org.au/ala-logger-service/service/logger/get.json?q=dp123&year=2010&eventTypeId=12345");
+			ar = restfulClient.restGet("http://logger.ala.org.au/service/logger/get.json?q=dp123&year=2010&eventTypeId=12345");
 			System.out.println("Status Code: " + ar[0] + ", jsonContent: " + ar[1]);
 		} catch (HttpException e) {
 			// TODO Auto-generated catch block

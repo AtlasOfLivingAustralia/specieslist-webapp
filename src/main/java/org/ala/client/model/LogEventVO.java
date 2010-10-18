@@ -40,12 +40,16 @@ public class LogEventVO implements Serializable {
 	
 	private Map<String, Integer> recordCounts = new Hashtable<String, Integer>();
 
-	private String userEmail;
+	private String userEmail;	
 	
     public LogEventVO() {
     }
 
-    public LogEventVO(int eventTypeId, String userEmail, String comment, String userIP, Map<String, Integer> recordCounts) {
+    public LogEventVO(LogEventType eventType, String userEmail, String comment, String userIP, Map<String, Integer> recordCounts) {
+    	this(eventType.getId(), userEmail, comment, userIP, recordCounts);
+    }
+    
+    private LogEventVO(int eventTypeId, String userEmail, String comment, String userIP, Map<String, Integer> recordCounts) {
     	this.eventTypeId = eventTypeId;
     	this.userEmail = userEmail;
     	this.comment = comment;
