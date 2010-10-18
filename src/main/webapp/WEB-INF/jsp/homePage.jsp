@@ -8,13 +8,16 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
         <title>Atlas of Living Australia - Biodiversity Information Explorer</title>
     </head>
     <body>
+       <div class="section">
+       	<h1>Biodiversity Information Explorer</h1>
         <p>Welcome to the Atlas of Living Australia <strong>Biodiversity Information Explorer</strong>.</p>
         <p>
-          This is an early release of this functionality for <strong>release 4 (July 21st)</strong>.
+          This is an early release of this functionality for <strong>release 5 (October 29th 2010)</strong>.
         </p>
         <ul>
 	        <li><a href="regions/">Explore the states</a></li>
 	        <li><a href="contributors">Contributors list</a></li>
 	    </ul>
+	   </div>
     </body>
 </html>
