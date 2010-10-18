@@ -43,12 +43,12 @@
 
 <c:forEach items="${results.results}" var="result">
   <h4> 
-      <c:if test="${not empty result.thumbnail}"><a href="${biocacheUrl}/contribute/sighting/${result.guid}" class="occurrenceLink"><img class="alignright" src="${result.thumbnail}" width="85" height="85" alt="species image thumbnail"/></a></c:if>
+      <c:if test="${not empty result.thumbnail}"><a href="${biocacheUrl}/share/sighting/${result.guid}" class="occurrenceLink"><img class="alignright" src="${result.thumbnail}" width="85" height="85" alt="species image thumbnail"/></a></c:if>
       <c:if test="${empty result.thumbnail}"><div class="alignright" style="width:85px; height:40px;"></div></c:if>
       <span style="text-transform: capitalize; display: inline;">${result.rank}</span>:
       <alatag:formatSciName rankId="${result.rankId}" name="${result.name}" acceptedName="${result.acceptedConceptName}"/> ${result.author}
 	  <c:if test="${not empty result.commonNameSingle}">&nbsp;&ndash;&nbsp; ${result.commonNameSingle}</c:if>
-	  <span><a href="${biocacheUrl}/contribute/sighting/${result.guid}" class="occurrenceLink">Record a sighting</a></span>
+	  <span><a href="${biocacheUrl}/share/sighting/${result.guid}" class="occurrenceLink">Record a sighting</a></span>
   </h4>
   <p>
       <c:if test="${not empty result.commonNameSingle && result.commonNameSingle != result.commonName}">
