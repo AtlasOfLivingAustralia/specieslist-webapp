@@ -105,7 +105,7 @@ include file="/common/taglibs.jsp" %>
         <div id="wrapper">
             <div id="banner">
                 <div id="logo">
-                    <a href="${initParam.centralServer}" title="Atlas of Living Australia home"><img src="${initParam.centralServer}/wp-content/themes/ala/images/ala_logo.png" width="208" height="80" alt="Atlas of Living Ausralia logo" /></a>
+                    <a href="${initParam.centralServer}" title="Atlas of Living Australia home"><img src="${initParam.centralServer}/wp-content/themes/ala/images/ala_logo.png" width="215" height="80" alt="Atlas of Living Ausralia logo" /></a>
                 </div><!--close logo-->
 
                 <c:set var="queryString" value="${pageContext.request.queryString}"/>
