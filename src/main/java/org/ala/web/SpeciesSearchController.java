@@ -49,7 +49,7 @@ public class SpeciesSearchController {
 		return STATUS_CHECK;
 	}
 	
-	@RequestMapping(value = "/share/sighting/", method = RequestMethod.GET)
+	@RequestMapping(value = {"/share/sighting/","/share/sighting"} , method = RequestMethod.GET)
 	public String speciesSearch(
         @RequestParam(value="qs", defaultValue ="", required=false) String searchString,
 		@RequestParam(value="fq", required=false) String[] filterQuery,
