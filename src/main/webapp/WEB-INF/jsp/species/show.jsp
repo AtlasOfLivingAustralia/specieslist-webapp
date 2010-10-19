@@ -889,7 +889,7 @@
                             <h3>Specimen Holdings</h3>
                             <ul>
                                 <c:forEach var="specimenHolding" items="${extendedTaxonConcept.specimenHolding}">
-                                    <li><a href="${specimenHolding.url}" target="_blank">${specimenHolding.institutionName}</a> (specimens:&nbsp;${specimenHolding.count})</li>
+                                    <li><a href="${specimenHolding.url}" target="_blank">${specimenHolding.institutionName}&nbsp;:&nbsp;${specimenHolding.siteName}</a> (specimens:&nbsp;${specimenHolding.count})</li>
                                 </c:forEach>
                             </ul>
                         </div>
