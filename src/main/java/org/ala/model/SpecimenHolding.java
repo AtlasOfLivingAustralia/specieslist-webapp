@@ -1,5 +1,8 @@
 package org.ala.model;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 public class SpecimenHolding extends AttributableObject implements Comparable<SpecimenHolding> {
 	private String url;
 	private String institutionName;
@@ -153,4 +156,9 @@ public class SpecimenHolding extends AttributableObject implements Comparable<Sp
 		}
 		return false;
 	}	
+	
+    @Override
+    public String toString() {
+    	return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }			
 }
