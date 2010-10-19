@@ -143,8 +143,12 @@ public class SpecimenHolding extends AttributableObject implements Comparable<Sp
 	public boolean equals(Object obj) {
 		if(obj!=null && obj instanceof SpecimenHolding){
 			SpecimenHolding sh = (SpecimenHolding) obj;
-			if(sh.getUrl()!=null && this.url!=null && this.scientificName != null && sh.getScientificName() != null){
-				return (sh.getUrl().equals(this.url) && sh.getScientificName().equals(this.scientificName));
+			if(sh.getUrl()!=null && this.url!=null && 
+					this.scientificName != null && sh.getScientificName() != null &&
+					this.siteName != null && sh.getSiteName() != null){
+				return (sh.getUrl().equals(this.url) && 
+						sh.getScientificName().equals(this.scientificName) &&
+						sh.getSiteName().equals(this.siteName));
 			}
 		}
 		return false;
