@@ -9,8 +9,12 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 
 public enum LogEventType {
-	DEBUG(1, "debug"),
-	ERROR(2, "error");
+	OCCURRENCE_RECORDS_VIEWED(1000, "OCCURRENCE_RECORDS_VIEWED"),
+	OCCURRENCE_RECORDS_VIEWED_ON_MAP(1001, "OCCURRENCE_RECORDS_VIEWED_ON_MAP"),
+	OCCURRENCE_RECORDS_DOWNLOADED(1002, "OCCURRENCE_RECORDS_DOWNLOADED"),
+	
+	DEBUG(2001, "DEBUG"),
+	ERROR(2002, "ERROR");
 	
 	private int id;
 	private String name;
@@ -39,7 +43,7 @@ public enum LogEventType {
 	}
     
     public static LogEventType getLogEventType(String name) {
-        return logEventTypeLookup.get(name.toLowerCase());
+        return logEventTypeLookup.get(name.toUpperCase());
     }
 
     public static LogEventType getLogEventType(int id) {
