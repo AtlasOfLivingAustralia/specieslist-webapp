@@ -101,13 +101,15 @@ public class SpecimenHoldingLoader {
 				// have guid & infosource ....
 				if(sh != null){
 					list.add(sh);
-					// more than one row have same guid, ignore it
+					// more than one row have same guid
 					while (nextLine != null) {
 						SpecimenHolding nextKey = toSpecimenHolding(nextLine);																		
-//						if(nextKey != null && sh.getIdentifier().equals(nextKey.getIdentifier())){
-						if(nextKey != null && !sh.equals(nextKey)){
-							logger.debug("*** SCIENCETIFIC_NAME: " + nextLine[BOTANTICAL_GARDENS_IDX.SCIENCETIFIC_NAME.ordinal()] + ", guid: " + nextKey.getIdentifier());
-							list.add(nextKey);
+						if(nextKey != null && sh.getIdentifier().equals(nextKey.getIdentifier())){
+							if(!sh.equals(nextKey)){
+								logger.debug("*** SCIENCETIFIC_NAME: " + nextLine[BOTANTICAL_GARDENS_IDX.SCIENCETIFIC_NAME.ordinal()] + ", guid: " + nextKey.getIdentifier());
+								list.add(nextKey);
+								sh = nextKey;
+							}
 							nextLine = reader.readNext();
 						}
 						else{
