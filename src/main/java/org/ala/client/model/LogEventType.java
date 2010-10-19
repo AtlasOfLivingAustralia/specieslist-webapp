@@ -24,7 +24,7 @@ public enum LogEventType {
    
     static {
          for (LogEventType mt : EnumSet.allOf(LogEventType.class)) {
-        	 logEventTypeLookup.put(mt.getName().toLowerCase(), mt);
+        	 logEventTypeLookup.put(mt.getName().trim().toUpperCase(), mt);
         	 logEventTypeIdLookup.put(mt.getId(), mt);
          }
     }
