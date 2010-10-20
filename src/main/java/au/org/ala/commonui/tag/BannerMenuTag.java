@@ -131,7 +131,7 @@ public class BannerMenuTag extends TagSupport {
 							"<li><a href='" + centralServer + "/about/resources/'><span>Resources</span></a></li>" +
 						"</ul>" +
 					"</li>" +
-					"<li class='nav-myprofile nav-right'><a href='" + casServer + "/cas/login?service=http://test.ala.org.au/wp-login.php?redirect_to="+centralServer+"/my-profile/'><span>My Profile</span></a></li>" +
+					"<li class='nav-myprofile nav-right'><a href='" + casServer + "/cas/login?service="+centralServer+"/wp-login.php?redirect_to="+centralServer+"/my-profile/'><span>My Profile</span></a></li>" +
 					loginLogoutListItem + 
 				"</ul>" +
 				"<!-- WP Menubar 4.7: end menu nav-site, template Superfish, CSS  -->" +
