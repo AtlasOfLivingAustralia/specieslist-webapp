@@ -606,15 +606,15 @@ public class SpeciesController {
 
         // Look in each property of the ExtendedTaxonConceptDTO
         if (etc.getTaxonConcept() != null) {
-            String text = etc.getTaxonConcept().getNameString() + " " + etc.getTaxonConcept().getAuthor();
+            String text = "Name: " + etc.getTaxonConcept().getNameString() + " " + etc.getTaxonConcept().getAuthor();
             extractInfoSources(etc.getTaxonConcept(), infoSourceMap, text, "Names");
         }
         if (etc.getTaxonName() != null) {
-            extractInfoSources(etc.getTaxonName(), infoSourceMap, etc.getTaxonName().getNameComplete(), "Names");
+            extractInfoSources(etc.getTaxonName(), infoSourceMap, "Name: " + etc.getTaxonName().getNameComplete(), "Names");
         }
         if (etc.getCommonNames() != null) {
             for (CommonName cn : etc.getCommonNames()) {
-                extractInfoSources(cn, infoSourceMap, cn.getNameString(), "Names");
+                extractInfoSources(cn, infoSourceMap, "Common Name: " + cn.getNameString(), "Names");
             }
         }
         if (etc.getSimpleProperties() != null) {
@@ -625,22 +625,22 @@ public class SpeciesController {
         }
         if (etc.getPestStatuses() != null) {
             for (PestStatus ps : etc.getPestStatuses()) {
-                extractInfoSources(ps, infoSourceMap, ps.getStatus() + " status", "Status");
+                extractInfoSources(ps, infoSourceMap, "Status: " + ps.getStatus(), "Status");
             }
         }
         if (etc.getConservationStatuses() != null) {
             for (ConservationStatus cs : etc.getConservationStatuses()) {
-                extractInfoSources(cs, infoSourceMap, cs.getStatus() + " status", "Status");
+                extractInfoSources(cs, infoSourceMap, "Status: " + cs.getStatus(), "Status");
             }
         }
         if (etc.getExtantStatuses() != null) {
             for (ExtantStatus es : etc.getExtantStatuses()) {
-                extractInfoSources(es, infoSourceMap, es.getStatusAsString() + " status", "Status");
+                extractInfoSources(es, infoSourceMap, "Status: " + es.getStatusAsString(), "Status");
             }
         }
         if (etc.getHabitats() != null) {
             for (Habitat hb : etc.getHabitats()) {
-                extractInfoSources(hb, infoSourceMap, hb.getStatusAsString() + " status", "Status");
+                extractInfoSources(hb, infoSourceMap, "Status: " + hb.getStatusAsString(), "Status");
             }
         }
         if (etc.getImages() != null) {
@@ -663,7 +663,7 @@ public class SpeciesController {
         }
         if (etc.getPublicationReference() != null) {
             for (Reference ref : etc.getPublicationReference()) {
-                extractInfoSources(ref, infoSourceMap, ref.getTitle(), "Publication");
+                extractInfoSources(ref, infoSourceMap, "Reference: " + ref.getTitle(), "Publication");
             }
         }
 
@@ -705,10 +705,9 @@ public class SpeciesController {
                 is.setInfoSourceName(infoSourceName);
                 String identifier = ao.getIdentifier();
                 if (identifier != null && !identifier.isEmpty()) {
-                    is.setInfoSourceURL(identifier);
-                } else {
-                    is.setInfoSourceURL(ao.getInfoSourceURL());
-                }
+                    is.setIdentifier(identifier);
+                } 
+                is.setInfoSourceURL(ao.getInfoSourceURL());
                 is.setInfoSourceId(ao.getInfoSourceId());
                 is.setText(text);
                 if (!section.isEmpty()) {

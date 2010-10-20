@@ -28,6 +28,7 @@ public class InfoSourceDTO implements Comparable<InfoSourceDTO> {
     private String infoSourceName;
     private String infoSourceURL;
     private Integer infoSourceId;
+    private String identifier;
     private String text;
     private Set<String> sections;
     private final static Logger logger = Logger.getLogger(InfoSourceDTO.class);
@@ -129,5 +130,13 @@ public class InfoSourceDTO implements Comparable<InfoSourceDTO> {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 }

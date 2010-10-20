@@ -226,7 +226,7 @@
                                                 (<fmt:formatNumber value="${fieldResult.count}" pattern="#,###,###"/>)</li>
                                         </c:when>
                                         <c:when test="${fn:endsWith(fieldResult.label, 'before')}"><%-- skip --%></c:when>
-                                       <c:when test="${not empty facetMap[facetResult.fieldName] && fieldResult.label == facetMap[facetResult.fieldName]}">
+                                        <c:when test="${not empty facetMap[facetResult.fieldName] && fieldResult.label == facetMap[facetResult.fieldName]}">
                                             <li><a href="#" onClick="removeFacet('${facetResult.fieldName}:${fieldResult.label}'); return false;" class="facetCancelLink">&lt; Any <fmt:message key="facet.${facetResult.fieldName}"/></a><br/>
                                             <b><fmt:message key="${fieldResult.label}"/></b></li>
                                         </c:when>

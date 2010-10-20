@@ -426,7 +426,13 @@
                             <c:forEach var="entry" items="${infoSources}" varStatus="status">
                                 <c:set var="infoSource" value="${entry.value}"/>
                                 <tr class="border-top">
-                                    <td><a href="${infoSource.infoSourceURL}" target="_blank" class="infosource">${infoSource.infoSourceName}</a><!--${status.count}--></td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${not empty infoSource.identifier}"><a href="${infoSource.identifier}" target="_blank" class="infosource">${infoSource.infoSourceName}</a></c:when>
+                                            <c:when test="${not empty infoSource.infoSourceURL}"><a href="${infoSource.infoSourceURL}" target="_blank" class="infosource">${infoSource.infoSourceName}</a></c:when>
+                                            <c:otherwise>${infoSource.infoSourceName}</c:otherwise>
+                                        </c:choose><!--${status.count}-->
+                                    </td>
                                     <td class="small-font">
                                         <c:forEach items="${infoSource.sections}" var="section" varStatus="s">
                                             <fmt:message key="${section}"/><c:if test="${!s.last}">,</c:if>
@@ -434,7 +440,8 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2"><p><span class="truncate">${infoSource.text}</span> <a href="${infoSource.infoSourceURL}" target="_blank">more</a></p></td>
+                                    <td colspan="2"><p><span class="truncate">${infoSource.text}</span>
+                                        <c:if test="${not empty infoSource.identifier && fn:length(infoSource.text) > 100}"><a href="${infoSource.identifier}" target="_blank">more</a></p></td></c:if>
                                 </tr>
                             </c:forEach>
                         </tbody> 
@@ -463,36 +470,35 @@
                         <c:if test="${extendedTaxonConcept.taxonConcept.rankID >= 7000}">
                             <c:choose>
                                 <c:when test="${extendedTaxonConcept.isAustralian}">
-                                    <div>Australia<span class="iucn native">&nbsp;</span>Recorded In</div>
+                                    <div><span class="iucn native">&nbsp;</span>Recorded In Australia</div>
                                 </c:when>
                                 <c:otherwise>
-                                    <div>Australia<span class="iucn nonnative">&nbsp;</span>Not Recorded In</div>
+                                    <div><span class="iucn nonnative">&nbsp;</span>Not Recorded In Australia</div>
                                 </c:otherwise>
                             </c:choose>
                         </c:if>
                         <c:forEach var="status" items="${extendedTaxonConcept.conservationStatuses}">
                             <c:if test="${fn:containsIgnoreCase(status.status,'extinct') || fn:containsIgnoreCase(status.status,'endangered') || fn:containsIgnoreCase(status.status,'vulnerable') || fn:containsIgnoreCase(status.status,'threatened') || fn:containsIgnoreCase(status.status,'concern') || fn:containsIgnoreCase(status.status,'deficient')}">
-                                <div><fmt:message key="region.${status.region}"/><a href="${status.infoSourceURL}" title="${status.infoSourceName}" target="_blank">
+                                <div><a href="${status.infoSourceURL}" title="${status.infoSourceName}" target="_blank">
                                     <c:choose>
-                                        <c:when test="${fn:endsWith(status.status,'Extinct')}"><span class="iucn red"><!--EX--></span></c:when>
-                                        <c:when test="${fn:containsIgnoreCase(status.status,'wild')}"><span class="iucn red"><!--EW--></span></c:when>
-                                        <c:when test="${fn:containsIgnoreCase(status.status,'Critically')}"><span class="iucn yellow"><!--CR--></span></c:when>
-                                        <c:when test="${fn:startsWith(status.status,'Endangered')}"><span class="iucn yellow"><!--EN--></span></c:when>
-                                        <c:when test="${fn:containsIgnoreCase(status.status,'Vulnerable')}"><span class="iucn yellow"><!--VU--></span></c:when>
-                                        <c:when test="${fn:containsIgnoreCase(status.status,'Near')}"><span class="iucn green"><!--NT--></span></c:when>
-                                        <c:when test="${fn:containsIgnoreCase(status.status,'concern')}"><span class="iucn green"><!--LC--></span></c:when>
-                                    </c:choose>
-                                    ${status.rawStatus}</a>
+                                        <c:when test="${fn:endsWith(status.status,'Extinct')}"><span class="iucn red"><fmt:message key="region.${status.region}"/><!--EX--></span></c:when>
+                                        <c:when test="${fn:containsIgnoreCase(status.status,'wild')}"><span class="iucn red"><fmt:message key="region.${status.region}"/><!--EW--></span></c:when>
+                                        <c:when test="${fn:containsIgnoreCase(status.status,'Critically')}"><span class="iucn yellow"><fmt:message key="region.${status.region}"/><!--CR--></span></c:when>
+                                        <c:when test="${fn:startsWith(status.status,'Endangered')}"><span class="iucn yellow"><fmt:message key="region.${status.region}"/><!--EN--></span></c:when>
+                                        <c:when test="${fn:containsIgnoreCase(status.status,'Vulnerable')}"><span class="iucn yellow"><fmt:message key="region.${status.region}"/><!--VU--></span></c:when>
+                                        <c:when test="${fn:containsIgnoreCase(status.status,'Near')}"><span class="iucn green"><fmt:message key="region.${status.region}"/><!--NT--></span></c:when>
+                                        <c:when test="${fn:containsIgnoreCase(status.status,'concern')}"><span class="iucn green"><fmt:message key="region.${status.region}"/><!--LC--></span></c:when>
+                                    </c:choose></a>
+                                    ${status.rawStatus}
                                 </div>
                             </c:if>
                         </c:forEach>
-                        
                         <c:forEach var="habitat" items="${extendedTaxonConcept.habitats}">
                             <c:set var="divMarine">
-                                <div>Habitat <a href="${habitat.infoSourceURL}" title="${habitat.infoSourceName}" target="_blank"><span class="iucn marine">&nbsp;</span> Marine</a></div>
+                                <div><a href="${habitat.infoSourceURL}" title="${habitat.infoSourceName}" target="_blank"><span class="iucn marine">&nbsp;</span></a>Habitat: Marine</div>
                             </c:set>
                             <c:set var="divTerrestrial">
-                                <div>Habitat <a href="${habitat.infoSourceURL}" title="${habitat.infoSourceName}" target="_blank"><span class="iucn terrestrial">&nbsp;</span> Terrestrial</a></div>
+                                <div><a href="${habitat.infoSourceURL}" title="${habitat.infoSourceName}" target="_blank"><span class="iucn terrestrial">&nbsp;</span></a>Habitat: Terrestrial</div>
                             </c:set>
                             <c:choose>
                                 <c:when test="${habitat.status == 'M'}">${divMarine}</c:when>
