@@ -221,9 +221,9 @@
                 var statusIconsCount = $('div.toggle div#status div').length;
                 //alert("Number of status icons: "+statusIconsCount);
                 if (statusIconsCount > 4) {
-                    $('div.status').css('height','18em');
+                    $('div.status').css('height','14em');
                 } else if (statusIconsCount > 8) {
-                    $('div.status').css('height','28em');
+                    $('div.status').css('height','24em');
                 } else if (statusIconsCount > 12) {
                     $('p.trigger').show();
                 }
