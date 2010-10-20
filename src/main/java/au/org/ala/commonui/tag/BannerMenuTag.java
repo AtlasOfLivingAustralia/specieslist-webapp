@@ -37,6 +37,7 @@ public class BannerMenuTag extends TagSupport {
 	
 	protected String defaultCasServer = "https://auth.ala.org.au";
 	protected String defaultCentralServer = "http://test.ala.org.au";
+	protected String defaultSearchServer = "http://bie.ala.org.au";
 	
 	/**
 	 * @see javax.servlet.jsp.tagext.TagSupport#doStartTag()
@@ -46,6 +47,11 @@ public class BannerMenuTag extends TagSupport {
 			HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
 			Principal principal = request.getUserPrincipal();
 			
+			String searchServer = pageContext.getServletContext().getInitParameter("searchServerName");
+			if(searchServer==null){
+				searchServer = defaultSearchServer;
+			}
+			
 			String casServer = pageContext.getServletContext().getInitParameter("casServerName");
 			if(casServer==null){
 				casServer = defaultCasServer;
@@ -54,6 +60,11 @@ public class BannerMenuTag extends TagSupport {
 			String centralServer = pageContext.getServletContext().getInitParameter("centralServer");		
 			if(centralServer==null){
 				centralServer = defaultCentralServer;
+			}
+			
+			String query = request.getParameter("q");
+			if(query==null || "".equals(query.trim())){
+				query = "Search the Atlas";
 			}
 			
 			// if a return path isnt supplied, construct one from current request 
@@ -77,6 +88,10 @@ public class BannerMenuTag extends TagSupport {
 			}
 	
 			String html =
+			"<div id='banner'>" + 
+			"<div id='logo'>" + 
+			"<a href='"+centralServer+"' title='Atlas of Living Australia home'><img src='"+centralServer+"/wp-content/themes/ala/images/ala_logo.png' width='208' height='80' alt='Atlas of Living Australia logo'/></a>" + 
+			"</div><!--close logo-->" + 
 			"<div id='nav'>" +
 				"<!-- WP Menubar 4.7: start menu nav-site, template Superfish, CSS  -->" +
 				"<ul class='sf'>" +
@@ -135,7 +150,16 @@ public class BannerMenuTag extends TagSupport {
 					loginLogoutListItem + 
 				"</ul>" +
 				"<!-- WP Menubar 4.7: end menu nav-site, template Superfish, CSS  -->" +
-			"</div><!--close nav-->";
+			"</div><!--close nav-->" +
+			"<div id='wrapper_search'>" + 
+			"<form id='search-form' action='"+searchServer+"/search' method='get' name='search-form'>" + 
+			"<label for='search'>Search</label>" + 
+			"<input type='text' class='filled' id='search' name='q' value='"+query+"'/>" + 
+			"<span class='search-button-wrapper'><input type='submit' class='search-button' id='search-button' alt='Search' value='Search' /></span>" + 
+			"</form>" + 
+			"</div><!--close wrapper_search-->" + 
+			"</div><!--close banner-->"; 
+			
 			pageContext.getOut().print(html);
 		} catch (Exception e) {
 			logger.error("BannerMenuTag: " + e.getMessage(), e);
