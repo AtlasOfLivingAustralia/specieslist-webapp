@@ -37,7 +37,7 @@
     <attribute>
       <description>The return url path for the login/logout anchor</description>
       <name>returnUrlPath</name>
-      <required>true</required>
+      <required>false</required>
       <rtexprvalue>true</rtexprvalue>
     </attribute>
   </tag>
