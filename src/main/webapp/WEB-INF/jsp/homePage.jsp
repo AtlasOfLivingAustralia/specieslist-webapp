@@ -19,5 +19,14 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
 	        <li><a href="contributors">Contributors list</a></li>
 	    </ul>
 	   </div>
+	   
+        <h2>Free text occurrence search the BIE</h2>
+		<div id="inpage_search">
+			<form id="search-inpage" action="occurrences/search" method="get" name="search-form">
+			<label for="search">Search</label>
+			<input type="text" class="filled ac_input" id="search" name="q" placeholder="Search the Atlas" autocomplete="off">
+			<span class="search-button-wrapper"><input type="submit" class="search-button" alt="Search" value="Search"></span>
+			</form>
+		</div>
     </body>
 </html>
