@@ -147,93 +147,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	}
 
 	/**
-	 * @see org.ala.dao.TaxonConceptDao#getSynonymsFor(java.lang.String)
-	 */
-	public List<TaxonConcept> getSynonymsFor(String guid) throws Exception {
-		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.SYNONYM_COL.getColumnName(), guid, TaxonConcept.class);
-	}
-
-	/**
-	 * @see org.ala.dao.TaxonConceptDao#getSynonymsFor(java.lang.String)
-	 */
-	public List<TaxonConcept> getCongruentConceptsFor(String guid) throws Exception {
-		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_CONGRUENT_TO_COL.getColumnName(), guid, TaxonConcept.class);
-	}
-
-	/**
-	 * @see org.ala.dao.TaxonConceptDao#getImages(java.lang.String)
-	 */
-	public List<Image> getImages(String guid) throws Exception {
-		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IMAGE_COL.getColumnName(), guid, Image.class);
-	}
-
-	/**
-	 * @see org.ala.dao.TaxonConceptDao#isIconic(java.lang.String)
-	 */
-	public boolean isIconic(String guid) throws Exception {
-		Boolean isIconic = (Boolean) storeHelper.get(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_ICONIC.getColumnName(), guid, Boolean.class);
-		if(isIconic==null){
-			return false;
-		}
-		return isIconic;
-	}
-        public boolean isAustralian(String guid) throws Exception {
-            Boolean isAustralian = (Boolean) storeHelper.get(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_AUSTRALIAN.getColumnName(), guid, Boolean.class);
-            if(isAustralian == null)
-                return false;
-            return isAustralian;
-        }
-
-	/**
-	 * @see org.ala.dao.TaxonConceptDao#getDistributionImages(java.lang.String)
-	 */
-	public List<Image> getDistributionImages(String guid) throws Exception {
-		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.DIST_IMAGE_COL.getColumnName(), guid, Image.class);
-	}
-
-	/**
-	 * @see org.ala.dao.TaxonConceptDao#getPestStatuses(java.lang.String)
-	 */
-	public List<PestStatus> getPestStatuses(String guid) throws Exception {
-		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.PEST_STATUS_COL.getColumnName(), guid, PestStatus.class);
-	}
-
-	/**
-	 * @see org.ala.dao.TaxonConceptDao#getConservationStatuses(java.lang.String)
-	 */
-	public List<ConservationStatus> getConservationStatuses(String guid) throws Exception {
-		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.CONSERVATION_STATUS_COL.getColumnName(), guid, ConservationStatus.class);
-	}
-
-	/**
-	 * @see org.ala.dao.TaxonConceptDao#getChildConceptsFor(java.lang.String)
-	 */
-	public List<TaxonConcept> getChildConceptsFor(String guid) throws Exception {
-		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_PARENT_COL_OF.getColumnName(), guid, TaxonConcept.class);
-	}
-
-	/**
-	 * @see org.ala.dao.TaxonConceptDao#getParentConceptsFor(java.lang.String)
-	 */
-	public List<TaxonConcept> getParentConceptsFor(String guid) throws Exception {
-		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_CHILD_COL_OF.getColumnName(), guid, TaxonConcept.class);
-	}
-
-	/**
-	 * @see org.ala.dao.TaxonConceptDao#getCommonNamesFor(java.lang.String)
-	 */
-	public List<CommonName> getCommonNamesFor(String guid) throws Exception {
-		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.VERNACULAR_COL.getColumnName(), guid, CommonName.class);
-	}
-
-    /**
-	 * @see org.ala.dao.TaxonConceptDao#getTextPropertiesFor(java.lang.String)
-	 */
-	public List<SimpleProperty> getTextPropertiesFor(String guid) throws Exception {
-		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.TEXT_PROPERTY_COL.getColumnName(), guid, SimpleProperty.class);
-	}
-
-	/**
 	 * FIXME Switch to using a single column for TaxonConcept
 	 *
 	 * @see org.ala.dao.TaxonConceptDao#create(org.ala.model.TaxonConcept)
@@ -388,6 +301,96 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     public boolean setIsAustralian(String guid) throws Exception {
         return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_AUSTRALIAN.getColumnName(), guid, true);
     }
+    
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getSynonymsFor(java.lang.String)
+	 */
+	public List<TaxonConcept> getSynonymsFor(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.SYNONYM_COL.getColumnName(), guid, TaxonConcept.class);
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getSynonymsFor(java.lang.String)
+	 */
+	public List<TaxonConcept> getCongruentConceptsFor(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_CONGRUENT_TO_COL.getColumnName(), guid, TaxonConcept.class);
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getImages(java.lang.String)
+	 */
+	public List<Image> getImages(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IMAGE_COL.getColumnName(), guid, Image.class);
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#isIconic(java.lang.String)
+	 */
+	public boolean isIconic(String guid) throws Exception {
+		Boolean isIconic = (Boolean) storeHelper.get(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_ICONIC.getColumnName(), guid, Boolean.class);
+		if(isIconic==null){
+			return false;
+		}
+		return isIconic;
+	}
+	
+	public boolean isAustralian(String guid) throws Exception {
+		Boolean isAustralian = (Boolean) storeHelper.get(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_AUSTRALIAN.getColumnName(), guid, Boolean.class);
+		if(isAustralian == null)
+			return false;
+		return isAustralian;
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getDistributionImages(java.lang.String)
+	 */
+	public List<Image> getDistributionImages(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.DIST_IMAGE_COL.getColumnName(), guid, Image.class);
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getPestStatuses(java.lang.String)
+	 */
+	public List<PestStatus> getPestStatuses(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.PEST_STATUS_COL.getColumnName(), guid, PestStatus.class);
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getConservationStatuses(java.lang.String)
+	 */
+	public List<ConservationStatus> getConservationStatuses(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.CONSERVATION_STATUS_COL.getColumnName(), guid, ConservationStatus.class);
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getChildConceptsFor(java.lang.String)
+	 */
+	public List<TaxonConcept> getChildConceptsFor(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_PARENT_COL_OF.getColumnName(), guid, TaxonConcept.class);
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getParentConceptsFor(java.lang.String)
+	 */
+	public List<TaxonConcept> getParentConceptsFor(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_CHILD_COL_OF.getColumnName(), guid, TaxonConcept.class);
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getCommonNamesFor(java.lang.String)
+	 */
+	public List<CommonName> getCommonNamesFor(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.VERNACULAR_COL.getColumnName(), guid, CommonName.class);
+	}
+
+    /**
+	 * @see org.ala.dao.TaxonConceptDao#getTextPropertiesFor(java.lang.String)
+	 */
+	public List<SimpleProperty> getTextPropertiesFor(String guid) throws Exception {
+		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.TEXT_PROPERTY_COL.getColumnName(), guid, SimpleProperty.class);
+	}
+    
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#create(java.util.List)
 	 */
@@ -1300,11 +1303,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
     		//is this species iconic
     		boolean isIconic = isIconic(guid);
-                //does this taxon have occurrence records associated with it?
-                Integer count = getOccurrenceRecordCount(guid);
-                //boolean isGs=count != null && count.size() >0 && count.get(0)>0;
-                if(count != null)
-                    doc.addField("occurrenceCount", count);
+            //does this taxon have occurrence records associated with it?
+            Integer count = getOccurrenceRecordCount(guid);
+            //boolean isGs=count != null && count.size() >0 && count.get(0)>0;
+            if(count != null){
+                doc.addField("occurrenceCount", count);
+            }
 
     		if(taxonConcept.getNameString()!=null){
 
@@ -1475,6 +1479,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    			}
 	    		}
 	    		doc.addField("hasImage", hasImages);
+	    		
+	    		Boolean isAustralian = isAustralian(guid);
+	    		if(isAustralian!=null && isAustralian){
+	    			doc.addField("australian_s", "recorded");
+	    		}
 
                 addRankToIndex(doc, taxonConcept.getRankString());
 
