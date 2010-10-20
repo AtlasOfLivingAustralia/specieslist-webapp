@@ -90,7 +90,7 @@ public class BannerMenuTag extends TagSupport {
 			String html =
 			"<div id='banner'>" + 
 			"<div id='logo'>" + 
-			"<a href='"+centralServer+"' title='Atlas of Living Australia home'><img src='"+centralServer+"/wp-content/themes/ala/images/ala_logo.png' width='208' height='80' alt='Atlas of Living Australia logo'/></a>" + 
+			"<a href='"+centralServer+"' title='Atlas of Living Australia home'><img src='"+centralServer+"/wp-content/themes/ala/images/ala_logo.png' width='215' height='80' alt='Atlas of Living Australia logo'/></a>" +
 			"</div><!--close logo-->" + 
 			"<div id='nav'>" +
 				"<!-- WP Menubar 4.7: start menu nav-site, template Superfish, CSS  -->" +
