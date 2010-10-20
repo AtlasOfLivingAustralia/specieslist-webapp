@@ -73,7 +73,7 @@ public class BannerMenuTag extends TagSupport {
 				String queryString = request.getQueryString();
 				if(queryString!=null || "".equals(queryString)){
 					requestURL.append('?');
-					requestURL.append(queryString.replaceAll("+", "%2B"));
+					requestURL.append(queryString.replaceAll("\\+", "%2B"));
 				}
 				returnUrlPath = requestURL.toString();
 			}
