@@ -38,37 +38,45 @@ public class BannerMenuTag extends TagSupport {
 	protected String defaultCasServer = "https://auth.ala.org.au";
 	protected String defaultCentralServer = "http://test.ala.org.au";
 	
-	
 	/**
 	 * @see javax.servlet.jsp.tagext.TagSupport#doStartTag()
 	 */
 	public int doStartTag() throws JspException {
-
-		HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-		Principal principal = request.getUserPrincipal();
-		
-		String casServer = pageContext.getServletContext().getInitParameter("casServerName");
-		if(casServer==null){
-			casServer = defaultCasServer;
-		}
-		
-		String centralServer = pageContext.getServletContext().getInitParameter("centralServer");		
-		if(centralServer==null){
-			centralServer = defaultCentralServer;
-		}
-		
-		String loginLogoutListItem;
-		if (returnUrlPath.equals("")) {
-			loginLogoutListItem = "";
-		} else {
+		try {
+			HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+			Principal principal = request.getUserPrincipal();
+			
+			String casServer = pageContext.getServletContext().getInitParameter("casServerName");
+			if(casServer==null){
+				casServer = defaultCasServer;
+			}
+			
+			String centralServer = pageContext.getServletContext().getInitParameter("centralServer");		
+			if(centralServer==null){
+				centralServer = defaultCentralServer;
+			}
+			
+			// if a return path isnt supplied, construct one from current request 
+			if (returnUrlPath == null || returnUrlPath.equals("")) {
+				StringBuffer requestURL = request.getRequestURL();
+				String queryString = request.getQueryString();
+				if(queryString!=null || "".equals(queryString)){
+					requestURL.append('?');
+					requestURL.append(queryString.replaceAll("+", "%2B"));
+				}
+				returnUrlPath = requestURL.toString();
+			}
+			
+			logger.debug("Return path URL: "+returnUrlPath);
+			
+			String loginLogoutListItem = "";
 			if (principal == null) {
 				loginLogoutListItem = "<li class='nav-login nav-right'><a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a></li>";
 			} else {
 				loginLogoutListItem = "<li class='nav-logout nav-right'><a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a></li>";
 			}
-		}
-
-		String html =
+	
+			String html =
 			"<div id='nav'>" +
 				"<!-- WP Menubar 4.7: start menu nav-site, template Superfish, CSS  -->" +
 				"<ul class='sf'>" +
@@ -123,13 +131,11 @@ public class BannerMenuTag extends TagSupport {
 							"<li><a href='" + centralServer + "/about/resources/'><span>Resources</span></a></li>" +
 						"</ul>" +
 					"</li>" +
-					"<li class='nav-myprofile nav-right'><a href='" + casServer + "/cas/login?service=http://test.ala.org.au/wp-login.php?redirect_to=http://test.ala.org.au/my-profile/'><span>My Profile</span></a></li>" +
+					"<li class='nav-myprofile nav-right'><a href='" + casServer + "/cas/login?service=http://test.ala.org.au/wp-login.php?redirect_to="+centralServer+"/my-profile/'><span>My Profile</span></a></li>" +
 					loginLogoutListItem + 
 				"</ul>" +
 				"<!-- WP Menubar 4.7: end menu nav-site, template Superfish, CSS  -->" +
 			"</div><!--close nav-->";
-		
-		try {
 			pageContext.getOut().print(html);
 		} catch (Exception e) {
 			logger.error("BannerMenuTag: " + e.getMessage(), e);
