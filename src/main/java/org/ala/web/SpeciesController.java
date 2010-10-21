@@ -224,6 +224,8 @@ public class SpeciesController {
         //create a map
         model.addAttribute("rankedImageUris", rankedUris);
         model.addAttribute("rankedImageUriMap", rankingMap);
+        // add map for conservation status regions to sections in the WP page describing them (http://test.ala.org.au/threatened-species-codes/#International)
+        model.addAttribute("statusRegionMap", statusRegionMap());
         logger.debug("Returning page view for: " + guid +" .....");
 		return SPECIES_SHOW;
 	}
@@ -718,6 +720,26 @@ public class SpeciesController {
                 infoSourceMap.put(infoSourceName, is);
             }
         }
+    }
+
+    /**
+     * Populate a return a Map of regions names to regions names section in the WP
+     * page http://test.ala.org.au/threatened-species-codes
+     *
+     * @return regions - the regions Map
+     */
+    private Map<String, String> statusRegionMap() {
+        Map regions = new HashMap<String, String>();
+        regions.put("IUCN", "International");
+        regions.put("Australia", "Australia-Wide");
+        regions.put("Australian Capital Territory", "Australian-Capital-Territory");
+        regions.put("New South Wales", "New-South-Wales");
+        regions.put("Northern Territory", "Northern-Territory");
+        regions.put("Queensland", "Queensland");
+        regions.put("South Australia", "South-Australia");
+        regions.put("Tasmania", "Tasmania");
+        regions.put("Western Australia", "Western-Australia");
+        return regions;
     }
 
     protected class CommonNameComparator implements Comparator<CommonName>{
