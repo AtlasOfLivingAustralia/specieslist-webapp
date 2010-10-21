@@ -480,10 +480,10 @@
                         </c:if>
                         <c:forEach var="habitat" items="${extendedTaxonConcept.habitats}">
                             <c:set var="divMarine">
-                                <div><a href="${habitat.infoSourceURL}" title="${habitat.infoSourceName}" target="_blank"><span class="iucn marine">&nbsp;</span></a>Marine Habitats</div>
+                                <div><a href="${habitat.infoSourceURL}" title="${habitat.infoSourceName}" target="_blank"><span class="iucn marine">&nbsp;</span>Marine Habitats</a></div>
                             </c:set>
                             <c:set var="divTerrestrial">
-                                <div><a href="${habitat.infoSourceURL}" title="${habitat.infoSourceName}" target="_blank"><span class="iucn terrestrial">&nbsp;</span></a>Terrestrial Habitats</div>
+                                <div><a href="${habitat.infoSourceURL}" title="${habitat.infoSourceName}" target="_blank"><span class="iucn terrestrial">&nbsp;</span>Terrestrial Habitats</a></div>
                             </c:set>
                             <c:choose>
                                 <c:when test="${habitat.status == 'M'}">${divMarine}</c:when>
@@ -508,8 +508,8 @@
                                         <c:when test="${fn:containsIgnoreCase(status.status,'Vulnerable')}"><span class="iucn yellow"><fmt:message key="region.${regionCode}"/><!--VU--></span></c:when>
                                         <c:when test="${fn:containsIgnoreCase(status.status,'Near')}"><span class="iucn green"><fmt:message key="region.${regionCode}"/><!--NT--></span></c:when>
                                         <c:when test="${fn:containsIgnoreCase(status.status,'concern')}"><span class="iucn green"><fmt:message key="region.${regionCode}"/><!--LC--></span></c:when>
-                                    </c:choose></a>
-                                    ${status.rawStatus}
+                                    </c:choose>
+                                    ${status.rawStatus}</a>
                                 </div>
                             </c:if>
                         </c:forEach>
