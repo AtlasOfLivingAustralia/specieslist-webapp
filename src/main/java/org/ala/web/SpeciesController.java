@@ -738,6 +738,7 @@ public class SpeciesController {
         regions.put("Queensland", "Queensland");
         regions.put("South Australia", "South-Australia");
         regions.put("Tasmania", "Tasmania");
+        regions.put("Victoria", "Victoria");
         regions.put("Western Australia", "Western-Australia");
         return regions;
     }
