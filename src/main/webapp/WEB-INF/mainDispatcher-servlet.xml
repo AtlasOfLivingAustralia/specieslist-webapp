@@ -74,7 +74,8 @@
     </bean>
     
     <bean id="htmlMediaType" class="org.springframework.http.MediaType">
-      <constructor-arg value="text/html" />
+        <constructor-arg index="0" value="text" />
+        <constructor-arg index="1" value="html" />
     </bean>
 
     <!-- Over-ride bean properties - including dataSource configs -->
