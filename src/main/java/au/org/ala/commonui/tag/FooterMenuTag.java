@@ -33,24 +33,30 @@ public class FooterMenuTag extends TagSupport {
 	private static final long serialVersionUID = -6406031197753714478L;
 	protected static Logger logger = Logger.getLogger(FooterMenuTag.class);
 	private static final String GOOGLE_ANALYTICS_KEY = "UA-4355440-1";
+	protected String defaultCentralServer = "http://test.ala.org.au";
 	private String returnUrlPath = "";
 	
 	/**
 	 * @see javax.servlet.jsp.tagext.TagSupport#doStartTag()
 	 */
 	public int doStartTag() throws JspException {
+		
+		String centralServer = pageContext.getServletContext().getInitParameter("centralServer");
+		if(centralServer==null){
+			centralServer = defaultCentralServer;
+		}
 
 		StringBuilder html = new StringBuilder(
 			"<div id='footer-nav'>" +
 				"<ul id='menu-footer-site'>" +
-					"<li id='menu-item-1046' class='menu-item menu-item-type-post_type current-menu-item page_item page-item-97 current_page_item menu-item-1046'><a href='http://test.ala.org.au/'>Home</a></li>" +
-					"<li id='menu-item-1051' class='menu-item menu-item-type-post_type menu-item-1051'><a href='http://test.ala.org.au/tools-services/'>Tools</a></li>" +
-					"<li id='menu-item-1050' class='menu-item menu-item-type-post_type menu-item-1050'><a href='http://test.ala.org.au/support/'>Support</a></li>" +
-					"<li id='menu-item-1048' class='menu-item menu-item-type-post_type menu-item-1048'><a href='http://test.ala.org.au/contact-us/'>Contact Us</a></li>");
+					"<li id='menu-item-1046' class='menu-item menu-item-type-post_type current-menu-item page_item page-item-97 current_page_item menu-item-1046'><a href='"+centralServer+"'>Home</a></li>" +
+					"<li id='menu-item-1051' class='menu-item menu-item-type-post_type menu-item-1051'><a href='"+centralServer+"/tools-services/'>Tools</a></li>" +
+					"<li id='menu-item-1050' class='menu-item menu-item-type-post_type menu-item-1050'><a href='"+centralServer+"/support/'>Support</a></li>" +
+					"<li id='menu-item-1048' class='menu-item menu-item-type-post_type menu-item-1048'><a href='"+centralServer+"/contact-us/'>Contact Us</a></li>");
 		
 		if (returnUrlPath.equals("")) {
 			html.append(
-					"<li id='menu-item-1047' class='last menu-item menu-item-type-post_type menu-item-1047'><a href='http://test.ala.org.au/about/'>About the Atlas</a></li>");
+					"<li id='menu-item-1047' class='last menu-item menu-item-type-post_type menu-item-1047'><a href='"+centralServer+"/about/'>About the Atlas</a></li>");
 		} else {
 			HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
 			Principal principal = request.getUserPrincipal();
@@ -64,23 +70,23 @@ public class FooterMenuTag extends TagSupport {
 			}
 
 			html.append(
-					"<li id='menu-item-1047' class='menu-item menu-item-type-post_type menu-item-1047'><a href='http://test.ala.org.au/about/'>About the Atlas</a></li>" +
+					"<li id='menu-item-1047' class='menu-item menu-item-type-post_type menu-item-1047'><a href='"+centralServer+"/about/'>About the Atlas</a></li>" +
 					"<li id='menu-item-1052' class='last menu-item menu-item-type-custom menu-item-1052'>" + loginLogoutAnchor + "</li>");
 		}
 
 		html.append(
 				"</ul>" +
 				"<ul id='menu-footer-legal'>" +
-					"<li id='menu-item-3090' class='menu-item menu-item-type-post_type menu-item-3090'><a href='http://test.ala.org.au/site-map/'>Site Map</a></li>" +
-					"<li id='menu-item-1042' class='menu-item menu-item-type-post_type menu-item-1042'><a href='http://test.ala.org.au/about/media-centre/terms-of-use/citing-the-atlas/'>Citing the Atlas</a></li>" +
-					"<li id='menu-item-1043' class='menu-item menu-item-type-post_type menu-item-1043'><a href='http://test.ala.org.au/about/media-centre/terms-of-use/disclaimer/'>Disclaimer</a></li>" +
-					"<li id='menu-item-1045' class='last menu-item menu-item-type-post_type menu-item-1045'><a href='http://test.ala.org.au/about/media-centre/terms-of-use/'>Terms of Use</a></li>" +
+					"<li id='menu-item-3090' class='menu-item menu-item-type-post_type menu-item-3090'><a href='"+centralServer+"/site-map/'>Site Map</a></li>" +
+					"<li id='menu-item-1042' class='menu-item menu-item-type-post_type menu-item-1042'><a href='"+centralServer+"/about/media-centre/terms-of-use/citing-the-atlas/'>Citing the Atlas</a></li>" +
+					"<li id='menu-item-1043' class='menu-item menu-item-type-post_type menu-item-1043'><a href='"+centralServer+"/about/media-centre/terms-of-use/disclaimer/'>Disclaimer</a></li>" +
+					"<li id='menu-item-1045' class='last menu-item menu-item-type-post_type menu-item-1045'><a href='"+centralServer+"/about/media-centre/terms-of-use/'>Terms of Use</a></li>" +
 				"</ul>" +
 			"</div>" +
 			"<div class='copyright'>" +
 				"<p>" +
 					"<a href='http://creativecommons.org/licenses/by/2.5/au/' title='External link to Creative Commons' class='left no-pipe'>" +
-						"<img src='http://test.ala.org.au/wp-content/themes/ala/images/somerights20.png' width='88' height='31' alt=''/>" +
+						"<img src='"+centralServer+"/wp-content/themes/ala/images/somerights20.png' width='88' height='31' alt=''/>" +
 					"</a>This work is licensed under a <a href='http://creativecommons.org/licenses/by/2.5/au/' title='External link to Creative Commons'>Creative Commons Attribution 2.5 Australia License</a>" +
 				"</p>" +
 			"</div>\n" +
