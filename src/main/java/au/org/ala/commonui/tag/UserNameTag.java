@@ -14,8 +14,6 @@
  ***************************************************************************/
 package au.org.ala.commonui.tag;
 
-import java.security.Principal;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;

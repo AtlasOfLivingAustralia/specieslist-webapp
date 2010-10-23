@@ -31,7 +31,6 @@ public class LoginStatusTag extends TagSupport {
 
 	private static final long serialVersionUID = -6406031197753714478L;
 	protected static Logger logger = Logger.getLogger(LoginStatusTag.class);
-	
 	private String returnUrlPath = "";
 	
 	/**
@@ -43,19 +42,37 @@ public class LoginStatusTag extends TagSupport {
 		AttributePrincipal principal = (AttributePrincipal) request.getUserPrincipal();
 		String casServer = pageContext.getServletContext().getInitParameter("casServerName");
 
-		String html;
+		// if a return path isnt supplied, construct one from current request 
+		if (returnUrlPath == null || returnUrlPath.equals("")) {
+			StringBuffer requestURL = request.getRequestURL();
+			String queryString = request.getQueryString();
+			if(queryString!=null || "".equals(queryString)){
+				requestURL.append('?');
+				requestURL.append(queryString.replaceAll("\\+", "%2B"));
+			}
+			returnUrlPath = requestURL.toString();
+		}
+		
+		StringBuffer htmlBuffer = new StringBuffer();
 		if (principal == null) {
-			html = "<p>You are not logged in.  <a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a></p>\n";
+			htmlBuffer.append("You are not logged in.  <a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a>");
 		} else {
 			String userId = principal.getName();
+			
+			String fullName = "";
+			if (principal != null && principal.getAttributes().get("firstname")!=null &&  principal.getAttributes().get("lastname")!=null) {
+				fullName = principal.getAttributes().get("firstname").toString() + " " + principal.getAttributes().get("lastname").toString();
+			}
+			
 			String email = principal.getAttributes().get("email").toString();
-			html = "<p>Logged in as <b>" + userId + "</b></p>\n" +
-					"<input type='hidden' name='creator' value='" + userId + "'/>\n" +
-					"<input type='hidden' name='creator-email' value='" + email + "'/>\n";
+			htmlBuffer.append("Logged in as <span class='userId'>" + userId + "</span>");
+			htmlBuffer.append("<input type='hidden' name='creator' value='" + userId + "' style='display:none;'/>");
+			htmlBuffer.append("<input type='hidden' name='creator-name' value='" + fullName + "'  style='display:none;'/>");
+			htmlBuffer.append("<input type='hidden' name='creator-email' value='" + email + "'  style='display:none;'/>");
 		}
 		
 		try {
-			pageContext.getOut().print(html);
+			pageContext.getOut().print(htmlBuffer.toString());
 		} catch (Exception e) {
 			logger.error("LoginStatusTag: " + e.getMessage(), e);
 			throw new JspTagException("LoginStatusTag: " + e.getMessage());
