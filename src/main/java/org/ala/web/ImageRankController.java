@@ -14,6 +14,8 @@
  ***************************************************************************/
 package org.ala.web;
 
+import java.security.Principal;
+
 import javax.inject.Inject;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ala.dao.RankingDao;
 import org.apache.log4j.Logger;
+import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -38,42 +41,6 @@ public class ImageRankController {
 	
 	@Inject
 	RankingDao rankingDao;
-//	
-//	@RequestMapping(value = "/isRanked*", method = RequestMethod.GET)
-//	public String isRankedByUser(
-//			@RequestParam(value="guid", required=true) String guid,
-//			@RequestParam(value="uri", required=true) String uri,
-//			HttpServletRequest request,
-//			HttpServletResponse response,
-//			Model model) throws Exception {
-//
-//		Cookie[] cookies = request.getCookies();
-//		
-//		String cookieValue = getCookieValue(guid, uri);
-//		
-//		for(Cookie cookie: cookies){
-//			if(cookie.getValue()!=null && cookie.getValue().startsWith(cookieValue)){
-//				//return true
-//				model.addAttribute("isRanked", "true");
-//				return "ranked";
-//			}
-//		}
-//		model.addAttribute("isRanked", "false");
-//		
-//		return "ranked";
-//	}
-
-	/*
-	public boolean rankImageForTaxon(
-			String userIp,
-			String userId,
-			String taxonGuid,
-			String scientificName, 
-			String imageUri, 
-			Integer imageInfoSourceId, 
-			boolean positive) throws Exception;
-	 */
-	
 	
 	@RequestMapping(value = "/rankTaxonImage*", method = RequestMethod.GET)
 	public void rankTaxonImageByUser(
@@ -85,7 +52,23 @@ public class ImageRankController {
 			HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		logger.info("Rank image for : "+guid+", URI: "+uri+", value: "+positive);
-		rankingDao.rankImageForTaxon(request.getRemoteHost(), request.getRemoteUser(), guid, name, uri, infosourceId, positive);
+		
+		Principal p = request.getUserPrincipal();
+		String remoteUser = request.getRemoteUser();
+		String fullName = null;
+		if(p!=null){
+			remoteUser = p.getName();
+			if(p instanceof AttributePrincipal){
+				AttributePrincipal ap = (AttributePrincipal) p;
+				if(ap.getAttributes().get("firstname")!=null && ap.getAttributes().get("lastname")!=null){
+					fullName = ap.getAttributes().get("firstname").toString() + " " + ap.getAttributes().get("lastname").toString();
+				}
+			}
+		}
+		
+		//store the ranking, updating the ordering of images
+		rankingDao.rankImageForTaxon(request.getRemoteHost(), remoteUser, fullName, guid, name, uri, infosourceId, positive);
+		
 		//create a cookie value
 		String cookieValue = RankingCookieUtils.getCookieValue(guid, uri, positive);
 		Cookie cookie = new Cookie(Long.toString(System.currentTimeMillis()), cookieValue);
