@@ -165,7 +165,18 @@
 </head>
 <body>
 <c:if test="${empty searchResults.results}">
-    <div  id="searchResults"><p>Search for <span style="font-weight: bold"><c:out value="${query}"/></span> did not match any documents</p></div>
+    <div id="header">
+        <div id="breadcrumb">
+            <a href="${initParam.centralServer}">Home</a>
+            <a href="${initParam.centralServer}/explore/">Explore</a>
+            <span class="current">Search the Atlas</span>
+        </div>
+    </div><!--close header-->
+    <div class="section">
+        <h2>Search Results</h2>
+        <h3>Search for <span style="font-weight: bold"><c:out value="${query}"/></span> did not match any documents</h3>
+        <p></p>
+    </div>
 </c:if>
 <c:if test="${not empty searchResults.results}">
     <c:set var="pageTitle">
