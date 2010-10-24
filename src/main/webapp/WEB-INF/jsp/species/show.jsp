@@ -480,10 +480,10 @@
                         </c:if>
                         <c:forEach var="habitat" items="${extendedTaxonConcept.habitats}">
                             <c:set var="divMarine">
-                                <div><a href="${habitat.infoSourceURL}" title="${habitat.infoSourceName}" target="_blank"><span class="iucn marine">&nbsp;</span>Marine Habitats</a></div>
+                                <div><span class="iucn marine">&nbsp;</span>Marine Habitats</div>
                             </c:set>
                             <c:set var="divTerrestrial">
-                                <div><a href="${habitat.infoSourceURL}" title="${habitat.infoSourceName}" target="_blank"><span class="iucn terrestrial">&nbsp;</span>Terrestrial Habitats</a></div>
+                                <div><span class="iucn terrestrial">&nbsp;</span>Terrestrial Habitats</div>
                             </c:set>
                             <c:choose>
                                 <c:when test="${habitat.status == 'M'}">${divMarine}</c:when>
