@@ -35,6 +35,16 @@
             //$('.results p').highlight('${queryJsEscaped}');
             var words = '${fn:trim(queryJsEscaped)}'; // remove leading + trailing white space
             $.each(words.split(" "), function(idx, val) { $('.results p').highlight(val); });
+
+            // if no results, then highlight search input on link click
+            $('#refineSearch').click(function(e) {
+                e.preventDefault();
+                $('input#search').css('border','2px solid #F37E2C').focus();
+            });
+            // clear the highlighting when user edits search input
+            $('input#search').live('mousedown keydown', function(e) {
+                $(this).css('border','2px solid #fff');
+            });
         });
 
         // jQuery getQueryParam Plugin 1.0.0 (20100429)
@@ -175,7 +185,7 @@
     <div class="section">
         <h2>Search Results</h2>
         <h3>Search for <span style="font-weight: bold"><c:out value="${query}"/></span> did not match any documents</h3>
-        <p></p>
+        <p><a href="#" id="refineSearch">edit your search query</a></p>
     </div>
 </c:if>
 <c:if test="${not empty searchResults.results}">
