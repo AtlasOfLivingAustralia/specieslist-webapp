@@ -40,11 +40,12 @@
             $('#refineSearch').click(function(e) {
                 e.preventDefault();
                 $('input#search').css('border','2px solid #F37E2C').focus();
+                // clear the highlighting when user edits search input
+                $('input#search').bind('mousedown keydown', function(e) {
+                    $(this).css('border','2px solid #fff');
+                });
             });
-            // clear the highlighting when user edits search input
-            $('input#search').live('mousedown keydown', function(e) {
-                $(this).css('border','2px solid #fff');
-            });
+            
         });
 
         // jQuery getQueryParam Plugin 1.0.0 (20100429)
