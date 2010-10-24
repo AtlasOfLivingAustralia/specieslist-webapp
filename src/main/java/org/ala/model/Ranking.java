@@ -8,6 +8,7 @@ public class Ranking implements Comparable<Ranking> {
 
 	String userIP;
 	String userId;
+	String fullName;
 	String uri;
 	boolean positive;
 	
@@ -70,5 +71,19 @@ public class Ranking implements Comparable<Ranking> {
 	 */
 	public void setUri(String uri) {
 		this.uri = uri;
+	}
+
+	/**
+	 * @return the fullName
+	 */
+	public String getFullName() {
+		return fullName;
+	}
+
+	/**
+	 * @param fullName the fullName to set
+	 */
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
 	}
 }

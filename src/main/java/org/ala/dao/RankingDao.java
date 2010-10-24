@@ -37,6 +37,7 @@ public interface RankingDao {
 	public boolean rankImageForTaxon(
 			String userIp,
 			String userId,
+			String fullName,
 			String taxonGuid,
 			String scientificName, 
 			String imageUri, 

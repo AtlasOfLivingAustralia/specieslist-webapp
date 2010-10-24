@@ -42,6 +42,7 @@ public class RankingDaoImpl implements RankingDao {
 	public boolean rankImageForTaxon(
 			String userIP,
 			String userId,
+			String fullName,
 			String taxonGuid, 
 			String scientificName, 
 			String imageUri,
@@ -51,6 +52,7 @@ public class RankingDaoImpl implements RankingDao {
 		Ranking r = new Ranking();
 		r.setUri(imageUri);
 		r.setUserId(userId);
+		r.setFullName(fullName);
 		r.setUserIP(userIP);
 		r.setPositive(positive);
 		//store the ranking event
