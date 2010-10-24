@@ -12,7 +12,8 @@ public class RankingDaoTest extends TestCase {
 		
 		boolean created = rankingDao.rankImageForTaxon(
 				"12.12.12.12", 
-				"davejmartin", 
+				"David.Martin@csiro.au", 
+				"Dave Martin",
 				"urn:lsid:biodiversity.org.au:apni.taxon:296831", 
 				"Acacia dealbata", 
 				"http://upload.wikimedia.org/wikipedia/commons/d/df/Acacia_dealbata_AF.jpg", 
@@ -21,7 +22,8 @@ public class RankingDaoTest extends TestCase {
 		
 		created = rankingDao.rankImageForTaxon(
 				"12.12.12.12", 
-				"davejmartin", 
+				"David.Martin@csiro.au",
+				"Dave Martin", 
 				"urn:lsid:biodiversity.org.au:apni.taxon:296831", 
 				"Acacia dealbata", 
 				"http://upload.wikimedia.org/wikipedia/commons/8/82/Acacia_dealbata-1.jpg",
