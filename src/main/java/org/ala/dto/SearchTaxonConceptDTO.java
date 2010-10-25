@@ -24,6 +24,7 @@ public class SearchTaxonConceptDTO extends SearchDTO implements Comparable<Searc
 	protected String parentId;
 	protected String parentGuid;
 	protected String commonName;
+	protected String nameComplete;
 	protected String commonNameSingle;
 	protected String acceptedConceptGuid;
 	protected String acceptedConceptName;
@@ -267,4 +268,18 @@ public class SearchTaxonConceptDTO extends SearchDTO implements Comparable<Searc
     public void setAuthor(String author) {
         this.author = author;
     }
+
+	/**
+	 * @return the nameComplete
+	 */
+	public String getNameComplete() {
+		return nameComplete;
+	}
+
+	/**
+	 * @param nameComplete the nameComplete to set
+	 */
+	public void setNameComplete(String nameComplete) {
+		this.nameComplete = nameComplete;
+	}
 }

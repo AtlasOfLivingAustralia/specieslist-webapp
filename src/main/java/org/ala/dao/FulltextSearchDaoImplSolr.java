@@ -824,7 +824,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 	private SearchTaxonConceptDTO createTaxonConceptFromIndex(QueryResponse qr, SolrDocument doc) {
 		SearchTaxonConceptDTO taxonConcept = new SearchTaxonConceptDTO();
 		taxonConcept.setScore((Float)doc.getFirstValue("score"));
-                taxonConcept.setIdxType(IndexedTypes.TAXON.toString());
+		taxonConcept.setIdxType(IndexedTypes.TAXON.toString());
 		taxonConcept.setGuid((String) doc.getFirstValue("guid"));
 		taxonConcept.setParentGuid((String) doc.getFirstValue("parentGuid"));
 		taxonConcept.setName((String) doc.getFirstValue("scientificNameRaw"));
@@ -841,6 +841,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         taxonConcept.setRight((Integer) doc.getFirstValue("right"));
         taxonConcept.setKingdom((String) doc.getFirstValue("kingdom"));
         taxonConcept.setAuthor((String) doc.getFirstValue("author"));
+        taxonConcept.setNameComplete((String) doc.getFirstValue("nameComplete"));
         try {
             taxonConcept.setRankId( (Integer) doc.getFirstValue("rankId"));
         } catch (NumberFormatException ex) {
@@ -877,6 +878,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         //solrQuery.addFacetField("rankId");
         //solrQuery.addFacetField("pestStatus");
         solrQuery.addFacetField("conservationStatus");
+        solrQuery.addFacetField("australian_s");
         solrQuery.setFacetMinCount(1);
         solrQuery.setRows(10);
         solrQuery.setStart(0);
