@@ -1322,6 +1322,15 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     			doc.addField("otherGuid", taxonConcept.getId());
 
     			addToSetSafely(infoSourceIds, taxonConcept.getInfoSourceId());
+    			
+    			
+    			TaxonName taxonName = getTaxonNameFor(guid);
+    			if(taxonName!=null && taxonName.getNameComplete()!=null){
+    				doc.addField("nameComplete", taxonName.getNameComplete());
+    			} else {
+    				doc.addField("nameComplete", taxonConcept.getNameString());
+    			}
+    			
     			//add multiple forms of the scientific name to the index
     			addScientificNameToIndex(doc, taxonConcept.getNameString(), taxonConcept.getRankString());
 
@@ -1345,7 +1354,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                             doc.addField("conservationStatus", cs.getRawStatus(), 0.6f);
                 			addToSetSafely(infoSourceIds, cs.getInfoSourceId());
                 			if(cs.getRegion()!=null){
-                				 doc.addField("conservationStatus"+cs.getRegion()+"_s", cs.getRawStatus());
+                				String regionName = cs.getRegion().replaceAll(" ","_");
+                				doc.addField("conservationStatus"+regionName+"_s", cs.getRawStatus());
                 			}
                         }
 //                    }
