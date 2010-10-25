@@ -280,7 +280,7 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
             <div id="breadcrumb">
                 <ul>
                     <li><a href="${wordPressUrl}">Home</a></li>
-                    <li><a href="${pageContext.request.contextPath}/species/search">Species</a></li>
+                    <li>Species</li>
                     <li>${sciNameFormatted} <c:if test="${not empty extendedTaxonConcept.commonNames}">(${extendedTaxonConcept.commonNames[0].nameString})</c:if></li>
                 </ul>
             </div>
