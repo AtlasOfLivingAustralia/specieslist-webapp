@@ -67,6 +67,7 @@ public class ConservationDataLoader {
     private static final String ntFloraFile = "/data/bie-staging/conservation/nt/NT_flora.csv";
     private static final String iucnDirectory = "/data/bie-staging/conservation/iucn";
     private static final String iucnFile = "/data/bie-staging/conservation/iucn/2008_REDLIST.csv";
+    private static final String tasFile = "/data/bie-staging/conservation/tas/species_20101015_1503(1).csv";
 
     public static void main(String args[]) {
         try {
@@ -94,6 +95,7 @@ public class ConservationDataLoader {
             loader.loadGenericState(ntFloraFile, "Northern Territory", "Flora", 508, 1, 2, 3);
             loader.loadIUCN();
 //            loader.processIUCN();
+            loader.loadGenericStateOptionalClassification(tasFile, "Tasmania", "", 509,4 , 23, 5, 6, 7, 8, 9, 10, 3, 24);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -395,6 +397,74 @@ public class ConservationDataLoader {
             }
         }
         logger.info("Finished adding " + processed + "(" + loaded + ") conservation status.  Failed to locate " + failed);
+    }
+
+    /**
+     * Generically loads a state that minimally contains a kingdom and genus 
+     * @param filename
+     * @param state
+     * @param type
+     * @param infosourceId
+     * @param sciIdx
+     * @param cnIdx
+     * @param kidx
+     * @param pidx
+     * @param cidx
+     * @param oidx
+     * @param fidx
+     * @param gidx
+     * @param statusIdx
+     * @param minCols
+     * @throws Exception
+     */
+    public void loadGenericStateOptionalClassification(String filename, String state, String type, int infosourceId, int sciIdx, int cnIdx, int kidx, int pidx, int cidx, int oidx, int fidx, int gidx, int statusIdx, int minCols) throws Exception{
+        logger.info("Loading the " + state + " " + type + " Conservation Status...");
+        CSVReader reader = CSVReader.buildReader(new File(filename), "UTF-8", ',', '"', 1);
+        InfoSource is = infoSourceDAO.getById(infosourceId);
+        int processed = 0, failed = 0, loaded = 0;
+
+        while (reader.hasNext()) {
+            String[] values = reader.readNext();
+            if (values != null && values.length > minCols && kidx >0 && gidx >0) {
+                String sciName = values[sciIdx];
+                //get the classification
+                LinnaeanRankClassification cl = new LinnaeanRankClassification(values[kidx], values[gidx]);
+                //Add the optional ranks to the classification
+                if(pidx >=0)
+                    cl.setPhylum(values[pidx]);
+                if(cidx >=0)
+                    cl.setKlass(values[cidx]);
+                if(oidx >= 0)
+                    cl.setOrder(values[oidx]);
+                if(fidx >= 0)
+                    cl.setFamily(values[fidx]);
+                //get the guid for the species
+                String guid = taxonConceptDao.findLsidByName(sciName, cl, null);
+                if (guid != null) {
+                    processed++;
+                    //get the conservation status
+                    ConservationStatus cs = vocabulary.getConservationStatusFor(infosourceId, values[statusIdx]);
+                    if (cs != null) {
+                        loaded++;
+                        addCSInfo(cs, is, state, "aus_states/" + state);
+//                        System.out.println(cs);
+                        taxonConceptDao.addConservationStatus(guid, cs);
+                    }
+                    if (cnIdx >= 0) {
+                        //now load the common names
+                        String commonName = StringUtils.trimToNull(values[cnIdx]);
+                        if (commonName != null) {
+                            addCommonName(guid, commonName, is);
+                        }
+                    }
+                } else {
+                    failed++;
+                    logger.info("Unable to locate scientific name " + sciName);
+                }
+            }
+        }
+        logger.info("Finished adding " + processed + "(" + loaded + ") conservation status.  Failed to locate " + failed);
+
     }
 
     /**
