@@ -5,11 +5,11 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="pageName" content="home"/>
-        <title>Atlas of Living Australia - Biodiversity Information Explorer</title>
+        <title>Biodiversity Information Explorer | Atlas of Living Australia</title>
     </head>
     <body>
        <div class="section">
-       	<h1>Biodiversity Information Explorer</h1>
+       	<h1>Biodiversity Information Explorer (BIE)</h1>
         <p>Welcome to the Atlas of Living Australia <strong>Biodiversity Information Explorer</strong>.</p>
         <p>
           This is an early release of this functionality for <strong>release 5 (October 29th 2010)</strong>.
@@ -21,7 +21,7 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
 	    
         <h2>Free text occurrence search the BIE</h2>
 		<div id="inpage_search">
-			<form id="search-inpage" action="occurrences/search" method="get" name="search-form">
+			<form id="search-inpage" action="search" method="get" name="search-form">
 			<label for="search">Search</label>
 			<input type="text" class="filled ac_input" id="search" name="q" placeholder="Search the Atlas" autocomplete="off">
 			<span class="search-button-wrapper"><input type="submit" class="search-button" alt="Search" value="Search"></span>
