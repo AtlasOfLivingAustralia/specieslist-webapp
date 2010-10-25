@@ -440,15 +440,17 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                                         </c:forEach>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td colspan="2"><p><span class="truncate">${infoSource.text}</span>
+                                <c:if test="${fn:length(infoSource.text) > 100}">
+                                    <tr>
+                                        <td colspan="2"><p><span class="truncate">${infoSource.text}</span>
                                         <c:if test="${not empty infoSource.identifier && fn:length(infoSource.text) > 100}"><a href="${infoSource.identifier}" target="_blank">more</a></p></td></c:if>
-                                </tr>
+                                    </tr>
+                                </c:if>
                             </c:forEach>
                         </tbody> 
                     </table> 
                     
-                    <c:if test="${empty textProperties}">
+                    <c:if test="${empty textProperties && empty extendedTaxonConcept.images}">
                         <div class="sorry sighting no-margin-top">
                             <div>
                                 <h3><a href="#contributeOverlay" class="contributeLink">Can you help us?
