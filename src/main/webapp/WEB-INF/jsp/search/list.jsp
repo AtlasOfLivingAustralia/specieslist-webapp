@@ -321,6 +321,10 @@
                                 <c:if test="${not empty result.kingdom}">
                                     <span><strong class="resultsLabel">Kingdom</strong>: ${result.kingdom}</span>
                                 </c:if>
+	                            <c:if test="${not empty result.rankId && result.rankId>5000}">
+	                            	<span class="recordSighting"><a href="http://biocache.ala.org.au/share/sighting/${result.guid}">Record a sighting</a></span>
+	                            	<span class="sharePhoto"><a href="http://test.ala.org.au/share/share-images/?guid=${result.guid}&scientificName=${not empty result.acceptedConceptName ? result.acceptedConceptName : result.name}&commonName=${result.commonNameSingle}">Share a photo</a></span>
+	                            </c:if>
                                 <!-- ${sectionText} -->
                             </p>
                         </c:when>
