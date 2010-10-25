@@ -1,4 +1,4 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ include file="/common/taglibs.jsp" %>
 <!DOCTYPE HTML">
 <c:set var="spatialPortalUrl">${initParam.centralServer}/explore/species-maps/</c:set>
@@ -451,8 +451,7 @@
                     <c:if test="${empty textProperties}">
                         <div class="sorry sighting no-margin-top">
                             <div>
-                                <h2>Sorry!</h2>
-                                <h3><a href="#contributeOverlay" class="contributeLink">We know the name, but not much else. Can you help?
+                                <h3><a href="#contributeOverlay" class="contributeLink">Can you help us?
                                     <span><b>Share</b> sightings, photos and data for 
                                         <c:choose>
                                             <c:when test="${not empty extendedTaxonConcept.commonNames}">the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong></c:when>
