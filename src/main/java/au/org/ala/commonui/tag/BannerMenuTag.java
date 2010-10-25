@@ -107,25 +107,26 @@ public class BannerMenuTag extends TagSupport {
 					"</li>" +
 					"<li class='nav-tools'><a href='" + centralServer + "/tools-services/'><span>Tools</span></a>" +
 						"<ul>" +
-							"<li><a href='" + centralServer + "/tools-services/creative-commons-licensing/'><span>Creative Commons licensing</span></a></li>" +
-							"<li><a href='" + centralServer + "/tools-services/community-science/'><span>Citizen Science</span></a></li>" +
+							"<li><a href='" + centralServer + "/tools-services/sds/'><span>Sensitive Data Service</span></a></li>" +
+							"<li><a href='" + centralServer + "/tools-services/species-name-services/'><span>Taxon Web Services</span></a></li>" +
+							"<li><a href='" + centralServer + "/tools-services/spatial-analysis/'><span>Spatial Analysis</span></a></li>" +
+							"<li><a href='" + centralServer + "/tools-services/citizen-science/'><span>Citizen Science</span></a></li>" +
 							"<li><a href='" + centralServer + "/tools-services/identification-tools/'><span>Identification Tools</span></a></li>" +
-							"<li><a href='" + centralServer + "/tools-services/for-developers/'><span>For Developers</span></a></li>" +
-							"<li><a href='" + centralServer + "/tools-services/sharing-data-through-the-atlas/'><span>Sharing data through the Atlas</span></a></li>" +
-							"<li><a href='" + centralServer + "/tools-services/taxonomic-databases-working-group/'><span>TDWG</span></a></li>" +
+							"<li><a href='" + centralServer + "/tools-services/onlinedesktop-tools-review/'><span>Online &amp; Desktop Tools Review</span></a></li>" +
 						"</ul>" +
 					"</li>" +
                     "<li class='nav-share'><a href='" + centralServer + "/share/' title='Share - links, images, images, literature, your time'><span>Share</span></a>" +
                         "<ul>" +
                             "<li><a href='" + centralServer + "/share/share-links/'><span>Share links, ideas, information</span></a></li>" +
                             "<li><a href='" + centralServer + "/share/share-images/'><span>Share Photos</span></a></li>" +
-                            "<li><a href='" + centralServer + "/share/share-data/'><span>Upload Data Sets</span></a></li>" +
+                            "<li><a href='" + centralServer + "/share/share-data/'><span>Share Datasets</span></a></li>" +
                             "<li><a href='" + centralServer + "/share/about-sharing/'><span>About Sharing</span></a></li>" +
                         "</ul>" +
                     "</li>" +
 					"<li class='nav-support'><a href='" + centralServer + "/support/'><span>Support</span></a>" +
 						"<ul>" +
-							"<li><a href='" + centralServer + "/support/get-started/'><span>Get Started</span></a></li>" +
+							"<li><a href='" + centralServer + "/support/contact-us/'><span>Contact Us</span></a></li>" +
+                            "<li><a href='" + centralServer + "/support/get-started/'><span>Get Started</span></a></li>" +
 							"<li><a href='" + centralServer + "/support/forum/'><span>Forum</span></a></li>" +
 							"<li><a href='" + centralServer + "/support/faq/'><span>Frequently Asked Questions</span></a></li>" +
 							"<li><a href='" + centralServer + "/support/how-to/'><span>How To</span></a></li>" +
@@ -134,13 +135,13 @@ public class BannerMenuTag extends TagSupport {
 					"<li class='nav-contact'><a href='" + centralServer + "/contact-us/'><span>Contact Us</span></a></li>" +
 					"<li class='nav-about'><a href='" + centralServer + "/about/'><span>About the Atlas</span></a>" +
 						"<ul>" +
-							"<li><a href='" + centralServer + "/about/people/'><span>Working Together</span></a></li>" +
-							"<li><a href='" + centralServer + "/about/portfolio-of-projects/'><span>Projects</span></a></li>" +
+							"<li><a href='" + centralServer + "/about/proviso/'><span>A Work in Progress</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/project-time-line/'><span>Project Time Line</span></a></li>" +
-							"<li><a href='" + centralServer + "/about/governance/'><span>Governance</span></a></li>" +
-							"<li><a href='" + centralServer + "/about/media-centre/'><span>Media Centre</span></a></li>" +
-							"<li><a href='" + centralServer + "/about/newsevents/'><span>News &amp; Events</span></a></li>" +
-							"<li><a href='" + centralServer + "/about/resources/'><span>Resources</span></a></li>" +
+							"<li><a href='" + centralServer + "/about/people/'><span>Working Together</span></a></li>" +
+							"<li><a href='" + centralServer + "/about/program-of-projects/'><span>Atlas Projects</span></li>" +
+							"<li><a href='" + centralServer + "/about/communications-centre/'><span>Communications Centre</span></a></li>" +
+							"<li><a href='" + centralServer + "/about/governance/'><span>Atlas Governance</span></a></li>" +
+							"<li><a href='" + centralServer + "/about/terms-of-use/'><span>Terms of Use</span></a></li>" +
 						"</ul>" +
 					"</li>" +
 					"<li class='nav-myprofile nav-right'><a href='" + casServer + "/cas/login?service="+centralServer+"/wp-login.php?redirect_to="+centralServer+"/my-profile/'><span>My Profile</span></a></li>" +
