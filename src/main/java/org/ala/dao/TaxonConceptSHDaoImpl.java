@@ -1353,10 +1353,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 //                            f.setBoost(0.6f);
                             doc.addField("conservationStatus", cs.getRawStatus(), 0.6f);
                 			addToSetSafely(infoSourceIds, cs.getInfoSourceId());
-                			if(cs.getRegion()!=null){
-                				String regionName = cs.getRegion().replaceAll(" ","_");
-                				doc.addField("conservationStatus"+regionName+"_s", cs.getRawStatus());
-                			}
+//                			if(cs.getRegion()!=null){
+//                				String regionName = cs.getRegion().replaceAll(" ","_");
+//                				doc.addField("conservationStatus"+regionName+"_s", cs.getRawStatus());
+//                			}
                         }
 //                    }
                 }
