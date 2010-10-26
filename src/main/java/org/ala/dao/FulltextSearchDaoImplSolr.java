@@ -843,9 +843,12 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         taxonConcept.setAuthor((String) doc.getFirstValue("author"));
         taxonConcept.setNameComplete((String) doc.getFirstValue("nameComplete"));
         try {
-            taxonConcept.setRankId( (Integer) doc.getFirstValue("rankId"));
-        } catch (NumberFormatException ex) {
-            logger.error("Error parsing rankId: "+ex.getMessage());
+        	Integer rankId = (Integer) doc.getFirstValue("rankId");
+        	if(rankId!=null){
+        		taxonConcept.setRankId(rankId);
+        	}
+        } catch (Exception ex) {
+            logger.error("Error parsing rankId: "+ex.getMessage(), ex);
         }
         taxonConcept.setPestStatus((String) doc.getFirstValue(StatusType.PEST.toString()));
         taxonConcept.setConservationStatus((String) doc.getFirstValue(StatusType.CONSERVATION.toString()));
