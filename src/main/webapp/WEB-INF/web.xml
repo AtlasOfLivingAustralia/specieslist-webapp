@@ -65,7 +65,7 @@
 	<!-- The Central Server hosting the CMS -->
     <context-param>
         <param-name>centralServer</param-name>
-        <param-value>http://test.ala.org.au</param-value>
+        <param-value>http://www.ala.org.au</param-value>
     </context-param>
 
     <context-param>
