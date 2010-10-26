@@ -702,36 +702,75 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
             <div id="column-one">
                 <div class="section">
                     <h2>Accepted Name</h2>
-                    <p>${sciNameFormatted} ${extendedTaxonConcept.taxonConcept.author}
+					<%-- 
+                     <p>${sciNameFormatted} ${extendedTaxonConcept.taxonConcept.author}
                         <cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
                         <c:if test="${not empty extendedTaxonConcept.taxonName.publishedIn}"><cite>Published in: <a href="#">${extendedTaxonConcept.taxonName.publishedIn}</a></cite></c:if>
                     </p>
+                  	--%>
+                    <table>
+                    	<tr>
+                    		<td>${sciNameFormatted} ${extendedTaxonConcept.taxonConcept.author}</td>
+                    		<td>
+								<cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
+							</td>                    		
+                    	</tr>
+                    	<tr>
+                    		<td colspan="2">
+                    			<c:if test="${not empty extendedTaxonConcept.taxonName.publishedIn}"><cite>Published in: <a href="#">${extendedTaxonConcept.taxonName.publishedIn}</a></cite></c:if>
+                    		</td>
+                    	</tr>
+                    </table>
+
                     <c:if test="${not empty extendedTaxonConcept.synonyms}">
                         <h2>Synonyms</h2>
+                        <table>
                     </c:if>
                     <c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym">
-                        <p><alatag:formatSciName name="${synonym.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/> ${synonym.author}
-                            <c:choose>
+                    	<tr>
+                        <td><alatag:formatSciName name="${synonym.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/> ${synonym.author}</td>
+                        <td>
+                        	<c:choose>
                                 <c:when test="${empty synonym.infoSourceURL}"><cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite></c:when>
                                 <c:otherwise><cite>Source: <a href="${synonym.infoSourceURL}" target="blank">${synonym.infoSourceName}</a></cite></c:otherwise>
-                            </c:choose>
+                            </c:choose> 
+                        </td>
+                        </tr>
+                        <tr>
+                        	<td colspan="2">
                             <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <span class="publishedIn">${synonym.publishedIn}</span></cite></c:if>
-                        </p>
+                       		</td>
+                        </tr>
                     </c:forEach>
+					<c:if test="${not empty extendedTaxonConcept.synonyms}">
+                        </table>
+                    </c:if>                    
                     <c:if test="${not empty extendedTaxonConcept.commonNames}">
                         <h2>Common Names</h2>
+                        <table>
                     </c:if>
                     <c:forEach items="${sortCommonNameKeys}" var="nkey">
-                    	<p>${nkey}
-	                     	<c:forEach items="${sortCommonNameSources[nkey]}" var="commonName">
-	                            <c:choose>
-	                                <c:when test="${not empty commonName.identifier && not empty commonName.infoSourceName}"><cite>Source: <a href="${commonName.identifier}" target="blank">${commonName.infoSourceName}</a></cite></c:when>
-	                                <c:otherwise><cite>Source: <a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>
-	                            </c:choose>
-	                            <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <span class="publishedIn">${synonym.publishedIn}</span></cite></c:if>
-	                     	</c:forEach>
-                    	</p>
-                    </c:forEach>                   
+                    	<tr>
+	                    	<td>${nkey}</td>
+		                    <td>
+		                    	<c:forEach items="${sortCommonNameSources[nkey]}" var="commonName">
+		                            <c:choose>
+		                                <c:when test="${not empty commonName.identifier && not empty commonName.infoSourceName}"><cite>Source: <a href="${commonName.identifier}" target="blank">${commonName.infoSourceName}</a></cite></c:when>
+		                                <c:otherwise><cite>Source: <a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>	                                
+		                            </c:choose>
+
+		                            <c:if test="${not empty synonym.publishedIn}">
+		                            	<tr>
+		                            		<td colspan="2"><cite>Published in: <span class="publishedIn">${synonym.publishedIn}</span></cite></td>
+		                            	</tr>
+	                            	</c:if>
+		                     	</c:forEach>
+	                    	</td>
+                    	</tr>
+                    </c:forEach> 
+					<c:if test="${not empty extendedTaxonConcept.commonNames}">
+                        </table>
+                    </c:if>                                     
                 </div>
             </div><!---->
             <div id="column-two">
