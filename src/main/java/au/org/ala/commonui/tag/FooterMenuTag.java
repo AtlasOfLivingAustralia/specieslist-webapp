@@ -33,7 +33,7 @@ public class FooterMenuTag extends TagSupport {
 	private static final long serialVersionUID = -6406031197753714478L;
 	protected static Logger logger = Logger.getLogger(FooterMenuTag.class);
 	private static final String GOOGLE_ANALYTICS_KEY = "UA-4355440-1";
-	protected String defaultCentralServer = "http://test.ala.org.au";
+	protected String defaultCentralServer = "http://www.ala.org.au";
 	private String returnUrlPath = "";
 	
 	/**
@@ -49,15 +49,16 @@ public class FooterMenuTag extends TagSupport {
 		StringBuilder html = new StringBuilder(
 			"<div id='footer-nav'>" +
 				"<ul id='menu-footer-site'>" +
-					"<li id='menu-item-1046' class='menu-item menu-item-type-post_type current-menu-item page_item page-item-97 current_page_item menu-item-1046'><a href='"+centralServer+"'>Home</a></li>" +
-					"<li id='menu-item-1051' class='menu-item menu-item-type-post_type menu-item-1051'><a href='"+centralServer+"/tools-services/'>Tools</a></li>" +
-					"<li id='menu-item-1050' class='menu-item menu-item-type-post_type menu-item-1050'><a href='"+centralServer+"/support/'>Support</a></li>" +
-					"<li id='menu-item-1048' class='menu-item menu-item-type-post_type menu-item-1048'><a href='"+centralServer+"/contact-us/'>Contact Us</a></li>");
+					"<li id='menu-item-5064' class='menu-item menu-item-type-post_type menu-item-5064'><a href='"+centralServer+"'>Home</a></li>" +
+                    "<li id='menu-item-8093' class='menu-item menu-item-type-post_type current-menu-item page_item page-item-883 current_page_item menu-item-8093'><a href='"+centralServer+"/explore/'>Explore</a></li>" +
+					"<li id='menu-item-5065' class='menu-item menu-item-type-post_type menu-item-5065'><a href='"+centralServer+"/tools-services/'>Tools</a></li>" +
+                    "<li id='menu-item-8092' class='menu-item menu-item-type-post_type menu-item-8092'><a href='"+centralServer+"/share/'>Share</a></li>" +
+					"<li id='menu-item-1066' class='menu-item menu-item-type-post_type menu-item-1066'><a href='"+centralServer+"/support/'>Support</a></li>" +
+					"<li id='menu-item-1067' class='menu-item menu-item-type-post_type menu-item-1067'><a href='"+centralServer+"/contact-us/'>Contact Us</a></li>" +
+                    "<li id='menu-item-5068' class='menu-item menu-item-type-post_type menu-item-5068'><a href='"+centralServer+"/about/'>About the Atlas</a></li>" +
+                    "<li id='menu-item-10433' class='menu-item menu-item-type-post_type menu-item-10433'><a href='"+centralServer+"/my-profile/'>My Profile</a></li>");
 		
-		if (returnUrlPath.equals("")) {
-			html.append(
-					"<li id='menu-item-1047' class='last menu-item menu-item-type-post_type menu-item-1047'><a href='"+centralServer+"/about/'>About the Atlas</a></li>");
-		} else {
+		if (!returnUrlPath.equals("")) {
 			HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
 			Principal principal = request.getUserPrincipal();
 			String casServer = pageContext.getServletContext().getInitParameter("casServerName");
@@ -70,27 +71,27 @@ public class FooterMenuTag extends TagSupport {
 			}
 
 			html.append(
-					"<li id='menu-item-1047' class='menu-item menu-item-type-post_type menu-item-1047'><a href='"+centralServer+"/about/'>About the Atlas</a></li>" +
 					"<li id='menu-item-1052' class='last menu-item menu-item-type-custom menu-item-1052'>" + loginLogoutAnchor + "</li>");
 		}
 
 		html.append(
 				"</ul>" +
 				"<ul id='menu-footer-legal'>" +
+					"<li id='menu-item-1045' class='last menu-item menu-item-type-post_type menu-item-1045'><a href='"+centralServer+"/about/terms-of-use/'>Terms of Use</a></li>" +
+					"<li id='menu-item-1042' class='menu-item menu-item-type-post_type menu-item-1042'><a href='"+centralServer+"/about/terms-of-use/citing-the-atlas/'>Citing the Atlas</a></li>" +
+					"<li id='menu-item-12256' class='menu-item menu-item-type-post_type menu-item-12256'><a href='"+centralServer+"/about/privacy-policy'>Privacy Policy</a></li>" +
 					"<li id='menu-item-3090' class='menu-item menu-item-type-post_type menu-item-3090'><a href='"+centralServer+"/site-map/'>Site Map</a></li>" +
-					"<li id='menu-item-1042' class='menu-item menu-item-type-post_type menu-item-1042'><a href='"+centralServer+"/about/media-centre/terms-of-use/citing-the-atlas/'>Citing the Atlas</a></li>" +
-					"<li id='menu-item-1043' class='menu-item menu-item-type-post_type menu-item-1043'><a href='"+centralServer+"/about/media-centre/terms-of-use/disclaimer/'>Disclaimer</a></li>" +
-					"<li id='menu-item-1045' class='last menu-item menu-item-type-post_type menu-item-1045'><a href='"+centralServer+"/about/media-centre/terms-of-use/'>Terms of Use</a></li>" +
 				"</ul>" +
 			"</div>" +
-			"<div class='copyright'>" +
-				"<p>" +
-					"<a href='http://creativecommons.org/licenses/by/2.5/au/' title='External link to Creative Commons' class='left no-pipe'>" +
-						"<img src='"+centralServer+"/wp-content/themes/ala/images/somerights20.png' width='88' height='31' alt=''/>" +
-					"</a>This work is licensed under a <a href='http://creativecommons.org/licenses/by/2.5/au/' title='External link to Creative Commons'>Creative Commons Attribution 2.5 Australia License</a>" +
-				"</p>" +
-			"</div>\n" +
-            "<script type='text/javascript'> " +
+            "<div class='copyright'>" +
+                "<p><a href='http://creativecommons.org/licenses/by/3.0/au/' title='External link to Creative Commons' class='left no-pipe'><img src='"+centralServer+"/wp-content/themes/ala/images/creativecommons.png' width='88' height='31' alt=''></a>This " +
+                    "site is licensed under a <a href='http://creativecommons.org/licenses/by/3.0/au/' title='External link to Creative Commons'>Creative Commons Attribution 3.0 Australia License</a>" +
+                "</p>" +
+                "<p>" +
+                    "Provider content may be covered by other <span class='asterisk-container'><a href='"+centralServer+"/about/terms-of-use/' title='Terms of Use'>Terms of Use</a>.</span>" +
+                "</p>" +
+            "</div>" +
+			"<script type='text/javascript'> " +
                 "var gaJsHost = (('https:' == document.location.protocol) ? 'https://ssl.' : 'http://www.');" +
                 "document.write(unescape('%3Cscript src=\"' + gaJsHost + 'google-analytics.com/ga.js\" type=\"text/javascript\"%3E%3C/script%3E'));" +
             "</script> " +
