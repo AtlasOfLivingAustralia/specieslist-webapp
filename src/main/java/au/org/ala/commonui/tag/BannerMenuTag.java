@@ -36,7 +36,7 @@ public class BannerMenuTag extends TagSupport {
 	private String returnUrlPath = "";
 	
 	protected String defaultCasServer = "https://auth.ala.org.au";
-	protected String defaultCentralServer = "http://test.ala.org.au";
+	protected String defaultCentralServer = "http://www.ala.org.au";
 	protected String defaultSearchServer = "http://bie.ala.org.au";
 	
 	/**
