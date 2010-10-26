@@ -14,6 +14,7 @@
  ***************************************************************************/
 package org.ala.web;
 
+import atg.taglib.json.util.JSONObject;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
@@ -51,7 +52,6 @@ import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
 import org.ala.model.Image;
 import org.ala.model.PestStatus;
-import org.ala.model.Publication;
 import org.ala.model.Reference;
 import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
@@ -61,6 +61,8 @@ import org.ala.util.MimeType;
 import org.ala.util.RepositoryFileUtils;
 import org.ala.util.StatusType;
 import org.ala.util.WebUtils;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -107,6 +109,8 @@ public class SpeciesController {
     protected Set<String> nonTruncatedSources = new java.util.HashSet<String>();
     /** The set of data sources that have low priority (ie displayed at the end of the list or removed if other sources available) **/
     protected Set<String> lowPrioritySources = new java.util.HashSet<String>();
+    /**  */
+    private final String SPATIAL_JSON_URL = "http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=";
 
     public SpeciesController(){
         nonTruncatedSources.add("http://www.environment.gov.au/biodiversity/abrs/online-resources/flora/main/index.html");
@@ -226,6 +230,8 @@ public class SpeciesController {
         model.addAttribute("rankedImageUriMap", rankingMap);
         // add map for conservation status regions to sections in the WP page describing them (http://test.ala.org.au/threatened-species-codes/#International)
         model.addAttribute("statusRegionMap", statusRegionMap());
+        // get static occurrence map from spatial portal via JSON lookup
+        model.addAttribute("spatialPortalMap", getSpatialPortalMap(etc.getTaxonConcept().getGuid()));
         logger.debug("Returning page view for: " + guid +" .....");
 		return SPECIES_SHOW;
 	}
@@ -742,6 +748,52 @@ public class SpeciesController {
         regions.put("Western Australia", "Western-Australia");
         return regions;
     }
+
+    /**
+     * Perform JSON service lookup on Spatial Portal for occurrence map Url, etc
+     * for a given GUID.
+     *
+     * @param guid
+     * @return
+     */
+    private Map<String, String> getSpatialPortalMap(String guid) {
+        Map<String, String> mapData = new HashMap<String, String>();
+        try {
+            String jsonString = getUrlContentAsJsonString(SPATIAL_JSON_URL + guid);
+            JSONObject jsonObj = new JSONObject(jsonString);
+            String mapUrl = jsonObj.getString("mapUrl");
+            String legendUrl = jsonObj.getString("legendUrl");
+            String type = jsonObj.getString("type");
+            mapData.put("mapUrl", mapUrl);
+            mapData.put("legendUrl", legendUrl);
+            mapData.put("type", type);
+        } catch (Exception ex) {
+            logger.error("JSON Lookup for Spatial Portal distro map failed. "+ex.getMessage(), ex);
+            mapData.put("error", ex.getLocalizedMessage());
+        }
+        return mapData;
+    }
+
+
+    /**
+	 * Retrieve content as String. With json accept header.
+	 *
+	 * @param url
+	 * @return
+	 * @throws Exception
+	 */
+	public String getUrlContentAsJsonString(String url) throws Exception {
+		HttpClient httpClient = new HttpClient();
+        httpClient.getParams().setSoTimeout(1500);
+		GetMethod gm = new GetMethod(url);
+        gm.setRequestHeader("accept", "application/json");
+		gm.setFollowRedirects(true);
+		httpClient.executeMethod(gm);
+		// String requestCharset = gm.getRequestCharSet();
+		String content = gm.getResponseBodyAsString();
+		// content = new String(content.getBytes(requestCharset), "UTF-8");
+		return content;
+	}
 
     protected class CommonNameComparator implements Comparator<CommonName>{
     	@Override

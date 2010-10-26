@@ -364,37 +364,12 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                             | <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="View interactive map">View interactive map</a>
                         </p>
                         <div class="left">
-                            <img src="${spatialPortalWMSUrl}ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" width="462" alt=""/>
+                            <img src="${spatialPortalMap.mapUrl}" class="distroImg" width="462" alt="occurrence map"/>
                         </div>
                         <div class="right" style="width:149px; font-size: 90%">
-                            <table>
-                                <caption>Number of records</caption>
-                                <tr>
-                                    <td style="background-color:#ffff00;color:#ffff00;">yel</td>
-                                    <td>1&ndash;9</td>
-                                </tr>
-                                <tr>
-                                    <td style="background-color:#ffcc00;color:#ffcc00;">yel or</td>
-                                    <td>10&ndash;49</td>
-                                </tr>
-                                <tr>
-                                    <td style="background-color:#ff9900;color:#ff9900;">or</td>
-                                    <td>50&ndash;99</td>
-                                </tr>
-                                <tr>
-                                    <td style="background-color:#ff6600;color:#ff6600;">or red</td>
-                                    <td>100&ndash;249</td>
-                                </tr>
-                                <tr>
-                                    <td style="background-color:#ff3300;color:#ff3300;">lt red</td>
-                                    <td>250&ndash;499</td>
-                                </tr>
-                                <tr>
-                                    <td style="background-color:#cc0000;color:#cc0000;">red</td>
-                                    <td>500+</td>
-                                </tr>
-                                <tr>
-                            </table>
+                            <c:if test="${not empty spatialPortalMap.legendUrl && spatialPortalMap.type == 'heatmap'}">
+                                <img src="${spatialPortalMap.legendUrl}" class=""  alt="map legend"/>
+                            </c:if>
                         </div>
                     </div>
                     <c:set var="descriptionBlock">
@@ -710,15 +685,15 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                   	--%>
                     <table>
                     	<tr>
-                    		<td>${sciNameFormatted} ${extendedTaxonConcept.taxonConcept.author}</td>
-                    		<td>
-								<cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
-							</td>                    		
+                            <td>${sciNameFormatted} ${extendedTaxonConcept.taxonConcept.author}</td>
+                            <td>
+                                <cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
+                            </td>
                     	</tr>
-                    	<tr>
-                    		<td colspan="2">
-                    			<c:if test="${not empty extendedTaxonConcept.taxonName.publishedIn}"><cite>Published in: <a href="#">${extendedTaxonConcept.taxonName.publishedIn}</a></cite></c:if>
-                    		</td>
+                    	<tr class="cite">
+                            <td colspan="2">
+                                    <c:if test="${not empty extendedTaxonConcept.taxonName.publishedIn}"><cite>Published in: <a href="#">${extendedTaxonConcept.taxonName.publishedIn}</a></cite></c:if>
+                            </td>
                     	</tr>
                     </table>
 
@@ -728,21 +703,21 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                     </c:if>
                     <c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym">
                     	<tr>
-                        <td><alatag:formatSciName name="${synonym.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/> ${synonym.author}</td>
-                        <td>
-                        	<c:choose>
-                                <c:when test="${empty synonym.infoSourceURL}"><cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite></c:when>
-                                <c:otherwise><cite>Source: <a href="${synonym.infoSourceURL}" target="blank">${synonym.infoSourceName}</a></cite></c:otherwise>
-                            </c:choose> 
-                        </td>
+                            <td><alatag:formatSciName name="${synonym.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/> ${synonym.author}</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${empty synonym.infoSourceURL}"><cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite></c:when>
+                                    <c:otherwise><cite>Source: <a href="${synonym.infoSourceURL}" target="blank">${synonym.infoSourceName}</a></cite></c:otherwise>
+                                </c:choose>
+                            </td>
                         </tr>
-                        <tr>
-                        	<td colspan="2">
-                            <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <span class="publishedIn">${synonym.publishedIn}</span></cite></c:if>
-                       		</td>
+                        <tr class="cite">
+                            <td colspan="2">
+                                <c:if test="${not empty synonym.publishedIn}"><cite>Published in: <span class="publishedIn">${synonym.publishedIn}</span></cite></c:if>
+                            </td>
                         </tr>
                     </c:forEach>
-					<c:if test="${not empty extendedTaxonConcept.synonyms}">
+                    <c:if test="${not empty extendedTaxonConcept.synonyms}">
                         </table>
                     </c:if>                    
                     <c:if test="${not empty extendedTaxonConcept.commonNames}">
@@ -751,24 +726,23 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                     </c:if>
                     <c:forEach items="${sortCommonNameKeys}" var="nkey">
                     	<tr>
-	                    	<td>${nkey}</td>
-		                    <td>
-		                    	<c:forEach items="${sortCommonNameSources[nkey]}" var="commonName">
-		                            <c:choose>
-		                                <c:when test="${not empty commonName.identifier && not empty commonName.infoSourceName}"><cite>Source: <a href="${commonName.identifier}" target="blank">${commonName.infoSourceName}</a></cite></c:when>
-		                                <c:otherwise><cite>Source: <a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>	                                
-		                            </c:choose>
-
-		                            <c:if test="${not empty synonym.publishedIn}">
-		                            	<tr>
-		                            		<td colspan="2"><cite>Published in: <span class="publishedIn">${synonym.publishedIn}</span></cite></td>
-		                            	</tr>
-	                            	</c:if>
-		                     	</c:forEach>
-	                    	</td>
+                            <td>${nkey}</td>
+                            <td>
+                                <c:forEach items="${sortCommonNameSources[nkey]}" var="commonName">
+                                    <c:choose>
+                                        <c:when test="${not empty commonName.identifier && not empty commonName.infoSourceName}"><cite>Source: <a href="${commonName.identifier}" target="blank">${commonName.infoSourceName}</a></cite></c:when>
+                                        <c:otherwise><cite>Source: <a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>
+                                    </c:choose>
+                                    <%--<c:if test="${not empty synonym.publishedIn}">
+                                        <tr>
+                                            <td colspan="2"><cite>Published in: <span class="publishedIn">${synonym.publishedIn}</span></cite></td>
+                                        </tr>
+                                    </c:if> --%>
+                                </c:forEach>
+                            </td>
                     	</tr>
                     </c:forEach> 
-					<c:if test="${not empty extendedTaxonConcept.commonNames}">
+                    <c:if test="${not empty extendedTaxonConcept.commonNames}">
                         </table>
                     </c:if>                                     
                 </div>
@@ -870,19 +844,19 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
 
                         <%-- Distribution map images --%>
                         <c:if test="${not empty extendedTaxonConcept.distributionImages}">
-                                <h2>Record maps from other sources</h2>
-                                <c:forEach items="${extendedTaxonConcept.distributionImages}" var="distribImage">
-                                                    <div class="recordMapOtherSource" style="display: block">
-                                                            <c:set var="imageLink">${not empty distribImage.isPartOf ? distribImage.isPartOf : distribImage.infoSourceURL}</c:set>
-                                                            <a href="${imageLink}">
-                                                            <img src="${distribImage.repoLocation}"/>
-                                                            </a>
-                                                            <br/>
-                                                            <cite>Source:
-                                                                    <a href="${imageLink}" target="blank">${distribImage.infoSourceName}</a>
-                                                            </cite>
+                            <h2>Record maps from other sources</h2>
+                            <c:forEach items="${extendedTaxonConcept.distributionImages}" var="distribImage">
+                                <div class="recordMapOtherSource" style="display: block">
+                                    <c:set var="imageLink">${not empty distribImage.isPartOf ? distribImage.isPartOf : distribImage.infoSourceURL}</c:set>
+                                    <a href="${imageLink}">
+                                        <img src="${distribImage.repoLocation}"/>
+                                    </a>
+                                    <br/>
+                                    <cite>Source:
+                                        <a href="${imageLink}" target="blank">${distribImage.infoSourceName}</a>
+                                    </cite>
                                 </div>
-                                </c:forEach>
+                            </c:forEach>
                         </c:if>
                     </div>
                     <%--
@@ -933,7 +907,7 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                         <h4>Map of Occurrence Records</h4>
                         <p>
                             <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">
-                                <img src="${spatialPortalWMSUrl}ws/density/map?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a><br/>
+                                <img src="${spatialPortalMap.mapUrl}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a><br/>
                             <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">Interactive version of this map</a>
                         </p>
                     </div>
