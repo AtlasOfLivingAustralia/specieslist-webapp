@@ -9,6 +9,7 @@
     <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/bie-theme/jquery-ui-1.8.custom.css" charset="utf-8">-->
     <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.cookie.js"></script>
     <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.highlight-3.js"></script>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.oneshowhide.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             var facetLinksSize = $("ul#subnavlist li").size();
@@ -45,8 +46,16 @@
                     $(this).css('border','2px solid #fff');
                 });
             });
+
+            // add show/hide links to facets
+            $('#subnavlist ul OFF').oneShowHide({
+                numShown: 4,
+                showText : '+ show more',
+                hideText : '- show less',
+                className: 'showHide'
+            });
             
-        });
+        }); // end JQuery document ready
 
         // jQuery getQueryParam Plugin 1.0.0 (20100429)
         // By John Terenzio | http://plugins.jquery.com/project/getqueryparam | MIT License
@@ -141,36 +150,6 @@
         }
 
     </script>
-    <style type="text/css" media="screen">
-        .highlight { font-weight: bold; }
-        div.results span .resultsLabel {
-            color: #555;
-            font-weight: normal;
-        }
-        div.results span.highlight {
-            display: inline;
-        }
-        #facets {
-            margin-top:-1px;
-        }
-        #facets > h3 {
-            border-bottom: 1px solid #E8EACE;
-            font-size: 1em;
-            font-weight: bold;
-            line-height: 2em;
-        }
-        #facets  h3 {
-            padding: 3px 4px;
-        }
-        #subnavlist li {
-            text-transform: capitalize;
-        }
-        #facets #accordion { display: block; }
-        div.results span.commonNameSummary {
-            display: inline;
-            color: #222;
-        }
-    </style>
     <title>${query} | Search | Atlas of Living Australia</title>
     <link rel="stylesheet" href="${initParam.centralServer}/wp-content/themes/ala/css/bie.css" type="text/css" media="screen" charset="utf-8"/>
 </head>
@@ -323,7 +302,7 @@
                                 </c:if>
 	                            <c:if test="${not empty result.rankId && result.rankId>5000}">
 	                            	<span class="recordSighting" style="display:inline;"><a href="http://biocache.ala.org.au/share/sighting/${result.guid}">Record a sighting</a></span>
-	                            	<span class="sharePhoto" style="display:inline;"><a href="http://test.ala.org.au/share/share-images/?guid=${result.guid}&scientificName=${not empty result.acceptedConceptName ? result.acceptedConceptName : result.name}&commonName=${result.commonNameSingle}">Share a photo</a></span>
+	                            	<span class="sharePhoto" style="display:inline;"><a href="${initParam.centralServer}/share/share-images/?guid=${result.guid}&scientificName=${not empty result.acceptedConceptName ? result.acceptedConceptName : result.name}&commonName=${result.commonNameSingle}">Share a photo</a></span>
 	                            </c:if>
                                 <!-- ${sectionText} -->
                             </p>
