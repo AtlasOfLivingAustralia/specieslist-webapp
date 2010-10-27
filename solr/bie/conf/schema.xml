@@ -518,6 +518,14 @@
    <field name="author" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="acceptedConceptName" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="conservationStatus" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
+   <field name="conservationStatusVIC" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
+   <field name="conservationStatusNSW" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
+   <field name="conservationStatusACT" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
+   <field name="conservationStatusQLD" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
+   <field name="conservationStatusTAS" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
+   <field name="conservationStatusNT" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
+   <field name="conservationStatusWA" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
+   <field name="conservationStatusSA" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
    <field name="pestStatus" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
    <field name="commonName" type="text" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="commonNameExact" type="lowercase" indexed="true" stored="false" multiValued="true" omitNorms="false"/>

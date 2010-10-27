@@ -101,6 +101,21 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 	protected static Logger logger = Logger.getLogger(TaxonConceptSHDaoImpl.class);
 
+	/** To be moved to somewhere more maintainable */
+    protected static List<String> regionList = null;
+	static{
+		regionList = new ArrayList<String>();
+		regionList.add("New South Wales");
+		regionList.add("Victoria");
+		regionList.add("Tasmania");
+		regionList.add("Northern Territory");
+		regionList.add("South Australia");
+		regionList.add("Queensland");
+		regionList.add("Australian Capital Territory");
+		regionList.add("Western Australia");
+		regionList.add("Australia");
+	}
+	
 	/** The location for the lucene index */
 	public static final String TC_INDEX_DIR = "/data/solr/bie/index";
 
@@ -129,7 +144,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     protected static final String SCI_NAME = "scientificName";
     protected static final String SCI_NAME_RAW = "scientificNameRaw";
     protected static final String SCI_NAME_TEXT = "scientificNameText";
-
+    
 	/**
 	 * Initialise the DAO, setting up the HTable instance.
 	 *
@@ -1347,18 +1362,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                 doc.addField("author", taxonConcept.getAuthor());
 	    		
                 for (ConservationStatus cs : conservationStatuses) {
-//                    for (String csTerm : consTerms) {
-                        if (cs.getRawStatus()!=null) {
-//                            Field f = new Field("conservationStatus", csTerm, Store.YES, Index.NOT_ANALYZED);
-//                            f.setBoost(0.6f);
-                            doc.addField("conservationStatus", cs.getRawStatus(), 0.6f);
-                			addToSetSafely(infoSourceIds, cs.getInfoSourceId());
-//                			if(cs.getRegion()!=null){
-//                				String regionName = cs.getRegion().replaceAll(" ","_");
-//                				doc.addField("conservationStatus"+regionName+"_s", cs.getRawStatus());
-//                			}
-                        }
-//                    }
+                    if (cs.getRawStatus()!=null) {
+                        doc.addField("conservationStatus", cs.getRawStatus(), 0.6f);
+            			addToSetSafely(infoSourceIds, cs.getInfoSourceId());
+            			if(cs.getRegion()!=null && Regions.getRegion(cs.getRegion())!=null){
+            				Regions r = Regions.getRegion(cs.getRegion());
+            				  doc.addField("conservationStatus"+r.getAcronym(), cs.getRawStatus());
+            			}
+                    }
                 }
 
 //                for (PestStatus ps : pestStatuses) {
