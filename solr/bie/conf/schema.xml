@@ -518,6 +518,7 @@
    <field name="author" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="acceptedConceptName" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="conservationStatus" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
+   <field name="conservationStatusAUS" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
    <field name="conservationStatusVIC" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
    <field name="conservationStatusNSW" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
    <field name="conservationStatusACT" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
