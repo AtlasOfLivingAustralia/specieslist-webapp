@@ -297,7 +297,7 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
             <div id="breadcrumb">
                 <ul>
                     <li><a href="${wordPressUrl}">Home</a></li>
-                    <li>Species</li>
+                    <li><a href="${wordPressUrl}/explore">Explore</a></li>
                     <li>${sciNameFormatted} <c:if test="${not empty extendedTaxonConcept.commonNames}">(${extendedTaxonConcept.commonNames[0].nameString})</c:if></li>
                 </ul>
             </div>
@@ -391,8 +391,8 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                                     <img src="${spatialPortalMap.legendUrl}" class="distroLegend" style="" alt="map legend"/>
                                 </c:if>
                             </div>
+                            <p style="clear: both; margin-left: 50px;"><span class="asterisk-container"><a href="${wordPressUrl}/about/progress/map-ranges/">Learn more about Atlas maps</a>&nbsp;</span></p>
                         </div>
-                        <p style="margin-left: 20px;"><span class="asterisk-container"><a href="${wordPressUrl}/about/progress/map-ranges/">Learn more about Atlas maps</a>&nbsp;</span></p>
                     </c:if>
                     <c:set var="descriptionBlock">
                         <c:forEach var="textProperty" items="${textProperties}" varStatus="status">
@@ -1070,33 +1070,32 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
         </div><!--close references-->
         <div style="display: none;">
             <div id="contributeOverlay">
-                <div class="section buttons"  style="text-align: left !important">
-                    <h2>Share</h2>
+                <div class="section buttons no-borders no-margin-bottom" style="text-align: left !important">
                     <div class="sightings">
-                        <h3><a href="${contributeURL}">Sightings
-                                <span>Record sightings for
-                                    <c:choose>
-                                        <c:when test="${not empty extendedTaxonConcept.commonNames}">the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong></c:when>
-                                        <c:otherwise><c:if test="${extendedTaxonConcept.taxonConcept.rankID <= 6000}">the ${extendedTaxonConcept.taxonConcept.rankString} </c:if><strong>${sciNameFormatted}</strong></c:otherwise>
-                                    </c:choose>
-                                </span></a></h3>
+                        <h2><a href="${contributeURL}">Sightings <span>Record your observations of
+                                <c:choose>
+                                    <c:when test="${not empty extendedTaxonConcept.commonNames}">the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong></c:when>
+                                    <c:otherwise><c:if test="${extendedTaxonConcept.taxonConcept.rankID <= 6000}">the ${extendedTaxonConcept.taxonConcept.rankString} </c:if><strong>${sciNameFormatted}</strong></c:otherwise>
+                                </c:choose>
+                            </span></a></h2>
                     </div>
                     <div class="photos">
-                        <h3><a href="${initParam.centralServer}/share/share-images/">Photos
-                             <span>Upload your images</span></a></h3>
+                        <h2><a href="${initParam.centralServer}/share/share-images/">Photos <span>Share your images with the Atlas</span></a></h2>
                     </div>
                     <div class="analogue-data">
-                        <h3><a href="${initParam.centralServer}/share/share-analogue-data/">Non-digital data
-                                <span>Share your paper-based notes, journals and references</span></a></h3>
+                        <h2><a href="${initParam.centralServer}/share/share-links/">Links, ideas, information <span>Share links to
+                            good web sites, ideas &amp; information</span></a></h2>
                     </div>
                     <div class="digital-data last">
-                        <h3><a href="${initParam.centralServer}/share/share-data/">Digital data
-                                <span>Upload your spreadsheets, databases &amp; more</span></a></h3>
+                        <h2><a href="${initParam.centralServer}/share/share-data/">Datasets <span>Share your spreadsheets,
+                            databases &amp; more</span></a></h2>
                     </div>
-                </div>
-                <br/>
-                <p>And don't forget to send us your favourite <a href="${initParam.centralServer}/share/share-links/">links
-                        to good <strong>web sites</strong>, <strong>ideas</strong> and <strong>information</strong></a>.</p>
+                </div><!--buttons-->
+                <div class="section no-margin-top">
+                    <p><!-- custom field deck extends the Share Title at the head of the page -->&nbsp;</p>
+                    <p>Content shared with the Atlas is subject to
+                        our <span class="asterisk-container"><a href="/?p=92" title="Terms of Use">Terms of Use</a>.</span></p>
+                </div><!--close section-->
             </div>
         </div>
     </body>
