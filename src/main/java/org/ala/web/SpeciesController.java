@@ -109,7 +109,7 @@ public class SpeciesController {
     protected Set<String> nonTruncatedSources = new java.util.HashSet<String>();
     /** The set of data sources that have low priority (ie displayed at the end of the list or removed if other sources available) **/
     protected Set<String> lowPrioritySources = new java.util.HashSet<String>();
-    /**  */
+    /** The URI for JSON data for static occurrence map */
     private final String SPATIAL_JSON_URL = "http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=";
 
     public SpeciesController(){
@@ -149,22 +149,22 @@ public class SpeciesController {
 		response.getWriter().write(contentAsString);
 		return null;
 	}
-        /**
-         * Get the list of collections, institutes, data resources and data providers that have specimens for the supplied taxon concept guid
-         * Wrapper around the biocache service: http://biocache.ala.org.au/occurrences/sourceByTaxon
-         * @param guid
-         * @param response
-         * @throws Exception
-         */
-        @RequestMapping(value = "/species/source/{guid}*", method = RequestMethod.GET)
-        public void showSourceInfo(@PathVariable("guid") String guid,
-                HttpServletResponse response) throws Exception {
-            String contentAsString = WebUtils.getUrlContentAsString("http://biocache.ala.org.au/occurrences/sourceByTaxon/" +guid +".json?fq=basis_of_record:specimen");
-            response.setContentType("application/json");
-            response.getWriter().write(contentAsString);
-        }
 
-	
+    /**
+     * Get the list of collections, institutes, data resources and data providers that have specimens for the supplied taxon concept guid
+     * Wrapper around the biocache service: http://biocache.ala.org.au/occurrences/sourceByTaxon
+     * @param guid
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping(value = "/species/source/{guid}*", method = RequestMethod.GET)
+    public void showSourceInfo(@PathVariable("guid") String guid,
+            HttpServletResponse response) throws Exception {
+        String contentAsString = WebUtils.getUrlContentAsString("http://biocache.ala.org.au/occurrences/sourceByTaxon/" +guid +".json?fq=basis_of_record:specimen");
+        response.setContentType("application/json");
+        response.getWriter().write(contentAsString);
+    }
+
 	/**
 	 * Map to a /{guid} URI.
 	 * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
@@ -442,60 +442,58 @@ public class SpeciesController {
 	 * @param etc
 	 * @return
 	 */
-	private List<SimpleProperty> filterSimpleProperties(ExtendedTaxonConceptDTO etc) {
-		List<SimpleProperty> simpleProperties = etc.getSimpleProperties();
-		List<SimpleProperty> textProperties = new ArrayList<SimpleProperty>();
+	 private List<SimpleProperty> filterSimpleProperties(ExtendedTaxonConceptDTO etc) {
+        List<SimpleProperty> simpleProperties = etc.getSimpleProperties();
+        List<SimpleProperty> textProperties = new ArrayList<SimpleProperty>();
 
-                //we only want the list to store the first type for each source
-                //HashSet<String> processedProperties = new HashSet<String>();
-                Hashtable<String, SimpleProperty> processProperties = new Hashtable<String, SimpleProperty>();
-		for (SimpleProperty sp : simpleProperties) {
-                    String thisProperty = sp.getName() + sp.getInfoSourceName();
-                    if ((sp.getName().endsWith("Text") || sp.getName().endsWith("hasPopulateEstimate"))) {
-                            //attempt to find an existing processed property
-                            SimpleProperty existing = processProperties.get(thisProperty);
-                            if(existing != null){
-                                //separate paragraphs using br's instead of p so that the citation is aligned correctly
-                                existing.setValue(existing.getValue() +"<br><br>" + sp.getValue());
-                            }
-                            else
-                                processProperties.put(thisProperty, sp);
-			}
-		}
-                simpleProperties = Collections.list(processProperties.elements());
-                //sort the simple properties based on low priority and non-truncated infosources
-                Collections.sort(simpleProperties, new SimplePropertyComparator());
-                for(SimpleProperty sp: simpleProperties){
-                    if(!nonTruncatedSources.contains(sp.getInfoSourceURL())){
-                        sp.setValue(truncateText(sp.getValue(), 300));
-                    }
-                    textProperties.add(sp);
+        //we only want the list to store the first type for each source
+        //HashSet<String> processedProperties = new HashSet<String>();
+        Hashtable<String, SimpleProperty> processProperties = new Hashtable<String, SimpleProperty>();
+        for (SimpleProperty sp : simpleProperties) {
+            String thisProperty = sp.getName() + sp.getInfoSourceName();
+            if ((sp.getName().endsWith("Text") || sp.getName().endsWith("hasPopulateEstimate"))) {
+                //attempt to find an existing processed property
+                SimpleProperty existing = processProperties.get(thisProperty);
+                if (existing != null) {
+                    //separate paragraphs using br's instead of p so that the citation is aligned correctly
+                    existing.setValue(existing.getValue() + "<br><br>" + sp.getValue());
+                } else {
+                    processProperties.put(thisProperty, sp);
                 }
+            }
+        }
+        simpleProperties = Collections.list(processProperties.elements());
+        //sort the simple properties based on low priority and non-truncated infosources
+        Collections.sort(simpleProperties, new SimplePropertyComparator());
+        for (SimpleProperty sp : simpleProperties) {
+            if (!nonTruncatedSources.contains(sp.getInfoSourceURL())) {
+                sp.setValue(truncateText(sp.getValue(), 300));
+            }
+            textProperties.add(sp);
+        }
 
-		return textProperties;
-	}
-        /**
-         * Truncates the text at a sentence break after min length
-         * @param text
-         * @param min
-         * @return
-         */
-        private String truncateText(String text, int min){
-            try{
-            if(text != null && text.length()>min){
+        return textProperties;
+    }
+
+     /**
+     * Truncates the text at a sentence break after min length
+     * @param text
+     * @param min
+     * @return
+     */
+     private String truncateText(String text, int min) {
+        try {
+            if (text != null && text.length() > min) {
                 java.text.BreakIterator bi = java.text.BreakIterator.getSentenceInstance();
                 bi.setText(text);
-                int finalIndex =bi.following(min);
-                return text.substring(0,finalIndex) + "...";
+                int finalIndex = bi.following(min);
+                return text.substring(0, finalIndex) + "...";
             }
-            }
-            catch(Exception e){
-                logger.debug("Unable to truncate " + text, e);
-            }
-            return text;
-
-
+        } catch (Exception e) {
+            logger.debug("Unable to truncate " + text, e);
         }
+        return text;
+    }
 
 	/**
 	 * @param taxonConceptDao the taxonConceptDao to set
@@ -776,24 +774,22 @@ public class SpeciesController {
 
 
     /**
-	 * Retrieve content as String. With json accept header.
-	 *
-	 * @param url
-	 * @return
-	 * @throws Exception
-	 */
-	public String getUrlContentAsJsonString(String url) throws Exception {
-		HttpClient httpClient = new HttpClient();
+     * Retrieve content as String. With HTTP header accept: "application/json".
+     *
+     * @param url
+     * @return
+     * @throws Exception
+     */
+    public String getUrlContentAsJsonString(String url) throws Exception {
+        HttpClient httpClient = new HttpClient();
         httpClient.getParams().setSoTimeout(1500);
-		GetMethod gm = new GetMethod(url);
-        gm.setRequestHeader("accept", "application/json");
-		gm.setFollowRedirects(true);
-		httpClient.executeMethod(gm);
-		// String requestCharset = gm.getRequestCharSet();
-		String content = gm.getResponseBodyAsString();
-		// content = new String(content.getBytes(requestCharset), "UTF-8");
-		return content;
-	}
+        GetMethod gm = new GetMethod(url);
+        gm.setRequestHeader("accept", "application/json"); // needed for spatial portal JSON web services
+        gm.setFollowRedirects(true);
+        httpClient.executeMethod(gm);
+        String content = gm.getResponseBodyAsString();
+        return content;
+    }
 
     protected class CommonNameComparator implements Comparator<CommonName>{
     	@Override
