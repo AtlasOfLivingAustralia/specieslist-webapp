@@ -55,10 +55,12 @@ public class FooterMenuTag extends TagSupport {
                     "<li id='menu-item-8092' class='menu-item menu-item-type-post_type menu-item-8092'><a href='"+centralServer+"/share/'>Share</a></li>" +
 					"<li id='menu-item-1066' class='menu-item menu-item-type-post_type menu-item-1066'><a href='"+centralServer+"/support/'>Support</a></li>" +
 					"<li id='menu-item-1067' class='menu-item menu-item-type-post_type menu-item-1067'><a href='"+centralServer+"/contact-us/'>Contact Us</a></li>" +
-                    "<li id='menu-item-5068' class='menu-item menu-item-type-post_type menu-item-5068'><a href='"+centralServer+"/about/'>About the Atlas</a></li>" +
-                    "<li id='menu-item-10433' class='menu-item menu-item-type-post_type menu-item-10433'><a href='"+centralServer+"/my-profile/'>My Profile</a></li>");
+                    "<li id='menu-item-5068' class='menu-item menu-item-type-post_type menu-item-5068'><a href='"+centralServer+"/about/'>About the Atlas</a></li>");
 		
-		if (!returnUrlPath.equals("")) {
+        if (returnUrlPath.equals("")) {
+            // Note: has a last class inserted
+            html.append("<li id='menu-item-10433' class='last menu-item menu-item-type-post_type menu-item-10433'><a href='"+centralServer+"/my-profile/'>My Profile</a></li>");
+        } else {
 			HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
 			Principal principal = request.getUserPrincipal();
 			String casServer = pageContext.getServletContext().getInitParameter("casServerName");
@@ -71,16 +73,17 @@ public class FooterMenuTag extends TagSupport {
 			}
 
 			html.append(
-					"<li id='menu-item-1052' class='last menu-item menu-item-type-custom menu-item-1052'>" + loginLogoutAnchor + "</li>");
+					"<li id='menu-item-10433' class='menu-item menu-item-type-post_type menu-item-10433'><a href='"+centralServer+"/my-profile/'>My Profile</a></li>" +
+                    "<li id='menu-item-1052' class='last menu-item menu-item-type-custom menu-item-1052'>" + loginLogoutAnchor + "</li>");
 		}
 
 		html.append(
 				"</ul>" +
 				"<ul id='menu-footer-legal'>" +
-					"<li id='menu-item-1045' class='last menu-item menu-item-type-post_type menu-item-1045'><a href='"+centralServer+"/about/terms-of-use/'>Terms of Use</a></li>" +
+					"<li id='menu-item-1045' class='menu-item menu-item-type-post_type menu-item-1045'><a href='"+centralServer+"/about/terms-of-use/'>Terms of Use</a></li>" +
 					"<li id='menu-item-1042' class='menu-item menu-item-type-post_type menu-item-1042'><a href='"+centralServer+"/about/terms-of-use/citing-the-atlas/'>Citing the Atlas</a></li>" +
 					"<li id='menu-item-12256' class='menu-item menu-item-type-post_type menu-item-12256'><a href='"+centralServer+"/about/privacy-policy'>Privacy Policy</a></li>" +
-					"<li id='menu-item-3090' class='menu-item menu-item-type-post_type menu-item-3090'><a href='"+centralServer+"/site-map/'>Site Map</a></li>" +
+					"<li id='menu-item-3090' class='last menu-item menu-item-type-post_type menu-item-3090'><a href='"+centralServer+"/site-map/'>Site Map</a></li>" +
 				"</ul>" +
 			"</div>" +
             "<div class='copyright'>" +

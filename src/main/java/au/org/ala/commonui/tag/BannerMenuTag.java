@@ -102,7 +102,7 @@ public class BannerMenuTag extends TagSupport {
 							"<li><a href='http://bie.ala.org.au/regions/'><span>Regions</span></a></li>" +
 							"<li><a href='" + centralServer + "/explore/species-maps/'><span>Species Maps</span></a></li>" +
 							"<li><a href='http://collections.ala.org.au/public/map'><span>Natural History Collections</span></a></li>" +
-							"<li><a href='" + centralServer + "/explore/themes/'><span>Themes &amp; Highlights </span></a></li>" +
+							"<li><a href='" + centralServer + "/explore/themes/'><span>Themes &amp; Case Studies</span></a></li>" +
 						"</ul>" +
 					"</li>" +
 					"<li class='nav-tools'><a href='" + centralServer + "/tools-services/'><span>Tools</span></a>" +
@@ -127,15 +127,15 @@ public class BannerMenuTag extends TagSupport {
 						"<ul>" +
 							"<li><a href='" + centralServer + "/support/contact-us/'><span>Contact Us</span></a></li>" +
                             "<li><a href='" + centralServer + "/support/get-started/'><span>Get Started</span></a></li>" +
-							"<li><a href='" + centralServer + "/support/forum/'><span>Forum</span></a></li>" +
+                            "<li><a href='" + centralServer + "/support/user-feedback/'><span>User Feedback</span></a></li>" +
 							"<li><a href='" + centralServer + "/support/faq/'><span>Frequently Asked Questions</span></a></li>" +
-							"<li><a href='" + centralServer + "/support/how-to/'><span>How To</span></a></li>" +
 						"</ul>" +
 					"</li>" +
 					"<li class='nav-contact'><a href='" + centralServer + "/contact-us/'><span>Contact Us</span></a></li>" +
 					"<li class='nav-about'><a href='" + centralServer + "/about/'><span>About the Atlas</span></a>" +
 						"<ul>" +
-							"<li><a href='" + centralServer + "/about/proviso/'><span>A Work in Progress</span></a></li>" +
+							"<li><a href='" + centralServer + "/about/progress/'><span>A Work in Progress</span></a></li>" +
+                            "<li><a href='" + centralServer + "/about/atlas-partners/'><span>Atlas Partners</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/project-time-line/'><span>Project Time Line</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/people/'><span>Working Together</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/program-of-projects/'><span>Atlas Projects</span></li>" +
