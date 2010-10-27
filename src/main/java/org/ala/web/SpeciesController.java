@@ -159,7 +159,7 @@ public class SpeciesController {
         @RequestMapping(value = "/species/source/{guid}*", method = RequestMethod.GET)
         public void showSourceInfo(@PathVariable("guid") String guid,
                 HttpServletResponse response) throws Exception {
-            String contentAsString = WebUtils.getUrlContentAsString("http://biocache.ala.org.au/biocache-webapp/occurrences/sourceByTaxon/" +guid +".json?fq=basis_of_record:specimen");
+            String contentAsString = WebUtils.getUrlContentAsString("http://biocache.ala.org.au/occurrences/sourceByTaxon/" +guid +".json?fq=basis_of_record:specimen");
             response.setContentType("application/json");
             response.getWriter().write(contentAsString);
         }
