@@ -71,7 +71,7 @@ public class LogTest {
 	    	recordCounts.put("dp123", 32);
 	    	recordCounts.put("dr143", 22);
 	    	recordCounts.put("ins322", 55);
-	    	LogEventVO vo = new LogEventVO(LogEventType.DEBUG, "waiman.mok@csiro.au", "For doing some research with", "127.0.1.1", recordCounts);
+	    	LogEventVO vo = new LogEventVO(LogEventType.OCCURRENCE_RECORDS_VIEWED, "waiman.mok@csiro.au", "For doing some research with", "127.0.1.1", recordCounts);
 	    	logger.log(RestLevel.REMOTE, vo);
     	}
     	System.out.println("time taken: " + (System.currentTimeMillis() - start)/1000);
