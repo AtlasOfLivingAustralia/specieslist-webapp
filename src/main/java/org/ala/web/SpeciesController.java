@@ -151,7 +151,7 @@ public class SpeciesController {
 	}
         /**
          * Get the list of collections, institutes, data resources and data providers that have specimens for the supplied taxon concept guid
-         * Wrapper around the biocache service: http://biocache.ala.org.au/biocache-webapp/occurrences/sourceByTaxon
+         * Wrapper around the biocache service: http://biocache.ala.org.au/occurrences/sourceByTaxon
          * @param guid
          * @param response
          * @throws Exception
