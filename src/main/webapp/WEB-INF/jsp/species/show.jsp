@@ -97,6 +97,21 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                         $(this).parent().parent().hide();
                     }
                 });
+
+                $('img.distroLegend').each(function(i, n) {
+                    // if img doesn't load, then hide its surround div
+                    $(this).error(function() {
+                        //alert("img error");
+                        $(this).parent().hide();
+                    });
+                    // IE hack as IE doesn't trigger the error handler
+                    if ($.browser.msie && !n.complete) {
+                        //alert("IE img error");
+                        $(this).parent().hide();
+                    }
+                });
+
+
                 
                 // mapping for facet names to display labels
                 var facetLabels = {
@@ -221,7 +236,9 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
 
                 var statusIconsCount = $('div.toggle div#status div').length;
                 //alert("Number of status icons: "+statusIconsCount);
-                if (statusIconsCount > 4) {
+                if (statusIconsCount == 0) {
+                    $('div.status').hide();
+                } else if (statusIconsCount > 4) {
                     $('div.status').css('height','14em');
                 } else if (statusIconsCount > 8) {
                     $('div.status').css('height','24em');
@@ -356,22 +373,27 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
         <div id="overview">
             <div id="column-one">
                 <div class="section">
-                    <h2 style="text-transform: capitalize;">${extendedTaxonConcept.taxonConcept.rankString} overview</h2>
-                    <div class="distroMap section no-margin">
-                        <h3>Mapped occurrence records</h3>
-                        <p>
-                            <a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View occurrence records list</a>
-                            | <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="View interactive map">View interactive map</a>
-                        </p>
-                        <div class="left">
-                            <img src="${spatialPortalMap.mapUrl}" class="distroImg" width="462" alt="occurrence map"/>
+                    <c:if test="${not empty descriptionBlock || (not empty spatialPortalMap && !fn:containsIgnoreCase(spatialPortalMap.mapUrl, 'mapaus1_white'))}">
+                        <h2 style="text-transform: capitalize;">${extendedTaxonConcept.taxonConcept.rankString} overview</h2>
+                    </c:if>
+                    <c:if test="${not empty spatialPortalMap && !fn:containsIgnoreCase(spatialPortalMap.mapUrl, 'mapaus1_white')}">
+                        <div class="distroMap section no-margin">
+                            <h3>Mapped occurrence records</h3>
+                            <p>
+                                <a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View occurrence records list</a>
+                                | <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="View interactive map">View interactive map</a>
+                            </p>
+                            <div class="left">
+                                <img src="${spatialPortalMap.mapUrl}" class="distroImg" width="360" alt="occurrence map"/>
+                            </div>
+                            <div class="left" style="margin-top: 80px; margin-left: 20px;">
+                                <c:if test="${not empty spatialPortalMap.legendUrl && spatialPortalMap.type == 'heatmap'}">
+                                    <img src="${spatialPortalMap.legendUrl}" class="distroLegend" style="" alt="map legend"/>
+                                </c:if>
+                            </div>
                         </div>
-                        <div class="right" style="width:149px; font-size: 90%">
-                            <c:if test="${not empty spatialPortalMap.legendUrl && spatialPortalMap.type == 'heatmap'}">
-                                <img src="${spatialPortalMap.legendUrl}" class=""  alt="map legend"/>
-                            </c:if>
-                        </div>
-                    </div>
+                        <p style="margin-left: 20px;"><span class="asterisk-container"><a href="${wordPressUrl}/about/progress/map-ranges/">Learn more about Atlas maps</a>&nbsp;</span></p>
+                    </c:if>
                     <c:set var="descriptionBlock">
                         <c:forEach var="textProperty" items="${textProperties}" varStatus="status">
                             <c:if test="${fn:endsWith(textProperty.name, 'hasDescriptiveText') && status.count < 3}">
@@ -425,7 +447,7 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                         </tbody> 
                     </table> 
                     
-                    <c:if test="${empty textProperties && empty extendedTaxonConcept.images}">
+                    <c:if test="${false && empty textProperties && empty extendedTaxonConcept.images}">
                         <div class="sorry sighting no-margin-top">
                             <div>
                                 <h3><a href="#contributeOverlay" class="contributeLink">Can you help us?
@@ -511,24 +533,40 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                         </c:forEach>
                     </ul>
                 </div>
-                <c:if test="${not empty textProperties}">
-                    <div class="section buttons sighting no-margin-top">
-                        <div class="last">
-                            <h3>
-                                <a href="#contributeOverlay" class="contributeLink">Share <span>Sightings, photos and data for
-                                    <c:choose>
-                                        <c:when test="${not empty extendedTaxonConcept.commonNames}">
-                                            the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <c:if test="${extendedTaxonConcept.taxonConcept.rankID <= 6000}">the ${extendedTaxonConcept.taxonConcept.rankString} </c:if><strong>${extendedTaxonConcept.taxonConcept.nameString}</strong>
-                                        </c:otherwise>
-                                    </c:choose></span>
-                                </a>
-                            </h3>
+                <c:choose>
+                    <c:when test="${not empty descriptionBlock}">
+                        <div class="section buttons sighting no-margin-top">
+                            <div class="last">
+                                <h3>
+                                    <a href="#contributeOverlay" class="contributeLink">Share <span>Sightings, photos and data for
+                                        <c:choose>
+                                            <c:when test="${not empty extendedTaxonConcept.commonNames}">
+                                                the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <c:if test="${extendedTaxonConcept.taxonConcept.rankID <= 6000}">the ${extendedTaxonConcept.taxonConcept.rankString} </c:if><strong>${extendedTaxonConcept.taxonConcept.nameString}</strong>
+                                            </c:otherwise>
+                                        </c:choose></span>
+                                    </a>
+                                </h3>
+                            </div>
                         </div>
-                    </div>
-                </c:if>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="section buttons sighting no-margin-top">
+                            <div>
+                                <h3><a href="#contributeOverlay" class="contributeLink">Can you help us?
+                                    <span><b>Share</b> sightings, photos and data for
+                                        <c:choose>
+                                            <c:when test="${not empty extendedTaxonConcept.commonNames}">the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong></c:when>
+                                            <c:otherwise><c:if test="${extendedTaxonConcept.taxonConcept.rankID <= 6000}">the ${extendedTaxonConcept.taxonConcept.rankString} </c:if><strong>${sciNameFormatted}</strong></c:otherwise>
+                                        </c:choose>
+                                    </span></a>
+                                </h3>
+                            </div>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
                 <div class="section">
                 </div><!--close tools-->
             </div><!--close -->
@@ -903,14 +941,16 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                     </div>
                 </div>
                 <div class="section">
-                    <div class="distroMap">
-                        <h4>Map of Occurrence Records</h4>
-                        <p>
-                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">
-                                <img src="${spatialPortalMap.mapUrl}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a><br/>
-                            <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">Interactive version of this map</a>
-                        </p>
-                    </div>
+                    <c:if test="${not empty spatialPortalMap && !fn:containsIgnoreCase(spatialPortalMap.mapUrl, 'mapaus1_white')}">
+                        <div class="distroMap">
+                            <h4>Map of Occurrence Records</h4>
+                            <p>
+                                <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">
+                                    <img src="${spatialPortalMap.mapUrl}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a><br/>
+                                <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">Interactive version of this map</a>
+                            </p>
+                        </div>
+                    </c:if>
                     <c:if test="${not empty extendedTaxonConcept.specimenHolding}">
                         <div class="section">
                             <h3>Specimen Holdings</h3>
