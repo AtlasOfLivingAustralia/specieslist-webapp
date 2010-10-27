@@ -724,8 +724,8 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                     <table>
                     	<tr>
                             <td>${sciNameFormatted} ${extendedTaxonConcept.taxonConcept.author}</td>
-                            <td>
-                                <cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
+                            <td class="source">
+                                <cite>Source:&nbsp;<a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
                             </td>
                     	</tr>
                     	<tr class="cite">
@@ -742,10 +742,10 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                     <c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym">
                     	<tr>
                             <td><alatag:formatSciName name="${synonym.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/> ${synonym.author}</td>
-                            <td>
+                            <td class="source">
                                 <c:choose>
-                                    <c:when test="${empty synonym.infoSourceURL}"><cite>Source: <a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite></c:when>
-                                    <c:otherwise><cite>Source: <a href="${synonym.infoSourceURL}" target="blank">${synonym.infoSourceName}</a></cite></c:otherwise>
+                                    <c:when test="${empty synonym.infoSourceURL}"><cite>Source:&nbsp;<a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite></c:when>
+                                    <c:otherwise><cite>Source:&nbsp;<a href="${synonym.infoSourceURL}" target="blank">${synonym.infoSourceName}</a></cite></c:otherwise>
                                 </c:choose>
                             </td>
                         </tr>
@@ -765,11 +765,11 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                     <c:forEach items="${sortCommonNameKeys}" var="nkey">
                     	<tr>
                             <td>${nkey}</td>
-                            <td>
+                            <td class="source">
                                 <c:forEach items="${sortCommonNameSources[nkey]}" var="commonName">
                                     <c:choose>
                                         <c:when test="${not empty commonName.identifier && not empty commonName.infoSourceName}"><cite>Source: <a href="${commonName.identifier}" target="blank">${commonName.infoSourceName}</a></cite></c:when>
-                                        <c:otherwise><cite>Source: <a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>
+                                        <c:otherwise><cite>Source:&nbsp;<a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>
                                     </c:choose>
                                     <%--<c:if test="${not empty synonym.publishedIn}">
                                         <tr>
