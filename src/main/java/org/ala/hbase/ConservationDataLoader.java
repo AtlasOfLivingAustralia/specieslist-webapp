@@ -63,11 +63,14 @@ public class ConservationDataLoader {
     private static final String nswCavsFile = "/data/bie-staging/conservation/nsw/CAVS.TXT";
     private static final String nswCapsFile = "/data/bie-staging/conservation/nsw/CAPS.TXT";
     private static final String actFile = "/data/bie-staging/conservation/act/ACT_threatened_species.csv";
-    private static final String ntFaunaFile = "/data/bie-staging/conservation/nt/NT_fauna.csv";
-    private static final String ntFloraFile = "/data/bie-staging/conservation/nt/NT_flora.csv";
+    private static final String ntFaunaEndangeredThreatFile = "/data/bie-staging/conservation/nt/NT_fauna.csv";
+    private static final String ntFloraEndangeredThreatFile = "/data/bie-staging/conservation/nt/NT_flora.csv";
+    private static final String ntPlantsNearThreatened ="/data/bie-staging/conservation/nt/NTPlantsNearThreatened.csv";
+    private static final String ntAnimalsNearThreatened = "/data/bie-staging/conservation/nt/NTAnimalsNearTheatened.csv";
     private static final String iucnDirectory = "/data/bie-staging/conservation/iucn";
     private static final String iucnFile = "/data/bie-staging/conservation/iucn/2008_REDLIST.csv";
     private static final String tasFile = "/data/bie-staging/conservation/tas/species_20101015_1503(1).csv";
+    
 
     public static void main(String args[]) {
         try {
@@ -91,8 +94,10 @@ public class ConservationDataLoader {
             //load ACT using the generic load method
             loader.loadGenericState(actFile, "Australian Capital Territory", "Threatened", 507, 1, 0, 2);
             //load NT using generic
-            loader.loadGenericState(ntFaunaFile, "Northern Territory", "Fauna", 508, 0, 2, 1);
-            loader.loadGenericState(ntFloraFile, "Northern Territory", "Flora", 508, 1, 2, 3);
+            loader.loadGenericState(ntFaunaEndangeredThreatFile, "Northern Territory", "Fauna", 508, 0, 2, 1);
+            loader.loadGenericState(ntFloraEndangeredThreatFile, "Northern Territory", "Flora", 508, 1, 2, 3);
+            loader.loadGenericState(ntPlantsNearThreatened, "Northern Territory", "Near Threatened Plants", 508, 0, -1, 1);
+            loader.loadGenericState(ntAnimalsNearThreatened, "Northern Territory", "Near Threatened Animals" , 508, 0, 1, 2);
             loader.loadIUCN();
 //            loader.processIUCN();
             loader.loadGenericStateOptionalClassification(tasFile, "Tasmania", "", 509,4 , 23, 5, 6, 7, 8, 9, 10, 3, 24);
