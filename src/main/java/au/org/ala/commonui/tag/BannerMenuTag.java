@@ -102,13 +102,13 @@ public class BannerMenuTag extends TagSupport {
 							"<li><a href='http://bie.ala.org.au/regions/'><span>Regions</span></a></li>" +
 							"<li><a href='" + centralServer + "/explore/species-maps/'><span>Species Maps</span></a></li>" +
 							"<li><a href='http://collections.ala.org.au/public/map'><span>Natural History Collections</span></a></li>" +
-							"<li><a href='" + centralServer + "/explore/themes/'><span>Themes &amp; Case Studies</span></a></li>" +
+							"<li><a href='" + centralServer + "/explore/themes/'><span>Themes &amp; Highlights </span></a></li>" +
 						"</ul>" +
 					"</li>" +
 					"<li class='nav-tools'><a href='" + centralServer + "/tools-services/'><span>Tools</span></a>" +
 						"<ul>" +
-							"<li><a href='" + centralServer + "/tools-services/sds/'><span>Sensitive Data Service</span></a></li>" +
 							"<li><a href='" + centralServer + "/tools-services/species-name-services/'><span>Taxon Web Services</span></a></li>" +
+							"<li><a href='" + centralServer + "/tools-services/sds/'><span>Sensitive Data Service</span></a></li>" +
 							"<li><a href='" + centralServer + "/tools-services/spatial-analysis/'><span>Spatial Analysis</span></a></li>" +
 							"<li><a href='" + centralServer + "/tools-services/citizen-science/'><span>Citizen Science</span></a></li>" +
 							"<li><a href='" + centralServer + "/tools-services/identification-tools/'><span>Identification Tools</span></a></li>" +
@@ -118,7 +118,6 @@ public class BannerMenuTag extends TagSupport {
                     "<li class='nav-share'><a href='" + centralServer + "/share/' title='Share - links, images, images, literature, your time'><span>Share</span></a>" +
                         "<ul>" +
                             "<li><a href='" + centralServer + "/share/share-links/'><span>Share links, ideas, information</span></a></li>" +
-                            "<li><a href='" + centralServer + "/share/share-images/'><span>Share Photos</span></a></li>" +
                             "<li><a href='" + centralServer + "/share/share-data/'><span>Share Datasets</span></a></li>" +
                             "<li><a href='" + centralServer + "/share/about-sharing/'><span>About Sharing</span></a></li>" +
                         "</ul>" +
@@ -127,18 +126,20 @@ public class BannerMenuTag extends TagSupport {
 						"<ul>" +
 							"<li><a href='" + centralServer + "/support/contact-us/'><span>Contact Us</span></a></li>" +
                             "<li><a href='" + centralServer + "/support/get-started/'><span>Get Started</span></a></li>" +
-                            "<li><a href='" + centralServer + "/support/user-feedback/'><span>User Feedback</span></a></li>" +
+							"<li><a href='" + centralServer + "/support/user-feedback/'><span>User Feedback</span></a></li>" +
 							"<li><a href='" + centralServer + "/support/faq/'><span>Frequently Asked Questions</span></a></li>" +
 						"</ul>" +
 					"</li>" +
 					"<li class='nav-contact'><a href='" + centralServer + "/contact-us/'><span>Contact Us</span></a></li>" +
 					"<li class='nav-about'><a href='" + centralServer + "/about/'><span>About the Atlas</span></a>" +
 						"<ul>" +
-							"<li><a href='" + centralServer + "/about/progress/'><span>A Work in Progress</span></a></li>" +
-                            "<li><a href='" + centralServer + "/about/atlas-partners/'><span>Atlas Partners</span></a></li>" +
-							"<li><a href='" + centralServer + "/about/project-time-line/'><span>Project Time Line</span></a></li>" +
+							"<li><a href='" + centralServer + "/about/proviso/'><span>A Work in Progress</span></a></li>" +
+							"<li><a href='" + centralServer + "/about/atlas-partners/'><span>Atlas Partners</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/people/'><span>Working Together</span></a></li>" +
+							"<li><a href='" + centralServer + "/about/contributors/'><span>Atlas Contributors</span></a></li>" +
+							"<li><a href='" + centralServer + "/about/project-time-line/'><span>Project Time Line</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/program-of-projects/'><span>Atlas Projects</span></li>" +
+							"<li><a href='" + centralServer + "/about/international-collaborations/'><span>Associated Projects</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/communications-centre/'><span>Communications Centre</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/governance/'><span>Atlas Governance</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/terms-of-use/'><span>Terms of Use</span></a></li>" +
