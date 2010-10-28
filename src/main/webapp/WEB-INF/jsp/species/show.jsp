@@ -1070,7 +1070,7 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                 </div>
             </div><!---->
         </div><!--close references-->
-        <div style="display: none;">
+        <div style="display: none;"><!-- hidden div for fancybox pop-up share links -->
             <div id="contributeOverlay">
                 <div class="section buttons no-borders no-margin-bottom" style="text-align: left !important">
                     <div class="sightings">
@@ -1081,12 +1081,13 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                                 </c:choose>
                             </span></a></h2>
                     </div>
+                    <c:set var="wpParams">guid=${extendedTaxonConcept.taxonConcept.guid}&scientificName=${extendedTaxonConcept.taxonConcept.nameString}&commonName=${extendedTaxonConcept.commonNames[0].nameString}</c:set>
                     <div class="photos">
-                        <h2><a href="${initParam.centralServer}/share/share-images/">Photos <span>Share your images with the Atlas</span></a></h2>
+                        <h2><a href="${initParam.centralServer}/share/share-images/?${wpParams}">Photos <span>Share your images with the Atlas</span></a></h2>
                     </div>
                     <div class="analogue-data">
-                        <h2><a href="${initParam.centralServer}/share/share-links/">Links, ideas, information <span>Share links to
-                            good web sites, ideas &amp; information</span></a></h2>
+                        <h2><a href="${initParam.centralServer}/share/share-links/?${wpParams}">Links, ideas, information <span>Share
+                                    links, species page comments &amp; ideas</span></a></h2>
                     </div>
                     <div class="digital-data last">
                         <h2><a href="${initParam.centralServer}/share/share-data/">Datasets <span>Share your spreadsheets,
