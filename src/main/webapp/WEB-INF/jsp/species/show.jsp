@@ -298,7 +298,7 @@
                 <ul>
                     <li><a href="${wordPressUrl}">Home</a></li>
                     <li><a href="${wordPressUrl}/explore">Explore</a></li>
-                    <li>${sciNameFormatted} <c:if test="${not empty extendedTaxonConcept.commonNames}">(${extendedTaxonConcept.commonNames[0].nameString})</c:if></li>
+                    <li>${sciNameFormatted} <c:if test="${not empty extendedTaxonConcept.commonNames}"> : ${extendedTaxonConcept.commonNames[0].nameString}</c:if></li>
                 </ul>
             </div>
             <div class="section full-width">
