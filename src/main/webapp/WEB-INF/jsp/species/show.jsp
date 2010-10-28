@@ -1096,7 +1096,7 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                 <div class="section no-margin-top">
                     <p><!-- custom field deck extends the Share Title at the head of the page -->&nbsp;</p>
                     <p>Content shared with the Atlas is subject to
-                        our <span class="asterisk-container"><a href="/?p=92" title="Terms of Use">Terms of Use</a>.</span></p>
+                        our <span class="asterisk-container"><a href="${initParam.centralServer}/about/terms-of-use/" title="Terms of Use">Terms of Use</a>.</span></p>
                 </div><!--close section-->
             </div>
         </div>
