@@ -1,4 +1,4 @@
-orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ include file="/common/taglibs.jsp" %>
 <!DOCTYPE HTML">
 <c:set var="spatialPortalUrl">${initParam.centralServer}/explore/species-maps/</c:set>
