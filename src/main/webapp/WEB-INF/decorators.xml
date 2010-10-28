@@ -12,6 +12,7 @@
         <pattern>/taxon*</pattern>
         <pattern>/index.jsp</pattern>
         <pattern>/map/sld*</pattern>
+        <pattern>/regions/taxa*</pattern>
     </excludes>
 
     <decorator name="main" page="main.jsp">
