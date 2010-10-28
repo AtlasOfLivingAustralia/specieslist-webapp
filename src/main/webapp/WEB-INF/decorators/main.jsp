@@ -103,17 +103,18 @@ include file="/common/taglibs.jsp" %>
         <!-- WP Menubar 4.7: end CSS -->
     </head>
     <body class="two-column-right">
-        <div id="wrapper">
-            <ala:bannerMenu />
-            <div id="content">
-                <c:if test="${!empty pageContext.request.remoteUser}">
-                    <div id="loginId">You are logged in as: ${pageContext.request.remoteUser}</div>
-                </c:if>
-                <decorator:body />
-            </div><!--close content-->
-            <div id="footer">
-                <ala:footerMenu returnUrlPath="${requestUrl}"/>
-            </div><!--close footer-->
-        </div><!--close wrapper-->
+     <div id="wrapper">
+	 <c:set var="returnUrlPath" value="${initParam.serverName}${pageContext.request.requestURI}${not empty pageContext.request.queryString ? '?' : ''}${pageContext.request.queryString}"/>
+         <ala:bannerMenu returnUrlPath="${returnUrlPath}" />
+         <div id="content">
+             <c:if test="${!empty pageContext.request.remoteUser}">
+                 <div id="loginId">You are logged in as: ${pageContext.request.remoteUser}</div>
+             </c:if>
+             <decorator:body />
+         </div><!--close content-->
+         <div id="footer">
+             <ala:footerMenu returnUrlPath="${returnUrlPath}"/>
+         </div><!--close footer-->
+     </div><!--close wrapper-->
     </body>
 </html>
