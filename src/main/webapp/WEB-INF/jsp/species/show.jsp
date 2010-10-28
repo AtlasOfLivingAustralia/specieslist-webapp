@@ -321,7 +321,9 @@ orry<%@ page contentType="text/html" pageEncoding="UTF-8" %>
                         </div> 
                         <div class="meta"> 
                             <h3>Rank</h3><p style="text-transform: capitalize;">${extendedTaxonConcept.taxonConcept.rankString}</p>
+                            <c:if test="${not empty extendedTaxonConcept.taxonConcept.infoSourceName && not empty extendedTaxonConcept.taxonConcept.infoSourceURL}">
                             <h3>Name source</h3><p><a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="_blank" class="external">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></p>
+                            </c:if>
                             <h3>Data links</h3><p><a href="#lsidText" id="lsid" class="local" title="Life Science Identifier (pop-up)">LSID</a>
                                 | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" class="local" title="JSON web service">JSON</a>
                                 <!-- | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.xml" class="local" title="XML web service">XML</a> -->
