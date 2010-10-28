@@ -215,7 +215,7 @@ public class GeoRegionController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/regions/taxa.json", method = RequestMethod.GET)
+	@RequestMapping(value = {"/regions/taxa.json", "/regions/taxa"}, method = RequestMethod.GET)
 	public String showTaxa(
 			@RequestParam("regionType") String regionType,
 			@RequestParam("regionName") String regionName, 
