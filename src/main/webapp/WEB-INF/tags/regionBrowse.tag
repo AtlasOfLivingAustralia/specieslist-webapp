@@ -17,6 +17,8 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
        <a href="#${taxonGroup}" id="view${taxonGroup}List">Show/Hide</a>
    </span>
    <div id="${idSuffix}Gallery">
+   
+   <c:if test="${taxonWithImagesCount>24}">
    <div class="pagers">
     <a id="${idSuffix}Previous" class="previousPage" href="javascript:show${idSuffix}PreviousPage(this,'${pageContext.request.contextPath}/regions/taxa?regionType=${regionType}&regionName=${regionName}&higherTaxon=${higherTaxa}&rank=${rank}&withImages=true&limit=24');">
         Previous
@@ -25,10 +27,12 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
         Next
     </a>
     </div>
+    </c:if>
     <table id="${idSuffix}List" class="taxonList">
         <alatag:renderTaxaList taxonConcepts="${taxaRecords}"/>
     </table>
    </div>
+   <c:if test="${taxonWithImagesCount>24}">
    <script type="text/javascript">
     $('#view${taxonGroup}List').click(function () {
         $('#${idSuffix}Gallery').toggle("slow");
@@ -59,5 +63,6 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
         }
     }
    </script>
+   </c:if>
 </li>
 </c:if>
