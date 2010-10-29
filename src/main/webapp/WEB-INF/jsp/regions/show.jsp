@@ -17,6 +17,15 @@
             $("#compareRegions").buttonset();
         });
    </script>
+   <style type="text/css">
+    table { margin-bottom:0px; border-bottom: 0px; border-bottom-style: none;}
+    .noUnderline { text-decoration: none; }
+    .pagers { color: #01716E;}
+    .nextPage { float:right; }
+    .pagerButtons { padding-top:8px; }
+    div.pagers { padding:15px 16px 4px 10px;}
+    .loadingMessage { margin-left: 325px; }
+  </style>
 </head>
 <body>
     <div id="header">
@@ -119,13 +128,6 @@
         }
         
   </script>
-  
-  <style type="text/css">
-    .nextPage { float:right; }
-    a.disabledPager { color: grey; text-decoration: none;}
-    .pagerButtons { padding-top:8px; }
-    div.pagers { padding:15px 16px 4px 10px;}
-  </style>
   
     </div><!--close column-one-->
     <div id="column-one" class="full-width">
