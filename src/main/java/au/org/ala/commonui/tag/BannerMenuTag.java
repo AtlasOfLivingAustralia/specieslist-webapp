@@ -66,7 +66,7 @@ public class BannerMenuTag extends TagSupport {
 			
 			String query = request.getParameter("q");
 			String queryAvoid = request.getParameter("xq");
-			if(!populateSearchBox && queryAvoid!=null || query==null || "".equals(query.trim()) ){
+			if(!populateSearchBox || queryAvoid!=null || query==null || "".equals(query.trim()) ){
 				query = "Search the Atlas";
 			}
 			
