@@ -136,12 +136,13 @@ public class BannerMenuTag extends TagSupport {
 					"<li class='nav-contact'><a href='" + centralServer + "/contact-us/'><span>Contact Us</span></a></li>" +
 					"<li class='nav-about'><a href='" + centralServer + "/about/'><span>About the Atlas</span></a>" +
 						"<ul>" +
-							"<li><a href='" + centralServer + "/about/proviso/'><span>A Work in Progress</span></a></li>" +
+							"<li><a href='" + centralServer + "/about/progress/'><span>A Work in Progress</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/atlas-partners/'><span>Atlas Partners</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/people/'><span>Working Together</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/contributors/'><span>Atlas Contributors</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/project-time-line/'><span>Project Time Line</span></a></li>" +
-							"<li><a href='" + centralServer + "/about/program-of-projects/'><span>Atlas Projects</span></li>" +
+							"<li><a href='" + centralServer + "/about/program-of-projects/'><span>Atlas Projects</span></a></li>" +
+							"<li><a href='" + centralServer + "/about/atlas-partners/'><span>Atlas Partners</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/international-collaborations/'><span>Associated Projects</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/communications-centre/'><span>Communications Centre</span></a></li>" +
 							"<li><a href='" + centralServer + "/about/governance/'><span>Atlas Governance</span></a></li>" +
