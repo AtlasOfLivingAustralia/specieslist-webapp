@@ -39,6 +39,8 @@ public class BannerMenuTag extends TagSupport {
 	protected String defaultCentralServer = "http://www.ala.org.au";
 	protected String defaultSearchServer = "http://bie.ala.org.au";
 	
+	private boolean populateSearchBox = true;
+	
 	/**
 	 * @see javax.servlet.jsp.tagext.TagSupport#doStartTag()
 	 */
@@ -64,7 +66,7 @@ public class BannerMenuTag extends TagSupport {
 			
 			String query = request.getParameter("q");
 			String queryAvoid = request.getParameter("xq");
-			if(queryAvoid!=null || query==null || "".equals(query.trim()) ){
+			if(!populateSearchBox && queryAvoid!=null || query==null || "".equals(query.trim()) ){
 				query = "Search the Atlas";
 			}
 			
@@ -175,5 +177,12 @@ public class BannerMenuTag extends TagSupport {
 
 	public void setReturnUrlPath(String returnUrlPath) {
 		this.returnUrlPath = returnUrlPath;
+	}
+
+	/**
+	 * @param populateSearchBox the populateSearchBox to set
+	 */
+	public void setPopulateSearchBox(boolean populateSearchBox) {
+		this.populateSearchBox = populateSearchBox;
 	}
 }
