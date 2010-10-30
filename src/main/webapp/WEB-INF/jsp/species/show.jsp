@@ -413,7 +413,7 @@
                             <c:forEach var="idKey" items="${extendedTaxonConcept.identificationKeys}">
                                 <li>
                                     <a href="${idKey.url}" target="_blank">${idKey.title}</a>
-                                    <c:if test="${not empty idKey.infoSourceURL}">(source: <a href="${idKey.infoSourceURL}" target="_blank">${idKey.infoSourceName}</a>)</c:if>
+                                    <c:if test="${not empty idKey.infoSourceURL}">(source: ${idKey.infoSourceName})</c:if>
                                 </li>
                             </c:forEach>
                         </ul>
