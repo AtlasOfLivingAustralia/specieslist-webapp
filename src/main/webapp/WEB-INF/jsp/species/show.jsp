@@ -293,19 +293,27 @@
 	            </c:set>           
             </c:otherwise>
             </c:choose>
+         <c:choose>
+         <c:when test="${not empty extendedTaxonConcept.taxonName && not empty extendedTaxonConcept.taxonName.nameComplete}">
+             <c:set var="authorship">${extendedTaxonConcept.taxonName.authorship}</c:set>
+         </c:when>
+         <c:otherwise>
+             <c:set var="authorship">${extendedTaxonConcept.taxonConcept.author}</c:set>
+         </c:otherwise>
+         </c:choose>
             <c:set var="contributeURL" value="${biocacheUrl}share/sighting/${extendedTaxonConcept.taxonConcept.guid}"/>
             <div id="breadcrumb">
                 <ul>
                     <li><a href="${wordPressUrl}">Home</a></li>
                     <li><a href="${wordPressUrl}/explore">Explore</a></li>
-                    <li>${sciNameFormatted} <c:if test="${not empty extendedTaxonConcept.commonNames}"> : ${extendedTaxonConcept.commonNames[0].nameString}</c:if></li>
+                    <li>${sciNameFormatted} ${authorship} <c:if test="${not empty extendedTaxonConcept.commonNames}"> : ${extendedTaxonConcept.commonNames[0].nameString}</c:if></li>
                 </ul>
             </div>
             <div class="section full-width">
                 <div class="container2"> 
                     <div class="container1"> 
                         <div class="hrgroup"> 
-                            <h1>${sciNameFormatted} <span>${extendedTaxonConcept.taxonConcept.author}</span></h1>
+                            <h1>${sciNameFormatted} <span>${authorship}</span></h1>
                             <h2>
                                 <c:choose>
                                     <c:when test="${extendedTaxonConcept.taxonConcept.rankID>5000}">
@@ -725,7 +733,7 @@
                   	--%>
                     <table>
                     	<tr>
-                            <td>${sciNameFormatted} ${extendedTaxonConcept.taxonConcept.author}</td>
+                            <td>${sciNameFormatted} ${authorship}</td>
                             <td class="source">
                                 <cite>Source:&nbsp;<a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
                             </td>
