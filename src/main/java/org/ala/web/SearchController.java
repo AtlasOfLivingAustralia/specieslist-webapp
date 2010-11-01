@@ -15,21 +15,17 @@
 package org.ala.web;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.IndexedTypes;
+import org.ala.dto.AutoCompleteDTO;
 import org.ala.dto.FacetResultDTO;
 import org.ala.dto.FieldResultDTO;
-import org.ala.dto.AutoCompleteDTO;
 import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.apache.commons.httpclient.HttpClient;
@@ -38,12 +34,10 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.solr.client.solrj.util.ClientUtils;
-import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
