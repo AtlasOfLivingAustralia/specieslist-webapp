@@ -32,15 +32,15 @@ import org.apache.commons.lang.builder.ToStringStyle;
 public class LogEventVO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String comment;
+	private String comment = "";
 
-	private int eventTypeId;
+	private int eventTypeId = 0;
 
-	private String userIP;
+	private String userIP = "";
 	
 	private Map<String, Integer> recordCounts = new Hashtable<String, Integer>();
 
-	private String userEmail;	
+	private String userEmail = "";	
 	
     public LogEventVO() {
     }
@@ -51,10 +51,18 @@ public class LogEventVO implements Serializable {
     
     private LogEventVO(int eventTypeId, String userEmail, String comment, String userIP, Map<String, Integer> recordCounts) {
     	this.eventTypeId = eventTypeId;
-    	this.userEmail = userEmail;
-    	this.comment = comment;
-    	this.userIP = userIP;
-    	this.recordCounts = recordCounts;
+    	if(userEmail != null){
+    		this.userEmail = userEmail;
+    	}
+    	if(comment != null){
+    		this.comment = comment;
+    	}
+    	if(userIP != null){
+    		this.userIP = userIP;
+    	}
+    	if(recordCounts != null){
+    		this.recordCounts = recordCounts;
+    	}    	
     }
     
 	public String getComment() {
