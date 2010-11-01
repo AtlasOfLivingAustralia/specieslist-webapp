@@ -14,6 +14,8 @@
  ***************************************************************************/
 package org.ala.dao;
 
+import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 
 import org.ala.model.Ranking;
@@ -63,6 +65,35 @@ public class RankingDaoImpl implements RankingDao {
 		logger.debug("Finished updating ranking");
 		return true;
 	}
+        /**
+         * @see org.ala.dao.RankingDao#reloadImageRanks() 
+         */
+        public void reloadImageRanks(){
+            try{
+                System.out.println("Initialising the scanner...");
+                Scanner scanner = storeHelper.getScanner("bie", "rk", "image");
+                byte[] guidAsBytes = null;
+                while((guidAsBytes = scanner.getNextGuid()) != null){
+                    String guid = new String(guidAsBytes);
+                    //TODO in the future when LSIDs have potentially changed we will need to look up in an index to find the LSID that is being used
+                    logger.debug("Processing Image ranks for " +guid);
+                    //get the rankings for the current guid
+                    Map<String, Object> subcolumns =  storeHelper.getSubColumnsByGuid("rk", "image",guid);
+                    for(String key : subcolumns.keySet()){
+                        //logger.debug(guid + " :  key : "+ key);
+                        List<Ranking> lr = (List<Ranking>)subcolumns.get(key);
+                        for(Ranking r : lr){
+                            //process the ranking
+                            taxonConceptDao.setRankingOnImage(guid, r.getUri(), r.isPositive());
+                            logger.debug(r.getUri() + " " + r.isPositive());
+                        }
+                    }
+                }
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+        }
 
 	/**
 	 * @param storeHelper the storeHelper to set

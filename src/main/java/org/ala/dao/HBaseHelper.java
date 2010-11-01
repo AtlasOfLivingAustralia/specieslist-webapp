@@ -96,7 +96,7 @@ public class HBaseHelper implements StoreHelper {
 		return new HBaseScanner(htable, columnFamily);
 	}
 	
-	public Map<String, Object> getSubColumnsByGuid(String guid) throws Exception{
+	public Map<String, Object> getSubColumnsByGuid(String columnFamily,String superColName,String guid) throws Exception{
 		throw new NoSuchMethodException("No such method implementation in this class : " + this.getClass().getName());
 	}	
 }

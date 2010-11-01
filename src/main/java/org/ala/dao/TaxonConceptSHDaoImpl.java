@@ -1832,7 +1832,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		ExtendedTaxonConceptDTO etc = new ExtendedTaxonConceptDTO();
 		
 		guid = getPreferredGuid(guid);
-		Map<String, Object> map = storeHelper.getSubColumnsByGuid(guid);
+		Map<String, Object> map = storeHelper.getSubColumnsByGuid("tc", "tc",guid);
 		
 		//populate the dto
 		etc.setTaxonConcept((TaxonConcept)getColumnValue(map, CassandraSubColumnType.TAXONCONCEPT_COL));

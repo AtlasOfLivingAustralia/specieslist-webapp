@@ -43,4 +43,8 @@ public interface RankingDao {
 			String imageUri, 
 			Integer imageInfoSourceId, 
 			boolean positive) throws Exception;
+        /**
+         * Reloads the image ranks from the rk columnFamily to the tc columnFamily
+         */
+        public void reloadImageRanks();
 }

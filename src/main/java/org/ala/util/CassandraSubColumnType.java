@@ -28,6 +28,7 @@ import org.ala.model.Image;
 import org.ala.model.OccurrencesInGeoregion;
 import org.ala.model.PestStatus;
 import org.ala.model.Publication;
+import org.ala.model.Ranking;
 import org.ala.model.Reference;
 import org.ala.model.SimpleProperty;
 import org.ala.model.SpecimenHolding;
@@ -43,21 +44,22 @@ import org.apache.commons.lang.builder.ToStringStyle;
  *
  */
 public enum CassandraSubColumnType {
-	TAXONCONCEPT_COL("taxonConcept", TaxonConcept.class, false),
-	TAXONNAME_COL("hasTaxonName", TaxonName.class, true),
-	IDENTIFIER_COL("sameAs", String.class, true),
-	SYNONYM_COL("hasSynonym", TaxonConcept.class, true),
-	IS_CONGRUENT_TO_COL("IsCongruentTo", TaxonConcept.class, true),
-	VERNACULAR_COL("hasVernacularConcept", CommonName.class, true),
-	CONSERVATION_STATUS_COL("hasConservationStatus", ConservationStatus.class, true),
-	PEST_STATUS_COL("hasPestStatus", PestStatus.class, true),
-	REGION_COL("hasRegion", OccurrencesInGeoregion.class, true),
-	EXTANT_STATUS_COL("hasExtantStatus", ExtantStatus.class, true),
-	HABITAT_COL("hasHabitat", Habitat.class, true),
-	IMAGE_COL("hasImage", Image.class, true),
-	DIST_IMAGE_COL("hasDistributionImage", Image.class, true),
-	IS_CHILD_COL_OF("IsChildTaxonOf", TaxonConcept.class, true),
-	IS_PARENT_COL_OF("IsParentTaxonOf", TaxonConcept.class, true),
+
+    TAXONCONCEPT_COL("taxonConcept", TaxonConcept.class, false),
+    TAXONNAME_COL("hasTaxonName", TaxonName.class, true),
+    IDENTIFIER_COL("sameAs", String.class, true),
+    SYNONYM_COL("hasSynonym", TaxonConcept.class, true),
+    IS_CONGRUENT_TO_COL("IsCongruentTo", TaxonConcept.class, true),
+    VERNACULAR_COL("hasVernacularConcept", CommonName.class, true),
+    CONSERVATION_STATUS_COL("hasConservationStatus", ConservationStatus.class, true),
+    PEST_STATUS_COL("hasPestStatus", PestStatus.class, true),
+    REGION_COL("hasRegion", OccurrencesInGeoregion.class, true),
+    EXTANT_STATUS_COL("hasExtantStatus", ExtantStatus.class, true),
+    HABITAT_COL("hasHabitat", Habitat.class, true),
+    IMAGE_COL("hasImage", Image.class, true),
+    DIST_IMAGE_COL("hasDistributionImage", Image.class, true),
+    IS_CHILD_COL_OF("IsChildTaxonOf", TaxonConcept.class, true),
+    IS_PARENT_COL_OF("IsParentTaxonOf", TaxonConcept.class, true),
     TEXT_PROPERTY_COL("hasTextProperty", SimpleProperty.class, true),
     CLASSIFICATION_COL("hasClassification", Classification.class, true),
     REFERENCE_COL("hasReference", Reference.class, true),
@@ -69,47 +71,57 @@ public enum CassandraSubColumnType {
     IS_ICONIC("IsIconic", Boolean.class, false),
     IS_AUSTRALIAN("IsAustralian", Boolean.class, false),
     OCCURRENCE_RECORDS_COUNT_COL("hasOccurrenceRecords", Integer.class, false),
-    GEOREF_RECORDS_COUNT_COL("hasGeoReferencedRecords", Integer.class, false);
+    GEOREF_RECORDS_COUNT_COL("hasGeoReferencedRecords", Integer.class, false),
+    RANKING("TIMESTAMP", Ranking.class, true);
+    public static final String COLUMN_FAMILY_NAME = "tc";
+    public static final String SUPER_COLUMN_NAME = "tc";
 
-	public static final String COLUMN_FAMILY_NAME = "tc";
-	public static final String SUPER_COLUMN_NAME = "tc";
-	
     private static final Map<String, CassandraSubColumnType> cassandraSubColumnTypeLookup = new HashMap<String, CassandraSubColumnType>();
-    
+
     static {
-         for (CassandraSubColumnType mt : EnumSet.allOf(CassandraSubColumnType.class)) {
-        	 cassandraSubColumnTypeLookup.put(mt.getColumnName(), mt);
-         }
+        for (CassandraSubColumnType mt : EnumSet.allOf(CassandraSubColumnType.class)) {
+            cassandraSubColumnTypeLookup.put(mt.getColumnName(), mt);
+        }
     }
 
-	private String columnName;
+    private String columnName;
     private Class clazz;
     private boolean isList;
-    
+
 	private CassandraSubColumnType(String columnName, Class clazz, boolean isList){
-    	this.columnName = columnName;
-    	this.clazz = clazz;
-    	this.isList = isList;
+        this.columnName = columnName;
+        this.clazz = clazz;
+        this.isList = isList;
     }
-    
+
     public String getColumnName() {
-		return columnName;
-	}
-
-	public Class getClazz() {
-		return clazz;
-	}
-
-	public boolean isList() {
-		return isList;
-	}
-	
-    public static CassandraSubColumnType getCassandraSubColumnType(String columnName) {
-        return cassandraSubColumnTypeLookup.get(columnName);
+        return columnName;
     }
-	
+
+    public Class getClazz() {
+        return clazz;
+    }
+
+    public boolean isList() {
+        return isList;
+    }
+
+    public static CassandraSubColumnType getCassandraSubColumnType(String columnName) {
+        CassandraSubColumnType subCol = cassandraSubColumnTypeLookup.get(columnName);
+        if (subCol == null) {
+            //if the name is a long value it represents a ranking sub column
+            try {
+                Long.parseLong(columnName);
+                //must be a ranking
+                subCol = RANKING;
+            } catch (NumberFormatException nfe) {
+            }
+        }
+        return subCol;
+    }
+
     @Override
     public String toString() {
-    	return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-    }	
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
 }

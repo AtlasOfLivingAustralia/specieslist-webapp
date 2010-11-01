@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.ala.model.Ranking;
 
 import org.ala.util.CassandraSubColumnType;
 import org.apache.cassandra.thrift.Column;
@@ -63,7 +64,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		Pelops.addPool(pool, new String[]{host}, port, false, keySpace, new Policy());
 	}
 
-    public Map<String, Object> getSubColumnsByGuid(String guid) throws Exception {
+    public Map<String, Object> getSubColumnsByGuid(String columnFamily, String superColName,String guid) throws Exception {
     	Map<String, Object> map = new HashMap<String, Object>();
     	
         logger.debug("Pelops get guid: " + guid);
@@ -74,8 +75,8 @@ public class CassandraPelopsHelper implements StoreHelper  {
     		ObjectMapper mapper = new ObjectMapper();
     		mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-            cols = selector.getSubColumnsFromRow(guid, CassandraSubColumnType.COLUMN_FAMILY_NAME, 
-            		CassandraSubColumnType.SUPER_COLUMN_NAME,
+            cols = selector.getSubColumnsFromRow(guid, columnFamily,
+            		superColName,
             		Selector.newColumnsPredicateAll(true, 10000), ConsistencyLevel.ONE);
             // convert json string to Java object and add into Map object.
             for(Column col : cols){
@@ -94,7 +95,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		            	}
             		}
             		else{
-            			logger.info("CassandraSubColumnType lookup failed. Invalid SubColumn Name: " + name);
+                            logger.info("CassandraSubColumnType lookup failed. Invalid SubColumn Name: " + name);
             		}
 	            }
             	catch(Exception ex){
@@ -374,7 +375,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
     	CassandraPelopsHelper helper = new CassandraPelopsHelper();
     	helper.init();
     	
-    	Map<String, Object> map = helper.getSubColumnsByGuid("103067807");
+    	Map<String, Object> map = helper.getSubColumnsByGuid("tc","tc", "103067807");
     	Set<String> keys = map.keySet();
     	Iterator<String> it = keys.iterator();
     	while(it.hasNext()){

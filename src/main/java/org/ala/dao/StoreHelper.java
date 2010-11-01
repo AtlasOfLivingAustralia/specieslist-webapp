@@ -124,5 +124,5 @@ public interface StoreHelper {
 	 */
 	Scanner getScanner(String table, String columnFamily, String column) throws Exception;
 	
-	public Map<String, Object> getSubColumnsByGuid(String guid) throws Exception;
+	public Map<String, Object> getSubColumnsByGuid(String columnFamily, String superColName, String guid) throws Exception;
 }
