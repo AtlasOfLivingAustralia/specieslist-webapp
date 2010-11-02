@@ -59,7 +59,7 @@ include file="/common/taglibs.jsp" %>
                 // highlight explore menu tab
                 $("div#nav li.nav-explore").addClass("selected");
                 // autocomplete for search input
-                $("form#search-form input#search").autocomplete('${pageContext.request.contextPath}/search/auto.jsonp', {
+                $("form#search-form input#search").autocomplete('${pageContext.request.contextPath}/search/auto.json', {
                         extraParams: {limit:100},
                         dataType: 'jsonp',
                         parse: function(data) {

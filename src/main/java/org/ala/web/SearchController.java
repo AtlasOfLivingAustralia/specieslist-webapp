@@ -169,8 +169,7 @@ public class SearchController {
 	}
 	
     /**
-     * Provides the auto complete service. Note: if called as auto.jsonp then can be used
-     * as jsonp by providing a callback param (which uses a JSP to format output instead of Jackson)
+     * Provides the auto complete service. 
      *
      * @param query The value to auto complete
      * @param geoRefOnly When true only include results that have some geospatial occurrence records
@@ -181,12 +180,11 @@ public class SearchController {
      */
     @RequestMapping(value="/search/auto.json*", method = RequestMethod.GET)
     public String searchForAutocompleteValues(
-                    @RequestParam(value="q", required=true) String query,
-                    @RequestParam(value="geoOnly", required=false) boolean geoRefOnly,
-                    @RequestParam(value="idxType", required=false) String idxType,
-                    @RequestParam(value="limit", required=false, defaultValue ="10") int maxTerms,
-                    @RequestParam(value="callback", required=false) String callback,
-                    Model model)throws Exception {
+            @RequestParam(value="q", required=true) String query,
+            @RequestParam(value="geoOnly", required=false) boolean geoRefOnly,
+            @RequestParam(value="idxType", required=false) String idxType,
+            @RequestParam(value="limit", required=false, defaultValue ="10") int maxTerms,
+            Model model) throws Exception {
 
         logger.debug("Autocomplete on " + query + " geoOnly: " + geoRefOnly  );
         IndexedTypes it = idxType != null ? IndexedTypes.valueOf(idxType.toUpperCase()):null;
