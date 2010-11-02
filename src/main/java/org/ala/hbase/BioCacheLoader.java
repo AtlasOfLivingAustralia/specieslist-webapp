@@ -60,10 +60,10 @@ public class BioCacheLoader {
 	 * @throws Exception
 	 */
 	private void load() throws Exception {
-//		loadRegions(FAMILY_REGION_OCCURRENCE, "family");
-//		loadRegions(GENUS_REGION_OCCURRENCE, "genus");
-//		loadRegions(SPECIES_REGION_OCCURRENCE, "species");
-//		loadRegions(SUBSPECIES_REGION_OCCURRENCE, "subspecies");
+		loadRegions(FAMILY_REGION_OCCURRENCE, "family");
+		loadRegions(GENUS_REGION_OCCURRENCE, "genus");
+		loadRegions(SPECIES_REGION_OCCURRENCE, "species");
+		loadRegions(SUBSPECIES_REGION_OCCURRENCE, "subspecies");
         loadOccurrenceCounts();
         loadGeoReferencedCounts();
 	}
