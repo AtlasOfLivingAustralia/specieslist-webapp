@@ -327,18 +327,7 @@
                     <div class="container1"> 
                         <div class="hrgroup"> 
                             <h1>${sciNameFormatted} <span>${authorship}</span></h1>
-                            <h2>
-                                <c:choose>
-                                    <c:when test="${extendedTaxonConcept.taxonConcept.rankID>5000}">
-                                            ${extendedTaxonConcept.commonNames[0].nameString}
-                                    </c:when>
-                                    <c:otherwise>
-                                            <c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
-                                                    ${commonName.nameString}
-                                            </c:forEach>
-                                    </c:otherwise>
-                                </c:choose>
-                            </h2> 
+                            <h2><c:if test="${not empty extendedTaxonConcept.commonNames}">${extendedTaxonConcept.commonNames[0].nameString}</c:if></h2> 
                         </div> 
                         <div class="meta"> 
                             <h3>Rank</h3><p style="text-transform: capitalize;">${extendedTaxonConcept.taxonConcept.rankString}</p>
