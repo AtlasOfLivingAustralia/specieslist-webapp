@@ -44,7 +44,7 @@
                     'titleShow' : false,
                     'autoDimensions' : false,
                     'width' : 680,
-                    'height' : 210
+                    'height' : 220
                 });
 
                 // Dena's tabs implementation
@@ -110,8 +110,21 @@
                         $(this).parent().hide();
                     }
                 });
-
-
+                // overviewImage
+                $('img.overviewImage').each(function(i, n) {
+                    // if img doesn't load, then check for alternate img src
+                    $(this).error(function() {
+                        var src = $(this).attr('src').replace('/smallRaw.', '/raw.');
+                        //alert("img error: "+src);
+                        $(this).attr('src', src);
+                    });
+                    // IE hack as IE doesn't trigger the error handler
+                    if ($.browser.msie && !n.complete) {
+                        var src = $(this).attr('src').replace('/smallRaw.', '/raw.');
+                        //alert("img error: "+src);
+                        $(this).attr('src', src);
+                    }
+                });
                 
                 // mapping for facet names to display labels
                 var facetLabels = {
@@ -472,7 +485,7 @@
                         </div> 
                     </c:if>
                 </div>
-            </div><!---->
+            </div><!-- end column-one -->
             <div id="column-two">
                 <div class="toggle section half-padding-bottom"> 
                     <div id="status"class="status">
@@ -537,8 +550,9 @@
                             </c:otherwise>
                         </c:choose>
                         <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
+                            <c:set var="imageSrc" value="${fn:replace(image.repoLocation, '/raw.', '/smallRaw.')}"/>
                             <c:if test="${status.index < imageLimit}">
-                                <li><a href="${status.index}" title=""><img src="${image.repoLocation}" style="max-width: ${imageSize}px" alt="" /></a></li>
+                                <li><a href="${status.index}" title=""><img src="${imageSrc}" class="overviewImage" style="max-width: ${imageSize}px" alt="" /></a></li>
                             </c:if>
                         </c:forEach>
                     </ul>
