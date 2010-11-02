@@ -8,7 +8,7 @@
     <name>bie-webapp</name>
     <url>http://www.ala.org.au</url>
     <description>
-        This is a Spring 3.0 MCV web application for the BIE project
+        This is a Spring 3.0 MVC web application for the BIE project
     </description>
     <properties>
         <!-- This project uses UTF8 for Regular Expressions -->
