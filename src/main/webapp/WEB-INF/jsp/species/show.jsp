@@ -458,7 +458,7 @@
                             </c:forEach>
                         </ul>
                     </c:if>
-                    <h2>Online resources</h2>
+                    <h2>Online Resources</h2>
                     <table cellpadding="0" cellspacing="0" id="onlineResources">
                         <colgroup style="width:50%;"></colgroup> 
                         <colgroup></colgroup> 
@@ -466,7 +466,7 @@
                             <c:forEach var="entry" items="${infoSources}" varStatus="status">
                                 <c:set var="infoSource" value="${entry.value}"/>
                                 <tr class="border-top">
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         <c:choose>
                                             <c:when test="${not empty infoSource.identifier}"><a href="${infoSource.identifier}" target="_blank" class="infosource">${infoSource.infoSourceName}</a></c:when>
                                             <c:when test="${not empty infoSource.infoSourceURL}"><a href="${infoSource.infoSourceURL}" target="_blank" class="infosource">${infoSource.infoSourceName}</a></c:when>
