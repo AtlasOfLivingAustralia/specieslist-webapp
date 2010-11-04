@@ -190,27 +190,57 @@
                                 var isoDateSuffix = '-01-01T12:00:00Z';
                                 var content = '<h4>By '+ facetLabels[facet.fieldName] +'</h4>';
                                 content = content +'<ul>';
+                                // intermediate arrays to store facet values in - needed to handle the
+                                // irregular date facet "before 1850" which comes at end of facet list
+                                var rows = [];
+                                var listItems = [];
                                 $.each(facet.fieldResult, function(i, li) {
                                     if (li.count > 0) {
                                         var label = li.fieldValue;
+                                        var toValue;
                                         var displayCount = (li.count + "").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                                         var link = '<a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}&fq='
+                                        
                                         if (facet.fieldName == 'occurrence_date') {
-                                            label = label.replace(isoDateSuffix, '');
-                                            var toValue = parseInt(label) + 10;
-                                            label = label + '-' + toValue;
-                                            toValue = toValue + isoDateSuffix;
-                                            link = link + facet.fieldName+':['+li.fieldValue+' TO '+toValue+']">';
+                                            if (label == 'before') { // label.indexOf(searchValue, fromIndex)
+                                                label = label + ' 1850';
+                                                toValue = '1850' + isoDateSuffix;
+                                                link = link + facet.fieldName+':[* TO '+toValue+']">';
+                                            } else {
+                                                label = label.replace(isoDateSuffix, '');
+                                                toValue = parseInt(label) + 10;
+                                                label = label + '-' + toValue;
+                                                toValue = toValue + isoDateSuffix;
+                                                link = link + facet.fieldName+':['+li.fieldValue+' TO '+toValue+']">';
+                                            }
                                         } else if (facet.fieldName == 'month') {
                                             link = link + facet.fieldName+':'+li.fieldValue+'">';
                                             label = months[label]; // substitiute month name for int value
                                         } else {
                                             link = link + facet.fieldName+':'+li.fieldValue+'">';
                                         }
-                                        content = content +'<li>'+label+': ' + link + displayCount + ' records</a></li>';
+                                        //content = content +'<li>'+label+': ' + link + displayCount + ' records</a></li>';
                                         // add values to chart
-                                        data.addRow([label, li.count]);
+                                        //data.addRow([label, li.count]);
+                                        if (label == 'before 1850') {
+                                            // add to start of array 
+                                            rows.unshift([label, li.count]);
+                                            listItems.unshift('<li>'+label+': ' + link + displayCount + ' records</a></li>');
+                                        } else {
+                                            // add to end of array
+                                            rows.push([label, li.count]);
+                                            listItems.push('<li>'+label+': ' + link + displayCount + ' records</a></li>');
+                                        }
                                     }
+                                });
+
+                                $.each(rows, function(i, row) {
+                                    // add to Google data table
+                                    data.addRow([ row[0], row[1] ]);
+                                });
+                                $.each(listItems, function(i, li) {
+                                    // build content string
+                                    content = content + li;
                                 });
                                 content = content + '</ul><div id="'+facet.fieldName+'_chart_div" style="margin: -15px;"></div>';
                                 $('#recordBreakdowns').append(content); 
