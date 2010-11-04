@@ -438,7 +438,7 @@
                     </c:if>
                     <c:set var="descriptionBlock">
                         <c:forEach var="textProperty" items="${textProperties}" varStatus="status">
-                            <c:if test="${fn:endsWith(textProperty.name, 'hasDescriptiveText') && status.count < 3}">
+                            <c:if test="${fn:endsWith(textProperty.name, 'hasDescriptiveText') && status.count < 3 && textProperty.infoSourceId!=1051}">
                                 <p>${textProperty.value} <cite>source: <a href="${textProperty.identifier}" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></cite></p>
                             </c:if>
                         </c:forEach>
@@ -465,6 +465,7 @@
                         <tbody> 
                             <c:forEach var="entry" items="${infoSources}" varStatus="status">
                                 <c:set var="infoSource" value="${entry.value}"/>
+                                <c:if test="${infoSource.infoSourceId!=1051}">
                                 <tr class="border-top">
                                     <td style="white-space: nowrap;">
                                         <c:choose>
@@ -484,6 +485,7 @@
                                         <td colspan="2"><p><span class="truncate">${infoSource.text}</span>
                                         <c:if test="${not empty infoSource.identifier && fn:length(infoSource.text) > 100}"><a href="${infoSource.identifier}" target="_blank">more</a></p></td></c:if>
                                     </tr>
+                                </c:if>
                                 </c:if>
                             </c:forEach>
                         </tbody> 
