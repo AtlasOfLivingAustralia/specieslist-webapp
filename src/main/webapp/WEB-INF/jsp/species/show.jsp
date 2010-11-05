@@ -324,26 +324,8 @@
     </head>
     <body id="taxon">
         <div id="header" class="taxon">
-            <c:choose>
-            <c:when test="${not empty extendedTaxonConcept.taxonName && not empty extendedTaxonConcept.taxonName.nameComplete}">
-	            <c:set var="sciNameFormatted">
-	                <alatag:formatSciName name="${extendedTaxonConcept.taxonName.nameComplete}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/>
-	            </c:set>
-            </c:when>
-            <c:otherwise>
-	            <c:set var="sciNameFormatted">
-	                <alatag:formatSciName name="${extendedTaxonConcept.taxonConcept.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/>
-	            </c:set>           
-            </c:otherwise>
-            </c:choose>
-         <c:choose>
-         <c:when test="${not empty extendedTaxonConcept.taxonName && not empty extendedTaxonConcept.taxonName.nameComplete}">
-             <c:set var="authorship">${extendedTaxonConcept.taxonName.authorship}</c:set>
-         </c:when>
-         <c:otherwise>
-             <c:set var="authorship">${extendedTaxonConcept.taxonConcept.author}</c:set>
-         </c:otherwise>
-         </c:choose>
+	        <c:set var="sciNameFormatted"><alatag:formatSciName name="${scientificName}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/></c:set>
+            <c:set var="authorship">${authorship}</c:set>
             <c:set var="contributeURL" value="${biocacheUrl}share/sighting/${extendedTaxonConcept.taxonConcept.guid}"/>
             <div id="breadcrumb">
                 <ul>

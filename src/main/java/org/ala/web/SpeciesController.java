@@ -188,6 +188,10 @@ public class SpeciesController {
             return SPECIES_ERROR;
         }
 
+        //construct the scientific name and authorship
+        String[] sciAndAuthor = getScientificNameAndAuthorship(etc);
+        model.addAttribute("scientificName", sciAndAuthor[0]);
+        model.addAttribute("authorship", sciAndAuthor[1]);
         
         //common name with many infosources
         List<CommonName> names = fixCommonNames(etc.getCommonNames()); // remove duplicate names
@@ -235,7 +239,27 @@ public class SpeciesController {
         logger.debug("Returning page view for: " + guid +" .....");
 		return SPECIES_SHOW;
 	}
-
+	
+	/**
+	 * FIXME it should be possible to factor this out at some point
+	 * 
+	 * @param etc
+	 * @return
+	 */
+	private String[] getScientificNameAndAuthorship(ExtendedTaxonConceptDTO etc) {
+		
+		String[] parts = new String[2];
+		//for AFD, and CoL this is fine
+		parts[0] = etc.getTaxonConcept().getNameString();
+		parts[1] = etc.getTaxonConcept().getAuthor();
+		
+		//for APNI, APC...
+		if(etc.getTaxonConcept().getGuid()!=null && etc.getTaxonConcept().getGuid().contains(":apni.taxon:") && etc.getTaxonName()!=null){
+			parts[0] = etc.getTaxonName().getNameComplete();
+			parts[1] = etc.getTaxonName().getAuthorship();
+		}
+		return parts;
+	}
 	/**
 	 * Map to a /{guid}.json or /{guid}.xml URI.
 	 * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
