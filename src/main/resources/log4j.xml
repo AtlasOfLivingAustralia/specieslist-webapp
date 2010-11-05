@@ -1,7 +1,7 @@
 <!DOCTYPE log4j:configuration  SYSTEM "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-    <param name="Threshold" value="DEBUG"/>
+    <param name="Threshold" value="INFO"/>
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%-5p: [%c{1}] - %m%n"/>
     </layout>
@@ -9,15 +9,18 @@
   <appender name="FILE" class="org.apache.log4j.RollingFileAppender">
     <param name="File" value="${catalina.base}/logs/bie-webapp.log"/>
     <param name="Append" value="true"/>
-    <param name="Threshold" value="DEBUG"/>
+    <param name="Threshold" value="INFO"/>
     <param name="MaxFileSize" value="200MB"/>
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d [%c{5}] %m%n"/>
     </layout>
   </appender>
   <!-- Alter the logging of known libs -->
+  <category name="au.org.ala">
+    <priority value="INFO"/>
+  </category> 
   <category name="org.ala">
-    <priority value="DEBUG"/>
+    <priority value="INFO"/>
   </category> 
   <category name="org.apache">
     <priority value="ERROR"/>
@@ -41,7 +44,7 @@
     <priority value="ERROR"/>
   </category>
   <root>
-    <appender-ref ref="CONSOLE"/>
+    <!-- <appender-ref ref="CONSOLE"/>  -->
     <appender-ref ref="FILE"/>
   </root>
  </log4j:configuration>
