@@ -33,12 +33,23 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
     </c:if>
     
     <table id="${idSuffix}List" class="taxonList">
-        <alatag:renderTaxaList taxonConcepts="${taxaRecords}"/>
+        
     </table>
    </div>
 
    <script type="text/javascript">
+
+   var ${idSuffix}InitialLoad = false;
+   
     $('#view${taxonGroup}List').click(function () {
+		if(!${idSuffix}InitialLoad){
+			${idSuffix}InitialLoad = true;		
+            $('#${idSuffix}Loading').show();
+            $.get("${pageContext.request.contextPath}/regions/taxa?regionType=${regionType}&regionName=${regionName}&higherTaxon=${higherTaxa}&rank=${rank}&withImages=true&limit=24&start=0", function(data) {
+                $('#${idSuffix}List').html(data);
+                $('#${idSuffix}Loading').hide();
+            });
+		}
         $('#${idSuffix}Gallery').toggle("slow");
     });
     $('#${idSuffix}Loading').hide();
@@ -47,6 +58,7 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
         var uri = "${pageContext.request.contextPath}/regions/${regionType}/${regionName}/download?title=${taxonGroup}List${regionAcronym}&higherTaxon=${higherTaxa}&rank=${rank}";
         window.location.replace(uri);
     });
+
     <c:if test="${taxonWithImagesCount>24}">
     var ${idSuffix}PageCounter = 0;
     var ${idSuffix}MaxPage = Math.ceil(${taxonWithImagesCount}/24);
