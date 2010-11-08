@@ -89,7 +89,6 @@ public class ChecklistBankLoader {
 	
 	//data files
 	private static final String IDENTIFIERS_FILE = "/data/bie-staging/checklistbank/cb_identifiers.txt";
-	private static final String CB_EXPORT_DIR = "/data/bie-staging/checklistbank/";
 	private static final String AFD_COMMON_NAMES = "/data/bie-staging/anbg/AFD-common-names.csv";
 	private static final String APNI_COMMON_NAMES = "/data/bie-staging/anbg/APNI-common-names.csv";
 	
@@ -358,37 +357,39 @@ public class ChecklistBankLoader {
 	    		String identifier = cols[0];
 	    		String parentNameUsageID = cols[1];
 				String guid = cols[2]; //TaxonID
-				String nubId = cols[3];
+				String acceptedId = cols[3];
 				String acceptedNameUsageID = cols[4]; //acceptedNameUsageID
 				String scientificNameId = cols[5];
-				String scientificName = cols[6];
-				String scientificNameAuthorship = cols[7];
+				String canonicalNameId = cols[6];
+				String scientificName = cols[7];
+				String canonicalName = cols[8];
+				String scientificNameAuthorship = cols[9];
 				
 				Integer rankID = null;
-				if(StringUtils.isNotEmpty(cols[8])) rankID = NumberUtils.createInteger(cols[8]);
+				if(StringUtils.isNotEmpty(cols[8])) rankID = NumberUtils.createInteger(cols[11]);
 				
-				String taxonRank = cols[9];
+				String taxonRank = cols[12];
 				Integer left = null;
 				Integer right = null;
 					
-				if(StringUtils.isNotEmpty(cols[10])) left = NumberUtils.createInteger(cols[10]);
-				if(StringUtils.isNotEmpty(cols[10])) right = NumberUtils.createInteger(cols[11]);
+				if(StringUtils.isNotEmpty(cols[10])) left = NumberUtils.createInteger(cols[13]);
+				if(StringUtils.isNotEmpty(cols[10])) right = NumberUtils.createInteger(cols[14]);
 				
-				String kingdomID = cols[12];
-				String kingdom = cols[13];
-				String phylumID = cols[14];
-				String phylum = cols[15];
-				String clazzID = cols[16];
-				String clazz = cols[17];
-				String orderID = cols[18];
-				String order = cols[19];
-				String familyID = cols[20];
-				String family = cols[21];
-				String genusID = cols[22];
-				String genus = cols[23];
-				String speciesID = cols[24];
-				String species = cols[25];
-				String dataset = cols[26];
+				String kingdomID = cols[15];
+				String kingdom = cols[16];
+				String phylumID = cols[17];
+				String phylum = cols[18];
+				String clazzID = cols[19];
+				String clazz = cols[20];
+				String orderID = cols[21];
+				String order = cols[22];
+				String familyID = cols[23];
+				String family = cols[24];
+				String genusID = cols[25];
+				String genus = cols[26];
+				String speciesID = cols[27];
+				String species = cols[28];
+				String dataset = cols[29];
 	
 				if(StringUtils.isEmpty(guid)){
 					guid = identifier;
@@ -519,36 +520,37 @@ public class ChecklistBankLoader {
 	 * @throws Exception
 	 */
 	public void loadSynonyms() throws IOException, UnsupportedArchiveException, Exception {
-		Archive archive = ArchiveFactory.openArchive(new File(CB_EXPORT_DIR),true);
-		Iterator<DarwinCoreRecord> iter = archive.iteratorDwc();
+		
+    	//names files to index
+    	CSVReader tr = new CSVReader(new FileReader("/data/bie-staging/checklistbank/cb_name_usages.txt"), '\t', '"', '\\');
+    	String[] cols = tr.readNext(); //first line contains headers - ignore
 		int numberRead = 0;
 		int numberAdded = 0;
 		long start = System.currentTimeMillis();
-		
-		while (iter.hasNext()) {
+    	while((cols=tr.readNext())!=null){
 			numberRead++;
-			DarwinCoreRecord dwc = iter.next();
-			String guid = dwc.getTaxonID();
-			String identifier = dwc.getIdentifier();
+    		String identifier = cols[0];
+    		String parentNameUsageID = cols[1];
+			String guid = cols[2]; //TaxonID
+			String nameString =  cols[7];
+			String author =  cols[9];
+			String rankString =  cols[12];
+			String acceptedGuid =  cols[4];
+			
 			if(guid == null){
 				guid = identifier;
 			}
 			
-			if (guid != null && StringUtils.isNotEmpty(dwc.getAcceptedNameUsageID())) {
+			if (guid != null && StringUtils.isNotEmpty(acceptedGuid)) {
 				
 				//add the base concept
 				TaxonConcept tc = new TaxonConcept();
 				tc.setId(Integer.parseInt(identifier));
 				tc.setGuid(guid);
-				tc.setParentId(dwc.getParentNameUsageID());
-				tc.setNameString(dwc.getScientificName());
-				tc.setAuthor(dwc.getScientificNameAuthorship());
-				tc.setRankString(dwc.getTaxonRank());
-				
-				String acceptedGuid = dwc.getAcceptedNameUsageID();
-				
-				//FIXME get the publication information
-				
+				tc.setParentId(parentNameUsageID);
+				tc.setNameString(nameString);
+				tc.setAuthor(author);
+				tc.setRankString(rankString);
 				if (taxonConceptDao.addSynonym(acceptedGuid, tc)) {
 					numberAdded++;
 					if(numberAdded % 1000 == 0){
@@ -644,6 +646,8 @@ public class ChecklistBankLoader {
 	    			commonName.setGuid(guid);
 	    			//set this common name to be the preferred name
 	    			commonName.setPreferred(true);
+	    			commonName.setRanking(2);
+	    			commonName.setNoOfRankings(2);
 	    			//set the attribution
 	    			if(values[5].contains(":apni.")){
 	    				commonName.setInfoSourceId(Integer.toString(apni.getId()));
