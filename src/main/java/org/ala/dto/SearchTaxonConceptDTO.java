@@ -33,6 +33,15 @@ public class SearchTaxonConceptDTO extends SearchDTO implements Comparable<Searc
     protected int rankId;
     protected String pestStatus;
     protected String conservationStatus;
+    protected String conservationStatusAUS;
+    protected String conservationStatusACT;
+	protected String conservationStatusNSW;
+    protected String conservationStatusNT;
+    protected String conservationStatusQLD;
+    protected String conservationStatusSA;
+    protected String conservationStatusTAS;
+    protected String conservationStatusVIC;
+    protected String conservationStatusWA;
     protected String highlight;
     protected String image;
     protected String thumbnail;
@@ -165,6 +174,131 @@ public class SearchTaxonConceptDTO extends SearchDTO implements Comparable<Searc
 	 */
 	public String getConservationStatus() {
 		return conservationStatus;
+	}
+    /**
+	 * @return the conservationStatusAUS
+	 */
+	public String getConservationStatusAUS() {
+		return conservationStatusAUS;
+	}
+
+	/**
+	 * @param conservationStatusAUS the conservationStatusAUS to set
+	 */
+	public void setConservationStatusAUS(String conservationStatusAUS) {
+		this.conservationStatusAUS = conservationStatusAUS;
+	}
+
+	/**
+	 * @return the conservationStatusACT
+	 */
+	public String getConservationStatusACT() {
+		return conservationStatusACT;
+	}
+
+	/**
+	 * @param conservationStatusACT the conservationStatusACT to set
+	 */
+	public void setConservationStatusACT(String conservationStatusACT) {
+		this.conservationStatusACT = conservationStatusACT;
+	}
+
+	/**
+	 * @return the conservationStatusNSW
+	 */
+	public String getConservationStatusNSW() {
+		return conservationStatusNSW;
+	}
+
+	/**
+	 * @param conservationStatusNSW the conservationStatusNSW to set
+	 */
+	public void setConservationStatusNSW(String conservationStatusNSW) {
+		this.conservationStatusNSW = conservationStatusNSW;
+	}
+
+	/**
+	 * @return the conservationStatusNT
+	 */
+	public String getConservationStatusNT() {
+		return conservationStatusNT;
+	}
+
+	/**
+	 * @param conservationStatusNT the conservationStatusNT to set
+	 */
+	public void setConservationStatusNT(String conservationStatusNT) {
+		this.conservationStatusNT = conservationStatusNT;
+	}
+
+	/**
+	 * @return the conservationStatusQLD
+	 */
+	public String getConservationStatusQLD() {
+		return conservationStatusQLD;
+	}
+
+	/**
+	 * @param conservationStatusQLD the conservationStatusQLD to set
+	 */
+	public void setConservationStatusQLD(String conservationStatusQLD) {
+		this.conservationStatusQLD = conservationStatusQLD;
+	}
+
+	/**
+	 * @return the conservationStatusSA
+	 */
+	public String getConservationStatusSA() {
+		return conservationStatusSA;
+	}
+
+	/**
+	 * @param conservationStatusSA the conservationStatusSA to set
+	 */
+	public void setConservationStatusSA(String conservationStatusSA) {
+		this.conservationStatusSA = conservationStatusSA;
+	}
+
+	/**
+	 * @return the conservationStatusTAS
+	 */
+	public String getConservationStatusTAS() {
+		return conservationStatusTAS;
+	}
+
+	/**
+	 * @param conservationStatusTAS the conservationStatusTAS to set
+	 */
+	public void setConservationStatusTAS(String conservationStatusTAS) {
+		this.conservationStatusTAS = conservationStatusTAS;
+	}
+
+	/**
+	 * @return the conservationStatusVIC
+	 */
+	public String getConservationStatusVIC() {
+		return conservationStatusVIC;
+	}
+
+	/**
+	 * @param conservationStatusVIC the conservationStatusVIC to set
+	 */
+	public void setConservationStatusVIC(String conservationStatusVIC) {
+		this.conservationStatusVIC = conservationStatusVIC;
+	}
+
+	/**
+	 * @return the conservationStatusWA
+	 */
+	public String getConservationStatusWA() {
+		return conservationStatusWA;
+	}
+
+	/**
+	 * @param conservationStatusWA the conservationStatusWA to set
+	 */
+	public void setConservationStatusWA(String conservationStatusWA) {
+		this.conservationStatusWA = conservationStatusWA;
 	}
 	/**
 	 * @param conservationStatus the conservationStatus to set

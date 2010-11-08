@@ -23,6 +23,11 @@ public class CommonName extends AttributableObject implements Comparable<CommonN
 	/** Nullable GUID for this common name */
 	protected String guid; 
 	protected String nameString;
+    /** Ranking */
+    protected Integer noOfRankings;
+    /** Ranking */
+    protected Integer ranking;
+    /** @deprecated this has been superceded by the ranking field */
 	protected Boolean isPreferred = false;
 	
 	/**
@@ -31,10 +36,24 @@ public class CommonName extends AttributableObject implements Comparable<CommonN
 	@Override
 	public int compareTo(CommonName o) {
 		//check the infosources
-		if(o.isPreferred!=null && isPreferred!=null && o.isPreferred && !isPreferred)
-			return 1;
-		if(o.isPreferred!=null && isPreferred!=null && !o.isPreferred && isPreferred)
-			return -1;
+    	if(ranking!=null && o.getRanking()==null){
+    		return ranking *-1;
+    	}
+    	
+    	if(o.getRanking()!=null && ranking==null){
+    		return o.getRanking();
+    	}
+    	
+    	//compare on rankings
+    	if(ranking!=null && !ranking.equals(o.getRanking())){
+    		return o.getRanking().compareTo(ranking);
+    	}
+
+    	//compare on number of rankings
+    	if(o.getNoOfRankings()!=null && noOfRankings!=null && !noOfRankings.equals(o.getNoOfRankings())){
+    		return o.getNoOfRankings().compareTo(noOfRankings);
+    	}
+    	
 		if(o.getNameString()!=null && nameString!=null){
 			return nameString.compareTo(o.getNameString());
 		}
@@ -91,6 +110,41 @@ public class CommonName extends AttributableObject implements Comparable<CommonN
 		this.nameString = nameString;
 	}
 	/**
+	 * @return the noOfRankings
+	 */
+	public Integer getNoOfRankings() {
+		return noOfRankings;
+	}
+
+	/**
+	 * @param noOfRankings the noOfRankings to set
+	 */
+	public void setNoOfRankings(Integer noOfRankings) {
+		this.noOfRankings = noOfRankings;
+	}
+
+	/**
+	 * @return the ranking
+	 */
+	public Integer getRanking() {
+		return ranking;
+	}
+
+	/**
+	 * @param ranking the ranking to set
+	 */
+	public void setRanking(Integer ranking) {
+		this.ranking = ranking;
+	}
+
+	/**
+	 * @return the isPreferred
+	 */
+	public Boolean getIsPreferred() {
+		return isPreferred;
+	}
+
+	/**
 	 * @return the isPreferred
 	 */
 	public Boolean isPreferred() {
@@ -103,25 +157,21 @@ public class CommonName extends AttributableObject implements Comparable<CommonN
 	public void setPreferred(Boolean isPreferred) {
 		this.isPreferred = isPreferred;
 	}
+		
+	/**
+	 * @param isPreferred the isPreferred to set
+	 */
+	public void setIsPreferred(Boolean isPreferred) {
+		this.isPreferred = isPreferred;
+	}
+
 	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("CommonName [guid=");
-		builder.append(this.guid);
-		builder.append(", nameString=");
-		builder.append(this.nameString);
-		builder.append(", documentId=");
-		builder.append(this.documentId);
-		builder.append(", infoSourceId=");
-		builder.append(this.infoSourceId);
-		builder.append(", infoSourceName=");
-		builder.append(this.infoSourceName);
-		builder.append(", infoSourceURL=");
-		builder.append(this.infoSourceURL);
-		builder.append("]");
-		return builder.toString();
+		return "CommonName [guid=" + guid + ", isPreferred=" + isPreferred
+				+ ", nameString=" + nameString + ", noOfRankings="
+				+ noOfRankings + ", ranking=" + ranking + "]";
 	}
 }

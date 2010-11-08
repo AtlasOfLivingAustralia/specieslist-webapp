@@ -407,8 +407,6 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
                     results.add(createDatasetFromIndex(qr, doc));
             	} else if(IndexedTypes.REGION.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
             		results.add(createRegionFromIndex(qr, doc));
-            	} else if(IndexedTypes.LOCALITY.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
-//                    results.add(createTaxonConceptFromIndex(qr, doc));
             	}
             }
         } else {
@@ -516,7 +514,6 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         }
     }
 
-
 	@Override
 	public SearchResultsDTO findAllSpeciesByRegionAndHigherTaxon(
 			String regionType, String regionName, String rank,
@@ -562,9 +559,17 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             csvWriter.writeNext(new String[]{
             		"GUID",
             		"Scientific name",
-            		"Common name",
-            		"Conservation status",
             		"Taxon rank",
+            		"Common name",
+            		"Conservation status in Australia",
+            		"Conservation status in ACT",
+            		"Conservation status in NSW",
+            		"Conservation status in NT",
+            		"Conservation status in QLD",
+            		"Conservation status in SA",
+            		"Conservation status in TAS",
+            		"Conservation status in VIC",
+            		"Conservation status in WA"
             });
             
             while(results.getResults().size()>0 && resultsCount<=maxDownloadForConcepts){
@@ -575,9 +580,17 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 	            	String[] record = new String[]{
 	            		concept.getGuid(),
 	            		concept.getName(),
-	            		concept.getCommonName(),
-	            		concept.getConservationStatus(),
 	            		concept.getRank(),
+	            		concept.getCommonNameSingle(),
+	            		concept.getConservationStatusAUS(),
+	            		concept.getConservationStatusACT(),
+	            		concept.getConservationStatusNSW(),
+	            		concept.getConservationStatusNT(),
+	            		concept.getConservationStatusQLD(),
+	            		concept.getConservationStatusSA(),
+	            		concept.getConservationStatusTAS(),
+	            		concept.getConservationStatusVIC(),
+	            		concept.getConservationStatusWA(),
 	            	};
 	            	csvWriter.writeNext(record);
 	            	csvWriter.flush();
@@ -814,7 +827,6 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         return provider;
 	}
 	
-	
     /**
 	 * Populate a TaxonConcept from the data in the lucene index.
 	 *
@@ -842,6 +854,16 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         taxonConcept.setKingdom((String) doc.getFirstValue("kingdom"));
         taxonConcept.setAuthor((String) doc.getFirstValue("author"));
         taxonConcept.setNameComplete((String) doc.getFirstValue("nameComplete"));
+        taxonConcept.setConservationStatusAUS((String) doc.getFirstValue("conservationStatusAUS"));
+        taxonConcept.setConservationStatusACT((String) doc.getFirstValue("conservationStatusACT"));
+        taxonConcept.setConservationStatusNSW((String) doc.getFirstValue("conservationStatusNSW"));
+        taxonConcept.setConservationStatusNT((String) doc.getFirstValue("conservationStatusNT"));
+        taxonConcept.setConservationStatusQLD((String) doc.getFirstValue("conservationStatusQLD"));
+        taxonConcept.setConservationStatusSA((String) doc.getFirstValue("conservationStatusSA"));
+        taxonConcept.setConservationStatusTAS((String) doc.getFirstValue("conservationStatusTAS"));
+        taxonConcept.setConservationStatusVIC((String) doc.getFirstValue("conservationStatusVIC"));
+        taxonConcept.setConservationStatusWA((String) doc.getFirstValue("conservationStatusWA"));
+        
         try {
         	Integer rankId = (Integer) doc.getFirstValue("rankId");
         	if(rankId!=null){
