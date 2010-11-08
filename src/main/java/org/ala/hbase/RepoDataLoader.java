@@ -65,6 +65,8 @@ public class RepoDataLoader {
 	int totalPropertiesSynced = 0;
 	
 	/**
+	 * This takes a list of infosource ids...
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
@@ -76,7 +78,7 @@ public class RepoDataLoader {
         String filePath = repositoryDir;
 		int filesRead = loader.load(filePath, args); //FIX ME - move to config
     	long finish = System.currentTimeMillis();
-    	System.out.println(filesRead+" files scanned/loaded in: "+((finish-start)/60000)+" minutes "+((finish-start)/1000)+" seconds.");
+    	logger.info(filesRead+" files scanned/loaded in: "+((finish-start)/60000)+" minutes "+((finish-start)/1000)+" seconds.");
     	System.exit(1);
 	}
 
@@ -89,7 +91,7 @@ public class RepoDataLoader {
 	 * @throws Exception
 	 */
 	private int load(String filePath, String[] repoDirs) throws Exception {
-		System.out.println("Scanning directory: "+filePath);
+		logger.info("Scanning directory: "+filePath);
 		
 		int totalFilesRead = 0;
 		int totalPropertiesSynced = 0;
@@ -103,23 +105,33 @@ public class RepoDataLoader {
 			dirs = new File [repoDirs.length];
 			for (int i = 0; i < repoDirs.length; i++) {
 				dirs[i] = new File(file.getAbsolutePath() + File.separator + repoDirs[i]);
+				logger.info("Processing directories..."+dirs[i].getAbsolutePath());
 			}
 		} else {
-			// Scan all sub-directories - FIXME this takes a long time for a large number of subdirectories
-//			dirs = file.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
-			
-			//list immediate directories
+			//list immediate directories - this will give the 
+			logger.info("Listing all directories...");
 			dirs = file.listFiles();
 		}
 		
+		//go through each infosource directory
 		for(File childFile: dirs){
+			logger.info("Listing directories for infosource directory: "+childFile.getAbsolutePath());
+			
 			if(childFile.isDirectory()){
-				File[] dirsToScan = childFile.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
-				scanDirectory(dirsToScan);
+				//  takes us to /data/bie/<infosource-id>/<section-id>
+				logger.info("Listing directories for the section: "+childFile.getAbsolutePath());
+				File[] infosourceSection = childFile.listFiles();
+				for(File sectionDirectory: infosourceSection){
+					//this will list all the files in the
+					if(sectionDirectory.isDirectory()){
+						File[] dirsToScan = sectionDirectory.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
+						scanDirectory(dirsToScan);
+					}
+				}
 			}
 		}
 
-		System.out.println("Files read: "+totalFilesRead+", files matched: "+totalPropertiesSynced);
+		logger.info("Files read: "+totalFilesRead+", files matched: "+totalPropertiesSynced);
 		return totalFilesRead;
 	}
 
@@ -200,7 +212,7 @@ public class RepoDataLoader {
 	                }
 				}
 			}
-			System.out.println("InfosourceId: " + currentDir.getName() + " - Files read: " + filesRead + ", files matched: " + propertiesSynced);
+			logger.info("InfosourceId: " + currentDir.getName() + " - Files read: " + filesRead + ", files matched: " + propertiesSynced);
 			totalFilesRead += filesRead;
 			totalPropertiesSynced += propertiesSynced;
 		}
@@ -228,9 +240,9 @@ public class RepoDataLoader {
 		document.setFilePath(currentFile.getParentFile().getAbsolutePath());
 		Map<String, String> dc = readDcFileAsMap(currentFile);
 		// Sync the triples and associated DC data
-		System.out.println("Attempting to sync triple where Scientific Name = " + getScientificName(triples));
+		logger.info("Attempting to sync triple where Scientific Name = " + getScientificName(triples));
 		boolean success = taxonConceptDao.syncTriples(document, triples, dc);
-		System.out.println("Processed file: "+currentFile.getAbsolutePath() + ", Scientific Name = " + getScientificName(triples) + ", success: "+success);
+		logger.info("Processed file: "+currentFile.getAbsolutePath() + ", Scientific Name = " + getScientificName(triples) + ", success: "+success);
 		return success;
 	}
 
@@ -247,7 +259,7 @@ public class RepoDataLoader {
                 infoSourceMap.put(id, infoSourceDAO.getById(id));
             }
         }
-        System.out.println("loaded infoSource map: "+infoSourceMap.size());
+        logger.info("loaded infoSource map: "+infoSourceMap.size());
     }
 
     /**
@@ -293,10 +305,8 @@ public class RepoDataLoader {
         String dcFileName = rdfFileName.replaceFirst("rdf", "dc");
         File dcfile = new File(dcFileName);
         Map<String,String> dc = null;
-        
         try {
         	dc = repoFileUtils.readDcFileAsMap(dcfile);
-
         } catch (Exception ex) {
             logger.error("Cannot open dc file: "+dcFileName+" - "+ex.getMessage());
         }
