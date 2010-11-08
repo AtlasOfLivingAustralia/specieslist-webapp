@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -44,16 +43,13 @@ import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
-import org.gbif.dwc.record.DarwinCoreRecord;
-import org.gbif.dwc.text.Archive;
-import org.gbif.dwc.text.ArchiveFactory;
 import org.gbif.dwc.text.UnsupportedArchiveException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -366,14 +362,14 @@ public class ChecklistBankLoader {
 				String scientificNameAuthorship = cols[9];
 				
 				Integer rankID = null;
-				if(StringUtils.isNotEmpty(cols[8])) rankID = NumberUtils.createInteger(cols[11]);
+				if(StringUtils.isNotEmpty(cols[11])) rankID = NumberUtils.createInteger(cols[11]);
 				
 				String taxonRank = cols[12];
 				Integer left = null;
 				Integer right = null;
 					
-				if(StringUtils.isNotEmpty(cols[10])) left = NumberUtils.createInteger(cols[13]);
-				if(StringUtils.isNotEmpty(cols[10])) right = NumberUtils.createInteger(cols[14]);
+				if(StringUtils.isNotEmpty(cols[13])) left = NumberUtils.createInteger(cols[13]);
+				if(StringUtils.isNotEmpty(cols[14])) right = NumberUtils.createInteger(cols[14]);
 				
 				String kingdomID = cols[15];
 				String kingdom = cols[16];
