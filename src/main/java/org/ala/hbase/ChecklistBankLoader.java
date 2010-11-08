@@ -362,30 +362,30 @@ public class ChecklistBankLoader {
 				String scientificNameAuthorship = cols[9];
 				
 				Integer rankID = null;
-				if(StringUtils.isNotEmpty(cols[11])) rankID = NumberUtils.createInteger(cols[11]);
+				if(StringUtils.isNotEmpty(cols[10])) rankID = NumberUtils.createInteger(cols[10]);
 				
-				String taxonRank = cols[12];
+				String taxonRank = cols[11];
 				Integer left = null;
 				Integer right = null;
 					
-				if(StringUtils.isNotEmpty(cols[13])) left = NumberUtils.createInteger(cols[13]);
-				if(StringUtils.isNotEmpty(cols[14])) right = NumberUtils.createInteger(cols[14]);
+				if(StringUtils.isNotEmpty(cols[12])) left = NumberUtils.createInteger(cols[12]);
+				if(StringUtils.isNotEmpty(cols[13])) right = NumberUtils.createInteger(cols[13]);
 				
-				String kingdomID = cols[15];
-				String kingdom = cols[16];
-				String phylumID = cols[17];
-				String phylum = cols[18];
-				String clazzID = cols[19];
-				String clazz = cols[20];
-				String orderID = cols[21];
-				String order = cols[22];
-				String familyID = cols[23];
-				String family = cols[24];
-				String genusID = cols[25];
-				String genus = cols[26];
-				String speciesID = cols[27];
-				String species = cols[28];
-				String dataset = cols[29];
+				String kingdomID = cols[14];
+				String kingdom = cols[15];
+				String phylumID = cols[16];
+				String phylum = cols[17];
+				String clazzID = cols[18];
+				String clazz = cols[19];
+				String orderID = cols[20];
+				String order = cols[21];
+				String familyID = cols[22];
+				String family = cols[23];
+				String genusID = cols[24];
+				String genus = cols[25];
+				String speciesID = cols[26];
+				String species = cols[27];
+				String dataset = cols[28];
 	
 				if(StringUtils.isEmpty(guid)){
 					guid = identifier;
@@ -530,7 +530,7 @@ public class ChecklistBankLoader {
 			String guid = cols[2]; //TaxonID
 			String nameString =  cols[7];
 			String author =  cols[9];
-			String rankString =  cols[12];
+			String rankString =  cols[11];
 			String acceptedGuid =  cols[4];
 			
 			if(guid == null){
