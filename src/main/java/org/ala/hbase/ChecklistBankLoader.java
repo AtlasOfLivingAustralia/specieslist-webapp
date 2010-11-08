@@ -164,7 +164,8 @@ public class ChecklistBankLoader {
     	int i = 0;
     	
     	//names files to index
-    	TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_name_usages.txt", false);
+//    	TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_name_usages.txt", false);
+    	CSVReader tr = new CSVReader(new FileReader("/data/bie-staging/checklistbank/cb_name_usages.txt"), '\t', '"', '\\');
     	
     	String[] cols = tr.readNext(); //first line contains headers - ignore
     	
