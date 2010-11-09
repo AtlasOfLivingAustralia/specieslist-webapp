@@ -148,6 +148,7 @@ public class ChecklistBankLoader {
 	 * @throws Exception
 	 */
 	public void createLoadingIndex() throws Exception {
+		logger.info("Creating loading index...");
 		long start = System.currentTimeMillis();
 		
 		//create a name index
@@ -164,42 +165,55 @@ public class ChecklistBankLoader {
     	int i = 0;
     	
     	//names files to index
-//    	TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_name_usages.txt", false);
-    	CSVReader tr = new CSVReader(new FileReader("/data/bie-staging/checklistbank/cb_name_usages.txt"), '\t', '"', '\\');
-    	
+    	TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_name_usages.txt", true);
+//    	CSVReader tr = new CSVReader(new FileReader("/data/bie-staging/checklistbank/cb_name_usages.txt"), '\t', '"', '\\');
     	String[] cols = tr.readNext(); //first line contains headers - ignore
     	
     	while((cols=tr.readNext())!=null){
     		
-    		String identifier = cols[0];
-    		String parentNameUsageID = cols[1];
-			String guid = cols[2]; //TaxonID
+    		if(cols.length==29){
     		
-			Document doc = new Document();
-	    	doc.add(new Field("id", cols[0], Store.YES, Index.ANALYZED));
-	    	if(StringUtils.isNotEmpty(parentNameUsageID)){
-	    		doc.add(new Field("parentId", parentNameUsageID, Store.YES, Index.ANALYZED));
-	    	}
-	    	if(StringUtils.isNotEmpty(guid)){
-	    		doc.add(new Field("guid", guid, Store.YES, Index.NOT_ANALYZED));
-	    	} else {
-	    		doc.add(new Field("guid", identifier, Store.YES, Index.NOT_ANALYZED));
-	    	}
-	    	doc.add(new Field("nameString", cols[6], Store.YES, Index.ANALYZED));
+	    		String identifier = cols[0];
+	    		String parentNameUsageID = cols[1];
+				String guid = cols[2]; //TaxonID
+	    		
+				Document doc = new Document();
+		    	doc.add(new Field("id", cols[0], Store.YES, Index.ANALYZED));
+		    	if(StringUtils.isNotEmpty(parentNameUsageID)){
+		    		doc.add(new Field("parentId", parentNameUsageID, Store.YES, Index.ANALYZED));
+		    	}
+		    	if(StringUtils.isNotEmpty(guid)){
+		    		doc.add(new Field("guid", guid, Store.YES, Index.NOT_ANALYZED));
+		    	} else {
+		    		doc.add(new Field("guid", identifier, Store.YES, Index.NOT_ANALYZED));
+		    	}
+		    	doc.add(new Field("nameString", cols[7], Store.YES, Index.ANALYZED));
+		    	
+		    	//add to index
+		    	iw.addDocument(doc, analyzer);
+		    
+    		} else {
+    			logger.error("Line "+i +", doesnt have the right no. of columns, has: "+cols.length);
+    		}
 	    	
-	    	//add to index
-	    	iw.addDocument(doc, analyzer);
-	    	i++;
-	    	
-	    	if(i%10000==0) {
+    		i++;
+    		
+	    	if(i%100000==0) {
 	    		iw.flush();
-	    		System.out.println(i+"\t"+cols[0]+"\t"+cols[2]);
+	    		iw.commit();
+	    		logger.info(i+"\t"+cols[0]+"\t"+cols[2]);
 	    	}
 		}
     	
     	//close taxonConcept stream
-    	tr.close();
+		logger.info("Creating loading index - flushing...");
+    	iw.flush();
+    	logger.info("Creating loading index - commit...");
+    	iw.commit();
+    	logger.info("Creating loading index - close...");
     	iw.close();
+    	logger.info("Creating loading index - file close...");
+    	tr.close();
     	
     	long finish = System.currentTimeMillis();
     	logger.info(i+" indexed taxon concepts in: "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
@@ -211,6 +225,7 @@ public class ChecklistBankLoader {
 	 * @throws Exception
 	 */
 	public void createIdentifierIndex() throws Exception {
+		logger.info("Creating identifier index...");
 		long start = System.currentTimeMillis();
 		
 		//create a name index
@@ -227,7 +242,8 @@ public class ChecklistBankLoader {
     	int i = 0;
     	
     	//names files to index
-    	TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_identifiers.txt", false);
+//    	TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_identifiers.txt", false);
+    	CSVReader tr = new CSVReader(new FileReader("/data/bie-staging/checklistbank/cb_identifiers.txt"), '\t', '"', '\\');
     	
     	String[] cols = tr.readNext(); //first line contains headers - ignore
     	
@@ -345,159 +361,169 @@ public class ChecklistBankLoader {
 		InfoSource col = infoSourceDAO.getByUri(COL_HOME);
 		
     	//names files to index
-    	CSVReader tr = new CSVReader(new FileReader("/data/bie-staging/checklistbank/cb_name_usages.txt"), '\t', '"', '\\');
+		TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_name_usages.txt", true);
+//    	CSVReader tr = new CSVReader(new FileReader("/data/bie-staging/checklistbank/cb_name_usages.txt"), '\t', '"', '\\');
     	
     	String[] cols = tr.readNext(); //first line contains headers - ignore
     	int lineNumber = 1;
     	while((cols=tr.readNext())!=null){
     		try {
-	    		String identifier = cols[0];
-	    		String parentNameUsageID = cols[1];
-				String guid = cols[2]; //TaxonID
-				String acceptedId = cols[3];
-				String acceptedNameUsageID = cols[4]; //acceptedNameUsageID
-				String scientificNameId = cols[5];
-				String canonicalNameId = cols[6];
-				String scientificName = cols[7];
-				String canonicalName = cols[8];
-				String scientificNameAuthorship = cols[9];
-				
-				Integer rankID = null;
-				if(StringUtils.isNotEmpty(cols[10])) rankID = NumberUtils.createInteger(cols[10]);
-				
-				String taxonRank = cols[11];
-				Integer left = null;
-				Integer right = null;
+        		if(cols.length==29){
+        			
+		    		String identifier = cols[0];
+		    		String parentNameUsageID = cols[1];
+					String guid = cols[2]; //TaxonID
+					String acceptedId = cols[3];
+					String acceptedNameUsageID = cols[4]; //acceptedNameUsageID
+					String scientificNameId = cols[5];
+					String canonicalNameId = cols[6];
+					String scientificName = cols[7];
+					String canonicalName = cols[8];
+					String scientificNameAuthorship = cols[9];
 					
-				if(StringUtils.isNotEmpty(cols[12])) left = NumberUtils.createInteger(cols[12]);
-				if(StringUtils.isNotEmpty(cols[13])) right = NumberUtils.createInteger(cols[13]);
-				
-				String kingdomID = cols[14];
-				String kingdom = cols[15];
-				String phylumID = cols[16];
-				String phylum = cols[17];
-				String clazzID = cols[18];
-				String clazz = cols[19];
-				String orderID = cols[20];
-				String order = cols[21];
-				String familyID = cols[22];
-				String family = cols[23];
-				String genusID = cols[24];
-				String genus = cols[25];
-				String speciesID = cols[26];
-				String species = cols[27];
-				String dataset = cols[28];
-	
-				if(StringUtils.isEmpty(guid)){
-					guid = identifier;
-				}
-				
-				int numberAdded = 0;
-	
-				if (StringUtils.isNotEmpty(guid) && StringUtils.isEmpty(acceptedNameUsageID)) {
+        	    	if(lineNumber%10000==0) {
+        	    		logger.info("identifier: "+cols[0]+"\tguid"+cols[2]);
+        	    	}
 					
-					//add the base concept
-					TaxonConcept tc = new TaxonConcept();
-					tc.setId(Integer.parseInt(identifier));
-					tc.setGuid(guid);
-					tc.setParentId(parentNameUsageID);
-					tc.setNameString(scientificName);
-					tc.setAuthor(scientificNameAuthorship);
-					tc.setRankString(taxonRank);
-					tc.setRankID(rankID);
-					tc.setLeft(left);
-					tc.setRight(right);
+					Integer rankID = null;
+					if(StringUtils.isNotEmpty(cols[10])) rankID = NumberUtils.createInteger(cols[10]);
 					
-	    			if("APC".equalsIgnoreCase(dataset)){
-	    				tc.setInfoSourceId(Integer.toString(apc.getId()));
-	    				tc.setInfoSourceName(apc.getName());
-	    				if(isLSID(guid)){
-	    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
-	    					tc.setInfoSourceURL("http://biodiversity.org.au/apni.taxon/"+internalId);
-	    				}
-	    			} else if("APNI".equalsIgnoreCase(dataset)){
-	    				tc.setInfoSourceId(Integer.toString(apni.getId()));
-	    				tc.setInfoSourceName(apni.getName());
-	    				if(isLSID(guid)){
-	    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
-	    					tc.setInfoSourceURL("http://biodiversity.org.au/apni.taxon/"+internalId);
-	    				}
-	    			} else if("COL".equalsIgnoreCase(dataset)){
-	    				tc.setInfoSourceId(Integer.toString(col.getId()));
-	    				tc.setInfoSourceName(col.getName());
-	    				tc.setInfoSourceURL(col.getWebsiteUrl());
-	    			} else if("AFD".equalsIgnoreCase(dataset)){
-	    				tc.setInfoSourceId(Integer.toString(afd.getId()));
-	    				tc.setInfoSourceName(afd.getName());
-	    				tc.setInfoSourceURL(afd.getWebsiteUrl());
-	    				if(isLSID(guid)){
-	    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
-	    					tc.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+internalId);
-	    				}
-	    			}
+					String taxonRank = cols[11];
+					Integer left = null;
+					Integer right = null;
+						
+					if(StringUtils.isNotEmpty(cols[12])) left = NumberUtils.createInteger(cols[12]);
+					if(StringUtils.isNotEmpty(cols[13])) right = NumberUtils.createInteger(cols[13]);
 					
-					if (taxonConceptDao.create(tc)) {
-						numberAdded++;
-						if(numberAdded % 1000 == 0){
-							long current = System.currentTimeMillis();
-							logger.info("Taxon concepts added: "+numberAdded+", insert rate: "+((current-start)/numberAdded)+ "ms per record, last guid: "+ tc.getGuid());
-						}
+					String kingdomID = cols[14];
+					String kingdom = cols[15];
+					String phylumID = cols[16];
+					String phylum = cols[17];
+					String clazzID = cols[18];
+					String clazz = cols[19];
+					String orderID = cols[20];
+					String order = cols[21];
+					String familyID = cols[22];
+					String family = cols[23];
+					String genusID = cols[24];
+					String genus = cols[25];
+					String speciesID = cols[26];
+					String species = cols[27];
+					String dataset = cols[28];
+		
+					if(StringUtils.isEmpty(guid)){
+						guid = identifier;
 					}
 					
-					//load the parent concept
-					if(StringUtils.isNotEmpty(tc.getParentId())){
-						TaxonConcept parentConcept = getById(tc.getParentId());
-						if(parentConcept!=null){
-							boolean success = taxonConceptDao.addParentTaxon(guid, parentConcept);
-							if(!success) logger.error("Failed to add parent concept to "+guid+", line number: "+lineNumber);
-						}
-					}
-					
-					//load the child concepts - use the numeric id to lookup child concepts
-					List<TaxonConcept> childConcepts = getChildConcepts(identifier);
-					if(!childConcepts.isEmpty()){
-						for(TaxonConcept childConcept: childConcepts){
-							boolean success = taxonConceptDao.addChildTaxon(guid, childConcept);
-							if(!success){
-								logger.error("Failed to add child concept to "+guid+", line number: "+lineNumber);
-							} else {
-								logger.debug("Added child concept to "+guid+", line number: "+lineNumber);
+					int numberAdded = 0;
+		
+					if (StringUtils.isNotEmpty(guid) && StringUtils.isEmpty(acceptedNameUsageID)) {
+						
+						//add the base concept
+						TaxonConcept tc = new TaxonConcept();
+						tc.setId(Integer.parseInt(identifier));
+						tc.setGuid(guid);
+						tc.setParentId(parentNameUsageID);
+						tc.setNameString(scientificName);
+						tc.setAuthor(scientificNameAuthorship);
+						tc.setRankString(taxonRank);
+						tc.setRankID(rankID);
+						tc.setLeft(left);
+						tc.setRight(right);
+						
+		    			if("APC".equalsIgnoreCase(dataset)){
+		    				tc.setInfoSourceId(Integer.toString(apc.getId()));
+		    				tc.setInfoSourceName(apc.getName());
+		    				if(isLSID(guid)){
+		    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
+		    					tc.setInfoSourceURL("http://biodiversity.org.au/apni.taxon/"+internalId);
+		    				}
+		    			} else if("APNI".equalsIgnoreCase(dataset)){
+		    				tc.setInfoSourceId(Integer.toString(apni.getId()));
+		    				tc.setInfoSourceName(apni.getName());
+		    				if(isLSID(guid)){
+		    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
+		    					tc.setInfoSourceURL("http://biodiversity.org.au/apni.taxon/"+internalId);
+		    				}
+		    			} else if("COL".equalsIgnoreCase(dataset)){
+		    				tc.setInfoSourceId(Integer.toString(col.getId()));
+		    				tc.setInfoSourceName(col.getName());
+		    				tc.setInfoSourceURL(col.getWebsiteUrl());
+		    			} else if("AFD".equalsIgnoreCase(dataset)){
+		    				tc.setInfoSourceId(Integer.toString(afd.getId()));
+		    				tc.setInfoSourceName(afd.getName());
+		    				tc.setInfoSourceURL(afd.getWebsiteUrl());
+		    				if(isLSID(guid)){
+		    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
+		    					tc.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+internalId);
+		    				}
+		    			}
+						
+						if (taxonConceptDao.create(tc)) {
+							numberAdded++;
+							if(numberAdded % 1000 == 0){
+								long current = System.currentTimeMillis();
+								logger.info("Taxon concepts added: "+numberAdded+", insert rate: "+((current-start)/numberAdded)+ "ms per record, last guid: "+ tc.getGuid());
 							}
 						}
+						
+						//load the parent concept
+						if(StringUtils.isNotEmpty(tc.getParentId())){
+							TaxonConcept parentConcept = getById(tc.getParentId());
+							if(parentConcept!=null){
+								boolean success = taxonConceptDao.addParentTaxon(guid, parentConcept);
+								if(!success) logger.error("Failed to add parent concept to "+guid+", line number: "+lineNumber);
+							}
+						}
+						
+						//load the child concepts - use the numeric id to lookup child concepts
+						List<TaxonConcept> childConcepts = getChildConcepts(identifier);
+						if(!childConcepts.isEmpty()){
+							for(TaxonConcept childConcept: childConcepts){
+								boolean success = taxonConceptDao.addChildTaxon(guid, childConcept);
+								if(!success){
+									logger.error("Failed to add child concept to "+guid+", line number: "+lineNumber);
+								} else {
+									logger.debug("Added child concept to "+guid+", line number: "+lineNumber);
+								}
+							}
+						}
+						
+						//add the classification
+						Classification c = new Classification();
+						c.setGuid(guid);
+						c.setScientificName(scientificName);
+						c.setRank(taxonRank);
+		                c.setSpecies(species);
+		                c.setSpeciesGuid(speciesID);
+		                c.setGenus(genus);
+		                c.setGenusGuid(genusID);
+		                c.setFamily(family);
+		                c.setFamilyGuid(familyID);
+		                c.setOrder(order);
+		                c.setOrderGuid(orderID);
+		                c.setClazz(clazz);
+		                c.setClazzGuid(clazzID);
+		                c.setPhylum(phylum);
+		                c.setPhylumGuid(phylumID);
+		                c.setKingdom(kingdom);
+		                c.setKingdomGuid(kingdomID);
+		                try {
+		                    // Attempt to set the rank Id via Rank enum
+		                    c.setRankId(Rank.getForName(taxonRank).getId());
+		                } catch (Exception e) {
+		                    logger.warn("Could not set rankId for: "+taxonRank+" in "+guid);
+		                }
+		                boolean success = taxonConceptDao.addClassification(guid, c);
+						if(!success) logger.error("Failed to add classification to "+guid+", line number: "+lineNumber);
+					} else {
+						if(StringUtils.isEmpty(acceptedNameUsageID)){
+							logger.error("Failed to add line number: "+lineNumber+", guid:"+guid);
+						}
 					}
-					
-					//add the classification
-					Classification c = new Classification();
-					c.setGuid(guid);
-					c.setScientificName(scientificName);
-					c.setRank(taxonRank);
-	                c.setSpecies(species);
-	                c.setSpeciesGuid(speciesID);
-	                c.setGenus(genus);
-	                c.setGenusGuid(genusID);
-	                c.setFamily(family);
-	                c.setFamilyGuid(familyID);
-	                c.setOrder(order);
-	                c.setOrderGuid(orderID);
-	                c.setClazz(clazz);
-	                c.setClazzGuid(clazzID);
-	                c.setPhylum(phylum);
-	                c.setPhylumGuid(phylumID);
-	                c.setKingdom(kingdom);
-	                c.setKingdomGuid(kingdomID);
-	                try {
-	                    // Attempt to set the rank Id via Rank enum
-	                    c.setRankId(Rank.getForName(taxonRank).getId());
-	                } catch (Exception e) {
-	                    logger.warn("Could not set rankId for: "+taxonRank+" in "+guid);
-	                }
-	                boolean success = taxonConceptDao.addClassification(guid, c);
-					if(!success) logger.error("Failed to add classification to "+guid+", line number: "+lineNumber);
-				} else {
-					if(StringUtils.isEmpty(acceptedNameUsageID)){
-						logger.error("Failed to add line number: "+lineNumber+", guid:"+guid);
-					}
-				}
+        		} else {
+        			logger.error("Error reading line " + lineNumber+", incorrect number of columns: " +cols.length);
+        		}
 				lineNumber++;
     		} catch (Exception e){
     			logger.error("Error reading line " + lineNumber+", " + e.getMessage(), e);
@@ -519,43 +545,48 @@ public class ChecklistBankLoader {
 	public void loadSynonyms() throws IOException, UnsupportedArchiveException, Exception {
 		
     	//names files to index
-    	CSVReader tr = new CSVReader(new FileReader("/data/bie-staging/checklistbank/cb_name_usages.txt"), '\t', '"', '\\');
+		TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_name_usages.txt", true);
+//    	CSVReader tr = new CSVReader(new FileReader("/data/bie-staging/checklistbank/cb_name_usages.txt"), '\t', '"', '\\');
     	String[] cols = tr.readNext(); //first line contains headers - ignore
 		int numberRead = 0;
 		int numberAdded = 0;
 		long start = System.currentTimeMillis();
     	while((cols=tr.readNext())!=null){
 			numberRead++;
-    		String identifier = cols[0];
-    		String parentNameUsageID = cols[1];
-			String guid = cols[2]; //TaxonID
-			String nameString =  cols[7];
-			String author =  cols[9];
-			String rankString =  cols[11];
-			String acceptedGuid =  cols[4];
-			
-			if(guid == null){
-				guid = identifier;
-			}
-			
-			if (guid != null && StringUtils.isNotEmpty(acceptedGuid)) {
+    		if(cols.length==29){
+	    		String identifier = cols[0];
+	    		String parentNameUsageID = cols[1];
+				String guid = cols[2]; //TaxonID
+				String nameString =  cols[7];
+				String author =  cols[9];
+				String rankString =  cols[11];
+				String acceptedGuid =  cols[4];
 				
-				//add the base concept
-				TaxonConcept tc = new TaxonConcept();
-				tc.setId(Integer.parseInt(identifier));
-				tc.setGuid(guid);
-				tc.setParentId(parentNameUsageID);
-				tc.setNameString(nameString);
-				tc.setAuthor(author);
-				tc.setRankString(rankString);
-				if (taxonConceptDao.addSynonym(acceptedGuid, tc)) {
-					numberAdded++;
-					if(numberAdded % 1000 == 0){
-						long current = System.currentTimeMillis();
-						logger.info("Synonyms added: "+numberAdded+", insert rate: "+((current-start)/numberAdded)+ "ms per record" );
+				if(guid == null){
+					guid = identifier;
+				}
+				
+				if (guid != null && StringUtils.isNotEmpty(acceptedGuid)) {
+					
+					//add the base concept
+					TaxonConcept tc = new TaxonConcept();
+					tc.setId(Integer.parseInt(identifier));
+					tc.setGuid(guid);
+					tc.setParentId(parentNameUsageID);
+					tc.setNameString(nameString);
+					tc.setAuthor(author);
+					tc.setRankString(rankString);
+					if (taxonConceptDao.addSynonym(acceptedGuid, tc)) {
+						numberAdded++;
+						if(numberAdded % 1000 == 0){
+							long current = System.currentTimeMillis();
+							logger.info("Synonyms added: "+numberAdded+", insert rate: "+((current-start)/numberAdded)+ "ms per record" );
+						}
 					}
 				}
-			}
+    		} else {
+    			logger.error("Error reading line " + numberRead+", incorrect number of columns: " +cols.length);
+    		}
 		}
 		logger.info(numberAdded + " synonyms added from " + numberRead + " rows of Checklist Bank data.");
 	}
