@@ -16,7 +16,7 @@ package org.ala.model;
 
 
 /**
- * Simple POJO representing an image within the system. 
+ * Simple POJO representing an image within the system.
  * FIXME We *should* be generating thumbnails at repository load
  * time. Hence the thumbnail property should be populated.
  *
@@ -53,7 +53,9 @@ public class Image extends AttributableObject implements Comparable<Image>{
     protected Integer noOfRankings;
     /** Ranking */
     protected Integer ranking;
-    
+    /** The id for the document in the repository */
+    protected Integer repoId;
+
     public Image(String guid, String contentType, String repoLocation,
 			String dcLocation, String thumbnail, String title,
 			String identifier, String creator, String locality,
@@ -76,7 +78,7 @@ public class Image extends AttributableObject implements Comparable<Image>{
 	}
 
     public Image(){}
-    
+
 	/**
      * Compare to method to sort the images in descending order of preference.
      *
@@ -89,11 +91,11 @@ public class Image extends AttributableObject implements Comparable<Image>{
     	if(ranking!=null && o.getRanking()==null){
     		return ranking *-1;
     	}
-    	
+
     	if(o.getRanking()!=null && ranking==null){
     		return o.getRanking();
     	}
-    	
+
     	//compare on rankings
     	if(ranking!=null && !ranking.equals(o.getRanking())){
     		return o.getRanking().compareTo(ranking);
@@ -237,7 +239,7 @@ public class Image extends AttributableObject implements Comparable<Image>{
 	public void setLocality(String locality) {
 		this.locality = locality;
 	}
-	
+
 	/**
 	 * @return the isPartOf
 	 */
@@ -251,7 +253,7 @@ public class Image extends AttributableObject implements Comparable<Image>{
 	public void setIsPartOf(String isPartOf) {
 		this.isPartOf = isPartOf;
 	}
-	
+
 
 	/**
 	 * @return the licence
@@ -294,7 +296,7 @@ public class Image extends AttributableObject implements Comparable<Image>{
 	public void setRanking(Integer ranking) {
 		this.ranking = ranking;
 	}
-	
+
 	/**
 	 * @return the noOfRankings
 	 */
@@ -308,6 +310,14 @@ public class Image extends AttributableObject implements Comparable<Image>{
 	public void setNoOfRankings(Integer noOfRankings) {
 		this.noOfRankings = noOfRankings;
 	}
+
+    public Integer getRepoId() {
+        return repoId;
+    }
+
+    public void setRepoId(Integer repoId) {
+        this.repoId = repoId;
+    }
 	
 	/**
 	 * @see java.lang.Object#toString()
