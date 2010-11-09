@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
@@ -202,6 +201,7 @@ public class SpeciesController {
         model.addAttribute("sortCommonNameKeys", keyArray);
         
         etc.setCommonNames(names); 
+        etc.setImages(addImageDocIds(etc.getImages()));
         model.addAttribute("extendedTaxonConcept", repoUrlUtils.fixRepoUrls(etc));
 		model.addAttribute("commonNames", getCommonNamesString(etc));
 		model.addAttribute("textProperties", filterSimpleProperties(etc));
@@ -347,7 +347,8 @@ public class SpeciesController {
 	}
 
 	/**
-	 *
+	 * Dynamically generate a scaled and/or square image
+     * 
 	 * @param documentId
 	 * @param scale
 	 * @param square
@@ -357,8 +358,8 @@ public class SpeciesController {
 	 */
 	@RequestMapping(value="/species/images/{documentId}.jpg", method = RequestMethod.GET)
 	public void thumbnailHandler(@PathVariable("documentId") int documentId, 
-			@RequestParam(value="scale", required=false, defaultValue ="100") Integer scale,
-			@RequestParam(value="square", required=false, defaultValue ="true") Boolean square,
+			@RequestParam(value="scale", required=false, defaultValue ="1000") Integer scale,
+			@RequestParam(value="square", required=false, defaultValue ="false") Boolean square,
 			OutputStream outputStream,
 			HttpServletResponse response) throws IOException {
 		Document doc = documentDAO.getById(documentId);
@@ -370,12 +371,14 @@ public class SpeciesController {
 
             ImageUtils iu = new ImageUtils();
             iu.load(fileName); // problem with Jetty 7.0.1
-
+            // create a sqaure image (crops)
 			if (square) {
 				iu.square();
 			}
-
-			iu.smoothThumbnail(scale);
+            // scale if original is bigger than "scale" pixels
+			if (iu.getOriginalImage().getWidth() > scale || iu.getOriginalImage().getHeight() > scale) {
+                iu.smoothThumbnail(scale);
+            }
 			response.setContentType(mt.getMimeType());
 			ImageIO.write(iu.getModifiedImage(), mt.name(), outputStream);
 		}
@@ -813,6 +816,28 @@ public class SpeciesController {
         httpClient.executeMethod(gm);
         String content = gm.getResponseBodyAsString();
         return content;
+    }
+
+    /**
+     * Extract the Image repository Id from the Image and set the repoId field
+     *
+     * @param images
+     * @return
+     */
+    private List<Image> addImageDocIds(List<Image> images) {
+        // Extract the repository document id from repoLocation field
+        // E.g. Http://bie.ala.org.au/repo/1040/38/388624/Raw.jpg -> 388624
+        for (Image img : images) {
+            String[] paths = StringUtils.split(img.getRepoLocation(), "/");
+            String repoIdStr = paths[paths.length - 2]; // get path before filename
+            logger.info("repoIdStr = "+repoIdStr);
+            if (repoIdStr != null && !repoIdStr.isEmpty()) {
+                Integer docId = Integer.parseInt(repoIdStr);
+                logger.info("docId = "+docId);
+                img.setRepoId(docId);
+            }
+        }
+        return images;
     }
 
     protected class CommonNameComparator implements Comparator<CommonName>{
