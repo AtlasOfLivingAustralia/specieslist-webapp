@@ -368,7 +368,7 @@ public class SpeciesController {
 			// augment data with title from reading dc file
 			MimeType mt = MimeType.getForMimeType(doc.getMimeType());
 			String fileName = doc.getFilePath()+"/raw"+mt.getFileExtension();
-
+            logger.debug("filename = "+fileName);
             ImageUtils iu = new ImageUtils();
             iu.load(fileName); // problem with Jetty 7.0.1
             // create a sqaure image (crops)
@@ -830,10 +830,10 @@ public class SpeciesController {
         for (Image img : images) {
             String[] paths = StringUtils.split(img.getRepoLocation(), "/");
             String repoIdStr = paths[paths.length - 2]; // get path before filename
-            logger.info("repoIdStr = "+repoIdStr);
+            
             if (repoIdStr != null && !repoIdStr.isEmpty()) {
                 Integer docId = Integer.parseInt(repoIdStr);
-                logger.info("docId = "+docId);
+                logger.debug("setting docId = "+docId);
                 img.setRepoId(docId);
             }
         }

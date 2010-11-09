@@ -622,13 +622,14 @@
                         <c:choose>
                             <c:when test="${not empty extendedTaxonConcept.images}">
                                 <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
-                                    <c:set var="thumbUri">
+                                    <c:set var="thumbUri">${image.thumbnail}</c:set>
+                                    <c:set var="imageUri">
                                         <c:choose>
                                             <c:when test="${not empty image.repoId}">images/${image.repoId}.jpg</c:when>
-                                            <c:otherwise>${image.thumbnail}</c:otherwise>
+                                            <c:otherwise>${image.repoLocation}</c:otherwise>
                                         </c:choose>
                                     </c:set>
-                                    <a class="thumbImage" rel="thumbs" title="${image.title}" href="${image.repoLocation}" id="thumb${status.index}"><img src="${thumbUri}" alt="${image.infoSourceName}" title="${imageTitle}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/></a>
+                                    <a class="thumbImage" rel="thumbs" title="${image.title}" href="${imageUri}" id="thumb${status.index}"><img src="${thumbUri}" alt="${image.infoSourceName}" title="${imageTitle}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/></a>
                                     <div id="thumbDiv${status.index}" style="display:none;">
                                         <c:if test="${not empty image.title}">
                                             ${image.title}<br/>
