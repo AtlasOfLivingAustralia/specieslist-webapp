@@ -356,6 +356,15 @@ public interface TaxonConceptDao {
 	 * @throws Exception
 	 */
 	boolean addChildTaxon(String guid, TaxonConcept childConcept) throws Exception;
+	
+	/**
+	 * Sets the child taxa for this concept.
+	 *
+	 * @param guid
+	 * @param childConcept
+	 * @throws Exception
+	 */
+	boolean setChildTaxa(String guid, List<TaxonConcept> childConcepts) throws Exception;
 
 	/**
 	 * Add a parent taxon to this concept.

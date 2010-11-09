@@ -260,7 +260,7 @@ public class ChecklistBankLoader {
 		    	
 		    	if(i%10000==0) {
 		    		iw.flush();
-		    		System.out.println(i+"\t"+cols[0]+"\t"+cols[2]);
+		    		logger.info(i+"\t"+cols[0]+"\t"+cols[2]);
 		    	}
     		}
 		}
@@ -382,7 +382,7 @@ public class ChecklistBankLoader {
 					String scientificNameAuthorship = cols[9];
 					
         	    	if(lineNumber%10000==0) {
-        	    		logger.info("identifier: "+cols[0]+"\tguid"+cols[2]);
+        	    		logger.info("Added "+lineNumber +", identifier: "+cols[0]+", guid: "+cols[2]);
         	    	}
 					
 					Integer rankID = null;
@@ -467,27 +467,25 @@ public class ChecklistBankLoader {
 							}
 						}
 						
-						//load the parent concept
-						if(StringUtils.isNotEmpty(tc.getParentId())){
-							TaxonConcept parentConcept = getById(tc.getParentId());
-							if(parentConcept!=null){
-								boolean success = taxonConceptDao.addParentTaxon(guid, parentConcept);
-								if(!success) logger.error("Failed to add parent concept to "+guid+", line number: "+lineNumber);
-							}
-						}
-						
-						//load the child concepts - use the numeric id to lookup child concepts
-						List<TaxonConcept> childConcepts = getChildConcepts(identifier);
-						if(!childConcepts.isEmpty()){
-							for(TaxonConcept childConcept: childConcepts){
-								boolean success = taxonConceptDao.addChildTaxon(guid, childConcept);
-								if(!success){
-									logger.error("Failed to add child concept to "+guid+", line number: "+lineNumber);
-								} else {
-									logger.debug("Added child concept to "+guid+", line number: "+lineNumber);
-								}
-							}
-						}
+//						//load the parent concept
+//						if(StringUtils.isNotEmpty(tc.getParentId())){
+//							TaxonConcept parentConcept = getById(tc.getParentId());
+//							if(parentConcept!=null){
+//								boolean success = taxonConceptDao.addParentTaxon(guid, parentConcept);
+//								if(!success) logger.error("Failed to add parent concept to "+guid+", line number: "+lineNumber);
+//							}
+//						}
+//						
+//						//load the child concepts - use the numeric id to lookup child concepts
+//						List<TaxonConcept> childConcepts = getChildConcepts(identifier);
+//						if(!childConcepts.isEmpty()){
+//							boolean success = taxonConceptDao.setChildTaxa(guid, childConcepts);
+//							if(!success){
+//								logger.error("Failed to add child concept to "+guid+", line number: "+lineNumber);
+//							} else {
+//								logger.debug("Added child concept to "+guid+", line number: "+lineNumber);
+//							}
+//						}
 						
 						//add the classification
 						Classification c = new Classification();

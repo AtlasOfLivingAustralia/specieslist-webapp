@@ -279,6 +279,16 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	}
 
 	/**
+	 * @param guid
+	 * @param childConcepts
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean setChildTaxa(String guid, List<TaxonConcept> childConcepts) throws Exception {
+		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IS_PARENT_COL_OF.getColumnName(), guid, (List) childConcepts, false);
+	}	
+	
+	/**
 	 * @see org.ala.dao.TaxonConceptDao#addIdentifier(java.lang.String, java.lang.String)
 	 */
 	public boolean addIdentifier(String guid, String alternativeIdentifier) throws Exception {
