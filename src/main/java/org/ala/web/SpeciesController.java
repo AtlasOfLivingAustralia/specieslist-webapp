@@ -378,6 +378,11 @@ public class SpeciesController {
             // scale if original is bigger than "scale" pixels
 			if (iu.getOriginalImage().getWidth() > scale || iu.getOriginalImage().getHeight() > scale) {
                 iu.smoothThumbnail(scale);
+            } else {
+                int w = iu.getOriginalImage().getWidth();
+                int h = iu.getOriginalImage().getHeight();
+                int longestEdge = (w > h) ? w : h;
+                iu.smoothThumbnail(longestEdge);
             }
 			response.setContentType(mt.getMimeType());
 			ImageIO.write(iu.getModifiedImage(), mt.name(), outputStream);
