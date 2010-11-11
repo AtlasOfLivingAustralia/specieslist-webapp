@@ -194,8 +194,10 @@
                                 // irregular date facet "before 1850" which comes at end of facet list
                                 var rows = [];
                                 var listItems = [];
+                                var totalCount = 0;
                                 $.each(facet.fieldResult, function(i, li) {
                                     if (li.count > 0) {
+                                        totalCount += li.count; // keep a tally of total counts
                                         var label = li.fieldValue;
                                         var toValue;
                                         var displayCount = (li.count + "").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
@@ -234,24 +236,27 @@
                                     }
                                 });
 
-                                $.each(rows, function(i, row) {
-                                    // add to Google data table
-                                    data.addRow([ row[0], row[1] ]);
-                                });
-                                $.each(listItems, function(i, li) {
-                                    // build content string
-                                    content = content + li;
-                                });
-                                content = content + '</ul><div id="'+facet.fieldName+'_chart_div" style="margin: -15px;"></div>';
-                                $('#recordBreakdowns').append(content); 
-                                
-                                if (facet.fieldName == 'occurrence_date' || facet.fieldName == 'month') {
-                                    var dateLabel = (facet.fieldName == 'occurrence_date') ? 'Decade' : 'Month';
-                                    chart = new google.visualization.BarChart(document.getElementById(facet.fieldName+'_chart_div'));
-                                    chart.draw(data, {width: 630, height: 300, legend: 'none', vAxis: {title: dateLabel}, hAxis: {title: 'Count'}});
-                                } else {
-                                    chart = new google.visualization.PieChart(document.getElementById(facet.fieldName+'_chart_div'));
-                                    chart.draw(data, {width: 630, height: 300, legend: 'left'});
+                                // some date facets are all empty and this causes a JS error message, so recordCount checks for this
+                                if (totalCount > 0) {
+                                    $.each(rows, function(i, row) {
+                                        // add to Google data table
+                                        data.addRow([ row[0], row[1] ]);
+                                    });
+                                    $.each(listItems, function(i, li) {
+                                        // build content string
+                                        content = content + li;
+                                    });
+                                    content = content + '</ul><div id="'+facet.fieldName+'_chart_div" style="margin: -15px;"></div>';
+                                    $('#recordBreakdowns').append(content);
+
+                                    if (facet.fieldName == 'occurrence_date' || facet.fieldName == 'month') {
+                                        var dateLabel = (facet.fieldName == 'occurrence_date') ? 'Decade' : 'Month';
+                                        chart = new google.visualization.BarChart(document.getElementById(facet.fieldName+'_chart_div'));
+                                        chart.draw(data, {width: 630, height: 300, legend: 'none', vAxis: {title: dateLabel}, hAxis: {title: 'Count'}});
+                                    } else {
+                                        chart = new google.visualization.PieChart(document.getElementById(facet.fieldName+'_chart_div'));
+                                        chart.draw(data, {width: 630, height: 300, legend: 'left'});
+                                    }
                                 }
                             }
                         });
