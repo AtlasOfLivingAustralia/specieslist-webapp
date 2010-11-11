@@ -54,6 +54,19 @@
     <context-param>
         <!-- Parameter used by CAS filters -->
         <param-name>serverName</param-name>
+		<!-- Replace the param-value with the commented version for local development
+        <param-value>http://localhost:9999</param-value>
+        -->
+        <param-value>http://bie.ala.org.au</param-value>
+    </context-param>
+
+    <!-- CAS Authentication related properties -->
+    <context-param>
+        <!-- Parameter used by CAS filters -->
+        <param-name>searchServerName</param-name>
+      	<!-- Replace the param-value with the commented version for local development
+        <param-value>http://localhost:9999/bie-webapp/</param-value>
+        -->
         <param-value>http://bie.ala.org.au</param-value>
     </context-param>
 
@@ -75,7 +88,10 @@
 
     <context-param>
         <param-name>uriFilterPattern</param-name>
-        <param-value>/, /search, /species/search, /species/urn:lsid.+, /regions/, /contributors, /share/</param-value>
+        <param-value>/, /search, /species/search, /species/urn:lsid.+, /regions/, /contributors, /share/, /rankTaxonImageWithUser</param-value>
+        <!-- Replace the param-value with the commented version for local development
+        <param-value>/bie-webapp, /bie-webapp/search, /bie-webapp/species/search, /bie-webapp/species/urn:lsid.+, /bie-webapp/regions/, /bie-webapp/contributors, /bie-webapp/share/, /bie-webapp/rankTaxonImageWithUser</param-value>
+         -->
     </context-param>
 
     <!-- CAS Authentication Service filters -->
