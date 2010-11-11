@@ -42,7 +42,19 @@ public class ImageRankController {
 	@Inject
 	RankingDao rankingDao;
 	
-	@RequestMapping(value = "/rankTaxonImage*", method = RequestMethod.GET)
+	/**
+	 * Store an ranking for an image.
+	 * 
+	 * @param guid
+	 * @param name
+	 * @param uri
+	 * @param infosourceId
+	 * @param positive
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = {"/rankTaxonImage*","/rankTaxonImageWithUser*"}, method = RequestMethod.GET)
 	public void rankTaxonImageByUser(
 			@RequestParam(value="guid", required=true) String guid,
 			@RequestParam(value="name", required=true) String name,
