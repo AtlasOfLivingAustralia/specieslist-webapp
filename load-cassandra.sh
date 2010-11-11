@@ -52,6 +52,10 @@ java -classpath $CLASSPATH org.ala.hbase.AustralianTaxonLoader
 echo "LOAD : loading the Conservation codes into the BIE $('date')"
 java -classpath $CLASSPATH org.ala.hbase.ConservationDataLoader
 
+echo "LOAD : loading the Specimen Holding information into the BIE $('date')"
+java -classpath $CLASSPATH org.ala.hbase.SpecimenHoldingLoader Bot.20101018-1625.csv
+java -classpath $CLASSPATH org.ala.hbase.SpecimenHoldingLoader Bot.20101020.csv
+
 echo "LOAD : running Create Search Indexes from BIE for the Web Application $('date')"
 java  -Xmx1g -Xms1g -classpath $CLASSPATH org.ala.lucene.CreateSearchIndex
 
