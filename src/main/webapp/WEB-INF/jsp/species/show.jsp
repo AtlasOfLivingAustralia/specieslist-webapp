@@ -1,6 +1,5 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
-<%@ include file="/common/taglibs.jsp" %>
-<!DOCTYPE HTML">
+<%@ page contentType="text/html" pageEncoding="UTF-8" %><%@ 
+include file="/common/taglibs.jsp" %><!DOCTYPE HTML">
 <c:set var="spatialPortalUrl">${initParam.centralServer}/explore/species-maps/</c:set>
 <c:set var="spatialPortalWMSUrl">http://spatial.ala.org.au/alaspatial/</c:set>
 <c:set var="wordPressUrl">${initParam.centralServer}</c:set>
@@ -610,19 +609,13 @@
                     <div id="imageGallery">
                     	<script type="text/javascript">
                     		function rankThisImage(guid, uri, infosourceId, documentId, positive, name){
-                    			 var url = "${pageContext.request.contextPath}/rankTaxonImage?guid="+guid+"&uri="+uri+"&infosourceId="+infosourceId+"&positive="+positive+"&name="+name;
-                    			 //alert(url);
-                    			 $('.imageRank-'+documentId).html('Sending your ranking....');
-				                 $.getJSON(url, function(data){
-				                	 $('.imageRank-'+documentId).each(function(index) {
-				                	 	//alert(this);
-				                	    //alert(index);
-								    	$(this).html('Thanks for your help!');
-  			                	        //alert(index+ ' set' );
-									  });
-				                 	//$('.imageRank-'+documentId).html('Thanks for your help!');
-				                 });
-	                    		}
+                    			 var url = "${pageContext.request.contextPath}/rankTaxonImage${not empty pageContext.request.remoteUser ? 'WithUser' : ''}?guid="+guid+"&uri="+uri+"&infosourceId="+infosourceId+"&positive="+positive+"&name="+name;
+                       			 $('.imageRank-'+documentId).html('Sending your ranking....');
+				                 $.getJSON(url, function(data){ });
+			                	 $('.imageRank-'+documentId).each(function(index) {
+								   $(this).html('Thanks for your help!');
+						         });
+	                         }
                     	</script>
                         <c:choose>
                             <c:when test="${not empty extendedTaxonConcept.images}">
@@ -840,14 +833,14 @@
                                         <li>${taxon.rank}: <a href="<c:url value='/species/${taxon.guid}#classification'/>" title="${taxon.rank}">
                                             <alatag:formatSciName name="${taxon.name}" rankId="${taxon.rankId}"/>
                                             <c:if test="${not empty taxon.commonNameSingle && taxon.guid == extendedTaxonConcept.taxonConcept.guid}">
-                                                (${taxon.commonNameSingle})
+                                                : ${taxon.commonNameSingle}
                                             </c:if>
                                         </a></li>
                                     </c:when>
                                     <c:otherwise>
                                         <li id="currentTaxonConcept">${taxon.rank}: <span><alatag:formatSciName name="${taxon.name}" rankId="${taxon.rankId}"/>
                                         <c:if test="${not empty taxon.commonNameSingle && taxon.guid == extendedTaxonConcept.taxonConcept.guid}">
-                                                (${taxon.commonNameSingle})
+                                                : ${taxon.commonNameSingle}
                                             </c:if></span></li>
                                     </c:otherwise>
                                 </c:choose>
@@ -860,7 +853,7 @@
                                     	${child.name}
                                 	<c:if test="${child.rankId>=6000}"></i></c:if>
                                     <c:if test="${not empty child.commonNameSingle}">
-                                     	(${child.commonNameSingle})
+                                     	: ${child.commonNameSingle}
                                     </c:if>
                                     </a>
                                 </li>
