@@ -439,7 +439,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	private String getPreferredGuid(String guid) throws Exception {
+	public String getPreferredGuid(String guid) throws Exception {
 		//use the Lucene indexes to find the correct (accepted) guid.
 		SearchResultsDTO<SearchTaxonConceptDTO> searchResults = findByGuid(guid, 0, 1, null, null);
 		if(!searchResults.getResults().isEmpty()){

@@ -610,17 +610,39 @@ public interface TaxonConceptDao {
 	 */
 	boolean addPublication(String guid, Publication publication) throws Exception;
 
-
+	/**
+	 * Add an image ranking
+	 * 
+	 * @param taxonGuid
+	 * @param imageUri
+	 * @param positive
+	 * @return
+	 * @throws Exception
+	 */
 	boolean setRankingOnImage(String taxonGuid, String imageUri, boolean positive) throws Exception;
 	
-	
+	/**
+	 * Set the concept with the supplied guid to iconic
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
 	public boolean setIsIconic(String guid) throws Exception;
 	
-	public boolean isIconic(String guid) throws Exception;
+    public boolean isIconic(String guid) throws Exception;
 
-        public boolean setIsAustralian(String guid) throws Exception;
+    public boolean setIsAustralian(String guid) throws Exception;
 
-        public boolean isAustralian(String guid) throws Exception;
+    public boolean isAustralian(String guid) throws Exception;
+     
+     /**
+      * 
+      * 
+      * @param guid
+      * @return
+      * @throws Exception
+      */
+     public String getPreferredGuid(String guid) throws Exception;
 		
     /**
      * Get the location of an index

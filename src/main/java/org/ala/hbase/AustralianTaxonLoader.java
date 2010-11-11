@@ -45,7 +45,8 @@ public class AustralianTaxonLoader {
         BufferedReader reader = new BufferedReader(new FileReader(AUST_GUID_FILE));
         String guid = null;
         while ((guid = reader.readLine()) != null) {
-            taxonConceptDao.setIsAustralian(guid);
+        	String taxonGuid = taxonConceptDao.getPreferredGuid(guid);
+            taxonConceptDao.setIsAustralian(taxonGuid);
         }
         logger.info("Finished Australian Concept markup");
     }
