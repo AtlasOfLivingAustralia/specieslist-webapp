@@ -14,6 +14,8 @@
  ***************************************************************************/
 package org.ala.dao;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
@@ -79,14 +81,39 @@ public class RankingDaoImpl implements RankingDao {
                     logger.debug("Processing Image ranks for " +guid);
                     //get the rankings for the current guid
                     Map<String, Object> subcolumns =  storeHelper.getSubColumnsByGuid("rk", "image",guid);
+                    Map<String, Integer[]> counts = new java.util.HashMap<String, Integer[]>();
+                    
                     for(String key : subcolumns.keySet()){
                         //logger.debug(guid + " :  key : "+ key);
-                        List<Ranking> lr = (List<Ranking>)subcolumns.get(key);
+                        List<Ranking> lr = (List<Ranking>) subcolumns.get(key);
+                        //sort the rankings based on the URI for the image
+                        Collections.sort(lr, new Comparator<Ranking>() {
+
+                            @Override
+                            public int compare(Ranking o1, Ranking o2) {
+                                return o1.getUri().compareTo(o2.getUri());
+                            }
+                        });
+                        
                         for(Ranking r : lr){
-                            //process the ranking
-                            taxonConceptDao.setRankingOnImage(guid, r.getUri(), r.isPositive());
-                            logger.debug(r.getUri() + " " + r.isPositive());
+                            Integer[] c = counts.get(r.getUri());
+                            if(c == null){
+                                c = new Integer[]{0,0};
+                                counts.put(r.getUri(), c);
+                            }
+                            c[0] = c[0]+1;
+                            if(r.isPositive())
+                                c[1] = c[1] +1;
+                            else
+                                c[1] = c[1] -1;
+                
+                            
                         }
+                    }
+                    for(String uri: counts.keySet()){
+                        Integer[] c = counts.get(uri);
+                        logger.debug("Updating guid: "+ guid + " for image: " + uri + " with count " + c[0] + " overall rank " + c[1]);
+                        taxonConceptDao.setRankingOnImages(guid, counts);
                     }
                 }
             }

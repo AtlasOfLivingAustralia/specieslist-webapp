@@ -734,6 +734,30 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		//write back to database
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IMAGE_COL.getColumnName(), guid, (List) images, false);
 	}
+        /**
+         * @see org.ala.dao.TaxonConceptDao#setRankingOnImages(java.lang.String, java.util.Map) 
+         */
+        public boolean setRankingOnImages(String guid, Map<String, Integer[]> rankings) throws Exception{
+            //get the list of available images for the guid
+            List<Image> images = getImages(guid);
+            //for each image check if it has a ranking
+            for(Image image : images){
+                Integer[] rank = rankings.get(image.getIdentifier());
+                if(rank != null){
+                    image.setNoOfRankings(rank[0]);
+                    image.setRanking(rank[1]);
+                    System.out.println("Reinitialising the ranking for " + image.getIdentifier());
+
+                }
+            }
+
+            //re-sort based on the new rankings
+            Collections.sort(images);
+
+            //write back to the database
+            return storeHelper.putList(TC_TABLE, TC_COL_FAMILY, CassandraSubColumnType.IMAGE_COL.getColumnName(), guid, (List) images, false);
+        }
+
 
 	/**
 	 * Search the index with the supplied value targetting a specific column.
