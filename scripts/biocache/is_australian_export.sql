@@ -45,10 +45,10 @@ READS SQL DATA
 	
 DELIMITER ;
 
---update the taxon concept table where 
+-- update the taxon concept table where
 update taxon_concept set is_aust = is_australian_concept(id) where not is_aust;
 
---update the parent taxon concept as australian up to the family level
+-- update the parent taxon concept as australian up to the family level
 update taxon_concept set is_aust = has_aust_child(id) where is_aust = false and rank >=5000 and priority =20;
 
 -- dump the "Australian" taxon concepts to a file from family level down
