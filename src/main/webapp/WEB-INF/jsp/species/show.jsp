@@ -21,8 +21,6 @@ include file="/common/taglibs.jsp" %><!DOCTYPE HTML">
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.favoriteIcon.js"></script>
         <script type="text/javascript" src="http://www.google.com/jsapi"></script>
         <script type="text/javascript">
-
-            google.load("visualization", "1", {packages:["corechart"]});
             
             /*
              * OnLoad equivilent in JQuery
@@ -322,6 +320,8 @@ include file="/common/taglibs.jsp" %><!DOCTYPE HTML">
                 data = data.replace(/\-/g, "\\-");
                 return data;
             }
+
+            google.load("visualization", "1", {packages:["corechart"]});
 
         </script>
         <link rel="stylesheet" type="text/css" href="${wordPressUrl}/wp-content/themes/ala/css/speciesPage.css" media="screen" />
