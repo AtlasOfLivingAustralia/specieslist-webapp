@@ -150,9 +150,9 @@ public class BHLDataLoader {
                 }
             }
             //add the references
+            guid = taxonConceptDao.getPreferredGuid(guid);
             taxonConceptDao.addReferences(guid, topReferences);
             logger.debug("Added " + topReferences.size() + " references to " + guid);
-                  
           
             //move onto the next lsid
             term = te.next()? te.term():null;
