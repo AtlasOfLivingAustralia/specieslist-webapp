@@ -12,9 +12,19 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
 <c:if test="${taxaCount>0}">
 <li id="${idSuffix}Breakdown" class="taxonBreakdown">
    
-	<span class="taxonGroupTitle">${taxonGroup}: ${taxaCount} (Number with images: ${taxonWithImagesCount})</span></td>
-	<span class="showHideLink"><a href="#${taxonGroup}" id="view${taxonGroup}List">Show/Hide</a></span>
-	<span><button id="${idSuffix}DL" class="downloadButton">Download</button></span>
+   <table class="taxonGroupElement">
+   	<tr>
+		<td class="taxonGroupCell">
+			<span class="taxonGroupTitle">${taxonGroup}: ${taxaCount} (Number with images: ${taxonWithImagesCount})</span>
+		</td>
+		<td class="showHideCell">
+			<button id="view${taxonGroup}List" class="downloadButton">Show/Hide</button>
+		</td>	
+		<td class="downloadCell">
+			<button id="${idSuffix}DL" class="downloadButton">Download</button>
+		</td>
+	</tr>
+   </table>
    
    <div id="${idSuffix}Gallery">
    

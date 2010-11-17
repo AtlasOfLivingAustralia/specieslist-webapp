@@ -19,6 +19,11 @@
    </script>
    <style type="text/css">
     table { margin-bottom:0px; border-bottom: 0px; border-bottom-style: none;}
+    .taxonGroupElement td, .taxonGroupElementtr { margin:0px; padding:0; }
+    td.taxonGroupCell { width:767px; }
+    td.showHideCell { width:100px; }
+    td.downloadCell { width:100px; text-align: right; }
+    .showHideLink { margin: 0 20px 0 20px; }
     .noUnderline { text-decoration: none; }
     .pagers { color: #01716E;}
     .nextPage { float:right; }
