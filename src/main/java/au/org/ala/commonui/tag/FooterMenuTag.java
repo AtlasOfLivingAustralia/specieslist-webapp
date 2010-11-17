@@ -99,9 +99,11 @@ public class FooterMenuTag extends TagSupport {
                 "document.write(unescape('%3Cscript src=\"' + gaJsHost + 'google-analytics.com/ga.js\" type=\"text/javascript\"%3E%3C/script%3E'));" +
             "</script> " +
             "<script type='text/javascript'> " +
+            	"try{"+
                 "var pageTracker = _gat._getTracker('" + GOOGLE_ANALYTICS_KEY + "');" +
                 "pageTracker._initData();" +
                 "pageTracker._trackPageview();" +
+                "} catch(err) {}" +
             "</script>\n" );
 		
 		try {
