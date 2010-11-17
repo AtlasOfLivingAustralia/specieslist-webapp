@@ -6,11 +6,11 @@ aus_states/South Australia	Gymnorhina tibicen	bird	urn:lsid:biodiversity.org.au:
 aus_states/Tasmania	Anthochaera paradoxa	bird	urn:lsid:biodiversity.org.au:afd.taxon:410e1a0e-664f-44e4-b351-27aa62ceb4b5
 aus_states/Victoria	Lichenostomus melanops cassidix	bird	urn:lsid:biodiversity.org.au:afd.taxon:c203e61e-220f-4f5c-a406-caafc261335b
 aus_states/Western Australia	Cygnus atratus	bird	urn:lsid:biodiversity.org.au:afd.taxon:267befe8-af2f-4de1-9257-cb677b7dd08f
-aus_states/Australian Capital Territory	Wahlenbergia gloriosa	plant	urn:lsid:biodiversity.org.au:apni.taxon:85205
+aus_states/Australian Capital Territory	Wahlenbergia gloriosa	plant	urn:lsid:biodiversity.org.au:apni.taxon:85204
 aus_states/New South Wales	Telopea speciosissima	plant	urn:lsid:biodiversity.org.au:apni.taxon:247599
 aus_states/Northern Territory	Gossypium sturtianum	plant	urn:lsid:biodiversity.org.au:apni.taxon:149575
 aus_states/Queensland	Vappodes phalaenopsis	plant	urn:lsid:biodiversity.org.au:apni.taxon:285790
-aus_states/South Australia	Swainsona formosa	plant	urn:lsid:biodiversity.org.au:apni.taxon:251760
+aus_states/South Australia	Swainsona formosa	plant	urn:lsid:biodiversity.org.au:apni.taxon:169120
 aus_states/Tasmania	Eucalyptus globulus	plant	urn:lsid:biodiversity.org.au:apni.taxon:305457
 aus_states/Victoria	Epacris impressa	plant	urn:lsid:biodiversity.org.au:apni.taxon:273999
 aus_states/Western Australia	Anigozanthos manglesii	plant	urn:lsid:biodiversity.org.au:apni.taxon:302290
