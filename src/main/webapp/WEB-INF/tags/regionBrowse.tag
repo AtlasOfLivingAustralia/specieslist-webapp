@@ -18,7 +18,9 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
 			<span class="taxonGroupTitle">${taxonGroup}: ${taxaCount} (Number with images: ${taxonWithImagesCount})</span>
 		</td>
 		<td class="showHideCell">
-			<button id="view${taxonGroup}List" class="downloadButton">Show/Hide</button>
+			<c:if test="${!fn:contains(header['User-Agent'],'MSIE 7.0')}">
+				<button id="view${taxonGroup}List" class="downloadButton">Show/Hide</button>
+			</c:if>
 		</td>	
 		<td class="downloadCell">
 			<button id="${idSuffix}DL" class="downloadButton">Download</button>
