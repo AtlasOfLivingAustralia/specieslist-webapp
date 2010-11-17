@@ -301,7 +301,7 @@ include file="/common/taglibs.jsp" %><!DOCTYPE HTML">
 
                 // truncate text to 250 chars
                 var limit = 250;
-                $('span.truncate').each(function(i, el) {
+                $('span.truncateZZ').each(function(i, el) {
                     var length = $(this).html().length;
                     //console.log("truncate length " + i, length);
                     if (length > limit) {

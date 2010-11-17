@@ -17,6 +17,7 @@ package org.ala.web;
 import atg.taglib.json.util.JSONObject;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -110,6 +111,8 @@ public class SpeciesController {
     protected Set<String> lowPrioritySources = new java.util.HashSet<String>();
     /** The URI for JSON data for static occurrence map */
     private final String SPATIAL_JSON_URL = "http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=";
+    /** Max width to Truncate text to */
+    private int TEXT_MAX_WIDTH = 200;
 
     public SpeciesController(){
         nonTruncatedSources.add("http://www.environment.gov.au/biodiversity/abrs/online-resources/flora/main/index.html");
@@ -493,7 +496,7 @@ public class SpeciesController {
         Collections.sort(simpleProperties, new SimplePropertyComparator());
         for (SimpleProperty sp : simpleProperties) {
             if (!nonTruncatedSources.contains(sp.getInfoSourceURL())) {
-                sp.setValue(truncateText(sp.getValue(), 300));
+                sp.setValue(truncateTextBySentence(sp.getValue(), 300));
             }
             textProperties.add(sp);
         }
@@ -501,13 +504,13 @@ public class SpeciesController {
         return textProperties;
     }
 
-     /**
+    /**
      * Truncates the text at a sentence break after min length
      * @param text
      * @param min
      * @return
      */
-     private String truncateText(String text, int min) {
+     private String truncateTextBySentence(String text, int min) {
         try {
             if (text != null && text.length() > min) {
                 java.text.BreakIterator bi = java.text.BreakIterator.getSentenceInstance();
@@ -517,6 +520,30 @@ public class SpeciesController {
             }
         } catch (Exception e) {
             logger.debug("Unable to truncate " + text, e);
+        }
+        return text;
+    }
+
+    /**
+     * Truncates the text at a word break after min length
+     *
+     * @param text
+     * @param min
+     * @return
+     */
+     private String truncateTextByWord(String text, int min) {
+        try {
+            if (text != null && text.length() > min) {
+                BreakIterator bi = BreakIterator.getWordInstance();
+                bi.setText(text);
+                int finalIndex = bi.following(min);
+                String truncatedText = text.substring(0, finalIndex) + "...";
+                logger.debug("truncate at position: " + finalIndex + " | min: " + min);
+                logger.debug("truncated text = " + truncatedText);
+                return truncatedText;
+            }
+        } catch (Exception e) {
+            logger.warn("Unable to truncate " + text, e);
         }
         return text;
     }
@@ -681,7 +708,11 @@ public class SpeciesController {
                 if (img.getCreator() != null) {
                     text.append("(by ").append(img.getCreator()).append(")");
                 }
-                extractInfoSources(img, infoSourceMap, text.toString(), "Images");
+                if (img.getIsPartOf() != null) {
+                    extractInfoSources(img, infoSourceMap, text.toString(), "Images", img.getIsPartOf());
+                } else {
+                    extractInfoSources(img, infoSourceMap, text.toString(), "Images");
+                }
             }
         }
         if (etc.getDistributionImages() != null) {
@@ -690,7 +721,11 @@ public class SpeciesController {
                 if (img.getCreator() != null) {
                     text.append("(by ").append(img.getCreator()).append(")");
                 }
-                extractInfoSources(img, infoSourceMap, text.toString(), "Images");
+                if (img.getIsPartOf() != null) {
+                    extractInfoSources(img, infoSourceMap, text.toString(), "Images", img.getIsPartOf());
+                } else {
+                    extractInfoSources(img, infoSourceMap, text.toString(), "Images");
+                }
             }
         }
         if (etc.getPublicationReference() != null) {
@@ -712,6 +747,20 @@ public class SpeciesController {
      * @param section
      */
     private void extractInfoSources(AttributableObject ao, Map<String, InfoSourceDTO> infoSourceMap, String text, String section) {
+        extractInfoSources(ao, infoSourceMap, text, section, ao.getIdentifier()); // ao.getInfoSourceURL()
+    }
+
+    /**
+     * Extract Info Source information from various AttributableObject's to create a Map of
+     * Info Sources for display on web page. Takes custom identifier text property.
+     *
+     * @param ao
+     * @param infoSourceMap
+     * @param text
+     * @param section
+     * @param identifier
+     */
+    private void extractInfoSources(AttributableObject ao, Map<String, InfoSourceDTO> infoSourceMap, String text, String section, String identifier) {
         if (ao != null && ao.getInfoSourceName() != null) {
             String infoSourceName = ao.getInfoSourceName();
 
@@ -719,7 +768,7 @@ public class SpeciesController {
                 // key exists so add to existing object
                 InfoSourceDTO is = infoSourceMap.get(infoSourceName);
                 if (is.getText() == null || is.getText().isEmpty()) {
-                    is.setText(text);
+                    is.setText(truncateTextByWord(text, TEXT_MAX_WIDTH)); // truncate text
                 }
                 if (!section.isEmpty()) {
                     Set<String> sections = null;
@@ -735,13 +784,13 @@ public class SpeciesController {
                 // no key so create one
                 InfoSourceDTO is = new InfoSourceDTO();
                 is.setInfoSourceName(infoSourceName);
-                String identifier = ao.getIdentifier();
+                //String identifier = ao.getIdentifier();
                 if (identifier != null && !identifier.isEmpty()) {
                     is.setIdentifier(identifier);
-                } 
+                }
                 is.setInfoSourceURL(ao.getInfoSourceURL());
                 is.setInfoSourceId(ao.getInfoSourceId());
-                is.setText(text);
+                is.setText(truncateTextByWord(text, TEXT_MAX_WIDTH)); // truncate text
                 if (!section.isEmpty()) {
                     Set<String> sections = new LinkedHashSet<String>();
                     sections.add(section);
