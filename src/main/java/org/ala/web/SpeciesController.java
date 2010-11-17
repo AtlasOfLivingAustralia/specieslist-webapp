@@ -300,7 +300,7 @@ public class SpeciesController {
             @PathVariable("guid") String guid,
             @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
             Model model) throws Exception {
-		
+		guid = taxonConceptDao.getPreferredGuid(guid);
        	model.addAttribute("taxonConcept", taxonConceptDao.getByGuid(guid));
        	model.addAttribute("commonNames", taxonConceptDao.getCommonNamesFor(guid));
        	model.addAttribute("images", repoUrlUtils.fixRepoUrls(taxonConceptDao.getImages(guid)));
