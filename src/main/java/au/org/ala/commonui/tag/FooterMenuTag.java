@@ -54,7 +54,7 @@ public class FooterMenuTag extends TagSupport {
 					"<li id='menu-item-5065' class='menu-item menu-item-type-post_type menu-item-5065'><a href='"+centralServer+"/tools-services/'>Tools</a></li>" +
                     "<li id='menu-item-8092' class='menu-item menu-item-type-post_type menu-item-8092'><a href='"+centralServer+"/share/'>Share</a></li>" +
 					"<li id='menu-item-1066' class='menu-item menu-item-type-post_type menu-item-1066'><a href='"+centralServer+"/support/'>Support</a></li>" +
-					"<li id='menu-item-1067' class='menu-item menu-item-type-post_type menu-item-1067'><a href='"+centralServer+"/contact-us/'>Contact Us</a></li>" +
+					"<li id='menu-item-1067' class='menu-item menu-item-type-post_type menu-item-1067'><a href='"+centralServer+"/support/contact-us/'>Contact Us</a></li>" +
                     "<li id='menu-item-5068' class='menu-item menu-item-type-post_type menu-item-5068'><a href='"+centralServer+"/about/'>About the Atlas</a></li>");
 		
         if (returnUrlPath.equals("")) {

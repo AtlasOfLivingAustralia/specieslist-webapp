@@ -133,7 +133,7 @@ public class BannerMenuTag extends TagSupport {
 							"<li><a href='" + centralServer + "/support/faq/'><span>Frequently Asked Questions</span></a></li>" +
 						"</ul>" +
 					"</li>" +
-					"<li class='nav-contact'><a href='" + centralServer + "/contact-us/'><span>Contact Us</span></a></li>" +
+					"<li class='nav-contact'><a href='" + centralServer + "/support/contact-us/'><span>Contact Us</span></a></li>" +
 					"<li class='nav-about'><a href='" + centralServer + "/about/'><span>About the Atlas</span></a>" +
 						"<ul>" +
 							"<li><a href='" + centralServer + "/about/progress/'><span>A Work in Progress</span></a></li>" +
