@@ -53,10 +53,10 @@
         </c:forEach>
         <c:choose>
             <c:when test="${!(pageNumber == lastPage)}">
-                <li id="nextPage"><a href="${coreParams}&start=${startIndex + pageSize}${hash}&title=${title}">Next &raquo;</a></span>
+                <li id="nextPage"><a href="${coreParams}&start=${startIndex + pageSize}${hash}&title=${title}">Next &raquo;</a></li>
             </c:when>
             <c:otherwise>
-                <li id="nextPage">Next &raquo;</span>
+                <li id="nextPage">Next &raquo;</li>
             </c:otherwise>
         </c:choose>
     </ul>
