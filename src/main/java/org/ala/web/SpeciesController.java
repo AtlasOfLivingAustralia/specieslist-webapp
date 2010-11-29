@@ -873,11 +873,26 @@ public class SpeciesController {
      * @return
      */
     private List<Image> addImageDocIds(List<Image> images) {
+    	String repoIdStr = "";
+    	
         // Extract the repository document id from repoLocation field
         // E.g. Http://bie.ala.org.au/repo/1040/38/388624/Raw.jpg -> 388624
         for (Image img : images) {
-            String[] paths = StringUtils.split(img.getRepoLocation(), "/");
-            String repoIdStr = paths[paths.length - 2]; // get path before filename
+        	String[] paths = StringUtils.split(img.getRepoLocation(), "/");
+            // unix format file path
+            if(paths.length >= 2){
+            	repoIdStr = paths[paths.length - 2]; // get path before filename
+            }
+            else{
+            	// windows format file path
+            	paths = StringUtils.split(img.getRepoLocation(), "\\");
+            	if(paths.length >= 2){
+            		repoIdStr = paths[paths.length - 2]; // get path before filename
+            	}
+            	else{
+                	continue;
+                }
+            }
             
             if (repoIdStr != null && !repoIdStr.isEmpty()) {
                 Integer docId = Integer.parseInt(repoIdStr);
