@@ -90,7 +90,7 @@ public class RepoDataLoader {
 	 * @param repoDirs Optional array of Infosource directories to scan passed as program arguments
 	 * @throws Exception
 	 */
-	private int load(String filePath, String[] repoDirs) throws Exception {
+	 public int load(String filePath, String[] repoDirs) throws Exception {
 		logger.info("Scanning directory: "+filePath);
 		
 		int totalFilesRead = 0;
