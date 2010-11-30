@@ -87,7 +87,7 @@ include file="/common/taglibs.jsp" %>
             }); // End docuemnt ready
 
         </script>
-        <meta name="robots" content="noindex,nofollow"/>
+        <meta name="robots" content="index,follow"/>
         <link rel="alternate" type="application/rss+xml" title="Atlas Living Australia NG &raquo; Feed" href="${initParam.centralServer}/feed/" />
         <link rel="alternate" type="application/rss+xml" title="Atlas Living Australia NG &raquo; Comments Feed" href="${initParam.centralServer}/comments/feed/" />
         <link rel='stylesheet' id='external-links-css'  href='${initParam.centralServer}/wp-content/plugins/sem-external-links/sem-external-links.css?ver=20090903' type='text/css' media='all' />
