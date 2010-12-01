@@ -92,7 +92,10 @@ public class RepoDataLoader {
 	 */
 	 public int load(String filePath, String[] repoDirs) throws Exception {
 		logger.info("Scanning directory: "+filePath);
-		
+		// reset counts
+        totalFilesRead = 0;
+        totalPropertiesSynced = 0;
+        
 		//start scan
 		File file = new File(filePath);
 		File [] dirs = null;
