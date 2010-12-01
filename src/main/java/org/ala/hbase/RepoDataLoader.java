@@ -319,4 +319,8 @@ public class RepoDataLoader {
 	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
 		this.taxonConceptDao = taxonConceptDao;
 	}
+
+    public static String getRepositoryDir() {
+        return repositoryDir;
+    }
 }
