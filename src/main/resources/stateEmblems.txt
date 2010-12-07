@@ -20,7 +20,7 @@ aus_states/Queensland	Phascolarctos cinereus	animal	urn:lsid:biodiversity.org.au
 aus_states/South Australia	Lasiorhinus latifrons	animal	urn:lsid:biodiversity.org.au:afd.taxon:2c7f16e5-f0c8-4d01-a834-c7d6cccd7088
 aus_states/Tasmania	Sarcophilus harrisii	animal	urn:lsid:biodiversity.org.au:afd.taxon:a6e5e2e1-45cc-42b9-9dc5-860a405b7a1a
 aus_states/Victoria	Gymnobelideus leadbeateri	animal	urn:lsid:biodiversity.org.au:afd.taxon:f11a71d3-ce2f-4d14-8801-beb150c979ce
-aus_states/Western Australia	Myrmecobius fasciatus	animal	urn:lsid:biodiversity.org.au:afd.taxon:e195a349-bada-4f64-8ab2-a49fb8fd385b
+aus_states/Western Australia	Myrmecobius fasciatus	animal	urn:lsid:biodiversity.org.au:afd.taxon:06b8e04c-8eb8-49e6-b429-85f03c3e2616
 aus_states/New South Wales	Achoerodus viridis 	marine	urn:lsid:biodiversity.org.au:afd.taxon:55c3519a-033c-44c2-aa09-763fc56f2337
 aus_states/Queensland	Amphiprion akindynos	marine	urn:lsid:biodiversity.org.au:afd.taxon:42c4fb98-ac43-459c-9637-864411dd4257
 aus_states/South Australia	Phycodurus eques	marine	urn:lsid:biodiversity.org.au:afd.taxon:747d23a3-76c2-402a-8f2a-3550a22ef62d
