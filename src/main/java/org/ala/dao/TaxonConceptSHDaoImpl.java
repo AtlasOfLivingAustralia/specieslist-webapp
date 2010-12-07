@@ -882,10 +882,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public boolean syncTriples(org.ala.model.Document document, List<Triple> triples, Map<String, String> dublinCore) throws Exception {
 
-		String scientificName = null;
+		List<String> scientificNames = new ArrayList<String>();
 		String specificEpithet = null;
-		String subspecies = null;
-		String species = null;
+		List<String> subspecies = new ArrayList<String>();
+		List<String> species = new ArrayList<String>();
 		String genus = null;
 		String family = null;
 		String superfamily = null;
@@ -933,100 +933,110 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				genus = triple.object;
 			}
 			if(predicate.endsWith("hasSpecies")){
-				species = triple.object;
+				species.add(triple.object);
 			}
 			if(predicate.endsWith("hasSubSpecies")){
-				subspecies = triple.object;
+				subspecies.add(triple.object);
 			}
 			if(predicate.endsWith("hasSpecificEpithet")){
 				specificEpithet = triple.object;
 			}
 			if(predicate.endsWith("hasScientificName")){
-				scientificName = triple.object;
+				scientificNames.add(triple.object);
 			}
 		}
 
-		if (scientificName == null
-				&& subspecies == null
+		if (scientificNames.isEmpty()
+				&& subspecies.isEmpty()
 				&& specificEpithet == null
-				&& species == null
+				&& species.isEmpty()
 				&& genus == null
 				&& family == null
 				&& superfamily == null
 				&& order == null 
 				&& klass == null
 				&& phylum == null) {
-			System.out.println("No classification found for document at: " + document.getFilePath());
+			logger.info("No classification found for document at: " + document.getFilePath());
 			return false; // we have nothing to work with, so give up
 		}
 
 		// Lookup LSID in Checklist Bank data
 		String rank = null;
 		Rank rankObj = null;
-		if (scientificName == null) {
-			if (subspecies != null) {
-				scientificName = subspecies;
+		if (scientificNames.isEmpty()) {
+			if (!subspecies.isEmpty()) {
+				scientificNames.addAll(subspecies);
 				rank = "subspecies";
 				rankObj = Rank.SSP;
-			} else if (species != null) {
-				scientificName = species;
+			} else if (!species.isEmpty()) {
+				scientificNames.addAll(species);
 				rank = "species";
 				rankObj = Rank.SP;
 			} else if (genus != null) {
 				if (specificEpithet != null) {
-					scientificName = genus + " " + specificEpithet;
+					scientificNames.add(genus + " " + specificEpithet);
 					rank = "species";
 					rankObj = Rank.SP;
 				} else {
-					scientificName = genus;
+					scientificNames.add(genus);
 					rank = "genus";
 					rankObj = Rank.GEN;
 				}
 			} else if (family != null) {
-				scientificName = family;
+				scientificNames.add(family);
 				rank = "family";
 				rankObj = Rank.FAM;
 			} else if (superfamily != null) {
-				scientificName = superfamily;
+				scientificNames.add(superfamily);
 				rank = "superfamily";
 				rankObj = Rank.SUPERFAM;
 			} else if (order != null) {
-				scientificName = order;
+				scientificNames.add(order);
 				rank = "order";
 				rankObj = Rank.ORD;
 			} else if (klass != null) {
-				scientificName = klass;
+				scientificNames.add(klass);
 				rank = "class";
 				rankObj = Rank.CL;
 			} else if (phylum != null) {
-				scientificName = phylum;
+				scientificNames.add(phylum);
 				rank = "phylum";
 				rankObj = Rank.PHYLUM;
 			} else if (kingdom != null) {
-				scientificName = kingdom;
+				scientificNames.add(kingdom);
 				rank = "kingdom";
 				rankObj = Rank.REG;
 			} else {
-				System.out.println("Not enough search data for Checklist Bank found for document at: "+document.getFilePath());
+				logger.info("Not enough search data for Checklist Bank found for document at: " + document.getFilePath());
 				return false;
 			}
 		}
 
-		LinnaeanRankClassification classification = new LinnaeanRankClassification(kingdom, phylum, klass, order, family, genus, scientificName);
-		String guid = findLsidByName(scientificName, classification, rank);
-
-		// if null try with the species name
-		if (guid == null && species != null) {
-			guid = findLsidByName(species, classification, "species");
+		String guid = null;
+		
+		for(String scientificName: scientificNames){
+			LinnaeanRankClassification classification = new LinnaeanRankClassification(kingdom, phylum, klass, order, family, genus, scientificName);
+			guid = findLsidByName(scientificName, classification, rank);
+			if(guid!=null)
+				break;
 		}
-		// FIX ME search with genus + specific epithet
-		if (guid == null && genus != null && specificEpithet != null) {
+		
+		if(guid==null){
+			for(String sp: species){
+				LinnaeanRankClassification classification = new LinnaeanRankClassification(kingdom, phylum, klass, order, family, genus, sp);
+				guid = findLsidByName(sp, classification, rank);
+				if(guid!=null)
+					break;
+			}
+		}
+		
+		if(guid==null && genus != null && specificEpithet != null){
+			LinnaeanRankClassification classification = new LinnaeanRankClassification(kingdom, phylum, klass, order, family, genus, null);
 			guid = findLsidByName(genus + " " + specificEpithet, classification, "species");
 		}
-
+		
+		
 		if (guid != null) {
-
-//			Map<String, Object> properties = new HashMap<String,Object>();
 
 			for(Triple triple: triples){
 
@@ -1149,10 +1159,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                     } else {
                     	addImage(guid, image);
                     }
+				} else {
+					//do something for videos.....
 				}
 			}
 
-			System.out.println("Adding content to: "+guid+", using scientific name: "+scientificName+", genus: "+genus);
+			logger.info("Adding content to: "+guid+", using scientific name: "+scientificNames.get(0));
 //			addLiteralValues(guid, infoSourceId,Integer.toString(document.getId()), properties);
 
 			return true;
