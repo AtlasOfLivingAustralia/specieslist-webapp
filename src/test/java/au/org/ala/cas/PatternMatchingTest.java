@@ -19,7 +19,7 @@ public class PatternMatchingTest extends TestCase {
 		assertTrue(PatternMatchingUtils.matches("/biocache-webapp/occurrences/35661424", patterns));
 		assertFalse(PatternMatchingUtils.matches("/favicon.ico", patterns));
 
-		List<Pattern> noContextPatterns = PatternMatchingUtils.getPatternList("", uriPattern);
+		List<Pattern> noContextPatterns = PatternMatchingUtils.getPatternList(uriPattern);
 		assertTrue(PatternMatchingUtils.matches("/", noContextPatterns));
 		assertFalse(PatternMatchingUtils.matches("/biocache-webapp/", noContextPatterns));
 		assertTrue(PatternMatchingUtils.matches("/occurrences/35661424", noContextPatterns));
@@ -30,6 +30,9 @@ public class PatternMatchingTest extends TestCase {
 		List<Pattern> emptyPatterns = PatternMatchingUtils.getPatternList("", "");
 		assertFalse(PatternMatchingUtils.matches("", emptyPatterns));
 		
+		List<Pattern> userAgentPatterns = PatternMatchingUtils.getPatternList(".*Googlebot.*");
+		assertTrue(PatternMatchingUtils.matches("Googlebot/2.1 (+http://www.google.com/bot.html)", userAgentPatterns));
+
 		try {
 			List<Pattern> badPatterns = PatternMatchingUtils.getPatternList("", "\\k");
 			PatternMatchingUtils.matches("", badPatterns);
