@@ -25,24 +25,28 @@ public class PatternMatchingUtils {
 
 	private final static Logger logger = Logger.getLogger(PatternMatchingUtils.class);
 
-	public static List<Pattern> getPatternList(String context, String uriPatterns) {
+	public static List<Pattern> getPatternList(String context, String regexPatterns) {
 		List<Pattern> patternList = new ArrayList<Pattern>();
 
-		if (uriPatterns != null && !uriPatterns.equals("")) {
-			for (String pattern : uriPatterns.split(",")) {
-				patternList.add(Pattern.compile(context + pattern.trim(), Pattern.CASE_INSENSITIVE));
+		if (regexPatterns != null && !regexPatterns.equals("")) {
+			for (String regex : regexPatterns.split(",")) {
+				patternList.add(Pattern.compile(context + regex.trim(), Pattern.CASE_INSENSITIVE));
 			}
 		}
 		
 		return patternList;
 	}
 	
-	public static boolean matches(String uri, List<Pattern> patterns) {
+	public static List<Pattern> getPatternList(String regexPatterns) {
+		return getPatternList("", regexPatterns);
+	}
+	
+	public static boolean matches(String str, List<Pattern> patterns) {
 		for (Pattern pattern : patterns) {
-			Matcher matcher = pattern.matcher(uri);
-			logger.trace("Matching Uri '" + uri + "' against Pattern '" + pattern + "'");
+			Matcher matcher = pattern.matcher(str);
+			logger.trace("Matching string '" + str + "' against Pattern '" + pattern + "'");
 			if (matcher.matches()) {
-				logger.trace("Uri matches!");
+				logger.trace("Matches!");
 				return true;
 			} else {
 				logger.trace("No match");
