@@ -81,17 +81,26 @@
         <param-value>http://www.ala.org.au</param-value>
     </context-param>
 
+    <!-- for local development
     <context-param>
         <param-name>contextPath</param-name>
-        <param-value></param-value>
+        <param-value>/bie-webapp</param-value>
+    </context-param>
+    -->
+
+    <context-param>
+        <param-name>userAgentExclusionFilterPattern</param-name>
+        <param-value>.*Googlebot.*</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>uriExclusionFilterPattern</param-name>
+        <param-value>.*\.json</param-value>
     </context-param>
 
     <context-param>
         <param-name>uriFilterPattern</param-name>
-        <param-value>/, /search, /species/search, /species/urn:lsid.+, /regions/, /contributors, /share/, /rankTaxonImageWithUser</param-value>
-        <!-- Replace the param-value with the commented version for local development
-        <param-value>/bie-webapp, /bie-webapp/search, /bie-webapp/species/search, /bie-webapp/species/urn:lsid.+, /bie-webapp/regions/, /bie-webapp/contributors, /bie-webapp/share/, /bie-webapp/rankTaxonImageWithUser</param-value>
-         -->
+        <param-value>/, /search, /species/search, /species/urn:lsid.+, /species/\d+, /regions/.*, /contributors, /share/, /rankTaxonImageWithUser</param-value>
     </context-param>
 
     <!-- CAS Authentication Service filters -->
