@@ -32,10 +32,21 @@ import org.jasig.cas.client.authentication.AuthenticationFilter;
 import au.org.ala.cas.util.PatternMatchingUtils;
 
 /**
- * Filter that provides filtering based on a list URI regex patterns. If a URI matches one
- * of the regex patterns then the underlying filter (defined by the <code>&lt;init-param&gt; filterClass</code>)
- * is invoked.<p>
- * The list of regex's are delimited by commas and are defined in the <code>&lt;context-param&gt; uriFilterPattern</code>.
+ * Meta filter that provides filtering based on exclusion and inclusion criteria.
+ * <p>
+ * The filtering criteria are applied in the following order,
+ * <p>
+ * <table border="1">
+ * <tr><th>Criterion</th><th>context-param</th><th>Required</th></tr>
+ * <tr><td>URI exclusion</td><td>uriExclusionFilterPattern</td><td>No</td></tr>
+ * <tr><td>User-agent exclusion</td><td>userAgentExclusionFilterPattern</td><td>No</td></tr>
+ * <tr><td>URI inclusion</td><td>uriFilterPattern</td><td>Yes</td></tr>
+ * </table>
+ * <p>
+ * Each filter criteria is specified as a comma delimited list of reqular expressions in a <code>&lt;context-param&gt;</code>.
+ * <p>
+ * So if a request is not excluded based on the URI and User-Agent exclusion criteria and is included based on<br>
+ * the URI inclusion criterion then the filter specified by the filterClass init-param is invoked.
  * <p>
  * The <code>contextPath</code> parameter value (if present) is prefixed to each URI pattern defined in the <code>uriFilterPattern</code> list.
  * <p>
@@ -45,6 +56,11 @@ import au.org.ala.cas.util.PatternMatchingUtils;
      &lt;context-param&gt;
          &lt;param-name&gt;contextPath&lt;/param-name&gt;
          &lt;param-value&gt;/biocache-webapp&lt;/param-value&gt;
+     &lt;/context-param&gt;
+  
+     &lt;context-param&gt;
+         &lt;param-name&gt;uriExclusionFilterPattern&lt;/param-name&gt;
+         &lt;param-value&gt;.*\.json&lt;/param-value&gt;
      &lt;/context-param&gt;
   
      &lt;context-param&gt;
@@ -79,21 +95,55 @@ public class UriFilter implements Filter {
 	
 	private Filter filter;
 	private String contextPath;
-	private List<Pattern> inclusionPatterns;
+	private List<Pattern> uriInclusionPatterns;
+	private List<Pattern> uriExclusionPatterns;
+	private List<Pattern> userAgentExclusionPatterns;
 	
 	public void init(FilterConfig filterConfig) throws ServletException {
 
+		//
+		// Get contextPath param
+		//
 		this.contextPath = filterConfig.getServletContext().getInitParameter("contextPath");
 		if (this.contextPath == null) {
 			this.contextPath = "";
 		} else {
-			logger.debug("Read context path = '" + contextPath + "'");
+			logger.debug("Context path = '" + contextPath + "'");
 		}
 
+		//
+		// Get URI inclusion filter patterns
+		//
 		String includedUrlPattern = filterConfig.getServletContext().getInitParameter("uriFilterPattern");
-		logger.debug("Read included URI Pattern = '" + includedUrlPattern + "'");
-		this.inclusionPatterns = PatternMatchingUtils.getPatternList(contextPath, includedUrlPattern);
+		if (includedUrlPattern == null) {
+			includedUrlPattern = "";
+		}
+		logger.debug("Included URI Pattern = '" + includedUrlPattern + "'");
+		this.uriInclusionPatterns = PatternMatchingUtils.getPatternList(contextPath, includedUrlPattern);
 
+		//
+		// Get URI exclusion filter patterns
+		//
+		String excludedUrlPattern = filterConfig.getServletContext().getInitParameter("uriExclusionFilterPattern");
+		if (excludedUrlPattern == null) {
+			excludedUrlPattern = "";
+		}
+		logger.debug("Excluded URI Pattern = '" + excludedUrlPattern + "'");
+		this.uriExclusionPatterns = PatternMatchingUtils.getPatternList(excludedUrlPattern);
+
+		//
+		// Get user-agent exclusion filter patterns
+		//
+		String excludedUserAgentPattern = filterConfig.getServletContext().getInitParameter("userAgentExclusionFilterPattern");
+		if (excludedUserAgentPattern == null) {
+			excludedUserAgentPattern = "";
+		}
+		logger.debug("Excluded User Agent Pattern = '" + excludedUserAgentPattern + "'");
+		this.userAgentExclusionPatterns = PatternMatchingUtils.getPatternList(excludedUserAgentPattern);
+
+		//
+		// Get target filter class name
+		//
 		String className = filterConfig.getInitParameter("filterClass");
 		try {
 			Class<?> c = Class.forName(className);
@@ -112,7 +162,17 @@ public class UriFilter implements Filter {
 			logger.debug("Request Uri = '" + requestUri + "'");
 		}
 		
-		if (PatternMatchingUtils.matches(requestUri, inclusionPatterns)) {
+		if (PatternMatchingUtils.matches(requestUri, uriExclusionPatterns)) {
+			if (filter instanceof AuthenticationFilter) {
+				logger.debug("Ignoring URI because it matches uriExclusionFilterPattern");
+			}
+			chain.doFilter(request, response);
+		} else if (PatternMatchingUtils.matches(((HttpServletRequest) request).getHeader("user-agent"), userAgentExclusionPatterns)) {
+			if (filter instanceof AuthenticationFilter) {
+				logger.debug("Ignoring request because user-agent matches userAgentExclusionFilterPattern");
+			}
+			chain.doFilter(request, response);
+		} else if (PatternMatchingUtils.matches(requestUri, uriInclusionPatterns)) {
 			if (filter instanceof AuthenticationFilter) {
 				logger.debug("Forwarding URI '" + requestUri + "' to CAS authentication filters because it matches uriFilterPattern");
 			}
