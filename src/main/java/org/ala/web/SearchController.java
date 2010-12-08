@@ -103,6 +103,9 @@ public class SearchController {
         // if params are set but empty (e.g. foo=&bar=) then provide sensible defaults
         if (filterQuery != null && filterQuery.length == 0) {
             filterQuery = null;
+        } else if (filterQuery == null) {
+            // catch search with no fq param and default to "Recorded in Australia"
+            return "redirect:/search?q=" + query + "&fq=australian_s:recorded";
         }
         if (startIndex == null) {
             startIndex = 0;

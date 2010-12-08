@@ -210,8 +210,29 @@
                 <c:if test="${not empty query}">
                     <c:set var="queryParam">q=<c:out value="${query}" escapeXml="true"/><c:if test="${not empty param.fq}">&fq=${fn:join(paramValues.fq, "&fq=")}</c:if></c:set>
                 </c:if>
+                <c:if  test="${not empty facetMap}">
+                    <h3><span class="FieldName">Current Filters</span></h3>
+                    <div id="subnavlist">
+                        <ul style="padding-left: 24px;">
+                            <c:forEach var="item" items="${facetMap}">
+                                <li style="text-indent: -12px; text-transform: none;">
+                                    <c:set var="closeLink">&nbsp;[<b><a href="#" onClick="removeFacet('${item.key}:${item.value}'); return false;" style="text-decoration: none" title="remove">X</a></b>]</c:set>
+                                    <fmt:message key="facet.${item.key}"/>:
+                                    <c:choose>
+                                        <c:when test="${fn:containsIgnoreCase(item.key, 'australian_s')}">
+                                            <b><fmt:message key="recorded.${item.value}"/></b>${closeLink}
+                                        </c:when>
+                                        <c:otherwise>
+                                            <b><fmt:message key="${item.value}"/></b>${closeLink}
+                                        </c:otherwise>
+                                    </c:choose>
+                                </li>
+                            </c:forEach>
+                        </ul>
+                    </div>
+                </c:if>
                 <c:forEach var="facetResult" items="${searchResults.facetResults}">
-                    <c:if test="${!fn:containsIgnoreCase(facetQuery, facetResult.fieldResult[0].label) && !fn:containsIgnoreCase(facetResult.fieldName, 'idxtype1')}">
+                    <c:if test="${empty facetMap[facetResult.fieldName] && !fn:containsIgnoreCase(facetQuery, facetResult.fieldResult[0].label) && !fn:containsIgnoreCase(facetResult.fieldName, 'idxtype1')}">
                         <h3><span class="FieldName"><fmt:message key="facet.${facetResult.fieldName}"/></span></h3>
                         <div id="subnavlist">
                             <ul>
@@ -234,10 +255,10 @@
                                                 (<fmt:formatNumber value="${fieldResult.count}" pattern="#,###,###"/>)</li>
                                         </c:when>
                                         <c:when test="${fn:endsWith(fieldResult.label, 'before')}"><%-- skip --%></c:when>
-                                        <c:when test="${not empty facetMap[facetResult.fieldName] && fieldResult.label == facetMap[facetResult.fieldName]}">
+                                        <%--<c:when test="${not empty facetMap[facetResult.fieldName] && fieldResult.label == facetMap[facetResult.fieldName]}">
                                             <li><a href="#" onClick="removeFacet('${facetResult.fieldName}:${fieldResult.label}'); return false;" class="facetCancelLink">&lt; Any <fmt:message key="facet.${facetResult.fieldName}"/></a><br/>
                                             <b><fmt:message key="${fieldResult.label}"/></b></li>
-                                        </c:when>
+                                        </c:when>--%>
                                         <c:otherwise>
                                             <li><a href="?${queryParam}&fq=${facetResult.fieldName}:${fieldResult.label}"><fmt:message key="${fieldResult.label}"/></a>
                                             (<fmt:formatNumber value="${fieldResult.count}" pattern="#,###,###"/>)
