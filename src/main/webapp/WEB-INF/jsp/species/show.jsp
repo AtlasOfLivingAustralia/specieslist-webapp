@@ -1,12 +1,13 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %><%@ 
-include file="/common/taglibs.jsp" %><!DOCTYPE HTML">
+include file="/common/taglibs.jsp" %>
 <c:set var="spatialPortalUrl">${initParam.centralServer}/explore/species-maps/</c:set>
 <c:set var="spatialPortalWMSUrl">http://spatial.ala.org.au/alaspatial/</c:set>
 <c:set var="wordPressUrl">${initParam.centralServer}</c:set>
 <c:set var="biocacheUrl">http://biocache.ala.org.au/</c:set>
 <c:set var="collectoryUrl">http://collections.ala.org.au</c:set>
 <c:set var="threatenedSpeciesCodes">${wordPressUrl}/about/program-of-projects/sds/threatened-species-codes/</c:set>
-<html>
+<!DOCTYPE html>
+<html dir="ltr" lang="en-US">
     <head>
         <meta name="pageName" content="species" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -19,6 +20,7 @@ include file="/common/taglibs.jsp" %><!DOCTYPE HTML">
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.colorbox.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.easing.1.3.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.favoriteIcon.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.qtip-1.0.0.min.js"></script>
         <script type="text/javascript" src="http://www.google.com/jsapi"></script>
         <script type="text/javascript">
             
@@ -309,6 +311,9 @@ include file="/common/taglibs.jsp" %><!DOCTYPE HTML">
                         $(this).html(html).append('...');
                     }
                 });
+                
+                // help popup for calssification icon recorded in australia
+                $('#recordedIn img, #recordedIn span').qtip({ style: { name: 'light', tip: true } })
 
             });  // end document ready function
 
@@ -802,11 +807,6 @@ include file="/common/taglibs.jsp" %><!DOCTYPE HTML">
                                         <c:when test="${not empty commonName.identifier && not empty commonName.infoSourceName}"><cite>Source: <a href="${commonName.identifier}" target="blank">${commonName.infoSourceName}</a></cite></c:when>
                                         <c:otherwise><cite>Source:&nbsp;<a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>
                                     </c:choose>
-                                    <%--<c:if test="${not empty synonym.publishedIn}">
-                                        <tr>
-                                            <td colspan="2"><cite>Published in: <span class="publishedIn">${synonym.publishedIn}</span></cite></td>
-                                        </tr>
-                                    </c:if> --%>
                                 </c:forEach>
                             </td>
                     	</tr>
@@ -827,35 +827,42 @@ include file="/common/taglibs.jsp" %><!DOCTYPE HTML">
                     <h2>Scientific Classification</h2>
                     <div id="classificationList">
                     	<c:forEach items="${taxonHierarchy}" var="taxon">
-                            <ul>
-                               	<c:choose>
-                                    <c:when test="${taxon.guid != extendedTaxonConcept.taxonConcept.guid}">
-                                        <li>${taxon.rank}: <a href="<c:url value='/species/${taxon.guid}#classification'/>" title="${taxon.rank}">
-                                            <alatag:formatSciName name="${taxon.name}" rankId="${taxon.rankId}"/>
-                                            <c:if test="${not empty taxon.commonNameSingle && taxon.guid == extendedTaxonConcept.taxonConcept.guid}">
-                                                : ${taxon.commonNameSingle}
-                                            </c:if>
-                                        </a></li>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <li id="currentTaxonConcept">${taxon.rank}: <span><alatag:formatSciName name="${taxon.name}" rankId="${taxon.rankId}"/>
+                            <c:choose><%-- Note: check for rankId is here due to some taxonHierarchy including taxa at higher rank than requested taxon (bug) --%>
+                                <c:when test="${taxon.rankId <= extendedTaxonConcept.taxonConcept.rankID && taxon.guid != extendedTaxonConcept.taxonConcept.guid}">
+                                    <ul><li>${taxon.rank}: <a href="<c:url value='/species/${taxon.guid}#classification'/>" title="${taxon.rank}">
+                                        <alatag:formatSciName name="${taxon.name}" rankId="${taxon.rankId}"/>
                                         <c:if test="${not empty taxon.commonNameSingle && taxon.guid == extendedTaxonConcept.taxonConcept.guid}">
-                                                : ${taxon.commonNameSingle}
-                                            </c:if></span></li>
-                                    </c:otherwise>
-                                </c:choose>
+                                            : ${taxon.commonNameSingle}
+                                        </c:if>
+                                    </a></li>
+                                </c:when>
+                                <c:when test="${taxon.guid == extendedTaxonConcept.taxonConcept.guid}">
+                                    <ul><li id="currentTaxonConcept">${taxon.rank}: <span><alatag:formatSciName name="${taxon.name}" rankId="${taxon.rankId}"/>
+                                    <c:if test="${not empty taxon.commonNameSingle && taxon.guid == extendedTaxonConcept.taxonConcept.guid}">
+                                            : ${taxon.commonNameSingle}
+                                        </c:if></span></li>
+                                </c:when>
+                                <c:otherwise><!-- Taxa ${taxon.guid} - ${taxon.name} (${taxon.rank}) should not be here! --></c:otherwise>
+                            </c:choose>
                     	</c:forEach>
                         <ul>
                             <c:forEach items="${childConcepts}" var="child">
                                 <li>${child.rank}:
-                                	<a href="<c:url value='/species/${child.guid}#classification'/>">
-                                	<c:if test="${child.rankId>=6000}"><i></c:if>
-                                    	${child.name}
-                                	<c:if test="${child.rankId>=6000}"></i></c:if>
-                                    <c:if test="${not empty child.commonNameSingle}">
-                                     	: ${child.commonNameSingle}
-                                    </c:if>
-                                    </a>
+                                    <c:set var="taxonLabel">
+                                        <alatag:formatSciName name="${child.name}" rankId="${child.rankId}"/>
+                                        <c:if test="${not empty child.commonNameSingle}">: ${child.commonNameSingle}</c:if>
+                                    </c:set>
+                                    <a href="<c:url value='/species/${child.guid}#classification'/>">${fn:trim(taxonLabel)}</a>&nbsp;
+                                    <span id="recordedIn">
+                                        <c:choose>
+                                            <c:when test="${not empty child.australian}">
+                                                <img src="${pageContext.request.contextPath}/static/images/au.gif" alt="Recorded in Australia" class="no-rounding" title="Recorded in Australia"/>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span title="Not recorded in Australia">(inferred placement)</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </span>
                                 </li>
                             </c:forEach>
                         </ul>
@@ -863,36 +870,6 @@ include file="/common/taglibs.jsp" %><!DOCTYPE HTML">
                             </ul>
                         </c:forEach>
                     </div>
-                    <%-- <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) > 0}">
-                        <h5>Parent <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) > 1}">Taxa</c:if>
-                            <c:if test="${fn:length(extendedTaxonConcept.parentConcepts) < 2}">Taxon</c:if></h5>
-                            <ul>
-                                <c:forEach items="${extendedTaxonConcept.parentConcepts}" var="parent">
-                                    <li><a href="<c:url value='/species/${parent.guid}#classification'/>">${parent.nameString}</a></li>
-                                </c:forEach>
-                            </ul>
-                            <c:if test="${not empty parent.infoSourceName && not empty parent.infoSourceURL}">
-                                <cite>Source: <a href="${parent.infoSourceURL}">${parent.infoSourceURL}</a></cite>
-                            </c:if>
-                    </c:if>
-                    <c:if test="${fn:length(extendedTaxonConcept.childConcepts) > 0}">
-                        <h5>Child <c:if test="${fn:length(extendedTaxonConcept.childConcepts) > 1}">Taxa</c:if>
-                            <c:if test="${fn:length(extendedTaxonConcept.childConcepts) < 2}">Taxon</c:if></h5>
-                            <ul>
-                                <c:forEach items="${childConcepts}" var="child">
-                                    <li><a href="<c:url value='/species/${child.guid}#classification'/>">
-                                    	${child.name}
-                                    	<c:if test="${not empty child.commonNameSingle}">
-                                    	 (${child.commonNameSingle})
-                                    	</c:if>
-                                    	</a>
-                                    </li>
-                                </c:forEach>
-                            </ul>
-                            <c:if test="${not empty child.infoSourceName && not empty child.infoSourceURL}">
-                                <cite>Source: <a href="${child.infoSourceURL}">${child.infoSourceURL}</a></cite>
-                            </c:if>
-                    </c:if> --%>
                 </div>
             </div><!---->
             <div id="column-two">
