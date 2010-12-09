@@ -863,6 +863,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         taxonConcept.setConservationStatusTAS((String) doc.getFirstValue("conservationStatusTAS"));
         taxonConcept.setConservationStatusVIC((String) doc.getFirstValue("conservationStatusVIC"));
         taxonConcept.setConservationStatusWA((String) doc.getFirstValue("conservationStatusWA"));
+        taxonConcept.setIsAustralian((String) doc.getFirstValue("australian_s"));
         
         try {
         	Integer rankId = (Integer) doc.getFirstValue("rankId");

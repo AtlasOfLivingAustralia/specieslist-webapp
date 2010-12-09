@@ -42,6 +42,7 @@ public class SearchTaxonConceptDTO extends SearchDTO implements Comparable<Searc
     protected String conservationStatusTAS;
     protected String conservationStatusVIC;
     protected String conservationStatusWA;
+    protected String isAustralian;
     protected String highlight;
     protected String image;
     protected String thumbnail;
@@ -416,4 +417,18 @@ public class SearchTaxonConceptDTO extends SearchDTO implements Comparable<Searc
 	public void setNameComplete(String nameComplete) {
 		this.nameComplete = nameComplete;
 	}
+
+    /**
+	 * @return the isAustralian
+	 */
+    public String getIsAustralian() {
+        return isAustralian;
+    }
+
+    /**
+	 * @param isAustralian the isAustralian to set
+	 */
+    public void setIsAustralian(String australian) {
+        this.isAustralian = australian;
+    }
 }
