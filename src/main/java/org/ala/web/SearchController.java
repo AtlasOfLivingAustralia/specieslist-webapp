@@ -159,12 +159,9 @@ public class SearchController {
             logger.error("Failed to load counts from Wordpress SOLR index: "+ex.getMessage(), ex);
         }
 
-        Long totalRecords = searchResults.getTotalRecords();
-        Integer lastPage = (totalRecords.intValue() / pageSize) + 1;
-        
-		model.addAttribute("searchResults", searchResults);
+        model.addAttribute("searchResults", searchResults);
         model.addAttribute("totalRecords", searchResults.getTotalRecords());
-        model.addAttribute("lastPage", lastPage);
+        model.addAttribute("lastPage", calculateLastPage(searchResults.getTotalRecords(), pageSize));
 
         logger.debug("Selected view: "+view);
         
@@ -252,6 +249,24 @@ public class SearchController {
 		// content = new String(content.getBytes(requestCharset), "UTF-8");
 		return content;
 	}
+    
+     /**
+     * Calculate the last page number for pagination
+     * 
+     * @param totalRecords
+     * @param pageSize
+     * @return
+     */
+    private Integer calculateLastPage(Long totalRecords, Integer pageSize) {
+        Integer lastPage = 0;
+        Integer lastRecordNum = totalRecords.intValue();
+        
+        if (pageSize > 0) {
+            lastPage = (lastRecordNum / pageSize) + ((lastRecordNum % pageSize > 0) ? 1 : 0);
+        }
+        
+        return lastPage;
+    }
 	
 	/**
 	 * @param searchDao the searchDao to set

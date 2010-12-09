@@ -312,8 +312,28 @@ include file="/common/taglibs.jsp" %>
                     }
                 });
                 
-                // help popup for calssification icon recorded in australia
-                $('#recordedIn img, #recordedIn span').qtip({ style: { name: 'light', tip: true } })
+                // help popup for classification icon: recorded in australia
+                $('#recordedIn img, #recordedIn span').qtip({ style: { name: 'light', tip: true } });
+                var isAustralian = "${extendedTaxonConcept.isAustralian}";
+                var showTaxaHtml = 'Only listing child taxa recorded in Australia. <a href="#" id="showAllChildren">Show all child taxa</a>.';
+                var hideTaxaHtml = '';
+                if (isAustralian == 'true') {
+                    $('ul.childClassification li').hide();
+                    $('ul.childClassification li.recorded').show();
+                    $('#isAustralianSwitch').html(showTaxaHtml);
+                }
+                
+                $('#showAllChildren').live("click", function() {
+                    $('#isAustralianSwitch').html(hideTaxaHtml);
+                    $('ul.childClassification li').show();
+                });
+                
+                $('#showAustChildren').live("click", function() {
+                    $('#isAustralianSwitch').html(showTaxaHtml);
+                    $('ul.childClassification li').hide();
+                    $('ul.childClassification li.recorded').show();
+                });
+                
 
             });  // end document ready function
 
@@ -825,6 +845,7 @@ include file="/common/taglibs.jsp" %>
             <div id="column-one">
                 <div class="section">
                     <h2>Scientific Classification</h2>
+                    <div id="isAustralianSwitch"></div>
                     <div id="classificationList">
                     	<c:forEach items="${taxonHierarchy}" var="taxon">
                             <c:choose><%-- Note: check for rankId is here due to some taxonHierarchy including taxa at higher rank than requested taxon (bug) --%>
@@ -840,14 +861,18 @@ include file="/common/taglibs.jsp" %>
                                     <ul><li id="currentTaxonConcept">${taxon.rank}: <span><alatag:formatSciName name="${taxon.name}" rankId="${taxon.rankId}"/>
                                     <c:if test="${not empty taxon.commonNameSingle && taxon.guid == extendedTaxonConcept.taxonConcept.guid}">
                                             : ${taxon.commonNameSingle}
-                                        </c:if></span></li>
+                                        </c:if></span>
+                                        <c:if test="${not empty taxon.isAustralian || extendedTaxonConcept.isAustralian}">
+                                            &nbsp;<span id="recordedIn"><img src="${pageContext.request.contextPath}/static/images/au.gif" alt="Recorded in Australia" class="no-rounding" title="Recorded in Australia"/></span>
+                                        </c:if>
+                                        </li>
                                 </c:when>
                                 <c:otherwise><!-- Taxa ${taxon.guid} - ${taxon.name} (${taxon.rank}) should not be here! --></c:otherwise>
                             </c:choose>
                     	</c:forEach>
-                        <ul>
+                        <ul class="childClassification">
                             <c:forEach items="${childConcepts}" var="child">
-                                <li>${child.rank}:
+                                <li class="${child.isAustralian}">${child.rank}:
                                     <c:set var="taxonLabel">
                                         <alatag:formatSciName name="${child.name}" rankId="${child.rankId}"/>
                                         <c:if test="${not empty child.commonNameSingle}">: ${child.commonNameSingle}</c:if>
@@ -855,11 +880,11 @@ include file="/common/taglibs.jsp" %>
                                     <a href="<c:url value='/species/${child.guid}#classification'/>">${fn:trim(taxonLabel)}</a>&nbsp;
                                     <span id="recordedIn">
                                         <c:choose>
-                                            <c:when test="${not empty child.australian}">
+                                            <c:when test="${not empty child.isAustralian}">
                                                 <img src="${pageContext.request.contextPath}/static/images/au.gif" alt="Recorded in Australia" class="no-rounding" title="Recorded in Australia"/>
                                             </c:when>
                                             <c:otherwise>
-                                                <span title="Not recorded in Australia">(inferred placement)</span>
+                                                <span title="Not recorded in Australia">[inferred placement]</span>
                                             </c:otherwise>
                                         </c:choose>
                                     </span>

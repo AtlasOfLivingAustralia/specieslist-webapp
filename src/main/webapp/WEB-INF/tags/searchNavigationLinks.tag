@@ -18,17 +18,20 @@
     <!-- coreParams = ${coreParams} || lastPage = ${lastPage} || startIndex = ${startIndex} || pageNumber = ${pageNumber} -->
     <c:set var="startPageLink">
         <c:choose>
-            <c:when test="${pageNumber < 6}">
+            <c:when test="${pageNumber < 6 || lastPage < 10}">
                 1
             </c:when>
-            <c:otherwise>
+            <c:when test="${(pageNumber + 4) < lastPage}"> <%-- ${(lastPage - pageNumber) < 5} --%>
                 ${pageNumber - 4}
+            </c:when>
+            <c:otherwise>
+                ${lastPage - 8}
             </c:otherwise>
         </c:choose>
     </c:set>
     <c:set var="endPageLink">
         <c:choose>
-            <c:when test="${(pageNumber < (lastPage - 4))}">
+            <c:when test="${lastPage > (startPageLink + 8)}"> <%-- ${lastPage > 9} || ${(pageNumber < (lastPage - 4))} --%>
                 ${startPageLink + 8}
             </c:when>
             <c:otherwise>
