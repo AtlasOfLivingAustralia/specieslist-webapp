@@ -317,11 +317,25 @@ include file="/common/taglibs.jsp" %>
                 var isAustralian = "${extendedTaxonConcept.isAustralian}";
                 var showTaxaHtml = 'Only listing child taxa recorded in Australia. <a href="#" id="showAllChildren">Show all child taxa</a>.';
                 var hideTaxaHtml = 'Listing all child taxa. <a href="#" id="showAustChildren">Show only child taxa recorded in Australia</a>.';
+                var numberOfInferredPlacement = $('span.inferredPlacement').length;
                 
-                if (isAustralian == 'true') {
+                if (isAustralian == 'true' && numberOfInferredPlacement > 0) {
                     $('ul.childClassification li').hide();
                     $('ul.childClassification li.recorded').show();
                     $('#isAustralianSwitch').html(showTaxaHtml);
+                    
+                    var offset = $('ul.childClassification').position();
+                    var top = (offset.top - 45) + "px";
+                    var right = (offset.left + 300) + "px";
+
+                    $('#isAustralianSwitch').css({
+                        'position': 'absolute',
+                        'width': '440px',
+                        'left': right,
+                        'top': top,
+                        'padding': '3px 4px 2px 6px',
+                        'background-color': '#D9D9D9'
+                    });
                 }
                 
                 $('#showAllChildren').live("click", function(e) {
@@ -336,21 +350,7 @@ include file="/common/taglibs.jsp" %>
                     $('ul.childClassification li').hide();
                     $('ul.childClassification li.recorded').show();
                 });
-                
-                var offset = $('ul.childClassification').position();
-                var top = (offset.top - 45) + "px";
-                var right = (offset.left + 300) + "px";
-                console.log("top", top);
-                console.log("right", right);
-
-                $('#isAustralianSwitch').css({
-                    'position': 'absolute',
-                    'width': '440px',
-                    'left': right,
-                    'top': top,
-                    'padding': '3px 4px 2px 6px',
-                    'background-color': '#D9D9D9'
-                });
+           
 
             });  // end document ready function
 
@@ -901,7 +901,7 @@ include file="/common/taglibs.jsp" %>
                                                 <img src="${pageContext.request.contextPath}/static/images/au.gif" alt="Recorded in Australia" class="no-rounding" title="Recorded in Australia"/>
                                             </c:when>
                                             <c:otherwise>
-                                                <span title="Not recorded in Australia">[inferred placement]</span>
+                                                <span class="inferredPlacement" title="Not recorded in Australia">[inferred placement]</span>
                                             </c:otherwise>
                                         </c:choose>
                                     </span>
