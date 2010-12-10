@@ -12,12 +12,12 @@ include file="/common/taglibs.jsp" %>
         <meta name="pageName" content="species" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>${extendedTaxonConcept.taxonConcept.nameString} <c:if test="${not empty extendedTaxonConcept.commonNames}"> : ${extendedTaxonConcept.commonNames[0].nameString}</c:if> | Atlas of Living Australia</title>
-        <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.1.css" media="screen" />
+        <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.4.css" media="screen" />
         <link type="text/css" media="screen" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/colorbox.css" />
         <script language="JavaScript" type="text/javascript" src="${wordPressUrl}/wp-content/themes/ala/scripts/ui.core.js"></script>
         <script language="JavaScript" type="text/javascript" src="${wordPressUrl}/wp-content/themes/ala/scripts/ui.tabs.js"></script>
-        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.1.pack.js"></script>
-        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.colorbox.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.colorbox-min.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.easing.1.3.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.favoriteIcon.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.qtip-1.0.0.min.js"></script>
