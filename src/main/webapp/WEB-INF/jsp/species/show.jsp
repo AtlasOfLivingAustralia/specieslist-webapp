@@ -316,24 +316,41 @@ include file="/common/taglibs.jsp" %>
                 $('#recordedIn img, #recordedIn span').qtip({ style: { name: 'light', tip: true } });
                 var isAustralian = "${extendedTaxonConcept.isAustralian}";
                 var showTaxaHtml = 'Only listing child taxa recorded in Australia. <a href="#" id="showAllChildren">Show all child taxa</a>.';
-                var hideTaxaHtml = '';
+                var hideTaxaHtml = 'Listing all child taxa. <a href="#" id="showAustChildren">Show only child taxa recorded in Australia</a>.';
+                
                 if (isAustralian == 'true') {
                     $('ul.childClassification li').hide();
                     $('ul.childClassification li.recorded').show();
                     $('#isAustralianSwitch').html(showTaxaHtml);
                 }
                 
-                $('#showAllChildren').live("click", function() {
+                $('#showAllChildren').live("click", function(e) {
+                    e.preventDefault();
                     $('#isAustralianSwitch').html(hideTaxaHtml);
                     $('ul.childClassification li').show();
                 });
                 
-                $('#showAustChildren').live("click", function() {
+                $('#showAustChildren').live("click", function(e) {
+                    e.preventDefault();
                     $('#isAustralianSwitch').html(showTaxaHtml);
                     $('ul.childClassification li').hide();
                     $('ul.childClassification li.recorded').show();
                 });
                 
+                var offset = $('ul.childClassification').position();
+                var top = (offset.top - 45) + "px";
+                var right = (offset.left + 300) + "px";
+                console.log("top", top);
+                console.log("right", right);
+
+                $('#isAustralianSwitch').css({
+                    'position': 'absolute',
+                    'width': '440px',
+                    'left': right,
+                    'top': top,
+                    'padding': '3px 4px 2px 6px',
+                    'background-color': '#D9D9D9'
+                });
 
             });  // end document ready function
 
