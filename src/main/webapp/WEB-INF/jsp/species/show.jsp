@@ -324,14 +324,16 @@ include file="/common/taglibs.jsp" %>
                     $('ul.childClassification li.recorded').show();
                     $('#isAustralianSwitch').html(showTaxaHtml);
                     
-                    var offset = $('ul.childClassification').position();
-                    var top = (offset.top - 45) + "px";
-                    var right = (offset.left + 300) + "px";
-
+                    //var offset = $('ul.childClassification').position();
+                    //console.log("offset", offset);
+                    var top = "138px"; // (offset.top - 45) + "px";
+                    var left = "405px"; // (offset.left + 300) + "px";
+                    
+                    
                     $('#isAustralianSwitch').css({
                         'position': 'absolute',
                         'width': '440px',
-                        'left': right,
+                        'left': left,
                         'top': top,
                         'padding': '3px 4px 2px 6px',
                         'background-color': '#D9D9D9'
