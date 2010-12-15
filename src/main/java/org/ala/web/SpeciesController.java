@@ -143,7 +143,7 @@ public class SpeciesController {
 	 * @return view name
 	 * @throws Exception
 	 */ 
-	@RequestMapping(value = "/species/charts/{guid}*", method = RequestMethod.GET)
+	@RequestMapping(value = "/species/charts/{guid:.+}*", method = RequestMethod.GET)
 	public String showChartInfo(@PathVariable("guid") String guid,
             HttpServletResponse response) throws Exception {
 		String contentAsString = WebUtils.getUrlContentAsString("http://biocache.ala.org.au/occurrences/searchByTaxon.json?q="+guid);
@@ -159,7 +159,7 @@ public class SpeciesController {
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/species/source/{guid}*", method = RequestMethod.GET)
+    @RequestMapping(value = "/species/source/{guid:.+}*", method = RequestMethod.GET)
     public void showSourceInfo(@PathVariable("guid") String guid,
             HttpServletResponse response) throws Exception {
         String contentAsString = WebUtils.getUrlContentAsString("http://biocache.ala.org.au/occurrences/sourceByTaxon/" +guid +".json?fq=basis_of_record:specimen");
