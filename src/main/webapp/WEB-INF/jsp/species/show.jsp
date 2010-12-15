@@ -148,7 +148,8 @@ include file="/common/taglibs.jsp" %>
                 };
                 
                 // load the collections that contain specimens
-                var colSpecUrl = "${pageContext.request.contextPath}/species/source/${extendedTaxonConcept.taxonConcept.guid}"; 
+                //var colSpecUrl = "${pageContext.request.contextPath}/species/source/${extendedTaxonConcept.taxonConcept.guid}"; 
+                var colSpecUrl = "http://biocache.ala.org.au/occurrences/sourceByTaxon/${extendedTaxonConcept.taxonConcept.guid}.json?fq=basis_of_record:specimen&callback=?"; 
                 $.getJSON(colSpecUrl, function(data) {
                     if (data != null &&data.occurrenceSources != null && data.occurrenceSources.length >0){
                         var content = '<h4>Collections that hold specimens: </h4>';
@@ -168,7 +169,8 @@ include file="/common/taglibs.jsp" %>
                 });
 
                 // load occurrence breakdowns for states
-                var biocachUrl = "${pageContext.request.contextPath}/species/charts/${extendedTaxonConcept.taxonConcept.guid}";
+                //var biocachUrl = "${pageContext.request.contextPath}/species/charts/${extendedTaxonConcept.taxonConcept.guid}";
+                var biocachUrl = "http://biocache.ala.org.au/occurrences/searchByTaxon.json?q=${extendedTaxonConcept.taxonConcept.guid}&callback=?";
                 $.getJSON(biocachUrl, function(data) {
                     if (data.searchResult != null && data.searchResult.totalRecords > 0) {
                         //alert("hi "+data.searchResult.totalRecords);
@@ -932,23 +934,25 @@ include file="/common/taglibs.jsp" %>
                         <div id="recordBreakdowns" style="display: block">
                         </div>
 
-                        <%-- Distribution map images --%>
-                        <c:if test="${not empty extendedTaxonConcept.distributionImages}">
-                            <h2>Record maps from other sources</h2>
-                            <c:forEach items="${extendedTaxonConcept.distributionImages}" var="distribImage">
-                                <div class="recordMapOtherSource" style="display: block">
-                                    <c:set var="imageLink">${not empty distribImage.isPartOf ? distribImage.isPartOf : distribImage.infoSourceURL}</c:set>
-                                    <a href="${imageLink}">
-                                        <img src="${distribImage.repoLocation}"/>
-                                    </a>
-                                    <br/>
-                                    <cite>Source:
-                                        <a href="${imageLink}" target="blank">${distribImage.infoSourceName}</a>
-                                    </cite>
-                                </div>
-                            </c:forEach>
-                        </c:if>
+                        
                     </div>
+                                
+                    <%-- Distribution map images --%>
+                    <c:if test="${not empty extendedTaxonConcept.distributionImages}">
+                        <h2>Record maps from other sources</h2>
+                        <c:forEach items="${extendedTaxonConcept.distributionImages}" var="distribImage">
+                            <div class="recordMapOtherSource" style="display: block">
+                                <c:set var="imageLink">${not empty distribImage.isPartOf ? distribImage.isPartOf : distribImage.infoSourceURL}</c:set>
+                                <a href="${imageLink}">
+                                    <img src="${distribImage.repoLocation}"/>
+                                </a>
+                                <br/>
+                                <cite>Source:
+                                    <a href="${imageLink}" target="blank">${distribImage.infoSourceName}</a>
+                                </cite>
+                            </div>
+                        </c:forEach>
+                    </c:if>
                     <%--
                     <c:forEach var="regionType" items="${extendedTaxonConcept.regionTypes}">
                         <c:if test="${fn:containsIgnoreCase(regionType.regionType, 'state') || fn:containsIgnoreCase(regionType.regionType, 'territory')}">
