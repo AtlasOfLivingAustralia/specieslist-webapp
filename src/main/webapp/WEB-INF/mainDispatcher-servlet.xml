@@ -2,21 +2,33 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
        xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
            http://www.springframework.org/schema/context
-           http://www.springframework.org/schema/context/spring-context-3.0.xsd">
-
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd
+           http://www.springframework.org/schema/mvc 
+           http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+    
+    <!-- Scans the classpath of this application for @Components to deploy as beans -->
     <context:component-scan base-package="org.ala.web"/>
+    
+    <!-- Configures the @Controller programming model -->
+    <mvc:annotation-driven />
 
+    <!-- Where to load static resources (css, js, images) -->
+    <mvc:resources mapping="/static/**" location="/" />
+
+    <!-- Resolves view names to protected .jsp resources within the /WEB-INF/views directory -->
     <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver" p:order="10">
         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
         <property name="prefix" value="/WEB-INF/jsp/"/>
         <property name="suffix" value=".jsp"/>
     </bean>
 
+    <!-- Application Message Bundle -->
     <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
         <property name="basename" value="/WEB-INF/messages"/>
         <property name="cacheSeconds" value="10"/><!-- loads changes without restarting container -->
@@ -24,11 +36,11 @@
     </bean>
 
     <!-- This will override the default DefaultAnnotationHandlerMapping that is created,
-         and not map file extensions automagically -->
+      -  and not map file extensions automagically -->
     <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" p:order="2">
         <property name="useDefaultSuffixPattern" value="false"/>
     </bean>
-
+   
     <!--
       - This bean resolves specific types of exceptions to corresponding logical
       - view names for error views. The default behaviour of DispatcherServlet
@@ -73,6 +85,8 @@
         <property name="ignoreAcceptHeader" value="true" />
     </bean>
     
+    <!-- Specify the default media type (html) as we have disabled the 
+      -  default setting with DefaultAnnotationHandlerMapping -->
     <bean id="htmlMediaType" class="org.springframework.http.MediaType">
         <constructor-arg index="0" value="text" />
         <constructor-arg index="1" value="html" />
@@ -80,9 +94,5 @@
 
     <!-- Over-ride bean properties - including dataSource configs -->
     <context:property-override location="classpath:bie.properties" ignore-unresolvable="true" ignore-resource-not-found="true"/>
-
-    <!-- BoBo Lucene add-on for facet browsing -->
-    <!--<bean id="rank" class="com.browseengine.bobo.facets.impl.SimpleFacetHandler">
-        <constructor-arg value="rankId" />
-    </bean>-->
+    
 </beans>

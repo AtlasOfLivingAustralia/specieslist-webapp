@@ -17,21 +17,10 @@
     </listener>
 
     <servlet>
-        <servlet-name>Resources</servlet-name>
-        <servlet-class>org.springframework.js.resource.ResourceServlet</servlet-class>
-        <load-on-startup>10</load-on-startup>
-    </servlet>
-
-    <servlet>
         <servlet-name>mainDispatcher</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>20</load-on-startup>
     </servlet>
-
-    <servlet-mapping>
-        <servlet-name>Resources</servlet-name>
-        <url-pattern>/static/*</url-pattern>
-    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>mainDispatcher</servlet-name>
@@ -39,7 +28,6 @@
     </servlet-mapping>
 
     <welcome-file-list>
-        <!--<welcome-file>species</welcome-file>-->
         <welcome-file>index.html</welcome-file>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
@@ -75,18 +63,19 @@
         <param-value>https://auth.ala.org.au</param-value>
     </context-param>
 
-	<!-- The Central Server hosting the CMS -->
+    <!-- The Central Server hosting the CMS -->
     <context-param>
         <param-name>centralServer</param-name>
         <param-value>http://www.ala.org.au</param-value>
     </context-param>
 
-    <!-- for local development
+    <!-- for local development -->
+    <!--
     <context-param>
         <param-name>contextPath</param-name>
         <param-value>/bie-webapp</param-value>
     </context-param>
-    -->
+   -->
 
     <context-param>
         <param-name>userAgentExclusionFilterPattern</param-name>

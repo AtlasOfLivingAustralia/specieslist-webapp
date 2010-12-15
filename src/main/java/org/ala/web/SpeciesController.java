@@ -176,7 +176,7 @@ public class SpeciesController {
 	 * @return view name
 	 * @throws Exception
 	 */ 
-	@RequestMapping(value = "/species/{guid}*", method = RequestMethod.GET)
+	@RequestMapping(value = "/species/{guid:.+}", method = RequestMethod.GET)
 	public String showSpecies(
             @PathVariable("guid") String guid,
             @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,

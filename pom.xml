@@ -14,7 +14,7 @@
         <!-- This project uses UTF8 for Regular Expressions -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <openrdf.sesame.version>2.2</openrdf.sesame.version>
-        <spring.version>3.0.0.RELEASE</spring.version>
+        <spring.version>3.0.5.RELEASE</spring.version>
         <netbeans.hint.deploy.server>Tomcat60</netbeans.hint.deploy.server>
     </properties>
     <dependencies>
@@ -159,11 +159,6 @@
                     <groupId>org.apache.commons</groupId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.webflow</groupId>
-            <artifactId>org.springframework.js</artifactId>
-            <version>2.0.8.RELEASE</version>
         </dependency>
         <!-- SITEMESH -->
         <dependency>
