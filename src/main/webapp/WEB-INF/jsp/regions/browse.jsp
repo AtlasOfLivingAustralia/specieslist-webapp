@@ -15,6 +15,7 @@
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.4.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="${initParam.centralServer}/wp-content/themes/ala/css/bie.css" media="screen" />
     <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/picnet.table.filter.min.js"></script>
     <script src="${pageContext.request.contextPath}/static/flash/swfobject.js" language="javascript"></script>
     <script src="${pageContext.request.contextPath}/static/flash/history/history.js" language="javascript"></script>
     <title>Regions | Atlas of Living Australia</title>
@@ -24,7 +25,7 @@
          */
         $(document).ready(function() {
             // Tool tip for headings
-            $('#regionalisations h3 span').qtip({ style: { name: 'cream', tip: true } });
+            //$('#regionalisations h3 span').qtip({ style: { name: 'cream', tip: true } });
             
             // Make regionBrowser flash map appear in popup div
             $("a#showRegionBrowser").fancybox({
@@ -34,6 +35,15 @@
                 'width' : ${width + 8},
                 'height' : ${height + 8}
             });
+            
+            // TableFilter plugin
+            var options = {
+                additionalFilterTriggers: [$('#quickfind')],
+                clearFiltersControls: [$('#cleanfilters')]
+            };
+            $('table#lga').tableFilter(options);
+            $('table#ibra').tableFilter(options);
+            $('table#imcra').tableFilter(options);
             
         }); // End document.ready
         
@@ -88,33 +98,51 @@
             </div>
             <div style="clear: both">&nbsp;</div>
             <h2>Other Regionalisations of Australia</h2>
+            <div id="quickFindDiv">
+                Quick Find: <input type="text" id="quickfind" size="40"/>
+                &nbsp;&nbsp;<a id="cleanfilters" href="#">Clear Filters</a>
+            </div>
             <table style="width:100%" id="regionalisations">
-                <tr>
-                    <td style="width:300px;">
-                        <h3><span title="Local Government Areas">LGA</span></h3>
-                        <ul>
-                            <c:forEach items="${lga}" var="region">
-                                <li><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></li>           	
-                            </c:forEach>
-                        </ul>
-                    </td>
-                    <td style="width:300px;">
-                        <h3><span title="Interim Biogeographic Regionalisation of Australia">IBRA</span></h3>
-                        <ul>
-                            <c:forEach items="${ibra}" var="region">
-                                <li><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></li>           	
-                            </c:forEach>
-                        </ul>
-                    </td>
-                    <td style="width:300px;">
-                        <h3><span title="Integrated Marine and Coastal Regionalisation of Australia">IMCRA</span></h3>
-                        <ul>
-                            <c:forEach items="${imcra}" var="region">
-                                <li><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></li>           	
-                            </c:forEach>
-                        </ul>
-                    </td>
-                </tr>
+                <thead>
+                    <tr>
+                        <th><h3><span title="Local Government Areas">Local Government Areas (LGA)</span></h3></th>
+                        <th><h3><span title="Interim Biogeographic Regionalisation of Australia">Interim Biogeographic Regionalisation of Australia (IBRA)</span></h3></th>
+                        <th><h3><span title="Integrated Marine and Coastal Regionalisation of Australia">Integrated Marine and Coastal Regionalisation of Australia (IMCRA)</span></h3></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="width:300px;">
+                            <table width="100%" border="0" id="lga">
+                                <c:forEach items="${lga}" var="region">
+                                    <tr>
+                                        <td><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></td>
+                                    </tr>
+                                </c:forEach>
+                            </table>
+                        </td>
+                        <td style="width:300px;">
+                            <table width="100%" border="0" id="ibra">
+                                <c:forEach items="${ibra}" var="region">
+                                    <tr>
+                                        <td><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></td>
+                                    </tr>
+                                </c:forEach>
+                            </table>
+                        </td>
+                        <td style="width:300px;">
+                            <table width="100%" border="0" id="imcra">
+                                <c:forEach items="${imcra}" var="region">
+                                    <tr>
+                                        <td><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></td>
+                                    </tr>
+                                </c:forEach>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+                
             </table>
             <div style="display: none;">
                 <div id="regionBrowserDiv" style="width: ${width}; height: ${height}">
