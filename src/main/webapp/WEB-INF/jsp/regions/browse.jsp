@@ -24,7 +24,7 @@
          */
         $(document).ready(function() {
             // Tool tip for headings
-            $('#regionalisations h2 span').qtip({ style: { name: 'cream', tip: true } });
+            $('#regionalisations h3 span').qtip({ style: { name: 'cream', tip: true } });
             
             // Make regionBrowser flash map appear in popup div
             $("a#showRegionBrowser").fancybox({
@@ -34,16 +34,6 @@
                 'width' : ${width + 8},
                 'height' : ${height + 8}
             });
-            
-            //if (swfobject.getFlashPlayerVersion().major >= 9) {
-                // Flash is detected
-                //alert("Flash is right version: " + swfobject.getFlashPlayerVersion().major);
-                
-            //} else {
-                // No Flash
-                //alert("Flash not present or not right version");
-                //$('#regionBrowserLink').hide();
-            //}
             
         }); // End document.ready
         
@@ -75,10 +65,11 @@
             <a href="${initParam.centralServer}/explore">Explore</a>
             Regions
         </div>
-        <h1>States &amp; Territories</h1>
+        <h1>Regions of Australia</h1>
     </div><!--close header-->
     <div id="column-one" class="full-width">
         <div class="section">
+            <h2>States &amp; Territories</h2>
             <div style="width: 600px;">
                 <div id="regionBrowserLinks" style="float: right; display: none;">
                     <a href="#regionBrowserDiv" id="showRegionBrowser" class="plain" title="View interactive map of Australian Regions">
@@ -87,7 +78,7 @@
                         View interactive map of Australian Regions
                     </a>
                 </div>
-                <div id="states">
+                <div id="states" style="padding-top: 10px;">
                     <ul>
                         <c:forEach items="${states}" var="region">
                             <li><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></li>           	
@@ -96,11 +87,11 @@
                 </div>
             </div>
             <div style="clear: both">&nbsp;</div>
-            <h1>Other Regionalisations of Australia</h1>
+            <h2>Other Regionalisations of Australia</h2>
             <table style="width:100%" id="regionalisations">
                 <tr>
                     <td style="width:300px;">
-                        <h2><span title="Local Government Areas">LGA</span></h2>
+                        <h3><span title="Local Government Areas">LGA</span></h3>
                         <ul>
                             <c:forEach items="${lga}" var="region">
                                 <li><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></li>           	
@@ -108,7 +99,7 @@
                         </ul>
                     </td>
                     <td style="width:300px;">
-                        <h2><span title="Interim Biogeographic Regionalisation of Australia">IBRA</span></h2>
+                        <h3><span title="Interim Biogeographic Regionalisation of Australia">IBRA</span></h3>
                         <ul>
                             <c:forEach items="${ibra}" var="region">
                                 <li><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></li>           	
@@ -116,7 +107,7 @@
                         </ul>
                     </td>
                     <td style="width:300px;">
-                        <h2><span title="Integrated Marine and Coastal Regionalisation of Australia">IMCRA</span></h2>
+                        <h3><span title="Integrated Marine and Coastal Regionalisation of Australia">IMCRA</span></h3>
                         <ul>
                             <c:forEach items="${imcra}" var="region">
                                 <li><a href="${pageContext.request.contextPath}/regions/${region.guid}">${region.name}</a></li>           	
