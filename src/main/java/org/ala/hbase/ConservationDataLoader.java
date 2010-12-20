@@ -3,6 +3,7 @@ package org.ala.hbase;
 import au.org.ala.data.model.LinnaeanRankClassification;
 import javax.inject.Inject;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -20,6 +21,7 @@ import org.gbif.ecat.parser.NameParser;
 import org.gbif.file.CSVReader;
 import org.springframework.stereotype.Component;
 import org.ala.vocabulary.Vocabulary;
+import org.apache.commons.io.FileUtils;
 import org.gbif.dwc.record.DarwinCoreRecord;
 import org.gbif.dwc.terms.ConceptTerm;
 import org.gbif.dwc.terms.GbifTerm;
@@ -48,6 +50,7 @@ public class ConservationDataLoader {
     @Inject
     protected TaxonConceptDao taxonConceptDao;
     protected Map<String, String[]> regionLookup;
+    private boolean statsOnly = false;
 //   @Inject
     //protected DataSource gisDataSource;
 //    /** JDBC Template for Postgres DB */
@@ -70,6 +73,9 @@ public class ConservationDataLoader {
     private static final String iucnDirectory = "/data/bie-staging/conservation/iucn";
     private static final String iucnFile = "/data/bie-staging/conservation/iucn/2008_REDLIST.csv";
     private static final String tasFile = "/data/bie-staging/conservation/tas/species_20101015_1503(1).csv";
+    private static final String summaryFile ="/data/bie-staging/conservation/summary.csv";
+
+    private static FileOutputStream summaryOut;
     
 
     public static void main(String args[]) {
@@ -77,6 +83,8 @@ public class ConservationDataLoader {
             ApplicationContext context = SpringUtils.getContext();
             ConservationDataLoader loader = (ConservationDataLoader) context.getBean(ConservationDataLoader.class);
 
+            if(args.length > 0)
+                loader.statsOnly = args[0].equals("-stats");
             loader.init(context);
             loader.loadEpbc();
             loader.loadQueensland();
@@ -101,6 +109,8 @@ public class ConservationDataLoader {
             loader.loadIUCN();
 //            loader.processIUCN();
             loader.loadGenericStateOptionalClassification(tasFile, "Tasmania", "", 509,4 , 23, 5, 6, 7, 8, 9, 10, 3, 24);
+            summaryOut.flush();
+            summaryOut.close();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -108,7 +118,9 @@ public class ConservationDataLoader {
         System.exit(0);
     }
 
-    public void init(ApplicationContext context) {
+    public void init(ApplicationContext context) throws Exception {
+        summaryOut = FileUtils.openOutputStream(new File(summaryFile));
+        summaryOut.write("source,filename,total records,ANBG matched,Other match,No Match\n".getBytes());
         //populate the region lookup for use in the EPBC infosource
         //This should be change to use the Gazetteer 
         regionLookup = new HashMap<String, String[]>();
@@ -136,6 +148,10 @@ public class ConservationDataLoader {
     private String[] getRegionInfo(String region) {
         return regionLookup.get(region);
     }
+    private void reportSummary(String file, String filename, int total, int anbg, int col, int failed) throws Exception{
+        String line = file + "," +filename + "," + total+","+anbg+"," +col + "," + failed+"\n";
+        summaryOut.write(line.getBytes());
+    }
 
     /**
      * Load the content of the EPBC file
@@ -147,7 +163,7 @@ public class ConservationDataLoader {
         NameParser parser = new NameParser();
         Pattern p = Pattern.compile(",");
         InfoSource is = infoSourceDAO.getById(500);
-        int processed = 0, failed = 0;
+        int processed = 0, failed = 0, anbg=0, col=0;
         while (reader.hasNext()) {
             String values[] = reader.readNext();
             if (values != null && values.length > 10) {
@@ -158,38 +174,44 @@ public class ConservationDataLoader {
                 String guid = taxonConceptDao.findLsidByName(values[0], cl, null);
                 if (guid != null) {
                     processed++;
-                    //BIE has the supplied species names
-                    String commonNames = StringUtils.trimToNull(values[1]);
-                    String conservationStatus = values[2];
-                    String comments = values[4];
-                    ConservationStatus cs = vocabulary.getConservationStatusFor(500, conservationStatus);
-                    //add the info source information
-                    addCSInfo(cs, is, "Australia", null);//This is the national list
+                    if(guid.startsWith("urn:lsid:biodiversity.org.au"))
+                        anbg++;
+                    else
+                        col++;
+                    if(!statsOnly){
+                        //BIE has the supplied species names
+                        String commonNames = StringUtils.trimToNull(values[1]);
+                        String conservationStatus = values[2];
+                        String comments = values[4];
+                        ConservationStatus cs = vocabulary.getConservationStatusFor(500, conservationStatus);
+                        //add the info source information
+                        addCSInfo(cs, is, "Australia", null);//This is the national list
 
-                    //add the regions to which the status applies
-                    String regions = values[5];
-                    //multiple regions are separated by ,
-                    if (regions != null) {
-                        for (String region : p.split(regions)) {
-                            String[] rinfo = getRegionInfo(StringUtils.trim(region));
-                            if (rinfo == null) {
-                                //attempt to get the region from the comments field
-                                rinfo = getRegionInfo(comments);
-                            }
-                            if (rinfo != null) {
-                                cs.addOtherRegion(rinfo[0], rinfo[1]);
+                        //add the regions to which the status applies
+                        String regions = values[5];
+                        //multiple regions are separated by ,
+                        if (regions != null) {
+                            for (String region : p.split(regions)) {
+                                String[] rinfo = getRegionInfo(StringUtils.trim(region));
+                                if (rinfo == null) {
+                                    //attempt to get the region from the comments field
+                                    rinfo = getRegionInfo(comments);
+                                }
+                                if (rinfo != null) {
+                                    cs.addOtherRegion(rinfo[0], rinfo[1]);
+                                }
                             }
                         }
-                    }
 
-                    taxonConceptDao.addConservationStatus(guid, cs);
-                    //add the common names(s)
-                    if (commonNames != null) {
-                        //multiple common names are split by a comma
-                        for (String cn : p.split(commonNames)) {
-                            addCommonName(guid, cn, is);
+                        taxonConceptDao.addConservationStatus(guid, cs);
+                        //add the common names(s)
+                        if (commonNames != null) {
+                            //multiple common names are split by a comma
+                            for (String cn : p.split(commonNames)) {
+                                addCommonName(guid, cn, is);
+                            }
+
                         }
-
                     }
 
 
@@ -201,6 +223,7 @@ public class ConservationDataLoader {
             }
         }
         logger.info("Finished adding " + processed + " conservation status.  Failed to locate " + failed);
+        reportSummary("EPBC",epbcFile, processed+failed, anbg, col, failed);
     }
 
     private void addCSInfo(ConservationStatus cs, InfoSource is, String region, String regionId) {
@@ -239,7 +262,7 @@ public class ConservationDataLoader {
         CSVReader reader = CSVReader.buildReader(new File(qldFile), "UTF-8", ',', '"', 1);
         InfoSource is = infoSourceDAO.getById(501);
 
-        int processed = 0, failed = 0;
+        int processed = 0, failed = 0, anbg=0, col =0;
         while (reader.hasNext()) {
             String values[] = reader.readNext();
             if (values != null && values.length > 8) {
@@ -250,19 +273,25 @@ public class ConservationDataLoader {
                 String guid = taxonConceptDao.findLsidByName(sciName);
                 if (guid != null) {
                     processed++;
-                    ConservationStatus cs = vocabulary.getConservationStatusFor(501, values[7]);
-                    //some of the species do not have a qld conservation status
-                    if (cs != null) {
-                        
-                        //System.out.println("The qld conservation status = " + cs);
-                        //set the region and region id  (all records will be the same thus not in the vocabulary)
-                        addCSInfo(cs, is, "Queensland", "aus_states/Queensland");
-                        taxonConceptDao.addConservationStatus(guid, cs);
-                    }
-                    //add the common name
-                    String commonName = StringUtils.trimToNull(values[5]);
-                    if (commonName != null) {
-                        addCommonName(guid, commonName, is);
+                    if(guid.startsWith("urn:lsid:biodiversity.org.au"))
+                        anbg++;
+                    else
+                        col++;
+                    if(!statsOnly){
+                        ConservationStatus cs = vocabulary.getConservationStatusFor(501, values[7]);
+                        //some of the species do not have a qld conservation status
+                        if (cs != null) {
+
+                            //System.out.println("The qld conservation status = " + cs);
+                            //set the region and region id  (all records will be the same thus not in the vocabulary)
+                            addCSInfo(cs, is, "Queensland", "aus_states/Queensland");
+                            taxonConceptDao.addConservationStatus(guid, cs);
+                        }
+                        //add the common name
+                        String commonName = StringUtils.trimToNull(values[5]);
+                        if (commonName != null) {
+                            addCommonName(guid, commonName, is);
+                        }
                     }
                 } else {
                     failed++;
@@ -272,6 +301,7 @@ public class ConservationDataLoader {
             }
         }
         logger.info("Finished adding " + processed + " conservation status.  Failed to locate " + failed);
+        reportSummary("Queensland",qldFile, processed+failed, anbg, col, failed);
 
     }
 
@@ -284,7 +314,7 @@ public class ConservationDataLoader {
         CSVReader reader = CSVReader.buildReader(new File(waFaunaFile), "UTF-8", ',', '"', 1);
         InfoSource is = infoSourceDAO.getById(502);
         NameParser parser = new NameParser();
-        int processed = 0, failed = 0;
+        int processed = 0, failed = 0, anbg=0, col =0;
 
         while (reader.hasNext()) {
             String[] values = reader.readNext();
@@ -299,17 +329,23 @@ public class ConservationDataLoader {
                 String guid = taxonConceptDao.findLsidByName(sciName, cl, null);
                 if (guid != null) {
                     processed++;
-                    //get the conservation status
-                    ConservationStatus cs = vocabulary.getConservationStatusFor(502, values[6]);
-                    if (cs != null) {
-                        addCSInfo(cs, is, "Western Australia", "aus_states/Western Australia");
-//                        System.out.println("Adding " + cs);
-                        taxonConceptDao.addConservationStatus(guid, cs);
-                    }
-                    //add the common names
-                    String commonName = StringUtils.trimToNull(values[4]);
-                    if (commonName != null) {
-                        addCommonName(guid, commonName, is);
+                    if(guid.startsWith("urn:lsid:biodiversity.org.au"))
+                        anbg++;
+                    else
+                        col++;
+                    if(!statsOnly){
+                        //get the conservation status
+                        ConservationStatus cs = vocabulary.getConservationStatusFor(502, values[6]);
+                        if (cs != null) {
+                            addCSInfo(cs, is, "Western Australia", "aus_states/Western Australia");
+    //                        System.out.println("Adding " + cs);
+                            taxonConceptDao.addConservationStatus(guid, cs);
+                        }
+                        //add the common names
+                        String commonName = StringUtils.trimToNull(values[4]);
+                        if (commonName != null) {
+                            addCommonName(guid, commonName, is);
+                        }
                     }
 
                 } else {
@@ -322,6 +358,7 @@ public class ConservationDataLoader {
         }
 
         logger.info("Finished adding " + processed + " conservation status.  Failed to locate " + failed);
+        reportSummary("WA Fauna",waFaunaFile, processed+failed, anbg, col, failed);
     }
 
     /**
@@ -336,7 +373,7 @@ public class ConservationDataLoader {
         CSVReader reader = CSVReader.buildReader(new File(waFloraFile), "UTF-8", ',', '"', 1);
         InfoSource is = infoSourceDAO.getById(503);
 
-        int processed = 0, failed = 0, loaded = 0;
+        int processed = 0, failed = 0, loaded = 0, anbg=0, col=0;
         while (reader.hasNext()) {
             String[] values = reader.readNext();
             if (values != null && values.length > 3) {
@@ -344,21 +381,27 @@ public class ConservationDataLoader {
                 String guid = taxonConceptDao.findLsidByName(sciName);
                 if (guid != null) {
                     processed++;
-                    //check for the conservation status of the WA IUCN Rank column
-                    // This will process the cons code = X and cons code = R to more detailed conservation codes.
-                    ConservationStatus cs = vocabulary.getConservationStatusFor(503, values[2]);
-                    if (cs == null) {
-                        //Now check for the conservation status of the Cons code column.
-                        // This will catch the records that have conservation status 1, 2, 3 or 4
-                        cs = vocabulary.getConservationStatusFor(503, values[1]);
+                    if(guid.startsWith("urn:lsid:biodiversity.org.au"))
+                        anbg++;
+                    else
+                        col++;
+                    if(!statsOnly){
+                        //check for the conservation status of the WA IUCN Rank column
+                        // This will process the cons code = X and cons code = R to more detailed conservation codes.
+                        ConservationStatus cs = vocabulary.getConservationStatusFor(503, values[2]);
+                        if (cs == null) {
+                            //Now check for the conservation status of the Cons code column.
+                            // This will catch the records that have conservation status 1, 2, 3 or 4
+                            cs = vocabulary.getConservationStatusFor(503, values[1]);
+                        }
+                        if (cs != null) {
+                            loaded++;
+                            addCSInfo(cs, is, "Western Australia", "aus_states/Western Australia");
+    //                        System.out.println(cs);
+                            taxonConceptDao.addConservationStatus(guid, cs);
+                        }
+                        //there are no common names in the wa flora file.
                     }
-                    if (cs != null) {
-                        loaded++;
-                        addCSInfo(cs, is, "Western Australia", "aus_states/Western Australia");                        
-//                        System.out.println(cs);
-                        taxonConceptDao.addConservationStatus(guid, cs);
-                    }
-                    //there are no common names in the wa flora file.
                 } else {
                     failed++;
                     logger.info("Unable to locate scientific name " + sciName);
@@ -366,13 +409,14 @@ public class ConservationDataLoader {
             }
         }
         logger.info("Finished adding " + processed + "(" + loaded + ") conservation status.  Failed to locate " + failed);
+        reportSummary("WA Flora",waFloraFile, processed+failed, anbg, col, failed);
     }
 
     public void loadNSW(String filename, String type, int sciIdx, int familyIdx, int genusId, int cnIdx, int statusIdx) throws Exception {
         logger.info("Loading the NSW " + type + " Conservation Status ...");
         CSVReader reader = CSVReader.buildReader(new File(filename), "UTF-8", '\t', '\"', 1);
         InfoSource is = infoSourceDAO.getById(506);
-        int processed = 0, failed = 0, loaded = 0;
+        int processed = 0, failed = 0, loaded = 0, anbg=0 ,col=0;
         while (reader.hasNext()) {
             String[] values = reader.readNext();
             if (values != null && values.length > statusIdx) {
@@ -382,16 +426,22 @@ public class ConservationDataLoader {
                 String guid = taxonConceptDao.findLsidByName(sciName, cl, null);
                 if (guid != null) {
                     processed++;
-                    ConservationStatus cs = vocabulary.getConservationStatusFor(506, values[statusIdx]);
-                    if (cs != null) {
-                        loaded++;
-                        addCSInfo(cs, is, "New South Wales", "aus_states/New South Wales");                        
-                        taxonConceptDao.addConservationStatus(guid, cs);
-                    }
-                    //common name
-                    String commonName = StringUtils.trimToNull(values[cnIdx]);
-                    if (commonName != null) {
-                        addCommonName(guid, commonName, is);
+                     if(guid.startsWith("urn:lsid:biodiversity.org.au"))
+                        anbg++;
+                    else
+                        col++;
+                    if(!statsOnly){
+                        ConservationStatus cs = vocabulary.getConservationStatusFor(506, values[statusIdx]);
+                        if (cs != null) {
+                            loaded++;
+                            addCSInfo(cs, is, "New South Wales", "aus_states/New South Wales");
+                            taxonConceptDao.addConservationStatus(guid, cs);
+                        }
+                        //common name
+                        String commonName = StringUtils.trimToNull(values[cnIdx]);
+                        if (commonName != null) {
+                            addCommonName(guid, commonName, is);
+                        }
                     }
                 } else {
                     failed++;
@@ -402,6 +452,7 @@ public class ConservationDataLoader {
             }
         }
         logger.info("Finished adding " + processed + "(" + loaded + ") conservation status.  Failed to locate " + failed);
+        reportSummary("NSW " + type, filename, processed+failed, anbg, col, failed);
     }
 
     /**
@@ -426,7 +477,7 @@ public class ConservationDataLoader {
         logger.info("Loading the " + state + " " + type + " Conservation Status...");
         CSVReader reader = CSVReader.buildReader(new File(filename), "UTF-8", ',', '"', 1);
         InfoSource is = infoSourceDAO.getById(infosourceId);
-        int processed = 0, failed = 0, loaded = 0;
+        int processed = 0, failed = 0, loaded = 0, anbg=0, col=0;
 
         while (reader.hasNext()) {
             String[] values = reader.readNext();
@@ -447,19 +498,25 @@ public class ConservationDataLoader {
                 String guid = taxonConceptDao.findLsidByName(sciName, cl, null);
                 if (guid != null) {
                     processed++;
-                    //get the conservation status
-                    ConservationStatus cs = vocabulary.getConservationStatusFor(infosourceId, values[statusIdx]);
-                    if (cs != null) {
-                        loaded++;
-                        addCSInfo(cs, is, state, "aus_states/" + state);
-//                        System.out.println(cs);
-                        taxonConceptDao.addConservationStatus(guid, cs);
-                    }
-                    if (cnIdx >= 0) {
-                        //now load the common names
-                        String commonName = StringUtils.trimToNull(values[cnIdx]);
-                        if (commonName != null) {
-                            addCommonName(guid, commonName, is);
+                     if(guid.startsWith("urn:lsid:biodiversity.org.au"))
+                        anbg++;
+                    else
+                        col++;
+                    if(!statsOnly){
+                        //get the conservation status
+                        ConservationStatus cs = vocabulary.getConservationStatusFor(infosourceId, values[statusIdx]);
+                        if (cs != null) {
+                            loaded++;
+                            addCSInfo(cs, is, state, "aus_states/" + state);
+    //                        System.out.println(cs);
+                            taxonConceptDao.addConservationStatus(guid, cs);
+                        }
+                        if (cnIdx >= 0) {
+                            //now load the common names
+                            String commonName = StringUtils.trimToNull(values[cnIdx]);
+                            if (commonName != null) {
+                                addCommonName(guid, commonName, is);
+                            }
                         }
                     }
                 } else {
@@ -469,7 +526,7 @@ public class ConservationDataLoader {
             }
         }
         logger.info("Finished adding " + processed + "(" + loaded + ") conservation status.  Failed to locate " + failed);
-
+        reportSummary(state + " " + type, filename, processed+failed, anbg, col, failed);
     }
 
     /**
@@ -490,7 +547,7 @@ public class ConservationDataLoader {
         logger.info("Loading the " + state + " " + type + " Conservation Status...");
         CSVReader reader = CSVReader.buildReader(new File(filename), "UTF-8", ',', '"', 1);
         InfoSource is = infoSourceDAO.getById(infosourceId);
-        int processed = 0, failed = 0, loaded = 0;
+        int processed = 0, failed = 0, loaded = 0, anbg = 0, col = 0;
 
         while (reader.hasNext()) {
             String[] values = reader.readNext();
@@ -500,19 +557,25 @@ public class ConservationDataLoader {
                 String guid = taxonConceptDao.findLsidByName(sciName);
                 if (guid != null) {
                     processed++;
-                    //get the conservation status
-                    ConservationStatus cs = vocabulary.getConservationStatusFor(infosourceId, values[statusIdx]);
-                    if (cs != null) {
-                        loaded++;
-                        addCSInfo(cs, is, state, "aus_states/" + state);                        
-//                        System.out.println(cs);
-                        taxonConceptDao.addConservationStatus(guid, cs);
-                    }
-                    if (cnIdx >= 0) {
-                        //now load the common names
-                        String commonName = StringUtils.trimToNull(values[cnIdx]);
-                        if (commonName != null) {
-                            addCommonName(guid, commonName, is);
+                     if(guid.startsWith("urn:lsid:biodiversity.org.au"))
+                        anbg++;
+                    else
+                        col++;
+                    if(!statsOnly){
+                        //get the conservation status
+                        ConservationStatus cs = vocabulary.getConservationStatusFor(infosourceId, values[statusIdx]);
+                        if (cs != null) {
+                            loaded++;
+                            addCSInfo(cs, is, state, "aus_states/" + state);
+    //                        System.out.println(cs);
+                            taxonConceptDao.addConservationStatus(guid, cs);
+                        }
+                        if (cnIdx >= 0) {
+                            //now load the common names
+                            String commonName = StringUtils.trimToNull(values[cnIdx]);
+                            if (commonName != null) {
+                                addCommonName(guid, commonName, is);
+                            }
                         }
                     }
                 } else {
@@ -522,13 +585,14 @@ public class ConservationDataLoader {
             }
         }
         logger.info("Finished adding " + processed + "(" + loaded + ") conservation status.  Failed to locate " + failed);
+        reportSummary(state+" " + type,filename, processed+failed, anbg, col, failed);
     }
 
     private void loadIUCN() throws Exception {
         logger.info("Loading the IUCN Redlist...");
         CSVReader reader = CSVReader.buildReader(new File(iucnFile), "UTF-8", ',', '"', 1);
         InfoSource is = infoSourceDAO.getById(510);
-        int processed = 0, failed = 0;
+        int processed = 0, failed = 0, anbg=0, col=0;
 
         while(reader.hasNext()){
             String[] values = reader.readNext();
@@ -550,13 +614,19 @@ public class ConservationDataLoader {
 
                     if(guid != null){
                         processed++;
-                        ConservationStatus cs = vocabulary.getConservationStatusFor(510, values[17]);
-                        addCSInfo(cs, is, null, null);
-                        taxonConceptDao.addConservationStatus(guid, cs);
+                         if(guid.startsWith("urn:lsid:biodiversity.org.au"))
+                        anbg++;
+                    else
+                        col++;
+                        if(!statsOnly){
+                            ConservationStatus cs = vocabulary.getConservationStatusFor(510, values[17]);
+                            addCSInfo(cs, is, null, null);
+                            taxonConceptDao.addConservationStatus(guid, cs);
 
-                        String commonName = StringUtils.trimToNull(values[14]);
-                        if(commonName != null){
-                            addCommonName(guid, commonName, is);
+                            String commonName = StringUtils.trimToNull(values[14]);
+                            if(commonName != null){
+                                addCommonName(guid, commonName, is);
+                            }
                         }
                     }
                     else{
@@ -570,6 +640,7 @@ public class ConservationDataLoader {
             }
         }
         logger.info("Finished adding " + processed +" conservation status.  Failed to locate " + failed);
+        reportSummary("IUCN",iucnFile, processed+failed, anbg, col, failed);
     }
 
 //    private void processIUCN() throws Exception{
