@@ -152,6 +152,17 @@ public class SpeciesController {
 		return null;
 	}
 
+	private List<Image> removeBlackListedImageItem(List<Image> images){
+		List<Image> il = new ArrayList<Image>();
+		
+		for(Image image : images){
+			if(!image.getIsBlackListed()){
+				il.add(image);
+			}
+		}
+		return il;
+	}
+	
     /**
      * Get the list of collections, institutes, data resources and data providers that have specimens for the supplied taxon concept guid
      * Wrapper around the biocache service: http://biocache.ala.org.au/occurrences/sourceByTaxon
@@ -184,7 +195,9 @@ public class SpeciesController {
             Model model) throws Exception {
 		logger.debug("Displaying page for: " + guid +" .....");
         ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
-
+        //remove blackListed image...
+        etc.setImages(removeBlackListedImageItem(etc.getImages()));
+        
         if (etc.getTaxonConcept() == null || etc.getTaxonConcept().getGuid() == null) {
             model.addAttribute("errorMessage", "The requested taxon was not found: "+conceptName+" ("+ guid+")");
             return SPECIES_ERROR;
