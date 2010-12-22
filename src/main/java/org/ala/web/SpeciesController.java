@@ -373,17 +373,25 @@ public class SpeciesController {
 			String fileName = doc.getFilePath()+"/raw"+mt.getFileExtension();
             logger.debug("filename = "+fileName);
             ImageUtils iu = new ImageUtils();
-            iu.load(fileName); // problem with Jetty 7.0.1
-            // create a sqaure image (crops)
-			if (square) {
-				iu.square();
-			}
-            // scale if original is bigger than "scale" pixels
-			iu.smoothThumbnail(scale);
-            
-			response.setContentType(mt.getMimeType());
-			ImageIO.write(iu.getModifiedImage(), mt.name(), outputStream);
-		}
+            try {
+                iu.load(fileName); // problem with Jetty 7.0.1
+                // create a sqaure image (crops)
+                if (square) {
+                    iu.square();
+                }
+                // scale if original is bigger than "scale" pixels
+                iu.smoothThumbnail(scale);
+
+                response.setContentType(mt.getMimeType());
+                ImageIO.write(iu.getModifiedImage(), mt.name(), outputStream);
+            } catch (Exception ex) {
+                String msg = ex.getMessage();
+                logger.warn("Problem loading image with JAI: " + msg, ex);
+                response.sendError(response.SC_INTERNAL_SERVER_ERROR, msg);
+            }
+		} else {
+            response.sendError(response.SC_NOT_FOUND, "Requested image " + documentId + ".jpg was not found");
+        }
 	}
 
 	/**
