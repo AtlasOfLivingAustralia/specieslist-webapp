@@ -620,6 +620,8 @@ public interface TaxonConceptDao {
 	 * @throws Exception
 	 */
 	boolean setRankingOnImage(String taxonGuid, String imageUri, boolean positive) throws Exception;
+	
+	boolean setRankingOnImage(String taxonGuid, String imageUri, boolean positive, boolean blackList) throws Exception;
 
         /**
          * Sets the image ranking to the specified rank and count

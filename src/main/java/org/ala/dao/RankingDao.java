@@ -41,8 +41,20 @@ public interface RankingDao {
 			String taxonGuid,
 			String scientificName, 
 			String imageUri, 
-			Integer imageInfoSourceId, 
+			Integer imageInfoSourceId,
 			boolean positive) throws Exception;
+	
+	public boolean rankImageForTaxon(
+			String userIp,
+			String userId,
+			String fullName,
+			String taxonGuid,
+			String scientificName, 
+			String imageUri, 
+			Integer imageInfoSourceId,
+			boolean blackList,
+			boolean positive) throws Exception;
+	
         /**
          * Reloads the image ranks from the rk columnFamily to the tc columnFamily
          */

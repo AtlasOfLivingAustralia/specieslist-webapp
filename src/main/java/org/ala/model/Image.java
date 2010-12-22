@@ -56,11 +56,23 @@ public class Image extends AttributableObject implements Comparable<Image>{
     /** The id for the document in the repository */
     protected Integer repoId;
 
+    protected boolean isBlackListed = false;
+    
     public Image(String guid, String contentType, String repoLocation,
 			String dcLocation, String thumbnail, String title,
 			String identifier, String creator, String locality,
 			String isPartOf, String licence, String rights,
 			Integer noOfRankings, Integer ranking) {
+    	this(guid, contentType, repoLocation, dcLocation, thumbnail, title,
+    			identifier, creator, locality, isPartOf, licence, rights,
+    			noOfRankings, ranking, false);
+    }
+    
+	public Image(String guid, String contentType, String repoLocation,
+			String dcLocation, String thumbnail, String title,
+			String identifier, String creator, String locality,
+			String isPartOf, String licence, String rights,
+			Integer noOfRankings, Integer ranking, boolean isBlackListed) {
 		this.guid = guid;
 		this.contentType = contentType;
 		this.repoLocation = repoLocation;
@@ -75,6 +87,7 @@ public class Image extends AttributableObject implements Comparable<Image>{
 		this.rights = rights;
 		this.noOfRankings = noOfRankings;
 		this.ranking = ranking;
+		this.isBlackListed = isBlackListed;
 	}
 
     public Image(){}
@@ -112,6 +125,14 @@ public class Image extends AttributableObject implements Comparable<Image>{
 		return -1;
 	}
 
+    public boolean getIsBlackListed() {
+		return isBlackListed;
+	}
+
+	public void setIsBlackListed(boolean isBlackListed) {
+		this.isBlackListed = isBlackListed;
+	}
+    
     /**
 	 * @return the guid
 	 */

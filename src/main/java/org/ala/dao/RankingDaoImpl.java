@@ -39,6 +39,18 @@ public class RankingDaoImpl implements RankingDao {
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
 	
+	public boolean rankImageForTaxon(
+			String userIP,
+			String userId,
+			String fullName,
+			String taxonGuid, 
+			String scientificName, 
+			String imageUri,
+			Integer imageInfoSourceId,
+			boolean positive) throws Exception {
+		return this.rankImageForTaxon(userIP, userId, fullName, taxonGuid, scientificName, imageUri, imageInfoSourceId, false, positive);
+	}
+	
 	/**
 	 * @see org.ala.dao.RankingDao#rankImageForTaxon(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Integer, boolean)
 	 */
@@ -50,21 +62,29 @@ public class RankingDaoImpl implements RankingDao {
 			String taxonGuid, 
 			String scientificName, 
 			String imageUri,
-			Integer imageInfoSourceId, 
+			Integer imageInfoSourceId,
+			boolean blackList,
 			boolean positive) throws Exception {
 		
-		Ranking r = new Ranking();
-		r.setUri(imageUri);
-		r.setUserId(userId);
-		r.setFullName(fullName);
-		r.setUserIP(userIP);
-		r.setPositive(positive);
-		//store the ranking event
-		logger.debug("Storing the rank event...");
-		storeHelper.put("rk", "rk", "image", ""+System.currentTimeMillis(), taxonGuid, r);
-		logger.debug("Updating the images...");
-		taxonConceptDao.setRankingOnImage(taxonGuid, imageUri, positive);
-		logger.debug("Finished updating ranking");
+		if(blackList){			
+			logger.debug("Updating the images blackListed...");
+			taxonConceptDao.setRankingOnImage(taxonGuid, imageUri, positive, blackList);
+			logger.debug("Finished updating ranking");
+		}
+		else{
+			Ranking r = new Ranking();
+			r.setUri(imageUri);
+			r.setUserId(userId);
+			r.setFullName(fullName);
+			r.setUserIP(userIP);
+			r.setPositive(positive);
+			//store the ranking event
+			logger.debug("Storing the rank event...");
+			storeHelper.put("rk", "rk", "image", ""+System.currentTimeMillis(), taxonGuid, r);
+			logger.debug("Updating the images ranking...");
+			taxonConceptDao.setRankingOnImage(taxonGuid, imageUri, positive);
+			logger.debug("Finished updating ranking");
+		}
 		return true;
 	}
         /**
