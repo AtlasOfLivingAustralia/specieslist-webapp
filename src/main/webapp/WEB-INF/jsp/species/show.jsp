@@ -661,7 +661,7 @@ include file="/common/taglibs.jsp" %>
                     <div id="imageGallery">
                     	<script type="text/javascript">
                     		function rankThisImage(guid, uri, infosourceId, documentId, positive, name){
-                    			 var url = "${pageContext.request.contextPath}/rankTaxonImage${not empty pageContext.request.remoteUser ? 'WithUser' : ''}?guid="+guid+"&uri="+uri+"&infosourceId="+infosourceId+"&positive="+positive+"&name="+name;
+                    			 var url = "${pageContext.request.contextPath}/rankTaxonImage${not empty pageContext.request.remoteUser ? 'WithUser' : ''}?guid="+guid+"&uri="+uri+"&infosourceId="+infosourceId+"&blackList="+positive+"&positive="+positive+"&name="+name;
                        			 $('.imageRank-'+documentId).html('Sending your ranking....');
 				                 $.getJSON(url, function(data){ });
 			                	 $('.imageRank-'+documentId).each(function(index) {
@@ -721,13 +721,19 @@ include file="/common/taglibs.jsp" %>
         	                                </c:when>
             	                            <c:otherwise>
             	                            	Is this image representative of ${extendedTaxonConcept.taxonConcept.rankString} ?  
-   	            	                           <a class="isrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
+   	            	                           <a class="isrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,true,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  YES
    	            	                           </a>
    	            	                           	 |
-   	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
+   	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  NO
    	            	                           </a>
+   	            	                           <c:if test="${not empty pageContext.request.remoteUser }">
+   	            	                           	 |   	            	                           
+   	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
+   	            	                           	  BlackList
+   	            	                           </a>
+   	            	                           </c:if>
                             	            </c:otherwise>
                                 	        </c:choose>   
                                 	       </p> 
