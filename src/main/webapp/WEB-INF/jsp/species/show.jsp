@@ -540,7 +540,7 @@ include file="/common/taglibs.jsp" %>
                 </div>
             </div><!-- end column-one -->
             <div id="column-two">
-                <div class="toggle section half-padding-bottom"> 
+                <div class="toggle section no-padding-bottom">
                     <div id="status"class="status">
                         <c:if test="${extendedTaxonConcept.taxonConcept.rankID >= 7000}">
                             <c:choose>
