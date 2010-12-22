@@ -65,6 +65,7 @@ include file="/common/taglibs.jsp" %>
                     opacity: 0.5,
                     maxWidth: "80%",
                     maxHeight: "80%",
+                    preloading: false,
                     onComplete: function() {
                         $("#cboxTitle").html(""); // Clear default title div
                         var index = $(this).attr('id').replace("thumb",""); // get the imdex of this image
@@ -605,7 +606,12 @@ include file="/common/taglibs.jsp" %>
                         <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
                             <c:set var="imageSrc" value="${fn:replace(image.repoLocation, '/raw.', '/smallRaw.')}"/>
                             <c:if test="${status.index < imageLimit}">
-                                <li><a href="${status.index}" title=""><img src="${imageSrc}" class="overviewImage" style="max-width: ${imageSize}px" alt="" /></a></li>
+                                <li>
+                                    <a href="${status.index}" title=""><img src="${imageSrc}" class="overviewImage" style="max-width: ${imageSize}px" alt="" /></a>
+                                    <c:if test="${not empty image.creator && not empty image.rights}">
+                                        <cite>Photo by: ${image.creator}<br/>Rights: ${image.rights}</cite><br/>
+                                    </c:if>
+                                </li>
                             </c:if>
                         </c:forEach>
                     </ul>
