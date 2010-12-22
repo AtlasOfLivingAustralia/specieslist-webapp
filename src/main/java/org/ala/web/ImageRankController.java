@@ -60,10 +60,11 @@ public class ImageRankController {
 			@RequestParam(value="name", required=true) String name,
 			@RequestParam(value="uri", required=true) String uri,
 			@RequestParam(value="infosourceId", required=true) Integer infosourceId,
+			@RequestParam(value="blackList", required=true) boolean blackList,
 			@RequestParam(value="positive", required=true) boolean positive,
 			HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
-		logger.info("Rank image for : "+guid+", URI: "+uri+", value: "+positive);
+		logger.info("Rank image for : "+guid+", URI: "+uri+", value: "+positive + " , blackList: " + blackList);
 		
 		Principal p = request.getUserPrincipal();
 		String remoteUser = request.getRemoteUser();
@@ -78,14 +79,19 @@ public class ImageRankController {
 			}
 		}
 		
-		//store the ranking, updating the ordering of images
-		rankingDao.rankImageForTaxon(request.getRemoteHost(), remoteUser, fullName, guid, name, uri, infosourceId, positive);
-		
-		//create a cookie value
-		String cookieValue = RankingCookieUtils.getCookieValue(guid, uri, positive);
-		Cookie cookie = new Cookie(Long.toString(System.currentTimeMillis()), cookieValue);
-		cookie.setMaxAge(60*60*24*365);
-		response.addCookie(cookie);
+		if(blackList){
+			rankingDao.rankImageForTaxon(request.getRemoteHost(), remoteUser, fullName, guid, name, uri, infosourceId, blackList, positive);
+		}
+		else{
+			//store the ranking, updating the ordering of images
+			rankingDao.rankImageForTaxon(request.getRemoteHost(), remoteUser, fullName, guid, name, uri, infosourceId, positive);
+			
+			//create a cookie value
+			String cookieValue = RankingCookieUtils.getCookieValue(guid, uri, positive);
+			Cookie cookie = new Cookie(Long.toString(System.currentTimeMillis()), cookieValue);
+			cookie.setMaxAge(60*60*24*365);
+			response.addCookie(cookie);
+		}
 	}
 
 	/**
