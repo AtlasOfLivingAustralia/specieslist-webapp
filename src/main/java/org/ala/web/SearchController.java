@@ -105,7 +105,7 @@ public class SearchController {
             filterQuery = null;
         } else if (filterQuery == null) {
             // catch search with no fq param and default to "Recorded in Australia"
-            //return "redirect:/search?q=" + query + "&fq=australian_s:recorded";
+            return "redirect:/search?q=" + query + "&fq=australian_s:recorded";
         }
         if (startIndex == null) {
             startIndex = 0;
@@ -130,7 +130,7 @@ public class SearchController {
 		
 		logger.debug("Initial query = "+query);
 		SearchResultsDTO<SearchDTO> searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-		repoUrlUtils.fixRepoUrls(searchResults);
+                repoUrlUtils.fixRepoUrls(searchResults);
         model.addAttribute("facetMap", addFacetMap(filterQuery));
         
 		//get facets - and counts to model for each idx type
