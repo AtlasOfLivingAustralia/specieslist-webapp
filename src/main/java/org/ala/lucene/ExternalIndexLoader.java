@@ -89,7 +89,7 @@ public class ExternalIndexLoader {
 		logger.info("Starting syncing collection information....");
 		Connection conn = collectoryDataSource.getConnection();
 		Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-		ResultSet rs = stmt.executeQuery("select uid, guid, name, acronym, pub_description, sub_collections, notes from collection");
+		ResultSet rs = stmt.executeQuery("select uid, guid, name, acronym, collection_type, pub_description, sub_collections, keywords from collection");
 		
 		SolrServer solrServer = solrUtils.getSolrServer();
 		solrServer.deleteByQuery("idxtype:"+IndexedTypes.COLLECTION); // delete collections!
@@ -99,6 +99,10 @@ public class ExternalIndexLoader {
 			String externalGuid = rs.getString("guid");
 			String name = rs.getString("name");
 			String acronym = rs.getString("acronym");
+			String description = rs.getString("pub_description");
+			String subCollections = rs.getString("sub_collections");
+			String keywords = rs.getString("keywords");
+			String collectionType = rs.getString("collection_type");
 			
 			SolrInputDocument doc = new SolrInputDocument();
 			doc.addField("acronym", acronym, 1.2f);
@@ -110,9 +114,17 @@ public class ExternalIndexLoader {
 				doc.addField("otherGuid", externalGuid); // the external GUID e.g. url:lsid:bci:123
 			}
 			
+			//add as text
+			doc.addField("text", description);
+			doc.addField("text", subCollections);
+			doc.addField("text", keywords);
+			doc.addField("text", collectionType);
+			
 			doc.addField("url", baseUrlForCollectory+uid);
 			doc.addField("id", baseUrlForCollectory+uid);
 			doc.addField("idxtype", IndexedTypes.COLLECTION);
+			//FIXME to be removed
+			doc.addField("australian_s", "recorded");
 
 			solrServer.add(doc);
 			solrServer.commit();
@@ -135,7 +147,7 @@ public class ExternalIndexLoader {
 		logger.info("Starting syncing institution information....");
 		Connection conn = collectoryDataSource.getConnection();
 		Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-		ResultSet rs = stmt.executeQuery("select uid, guid, name, acronym, institution_type  from institution");
+		ResultSet rs = stmt.executeQuery("select uid, guid, name, acronym, institution_type, pub_description from institution");
 		
 		SolrServer solrServer = solrUtils.getSolrServer();
 		solrServer.deleteByQuery("idxtype:"+IndexedTypes.INSTITUTION); // delete institutions!
@@ -146,6 +158,7 @@ public class ExternalIndexLoader {
 			String name = rs.getString("name");
 			String acronym = rs.getString("acronym");
 			String institutionType = rs.getString("institution_type"); // university/museum/government
+			String pubDescription = rs.getString("pub_description"); 
 			
 			SolrInputDocument doc = new SolrInputDocument();
 			doc.addField("acronym", acronym, 1.2f);
@@ -156,10 +169,13 @@ public class ExternalIndexLoader {
 				doc.addField("otherGuid", externalGuid);
 			}
 			
+			doc.addField("text", pubDescription);
 			doc.addField("url", baseUrlForCollectory+uid);
 			doc.addField("id", baseUrlForCollectory+uid);
 			doc.addField("idxtype", IndexedTypes.INSTITUTION);
 			doc.addField("institutionType", institutionType);
+			//FIXME to be removed
+			doc.addField("australian_s", "recorded");
 			solrServer.add(doc);
 			solrServer.commit();
 		}
@@ -210,6 +226,8 @@ public class ExternalIndexLoader {
 			doc.addField("dataProviderName", dataProviderName);
 			doc.addField("description", description);
 			doc.addField("idxtype", IndexedTypes.DATASET);
+			//FIXME to be removed
+			doc.addField("australian_s", "recorded");
 			solrServer.add(doc);
 			solrServer.commit();
 		}
@@ -248,6 +266,8 @@ public class ExternalIndexLoader {
 			doc.addField("name", name);
 			doc.addField("description", description);
 			doc.addField("idxtype", IndexedTypes.DATAPROVIDER);
+			//FIXME to be removed
+			doc.addField("australian_s", "recorded");
 			solrServer.add(doc);
 			solrServer.commit();
 		}
