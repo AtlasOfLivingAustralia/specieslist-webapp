@@ -14,12 +14,10 @@
  ***************************************************************************/
 package org.ala.web;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -121,31 +119,9 @@ public class SearchController {
         if (sortDirection.isEmpty()) {
             sortDirection = "asc";
         }
-        
-        Map<String,String> facetMap = generateFacetMap(filterQuery);
-        model.addAttribute("facetMap", facetMap);
-        
-        //add the australian filter
-        if(filterQuery!=null){
-	        for(int i=0; i<filterQuery.length; i++){
-	        	if(filterQuery[i]!=null && filterQuery[i].equalsIgnoreCase("australian_s:recorded")){
-	        		filterQuery[i] = "-(australian_s:recorded AND -idxtype:TAXON)";
-	        	}
-	        }
-        }
-        
-//        if(australianFilter){
-//        	if(filterQuery==null){
-//        		filterQuery = new String[]{"-(australian_s:recorded AND -idxtype:TAXON)"};
-//        	} else {
-//        		String[] combined = Arrays.copyOf(filterQuery, filterQuery.length+1);
-//        		combined[filterQuery.length] =  "-(australian_s:recorded AND -idxtype:TAXON)";
-//        	}
-//        }
-        
-        
-        //reverse the sort direction for the "score" field a normal sort should be descending while a reverse sort should be ascending
-        sortDirection = getSortDirection(sortField, sortDirection);
+             //reverse the sort direction for the "score" field a normal sort should be descending while a reverse sort should be ascending
+                 sortDirection = getSortDirection(sortField, sortDirection);
+                
 
 		String queryJsEscaped = StringEscapeUtils.escapeJavaScript(query);
 		model.addAttribute("query", query);
@@ -154,7 +130,8 @@ public class SearchController {
 		
 		logger.debug("Initial query = "+query);
 		SearchResultsDTO<SearchDTO> searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-        repoUrlUtils.fixRepoUrls(searchResults);
+                repoUrlUtils.fixRepoUrls(searchResults);
+        model.addAttribute("facetMap", addFacetMap(filterQuery));
         
 		//get facets - and counts to model for each idx type
 		Collection<FacetResultDTO> facetResults = searchResults.getFacetResults();
@@ -240,8 +217,9 @@ public class SearchController {
      * @param filterQuery
      * @return
      */
-    private Map<String, String> generateFacetMap(String[] filterQuery) {
-		Map<String, String> facetMap = new HashMap<String, String>();
+    private HashMap<String, String> addFacetMap(String[] filterQuery) {
+               HashMap<String, String> facetMap = new HashMap<String, String>();
+
         if (filterQuery != null && filterQuery.length > 0) {
             logger.debug("filterQuery = "+StringUtils.join(filterQuery, "|"));
             for (String fq : filterQuery) {
