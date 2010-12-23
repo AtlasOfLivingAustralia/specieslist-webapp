@@ -123,8 +123,7 @@ public class ExternalIndexLoader {
 			doc.addField("url", baseUrlForCollectory+uid);
 			doc.addField("id", baseUrlForCollectory+uid);
 			doc.addField("idxtype", IndexedTypes.COLLECTION);
-			//FIXME to be removed
-			doc.addField("australian_s", "recorded");
+			doc.addField("aus_s", "yes");
 
 			solrServer.add(doc);
 			solrServer.commit();
@@ -174,8 +173,7 @@ public class ExternalIndexLoader {
 			doc.addField("id", baseUrlForCollectory+uid);
 			doc.addField("idxtype", IndexedTypes.INSTITUTION);
 			doc.addField("institutionType", institutionType);
-			//FIXME to be removed
-			doc.addField("australian_s", "recorded");
+			doc.addField("aus_s", "yes");
 			solrServer.add(doc);
 			solrServer.commit();
 		}
@@ -226,8 +224,7 @@ public class ExternalIndexLoader {
 			doc.addField("dataProviderName", dataProviderName);
 			doc.addField("description", description);
 			doc.addField("idxtype", IndexedTypes.DATASET);
-			//FIXME to be removed
-			doc.addField("australian_s", "recorded");
+			doc.addField("aus_s", "yes");
 			solrServer.add(doc);
 			solrServer.commit();
 		}
@@ -266,8 +263,7 @@ public class ExternalIndexLoader {
 			doc.addField("name", name);
 			doc.addField("description", description);
 			doc.addField("idxtype", IndexedTypes.DATAPROVIDER);
-			//FIXME to be removed
-			doc.addField("australian_s", "recorded");
+			doc.addField("aus_s", "yes");
 			solrServer.add(doc);
 			solrServer.commit();
 		}
