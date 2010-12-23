@@ -1812,6 +1812,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				Boolean isAustralian = isAustralian(guid);
 				if (isAustralian != null && isAustralian) {
 					doc.addField("australian_s", "recorded");
+					doc.addField("aus_s", "yes");
 				}
 
 				addRankToIndex(doc, taxonConcept.getRankString());
