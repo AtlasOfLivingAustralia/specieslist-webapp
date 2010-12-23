@@ -16,6 +16,7 @@ package org.ala.dao;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -866,7 +867,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		List<Image> images = getImages(guid);
 		
 		for (Image image : images) {
-			if (imageUri.equals(image.getIdentifier())) {
+			String decode = URLDecoder.decode(image.getIdentifier(), "UTF-8");
+			if (imageUri.equals(decode)) {
 				if(blackList){
 					image.setIsBlackListed(blackList);
 					break;
