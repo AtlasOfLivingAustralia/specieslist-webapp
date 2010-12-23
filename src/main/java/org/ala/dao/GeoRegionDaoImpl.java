@@ -139,6 +139,8 @@ public class GeoRegionDaoImpl implements GeoRegionDao {
 	    		doc.addField("regionTypeId", geoRegion.getRegionType());
 	    		doc.addField("regionType", geoRegion.getRegionTypeName());
 	    		doc.addField("acronym", geoRegion.getAcronym());
+	    		//to be removed
+	    		doc.addField("australian_s", "recorded");
 	            solrServer.add(doc);
 	            solrServer.commit();
 			}
