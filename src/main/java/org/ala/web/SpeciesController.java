@@ -196,7 +196,13 @@ public class SpeciesController {
 		logger.debug("Displaying page for: " + guid +" .....");
         ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
         //remove blackListed image...
-        etc.setImages(removeBlackListedImageItem(etc.getImages()));
+        etc.setImages(removeBlackListedImageItem(etc.getImages()));        
+        if (request.getRemoteUser() != null && request.isUserInRole("ROLE_ADMIN")) {
+        	model.addAttribute("isRoleAdmin", true);
+        }
+        else{
+        	model.addAttribute("isRoleAdmin", false);
+        }
         
         if (etc.getTaxonConcept() == null || etc.getTaxonConcept().getGuid() == null) {
             model.addAttribute("errorMessage", "The requested taxon was not found: "+conceptName+" ("+ guid+")");

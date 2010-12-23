@@ -728,7 +728,7 @@ include file="/common/taglibs.jsp" %>
    	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  NO
    	            	                           </a>
-   	            	                           <c:if test="${not empty pageContext.request.remoteUser }">
+   	            	                           <c:if test="${not empty isRoleAdmin && isRoleAdmin}">
    	            	                           	 |   	            	                           
    	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  BlackList
