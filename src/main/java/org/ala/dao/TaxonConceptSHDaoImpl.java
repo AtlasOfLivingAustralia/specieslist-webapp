@@ -867,6 +867,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		List<Image> images = getImages(guid);
 		
 		for (Image image : images) {
+			//TODO cassandra stored uri has escape charater, Single point fix should be
+			// decode all escape charater inside cassandra.
 			String decode = URLDecoder.decode(image.getIdentifier(), "UTF-8");
 			if (imageUri.equals(decode)) {
 				if(blackList){
