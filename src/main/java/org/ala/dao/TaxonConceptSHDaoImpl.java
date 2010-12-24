@@ -899,8 +899,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					image.setNoOfRankings(noOfRankings);
 					
 					// TODO remove duplcate data in cassendra can put the break statement back'
-					// break;
-					break;
+					// break;					
 				}
 			}
 		}
