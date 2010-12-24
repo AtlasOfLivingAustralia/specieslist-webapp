@@ -72,7 +72,7 @@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %><!DOCTYPE html PUBL
             </tr>
             <c:forEach var="dataset" items="${infoSources}">
                 <c:set var="datasetId"><c:out value="${dataset.id}"/></c:set>
-                <c:if test="${fn:contains(dataset.datasetType, '3')}">
+                <c:if test="${fn:contains(dataset.datasetType, '3') && dataset.documentCount != 0}">
                     <tr>
                         <td><a class="external" href="${dataset.websiteUrl}" target="_blank">${dataset.name}</a> 
                         	<c:if test="${param['showVocabMapping'] && fn:contains(infoSourceIDWithVocabulariesMapList, dataset.id)}">
