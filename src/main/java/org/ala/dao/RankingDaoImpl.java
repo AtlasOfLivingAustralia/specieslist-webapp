@@ -65,26 +65,27 @@ public class RankingDaoImpl implements RankingDao {
 			Integer imageInfoSourceId,
 			boolean blackList,
 			boolean positive) throws Exception {
-		
-		if(blackList){			
-			logger.debug("Updating the images blackListed...");
-			taxonConceptDao.setRankingOnImage(taxonGuid, imageUri, positive, blackList);
-			logger.debug("Finished updating ranking");
+			
+		Ranking r = new Ranking();
+		if(blackList){
+			r.setBlackListed(blackList);
 		}
 		else{
-			Ranking r = new Ranking();
-			r.setUri(imageUri);
-			r.setUserId(userId);
-			r.setFullName(fullName);
-			r.setUserIP(userIP);
 			r.setPositive(positive);
-			//store the ranking event
-			logger.debug("Storing the rank event...");
-			storeHelper.put("rk", "rk", "image", ""+System.currentTimeMillis(), taxonGuid, r);
-			logger.debug("Updating the images ranking...");
-			taxonConceptDao.setRankingOnImage(taxonGuid, imageUri, positive);
-			logger.debug("Finished updating ranking");
 		}
+		
+		r.setUri(imageUri);
+		r.setUserId(userId);
+		r.setFullName(fullName);
+		r.setUserIP(userIP);
+		
+		//store the ranking event
+		logger.debug("Storing the rank event...");
+		storeHelper.put("rk", "rk", "image", ""+System.currentTimeMillis(), taxonGuid, r);
+		logger.debug("Updating the images ranking...");
+		taxonConceptDao.setRankingOnImage(taxonGuid, imageUri, positive, blackList);
+		logger.debug("Finished updating ranking");
+		
 		return true;
 	}
         /**

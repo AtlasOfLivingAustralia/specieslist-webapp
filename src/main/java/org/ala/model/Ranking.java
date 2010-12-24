@@ -11,7 +11,16 @@ public class Ranking implements Comparable<Ranking> {
 	String fullName;
 	String uri;
 	boolean positive;
+	boolean isBlackListed = false;
 	
+	public boolean isBlackListed() {
+		return isBlackListed;
+	}
+
+	public void setBlackListed(boolean isBlackListed) {
+		this.isBlackListed = isBlackListed;
+	}
+
 	@Override
 	public int compareTo(Ranking o) {
 		return 0;
