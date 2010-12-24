@@ -948,6 +948,21 @@ public class SpeciesController {
         }
         return images;
     }
+    
+    protected class TaxonRankNameComparator implements Comparator<SearchTaxonConceptDTO>{
+    	@Override
+    	public int compare(SearchTaxonConceptDTO t1, SearchTaxonConceptDTO t2) {
+    		if(t1!= null && t1 != null){
+    			if(t1.getRankId() != t2.getRankId()){
+    				return t1.getRankId() -t2.getRankId();
+    			}
+    			else{
+    				return t1.compareTo(t2);
+    			}
+    		}
+    	return 0;
+    	}
+ 	}
 
     protected class CommonNameComparator implements Comparator<CommonName>{
     	@Override
