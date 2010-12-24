@@ -394,7 +394,7 @@ public class SpeciesController {
             ImageUtils iu = new ImageUtils();
             try {
                 iu.load(fileName); // problem with Jetty 7.0.1
-                // create a sqaure image (crops)
+                // create a square image (crops)
                 if (square) {
                     iu.square();
                 }
@@ -407,6 +407,23 @@ public class SpeciesController {
                 String msg = ex.getMessage();
                 logger.warn("Problem loading image with JAI: " + msg, ex);
                 response.sendError(response.SC_INTERNAL_SERVER_ERROR, msg);
+                logger.warn("Redirecting to: ");
+                String url = repoUrlUtils.fixSingleUrl(fileName);
+                response.sendRedirect(repoUrlUtils.fixSingleUrl(url));
+                
+//                //stream the original
+//                File originalFile = new File(fileName);
+//                InputStream in = new FileInputStream(originalFile);
+//                
+//                byte[] buff = new byte[1000];
+//                int read = 0;
+//                while((read = in.read(buff))>0){
+//                	outputStream.write(buff, 0, read);
+//                }
+                
+                
+//                outputStream.write(arg0, arg1, arg2)
+                
             }
 		} else {
             response.sendError(response.SC_NOT_FOUND, "Requested image " + documentId + ".jpg was not found");

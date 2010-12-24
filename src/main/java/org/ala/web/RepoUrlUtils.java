@@ -83,14 +83,26 @@ public class RepoUrlUtils {
 		
 		String thumbnail = searchConceptDTO.getThumbnail();
 		if(thumbnail!=null && thumbnail.contains(repositoryPath)){
-			searchConceptDTO.setThumbnail(thumbnail.replace(repositoryPath, repositoryUrl));
+			searchConceptDTO.setThumbnail(fixSingleUrl(thumbnail));
 		}
 		String image = searchConceptDTO.getImage();
 		if(image!=null && image.contains(repositoryPath)){
-			searchConceptDTO.setImage(image.replace(repositoryPath, repositoryUrl));
+			searchConceptDTO.setImage(fixSingleUrl(image));
 		}
 		return searchConceptDTO;
 	}
+
+	/**
+	 * Fix the supplied URL
+	 * 
+	 * @param thumbnail
+	 * @return
+	 */
+	public  String fixSingleUrl(String thumbnail) {
+		return thumbnail.replace(repositoryPath, repositoryUrl);
+	}
+	
+	
 	
 	/**
 	 * Fix the repository URLs
@@ -123,7 +135,7 @@ public class RepoUrlUtils {
 		String imageLocation = image.getRepoLocation();
 		
 		if(imageLocation!=null && imageLocation.contains(repositoryPath)){
-			imageLocation = imageLocation.replace(repositoryPath, repositoryUrl);
+			imageLocation = fixSingleUrl(imageLocation);
 			image.setRepoLocation(imageLocation);
 		}
 		
