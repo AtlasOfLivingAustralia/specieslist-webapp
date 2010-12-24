@@ -27,11 +27,11 @@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %><!DOCTYPE html PUBL
             </tr>
             <c:forEach var="dataset" items="${occurrenceInfoSources}">
                     <tr>
-                        <td><a href="http://biocache.ala.org.au/data_provider/${dataset.id}">${dataset.name}</a></td>
+                        <td><a href="http://collections.ala.org.au/public/show/${dataset.uid}">${dataset.name}</a></td>
                         <td>
                         	<c:if test="${dataset.documentCount == 0}">N/A</c:if>
                         	<c:if test="${dataset.documentCount != 0}">
-                        		<a href="http://biocache.ala.org.au/occurrences/searchByDataProviderId?q=${dataset.id}">${dataset.documentCount}</a>
+                        		<a href="http://biocache.ala.org.au/occurrences/searchForUID?q=${dataset.uid}">${dataset.documentCount}</a>
                         	</c:if>
                         </td>
                     </tr>
