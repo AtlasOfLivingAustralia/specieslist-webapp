@@ -249,6 +249,10 @@ public class SpeciesController {
         
         //load child concept using search indexes
         List<SearchTaxonConceptDTO> childConcepts = searchDao.getChildConceptsParentId(Integer.toString(tc.getId()));
+        //Reorder the children concepts so that ordering is based on rank followed by name
+        //TODO: Currently this is being performed here instead of in the DAO incase somewhere relies on the default order.  We may need to move this
+        Collections.sort(childConcepts, new TaxonRankNameComparator());
+
         model.addAttribute("childConcepts", childConcepts);
         
         //create a map
@@ -945,6 +949,23 @@ public class SpeciesController {
             }
         }
         return images;
+    }
+
+    protected class TaxonRankNameComparator implements Comparator<SearchTaxonConceptDTO>{
+
+        @Override
+        public int compare(SearchTaxonConceptDTO t1, SearchTaxonConceptDTO t2) {
+            if(t1!= null && t1 != null){
+            if(t1.getRankId() != t2.getRankId()){
+                return t1.getRankId() -t2.getRankId();
+            }
+            else{
+		return t1.compareTo(t2);
+            }
+            }
+		return 0;
+        }
+
     }
 
     protected class CommonNameComparator implements Comparator<CommonName>{
