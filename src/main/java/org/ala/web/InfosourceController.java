@@ -116,11 +116,11 @@ public class InfosourceController {
 				Iterator<JsonNode> iter = dataProviders.getElements();
 				while(iter.hasNext()){
 					JsonNode jsonNode = iter.next();
-					String id = jsonNode.get("id").getTextValue();
+					String uid = jsonNode.get("id").getTextValue();
 					String name = jsonNode.get("name").getTextValue();
 					int count = jsonNode.get("count").getIntValue();
 					InfoSource i = new InfoSource();
-					i.setId(Integer.parseInt(id));
+					i.setUid(uid);
 					i.setName(name);
 					i.setDocumentCount(count);
 					occurrenceInfoSources.add(i);

@@ -388,8 +388,8 @@ public class SpeciesController {
 			@RequestParam(value="square", required=false, defaultValue ="false") Boolean square,
 			OutputStream outputStream,
 			HttpServletResponse response) throws IOException {
+		logger.debug("Requested image " + documentId + ".jpg ");
 		Document doc = documentDAO.getById(documentId);
-
 		if (doc != null) {
 			// augment data with title from reading dc file
 			MimeType mt = MimeType.getForMimeType(doc.getMimeType());
@@ -397,39 +397,37 @@ public class SpeciesController {
             logger.debug("filename = "+fileName);
             ImageUtils iu = new ImageUtils();
             try {
+            	logger.debug("Loading with image utils...");
                 iu.load(fileName); // problem with Jetty 7.0.1
+                logger.debug("Loaded");
                 // create a square image (crops)
                 if (square) {
+                	logger.debug("Producing square images...");
                     iu.square();
                 }
                 // scale if original is bigger than "scale" pixels
-                iu.smoothThumbnail(scale);
-
-                response.setContentType(mt.getMimeType());
-                ImageIO.write(iu.getModifiedImage(), mt.name(), outputStream);
+                boolean success = iu.smoothThumbnail(scale);
+                logger.debug("Thumbnailing success..."+success);
+                if(success){
+                    logger.debug("Thumbnailing success...");
+	                response.setContentType(mt.getMimeType());
+	                ImageIO.write(iu.getModifiedImage(), mt.name(), outputStream);
+                } else {
+                	logger.debug("Fixing URL for file name: " +fileName+", "+repoUrlUtils);
+                    String url = repoUrlUtils.fixSingleUrl(fileName);
+                    logger.debug("Small image detected, redirecting to source: " +url);
+                    response.sendRedirect(repoUrlUtils.fixSingleUrl(url));
+                    return;
+                }
             } catch (Exception ex) {
-                String msg = ex.getMessage();
-                logger.warn("Problem loading image with JAI: " + msg, ex);
-                response.sendError(response.SC_INTERNAL_SERVER_ERROR, msg);
-                logger.warn("Redirecting to: ");
+            	logger.error("Problem loading image with JAI: " + ex.getMessage(), ex);
                 String url = repoUrlUtils.fixSingleUrl(fileName);
+                logger.warn("Redirecting to: "+url);
                 response.sendRedirect(repoUrlUtils.fixSingleUrl(url));
-                
-//                //stream the original
-//                File originalFile = new File(fileName);
-//                InputStream in = new FileInputStream(originalFile);
-//                
-//                byte[] buff = new byte[1000];
-//                int read = 0;
-//                while((read = in.read(buff))>0){
-//                	outputStream.write(buff, 0, read);
-//                }
-                
-                
-//                outputStream.write(arg0, arg1, arg2)
-                
+                return;
             }
 		} else {
+			logger.error("Requested image " + documentId + ".jpg was not found");
             response.sendError(response.SC_NOT_FOUND, "Requested image " + documentId + ".jpg was not found");
         }
 	}
@@ -949,23 +947,6 @@ public class SpeciesController {
             }
         }
         return images;
-    }
-
-    protected class TaxonRankNameComparator implements Comparator<SearchTaxonConceptDTO>{
-
-        @Override
-        public int compare(SearchTaxonConceptDTO t1, SearchTaxonConceptDTO t2) {
-            if(t1!= null && t1 != null){
-            if(t1.getRankId() != t2.getRankId()){
-                return t1.getRankId() -t2.getRankId();
-            }
-            else{
-		return t1.compareTo(t2);
-            }
-            }
-		return 0;
-        }
-
     }
 
     protected class CommonNameComparator implements Comparator<CommonName>{

@@ -98,11 +98,12 @@ public class RepoUrlUtils {
 	 * @param thumbnail
 	 * @return
 	 */
-	public  String fixSingleUrl(String thumbnail) {
-		return thumbnail.replace(repositoryPath, repositoryUrl);
+	public String fixSingleUrl(String thumbnail) {
+		logger.debug("Converting filepath to URL");
+		String url = thumbnail.replace(repositoryPath, repositoryUrl);
+		logger.debug("Returning URL: "+url);
+		return url;
 	}
-	
-	
 	
 	/**
 	 * Fix the repository URLs
