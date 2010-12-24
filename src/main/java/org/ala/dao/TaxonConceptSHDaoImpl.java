@@ -870,7 +870,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			//TODO cassandra stored uri has escape charater, Single point fix should be
 			// decode all escape charater inside cassandra.
 			String decode = URLDecoder.decode(image.getIdentifier(), "UTF-8");
+			logger.debug("setRankingOnImage(..) imageUri: " + imageUri + " , decode: " + decode);
 			if (imageUri.equals(decode)) {
+				logger.debug("setRankingOnImage(..) found image !!!");
 				if(blackList){
 					image.setIsBlackListed(blackList);
 					// currently cassandra have duplicated image, 
@@ -901,12 +903,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					// TODO remove duplcate data in cassendra can put the break statement back'
 					// break;					
 				}
-			}
+			}			
 		}
 
 		// re-sort based on the rankings
 		Collections.sort(images);
 
+		logger.debug("setRankingOnImage(..) save to Cassandta !!!");
 		// write back to database
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
 				CassandraSubColumnType.IMAGE_COL.getColumnName(), guid,
