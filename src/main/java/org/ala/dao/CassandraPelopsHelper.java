@@ -20,7 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.ala.model.Ranking;
 
 import org.ala.util.CassandraSubColumnType;
 import org.apache.cassandra.thrift.Column;
