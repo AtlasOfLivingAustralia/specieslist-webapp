@@ -873,7 +873,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			if (imageUri.equals(decode)) {
 				if(blackList){
 					image.setIsBlackListed(blackList);
-					break;
+					// currently cassandra have duplicated image, 
+					// TODO remove duplcate data in cassendra can put the break statement back'
+					// break;
 				}
 				else{
 					Integer ranking = image.getRanking();
@@ -895,6 +897,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					}
 					image.setRanking(ranking);				
 					image.setNoOfRankings(noOfRankings);
+					
+					// TODO remove duplcate data in cassendra can put the break statement back'
+					// break;
 					break;
 				}
 			}
@@ -1018,7 +1023,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		try {
 			taxonConcept.setRankId(Integer.parseInt(doc.get("rankId")));
 		} catch (NumberFormatException ex) {
-			logger.error("Error parsing rankId: " + ex.getMessage());
+			logger.error("Error parsing rankId: " + ex.getMessage() + " for taxon concept : " + taxonConcept.getGuid());
 		}
 		taxonConcept.setPestStatus(doc.get(StatusType.PEST.toString()));
 		taxonConcept.setConservationStatus(doc.get(StatusType.CONSERVATION
