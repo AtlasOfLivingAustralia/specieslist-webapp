@@ -509,6 +509,7 @@
    <field name="idxtype" type="string" indexed="true" stored="true" required="true" />
    <field name="name" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="description" type="text" indexed="true" stored="true" multiValued="false" omitNorms="false" />
+   <field name="content" type="text" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <!-- Taxa fields -->
    <field name="parentId" type="string" indexed="true" stored="true" omitNorms="true" />
    <field name="parentGuid" type="string" indexed="true" stored="true" omitNorms="true" />
@@ -649,6 +650,7 @@
    <copyField source="acronym" dest="text"/>
    <copyField source="scientificName" dest="text"/>
    <copyField source="scientificNameRaw" dest="text"/>
+   <copyField source="content" dest="text"/>
    <!-- <copyField source="commonName" dest="text"/> -->
    <copyField source="pestStatus" dest="text"/>
    <copyField source="conservationStatus" dest="text"/>

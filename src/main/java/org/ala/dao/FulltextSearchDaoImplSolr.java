@@ -53,6 +53,7 @@ import org.springframework.stereotype.Component;
 import au.com.bytecode.opencsv.CSVWriter;
 import java.util.regex.Pattern;
 import org.ala.dto.AutoCompleteDTO;
+import org.ala.dto.SearchWordpressDTO;
 
 /**
  * SOLR implementation of {@see org.ala.dao.FulltextSearchDao}. Used for searching against Lucene
@@ -407,6 +408,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
                     results.add(createDatasetFromIndex(qr, doc));
             	} else if(IndexedTypes.REGION.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
             		results.add(createRegionFromIndex(qr, doc));
+            	} else if(IndexedTypes.WORDPRESS.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
+            		results.add(createWordpressFromIndex(qr, doc));
             	}
             }
         } else {
@@ -791,6 +794,43 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 		institution.setScore((Float) doc.getFirstValue("score"));
         return institution;
 	}
+
+    /**
+	 * Populate a Wordpress from the data in the lucene index.
+	 *
+	 * @param doc
+	 * @return
+	 */
+	private SearchWordpressDTO createWordpressFromIndex(QueryResponse qr, SolrDocument doc) {
+		SearchWordpressDTO wordpress = new SearchWordpressDTO();
+		wordpress.setScore((Float) doc.getFirstValue("score"));
+        wordpress.setIdxType(IndexedTypes.WORDPRESS.toString());
+        wordpress.setGuid((String) doc.getFirstValue("guid"));
+		wordpress.setName((String) doc.getFirstValue("name"));
+		wordpress.setScore((Float) doc.getFirstValue("score"));
+
+        // add SOLR generated highlights
+        String id = (String) doc.getFirstValue("id");
+        if (qr.getHighlighting()!=null && qr.getHighlighting().get(id) != null) {
+            logger.debug("Got highlighting (" + id + "): "+qr.getHighlighting().get(id).size());
+            Map<String, List<String>> highlightVal = qr.getHighlighting().get(id);
+            for (Map.Entry<String, List<String>> entry : highlightVal.entrySet()) {
+                List<String> newHls = new ArrayList<String>();
+
+                for (String hl : entry.getValue()) {
+                    // Strip leading punctuation twice (which SOLR tends to include)
+                    String punctuation = ".,;:)]}>!?%-_";
+                    String hl2 = StringUtils.stripStart(hl, punctuation);
+                    hl2 = StringUtils.stripStart(hl2, punctuation);
+                    newHls.add(hl2.trim() + " ...");
+                }
+
+                wordpress.setHighlight(StringUtils.join(newHls, "<br/>"));
+            }
+        }
+
+        return wordpress;
+	}
 	
     /**
 	 * Populate a Dataset DTO from the data in the lucene index.
@@ -921,15 +961,17 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 
         //add highlights
         solrQuery.setHighlight(true);
-        solrQuery.setHighlightFragsize(40);
-        solrQuery.setHighlightSnippets(1);
-        solrQuery.setHighlightSimplePre("<b>");
-        solrQuery.setHighlightSimplePost("</b>");
+        solrQuery.setHighlightFragsize(80);
+        solrQuery.setHighlightSnippets(2);
+        solrQuery.setHighlightSimplePre("<strong>");
+        solrQuery.setHighlightSimplePost("</strong>");
+        solrQuery.add("hl.usePhraseHighlighter", "true");
         solrQuery.addHighlightField("commonName");
         solrQuery.addHighlightField("scientificName");
         solrQuery.addHighlightField("pestStatus");
         solrQuery.addHighlightField("conservationStatus");
         solrQuery.addHighlightField("simpleText");
+        solrQuery.addHighlightField("content");
 
         return solrQuery;
     }

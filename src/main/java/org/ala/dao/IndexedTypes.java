@@ -7,7 +7,8 @@ public enum IndexedTypes {
 	COLLECTION(4),
 	INSTITUTION(5),
 	DATAPROVIDER(6),
-	DATASET(7);
+	DATASET(7),
+    WORDPRESS(8);
 	
 	private final int id;
     private IndexedTypes(int id) {

@@ -29,6 +29,7 @@ import org.apache.solr.common.SolrInputDocument;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Component;
+
 /**
  * Load tool for loading external data into the indexes to provide a combined
  * single index for the BIE front end.
@@ -75,6 +76,12 @@ public class ExternalIndexLoader {
 		
 		//load datasets
 		l.loadDatasets();
+
+        // load WordPress pages
+        CreateWordPressIndex cwpi = (CreateWordPressIndex) context.getBean(CreateWordPressIndex.class);
+        logger.info("Start of crawling and indexing WP pages.");
+        cwpi.loadSitemap();
+        cwpi.indexPages();
 		
 		System.exit(0);
 	}

@@ -73,7 +73,7 @@ public class SolrIndexTest {
 		        
 		        EmbeddedSolrServer server = new EmbeddedSolrServer(coreContainer, "");
 		        
-		        SolrQuery query = new SolrQuery("autocomplete_species:"+input);
+		        SolrQuery query = new SolrQuery(input);
 		        QueryResponse qr = server.query(query);
 		        
 		        SolrDocumentList sdl = qr.getResults();
@@ -82,7 +82,7 @@ public class SolrIndexTest {
 		        	SolrDocument doc = (SolrDocument) iter.next();
 		        	System.out.print(doc.getFieldValue("guid"));
 		        	System.out.print("\t\t");
-		        	Object valuesList = doc.getFieldValue("autocomplete_species");
+		        	Object valuesList = doc.getFieldValue("name");
 		        	
 		        	if(valuesList instanceof List){
 			        	List<String> values = (List<String>) valuesList;
