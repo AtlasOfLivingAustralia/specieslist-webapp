@@ -205,6 +205,7 @@
                 <c:set var="collection" scope="session"><c:out value="${COLLECTION}"/></c:set>
                 <c:set var="dataprovider" scope="session"><c:out value="${DATAPROVIDER}"/></c:set>
                 <c:set var="dataset" scope="session"><c:out value="${DATASET}"/></c:set>
+                <c:set var="wordpress" scope="session"><c:out value="${WORDPRESS}"/></c:set>
             </c:if>
             <div id="accordion">
                 <c:if test="${not empty query}">
@@ -243,7 +244,7 @@
                                         (<fmt:formatNumber value="${lastElement.count}" pattern="#,###,###"/>)
                                     </li>
                                 </c:if>
-                                <c:if test="${fn:containsIgnoreCase(facetResult.fieldName, 'idxtype') && not empty wordpress && wordpress > 0 && empty param.fq}">
+                                <c:if test="${false && fn:containsIgnoreCase(facetResult.fieldName, 'idxtype') && not empty wordpress && wordpress > 0 && empty param.fq}">
                                     <li><a href="${initParam.centralServer}/search/?s=${param['q']}">Site pages</a> (${wordpress})</li>
                                 </c:if>
                                 <c:forEach var="fieldResult" items="${facetResult.fieldResult}" varStatus="vs">
@@ -364,6 +365,14 @@
                                 <a href="${result.guid}">${result.name}</a></h4>
                             <p>
                                 <span>${result.description}</span>
+                                <!-- ${sectionText} -->
+                            </p>
+                        </c:when>
+                        <c:when test="${result.class.name == 'org.ala.dto.SearchWordpressDTO'}">
+                            <h4><fmt:message key="idxType.${result.idxType}"/>:
+                                <a href="${result.guid}">${result.name}</a></h4>
+                            <p>
+                                <span>${result.highlight}</span>
                                 <!-- ${sectionText} -->
                             </p>
                         </c:when>

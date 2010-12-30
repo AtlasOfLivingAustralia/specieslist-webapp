@@ -119,10 +119,10 @@ public class SearchController {
         if (sortDirection.isEmpty()) {
             sortDirection = "asc";
         }
-             //reverse the sort direction for the "score" field a normal sort should be descending while a reverse sort should be ascending
-                 sortDirection = getSortDirection(sortField, sortDirection);
-                
 
+        //reverse the sort direction for the "score" field a normal sort should be descending while a reverse sort should be ascending
+        sortDirection = getSortDirection(sortField, sortDirection);
+                
 		String queryJsEscaped = StringEscapeUtils.escapeJavaScript(query);
 		model.addAttribute("query", query);
 		model.addAttribute("queryJsEscaped", queryJsEscaped);
@@ -130,7 +130,7 @@ public class SearchController {
 		
 		logger.debug("Initial query = "+query);
 		SearchResultsDTO<SearchDTO> searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-                repoUrlUtils.fixRepoUrls(searchResults);
+        repoUrlUtils.fixRepoUrls(searchResults);
         model.addAttribute("facetMap", addFacetMap(filterQuery));
         
 		//get facets - and counts to model for each idx type
@@ -149,6 +149,7 @@ public class SearchController {
 		String view = SEARCH_LIST;
 
         // Site search - get number of hits
+        /*
         try {
             String jsonString = getUrlContentAsString(new URI(WP_SOLR_URL + query, false).getEscapedURI());
             JSONObject jsonObj = (JSONObject) JSONValue.parse(jsonString);
@@ -158,7 +159,7 @@ public class SearchController {
         } catch (Exception ex) {
             logger.error("Failed to load counts from Wordpress SOLR index: "+ex.getMessage(), ex);
         }
-
+        */
         model.addAttribute("searchResults", searchResults);
         model.addAttribute("totalRecords", searchResults.getTotalRecords());
         model.addAttribute("lastPage", calculateLastPage(searchResults.getTotalRecords(), pageSize));
