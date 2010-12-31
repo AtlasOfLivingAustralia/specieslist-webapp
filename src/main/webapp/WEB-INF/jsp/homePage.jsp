@@ -5,6 +5,7 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="pageName" content="home"/>
+        <meta name="google-site-verification" content="MdnA79C1YfZ6Yx2qYOXWi_TYFfUvEJOQAmHNaeEWIts"/>
         <title>Biodiversity Information Explorer | Atlas of Living Australia</title>
     </head>
     <body>
