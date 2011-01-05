@@ -386,8 +386,8 @@ public class CassandraPelopsHelper implements StoreHelper  {
     		if(StringUtils.isNotEmpty(startGuid)){
 //    			kr.start_key = startGuid;
 //    			kr.end_key = "";
-    			kr.start_token = startGuid;
-    			kr.end_token = "";
+    			kr.start_key = startGuid;
+    			kr.end_key = "";
     		} else {
     			kr.start_key = "";
     			kr.end_key = "";
@@ -407,7 +407,9 @@ public class CassandraPelopsHelper implements StoreHelper  {
     		}
 
     		//retrieve a list of columns for each of the rows
-    		Map<String, List<Column>> colListMap  = selector.getSubColumnsFromRows(kr, columnFamily, superColName, slicePredicate, ConsistencyLevel.ONE);
+    		Map<String, List<Column>> colListMap = selector.getSubColumnsFromRows(kr, columnFamily, superColName, slicePredicate, ConsistencyLevel.ONE);
+    		//remove the matching key to enable paging without duplication
+    		colListMap.remove(startGuid);
             
     		logger.debug("Returning rows: " + colListMap.size());
     		
