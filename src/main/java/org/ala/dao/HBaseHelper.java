@@ -17,6 +17,7 @@ package org.ala.dao;
 import java.util.List;
 import java.util.Map;
 
+import org.ala.util.ColumnType;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 /**
@@ -98,5 +99,21 @@ public class HBaseHelper implements StoreHelper {
 	
 	public Map<String, Object> getSubColumnsByGuid(String columnFamily,String superColName,String guid) throws Exception{
 		throw new NoSuchMethodException("No such method implementation in this class : " + this.getClass().getName());
+	}
+
+	@Override
+	public Map<String, Map<String, Object>> getPageOfSubColumns(
+			String tcColFamily, String superColumn, String startGuid,
+			int pageSize) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, Map<String, Object>> getPageOfSubColumns(
+			String tcColFamily, String superColumn, ColumnType[] subColumns,
+			String startGuid, int pageSize) {
+		// TODO Auto-generated method stub
+		return null;
 	}	
 }

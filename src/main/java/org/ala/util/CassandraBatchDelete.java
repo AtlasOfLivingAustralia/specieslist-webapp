@@ -50,7 +50,6 @@ import org.wyki.cassandra.pelops.Selector;
  * 14 Sept 10 (MOK011): added remove column & remove infoSource from particular column functions 
  * 
  */
-
 public class CassandraBatchDelete {
 	protected Logger logger = Logger.getLogger(this.getClass());
 

@@ -17,13 +17,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.ala.util.CassandraSubColumnType;
+import org.ala.util.ColumnType;
 import org.apache.cassandra.thrift.Column;
 import org.apache.cassandra.thrift.ConsistencyLevel;
+import org.apache.cassandra.thrift.KeyRange;
+import org.apache.cassandra.thrift.SlicePredicate;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.DeserializationConfig;
@@ -81,11 +84,11 @@ public class CassandraPelopsHelper implements StoreHelper  {
             for(Column col : cols){
             	String name = new String(col.name, charsetEncoding);
             	String value = new String(col.value, charsetEncoding);
-            	CassandraSubColumnType type = CassandraSubColumnType.getCassandraSubColumnType(name);
+            	ColumnType type = ColumnType.getColumnType(name);
             	Object o = null;
             	try{
             		if(type != null){
-            			// convertion is based on pre-define CassandraSubColumnType.
+            			// convertion is based on pre-define ColumnType.
 		            	if(!type.isList()){
 		            		o = mapper.readValue(value, type.getClazz());
 		            	}
@@ -94,7 +97,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		            	}
             		}
             		else{
-                            logger.info("CassandraSubColumnType lookup failed. Invalid SubColumn Name: " + name);
+                            logger.info("ColumnType lookup failed. Invalid SubColumn Name: " + name);
             		}
 	            }
             	catch(Exception ex){
@@ -362,6 +365,96 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		}
     }
 
+    public Map<String, Map<String,Object>> getPageOfSubColumns(String columnFamily, String superColName, String startGuid, int pageSize) {
+    	return getPageOfSubColumns(columnFamily, superColName, null, startGuid, pageSize);
+    }
+    
+	@Override
+	public Map<String, Map<String,Object>> getPageOfSubColumns(String columnFamily, String superColName, ColumnType[] columns, String startGuid, int pageSize) {
+    	
+		Map<String, Map<String,Object>> rowMap = new LinkedHashMap<String, Map<String,Object>>();
+    	
+        logger.debug("Pelops getting page with start guid: " + startGuid);
+        Selector selector = Pelops.createSelector(pool, keySpace);
+        
+        try{
+            //initialise the object mapper
+    		ObjectMapper mapper = new ObjectMapper();
+    		mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    		KeyRange kr = new KeyRange();
+    		if(StringUtils.isNotEmpty(startGuid)){
+//    			kr.start_key = startGuid;
+//    			kr.end_key = "";
+    			kr.start_token = startGuid;
+    			kr.end_token = "";
+    		} else {
+    			kr.start_key = "";
+    			kr.end_key = "";
+    		}
+    		
+    		kr.setCount(pageSize);
+    		
+    		//create the column slice
+    		SlicePredicate slicePredicate = null;
+    		if(columns==null || columns.length==0){
+    			slicePredicate = Selector.newColumnsPredicateAll(true, 10000);
+    		} else {
+    			slicePredicate = new SlicePredicate();
+    			for(ColumnType ct: columns) {
+    				slicePredicate.addToColumn_names(ct.getColumnName().getBytes());
+    			}
+    		}
+
+    		//retrieve a list of columns for each of the rows
+    		Map<String, List<Column>> colListMap  = selector.getSubColumnsFromRows(kr, columnFamily, superColName, Selector.newColumnsPredicateAll(true, 10000), ConsistencyLevel.ONE);
+            
+    		logger.debug("Returning rows: " + colListMap.size());
+    		
+            // convert json string to Java object and add into Map object.
+    		for(String guid: colListMap.keySet()){
+    		
+    			List<Column> cols = colListMap.get(guid);
+    			Map<String, Object> map = new HashMap<String,Object>();
+    			
+	            for(Column col : cols){
+	            	String name = new String(col.name, charsetEncoding);
+	            	String value = new String(col.value, charsetEncoding);
+	            	ColumnType type = ColumnType.getColumnType(name);
+	            	Object o = null;
+	            	try{
+	            		if(type != null){
+	            			// convertion is based on pre-define ColumnType.
+			            	if(!type.isList()){
+			            		o = mapper.readValue(value, type.getClazz());
+			            	} else{
+			            		o = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, type.getClazz()));
+			            	}
+	            		} else{
+	            			logger.info("ColumnType lookup failed. Invalid SubColumn Name: " + name);
+	            		}
+		            }
+	            	catch(Exception ex){
+	            		logger.error(ex);
+	            	}
+	            	
+	            	if(o != null){
+	            		map.put(name, o);
+	            	}
+	            	logger.trace("*** name: " + name + ", value: " + value);
+	            }
+	            rowMap.put(guid, map);
+    		}
+        } catch(Exception e){
+            //expected behaviour. current thrift API doesnt seem
+            //to support a retrieve null getter
+        	if(logger.isDebugEnabled()){
+        		logger.debug(e.getMessage(), e);
+        	}
+        }
+        return rowMap;
+	}
+    
     /**
      * @see org.ala.dao.StoreHelper#getScanner(java.lang.String, java.lang.String, java.lang.String)
      */
@@ -379,7 +472,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
     	Iterator<String> it = keys.iterator();
     	while(it.hasNext()){
     		String key = it.next();
-    		CassandraSubColumnType type = CassandraSubColumnType.getCassandraSubColumnType(key);
+    		ColumnType type = ColumnType.getColumnType(key);
     		Object o = map.get(type.getColumnName());
     		if(o instanceof List){
     			List l = (List)o;

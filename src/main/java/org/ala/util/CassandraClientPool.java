@@ -15,11 +15,13 @@ import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
 /**
+ * This is homegrown Cassandra connection pooling written on top of
+ * apache commons pool.
+ * 
+ * Currently not in use in production.
  * 
  * @author MOK011
- *
  */
-
 public class CassandraClientPool {
 	public static final int DEFAULT_MAX_ACTIVE = 50;
 	public static final int DEFAULT_MAX_IDLE = 5;

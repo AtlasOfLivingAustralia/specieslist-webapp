@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ala.model.TaxonConcept;
+import org.ala.util.ColumnType;
 import org.apache.cassandra.thrift.Cassandra;
 import org.apache.cassandra.thrift.ColumnOrSuperColumn;
 import org.apache.cassandra.thrift.ColumnParent;
@@ -43,8 +44,9 @@ import org.codehaus.jackson.map.type.TypeFactory;
  * A StoreHelper implementation for the Cassandra platform.
  *
  * @author Dave Martin (David.Martin@csiro.au)
+ * @deprecated use <code>CassandraPelopHelper</code> instead.
  */
-@Deprecated
+@Deprecated 
 public class CassandraHelper implements StoreHelper {
 
 	protected static Logger logger = Logger.getLogger(CassandraHelper.class);
@@ -487,5 +489,21 @@ public class CassandraHelper implements StoreHelper {
 	
 	public Map<String, Object> getSubColumnsByGuid(String columnFamily,String superColName,String guid) throws Exception{
 		throw new NoSuchMethodException("No such method implementation in this class : " + this.getClass().getName());
+	}
+
+	@Override
+	public Map<String, Map<String, Object>> getPageOfSubColumns(
+			String tcColFamily, String superColumn, String startGuid,
+			int pageSize) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, Map<String, Object>> getPageOfSubColumns(
+			String tcColFamily, String superColumn, ColumnType[] subColumns,
+			String startGuid, int pageSize) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

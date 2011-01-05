@@ -29,12 +29,14 @@ import javax.inject.Inject;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
+import org.ala.dto.SpeciesProfileDTO;
 import org.ala.model.AttributableObject;
 import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
 import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
+import org.ala.model.IdentificationKey;
 import org.ala.model.Image;
 import org.ala.model.OccurrencesInGeoregion;
 import org.ala.model.PestStatus;
@@ -46,9 +48,8 @@ import org.ala.model.SpecimenHolding;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.model.Triple;
-import org.ala.model.IdentificationKey;
 import org.ala.repository.Predicates;
-import org.ala.util.CassandraSubColumnType;
+import org.ala.util.ColumnType;
 import org.ala.util.FileType;
 import org.ala.util.MimeType;
 import org.ala.util.StatusType;
@@ -101,8 +102,7 @@ import au.org.ala.data.util.RankType;
 @Component("taxonConceptDao")
 public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
-	protected static Logger logger = Logger
-			.getLogger(TaxonConceptSHDaoImpl.class);
+	static Logger logger = Logger.getLogger(TaxonConceptSHDaoImpl.class);
 
 	/** To be moved to somewhere more maintainable */
 	protected static List<String> regionList = null;
@@ -153,8 +153,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * 
 	 * @throws Exception
 	 */
-	public TaxonConceptSHDaoImpl() throws Exception {
-	}
+	public TaxonConceptSHDaoImpl() throws Exception {}
 
 	/**
 	 * Initialise the connection to HBase
@@ -182,7 +181,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 
 		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.TAXONCONCEPT_COL.getColumnName(),
+				ColumnType.TAXONCONCEPT_COL.getColumnName(),
 				tc.getGuid(), tc);
 	}
 
@@ -205,13 +204,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		// This should refactored out at some stage
 		TaxonConcept current = (TaxonConcept) storeHelper.get(TC_TABLE,
 				TC_COL_FAMILY,
-				CassandraSubColumnType.TAXONCONCEPT_COL.getColumnName(),
+				ColumnType.TAXONCONCEPT_COL.getColumnName(),
 				tc.getGuid(), TaxonConcept.class);
 		if (current == null) {
 			return false;
 		}
 		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.TAXONCONCEPT_COL.getColumnName(),
+				ColumnType.TAXONCONCEPT_COL.getColumnName(),
 				tc.getGuid(), current);
 	}
 
@@ -222,7 +221,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addTaxonName(String guid, TaxonName taxonName)
 			throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.TAXONNAME_COL.getColumnName(), guid,
+				ColumnType.TAXONNAME_COL.getColumnName(), guid,
 				taxonName);
 	}
 
@@ -233,7 +232,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addCommonName(String guid, CommonName commonName)
 			throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.VERNACULAR_COL.getColumnName(), guid,
+				ColumnType.VERNACULAR_COL.getColumnName(), guid,
 				commonName);
 	}
 
@@ -244,7 +243,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addConservationStatus(String guid,
 			ConservationStatus conservationStatus) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.CONSERVATION_STATUS_COL.getColumnName(),
+				ColumnType.CONSERVATION_STATUS_COL.getColumnName(),
 				guid, conservationStatus);
 	}
 
@@ -255,7 +254,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addPestStatus(String guid, PestStatus pestStatus)
 			throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.PEST_STATUS_COL.getColumnName(), guid,
+				ColumnType.PEST_STATUS_COL.getColumnName(), guid,
 				pestStatus);
 	}
 
@@ -266,14 +265,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addRegions(String guid, List<OccurrencesInGeoregion> regions)
 			throws Exception {
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.REGION_COL.getColumnName(), guid,
+				ColumnType.REGION_COL.getColumnName(), guid,
 				(List) regions, false);
 	}
 
 	public boolean setOccurrenceRecordsCount(String guid, Integer count)
 			throws Exception {
 		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.OCCURRENCE_RECORDS_COUNT_COL
+				ColumnType.OCCURRENCE_RECORDS_COUNT_COL
 						.getColumnName(), guid, count);
 	}
 
@@ -281,7 +280,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			throws Exception {
 		return storeHelper
 				.putSingle(TC_TABLE, TC_COL_FAMILY,
-						CassandraSubColumnType.GEOREF_RECORDS_COUNT_COL
+						ColumnType.GEOREF_RECORDS_COUNT_COL
 								.getColumnName(), guid, count);
 	}
 
@@ -291,7 +290,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public boolean addImage(String guid, Image image) throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IMAGE_COL.getColumnName(), guid, image);
+				ColumnType.IMAGE_COL.getColumnName(), guid, image);
 	}
 
 	/**
@@ -301,7 +300,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addDistributionImage(String guid, Image image)
 			throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.DIST_IMAGE_COL.getColumnName(), guid,
+				ColumnType.DIST_IMAGE_COL.getColumnName(), guid,
 				image);
 	}
 
@@ -312,7 +311,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addSynonym(String guid, TaxonConcept synonym)
 			throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.SYNONYM_COL.getColumnName(), guid,
+				ColumnType.SYNONYM_COL.getColumnName(), guid,
 				synonym);
 	}
 
@@ -323,7 +322,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addIsCongruentTo(String guid, TaxonConcept congruent)
 			throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IS_CONGRUENT_TO_COL.getColumnName(),
+				ColumnType.IS_CONGRUENT_TO_COL.getColumnName(),
 				guid, congruent);
 	}
 
@@ -334,7 +333,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addChildTaxon(String guid, TaxonConcept childConcept)
 			throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IS_PARENT_COL_OF.getColumnName(), guid,
+				ColumnType.IS_PARENT_COL_OF.getColumnName(), guid,
 				childConcept);
 	}
 
@@ -347,7 +346,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean setChildTaxa(String guid, List<TaxonConcept> childConcepts)
 			throws Exception {
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IS_PARENT_COL_OF.getColumnName(), guid,
+				ColumnType.IS_PARENT_COL_OF.getColumnName(), guid,
 				(List) childConcepts, false);
 	}
 
@@ -358,7 +357,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addIdentifier(String guid, String alternativeIdentifier)
 			throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IDENTIFIER_COL.getColumnName(), guid,
+				ColumnType.IDENTIFIER_COL.getColumnName(), guid,
 				alternativeIdentifier);
 	}
 
@@ -367,7 +366,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public List<String> getIdentifiers(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IDENTIFIER_COL.getColumnName(), guid,
+				ColumnType.IDENTIFIER_COL.getColumnName(), guid,
 				String.class);
 	}
 
@@ -378,7 +377,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addParentTaxon(String guid, TaxonConcept parentConcept)
 			throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IS_CHILD_COL_OF.getColumnName(), guid,
+				ColumnType.IS_CHILD_COL_OF.getColumnName(), guid,
 				parentConcept);
 	}
 
@@ -389,7 +388,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addTextProperty(String guid, SimpleProperty textProperty)
 			throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.TEXT_PROPERTY_COL.getColumnName(), guid,
+				ColumnType.TEXT_PROPERTY_COL.getColumnName(), guid,
 				textProperty);
 	}
 
@@ -399,12 +398,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public boolean setIsIconic(String guid) throws Exception {
 		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IS_ICONIC.getColumnName(), guid, true);
+				ColumnType.IS_ICONIC.getColumnName(), guid, true);
 	}
 
 	public boolean setIsAustralian(String guid) throws Exception {
 		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IS_AUSTRALIAN.getColumnName(), guid,
+				ColumnType.IS_AUSTRALIAN.getColumnName(), guid,
 				true);
 	}
 
@@ -413,7 +412,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public List<TaxonConcept> getSynonymsFor(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.SYNONYM_COL.getColumnName(), guid,
+				ColumnType.SYNONYM_COL.getColumnName(), guid,
 				TaxonConcept.class);
 	}
 
@@ -423,7 +422,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public List<TaxonConcept> getCongruentConceptsFor(String guid)
 			throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IS_CONGRUENT_TO_COL.getColumnName(),
+				ColumnType.IS_CONGRUENT_TO_COL.getColumnName(),
 				guid, TaxonConcept.class);
 	}
 
@@ -432,7 +431,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public List<Image> getImages(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IMAGE_COL.getColumnName(), guid,
+				ColumnType.IMAGE_COL.getColumnName(), guid,
 				Image.class);
 	}
 
@@ -441,7 +440,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public boolean isIconic(String guid) throws Exception {
 		Boolean isIconic = (Boolean) storeHelper.get(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IS_ICONIC.getColumnName(), guid,
+				ColumnType.IS_ICONIC.getColumnName(), guid,
 				Boolean.class);
 		if (isIconic == null) {
 			return false;
@@ -452,7 +451,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean isAustralian(String guid) throws Exception {
 		Boolean isAustralian = (Boolean) storeHelper.get(TC_TABLE,
 				TC_COL_FAMILY,
-				CassandraSubColumnType.IS_AUSTRALIAN.getColumnName(), guid,
+				ColumnType.IS_AUSTRALIAN.getColumnName(), guid,
 				Boolean.class);
 		if (isAustralian == null)
 			return false;
@@ -464,7 +463,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public List<Image> getDistributionImages(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.DIST_IMAGE_COL.getColumnName(), guid,
+				ColumnType.DIST_IMAGE_COL.getColumnName(), guid,
 				Image.class);
 	}
 
@@ -473,7 +472,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public List<PestStatus> getPestStatuses(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.PEST_STATUS_COL.getColumnName(), guid,
+				ColumnType.PEST_STATUS_COL.getColumnName(), guid,
 				PestStatus.class);
 	}
 
@@ -483,7 +482,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public List<ConservationStatus> getConservationStatuses(String guid)
 			throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.CONSERVATION_STATUS_COL.getColumnName(),
+				ColumnType.CONSERVATION_STATUS_COL.getColumnName(),
 				guid, ConservationStatus.class);
 	}
 
@@ -492,7 +491,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public List<TaxonConcept> getChildConceptsFor(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IS_PARENT_COL_OF.getColumnName(), guid,
+				ColumnType.IS_PARENT_COL_OF.getColumnName(), guid,
 				TaxonConcept.class);
 	}
 
@@ -502,7 +501,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public List<TaxonConcept> getParentConceptsFor(String guid)
 			throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IS_CHILD_COL_OF.getColumnName(), guid,
+				ColumnType.IS_CHILD_COL_OF.getColumnName(), guid,
 				TaxonConcept.class);
 	}
 
@@ -511,7 +510,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public List<CommonName> getCommonNamesFor(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.VERNACULAR_COL.getColumnName(), guid,
+				ColumnType.VERNACULAR_COL.getColumnName(), guid,
 				CommonName.class);
 	}
 
@@ -521,7 +520,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public List<SimpleProperty> getTextPropertiesFor(String guid)
 			throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.TEXT_PROPERTY_COL.getColumnName(), guid,
+				ColumnType.TEXT_PROPERTY_COL.getColumnName(), guid,
 				SimpleProperty.class);
 	}
 
@@ -539,7 +538,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public TaxonConcept getByGuid(String guid) throws Exception {
 		return (TaxonConcept) storeHelper.get(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.TAXONCONCEPT_COL.getColumnName(), guid,
+				ColumnType.TAXONCONCEPT_COL.getColumnName(), guid,
 				TaxonConcept.class);
 	}
 
@@ -565,7 +564,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public TaxonName getTaxonNameFor(String guid) throws Exception {
 		List taxonNames = storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.TAXONNAME_COL.getColumnName(), guid,
+				ColumnType.TAXONNAME_COL.getColumnName(), guid,
 				TaxonName.class);
 		if (taxonNames.isEmpty()) {
 			return null;
@@ -579,7 +578,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public List<TaxonName> getTaxonNamesFor(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.TAXONNAME_COL.getColumnName(), guid,
+				ColumnType.TAXONNAME_COL.getColumnName(), guid,
 				TaxonName.class);
 	}
 
@@ -912,7 +911,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		logger.debug("setRankingOnImage(..) save to Cassandta !!!");
 		// write back to database
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IMAGE_COL.getColumnName(), guid,
+				ColumnType.IMAGE_COL.getColumnName(), guid,
 				(List) images, false);
 	}
 
@@ -941,7 +940,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 		// write back to the database
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IMAGE_COL.getColumnName(), guid,
+				ColumnType.IMAGE_COL.getColumnName(), guid,
 				(List) images, false);
 	}
 
@@ -1058,7 +1057,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addClassification(String guid, Classification classification)
 			throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.CLASSIFICATION_COL.getColumnName(),
+				ColumnType.CLASSIFICATION_COL.getColumnName(),
 				guid, classification);
 	}
 
@@ -1068,7 +1067,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public List<Classification> getClassifications(String guid)
 			throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.CLASSIFICATION_COL.getColumnName(),
+				ColumnType.CLASSIFICATION_COL.getColumnName(),
 				guid, Classification.class);
 	}
 
@@ -1445,7 +1444,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			throws Exception {
 
 		Scanner scanner = storeHelper.getScanner(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.TAXONCONCEPT_COL.getColumnName());
+				ColumnType.TAXONCONCEPT_COL.getColumnName());
 
 		List<String> ids = new ArrayList<String>();
 		for (String id : infoSourceIds) {
@@ -1461,14 +1460,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			List<CommonName> commonNames = getCommonNamesFor(guid);
 			removeForInfosources((List) commonNames, ids);
 			storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
-					CassandraSubColumnType.VERNACULAR_COL.getColumnName(),
+					ColumnType.VERNACULAR_COL.getColumnName(),
 					guid, (List) commonNames, false);
 
 			// get common names
 			List<Image> images = getImages(guid);
 			removeForInfosources((List) images, ids);
 			storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
-					CassandraSubColumnType.IMAGE_COL.getColumnName(), guid,
+					ColumnType.IMAGE_COL.getColumnName(), guid,
 					(List) images, false);
 			i++;
 
@@ -1517,7 +1516,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		int i = 0;
 
 		Scanner scanner = storeHelper.getScanner(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.TAXONCONCEPT_COL.getColumnName());
+				ColumnType.TAXONCONCEPT_COL.getColumnName());
 
 		// load iconic species
 
@@ -1772,7 +1771,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						// store the source
 						if (synonym.getInfoSourceId() != null) {
 							infoSourceIds.add(synonym.getInfoSourceId()); // getting
-																			// NPE
+							// NPE
 						}
 					}
 				}
@@ -1824,8 +1823,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 				addRankToIndex(doc, taxonConcept.getRankString());
 
-				doc.addField("hasChildren",
-						Boolean.toString(!children.isEmpty()));
+				doc.addField("hasChildren",Boolean.toString(!children.isEmpty()));
 				doc.addField("dataset", StringUtils.join(infoSourceIds, " "));
 
 				docsToAdd.add(doc);
@@ -1885,10 +1883,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		if (parsedName != null) {
 			if (parsedName.isBinomial()) {
 				// add multiple versions
-				sciNames.add(parsedName.buildAbbreviatedCanonicalName()
-						.toLowerCase());
-				sciNames.add(parsedName.buildAbbreviatedFullName()
-						.toLowerCase());
+				sciNames.add(parsedName.buildAbbreviatedCanonicalName().toLowerCase());
+				sciNames.add(parsedName.buildAbbreviatedFullName().toLowerCase());
 			}
 
 			// add lowercased version
@@ -1971,7 +1967,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addReferences(String guid,
 			List<org.ala.model.Reference> references) throws Exception {
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.REFERENCE_COL.getColumnName(), guid,
+				ColumnType.REFERENCE_COL.getColumnName(), guid,
 				(List) references, false);
 	}
 
@@ -1982,7 +1978,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addEarliestReference(String guid, Reference reference)
 			throws Exception {
 		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.EARLIEST_REFERENCE_COL.getColumnName(),
+				ColumnType.EARLIEST_REFERENCE_COL.getColumnName(),
 				guid, reference);
 	}
 
@@ -1993,7 +1989,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addPublicationReference(String guid,
 			List<Reference> references) throws Exception {
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.PUBLICATION_REFERENCE_COL
+				ColumnType.PUBLICATION_REFERENCE_COL
 						.getColumnName(), guid, (List) references, false);
 	}
 
@@ -2004,7 +2000,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addPublication(String guid, Publication publication)
 			throws Exception {
 		return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.PUBLICATION_COL.getColumnName(), guid,
+				ColumnType.PUBLICATION_COL.getColumnName(), guid,
 				publication);
 	}
 
@@ -2014,7 +2010,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	@Override
 	public List<ExtantStatus> getExtantStatuses(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.EXTANT_STATUS_COL.getColumnName(), guid,
+				ColumnType.EXTANT_STATUS_COL.getColumnName(), guid,
 				ExtantStatus.class);
 	}
 
@@ -2024,7 +2020,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	@Override
 	public List<Habitat> getHabitats(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.HABITAT_COL.getColumnName(), guid,
+				ColumnType.HABITAT_COL.getColumnName(), guid,
 				Habitat.class);
 	}
 
@@ -2036,7 +2032,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addExtantStatus(String guid,
 			List<ExtantStatus> extantStatusList) throws Exception {
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.EXTANT_STATUS_COL.getColumnName(), guid,
+				ColumnType.EXTANT_STATUS_COL.getColumnName(), guid,
 				(List) extantStatusList, false);
 	}
 
@@ -2048,7 +2044,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean addHabitat(String guid, List<Habitat> habitatList)
 			throws Exception {
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.HABITAT_COL.getColumnName(), guid,
+				ColumnType.HABITAT_COL.getColumnName(), guid,
 				(List) habitatList, false);
 	}
 
@@ -2059,7 +2055,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public List<OccurrencesInGeoregion> getRegions(String guid)
 			throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.REGION_COL.getColumnName(), guid,
+				ColumnType.REGION_COL.getColumnName(), guid,
 				OccurrencesInGeoregion.class);
 	}
 
@@ -2070,7 +2066,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public List<Reference> getReferencesFor(String guid) throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.REFERENCE_COL.getColumnName(), guid,
+				ColumnType.REFERENCE_COL.getColumnName(), guid,
 				Reference.class);
 	}
 
@@ -2079,9 +2075,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public Reference getEarliestReferenceFor(String guid) throws Exception {
 		return (Reference) storeHelper.get(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.EARLIEST_REFERENCE_COL.getColumnName(),
+				ColumnType.EARLIEST_REFERENCE_COL.getColumnName(),
 				guid, Reference.class);
-
 	}
 
 	/**
@@ -2090,50 +2085,166 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public List<Reference> getPublicationReferencesFor(String guid)
 			throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.PUBLICATION_REFERENCE_COL
+				ColumnType.PUBLICATION_REFERENCE_COL
 						.getColumnName(), guid, Reference.class);
 	}
 
 	public Integer getOccurrenceRecordCount(String guid) throws Exception {
 		return (Integer) storeHelper.get(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.OCCURRENCE_RECORDS_COUNT_COL
+				ColumnType.OCCURRENCE_RECORDS_COUNT_COL
 						.getColumnName(), guid, Integer.class);
 	}
 
 	public boolean addIdentificationKeys(String guid,
 			List<IdentificationKey> identificationKeyList) throws Exception {
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IDENTIFICATION_KEY_COL.getColumnName(),
+				ColumnType.IDENTIFICATION_KEY_COL.getColumnName(),
 				guid, (List) identificationKeyList, false);
 	}
 
 	public List<IdentificationKey> getIdentificationKeys(String guid)
 			throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.IDENTIFICATION_KEY_COL.getColumnName(),
+				ColumnType.IDENTIFICATION_KEY_COL.getColumnName(),
 				guid, IdentificationKey.class);
 	}
 
 	public boolean addSpecimenHoldings(String guid,
 			List<SpecimenHolding> specimenHoldingList) throws Exception {
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.SPECIMEN_HOLDING_COL.getColumnName(),
+				ColumnType.SPECIMEN_HOLDING_COL.getColumnName(),
 				guid, (List) specimenHoldingList, false);
 	}
 
 	public List<SpecimenHolding> getSpecimenHoldings(String guid)
 			throws Exception {
 		return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
-				CassandraSubColumnType.SPECIMEN_HOLDING_COL.getColumnName(),
+				ColumnType.SPECIMEN_HOLDING_COL.getColumnName(),
 				guid, SpecimenHolding.class);
 	}
 
+	// ===============<ExtendedtaxonConcept>=========
+	private Object getColumnValue(Map<String, Object> map,
+			ColumnType columnType) {
+		Object o = map.get(columnType.getColumnName());
+		if (columnType.isList() && o == null) {
+			o = new ArrayList();
+		}
+		return o;
+	}
+
+	private Object getFirstItem(List list) {
+		if (list == null || list.isEmpty()) {
+			return null;
+		} else {
+			return list.get(0);
+		}
+	}
+
 	/**
-	 * @see org.ala.dao.TaxonConceptDao#getIndexLocation()
+	 * @see org.ala.dao.TaxonConceptDao#getExtendedTaxonConceptByGuid(java.lang.String)
+	 */
+	public ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid)
+			throws Exception {
+		logger.debug("Retrieving concept for guid: " + guid);
+		guid = getPreferredGuid(guid);
+		Map<String, Object> map = storeHelper.getSubColumnsByGuid(TC_COL_FAMILY, TC_COL_FAMILY, guid);
+		ExtendedTaxonConceptDTO etc = createExtendedDTO(map);
+		logger.debug("Returned concept for guid: " + guid);
+		return etc;
+	}
+
+	/**
+	 * 
+	 * @param etc
+	 * @param map
+	 */
+	private ExtendedTaxonConceptDTO createExtendedDTO(Map<String, Object> map) {
+		// populate the dto
+		ExtendedTaxonConceptDTO etc = new ExtendedTaxonConceptDTO();
+		etc.setTaxonConcept((TaxonConcept) getColumnValue(map,ColumnType.TAXONCONCEPT_COL));
+		etc.setTaxonName((TaxonName) getFirstItem((List) getColumnValue(map,ColumnType.TAXONNAME_COL)));
+		etc.setClassification((Classification) getFirstItem((List<Classification>) getColumnValue(map, ColumnType.CLASSIFICATION_COL)));
+		etc.setIdentifiers((List<String>) getColumnValue(map,ColumnType.IDENTIFIER_COL));
+		etc.setSynonyms((List<TaxonConcept>) getColumnValue(map,ColumnType.SYNONYM_COL));
+		etc.setCommonNames((List<CommonName>) getColumnValue(map,ColumnType.VERNACULAR_COL));
+		etc.setChildConcepts((List<TaxonConcept>) getColumnValue(map,ColumnType.IS_PARENT_COL_OF));
+		etc.setParentConcepts((List<TaxonConcept>) getColumnValue(map,ColumnType.IS_CHILD_COL_OF));
+		etc.setPestStatuses((List<PestStatus>) getColumnValue(map,ColumnType.PEST_STATUS_COL));
+		etc.setConservationStatuses((List<ConservationStatus>) getColumnValue(map, ColumnType.CONSERVATION_STATUS_COL));
+		etc.setImages((List<Image>) getColumnValue(map,ColumnType.IMAGE_COL));
+		etc.setDistributionImages((List<Image>) getColumnValue(map,ColumnType.DIST_IMAGE_COL));
+		etc.setExtantStatuses((List<ExtantStatus>) getColumnValue(map,ColumnType.EXTANT_STATUS_COL));
+		etc.setHabitats((List<Habitat>) getColumnValue(map,ColumnType.HABITAT_COL));
+		etc.setRegionTypes(OccurrencesInGeoregion.getRegionsByType((List<OccurrencesInGeoregion>) getColumnValue(map, ColumnType.REGION_COL)));
+		etc.setReferences((List<Reference>) getColumnValue(map,ColumnType.REFERENCE_COL));
+		etc.setEarliestReference((Reference) getColumnValue(map,ColumnType.EARLIEST_REFERENCE_COL));
+		etc.setPublicationReference((List<Reference>) getColumnValue(map,ColumnType.PUBLICATION_REFERENCE_COL));
+		etc.setIdentificationKeys((List<IdentificationKey>) getColumnValue(map,ColumnType.IDENTIFICATION_KEY_COL));
+		etc.setSpecimenHolding((List<SpecimenHolding>) getColumnValue(map,ColumnType.SPECIMEN_HOLDING_COL));
+		etc.setIsAustralian((Boolean) getColumnValue(map,ColumnType.IS_AUSTRALIAN));
+
+		// sort the list of SimpleProperties for display in UI
+		List<SimpleProperty> simpleProperties = (List<SimpleProperty>) getColumnValue(map, ColumnType.TEXT_PROPERTY_COL);
+		Collections.sort(simpleProperties);
+		etc.setSimpleProperties(simpleProperties);
+		return etc;
+	}
+	
+	/**
+	 * Retrieve a list of extended DTOs.
+	 * @param startGuid the guid of the first concept to select
+	 * @param pageSize the number to select.
+	 * 
+	 * @see org.ala.dao.TaxonConceptDao#getPage(java.lang.String, int)
 	 */
 	@Override
-	public String getIndexLocation() {
-		return TC_INDEX_DIR;
+	public List<ExtendedTaxonConceptDTO> getPage(String startGuid, int pageSize) throws Exception {
+
+		List<ExtendedTaxonConceptDTO> dtoList = new ArrayList<ExtendedTaxonConceptDTO>(pageSize);
+		Map<String, Map<String,Object>> rowMaps = storeHelper.getPageOfSubColumns(TC_COL_FAMILY, TC_COL_FAMILY, startGuid, pageSize);
+		for(Map<String, Object> row : rowMaps.values()){
+			ExtendedTaxonConceptDTO e = createExtendedDTO(row);
+			dtoList.add(e);
+		}
+		return dtoList;
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getProfilePage(java.lang.String, int)
+	 */
+	@Override
+	public List<SpeciesProfileDTO> getProfilePage(String startGuid, int pageSize)
+			throws Exception {
+		List<SpeciesProfileDTO> dtoList = new ArrayList<SpeciesProfileDTO>(pageSize);
+		ColumnType[] columns = new ColumnType[]{
+				ColumnType.TAXONCONCEPT_COL,
+				ColumnType.VERNACULAR_COL,
+				ColumnType.HABITAT_COL,
+				ColumnType.CONSERVATION_STATUS_COL,
+		};
+		
+		Map<String, Map<String,Object>> rowMaps = storeHelper.getPageOfSubColumns(TC_COL_FAMILY, TC_COL_FAMILY, columns, startGuid, pageSize);
+		
+		for(Map<String, Object> row : rowMaps.values()){
+			SpeciesProfileDTO spDTO = new SpeciesProfileDTO();
+			TaxonConcept tc = (TaxonConcept) getColumnValue(row,ColumnType.TAXONCONCEPT_COL);
+			List<CommonName> cns = (List<CommonName>) getColumnValue(row,ColumnType.VERNACULAR_COL);
+			List<Habitat> habs = (List<Habitat>) getColumnValue(row,ColumnType.HABITAT_COL);
+			List<ConservationStatus> cons = (List<ConservationStatus>) getColumnValue(row,ColumnType.CONSERVATION_STATUS_COL);
+			if(tc!=null){
+				spDTO.setGuid(tc.getGuid());
+				spDTO.setScientificName(tc.getNameString());
+				if(!cns.isEmpty()){
+					spDTO.setCommonName(cns.get(0).getNameString());
+				}
+				for(Habitat habitat: habs){
+					spDTO.getHabitats().add(habitat.getStatusAsString());
+				}
+				dtoList.add(spDTO);
+			}
+		}
+		return dtoList;
 	}
 
 	/**
@@ -2147,27 +2258,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			set.add(object);
 		}
 	}
-
-	//
-	// /**
-	// * @param guid
-	// * @return
-	// */
-	// private Get getTcGetter(String guid) {
-	// Get getter = new
-	// Get(Bytes.toBytes(guid)).addFamily(Bytes.toBytes(TC_COL_FAMILY));
-	// return getter;
-	// }
-	//
-	// /**
-	// * @param guid
-	// * @return
-	// */
-	// private Get getTnGetter(String guid) {
-	// Get getter = new
-	// Get(Bytes.toBytes(guid)).addFamily(Bytes.toBytes(TN_COL_FAMILY));
-	// return getter;
-	// }
 
 	/**
 	 * @param storeHelper
@@ -2190,97 +2280,5 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public void setSolrUtils(SolrUtils solrUtils) {
 		this.solrUtils = solrUtils;
-	}
-
-	// ===============<ExtendedtaxonConcept>=========
-	private Object getColumnValue(Map<String, Object> map,
-			CassandraSubColumnType columnType) {
-		Object o = map.get(columnType.getColumnName());
-		if (columnType.isList() && o == null) {
-			o = new ArrayList();
-		}
-		return o;
-	}
-
-	private Object getFirstItem(List list) {
-		if (list == null || list.isEmpty()) {
-			return null;
-		} else {
-			return list.get(0);
-		}
-	}
-
-	/**
-	 * @see org.ala.dao.TaxonConceptDao#getExtendedTaxonConceptByGuid(java.lang.String)
-	 */
-	public ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid)
-			throws Exception {
-		logger.debug("Retrieving concept for guid: " + guid);
-		ExtendedTaxonConceptDTO etc = new ExtendedTaxonConceptDTO();
-
-		guid = getPreferredGuid(guid);
-		Map<String, Object> map = storeHelper.getSubColumnsByGuid("tc", "tc",
-				guid);
-
-		// populate the dto
-		etc.setTaxonConcept((TaxonConcept) getColumnValue(map,
-				CassandraSubColumnType.TAXONCONCEPT_COL));
-		etc.setTaxonName((TaxonName) getFirstItem((List) getColumnValue(map,
-				CassandraSubColumnType.TAXONNAME_COL)));
-
-		etc.setClassification((Classification) getFirstItem((List<Classification>) getColumnValue(
-				map, CassandraSubColumnType.CLASSIFICATION_COL)));
-
-		etc.setIdentifiers((List<String>) getColumnValue(map,
-				CassandraSubColumnType.IDENTIFIER_COL));
-		etc.setSynonyms((List<TaxonConcept>) getColumnValue(map,
-				CassandraSubColumnType.SYNONYM_COL));
-		etc.setCommonNames((List<CommonName>) getColumnValue(map,
-				CassandraSubColumnType.VERNACULAR_COL));
-		etc.setChildConcepts((List<TaxonConcept>) getColumnValue(map,
-				CassandraSubColumnType.IS_PARENT_COL_OF));
-		etc.setParentConcepts((List<TaxonConcept>) getColumnValue(map,
-				CassandraSubColumnType.IS_CHILD_COL_OF));
-		etc.setPestStatuses((List<PestStatus>) getColumnValue(map,
-				CassandraSubColumnType.PEST_STATUS_COL));
-		etc.setConservationStatuses((List<ConservationStatus>) getColumnValue(
-				map, CassandraSubColumnType.CONSERVATION_STATUS_COL));
-		etc.setImages((List<Image>) getColumnValue(map,
-				CassandraSubColumnType.IMAGE_COL));
-		etc.setDistributionImages((List<Image>) getColumnValue(map,
-				CassandraSubColumnType.DIST_IMAGE_COL));
-		etc.setExtantStatuses((List<ExtantStatus>) getColumnValue(map,
-				CassandraSubColumnType.EXTANT_STATUS_COL));
-		etc.setHabitats((List<Habitat>) getColumnValue(map,
-				CassandraSubColumnType.HABITAT_COL));
-		etc.setRegionTypes(OccurrencesInGeoregion
-				.getRegionsByType((List<OccurrencesInGeoregion>) getColumnValue(
-						map, CassandraSubColumnType.REGION_COL)));
-		etc.setReferences((List<Reference>) getColumnValue(map,
-				CassandraSubColumnType.REFERENCE_COL));
-
-		etc.setEarliestReference((Reference) getColumnValue(map,
-				CassandraSubColumnType.EARLIEST_REFERENCE_COL));
-		etc.setPublicationReference((List<Reference>) getColumnValue(map,
-				CassandraSubColumnType.PUBLICATION_REFERENCE_COL));
-
-		etc.setIdentificationKeys((List<IdentificationKey>) getColumnValue(map,
-				CassandraSubColumnType.IDENTIFICATION_KEY_COL));
-		etc.setSpecimenHolding((List<SpecimenHolding>) getColumnValue(map,
-				CassandraSubColumnType.SPECIMEN_HOLDING_COL));
-
-		etc.setIsAustralian((Boolean) getColumnValue(map,
-				CassandraSubColumnType.IS_AUSTRALIAN));
-
-		// sort the list of SimpleProperties for display in UI
-		List<SimpleProperty> simpleProperties = (List<SimpleProperty>) getColumnValue(
-				map, CassandraSubColumnType.TEXT_PROPERTY_COL);
-
-		Collections.sort(simpleProperties);
-		etc.setSimpleProperties(simpleProperties);
-
-		logger.debug("Returned concept for guid: " + guid);
-
-		return etc;
 	}
 }

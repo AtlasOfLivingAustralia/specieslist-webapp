@@ -23,10 +23,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import org.ala.dao.TaxonConceptDao;
 import org.ala.util.SpringUtils;
 import org.apache.commons.io.FileUtils;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.ISOLatin1AccentFilter;
 import org.apache.lucene.analysis.LowerCaseFilter;
@@ -42,8 +42,8 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -57,6 +57,8 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.springframework.context.ApplicationContext;
 
 /**
+ * Note: not currently in use.
+ * 
  * Search term auto-completer, works for single terms (so use on the last term
  * of the query).
  * <p>
@@ -227,10 +229,10 @@ public final class Autocompleter {
             TaxonConceptDao tcDao = (TaxonConceptDao) context.getBean(TaxonConceptDao.class);
             System.out.println("Starting re-indexing...");
             System.out.println("creating scientificName index");
-            autocomplete.reIndex(FSDirectory.getDirectory(tcDao.getIndexLocation(), null), "scientificName", true);
+            autocomplete.reIndex(FSDirectory.getDirectory(INDEX_DIR_NAME, null), "scientificName", true);
             Thread.sleep(2000);
             System.out.println("creating commonName index");
-            autocomplete.reIndex(FSDirectory.getDirectory(tcDao.getIndexLocation(), null), "commonName", false);
+            autocomplete.reIndex(FSDirectory.getDirectory(INDEX_DIR_NAME, null), "commonName", false);
             System.out.println("Finished re-indexing...");
         }
 

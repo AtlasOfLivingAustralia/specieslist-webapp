@@ -17,10 +17,10 @@ package org.ala.dao;
 import java.util.List;
 import java.util.Map;
 
-import au.org.ala.checklist.lucene.model.NameSearchResult;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
+import org.ala.dto.SpeciesProfileDTO;
 import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
@@ -28,10 +28,10 @@ import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
 import org.ala.model.IdentificationKey;
 import org.ala.model.Image;
+import org.ala.model.OccurrencesInGeoregion;
 import org.ala.model.PestStatus;
 import org.ala.model.Publication;
 import org.ala.model.Reference;
-import org.ala.model.OccurrencesInGeoregion;
 import org.ala.model.SimpleProperty;
 import org.ala.model.SpecimenHolding;
 import org.ala.model.TaxonConcept;
@@ -39,6 +39,8 @@ import org.ala.model.TaxonName;
 import org.ala.model.Triple;
 import org.ala.util.StatusType;
 import org.apache.lucene.queryParser.ParseException;
+
+import au.org.ala.checklist.lucene.model.NameSearchResult;
 import au.org.ala.data.model.LinnaeanRankClassification;
 
 /**
@@ -49,6 +51,25 @@ import au.org.ala.data.model.LinnaeanRankClassification;
  */
 public interface TaxonConceptDao {
 
+	/**
+	 * Retrieve the synonyms for the Taxon Concept with the supplied guid.
+	 *
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	List<ExtendedTaxonConceptDTO> getPage(String startGuid, int pageSize) throws Exception;
+	
+	/**
+	 * Retrieve the synonyms for the Taxon Concept with the supplied guid.
+	 *
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	List<SpeciesProfileDTO> getProfilePage(String startGuid, int pageSize) throws Exception;
+	
+	
 	/**
 	 * Retrieve the synonyms for the Taxon Concept with the supplied guid.
 	 *
@@ -657,12 +678,6 @@ public interface TaxonConceptDao {
       */
      public String getPreferredGuid(String guid) throws Exception;
 		
-    /**
-     * Get the location of an index
-     *
-     * @return
-     */
-    String getIndexLocation();
 
 	public boolean addIdentificationKeys(String guid, List<IdentificationKey> identificationKeyList) throws Exception;	
 	public List<IdentificationKey> getIdentificationKeys(String guid) throws Exception;

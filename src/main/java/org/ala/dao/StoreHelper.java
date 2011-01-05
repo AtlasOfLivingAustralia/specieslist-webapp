@@ -16,6 +16,8 @@ package org.ala.dao;
 
 import java.util.List;
 import java.util.Map;
+
+import org.ala.util.ColumnType;
 /**
  * A store helper provides basic DAO functionality on top of a backend store.
  * This is intended to hide the details of the underlying backend store in use
@@ -124,5 +126,25 @@ public interface StoreHelper {
 	 */
 	Scanner getScanner(String table, String columnFamily, String column) throws Exception;
 	
+	/**
+	 * Retrieve a map of subcolumns for the row with the supplied GUID.
+	 * 
+	 * @param columnFamily
+	 * @param superColName
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
 	public Map<String, Object> getSubColumnsByGuid(String columnFamily, String superColName, String guid) throws Exception;
+	
+	Map<String, Map<String,Object>> getPageOfSubColumns(String tcColFamily, String superColumn, String startGuid, int pageSize);
+	
+	/**
+	 * 
+	 * @param tcColFamily
+	 * @param superColumn
+	 * @param startGuid
+	 * @param pageSize
+	 */
+	Map<String, Map<String,Object>> getPageOfSubColumns(String tcColFamily, String superColumn, ColumnType[] subColumns, String startGuid, int pageSize);
 }

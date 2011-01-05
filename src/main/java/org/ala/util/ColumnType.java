@@ -38,12 +38,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
- * Cassandra SubColumn name and data type.
+ * Column name and matching data type.
  * 
  * @author mok011
- *
  */
-public enum CassandraSubColumnType {
+public enum ColumnType {
 
     TAXONCONCEPT_COL("taxonConcept", TaxonConcept.class, false),
     TAXONNAME_COL("hasTaxonName", TaxonName.class, true),
@@ -76,11 +75,11 @@ public enum CassandraSubColumnType {
     public static final String COLUMN_FAMILY_NAME = "tc";
     public static final String SUPER_COLUMN_NAME = "tc";
 
-    private static final Map<String, CassandraSubColumnType> cassandraSubColumnTypeLookup = new HashMap<String, CassandraSubColumnType>();
+    private static final Map<String, ColumnType> columnTypeLookup = new HashMap<String, ColumnType>();
 
     static {
-        for (CassandraSubColumnType mt : EnumSet.allOf(CassandraSubColumnType.class)) {
-            cassandraSubColumnTypeLookup.put(mt.getColumnName(), mt);
+        for (ColumnType mt : EnumSet.allOf(ColumnType.class)) {
+            columnTypeLookup.put(mt.getColumnName(), mt);
         }
     }
 
@@ -88,7 +87,7 @@ public enum CassandraSubColumnType {
     private Class clazz;
     private boolean isList;
 
-	private CassandraSubColumnType(String columnName, Class clazz, boolean isList){
+	private ColumnType(String columnName, Class clazz, boolean isList){
         this.columnName = columnName;
         this.clazz = clazz;
         this.isList = isList;
@@ -106,8 +105,8 @@ public enum CassandraSubColumnType {
         return isList;
     }
 
-    public static CassandraSubColumnType getCassandraSubColumnType(String columnName) {
-        CassandraSubColumnType subCol = cassandraSubColumnTypeLookup.get(columnName);
+    public static ColumnType getColumnType(String columnName) {
+        ColumnType subCol = columnTypeLookup.get(columnName);
         if (subCol == null) {
             //if the name is a long value it represents a ranking sub column
             try {
