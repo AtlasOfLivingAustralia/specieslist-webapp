@@ -24,17 +24,26 @@ public class TaxonConceptDaoTest extends TestCase {
 	
 	private final String TEST_TCDAO_GUID = "urn:lsid:afd:taxon:123";
 
+	public void testGetPage() throws Exception {
+		TaxonConceptDao tcDao = initTaxonConceptDao();
+		//page through DB
+		List<ExtendedTaxonConceptDTO> tcDTOs = tcDao.getPage("urn:lsid:biodiversity.org.au:afd.taxon:aa745ff0-c776-4d0e-851d-369ba0e6f537", 100);
+		for(ExtendedTaxonConceptDTO e: tcDTOs){
+			if(e.getTaxonConcept()!=null){
+				System.out.println("GUID: "+e.getTaxonConcept().getGuid()+", ScientificName: "+e.getTaxonConcept().getNameString());
+			} else {
+				System.out.println("NULL Taxon concept");
+			}
+		}
+	}
+	
 	public void testIsIconic() throws Exception {
 		
 		TaxonConceptDao tcDao = initTaxonConceptDao();
 		boolean success = tcDao.setIsIconic("urn:lsid:biodiversity.org.au:afd.taxon:aa745ff0-c776-4d0e-851d-369ba0e6f537");
-		
-		
+		System.out.println("Success: "+success);
 		boolean isIconic = tcDao.isIconic("urn:lsid:biodiversity.org.au:afd.taxon:aa745ff0-c776-4d0e-851d-369ba0e6f537");
-		
 		System.out.println("Is iconic: "+isIconic);
-		
-		
 		isIconic = tcDao.isIconic("urn:lsid:catalogueoflife.org:taxon:24e7d624-60a7-102d-be47-00304854f810:ac2010");
 		System.out.println("Is iconic: "+isIconic);
 		
@@ -481,7 +490,6 @@ public class TaxonConceptDaoTest extends TestCase {
 		
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
-	
 	
 	private TaxonConceptDao initTaxonConceptDao() throws Exception {
 		TaxonConceptDao tcDao = SpringUtils.getContext().getBean(TaxonConceptDao.class);
