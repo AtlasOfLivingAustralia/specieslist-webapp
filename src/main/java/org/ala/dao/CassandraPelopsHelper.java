@@ -407,7 +407,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
     		}
 
     		//retrieve a list of columns for each of the rows
-    		Map<String, List<Column>> colListMap  = selector.getSubColumnsFromRows(kr, columnFamily, superColName, Selector.newColumnsPredicateAll(true, 10000), ConsistencyLevel.ONE);
+    		Map<String, List<Column>> colListMap  = selector.getSubColumnsFromRows(kr, columnFamily, superColName, slicePredicate, ConsistencyLevel.ONE);
             
     		logger.debug("Returning rows: " + colListMap.size());
     		
