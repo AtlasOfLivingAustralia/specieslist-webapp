@@ -88,7 +88,7 @@ public class LimneticDataLoader {
 				if (csvFile.endsWith(".csv")) {
 					csvFile = dir + File.separator + csvFile;
 					
-					TabReader tr = new TabReader(csvFile);
+					TabReader tr = new TabReader(csvFile, false);
 					String[] values = null;
 					int i = 0;
 					String guid = null;
@@ -104,7 +104,7 @@ public class LimneticDataLoader {
 							String genus = values[6];
 							String currentScientificName = values[7];
 							
-							System.out.println("Processing '" + currentScientificName + "'");
+//							System.out.println("Processing '" + currentScientificName + "'");
 							
 							LinnaeanRankClassification linnaeanRankClassification = new LinnaeanRankClassification(kingdom, phylum, klass, order, family, genus, currentScientificName);
 
