@@ -84,9 +84,10 @@ public class LimneticDataLoader {
 			String[] inputFiles = inputDir.list();
 
 			for (String csvFile : inputFiles) {
-
+				
 				if (csvFile.endsWith(".csv")) {
-
+					csvFile = dir + File.separator + csvFile;
+					
 					TabReader tr = new TabReader(csvFile);
 					String[] values = null;
 					int i = 0;
