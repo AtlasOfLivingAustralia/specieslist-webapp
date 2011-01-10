@@ -109,7 +109,7 @@ public class LimneticDataLoader {
 							if (!currentScientificName.equalsIgnoreCase(previousScientificName)) {
 								guid = taxonConceptDao.findLsidByName(currentScientificName, linnaeanRankClassification, null);
 								if (guid == null) {
-									logger.warn("Unable to find LSID for '" + currentScientificName + "'");
+									logger.info("Unable to find LSID for '" + currentScientificName + "'");
 								} else {
 									logger.info("Found LSID for '" + currentScientificName + "' - " + guid);
 								}
@@ -123,7 +123,7 @@ public class LimneticDataLoader {
 								h.setInfoSourceName(infosource.getName());
 								habitatList.add(h);
 
-								logger.trace("Adding guid=" + guid + " SciName=" + currentScientificName + " Habitat=" + HABITAT_CODE);
+								logger.info("Adding guid=" + guid + " SciName=" + currentScientificName + " Habitat=" + HABITAT_CODE);
 								taxonConceptDao.addHabitat(guid, habitatList);
 								i++;
 							}
