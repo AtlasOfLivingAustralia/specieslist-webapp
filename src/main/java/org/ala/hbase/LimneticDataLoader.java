@@ -113,7 +113,7 @@ public class LimneticDataLoader {
 								if (guid == null) {
 									System.out.println("Unable to find LSID for '" + currentScientificName + "'");
 								} else {
-									System.out.println("Found LSID for '" + currentScientificName + "' - " + guid);
+//									System.out.println("Found LSID for '" + currentScientificName + "' - " + guid);
 								}
 								previousScientificName = currentScientificName;
 							}
@@ -125,7 +125,7 @@ public class LimneticDataLoader {
 								h.setInfoSourceName(infosource.getName());
 								habitatList.add(h);
 
-								System.out.println("Adding guid=" + guid + " SciName=" + currentScientificName + " Habitat=" + HABITAT_CODE);
+//								System.out.println("Adding guid=" + guid + " SciName=" + currentScientificName + " Habitat=" + HABITAT_CODE);
 								taxonConceptDao.addHabitat(guid, habitatList);
 								i++;
 							}
