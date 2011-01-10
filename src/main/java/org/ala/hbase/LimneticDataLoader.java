@@ -68,7 +68,7 @@ public class LimneticDataLoader {
 	}
 
 	private void loadCsvData(String dir) throws Exception {
-		logger.info("Starting to load data from " + dir);
+		System.out.println("Starting to load data from " + dir);
 
 
 		InfoSource infosource = infoSourceDao.getById(INFOSOURCE_ID);
@@ -104,14 +104,16 @@ public class LimneticDataLoader {
 							String genus = values[6];
 							String currentScientificName = values[7];
 							
+							System.out.println("Processing '" + currentScientificName + "'");
+							
 							LinnaeanRankClassification linnaeanRankClassification = new LinnaeanRankClassification(kingdom, phylum, klass, order, family, genus, currentScientificName);
 
 							if (!currentScientificName.equalsIgnoreCase(previousScientificName)) {
 								guid = taxonConceptDao.findLsidByName(currentScientificName, linnaeanRankClassification, null);
 								if (guid == null) {
-									logger.info("Unable to find LSID for '" + currentScientificName + "'");
+									System.out.println("Unable to find LSID for '" + currentScientificName + "'");
 								} else {
-									logger.info("Found LSID for '" + currentScientificName + "' - " + guid);
+									System.out.println("Found LSID for '" + currentScientificName + "' - " + guid);
 								}
 								previousScientificName = currentScientificName;
 							}
@@ -123,7 +125,7 @@ public class LimneticDataLoader {
 								h.setInfoSourceName(infosource.getName());
 								habitatList.add(h);
 
-								logger.info("Adding guid=" + guid + " SciName=" + currentScientificName + " Habitat=" + HABITAT_CODE);
+								System.out.println("Adding guid=" + guid + " SciName=" + currentScientificName + " Habitat=" + HABITAT_CODE);
 								taxonConceptDao.addHabitat(guid, habitatList);
 								i++;
 							}
@@ -133,7 +135,7 @@ public class LimneticDataLoader {
 					}
 					tr.close();
 					long finish = System.currentTimeMillis();
-					logger.info(i+" Limnetic records loaded. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
+					System.out.println(i+" Limnetic records loaded. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
 				}
 			}
 		}
