@@ -130,7 +130,7 @@ public class LimneticDataLoader {
 								i++;
 							}
 						} else {
-							logger.error("Incorrect number of fields in tab file - " + csvFile);
+							System.out.println("Incorrect number of fields in tab file - " + csvFile);
 						}
 					}
 					tr.close();
