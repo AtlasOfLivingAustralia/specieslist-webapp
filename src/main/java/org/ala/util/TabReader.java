@@ -72,7 +72,7 @@ public class TabReader {
 		for(int i=0;i<fields.length;i++){
 			if(hasQuotes && fields[i].length()>=2){
 				//remove quotes				
-				fields[i] = fields[i].substring(1, fields[i].length()-1);
+				fields[i] = fields[i].substring(0, fields[i].length()-1);
 			}
 			fields[i] = StringUtils.trimToNull(fields[i]);
 		}
