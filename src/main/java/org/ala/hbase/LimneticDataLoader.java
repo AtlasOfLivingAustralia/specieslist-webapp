@@ -90,7 +90,8 @@ public class LimneticDataLoader {
 					
 					TabReader tr = new TabReader(csvFile, false);
 					String[] values = null;
-					int i = 0;
+					int matchCounter = 0;
+					int nonMatchCounter = 0;
 					String guid = null;
 					String previousScientificName = null;
 					while ((values = tr.readNext()) != null) {
@@ -111,7 +112,8 @@ public class LimneticDataLoader {
 							if (!currentScientificName.equalsIgnoreCase(previousScientificName)) {
 								guid = taxonConceptDao.findLsidByName(currentScientificName, linnaeanRankClassification, null);
 								if (guid == null) {
-									System.out.println("Unable to find LSID for '" + currentScientificName + "'");
+//									System.out.println("Unable to find LSID for '" + currentScientificName + "'");
+									nonMatchCounter++;
 								} else {
 //									System.out.println("Found LSID for '" + currentScientificName + "' - " + guid);
 								}
@@ -127,7 +129,7 @@ public class LimneticDataLoader {
 
 //								System.out.println("Adding guid=" + guid + " SciName=" + currentScientificName + " Habitat=" + HABITAT_CODE);
 								taxonConceptDao.addHabitat(guid, habitatList);
-								i++;
+								matchCounter++;
 							}
 						} else {
 							System.out.println("Incorrect number of fields in tab file - " + csvFile);
@@ -135,7 +137,7 @@ public class LimneticDataLoader {
 					}
 					tr.close();
 					long finish = System.currentTimeMillis();
-					System.out.println(i+" Limnetic records loaded. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
+					System.out.println(matchCounter+" Limnetic records loaded. " + nonMatchCounter + " Limnetic records cannot be matched. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
 				}
 			}
 		}
