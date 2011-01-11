@@ -137,7 +137,7 @@ public class LimneticDataLoader {
 					}
 					tr.close();
 					long finish = System.currentTimeMillis();
-					System.out.println(matchCounter+" Limnetic records loaded. " + nonMatchCounter + " Limnetic records cannot be matched. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
+					System.out.println("File: " + csvFile + ". " + matchCounter+" Limnetic records loaded. " + nonMatchCounter + " Limnetic records cannot be matched. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
 				}
 			}
 		}
