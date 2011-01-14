@@ -98,6 +98,7 @@ public class RestfulAppender extends AppenderSkeleton {
 		PostMethod post = null;
 		int statusCode = 0;
 		String message = null;
+		LogEventVO vo = null;
 		
         try {
         	Object object = event.getMessage();
@@ -108,7 +109,7 @@ public class RestfulAppender extends AppenderSkeleton {
         	else if(event.getMessage() instanceof String){
         		message = (String)object;
         		//validate json string
-        		deserMapper.readValue(message, LogEventVO.class);        		
+        		vo = deserMapper.readValue(message, LogEventVO.class);        		
         	}
         	
         	Object[] array = restfulClient.restPost(urlTemplate, message);
@@ -120,6 +121,7 @@ public class RestfulAppender extends AppenderSkeleton {
         	statusCode = HttpStatus.SC_NOT_ACCEPTABLE;
 	        LogLog.error("Could not send message from RestfulAppender [" + name + "],\nMessage: " + event.getMessage(), e);
         } finally {
+        	vo = null; //waiting for gc.
         	if(post != null){
         		post.releaseConnection();
         	}
