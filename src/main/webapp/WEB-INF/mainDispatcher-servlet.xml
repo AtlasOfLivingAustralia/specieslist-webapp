@@ -51,6 +51,7 @@
      -->
     <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
         <property name="exceptionAttribute" value="error"/>
+        <property name="defaultStatusCode" value="500"/>
         <property name="exceptionMappings">
             <props>
                 <prop key="org.springframework.web.servlet.PageNotFound">error/pageNotFound</prop>
