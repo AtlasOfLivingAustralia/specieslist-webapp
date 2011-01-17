@@ -17,6 +17,9 @@ java -classpath $CLASSPATH org.ala.lucene.CreateSearchIndex
 echo "LOAD INDEX : running Create Search Indexes from External databases for the Web Application $('date')"
 java -classpath $CLASSPATH org.ala.lucene.ExternalIndexLoader
 
+# echo "LOAD INDEX : running create WordPress Index for the Web Application $('date')"
+#java -Xmx1g -Xms1g -classpath $CLASSPATH org.ala.lucene.CreateWordPressIndex
+
 echo "LOAD INDEX : Index creation complete $('date')"
 
 finish_time=$(date +%s)
