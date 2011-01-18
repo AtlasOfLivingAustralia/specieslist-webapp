@@ -144,8 +144,10 @@ public class RepoDataLoader {
 					}
 				}
                                 //report the stats
+                                if(org.apache.commons.lang.StringUtils.isNumeric(childFile.getName())){
                                 InfoSource infoSource = infoSourceMap.get(new Integer(childFile.getName()));
                                 taxonConceptDao.reportStats(statsOut, infoSource.getId() + ","+infoSource.getName() + "," + infoSource.getWebsiteUrl());
+                            }
                                 
 			}
 
