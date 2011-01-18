@@ -511,6 +511,21 @@ public interface TaxonConceptDao {
 	 * @return 
 	 */
 	NameSearchResult findCBDataByName(String scientificName, LinnaeanRankClassification classification, String rank) throws Exception;
+
+
+        /**
+         * Reports the name matching statistics to the supplied output stream
+         * @param output
+         * @param source The name of the source for the stats
+         * @param filename The associated file/directory for the stats
+         * @throws Exception
+         */
+        void reportStats(java.io.OutputStream output, String prefix) throws Exception;
+
+        /**
+         * Resets the name matching statistics
+         */
+        void resetStats();
 	
 	/**
 	 * Retrieve a list of concepts with the supplied parent guid.
@@ -550,9 +565,11 @@ public interface TaxonConceptDao {
 	 * @param document the document supplying the triples
 	 * @param triples the triples to add
 	 * @param the filepath of the document
+         * @param statsOnly true when we only want to record statistics.
+         * false when we want to add it to the repository
 	 * @throws Exception
 	 */
-	boolean syncTriples(org.ala.model.Document document, List<Triple> triples, Map<String,String> dublinCore) throws Exception;
+	boolean syncTriples(org.ala.model.Document document, List<Triple> triples, Map<String,String> dublinCore, boolean statsOnly) throws Exception;
 
 	/**
 	 * Clear the associated properties from each taxon concept.

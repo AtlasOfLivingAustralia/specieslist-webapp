@@ -148,6 +148,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	protected static final String SCI_NAME_RAW = "scientificNameRaw";
 	protected static final String SCI_NAME_TEXT = "scientificNameText";
 
+        /* stores the statistics to write to file */
+        protected int anbgMatched;
+        protected int otherMatched;
+        protected int failedMatch;
+
 	/**
 	 * Initialise the DAO, setting up the HTable instance.
 	 * 
@@ -798,6 +803,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			logger.warn("Checklist Bank lookup exception (" + scientificName
 					+ ") - " + e.getMessage() + e.getResults());
 		}
+                updateStats(lsid);
 		return lsid;
 	}
 
@@ -815,6 +821,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage()
 					+ e.getResults());
 		}
+                updateStats(lsid);
 		return lsid;
 	}
 
@@ -826,6 +833,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage()
 					+ e.getResults());
 		}
+                updateStats(lsid);
 		return lsid;
 	}
 
@@ -840,6 +848,35 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		return cbIdxSearcher.searchForRecord(scientificName, classification,
 				RankType.getForName(rank));
 	}
+
+        /**
+         * @see org.ala.dao.TaxonConceptDao#reportStats(java.io.OutputStream, java.lang.String, java.lang.String) 
+         */
+        public void reportStats(java.io.OutputStream output, String prefix) throws Exception{
+            String line = prefix + "," + anbgMatched+"," +otherMatched + "," + failedMatch+"\n";
+            output.write(line.getBytes());
+            
+        }
+        /**
+         * update the name matching statistics based on the supplied lsid
+         * @param lsid
+         */
+        private void updateStats(String lsid){
+            if(lsid == null)
+                failedMatch++;
+            else if(lsid.startsWith("urn:lsid:biodiversity.org.au"))
+                anbgMatched++;
+            else
+                otherMatched++;
+        }
+        /**
+         * @see org.ala.dao.TaxonConceptDao#resetStats() 
+         */
+        public void resetStats(){
+            anbgMatched = 0;
+            otherMatched = 0;
+            failedMatch = 0;
+        }
 
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getByParentGuid(java.lang.String, int)
@@ -1076,7 +1113,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 *      java.util.List)
 	 */
 	public boolean syncTriples(org.ala.model.Document document,
-			List<Triple> triples, Map<String, String> dublinCore)
+			List<Triple> triples, Map<String, String> dublinCore, boolean statsOnly)
 			throws Exception {
 
 		List<String> scientificNames = new ArrayList<String>();
@@ -1233,6 +1270,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			guid = findLsidByName(genus + " " + specificEpithet,
 					classification, "species");
 		}
+
+                //is statsOnly we can return whether or not the scientific name was found...
+                if(statsOnly)
+                    return guid != null;
 
 		if (guid != null) {
 

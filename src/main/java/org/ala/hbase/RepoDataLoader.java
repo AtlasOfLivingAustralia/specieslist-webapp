@@ -16,6 +16,7 @@ package org.ala.hbase;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import org.ala.util.SpringUtils;
 import org.ala.util.TurtleUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -60,6 +62,8 @@ public class RepoDataLoader {
     protected InfoSourceDAO infoSourceDAO;
     @Inject
     protected RepositoryFileUtils repoFileUtils;
+    private boolean statsOnly = false;
+    private  FileOutputStream statsOut;
 
 	int totalFilesRead = 0;
 	int totalPropertiesSynced = 0;
@@ -76,6 +80,11 @@ public class RepoDataLoader {
 		long start = System.currentTimeMillis();
         loader.loadInfoSources();
         String filePath = repositoryDir;
+        if(args.length>0){
+            if(args[0].equalsIgnoreCase("-stats"));
+            loader.statsOnly = true;
+            args = (String[])ArrayUtils.subarray(args, 1, args.length-1);
+        }
 		int filesRead = loader.load(filePath, args); //FIX ME - move to config
     	long finish = System.currentTimeMillis();
     	logger.info(filesRead+" files scanned/loaded in: "+((finish-start)/60000)+" minutes "+((finish-start)/1000)+" seconds.");
@@ -92,6 +101,11 @@ public class RepoDataLoader {
 	 */
 	 public int load(String filePath, String[] repoDirs) throws Exception {
 		logger.info("Scanning directory: "+filePath);
+
+                //open the statistics file
+                statsOut = FileUtils.openOutputStream(new File("/data/bie/name_matching_stats_"+System.currentTimeMillis() + ".csv"));
+                statsOut.write("InfoSource ID, InfoSource Name, URL, ANBG matches, Other matches, Missing\n".getBytes());
+
 		// reset counts
         totalFilesRead = 0;
         totalPropertiesSynced = 0;
@@ -118,6 +132,7 @@ public class RepoDataLoader {
 			logger.info("Listing directories for infosource directory: "+childFile.getAbsolutePath());
 			
 			if(childFile.isDirectory()){
+                            taxonConceptDao.resetStats();
 				//  takes us to /data/bie/<infosource-id>/<section-id>
 				logger.info("Listing directories for the section: "+childFile.getAbsolutePath());
 				File[] infosourceSection = childFile.listFiles();
@@ -128,10 +143,17 @@ public class RepoDataLoader {
 						scanDirectory(dirsToScan);
 					}
 				}
+                                //report the stats
+                                InfoSource infoSource = infoSourceMap.get(new Integer(childFile.getName()));
+                                taxonConceptDao.reportStats(statsOut, infoSource.getId() + ","+infoSource.getName() + "," + infoSource.getWebsiteUrl());
+                                
 			}
+
 		}
 
 		logger.info("Files read: "+totalFilesRead+", files matched: "+totalPropertiesSynced);
+                statsOut.flush();
+                statsOut.close();
 		return totalFilesRead;
 	}
 
@@ -241,7 +263,7 @@ public class RepoDataLoader {
 		Map<String, String> dc = readDcFileAsMap(currentFile);
 		// Sync the triples and associated DC data
 		logger.info("Attempting to sync triple where Scientific Name = " + getScientificName(triples));
-		boolean success = taxonConceptDao.syncTriples(document, triples, dc);
+		boolean success = taxonConceptDao.syncTriples(document, triples, dc, statsOnly);
 		logger.info("Processed file: "+currentFile.getAbsolutePath() + ", Scientific Name = " + getScientificName(triples) + ", success: "+success);
 		return success;
 	}

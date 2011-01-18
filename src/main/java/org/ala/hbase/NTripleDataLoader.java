@@ -102,7 +102,7 @@ public class NTripleDataLoader {
 	    			doc.setId(Integer.parseInt(documentId));
 	    			doc.setInfoSourceId(Integer.parseInt(infoSourceId));
 	    			//subject has changed - sync to hbase
-	    			boolean success = taxonConceptDao.syncTriples(doc, triples, new HashMap<String,String>());
+	    			boolean success = taxonConceptDao.syncTriples(doc, triples, new HashMap<String,String>(), false);
 	    			if(success) 
 	    				successfulSync++; 
 	    			else 
@@ -119,7 +119,7 @@ public class NTripleDataLoader {
     			Document doc = new Document();
     			doc.setId(Integer.parseInt(documentId));
     			doc.setInfoSourceId(Integer.parseInt(infoSourceId));
-				boolean success = taxonConceptDao.syncTriples(doc, triples, new HashMap<String,String>());
+				boolean success = taxonConceptDao.syncTriples(doc, triples, new HashMap<String,String>(), false);
 				if(success) 
 					successfulSync++; 
 				else 

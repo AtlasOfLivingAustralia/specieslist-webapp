@@ -73,8 +73,8 @@ public class ConservationDataLoader {
     private static final String iucnDirectory = "/data/bie-staging/conservation/iucn";
     private static final String iucnFile = "/data/bie-staging/conservation/iucn/2008_REDLIST.csv";
     private static final String tasFile = "/data/bie-staging/conservation/tas/species_20101015_1503(1).csv";
-    private static final String summaryFile ="/data/bie-staging/conservation/summary.csv";
-
+    private static final String summaryFile ="/data/bie-staging/conservation/name_matching_stats.csv";
+    
     private static FileOutputStream summaryOut;
     
 
@@ -82,7 +82,7 @@ public class ConservationDataLoader {
         try {
             ApplicationContext context = SpringUtils.getContext();
             ConservationDataLoader loader = (ConservationDataLoader) context.getBean(ConservationDataLoader.class);
-
+            args = new String[]{"-stats"};
             if(args.length > 0)
                 loader.statsOnly = args[0].equals("-stats");
             loader.init(context);
@@ -120,7 +120,7 @@ public class ConservationDataLoader {
 
     public void init(ApplicationContext context) throws Exception {
         summaryOut = FileUtils.openOutputStream(new File(summaryFile));
-        summaryOut.write("source,filename,total records,ANBG matched,Other match,No Match\n".getBytes());
+        summaryOut.write("source,filename,ANBG matched,Other match,No Match\n".getBytes());
         //populate the region lookup for use in the EPBC infosource
         //This should be change to use the Gazetteer 
         regionLookup = new HashMap<String, String[]>();
@@ -148,10 +148,10 @@ public class ConservationDataLoader {
     private String[] getRegionInfo(String region) {
         return regionLookup.get(region);
     }
-    private void reportSummary(String file, String filename, int total, int anbg, int col, int failed) throws Exception{
-        String line = file + "," +filename + "," + total+","+anbg+"," +col + "," + failed+"\n";
-        summaryOut.write(line.getBytes());
-    }
+//    private void reportSummary(String file, String filename, int total, int anbg, int col, int failed) throws Exception{
+//        String line = file + "," +filename + "," + total+","+anbg+"," +col + "," + failed+"\n";
+//        summaryOut.write(line.getBytes());
+//    }
 
     /**
      * Load the content of the EPBC file
@@ -164,6 +164,7 @@ public class ConservationDataLoader {
         Pattern p = Pattern.compile(",");
         InfoSource is = infoSourceDAO.getById(500);
         int processed = 0, failed = 0, anbg=0, col=0;
+        taxonConceptDao.resetStats();
         while (reader.hasNext()) {
             String values[] = reader.readNext();
             if (values != null && values.length > 10) {
@@ -223,7 +224,8 @@ public class ConservationDataLoader {
             }
         }
         logger.info("Finished adding " + processed + " conservation status.  Failed to locate " + failed);
-        reportSummary("EPBC",epbcFile, processed+failed, anbg, col, failed);
+        taxonConceptDao.reportStats(summaryOut, "EPBC,"+ epbcFile);
+        //reportSummary("EPBC",epbcFile, processed+failed, anbg, col, failed);
     }
 
     private void addCSInfo(ConservationStatus cs, InfoSource is, String region, String regionId) {
@@ -263,6 +265,7 @@ public class ConservationDataLoader {
         InfoSource is = infoSourceDAO.getById(501);
 
         int processed = 0, failed = 0, anbg=0, col =0;
+        taxonConceptDao.resetStats();
         while (reader.hasNext()) {
             String values[] = reader.readNext();
             if (values != null && values.length > 8) {
@@ -301,7 +304,8 @@ public class ConservationDataLoader {
             }
         }
         logger.info("Finished adding " + processed + " conservation status.  Failed to locate " + failed);
-        reportSummary("Queensland",qldFile, processed+failed, anbg, col, failed);
+        //reportSummary("Queensland",qldFile, processed+failed, anbg, col, failed);
+        taxonConceptDao.reportStats(summaryOut, "Queensland,"+ qldFile);
 
     }
 
@@ -315,6 +319,7 @@ public class ConservationDataLoader {
         InfoSource is = infoSourceDAO.getById(502);
         NameParser parser = new NameParser();
         int processed = 0, failed = 0, anbg=0, col =0;
+        taxonConceptDao.resetStats();
 
         while (reader.hasNext()) {
             String[] values = reader.readNext();
@@ -358,7 +363,8 @@ public class ConservationDataLoader {
         }
 
         logger.info("Finished adding " + processed + " conservation status.  Failed to locate " + failed);
-        reportSummary("WA Fauna",waFaunaFile, processed+failed, anbg, col, failed);
+        //reportSummary("WA Fauna",waFaunaFile, processed+failed, anbg, col, failed);
+        taxonConceptDao.reportStats(summaryOut,"WA Fauna,"+waFaunaFile);
     }
 
     /**
@@ -374,6 +380,7 @@ public class ConservationDataLoader {
         InfoSource is = infoSourceDAO.getById(503);
 
         int processed = 0, failed = 0, loaded = 0, anbg=0, col=0;
+        taxonConceptDao.resetStats();
         while (reader.hasNext()) {
             String[] values = reader.readNext();
             if (values != null && values.length > 3) {
@@ -409,7 +416,8 @@ public class ConservationDataLoader {
             }
         }
         logger.info("Finished adding " + processed + "(" + loaded + ") conservation status.  Failed to locate " + failed);
-        reportSummary("WA Flora",waFloraFile, processed+failed, anbg, col, failed);
+        //reportSummary("WA Flora",waFloraFile, processed+failed, anbg, col, failed);
+        taxonConceptDao.reportStats(summaryOut, "WA Flora,"+waFloraFile);
     }
 
     public void loadNSW(String filename, String type, int sciIdx, int familyIdx, int genusId, int cnIdx, int statusIdx) throws Exception {
@@ -417,6 +425,7 @@ public class ConservationDataLoader {
         CSVReader reader = CSVReader.buildReader(new File(filename), "UTF-8", '\t', '\"', 1);
         InfoSource is = infoSourceDAO.getById(506);
         int processed = 0, failed = 0, loaded = 0, anbg=0 ,col=0;
+        taxonConceptDao.resetStats();
         while (reader.hasNext()) {
             String[] values = reader.readNext();
             if (values != null && values.length > statusIdx) {
@@ -452,7 +461,8 @@ public class ConservationDataLoader {
             }
         }
         logger.info("Finished adding " + processed + "(" + loaded + ") conservation status.  Failed to locate " + failed);
-        reportSummary("NSW " + type, filename, processed+failed, anbg, col, failed);
+        //reportSummary("NSW " + type, filename, processed+failed, anbg, col, failed);
+        taxonConceptDao.reportStats(summaryOut, "NSW " + type+","+ filename);
     }
 
     /**
@@ -478,6 +488,7 @@ public class ConservationDataLoader {
         CSVReader reader = CSVReader.buildReader(new File(filename), "UTF-8", ',', '"', 1);
         InfoSource is = infoSourceDAO.getById(infosourceId);
         int processed = 0, failed = 0, loaded = 0, anbg=0, col=0;
+        taxonConceptDao.resetStats();
 
         while (reader.hasNext()) {
             String[] values = reader.readNext();
@@ -526,7 +537,8 @@ public class ConservationDataLoader {
             }
         }
         logger.info("Finished adding " + processed + "(" + loaded + ") conservation status.  Failed to locate " + failed);
-        reportSummary(state + " " + type, filename, processed+failed, anbg, col, failed);
+        //reportSummary(state + " " + type, filename, processed+failed, anbg, col, failed);
+        taxonConceptDao.reportStats(summaryOut, state + " " + type+","+ filename);
     }
 
     /**
@@ -548,6 +560,7 @@ public class ConservationDataLoader {
         CSVReader reader = CSVReader.buildReader(new File(filename), "UTF-8", ',', '"', 1);
         InfoSource is = infoSourceDAO.getById(infosourceId);
         int processed = 0, failed = 0, loaded = 0, anbg = 0, col = 0;
+        taxonConceptDao.resetStats();
 
         while (reader.hasNext()) {
             String[] values = reader.readNext();
@@ -585,7 +598,8 @@ public class ConservationDataLoader {
             }
         }
         logger.info("Finished adding " + processed + "(" + loaded + ") conservation status.  Failed to locate " + failed);
-        reportSummary(state+" " + type,filename, processed+failed, anbg, col, failed);
+        //reportSummary(state+" " + type,filename, processed+failed, anbg, col, failed);
+        taxonConceptDao.reportStats(summaryOut, state+" " + type+","+filename);
     }
 
     private void loadIUCN() throws Exception {
@@ -593,6 +607,7 @@ public class ConservationDataLoader {
         CSVReader reader = CSVReader.buildReader(new File(iucnFile), "UTF-8", ',', '"', 1);
         InfoSource is = infoSourceDAO.getById(510);
         int processed = 0, failed = 0, anbg=0, col=0;
+        taxonConceptDao.resetStats();
 
         while(reader.hasNext()){
             String[] values = reader.readNext();
@@ -640,7 +655,8 @@ public class ConservationDataLoader {
             }
         }
         logger.info("Finished adding " + processed +" conservation status.  Failed to locate " + failed);
-        reportSummary("IUCN",iucnFile, processed+failed, anbg, col, failed);
+        //reportSummary("IUCN",iucnFile, processed+failed, anbg, col, failed);
+        taxonConceptDao.reportStats(summaryOut, "IUCN,"+iucnFile);
     }
 
 //    private void processIUCN() throws Exception{
