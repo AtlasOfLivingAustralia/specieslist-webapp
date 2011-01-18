@@ -73,7 +73,7 @@ public class ConservationDataLoader {
     private static final String iucnDirectory = "/data/bie-staging/conservation/iucn";
     private static final String iucnFile = "/data/bie-staging/conservation/iucn/2008_REDLIST.csv";
     private static final String tasFile = "/data/bie-staging/conservation/tas/species_20101015_1503(1).csv";
-    private static final String summaryFile ="/data/bie-staging/conservation/name_matching_stats.csv";
+    private static final String summaryFile ="/data/bie-staging/conservation/cons_name_matching_stats"+System.currentTimeMillis()+".csv";
     
     private static FileOutputStream summaryOut;
     
@@ -82,7 +82,7 @@ public class ConservationDataLoader {
         try {
             ApplicationContext context = SpringUtils.getContext();
             ConservationDataLoader loader = (ConservationDataLoader) context.getBean(ConservationDataLoader.class);
-            args = new String[]{"-stats"};
+            
             if(args.length > 0)
                 loader.statsOnly = args[0].equals("-stats");
             loader.init(context);
@@ -120,7 +120,7 @@ public class ConservationDataLoader {
 
     public void init(ApplicationContext context) throws Exception {
         summaryOut = FileUtils.openOutputStream(new File(summaryFile));
-        summaryOut.write("source,filename,ANBG matched,Other match,No Match\n".getBytes());
+        summaryOut.write("source,filename,ANBG matched,Other match,No Match,Homonyms detected\n".getBytes());
         //populate the region lookup for use in the EPBC infosource
         //This should be change to use the Gazetteer 
         regionLookup = new HashMap<String, String[]>();

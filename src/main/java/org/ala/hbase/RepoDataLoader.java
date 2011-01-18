@@ -103,8 +103,8 @@ public class RepoDataLoader {
 		logger.info("Scanning directory: "+filePath);
 
                 //open the statistics file
-                statsOut = FileUtils.openOutputStream(new File("/data/bie/name_matching_stats_"+System.currentTimeMillis() + ".csv"));
-                statsOut.write("InfoSource ID, InfoSource Name, URL, ANBG matches, Other matches, Missing\n".getBytes());
+                statsOut = FileUtils.openOutputStream(new File("/data/bie/bie_name_matching_stats_"+System.currentTimeMillis() + ".csv"));
+                statsOut.write("InfoSource ID, InfoSource Name, URL, ANBG matches, Other matches, Missing, Homonyms detected\n".getBytes());
 
 		// reset counts
         totalFilesRead = 0;

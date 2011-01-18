@@ -81,10 +81,12 @@ import org.gbif.ecat.parser.NameParser;
 import org.springframework.stereotype.Component;
 
 import au.org.ala.checklist.lucene.CBIndexSearch;
+import au.org.ala.checklist.lucene.HomonymException;
 import au.org.ala.checklist.lucene.SearchResultException;
 import au.org.ala.checklist.lucene.model.NameSearchResult;
 import au.org.ala.data.model.LinnaeanRankClassification;
 import au.org.ala.data.util.RankType;
+import javax.naming.directory.SearchResult;
 
 /**
  * Database agnostic implementation if Taxon concept DAO.
@@ -152,6 +154,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         protected int anbgMatched;
         protected int otherMatched;
         protected int failedMatch;
+        protected int homonyms;
 
 	/**
 	 * Initialise the DAO, setting up the HTable instance.
@@ -794,6 +797,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public String findLsidByName(String scientificName,
 			LinnaeanRankClassification classification, String taxonRank) {
 		String lsid = null;
+                boolean homonym = false;
 		try {
 			// System.out.println("Get LSID for sci name: " + scientificName +
 			// ", and rank: " + taxonRank);
@@ -802,8 +806,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception (" + scientificName
 					+ ") - " + e.getMessage() + e.getResults());
+                        homonym = e instanceof HomonymException;
 		}
-                updateStats(lsid);
+                updateStats(lsid, homonym);
 		return lsid;
 	}
 
@@ -814,26 +819,30 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	@Override
 	public String findLsidByName(String scientificName, String taxonRank) {
 		String lsid = null;
+                boolean homonym = false;
 		try {
 			lsid = cbIdxSearcher.searchForLSID(scientificName,
 					RankType.getForName(taxonRank));
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage()
 					+ e.getResults());
+                        homonym = e instanceof HomonymException;
 		}
-                updateStats(lsid);
+                updateStats(lsid, homonym);
 		return lsid;
 	}
 
 	public String findLsidByName(String scientificName) {
 		String lsid = null;
+                boolean homonym = false;
 		try {
 			lsid = cbIdxSearcher.searchForLSID(scientificName);
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage()
 					+ e.getResults());
+                        homonym = e instanceof HomonymException;
 		}
-                updateStats(lsid);
+                updateStats(lsid, homonym);
 		return lsid;
 	}
 
@@ -853,7 +862,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
          * @see org.ala.dao.TaxonConceptDao#reportStats(java.io.OutputStream, java.lang.String, java.lang.String) 
          */
         public void reportStats(java.io.OutputStream output, String prefix) throws Exception{
-            String line = prefix + "," + anbgMatched+"," +otherMatched + "," + failedMatch+"\n";
+            String line = prefix + "," + anbgMatched+"," +otherMatched + "," + failedMatch+"," +homonyms+"\n";
             output.write(line.getBytes());
             
         }
@@ -861,8 +870,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
          * update the name matching statistics based on the supplied lsid
          * @param lsid
          */
-        private void updateStats(String lsid){
-            if(lsid == null)
+        private void updateStats(String lsid, boolean isHomonym){
+            if(isHomonym)
+                homonyms++;
+            else if(lsid == null)
                 failedMatch++;
             else if(lsid.startsWith("urn:lsid:biodiversity.org.au"))
                 anbgMatched++;
@@ -876,6 +887,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
             anbgMatched = 0;
             otherMatched = 0;
             failedMatch = 0;
+            homonyms = 0;
         }
 
 	/**
