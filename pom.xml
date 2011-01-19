@@ -15,7 +15,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <openrdf.sesame.version>2.2</openrdf.sesame.version>
         <spring.version>3.0.0.RELEASE</spring.version>
-     <netbeans.hint.deploy.server>Tomcat55</netbeans.hint.deploy.server>
     </properties>
     <dependencies>
             <!-- ECAT-COMMON - name parsing capabilities -->
