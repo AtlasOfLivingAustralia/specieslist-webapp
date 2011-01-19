@@ -22,6 +22,7 @@ import org.gbif.file.CSVReader;
 import org.springframework.stereotype.Component;
 import org.ala.vocabulary.Vocabulary;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.WordUtils;
 import org.gbif.dwc.record.DarwinCoreRecord;
 import org.gbif.dwc.terms.ConceptTerm;
 import org.gbif.dwc.terms.GbifTerm;
@@ -245,7 +246,7 @@ public class ConservationDataLoader {
      */
     private void addCommonName(String guid, String cn, InfoSource is) throws Exception {
         CommonName commonName = new CommonName();
-        commonName.setNameString(cn);
+        commonName.setNameString(WordUtils.capitalizeFully(cn));
         if(is != null){
             commonName.setInfoSourceId(Integer.toString(is.getId()));
             commonName.setInfoSourceName(is.getName());
