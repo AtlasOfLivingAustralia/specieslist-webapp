@@ -112,6 +112,9 @@ public class RestfulAppender extends AppenderSkeleton {
         		vo = deserMapper.readValue(message, LogEventVO.class);        		
         	}
         	
+        	if(restfulClient == null){
+        		restfulClient = new RestfulClient(timeout);
+        	}
         	Object[] array = restfulClient.restPost(urlTemplate, message);
         	if(array != null && array.length > 0){
         		statusCode = (Integer)array[0];
@@ -130,7 +133,8 @@ public class RestfulAppender extends AppenderSkeleton {
 	}	
 
 	public void close() {
-		
+		restfulClient = null;
+		this.close();
 	}
 
 	public boolean requiresLayout() {
