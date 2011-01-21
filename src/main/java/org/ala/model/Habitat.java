@@ -65,7 +65,7 @@ public class Habitat extends AttributableObject implements Comparable<Habitat> {
 	 */
 	public String getStatusAsString() {
 		if (this.status == null) {
-			return "???";
+			return null;
 		} else {
 			if (this.status.equalsIgnoreCase("M")) {
 				return "Marine";
@@ -74,7 +74,7 @@ public class Habitat extends AttributableObject implements Comparable<Habitat> {
 			} else if (this.status.equalsIgnoreCase("MN")) {
 				return "Marine and Non-marine";
 			} else {
-				return "???";
+				return null;
 			}
 		}
 	}

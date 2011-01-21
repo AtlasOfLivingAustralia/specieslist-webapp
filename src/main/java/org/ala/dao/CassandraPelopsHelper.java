@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.ala.model.RankUtils;
+import org.ala.model.Rankable;
 import org.ala.util.ColumnType;
 import org.apache.cassandra.thrift.Column;
 import org.apache.cassandra.thrift.ConsistencyLevel;
@@ -66,6 +68,9 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		Pelops.addPool(pool, new String[]{host}, port, false, keySpace, new Policy());
 	}
 
+	/**
+	 * Retrieves a map of subcolumns
+	 */
     public Map<String, Object> getSubColumnsByGuid(String columnFamily, String superColName,String guid) throws Exception {
     	Map<String, Object> map = new HashMap<String, Object>();
     	
@@ -264,9 +269,15 @@ public class CassandraPelopsHelper implements StoreHelper  {
 
 		//add to the collection and sort the objects
 		if(objectList.contains(object)){
+			
 			int idx = objectList.indexOf(object);
 			//replace with this version
-			objectList.remove(idx);
+			Comparable objectToReplace = objectList.remove(idx);
+			//dont lose rankings!!!!!!!!!!!!!!!!!!!!!!!
+			if(object instanceof Rankable){
+				//retrieve those rankings
+				RankUtils.copyAcrossRankings((Rankable) objectToReplace, (Rankable) object);
+			}
 			objectList.add(object);
 		} else {
 			objectList.add(object);
@@ -298,6 +309,8 @@ public class CassandraPelopsHelper implements StoreHelper  {
     }
 
     /**
+     * FIXME Note - this currently doesnt preserve rankings.
+     * 
      * @see org.ala.dao.StoreHelper#putList(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.List, boolean)
      */
     @Override
@@ -313,9 +326,9 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		}		
 
 		Column col = null;
-		try{
+		try {
 			col = selector.getSubColumnFromRow(guid, columnFamily, columnFamily, columnName, ConsistencyLevel.ONE);
-		}catch (Exception e){
+		} catch (Exception e){
         	//expected behaviour. current thrift API doesnt seem
         	//to support a retrieve null getter
         	if(logger.isTraceEnabled()){
@@ -329,12 +342,11 @@ public class CassandraPelopsHelper implements StoreHelper  {
 
 		String json = null;
 		
-		if(append){		
+		if(append){
 			//read the existing value
 			List<Comparable> objectList = null;
 			if(col!=null){
 				String value = new String(col.value, charsetEncoding);
-				
 				if(!objects.isEmpty()){
 					Object first = objects.get(0);
 					objectList = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, first.getClass()));
@@ -348,7 +360,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
 			objectList.addAll(objects);
 			json = mapper.writeValueAsString(objectList);
 			
-		} else {			
+		} else {
 			Collections.sort(objects);
 			//convert to JSON
 			json = mapper.writeValueAsString(objects);

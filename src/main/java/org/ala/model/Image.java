@@ -14,7 +14,6 @@
  ***************************************************************************/
 package org.ala.model;
 
-
 /**
  * Simple POJO representing an image within the system.
  * FIXME We *should* be generating thumbnails at repository load
@@ -23,7 +22,7 @@ package org.ala.model;
  * @author Dave Martin (David.Martin@csiro.au)
  */
 //@JsonIgnoreProperties({"thumbnail", "dcLocation"})
-public class Image extends AttributableObject implements Comparable<Image>{
+public class Image extends AttributableObject implements Comparable<Image>, Rankable{
 
 	/** The guid of this image, typically the URL from whence it came */
 	protected String guid;
@@ -55,7 +54,7 @@ public class Image extends AttributableObject implements Comparable<Image>{
     protected Integer ranking;
     /** The id for the document in the repository */
     protected Integer repoId;
-
+    /** Indicates the image should be blacklisted, and hence removed from certain views */
     protected boolean isBlackListed = false;
     
     public Image(String guid, String contentType, String repoLocation,
@@ -100,35 +99,21 @@ public class Image extends AttributableObject implements Comparable<Image>{
      */
     @Override
 	public int compareTo(Image o) {
-
-    	if(ranking!=null && o.getRanking()==null){
-    		return ranking *-1;
-    	}
-
-    	if(o.getRanking()!=null && ranking==null){
-    		return o.getRanking();
-    	}
-
-    	//compare on rankings
-    	if(ranking!=null && !ranking.equals(o.getRanking())){
-    		return o.getRanking().compareTo(ranking);
-    	}
-
-    	//compare on number of rankings
-    	if(o.getNoOfRankings()!=null && noOfRankings!=null && !noOfRankings.equals(o.getNoOfRankings())){
-    		return o.getNoOfRankings().compareTo(noOfRankings);
-    	}
-//		//check the infosources
-//		if(o.getRepoLocation()!=null && repoLocation!=null){
-//			return o.getRepoLocation().compareTo(repoLocation);
-//		}
-		return -1;
+    	return RankUtils.compareTo(this, o);
 	}
-
+    
+    /**
+     * Is this black listed
+     * 
+     * @return
+     */
     public boolean getIsBlackListed() {
 		return isBlackListed;
 	}
 
+    /**
+     * @param isBlackListed
+     */
 	public void setIsBlackListed(boolean isBlackListed) {
 		this.isBlackListed = isBlackListed;
 	}
@@ -305,28 +290,28 @@ public class Image extends AttributableObject implements Comparable<Image>{
 	}
 
 	/**
-	 * @return the ranking
+	 * @see org.ala.model.Rankable#getRanking()
 	 */
 	public Integer getRanking() {
 		return ranking;
 	}
 
 	/**
-	 * @param ranking the ranking to set
+	 * @see org.ala.model.Rankable#setRanking(java.lang.Integer)
 	 */
 	public void setRanking(Integer ranking) {
 		this.ranking = ranking;
 	}
 
 	/**
-	 * @return the noOfRankings
+	 * @see org.ala.model.Rankable#getNoOfRankings()
 	 */
 	public Integer getNoOfRankings() {
 		return noOfRankings;
 	}
 
 	/**
-	 * @param noOfRankings the noOfRankings to set
+	 * @see org.ala.model.Rankable#setNoOfRankings(java.lang.Integer)
 	 */
 	public void setNoOfRankings(Integer noOfRankings) {
 		this.noOfRankings = noOfRankings;

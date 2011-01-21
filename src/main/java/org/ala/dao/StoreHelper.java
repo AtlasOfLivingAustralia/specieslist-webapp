@@ -135,8 +135,17 @@ public interface StoreHelper {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String, Object> getSubColumnsByGuid(String columnFamily, String superColName, String guid) throws Exception;
+	Map<String, Object> getSubColumnsByGuid(String columnFamily, String superColName, String guid) throws Exception;
 	
+	/**
+	 * Retrieve a page of sub columns using the supplied startGuid
+	 * 
+	 * @param tcColFamily
+	 * @param superColumn
+	 * @param startGuid the first object to return
+	 * @param pageSize the number of objects to return
+	 * @return a Map keys on record GUID
+	 */
 	Map<String, Map<String,Object>> getPageOfSubColumns(String tcColFamily, String superColumn, String startGuid, int pageSize);
 	
 	/**

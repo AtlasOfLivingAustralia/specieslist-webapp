@@ -18,15 +18,16 @@ package org.ala.model;
  * 
  * @author Dave Martin
  */
-public class CommonName extends AttributableObject implements Comparable<CommonName> {
+public class CommonName extends AttributableObject implements Comparable<CommonName>, Rankable{
 
 	/** Nullable GUID for this common name */
 	protected String guid; 
 	protected String nameString;
-    /** Ranking */
     protected Integer noOfRankings;
     /** Ranking */
     protected Integer ranking;
+    /** Indicates the name should be blacklisted, and hence removed from certain views */
+    protected boolean isBlackListed = false;
     /** @deprecated this has been superceded by the ranking field */
 	protected Boolean isPreferred = false;
 	
@@ -165,6 +166,22 @@ public class CommonName extends AttributableObject implements Comparable<CommonN
 		this.isPreferred = isPreferred;
 	}
 
+    /**
+     * Is this black listed
+     * 
+     * @return
+     */
+    public boolean getIsBlackListed() {
+		return isBlackListed;
+	}
+
+    /**
+     * @param isBlackListed
+     */
+	public void setIsBlackListed(boolean isBlackListed) {
+		this.isBlackListed = isBlackListed;
+	}
+	
 	/**
 	 * @see java.lang.Object#toString()
 	 */

@@ -81,20 +81,6 @@ public class TaxonConceptDaoTest extends TestCase {
 		tcDao.delete(TEST_TCDAO_GUID);
 	}
 
-	public void testAddIdentifier() throws Exception {
-		TaxonConceptDao tcDao = initTaxonConceptDao();
-
-		tcDao.addIdentifier(TEST_TCDAO_GUID, "urn:lsid:afd:taxon:124");
-
-		Map<String, String> map = tcDao.getPropertiesFor(TEST_TCDAO_GUID);
-
-		//		System.out.println("!!!!!!!" + map.get("tc:sameAs"));
-
-		assertEquals(map.get("tc:sameAs"), "[\"urn:lsid:afd:taxon:124\"]");
-
-		tcDao.delete(TEST_TCDAO_GUID);
-	}
-
 	public void testAddImages() throws Exception {
 		TaxonConceptDao tcDao = initTaxonConceptDao();
 		

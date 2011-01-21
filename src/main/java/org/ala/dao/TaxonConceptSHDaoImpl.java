@@ -43,6 +43,7 @@ import org.ala.model.PestStatus;
 import org.ala.model.Publication;
 import org.ala.model.Rank;
 import org.ala.model.Reference;
+import org.ala.model.SensitiveStatus;
 import org.ala.model.SimpleProperty;
 import org.ala.model.SpecimenHolding;
 import org.ala.model.TaxonConcept;
@@ -86,7 +87,6 @@ import au.org.ala.checklist.lucene.SearchResultException;
 import au.org.ala.checklist.lucene.model.NameSearchResult;
 import au.org.ala.data.model.LinnaeanRankClassification;
 import au.org.ala.data.util.RankType;
-import javax.naming.directory.SearchResult;
 
 /**
  * Database agnostic implementation if Taxon concept DAO.
@@ -106,7 +106,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 	static Logger logger = Logger.getLogger(TaxonConceptSHDaoImpl.class);
 
-	/** To be moved to somewhere more maintainable */
+	/** FIXME To be moved to somewhere more maintainable */
 	protected static List<String> regionList = null;
 	static {
 		regionList = new ArrayList<String>();
@@ -150,11 +150,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	protected static final String SCI_NAME_RAW = "scientificNameRaw";
 	protected static final String SCI_NAME_TEXT = "scientificNameText";
 
-        /* stores the statistics to write to file */
-        protected int anbgMatched;
-        protected int otherMatched;
-        protected int failedMatch;
-        protected int homonyms;
+    /* stores the statistics to write to file */
+    protected int anbgMatched;
+    protected int otherMatched;
+    protected int failedMatch;
+    protected int homonyms;
 
 	/**
 	 * Initialise the DAO, setting up the HTable instance.
@@ -591,38 +591,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	}
 
 	/**
-	 * Retrieve all properties for this row as a Map. Useful for debug
-	 * interfaces only.
-	 * 
-	 * @param guid
-	 * @return
-	 * @throws Exception
-	 */
-	public Map<String, String> getPropertiesFor(String guid) throws Exception {
-		// Result result = getTable().get(getTcGetter(guid));
-		// if (result.isEmpty()) {
-		// return null;
-		// }
-		//
-		// //treemaps are sorted
-		// TreeMap<String, String> properties = new TreeMap<String,String>();
-		//
-		// for (Map.Entry<byte[], NavigableMap<byte[], byte[]>> entry :
-		// result.getNoVersionMap().entrySet()) {
-		// for (Map.Entry<byte[], byte[]> familyEntry :
-		// entry.getValue().entrySet()) {
-		// properties.put(Bytes.toString(entry.getKey()) + ":" +
-		// Bytes.toString(familyEntry.getKey()),
-		// Bytes.toString(familyEntry.getValue()));
-		// }
-		// }
-		//
-		// //sort by key
-		// return properties;
-		return null;
-	}
-
-	/**
 	 * @see org.ala.dao.TaxonConceptDao#findByScientificName(java.lang.String,
 	 *      int)
 	 */
@@ -858,37 +826,37 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				RankType.getForName(rank));
 	}
 
-        /**
-         * @see org.ala.dao.TaxonConceptDao#reportStats(java.io.OutputStream, java.lang.String, java.lang.String) 
-         */
-        public void reportStats(java.io.OutputStream output, String prefix) throws Exception{
-            String line = prefix + "," + anbgMatched+"," +otherMatched + "," + failedMatch+"," +homonyms+"\n";
-            output.write(line.getBytes());
-            
-        }
-        /**
-         * update the name matching statistics based on the supplied lsid
-         * @param lsid
-         */
-        private void updateStats(String lsid, boolean isHomonym){
-            if(isHomonym)
-                homonyms++;
-            else if(lsid == null)
-                failedMatch++;
-            else if(lsid.startsWith("urn:lsid:biodiversity.org.au"))
-                anbgMatched++;
-            else
-                otherMatched++;
-        }
-        /**
-         * @see org.ala.dao.TaxonConceptDao#resetStats() 
-         */
-        public void resetStats(){
-            anbgMatched = 0;
-            otherMatched = 0;
-            failedMatch = 0;
-            homonyms = 0;
-        }
+    /**
+     * @see org.ala.dao.TaxonConceptDao#reportStats(java.io.OutputStream, java.lang.String, java.lang.String) 
+     */
+    public void reportStats(java.io.OutputStream output, String prefix) throws Exception{
+        String line = prefix + "," + anbgMatched+"," +otherMatched + "," + failedMatch+"," +homonyms+"\n";
+        output.write(line.getBytes());
+        
+    }
+    /**
+     * update the name matching statistics based on the supplied lsid
+     * @param lsid
+     */
+    private void updateStats(String lsid, boolean isHomonym){
+        if(isHomonym)
+            homonyms++;
+        else if(lsid == null)
+            failedMatch++;
+        else if(lsid.startsWith("urn:lsid:biodiversity.org.au"))
+            anbgMatched++;
+        else
+            otherMatched++;
+    }
+    /**
+     * @see org.ala.dao.TaxonConceptDao#resetStats() 
+     */
+    public void resetStats(){
+        anbgMatched = 0;
+        otherMatched = 0;
+        failedMatch = 0;
+        homonyms = 0;
+    }
 
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getByParentGuid(java.lang.String, int)
@@ -2292,7 +2260,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					spDTO.setCommonName(cns.get(0).getNameString());
 				}
 				for(Habitat habitat: habs){
-					spDTO.getHabitats().add(habitat.getStatusAsString());
+					if(habitat.getStatusAsString()!=null){
+						spDTO.getHabitats().add(habitat.getStatusAsString());
+					}
 				}
 				dtoList.add(spDTO);
 			}
@@ -2300,6 +2270,16 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		return dtoList;
 	}
 
+	/**
+	 * Add the supplied sensitive status to this concept.
+	 *  
+	 * @see org.ala.dao.TaxonConceptDao#addSensitiveStatus(java.lang.String, org.ala.model.SensitiveStatus)
+	 */
+	public void addSensitiveStatus(String guid, SensitiveStatus ss) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	/**
 	 * Prevent adding a null to a set.
 	 * 

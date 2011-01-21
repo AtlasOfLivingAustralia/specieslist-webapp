@@ -32,6 +32,7 @@ import org.ala.model.OccurrencesInGeoregion;
 import org.ala.model.PestStatus;
 import org.ala.model.Publication;
 import org.ala.model.Reference;
+import org.ala.model.SensitiveStatus;
 import org.ala.model.SimpleProperty;
 import org.ala.model.SpecimenHolding;
 import org.ala.model.TaxonConcept;
@@ -51,25 +52,6 @@ import au.org.ala.data.model.LinnaeanRankClassification;
  */
 public interface TaxonConceptDao {
 
-	/**
-	 * Retrieve the synonyms for the Taxon Concept with the supplied guid.
-	 *
-	 * @param guid
-	 * @return
-	 * @throws Exception
-	 */
-	List<ExtendedTaxonConceptDTO> getPage(String startGuid, int pageSize) throws Exception;
-	
-	/**
-	 * Retrieve the synonyms for the Taxon Concept with the supplied guid.
-	 *
-	 * @param guid
-	 * @return
-	 * @throws Exception
-	 */
-	List<SpeciesProfileDTO> getProfilePage(String startGuid, int pageSize) throws Exception;
-	
-	
 	/**
 	 * Retrieve the synonyms for the Taxon Concept with the supplied guid.
 	 *
@@ -500,6 +482,12 @@ public interface TaxonConceptDao {
 	 */
 	String findLsidByName(String scientificName, String taxonRank);
 	
+	/**
+	 * Find the LSID for the supplied name
+	 * 
+	 * @param scientificName
+	 * @return
+	 */
 	String findLsidByName(String scientificName);
 	
 	/**
@@ -512,20 +500,19 @@ public interface TaxonConceptDao {
 	 */
 	NameSearchResult findCBDataByName(String scientificName, LinnaeanRankClassification classification, String rank) throws Exception;
 
+    /**
+     * Reports the name matching statistics to the supplied output stream
+     * @param output
+     * @param source The name of the source for the stats
+     * @param filename The associated file/directory for the stats
+     * @throws Exception
+     */
+    void reportStats(java.io.OutputStream output, String prefix) throws Exception;
 
-        /**
-         * Reports the name matching statistics to the supplied output stream
-         * @param output
-         * @param source The name of the source for the stats
-         * @param filename The associated file/directory for the stats
-         * @throws Exception
-         */
-        void reportStats(java.io.OutputStream output, String prefix) throws Exception;
-
-        /**
-         * Resets the name matching statistics
-         */
-        void resetStats();
+    /**
+     * Resets the name matching statistics
+     */
+    void resetStats();
 	
 	/**
 	 * Retrieve a list of concepts with the supplied parent guid.
@@ -588,15 +575,6 @@ public interface TaxonConceptDao {
 	void createIndex() throws Exception;
 
 	/**
-	 * Retrieve the raw properties
-	 *
-	 * @param guid
-	 * @return
-	 * @throws Exception
-	 */
-	Map<String, String> getPropertiesFor(String guid) throws Exception;
-
-	/**
 	 * Add a classification to this taxon.
 	 *
 	 * @param guid
@@ -618,7 +596,7 @@ public interface TaxonConceptDao {
 	 * 
 	 * @param reference
 	 */
-	public abstract boolean addReferences(String guid, List<Reference> references) throws Exception;
+	abstract boolean addReferences(String guid, List<Reference> references) throws Exception;
 
     /**
      * Adds the "earliest" reference to this taxon.
@@ -659,18 +637,28 @@ public interface TaxonConceptDao {
 	 */
 	boolean setRankingOnImage(String taxonGuid, String imageUri, boolean positive) throws Exception;
 	
+	/**
+	 * Set the ranking on the supplied image
+	 * 
+	 * @param taxonGuid
+	 * @param imageUri
+	 * @param positive
+	 * @param blackList
+	 * @return
+	 * @throws Exception
+	 */
 	boolean setRankingOnImage(String taxonGuid, String imageUri, boolean positive, boolean blackList) throws Exception;
 
-        /**
-         * Sets the image ranking to the specified rank and count
-         * @param taxonGuid
-         * @param imageUri
-         * @param count
-         * @param rank
-         * @return
-         * @throws Exception
-         */
-        boolean setRankingOnImages(String taxonGuid, Map<String, Integer[]> rankings) throws Exception;
+    /**
+     * Sets the image ranking to the specified rank and count
+     * @param taxonGuid
+     * @param imageUri
+     * @param count
+     * @param rank
+     * @return
+     * @throws Exception
+     */
+    boolean setRankingOnImages(String taxonGuid, Map<String, Integer[]> rankings) throws Exception;
 	
 	/**
 	 * Set the concept with the supplied guid to iconic
@@ -678,28 +666,105 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean setIsIconic(String guid) throws Exception;
+	boolean setIsIconic(String guid) throws Exception;
 	
-    public boolean isIconic(String guid) throws Exception;
+	/**
+	 * Is this concept iconic ?
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+    boolean isIconic(String guid) throws Exception;
 
-    public boolean setIsAustralian(String guid) throws Exception;
+    /**
+     * Set the flag indicating this species is Australian
+     * 
+     * @param guid
+     * @return
+     * @throws Exception
+     */
+    boolean setIsAustralian(String guid) throws Exception;
 
-    public boolean isAustralian(String guid) throws Exception;
+    /**
+     * Is this concept Aussie ?
+     * 
+     * @param guid
+     * @return
+     * @throws Exception
+     */
+    boolean isAustralian(String guid) throws Exception;
      
-     /**
-      * 
-      * 
-      * @param guid
-      * @return
-      * @throws Exception
-      */
-     public String getPreferredGuid(String guid) throws Exception;
-		
-
-	public boolean addIdentificationKeys(String guid, List<IdentificationKey> identificationKeyList) throws Exception;	
-	public List<IdentificationKey> getIdentificationKeys(String guid) throws Exception;
+    /**
+     * Retrieve the preferred GUID for this concept. This resolves CoL ids to AFD ids
+     * for example.
+     * 
+     * @param guid
+     * @return
+     * @throws Exception
+     */
+    String getPreferredGuid(String guid) throws Exception;
     
-	public boolean addSpecimenHoldings(String guid, List<SpecimenHolding> specimenHoldingList) throws Exception;	
-	public List<SpecimenHolding> getSpecimenHoldings(String guid) throws Exception;
+    /**
+     * Add identification keys
+     * 
+     * @param guid
+     * @param identificationKeyList
+     * @return
+     * @throws Exception
+     */
+	boolean addIdentificationKeys(String guid, List<IdentificationKey> identificationKeyList) throws Exception;	
 	
+	/**
+	 * Retrieve a list of identification keys for this concept.
+	 * 
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	List<IdentificationKey> getIdentificationKeys(String guid) throws Exception;
+    
+	/**
+	 * Add a specimen holding for this concept.
+	 * 
+	 * @param guid
+	 * @param specimenHoldingList
+	 * @return
+	 * @throws Exception
+	 */
+	boolean addSpecimenHoldings(String guid, List<SpecimenHolding> specimenHoldingList) throws Exception;
+	
+	/**
+	 * Get the specimen holdings for this concept.
+	 * 
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	List<SpecimenHolding> getSpecimenHoldings(String guid) throws Exception;
+
+	/**
+	 * Retrieve the synonyms for the Taxon Concept with the supplied guid.
+	 *
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	List<ExtendedTaxonConceptDTO> getPage(String startGuid, int pageSize) throws Exception;
+	
+	/**
+	 * Retrieve the synonyms for the Taxon Concept with the supplied guid.
+	 *
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	List<SpeciesProfileDTO> getProfilePage(String startGuid, int pageSize) throws Exception;
+
+	/**
+	 * Add a sensitive status to the supplied taxon concept.
+	 * 
+	 * @param guid
+	 * @param ss
+	 */
+	void addSensitiveStatus(String guid, SensitiveStatus ss);
 }
