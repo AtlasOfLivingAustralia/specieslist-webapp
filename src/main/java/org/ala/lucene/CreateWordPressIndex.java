@@ -43,9 +43,9 @@ public class CreateWordPressIndex {
     protected static Logger logger = Logger.getLogger(CreateWordPressIndex.class);
     @Inject
 	protected SolrUtils solrUtils;
-    protected static final String wordPressSitemapUri = "http://www.ala.org.au/sitemap.xml";
-    protected static final String CONTENT_ONLY_PARAM = "?content-only=1";
-    protected static final String baseUrlForWordpress = "http://www.ala.org.au/?page_id=";
+    protected static final String WP_SITEMAP_URI = "http://www.ala.org.au/sitemap.xml";
+    protected static final String CONTENT_ONLY_PARAM = "?content-only=1&categories=1";
+    protected static final String WP_BASE_URI = "http://www.ala.org.au/?page_id=";
     protected List<String> pageUrls = new ArrayList<String>();
 
     public static void main(String[] args) throws Exception {
@@ -72,7 +72,7 @@ public class CreateWordPressIndex {
      * @throws IOException
      */
     protected void loadSitemap() throws IOException {
-        Document doc = Jsoup.connect(wordPressSitemapUri).get();
+        Document doc = Jsoup.connect(WP_SITEMAP_URI).get();
         Elements pages = doc.select("loc");
         logger.info("Sitemap file lists " + pages.size() + " pages.");
 
@@ -103,15 +103,29 @@ public class CreateWordPressIndex {
                 String title = document.select("head > title").text();
                 String id = document.select("head > meta[name=id]").attr("content");
                 String bodyText = document.body().text();
+                Elements postCategories = document.select("ul[class=post-categories]");
+                List<String> categories = new ArrayList<String>();
+
+                if (!postCategories.isEmpty()) {
+                    // Is a WP post (not page)
+                    Elements cats = postCategories.select("li > a"); // get list of li elements
+                    
+                    for (Element cat : cats) {
+                        // add category to list
+                        categories.add(cat.text().replaceAll(" ", "_"));
+                    }
+                }
+
                 // Index with SOLR
                 logger.debug(documentCount+ ". Indexing WP page - id: " + id + " | title: " + title + " | text: " + StringUtils.substring(bodyText, 0, 100) + "... ");
                 SolrInputDocument doc = new SolrInputDocument();
                 doc.addField("idxtype", IndexedTypes.WORDPRESS);
-                doc.addField("guid", baseUrlForWordpress + id); // use page_id based URI instead of permalink in case permalink is too long for id field
+                doc.addField("guid", WP_BASE_URI + id); // use page_id based URI instead of permalink in case permalink is too long for id field
                 doc.addField("id", "wp" + id); // probably not needed but safer to leave in
                 doc.addField("name", title, 1.2f);
                 doc.addField("content", bodyText);
                 doc.addField("australian_s", "recorded"); // so they appear in default QF search
+                doc.addField("categories", categories);
                 // add to index
                 solrServer.add(doc);
                 
