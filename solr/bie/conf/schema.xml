@@ -575,6 +575,9 @@
    <field name="regionType" type="text" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="regionTypeId" type="int" indexed="true" stored="true" multiValued="false" omitNorms="false" />   
    
+   <!-- WordPress fields -->
+   <field name="categories" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
+
    <!-- end of BIE Lucene Fields -->
 
    <!-- catchall field, containing all other searchable text fields (implemented
