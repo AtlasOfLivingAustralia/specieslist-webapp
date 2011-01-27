@@ -106,13 +106,13 @@
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hbase</artifactId>
                 <version>0.20.4</version>
-                <scope>test</scope>
+                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>zookeeper</artifactId>
                 <version>3.2.2</version>
-                <scope>test</scope>
+                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
@@ -226,13 +226,11 @@
                 <version>8.1-407.jdbc3</version>
             </dependency>
             <!-- Sun's Servlet API -->
-            <!-- 
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
                 <version>2.4</version>
             </dependency>
-             -->
             <!-- Sun's DI API -->
             <dependency>
                 <groupId>javax.inject</groupId>
