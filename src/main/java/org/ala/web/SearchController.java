@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.IndexedTypes;
@@ -29,13 +30,10 @@ import org.ala.dto.FieldResultDTO;
 import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -89,7 +87,8 @@ public class SearchController {
 			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
 			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
 			@RequestParam(value="title", required=false, defaultValue ="Search Results") String title,
-			Model model) throws Exception {
+		    Model model,
+            HttpServletRequest request) throws Exception {
 		
 		if (StringUtils.isEmpty(query)) {
 			return SEARCH;
@@ -99,11 +98,13 @@ public class SearchController {
 		//if no results for species - pick another tab
 		//initial across the board search
 		//with facets on TAXON, REGION, DATASET, DATAPROVIDER, COLLECTION, INSTITUTION
-		
+        logger.debug("getServletPath = " + request.getServletPath());
+        String requestURL = request.getServletPath();
         // if params are set but empty (e.g. foo=&bar=) then provide sensible defaults
         if (filterQuery != null && filterQuery.length == 0) {
             filterQuery = null;
-        } else if (filterQuery == null) {
+        //} else if (filterQuery == null) {
+        } else if (filterQuery == null && !StringUtils.endsWithIgnoreCase(requestURL, "json")) {
             // catch search with no fq param and default to "Recorded in Australia"
             return "redirect:/search?q=" + query + "&fq=australian_s:recorded";
         }
@@ -148,18 +149,6 @@ public class SearchController {
         
 		String view = SEARCH_LIST;
 
-        // Site search - get number of hits
-        /*
-        try {
-            String jsonString = getUrlContentAsString(new URI(WP_SOLR_URL + query, false).getEscapedURI());
-            JSONObject jsonObj = (JSONObject) JSONValue.parse(jsonString);
-            JSONObject responseObj = (JSONObject) jsonObj.get("response");
-            Long numFound = (Long) responseObj.get("numFound");
-            model.addAttribute("wordpress", numFound);
-        } catch (Exception ex) {
-            logger.error("Failed to load counts from Wordpress SOLR index: "+ex.getMessage(), ex);
-        }
-        */
         model.addAttribute("searchResults", searchResults);
         model.addAttribute("totalRecords", searchResults.getTotalRecords());
         model.addAttribute("lastPage", calculateLastPage(searchResults.getTotalRecords(), pageSize));
