@@ -13,7 +13,7 @@
            http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
     
     <!-- Scans the classpath of this application for @Components to deploy as beans -->
-    <context:component-scan base-package="org.ala.hubs"/>
+    <context:component-scan base-package="org.ala.web"/>
     
     <!-- Configures the @Controller programming model -->
     <mvc:annotation-driven />
