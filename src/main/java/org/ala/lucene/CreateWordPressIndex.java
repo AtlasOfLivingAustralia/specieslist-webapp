@@ -47,6 +47,12 @@ public class CreateWordPressIndex {
     protected static final String CONTENT_ONLY_PARAM = "?content-only=1&categories=1";
     protected static final String WP_BASE_URI = "http://www.ala.org.au/?page_id=";
     protected List<String> pageUrls = new ArrayList<String>();
+    protected static final List<String> excludedCategories = new ArrayList<String>();
+    
+    static {
+        // post categories that should not be indexed in SOLR
+        excludedCategories.add("button");
+    }
 
     public static void main(String[] args) throws Exception {
         // Spring config file locations
@@ -92,30 +98,45 @@ public class CreateWordPressIndex {
         int documentCount = 0;
         // Initialise SOLR
         SolrServer solrServer = solrUtils.getSolrServer();
+        logger.info("Deleting all WordPress documents in SOLR index...");
         solrServer.deleteByQuery("idxtype:"+IndexedTypes.WORDPRESS); // delete WP pages
         solrServer.commit();
 
         for (String pageUrl : this.pageUrls) {
             try {
-                documentCount++;
                 // Crawl and extract text from WP pages
                 Document document = Jsoup.connect(pageUrl + CONTENT_ONLY_PARAM).get();
                 String title = document.select("head > title").text();
                 String id = document.select("head > meta[name=id]").attr("content");
                 String bodyText = document.body().text();
                 Elements postCategories = document.select("ul[class=post-categories]");
-                List<String> categories = new ArrayList<String>();
+                List<String> categoriesOut = new ArrayList<String>();
+                Boolean excludePost = false;
 
                 if (!postCategories.isEmpty()) {
                     // Is a WP post (not page)
-                    Elements cats = postCategories.select("li > a"); // get list of li elements
+                    Elements categoriesIn = postCategories.select("li > a"); // get list of li elements
                     
-                    for (Element cat : cats) {
-                        // add category to list
-                        categories.add(cat.text().replaceAll(" ", "_"));
+                    for (Element cat : categoriesIn) {
+                        String thisCat = cat.text();
+                        
+                        if (thisCat != null && excludedCategories.contains(thisCat)) {  // "button".equals(thisCat)
+                            // exclude category "button" posts
+                            excludePost = true;
+                        } 
+                        if (thisCat != null) {
+                            // add category to list
+                            categoriesOut.add(thisCat.replaceAll(" ", "_"));
+                        }
                     }
                 }
-
+                
+                if (excludePost) {
+                    logger.debug("Excluding post (id: " + id + ") with category: " + StringUtils.join(categoriesOut, "|"));
+                    continue;
+                }
+                
+                documentCount++;
                 // Index with SOLR
                 logger.debug(documentCount+ ". Indexing WP page - id: " + id + " | title: " + title + " | text: " + StringUtils.substring(bodyText, 0, 100) + "... ");
                 SolrInputDocument doc = new SolrInputDocument();
@@ -125,7 +146,7 @@ public class CreateWordPressIndex {
                 doc.addField("name", title, 1.2f);
                 doc.addField("content", bodyText);
                 doc.addField("australian_s", "recorded"); // so they appear in default QF search
-                doc.addField("categories", categories);
+                doc.addField("categories", categoriesOut);
                 // add to index
                 solrServer.add(doc);
                 
