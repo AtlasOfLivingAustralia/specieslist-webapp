@@ -15,6 +15,8 @@
 package org.ala.web;
 
 import atg.taglib.json.util.JSONObject;
+import au.org.ala.data.model.LinnaeanRankClassification;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.BreakIterator;
@@ -189,12 +191,26 @@ public class SpeciesController {
 	 */ 
 	@RequestMapping(value = "/species/{guid:.+}", method = RequestMethod.GET)
 	public String showSpecies(
-            @PathVariable("guid") String guid,
+            @PathVariable("guid") String guidParam,
             @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
             HttpServletRequest request,
             Model model) throws Exception {
+		String guid = guidParam;
+		
 		logger.debug("Displaying page for: " + guid +" .....");
-        ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
+		
+        ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);        
+        //if etc is empty then guid == sciName and kingkom?
+        if(etc == null || etc.getTaxonConcept() == null || etc.getTaxonConcept().getGuid() == null){
+        	String lsid = getLsidBySciNameAndKingdom(guid);
+        	if(lsid != null && lsid.length() > 0){
+	        	etc = taxonConceptDao.getExtendedTaxonConceptByGuid(lsid);
+	        	if (etc.getTaxonConcept() != null && etc.getTaxonConcept().getGuid() != null) {
+	        		guid = lsid;
+	        	}
+        	}
+        }
+        
         //remove blackListed image...
         etc.setImages(removeBlackListedImageItem(etc.getImages()));        
         if (request.getRemoteUser() != null && request.isUserInRole("ROLE_ADMIN")) {
@@ -264,6 +280,45 @@ public class SpeciesController {
         model.addAttribute("spatialPortalMap", getSpatialPortalMap(etc.getTaxonConcept().getGuid()));
         logger.debug("Returning page view for: " + guid +" .....");
 		return SPECIES_SHOW;
+	}
+	
+	private String extractScientificName(String parameter){
+		String name = null;
+		
+		int i = parameter.indexOf('(');
+		if(i >= 0){
+			name = parameter.substring(0, i);
+			name = name.trim();
+			name = name.replaceAll("_", " ");
+		}
+		return name;
+	}
+	
+	private String extractKingdom(String parameter){
+		String kingdom = null;
+		
+		int i = parameter.indexOf('(');
+		int j = parameter.indexOf(')');
+		if(i >= 0 && j >= 0 && j > i){
+			kingdom = parameter.substring(i + 1, j);
+			kingdom = kingdom.trim();
+		}
+		return kingdom;
+	}
+	
+	private String getLsidBySciNameAndKingdom(String parameter){
+		String lsid = null;
+		String name = null;
+		String kingdom = null;
+		
+		name = extractScientificName(parameter);
+		kingdom = extractKingdom(parameter);
+		if(name != null && kingdom != null){
+			LinnaeanRankClassification cl = new LinnaeanRankClassification(kingdom, null);
+	        cl.setScientificName(name);
+	        lsid = taxonConceptDao.findLsidByName(cl.getScientificName(), cl, null);
+		}
+        return lsid;
 	}
 	
 	/**
