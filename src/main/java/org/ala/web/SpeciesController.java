@@ -209,6 +209,10 @@ public class SpeciesController {
 	        		guid = lsid;
 	        	}
         	}
+        	else{
+        		//redirect to search page...eg: http://bie.ala.org.au/search?q=Macropus rufus
+
+        	}
         }
         
         //remove blackListed image...
@@ -288,9 +292,13 @@ public class SpeciesController {
 		int i = parameter.indexOf('(');
 		if(i >= 0){
 			name = parameter.substring(0, i);			
-			name = name.replaceAll("_", " ");
-			name = name.trim();
 		}
+		else{
+			name = parameter;
+		}
+		name = name.replaceAll("_", " ");
+		name = name.trim();
+		
 		return name;
 	}
 	
@@ -313,10 +321,13 @@ public class SpeciesController {
 		
 		name = extractScientificName(parameter);
 		kingdom = extractKingdom(parameter);
-		if(name != null && kingdom != null){
+		if(kingdom != null){
 			LinnaeanRankClassification cl = new LinnaeanRankClassification(kingdom, null);
 	        cl.setScientificName(name);
 	        lsid = taxonConceptDao.findLsidByName(cl.getScientificName(), cl, null);
+		}
+		else{
+			lsid = taxonConceptDao.findLsidByName(name);
 		}
         return lsid;
 	}
