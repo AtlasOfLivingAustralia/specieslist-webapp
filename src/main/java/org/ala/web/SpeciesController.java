@@ -287,9 +287,9 @@ public class SpeciesController {
 		
 		int i = parameter.indexOf('(');
 		if(i >= 0){
-			name = parameter.substring(0, i);
-			name = name.trim();
+			name = parameter.substring(0, i);			
 			name = name.replaceAll("_", " ");
+			name = name.trim();
 		}
 		return name;
 	}
