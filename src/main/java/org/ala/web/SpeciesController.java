@@ -210,8 +210,8 @@ public class SpeciesController {
 	        	}
         	}
         	else{
-        		//redirect to search page...eg: http://bie.ala.org.au/search?q=Macropus rufus
-
+        		//no match for the parameter, redirect to search page.
+        		return "redirect:/search?q=" + extractScientificName(guid);
         	}
         }
         
