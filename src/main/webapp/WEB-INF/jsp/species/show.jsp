@@ -9,7 +9,9 @@ include file="/common/taglibs.jsp" %>
 <!DOCTYPE html>
 <html dir="ltr" lang="en-US">
     <head>
-        <meta name="pageName" content="species" />
+    	<c:set var="pageName">${extendedTaxonConcept.taxonConcept.nameString} <c:if test="${not empty extendedTaxonConcept.commonNames}"> : ${extendedTaxonConcept.commonNames[0].nameString}</c:if></c:set>	
+        <meta name="pageName" content="Taxon profile page for ${pageName}" />
+        <meta name="description" content="This is the aggregated view of information and content from the Atlas of Living Australia for the taxon ${extendedTaxonConcept.taxonConcept.nameString}"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>${extendedTaxonConcept.taxonConcept.nameString} <c:if test="${not empty extendedTaxonConcept.commonNames}"> : ${extendedTaxonConcept.commonNames[0].nameString}</c:if> | Atlas of Living Australia</title>
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.4.css" media="screen" />

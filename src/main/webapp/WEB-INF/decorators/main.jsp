@@ -96,7 +96,7 @@ include file="/common/taglibs.jsp" %>
         <link rel='index' title='Atlas Living Australia NG' href='${initParam.centralServer}/' />
         <link rel='prev' title='My Profile' href='${initParam.centralServer}/my-profile/' />
         <link rel='next' title='Search' href='${initParam.centralServer}/tools-services/search-tools/' />
-        <meta name="generator" content="BIE-WEBAPP"/>
+        <meta name="generator" content="Atlas of Living Australia"/>
         <link rel='canonical' href='${initParam.centralServer}/' />
         <decorator:head />
         <!-- WP Menubar 4.7: start CSS -->
