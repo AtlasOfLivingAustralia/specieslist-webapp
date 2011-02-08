@@ -81,7 +81,7 @@
 
     <context-param>
         <param-name>uriFilterPattern</param-name>
-        <param-value>/search, /species/search, /species/urn:lsid.+, /species/\d+, /regions/, /contributors, /share/, /rankTaxonImageWithUser</param-value>
+        <param-value>/search, /species/search, /species/urn:lsid.+, /species/\d+, /share/, /rankTaxonImageWithUser</param-value>
     </context-param>
 
     <!-- CAS Authentication Service filters -->
