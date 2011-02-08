@@ -202,7 +202,7 @@ public class SpeciesController {
         ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);        
         //if etc is empty then guid == sciName and kingkom?
         if(etc == null || etc.getTaxonConcept() == null || etc.getTaxonConcept().getGuid() == null){
-        	String lsid = getLsidBySciNameAndKingdom(guid);
+        	String lsid = getLsidByNameAndKingdom(guid);
         	if(lsid != null && lsid.length() > 0){
 	        	etc = taxonConceptDao.getExtendedTaxonConceptByGuid(lsid);
 	        	if (etc.getTaxonConcept() != null && etc.getTaxonConcept().getGuid() != null) {
@@ -297,6 +297,7 @@ public class SpeciesController {
 			name = parameter;
 		}
 		name = name.replaceAll("_", " ");
+		name = name.replaceAll("\\+", " ");
 		name = name.trim();
 		
 		return name;
@@ -314,7 +315,7 @@ public class SpeciesController {
 		return kingdom;
 	}
 	
-	private String getLsidBySciNameAndKingdom(String parameter){
+	private String getLsidByNameAndKingdom(String parameter){
 		String lsid = null;
 		String name = null;
 		String kingdom = null;
@@ -328,6 +329,10 @@ public class SpeciesController {
 		}
 		else{
 			lsid = taxonConceptDao.findLsidByName(name);
+		}
+		
+		if(lsid == null){
+			lsid = taxonConceptDao.findLSIDByCommonName(name);
 		}
         return lsid;
 	}
