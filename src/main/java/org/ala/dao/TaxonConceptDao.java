@@ -41,6 +41,7 @@ import org.ala.model.Triple;
 import org.ala.util.StatusType;
 import org.apache.lucene.queryParser.ParseException;
 
+import au.org.ala.checklist.lucene.CBIndexSearch;
 import au.org.ala.checklist.lucene.model.NameSearchResult;
 import au.org.ala.data.model.LinnaeanRankClassification;
 
@@ -768,5 +769,15 @@ public interface TaxonConceptDao {
 	 */
 	void addSensitiveStatus(String guid, SensitiveStatus ss);
 	
+	/**
+     * Returns the LSID for the CB name usage for the supplied common name.
+     *
+     * When the common name returns more than 1 hit a result is only returned if all the scientific names match
+     * 
+     * @see CBIndexSearch.getLSIDForUniqueCommonName
+     * 
+     * @param name
+     * @return
+     */	
 	public String findLSIDByCommonName(String commonName);
 }
