@@ -331,7 +331,7 @@ public class SpeciesController {
 			lsid = taxonConceptDao.findLsidByName(name);
 		}
 		
-		if(lsid == null){
+		if(lsid == null || lsid.length() < 1){
 			lsid = taxonConceptDao.findLSIDByCommonName(name);
 		}
         return lsid;
