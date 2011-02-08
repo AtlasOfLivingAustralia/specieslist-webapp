@@ -767,4 +767,6 @@ public interface TaxonConceptDao {
 	 * @param ss
 	 */
 	void addSensitiveStatus(String guid, SensitiveStatus ss);
+	
+	public String findLSIDByCommonName(String commonName);
 }

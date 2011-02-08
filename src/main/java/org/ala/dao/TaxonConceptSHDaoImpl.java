@@ -2314,4 +2314,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public void setSolrUtils(SolrUtils solrUtils) {
 		this.solrUtils = solrUtils;
 	}
+	
+	public String findLSIDByCommonName(String commonName){
+		return cbIdxSearcher.searchForLSIDCommonName(commonName);
+	}
 }
