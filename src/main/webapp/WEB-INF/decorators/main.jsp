@@ -5,8 +5,7 @@
 --%><%@
 taglib prefix="decorator" uri="http://www.opensymphony.com/sitemesh/decorator" %><%@
 taglib prefix="page" uri="http://www.opensymphony.com/sitemesh/page" %><%@
-include file="/common/taglibs.jsp" %>
-<!DOCTYPE html>
+include file="/common/taglibs.jsp" %><!DOCTYPE html>
 <html dir="ltr" lang="en-US">
     <head profile="http://gmpg.org/xfn/11">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -25,7 +24,7 @@ include file="/common/taglibs.jsp" %>
         <script language="JavaScript" type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala/scripts/hoverintent-min.js"></script>
         <script language="JavaScript" type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala/scripts/superfish/superfish.js"></script>
         <script language="JavaScript" type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala/scripts/jquery.autocomplete.js"></script>
-	<script language="JavaScript" type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala/scripts/uservoice.js"></script>
+        <script language="JavaScript" type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala/scripts/uservoice.js"></script>
         <script type="text/javascript">
             //add the indexOf method for IE7
             if(!Array.indexOf){
@@ -88,19 +87,8 @@ include file="/common/taglibs.jsp" %>
 
         </script>
         <meta name="robots" content="index,follow"/>
-        <link rel="alternate" type="application/rss+xml" title="Atlas Living Australia NG &raquo; Feed" href="${initParam.centralServer}/feed/" />
-        <link rel="alternate" type="application/rss+xml" title="Atlas Living Australia NG &raquo; Comments Feed" href="${initParam.centralServer}/comments/feed/" />
-        <link rel='stylesheet' id='external-links-css'  href='${initParam.centralServer}/wp-content/plugins/sem-external-links/sem-external-links.css?ver=20090903' type='text/css' media='all' />
-        <link rel="EditURI" type="application/rsd+xml" title="RSD" href="${initParam.centralServer}/xmlrpc.php?rsd" />
-        <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="${initParam.centralServer}/wp-includes/wlwmanifest.xml" />
-        <link rel='index' title='Atlas Living Australia NG' href='${initParam.centralServer}/' />
-        <link rel='prev' title='My Profile' href='${initParam.centralServer}/my-profile/' />
-        <link rel='next' title='Search' href='${initParam.centralServer}/tools-services/search-tools/' />
-        <meta name="generator" content="Atlas of Living Australia"/>
-        <link rel='canonical' href='${initParam.centralServer}/' />
+        <META name="y_key" content="d5130872f549aec9" />
         <decorator:head />
-        <!-- WP Menubar 4.7: start CSS -->
-        <!-- WP Menubar 4.7: end CSS -->
     </head>
     <body class="two-column-right">
      <div id="wrapper">
