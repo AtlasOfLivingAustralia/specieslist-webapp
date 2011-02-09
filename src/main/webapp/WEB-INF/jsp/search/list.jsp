@@ -88,6 +88,16 @@
             var q = $.getQueryParam('q'); //$.query.get('q')[0];
             var fqList = $.getQueryParam('fq'); //$.query.get('fq');
             var paramList = [];
+            
+            //is this a init search?
+            if(fqList == null || fqList == 'undefined'){
+            	if('australian_s:recorded' == facet){
+            		fqList = ['australian_s:recorded'];
+            	}
+            	else{
+            		fqList = [''];
+            	}
+            }
             if (q != null) {
                 paramList.push("q=" + q);
             }
@@ -209,15 +219,29 @@
             </c:if>
             <div id="accordion">
                 <c:if test="${not empty query}">
-                    <c:set var="queryParam">q=<c:out value="${query}" escapeXml="true"/><c:if test="${not empty param.fq}">&fq=${fn:join(paramValues.fq, "&fq=")}</c:if></c:set>
+                    <c:set var="queryParam">q=<c:out value="${query}" escapeXml="true"/><c:if test="${not empty param.fq}">&fq=${fn:join(paramValues.fq, "&fq=")}</c:if></c:set>                    
                 </c:if>
+                <%-- is this init search? then add fq parameter in href --%>
+                <c:choose>
+	                <c:when test="${not empty isAustralian}">
+	                	<c:if test="${isAustralian}">
+	                    	<c:set var="appendQueryParam" value="&fq=australian_s:recorded" />
+	                    </c:if>
+	                    <c:if test="${not isAustralian}">
+	                    	<c:set var="appendQueryParam" value="&fq=" />
+	                    </c:if>
+	                </c:when>
+	                <c:otherwise>
+	                	<c:set var="appendQueryParam" value="" />
+	                </c:otherwise>   
+                </c:choose>             
                 <c:if  test="${not empty facetMap}">
                     <h3><span class="FieldName">Current Filters</span></h3>
                     <div id="subnavlist">
                         <ul style="padding-left: 24px;">
                             <c:forEach var="item" items="${facetMap}">
                                 <li style="text-indent: -12px; text-transform: none;">
-                                    <c:set var="closeLink">&nbsp;[<b><a href="#" onClick="removeFacet('${item.key}:${item.value}'); return false;" style="text-decoration: none" title="remove">X</a></b>]</c:set>
+                                    <c:set var="closeLink">&nbsp;[<b><a href="#" onClick="javascript:removeFacet('${item.key}:${item.value}'); return true;" style="text-decoration: none" title="remove">X</a></b>]</c:set>
                                     <fmt:message key="facet.${item.key}"/>:
                                     <c:choose>
                                         <c:when test="${fn:containsIgnoreCase(item.key, 'australian_s')}">
@@ -230,7 +254,7 @@
                                 </li>
                             </c:forEach>
                         </ul>
-                    </div>
+                     </div>
                 </c:if>
                 <c:forEach var="facetResult" items="${searchResults.facetResults}">
                     <c:if test="${empty facetMap[facetResult.fieldName] && !fn:containsIgnoreCase(facetQuery, facetResult.fieldResult[0].label) && !fn:containsIgnoreCase(facetResult.fieldName, 'idxtype1')}">
@@ -240,7 +264,7 @@
                                 <c:set var="lastElement" value="${facetResult.fieldResult[fn:length(facetResult.fieldResult)-1]}"/>
                                 <c:if test="${lastElement.label eq 'before'}">
                                     <li><c:set var="firstYear" value="${fn:substring(facetResult.fieldResult[0].label, 0, 4)}"/>
-                                        <a href="?${queryParam}&fq=${facetResult.fieldName}:[* TO ${facetResult.fieldResult[0].label}]">Before ${firstYear}</a>
+                                        <a href="?${queryParam}${appendQueryParam}&fq=${facetResult.fieldName}:[* TO ${facetResult.fieldResult[0].label}]">Before ${firstYear}</a>
                                         (<fmt:formatNumber value="${lastElement.count}" pattern="#,###,###"/>)
                                     </li>
                                 </c:if>
@@ -252,7 +276,7 @@
                                     <c:choose>
                                         <c:when test="${fn:containsIgnoreCase(facetResult.fieldName, 'occurrence_date') && fn:endsWith(fieldResult.label, 'Z')}">
                                             <li><c:set var="startYear" value="${fn:substring(fieldResult.label, 0, 4)}"/>
-                                                <a href="?${queryParam}&fq=${facetResult.fieldName}:[${fieldResult.label} TO ${dateRangeTo}]">${startYear} - ${startYear + 10}</a>
+                                                <a href="?${queryParam}${appendQueryParam}&fq=${facetResult.fieldName}:[${fieldResult.label} TO ${dateRangeTo}]">${startYear} - ${startYear + 10}</a>
                                                 (<fmt:formatNumber value="${fieldResult.count}" pattern="#,###,###"/>)</li>
                                         </c:when>
                                         <c:when test="${fn:endsWith(fieldResult.label, 'before')}"><%-- skip --%></c:when>
@@ -261,7 +285,7 @@
                                             <b><fmt:message key="${fieldResult.label}"/></b></li>
                                         </c:when>--%>
                                         <c:otherwise>
-                                            <li><a href="?${queryParam}&fq=${facetResult.fieldName}:${fieldResult.label}"><fmt:message key="${fieldResult.label}"/></a>
+                                            <li><a href="?${queryParam}${appendQueryParam}&fq=${facetResult.fieldName}:${fieldResult.label}"><fmt:message key="${fieldResult.label}"/></a>
                                             (<fmt:formatNumber value="${fieldResult.count}" pattern="#,###,###"/>)
                                             </li>
                                         </c:otherwise>
