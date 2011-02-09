@@ -100,6 +100,7 @@ public class SearchController {
 		//with facets on TAXON, REGION, DATASET, DATAPROVIDER, COLLECTION, INSTITUTION
         logger.debug("getServletPath = " + request.getServletPath());
         String requestURL = request.getServletPath();
+/*        
         // if params are set but empty (e.g. foo=&bar=) then provide sensible defaults
         if (filterQuery != null && filterQuery.length == 0) {
             filterQuery = null;
@@ -108,6 +109,22 @@ public class SearchController {
             // catch search with no fq param and default to "Recorded in Australia"
             return "redirect:/search?q=" + query + "&fq=australian_s:recorded";
         }
+*/
+
+        //if no australian record then redirect to full record search
+        if (filterQuery == null) {
+        	filterQuery = new String[]{"australian_s:recorded"};
+        	SearchResultsDTO<SearchDTO> searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+        	List<SearchDTO> result = searchResults.getResults();
+        	if(result == null || result.size() < 1){        		
+        		filterQuery = new String[]{""};
+        		return "redirect:/search?q=" + query + "&fq=";
+        	}
+        	else{
+        		return "redirect:/search?q=" + query + "&fq=australian_s:recorded";
+        	}
+        }
+        
         if (startIndex == null) {
             startIndex = 0;
         }
