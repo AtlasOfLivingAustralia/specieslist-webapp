@@ -63,7 +63,7 @@ public class RepoDataLoader {
     @Inject
     protected RepositoryFileUtils repoFileUtils;
     private boolean statsOnly = false;
-    private  FileOutputStream statsOut;
+
 
 	int totalFilesRead = 0;
 	int totalPropertiesSynced = 0;
@@ -91,6 +91,10 @@ public class RepoDataLoader {
     	System.exit(1);
 	}
 
+	public int load(String filePath, String[] repoDirs) throws Exception {
+		return load(filePath, repoDirs, true);
+	}
+	
 	/**
 	 * Scan through the repository, retrieve triples and
 	 * add to taxon concepts
@@ -99,12 +103,16 @@ public class RepoDataLoader {
 	 * @param repoDirs Optional array of Infosource directories to scan passed as program arguments
 	 * @throws Exception
 	 */
-	 public int load(String filePath, String[] repoDirs) throws Exception {
+	 public int load(String filePath, String[] repoDirs, boolean allowStats) throws Exception {
+		 FileOutputStream statsOut = null;
+		    
 		logger.info("Scanning directory: "+filePath);
 
                 //open the statistics file
+		if(allowStats){
                 statsOut = FileUtils.openOutputStream(new File("/data/bie/bie_name_matching_stats_"+System.currentTimeMillis() + ".csv"));
                 statsOut.write("InfoSource ID, InfoSource Name, URL, ANBG matches, Other matches, Missing, Homonyms detected\n".getBytes());
+		}
 
 		// reset counts
         totalFilesRead = 0;
@@ -143,19 +151,23 @@ public class RepoDataLoader {
 						scanDirectory(dirsToScan);
 					}
 				}
+				if(allowStats){
                                 //report the stats
                                 if(org.apache.commons.lang.StringUtils.isNumeric(childFile.getName())){
                                 InfoSource infoSource = infoSourceMap.get(new Integer(childFile.getName()));
                                 taxonConceptDao.reportStats(statsOut, infoSource.getId() + ","+infoSource.getName() + "," + infoSource.getWebsiteUrl());
                             }
+				}
                                 
 			}
 
 		}
 
 		logger.info("Files read: "+totalFilesRead+", files matched: "+totalPropertiesSynced);
+		if(allowStats){
                 statsOut.flush();
                 statsOut.close();
+		}
 		return totalFilesRead;
 	}
 
