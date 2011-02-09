@@ -500,7 +500,7 @@ include file="/common/taglibs.jsp" %>
                         <tbody> 
                             <c:forEach var="entry" items="${infoSources}" varStatus="status">
                                 <c:set var="infoSource" value="${entry.value}"/>
-                                <c:if test="${infoSource.infoSourceId!=1051}">
+                                <c:if test="${infoSource.infoSourceId!=1051 && infoSource.infoSourceId!=1061}">
                                 <tr class="border-top">
                                     <td style="white-space: nowrap;">
                                         <c:choose>
@@ -711,7 +711,14 @@ include file="/common/taglibs.jsp" %>
                                                 </c:otherwise>
                                             </c:choose>
                                         </c:set>
-                                        <cite>Source: <a href="${imageUri}" target="_blank">${image.infoSourceName}</a></cite>
+                                        <c:choose>
+                                        <c:when test="${image.infoSourceURL == 'http://www.ala.org.au'}">
+                                            <cite>Source: ${image.infoSourceName}</cite>
+                                         </c:when>
+                                         <c:otherwise>
+                                            <cite>Source: <a href="${imageUri}" target="_blank">${image.infoSourceName}</a></cite>
+                                         </c:otherwise>
+                                        </c:choose> 
                                      	<p class="imageRank-${image.documentId}">
                                         <c:choose>
 	                                        <c:when test="${fn:contains(rankedImageUris,image.identifier)}">
