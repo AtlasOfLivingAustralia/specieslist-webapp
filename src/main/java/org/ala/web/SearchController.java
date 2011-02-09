@@ -112,16 +112,18 @@ public class SearchController {
 */
 
         //if no australian record then redirect to full record search
+        SearchResultsDTO<SearchDTO> searchResults = null;
         if (filterQuery == null) {
         	filterQuery = new String[]{"australian_s:recorded"};
-        	SearchResultsDTO<SearchDTO> searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+        	searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
         	List<SearchDTO> result = searchResults.getResults();
         	if(result == null || result.size() < 1){        		
         		filterQuery = new String[]{""};
-        		return "redirect:/search?q=" + query + "&fq=";
+        		searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+        		model.addAttribute("isAustralian", false);
         	}
         	else{
-        		return "redirect:/search?q=" + query + "&fq=australian_s:recorded";
+        		model.addAttribute("isAustralian", true);
         	}
         }
         
@@ -147,7 +149,9 @@ public class SearchController {
 		model.addAttribute("title", StringEscapeUtils.escapeJavaScript(title));
 		
 		logger.debug("Initial query = "+query);
-		SearchResultsDTO<SearchDTO> searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+		if(searchResults == null){
+			searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+		}
         repoUrlUtils.fixRepoUrls(searchResults);
         model.addAttribute("facetMap", addFacetMap(filterQuery));
         
