@@ -172,17 +172,8 @@
     </div><!--close header-->
     <div class="section">
         <h2>Search Results</h2>
-        <c:choose>
-            <c:when test="${not empty wordpress && wordpress > 0}">
-                <h3>Search for <span style="font-weight: bold"><c:out value="${query}"/></span> did not match any species, collections or region pages</h3>
-                <p>However it did match <a href="${initParam.centralServer}/search/?s=${param['q']}">${wordpress} site pages</a></p>
-            </c:when>
-            <c:otherwise>
-                <h3>Search for <span style="font-weight: bold"><c:out value="${query}"/></span> did not match any documents</h3>
-                <p><a href="#" id="refineSearch">edit your search query</a></p>
-            </c:otherwise>
-        </c:choose>
-
+        <h3>Search for <span style="font-weight: bold"><c:out value="${query}"/></span> did not match any documents</h3>
+            <p><a href="#" id="refineSearch">edit your search query</a></p>
     </div>
 </c:if>
 <c:if test="${not empty searchResults.results}">
