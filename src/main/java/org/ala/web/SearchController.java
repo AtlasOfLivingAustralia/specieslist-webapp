@@ -182,7 +182,7 @@ public class SearchController {
 		return view;
 	}
 	
-	@RequestMapping(value = "/search.*", method = RequestMethod.GET)
+	@RequestMapping(value = {"/search.json","/search.xml"}, method = RequestMethod.GET)
 	public ModelAndView  searchJsonXml(
 			@RequestParam(value="q", required=false) String query,
 			@RequestParam(value="fq", required=false) String[] filterQuery,
