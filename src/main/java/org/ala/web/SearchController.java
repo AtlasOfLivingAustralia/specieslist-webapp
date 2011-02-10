@@ -39,6 +39,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Search controller intended to provide the front door for the BIE.
@@ -78,7 +79,7 @@ public class SearchController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/search*", method = RequestMethod.GET)
+	@RequestMapping(value = "/search", method = RequestMethod.GET)
 	public String search(
 			@RequestParam(value="q", required=false) String query,
 			@RequestParam(value="fq", required=false) String[] filterQuery,
@@ -111,7 +112,8 @@ public class SearchController {
         }
 */
 
-        //if no australian record then redirect to full record search
+        // if filterQuery is null only (empty is consequence search) 
+        // then it is init search, do extra process as below...        
         SearchResultsDTO<SearchDTO> searchResults = null;
         if (filterQuery == null) {
         	filterQuery = new String[]{"australian_s:recorded"};
@@ -149,6 +151,7 @@ public class SearchController {
 		model.addAttribute("title", StringEscapeUtils.escapeJavaScript(title));
 		
 		logger.debug("Initial query = "+query);
+		// if searchResults is null then it is consequence search request.
 		if(searchResults == null){
 			searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
 		}
@@ -179,6 +182,36 @@ public class SearchController {
 		return view;
 	}
 	
+	@RequestMapping(value = "/search.*", method = RequestMethod.GET)
+	public ModelAndView  searchJsonXml(
+			@RequestParam(value="q", required=false) String query,
+			@RequestParam(value="fq", required=false) String[] filterQuery,
+			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
+			@RequestParam(value="pageSize", required=false, defaultValue ="10") Integer pageSize,
+			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
+			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
+			@RequestParam(value="title", required=false, defaultValue ="Search Results") String title,
+		    Model model,
+            HttpServletRequest request) throws Exception {
+		
+		if (startIndex == null) {
+            startIndex = 0;
+        }
+        if (pageSize == null) {
+            pageSize = 20;
+        }
+        if (sortField.isEmpty()) {
+            sortField = "score";
+        }
+        if (sortDirection.isEmpty()) {
+            sortDirection = "asc";
+        }
+        sortDirection = getSortDirection(sortField, sortDirection);
+        
+        SearchResultsDTO<SearchDTO> searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+        
+        return new ModelAndView(SEARCH_LIST, "searchResults", searchResults);
+	}
     /**
      * Provides the auto complete service. 
      *
