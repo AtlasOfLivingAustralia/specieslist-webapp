@@ -81,8 +81,8 @@ public class RepoDataLoader {
         loader.loadInfoSources();
         String filePath = repositoryDir;
         if(args.length>0){
-            if(args[0].equalsIgnoreCase("-stats"));
-            loader.statsOnly = true;
+            if(args[0].equalsIgnoreCase("-stats"))
+                loader.statsOnly = true;
             args = (String[])ArrayUtils.subarray(args, 1, args.length-1);
         }
 		int filesRead = loader.load(filePath, args); //FIX ME - move to config
