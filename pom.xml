@@ -21,10 +21,11 @@
             <!-- ECAT-COMMON - name parsing capabilities -->
             <!-- History: Wai-23 July updated version from 1.0-SNAPSHOT to 1.1-SNAPSHOT, -->
             <!-- because ala-name-matching is updated to 1.1-SNAPSHOT -->
+            <!-- Updated to use 1.2-SNAPSHOT - this is he new custom version being used by ala-name-matching -->
             <dependency>
                 <groupId>org.gbif</groupId>
                 <artifactId>ecat-common</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.2-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <groupId>dom4j</groupId>
