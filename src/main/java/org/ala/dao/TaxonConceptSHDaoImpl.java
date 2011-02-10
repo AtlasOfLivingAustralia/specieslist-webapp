@@ -2256,6 +2256,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			if(tc!=null){
 				spDTO.setGuid(tc.getGuid());
 				spDTO.setScientificName(tc.getNameString());
+                                if(tc.getLeft() != null) spDTO.setLeft(tc.getLeft().toString());
+                                if(tc.getRight() != null) spDTO.setRight(tc.getRight().toString());
 				if(!cns.isEmpty()){
 					spDTO.setCommonName(cns.get(0).getNameString());
 				}
@@ -2264,6 +2266,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						spDTO.getHabitats().add(habitat.getStatusAsString());
 					}
 				}
+                                for(ConservationStatus cs: cons){
+                                    if(cs.getRegion() != null){
+                                        //TODO work out the best way to make conservation status available...
+                                        spDTO.getConservationStatus().add(cs);                                   
+                                    }
+                                }
 				dtoList.add(spDTO);
 			}
 		}

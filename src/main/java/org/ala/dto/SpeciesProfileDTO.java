@@ -16,6 +16,8 @@ package org.ala.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import org.ala.model.ConservationStatus;
 /**
  * A simple DTO exposing some elements of a species profile.
  * 
@@ -27,6 +29,9 @@ public class SpeciesProfileDTO {
 	private String scientificName;
 	private String commonName;
 	private List<String> habitats = new ArrayList<String>();
+        private String left;
+        private String right;
+        private List<ConservationStatus> conservationStatus = new ArrayList<ConservationStatus>();
 	/**
 	 * @return the guid
 	 */
@@ -75,4 +80,30 @@ public class SpeciesProfileDTO {
 	public void setHabitats(List<String> habitats) {
 		this.habitats = habitats;
 	}
+
+        public String getLeft() {
+            return left;
+        }
+
+        public void setLeft(String left) {
+            this.left = left;
+        }
+
+        public String getRight() {
+            return right;
+        }
+
+        public void setRight(String right) {
+            this.right = right;
+        }
+
+        public List<ConservationStatus> getConservationStatus() {
+            return conservationStatus;
+        }
+
+        public void setConservationStatus(List<ConservationStatus> conservationStatus) {
+            this.conservationStatus = conservationStatus;
+        }
+
+
 }
