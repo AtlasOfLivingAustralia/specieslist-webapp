@@ -259,9 +259,6 @@
                                         (<fmt:formatNumber value="${lastElement.count}" pattern="#,###,###"/>)
                                     </li>
                                 </c:if>
-                                <c:if test="${false && fn:containsIgnoreCase(facetResult.fieldName, 'idxtype') && not empty wordpress && wordpress > 0 && empty param.fq}">
-                                    <li><a href="${initParam.centralServer}/search/?s=${param['q']}">Site pages</a> (${wordpress})</li>
-                                </c:if>
                                 <c:forEach var="fieldResult" items="${facetResult.fieldResult}" varStatus="vs">
                                     <c:set var="dateRangeTo"><c:choose><c:when test="${vs.last}">*</c:when><c:otherwise>${facetResult.fieldResult[vs.count].label}</c:otherwise></c:choose></c:set>
                                     <c:choose>
