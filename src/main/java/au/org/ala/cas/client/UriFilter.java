@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.jasig.cas.client.authentication.AuthenticationFilter;
 
+import au.org.ala.cas.util.CookieUtils;
 import au.org.ala.cas.util.PatternMatchingUtils;
 
 /**
@@ -39,7 +40,6 @@ import au.org.ala.cas.util.PatternMatchingUtils;
  * <table border="1">
  * <tr><th>Criterion</th><th>context-param</th><th>Required</th></tr>
  * <tr><td>URI exclusion</td><td>uriExclusionFilterPattern</td><td>No</td></tr>
- * <tr><td>User-agent exclusion</td><td>userAgentExclusionFilterPattern</td><td>No</td></tr>
  * <tr><td>URI inclusion</td><td>uriFilterPattern</td><td>Yes</td></tr>
  * </table>
  * <p>
@@ -91,98 +91,90 @@ import au.org.ala.cas.util.PatternMatchingUtils;
  */
 public class UriFilter implements Filter {
 
-	private final static Logger logger = Logger.getLogger(UriFilter.class);
-	
-	private Filter filter;
-	private String contextPath;
-	private List<Pattern> uriInclusionPatterns;
-	private List<Pattern> uriExclusionPatterns;
-	private List<Pattern> userAgentExclusionPatterns;
-	
-	public void init(FilterConfig filterConfig) throws ServletException {
+    private final static Logger logger = Logger.getLogger(UriFilter.class);
+    
+    private Filter filter;
+    private String contextPath;
+    private List<Pattern> uriInclusionPatterns;
+    private List<Pattern> uriExclusionPatterns;
+    
+    public void init(FilterConfig filterConfig) throws ServletException {
 
-		//
-		// Get contextPath param
-		//
-		this.contextPath = filterConfig.getServletContext().getInitParameter("contextPath");
-		if (this.contextPath == null) {
-			this.contextPath = "";
-		} else {
-			logger.debug("Context path = '" + contextPath + "'");
-		}
+        //
+        // Get contextPath param
+        //
+        this.contextPath = filterConfig.getServletContext().getInitParameter("contextPath");
+        if (this.contextPath == null) {
+            this.contextPath = "";
+        } else {
+            logger.debug("Context path = '" + contextPath + "'");
+        }
 
-		//
-		// Get URI inclusion filter patterns
-		//
-		String includedUrlPattern = filterConfig.getServletContext().getInitParameter("uriFilterPattern");
-		if (includedUrlPattern == null) {
-			includedUrlPattern = "";
-		}
-		logger.debug("Included URI Pattern = '" + includedUrlPattern + "'");
-		this.uriInclusionPatterns = PatternMatchingUtils.getPatternList(contextPath, includedUrlPattern);
+        //
+        // Get URI inclusion filter patterns
+        //
+        String includedUrlPattern = filterConfig.getServletContext().getInitParameter("uriFilterPattern");
+        if (includedUrlPattern == null) {
+            includedUrlPattern = "";
+        }
+        logger.debug("Included URI Pattern = '" + includedUrlPattern + "'");
+        this.uriInclusionPatterns = PatternMatchingUtils.getPatternList(contextPath, includedUrlPattern);
 
-		//
-		// Get URI exclusion filter patterns
-		//
-		String excludedUrlPattern = filterConfig.getServletContext().getInitParameter("uriExclusionFilterPattern");
-		if (excludedUrlPattern == null) {
-			excludedUrlPattern = "";
-		}
-		logger.debug("Excluded URI Pattern = '" + excludedUrlPattern + "'");
-		this.uriExclusionPatterns = PatternMatchingUtils.getPatternList(excludedUrlPattern);
+        //
+        // Get URI exclusion filter patterns
+        //
+        String excludedUrlPattern = filterConfig.getServletContext().getInitParameter("uriExclusionFilterPattern");
+        if (excludedUrlPattern == null) {
+            excludedUrlPattern = "";
+        }
+        logger.debug("Excluded URI Pattern = '" + excludedUrlPattern + "'");
+        this.uriExclusionPatterns = PatternMatchingUtils.getPatternList(excludedUrlPattern);
 
-		//
-		// Get user-agent exclusion filter patterns
-		//
-		String excludedUserAgentPattern = filterConfig.getServletContext().getInitParameter("userAgentExclusionFilterPattern");
-		if (excludedUserAgentPattern == null) {
-			excludedUserAgentPattern = "";
-		}
-		logger.debug("Excluded User Agent Pattern = '" + excludedUserAgentPattern + "'");
-		this.userAgentExclusionPatterns = PatternMatchingUtils.getPatternList(excludedUserAgentPattern);
+        //
+        // Get target filter class name
+        //
+        String className = filterConfig.getInitParameter("filterClass");
+        try {
+            Class<?> c = Class.forName(className);
+            filter = (Filter) c.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        filter.init(filterConfig);
+    }
 
-		//
-		// Get target filter class name
-		//
-		String className = filterConfig.getInitParameter("filterClass");
-		try {
-			Class<?> c = Class.forName(className);
-			filter = (Filter) c.newInstance();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		filter.init(filterConfig);
-	}
+    /* (non-Javadoc)
+     * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
+     */
+    public void doFilter(ServletRequest request, ServletResponse response,
+            FilterChain chain) throws IOException, ServletException {
+        
+        String requestUri = ((HttpServletRequest) request).getRequestURI();
+        if (filter instanceof AuthenticationFilter) {
+            logger.debug("Request Uri = '" + requestUri + "'");
+        }
+        
+        if (!CookieUtils.alaAuthCookieExists((HttpServletRequest) request)) {
+            logger.debug("Skipping " + filter.getClass().getSimpleName() + " since cookie " + CookieUtils.ALA_AUTH_COOKIE + " not found");
+            chain.doFilter(request, response);
+        }
+        
+        if (PatternMatchingUtils.matches(requestUri, uriExclusionPatterns)) {
+            if (filter instanceof AuthenticationFilter) {
+                logger.debug("Ignoring URI because it matches uriExclusionFilterPattern");
+            }
+            chain.doFilter(request, response);
+        } else if (PatternMatchingUtils.matches(requestUri, uriInclusionPatterns)) {
+            if (filter instanceof AuthenticationFilter) {
+                logger.debug("Forwarding URI '" + requestUri + "' to CAS authentication filters because it matches uriFilterPattern");
+            }
+            filter.doFilter(request, response, chain);
+        } else {
+            chain.doFilter(request, response);
+        }
+    }
 
-	public void doFilter(ServletRequest request, ServletResponse response,
-			FilterChain chain) throws IOException, ServletException {
-		
-		String requestUri = ((HttpServletRequest) request).getRequestURI();
-		if (filter instanceof AuthenticationFilter) {
-			logger.debug("Request Uri = '" + requestUri + "'");
-		}
-		
-		if (PatternMatchingUtils.matches(requestUri, uriExclusionPatterns)) {
-			if (filter instanceof AuthenticationFilter) {
-				logger.debug("Ignoring URI because it matches uriExclusionFilterPattern");
-			}
-			chain.doFilter(request, response);
-		} else if (PatternMatchingUtils.matches(((HttpServletRequest) request).getHeader("user-agent"), userAgentExclusionPatterns)) {
-			if (filter instanceof AuthenticationFilter) {
-				logger.debug("Ignoring request because user-agent matches userAgentExclusionFilterPattern");
-			}
-			chain.doFilter(request, response);
-		} else if (PatternMatchingUtils.matches(requestUri, uriInclusionPatterns)) {
-			if (filter instanceof AuthenticationFilter) {
-				logger.debug("Forwarding URI '" + requestUri + "' to CAS authentication filters because it matches uriFilterPattern");
-			}
-			filter.doFilter(request, response, chain);
-		} else {
-			chain.doFilter(request, response);
-		}
-	}
-
-	public void destroy() {
-		filter.destroy();
-	}
+    public void destroy() {
+        filter.destroy();
+    }
 }
