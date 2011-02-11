@@ -157,9 +157,7 @@ public class UriFilter implements Filter {
         if (!CookieUtils.alaAuthCookieExists((HttpServletRequest) request)) {
             logger.debug("Skipping " + filter.getClass().getSimpleName() + " since cookie " + CookieUtils.ALA_AUTH_COOKIE + " not found");
             chain.doFilter(request, response);
-        }
-        
-        if (PatternMatchingUtils.matches(requestUri, uriExclusionPatterns)) {
+        } else if (PatternMatchingUtils.matches(requestUri, uriExclusionPatterns)) {
             if (filter instanceof AuthenticationFilter) {
                 logger.debug("Ignoring URI because it matches uriExclusionFilterPattern");
             }
