@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.jasig.cas.client.authentication.AuthenticationFilter;
 
-import au.org.ala.cas.util.CookieUtils;
+import au.org.ala.cas.util.AuthenticationCookieUtils;
 import au.org.ala.cas.util.PatternMatchingUtils;
 
 /**
@@ -154,8 +154,8 @@ public class UriFilter implements Filter {
             logger.debug("Request Uri = '" + requestUri + "'");
         }
         
-        if (!CookieUtils.alaAuthCookieExists((HttpServletRequest) request)) {
-            logger.debug("Skipping " + filter.getClass().getSimpleName() + " since cookie " + CookieUtils.ALA_AUTH_COOKIE + " not found");
+        if (!AuthenticationCookieUtils.isUserLoggedIn((HttpServletRequest) request)) {
+            logger.debug("Skipping " + filter.getClass().getSimpleName() + " since cookie " + AuthenticationCookieUtils.ALA_AUTH_COOKIE + " not found");
             chain.doFilter(request, response);
         } else if (PatternMatchingUtils.matches(requestUri, uriExclusionPatterns)) {
             if (filter instanceof AuthenticationFilter) {
