@@ -14,14 +14,14 @@
  ***************************************************************************/
 package au.org.ala.commonui.tag;
 
-import java.security.Principal;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.log4j.Logger;
+
+import au.org.ala.cas.util.CookieUtils;
 
 /**
  * Simple tag that writes out a login/logout anchor element.
@@ -41,14 +41,13 @@ public class LoginLogoutTag extends TagSupport {
 	public int doStartTag() throws JspException {
 		
 		HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-		Principal principal = request.getUserPrincipal();
 		String casServer = pageContext.getServletContext().getInitParameter("casServerName");
 
 		String html;
-		if (principal == null) {
-			html = "<a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a>\n";
+		if (CookieUtils.alaAuthCookieExists(request)) {
+            html = "<a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a>\n";
 		} else {
-			html = "<a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a>\n";
+            html = "<a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a>\n";
 		}
 		
 		try {

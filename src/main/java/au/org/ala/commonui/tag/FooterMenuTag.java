@@ -14,14 +14,14 @@
  ***************************************************************************/
 package au.org.ala.commonui.tag;
 
-import java.security.Principal;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.log4j.Logger;
+
+import au.org.ala.cas.util.CookieUtils;
 
 /**
  * Simple tag that writes out the footer menu list for an ALA web application.
@@ -62,14 +62,13 @@ public class FooterMenuTag extends TagSupport {
             html.append("<li id='menu-item-10433' class='last menu-item menu-item-type-post_type menu-item-10433'><a href='"+centralServer+"/my-profile/'>My Profile</a></li>");
         } else {
 			HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-			Principal principal = request.getUserPrincipal();
 			String casServer = pageContext.getServletContext().getInitParameter("casServerName");
 
 			String loginLogoutAnchor;
-			if (principal == null) {
-				loginLogoutAnchor = "<a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a>";
+			if (CookieUtils.alaAuthCookieExists(request)) {
+                loginLogoutAnchor = "<a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a>";
 			} else {
-				loginLogoutAnchor = "<a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a>";
+                loginLogoutAnchor = "<a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a>";
 			}
 
 			html.append(

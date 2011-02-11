@@ -14,14 +14,14 @@
  ***************************************************************************/
 package au.org.ala.commonui.tag;
 
-import java.security.Principal;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.log4j.Logger;
+
+import au.org.ala.cas.util.CookieUtils;
 
 /**
  * Simple tag that writes out the banner menu list for an ALA web application.
@@ -47,7 +47,6 @@ public class BannerMenuTag extends TagSupport {
 	public int doStartTag() throws JspException {
 		try {
 			HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-			Principal principal = request.getUserPrincipal();
 			
 			String searchServer = pageContext.getServletContext().getInitParameter("searchServerName");
 			if(searchServer==null){
@@ -84,10 +83,10 @@ public class BannerMenuTag extends TagSupport {
 			logger.debug("Return path URL: "+returnUrlPath);
 			
 			String loginLogoutListItem = "";
-			if (principal == null) {
-				loginLogoutListItem = "<li class='nav-login nav-right'><a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a></li>";
+			if (CookieUtils.alaAuthCookieExists(request)) {
+                loginLogoutListItem = "<li class='nav-logout nav-right'><a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a></li>";
 			} else {
-				loginLogoutListItem = "<li class='nav-logout nav-right'><a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a></li>";
+                loginLogoutListItem = "<li class='nav-login nav-right'><a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a></li>";
 			}
 	
 			String html =
