@@ -21,7 +21,7 @@ import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.log4j.Logger;
 
-import au.org.ala.cas.util.CookieUtils;
+import au.org.ala.cas.util.AuthenticationCookieUtils;
 
 /**
  * Simple tag that writes out the footer menu list for an ALA web application.
@@ -65,7 +65,7 @@ public class FooterMenuTag extends TagSupport {
 			String casServer = pageContext.getServletContext().getInitParameter("casServerName");
 
 			String loginLogoutAnchor;
-			if (CookieUtils.alaAuthCookieExists(request)) {
+			if (AuthenticationCookieUtils.isUserLoggedIn(request)) {
                 loginLogoutAnchor = "<a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a>";
 			} else {
                 loginLogoutAnchor = "<a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a>";

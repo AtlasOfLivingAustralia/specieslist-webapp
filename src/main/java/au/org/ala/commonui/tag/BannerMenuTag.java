@@ -21,7 +21,7 @@ import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.log4j.Logger;
 
-import au.org.ala.cas.util.CookieUtils;
+import au.org.ala.cas.util.AuthenticationCookieUtils;
 
 /**
  * Simple tag that writes out the banner menu list for an ALA web application.
@@ -83,7 +83,7 @@ public class BannerMenuTag extends TagSupport {
 			logger.debug("Return path URL: "+returnUrlPath);
 			
 			String loginLogoutListItem = "";
-			if (CookieUtils.alaAuthCookieExists(request)) {
+			if (AuthenticationCookieUtils.isUserLoggedIn(request)) {
                 loginLogoutListItem = "<li class='nav-logout nav-right'><a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a></li>";
 			} else {
                 loginLogoutListItem = "<li class='nav-login nav-right'><a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a></li>";

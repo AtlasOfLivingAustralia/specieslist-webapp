@@ -21,7 +21,7 @@ import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.log4j.Logger;
 
-import au.org.ala.cas.util.CookieUtils;
+import au.org.ala.cas.util.AuthenticationCookieUtils;
 
 /**
  * Simple tag that writes out a login/logout anchor element.
@@ -44,7 +44,7 @@ public class LoginLogoutTag extends TagSupport {
 		String casServer = pageContext.getServletContext().getInitParameter("casServerName");
 
 		String html;
-		if (CookieUtils.alaAuthCookieExists(request)) {
+		if (AuthenticationCookieUtils.isUserLoggedIn(request)) {
             html = "<a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a>\n";
 		} else {
             html = "<a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a>\n";
