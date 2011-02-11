@@ -5,17 +5,17 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
-public class CookieUtils {
+public class AuthenticationCookieUtils {
     
-    private final static Logger logger = Logger.getLogger(CookieUtils.class);
+    private final static Logger logger = Logger.getLogger(AuthenticationCookieUtils.class);
     
     public static final String ALA_AUTH_COOKIE = "ALA-Auth";
 
-    public static boolean alaAuthCookieExists(HttpServletRequest request) {
+    public static boolean isUserLoggedIn(HttpServletRequest request) {
       return cookieExists(request, ALA_AUTH_COOKIE);
     }
     
-    public static String getAlaAuthUserName(HttpServletRequest request) {
+    public static String getUserName(HttpServletRequest request) {
         return getCookieValue(request, ALA_AUTH_COOKIE);
     }
     
