@@ -14,6 +14,8 @@
  ***************************************************************************/
 package au.org.ala.commonui.tag;
 
+import java.security.Principal;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
@@ -30,41 +32,50 @@ import au.org.ala.cas.util.AuthenticationCookieUtils;
  */
 public class LoginLogoutTag extends TagSupport {
 
-	private static final long serialVersionUID = -6406031197753714478L;
-	protected static Logger logger = Logger.getLogger(LoginLogoutTag.class);
-	
-	private String returnUrlPath = "";
-	
-	/**
-	 * @see javax.servlet.jsp.tagext.TagSupport#doStartTag()
-	 */
-	public int doStartTag() throws JspException {
-		
-		HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-		String casServer = pageContext.getServletContext().getInitParameter("casServerName");
+    private static final long serialVersionUID = -6406031197753714478L;
+    protected static Logger logger = Logger.getLogger(LoginLogoutTag.class);
+    
+    private String returnUrlPath = "";
+    
+    /**
+     * @see javax.servlet.jsp.tagext.TagSupport#doStartTag()
+     */
+    public int doStartTag() throws JspException {
+        
+        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        String casServer = pageContext.getServletContext().getInitParameter("casServerName");
 
-		String html;
-		if (AuthenticationCookieUtils.isUserLoggedIn(request)) {
+        // Check authentication status
+        Principal principal = request.getUserPrincipal();
+        boolean loggedIn;
+        if (principal != null) {
+            loggedIn = true;
+        } else {
+            loggedIn = AuthenticationCookieUtils.isUserLoggedIn(request);
+        }
+
+        String html;
+        if (loggedIn) {
             html = "<a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a>\n";
-		} else {
+        } else {
             html = "<a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a>\n";
-		}
-		
-		try {
-			pageContext.getOut().print(html);
-		} catch (Exception e) {
-			logger.error("LoginLogoutTag: " + e.getMessage(), e);
-			throw new JspTagException("LoginLogoutTag: " + e.getMessage());
-		}
-		
-		return super.doStartTag();
-	}
+        }
+        
+        try {
+            pageContext.getOut().print(html);
+        } catch (Exception e) {
+            logger.error("LoginLogoutTag: " + e.getMessage(), e);
+            throw new JspTagException("LoginLogoutTag: " + e.getMessage());
+        }
+        
+        return super.doStartTag();
+    }
 
-	public String getReturnUrlPath() {
-		return returnUrlPath;
-	}
+    public String getReturnUrlPath() {
+        return returnUrlPath;
+    }
 
-	public void setReturnUrlPath(String returnUrlPath) {
-		this.returnUrlPath = returnUrlPath;
-	}
+    public void setReturnUrlPath(String returnUrlPath) {
+        this.returnUrlPath = returnUrlPath;
+    }
 }
