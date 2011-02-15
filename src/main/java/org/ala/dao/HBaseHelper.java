@@ -115,5 +115,12 @@ public class HBaseHelper implements StoreHelper {
 			String startGuid, int pageSize) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String getString(String table, String columnFamily,
+			String columnName, String guid) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
 	}	
 }

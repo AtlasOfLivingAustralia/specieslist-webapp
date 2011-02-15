@@ -159,6 +159,35 @@ public class CassandraPelopsHelper implements StoreHelper  {
     }
 
     /**
+     * @see org.ala.dao.StoreHelper#get(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Class)
+     */
+    @Override
+    public String getString(String table, String columnFamily, String columnName, String guid) throws Exception {
+        logger.debug("Pelops get table: " + table + " colFamily: " +columnFamily + " guid: " + guid);
+        Selector selector = Pelops.createSelector(pool, keySpace);
+        Column col = null;
+        try{
+            col = selector.getSubColumnFromRow(guid, columnFamily, columnFamily, columnName, ConsistencyLevel.ONE);
+        }
+        catch(Exception e){
+            //expected behaviour. current thrift API doesnt seem
+            //to support a retrieve null getter
+        	if(logger.isTraceEnabled()){
+        		logger.trace(e.getMessage(), e);
+        	}
+        }
+
+		//read the existing value
+		if(col!=null){
+			String value = new String(col.value,charsetEncoding);
+//			logger.info(value);
+			return value;
+		} else {
+			return null;
+		}
+    }
+    
+    /**
      * @see org.ala.dao.StoreHelper#getList(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Class)
      */
     @Override

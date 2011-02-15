@@ -578,6 +578,9 @@
    <!-- WordPress fields -->
    <field name="categories" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
 
+   <!-- LinkIdentifier fields -->
+   <field name="linkIdentifier" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
+
    <!-- end of BIE Lucene Fields -->
 
    <!-- catchall field, containing all other searchable text fields (implemented

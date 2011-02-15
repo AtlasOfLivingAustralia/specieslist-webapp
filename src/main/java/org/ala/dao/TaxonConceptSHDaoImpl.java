@@ -466,6 +466,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		return isAustralian;
 	}
 
+	public String getLinkIdentifier(String guid) throws Exception {
+		String linkIdentifier = storeHelper.getString(TC_TABLE,
+				TC_COL_FAMILY,
+				ColumnType.LINK_IDENTIFIER.getColumnName(), guid);
+		return linkIdentifier;
+	}
+	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getDistributionImages(java.lang.String)
 	 */
@@ -1553,19 +1560,26 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			if (i % 1000 == 0) {
 				logger.info("Indexed records: " + i + ", current guid: " + guid);
 			}
-
-			// index each taxon
-			List<SolrInputDocument> docsToAdd = indexTaxonConcept(guid);
-			docs.addAll(docsToAdd);
-
-			if (i > 0 && i % 1000 == 0) {
-				// iw.commit();
-				logger.debug(i + " " + guid + ", adding " + docs.size());
-				if (!docs.isEmpty()) {
-					solrServer.add(docs);
-					solrServer.commit();
-					docs.clear();
+			// if exception happened, it not stop whole index process
+			try{
+				// index each taxon
+				List<SolrInputDocument> docsToAdd = indexTaxonConcept(guid);
+				docs.addAll(docsToAdd);
+	
+				if (i > 0 && i % 1000 == 0) {
+					// iw.commit();
+					logger.debug(i + " " + guid + ", adding " + docs.size());
+					if (!docs.isEmpty()) {
+						solrServer.add(docs);
+						solrServer.commit();
+						docs.clear();
+					}
 				}
+			}
+			catch(Exception e){
+				logger.error("*** ERROR -- guid: " + guid);
+				logger.error(e);
+				continue;
 			}
 		}
 
@@ -1842,6 +1856,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					doc.addField("aus_s", "yes");
 				}
 
+				String linkIdentifier = getLinkIdentifier(guid);
+				if (linkIdentifier != null) {
+					doc.addField("linkIdentifier", linkIdentifier);
+				}
+				
 				addRankToIndex(doc, taxonConcept.getRankString());
 
 				doc.addField("hasChildren",Boolean.toString(!children.isEmpty()));

@@ -71,6 +71,7 @@ public enum ColumnType {
     SPECIMEN_HOLDING_COL("hasSpecimenHolding", SpecimenHolding.class, true),
     IS_ICONIC("IsIconic", Boolean.class, false),
     IS_AUSTRALIAN("IsAustralian", Boolean.class, false),
+    LINK_IDENTIFIER("linkIdentifier", String.class, false),
     OCCURRENCE_RECORDS_COUNT_COL("hasOccurrenceRecords", Integer.class, false),
     GEOREF_RECORDS_COUNT_COL("hasGeoReferencedRecords", Integer.class, false),
     RANKING("TIMESTAMP", Ranking.class, true);

@@ -192,6 +192,39 @@ public class CassandraHelper implements StoreHelper {
 		}
 	}
 	
+	public String getString(String table, String columnFamily, String columnName, String guid) throws Exception {
+		ColumnPath columnPath = new ColumnPath(columnFamily);
+		columnPath.setSuper_column(columnFamily.getBytes());
+		columnPath.setColumn(columnName.getBytes());
+        ColumnOrSuperColumn col = null;
+        try {
+        	col = getConnection().get(keySpace, guid, columnPath, ConsistencyLevel.ONE);
+        } 
+        catch (TTransportException e){
+            //NC: This is a quick fix for communication issues between the webapp server and the cassandra server.
+            //TODO We possibly want to implement connection pooling/management for Cassandra connections
+            if(e.getMessage() != null)
+                logger.info("Unable to contact Cassandra. Attempt to reinitialise the connection next time it is used.");
+            this.clientConnection = null;//reinitialise the connection next time
+        }
+        catch (Exception e){
+        	//expected behaviour. current thrift API doesnt seem
+        	//to support a retrieve null getter
+        	if(logger.isDebugEnabled()){
+        		logger.debug(e.getMessage(), e);
+        	}
+        }
+
+		//read the existing value
+		if(col!=null){
+			String value = new String(col.getColumn().value,charsetEncoding);
+//			logger.info(value);
+			return value;
+		} else {
+			return null;
+		}		
+	}
+	
 	/**
 	 * @see org.ala.dao.StoreHelper#putSingle(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Comparable)
 	 */

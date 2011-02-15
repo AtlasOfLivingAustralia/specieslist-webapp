@@ -156,4 +156,6 @@ public interface StoreHelper {
 	 * @param pageSize
 	 */
 	Map<String, Map<String,Object>> getPageOfSubColumns(String tcColFamily, String superColumn, ColumnType[] subColumns, String startGuid, int pageSize);
+	
+	public String getString(String table, String columnFamily, String columnName, String guid) throws Exception;
 }
