@@ -44,6 +44,31 @@ public class SensitiveStatus extends AttributableObject implements Comparable<Se
 	public int compareTo(SensitiveStatus ss) {
 		return 0;
 	}
+        
+        @Override
+        public boolean equals(Object obj) {
+            if(obj instanceof SensitiveStatus){
+                SensitiveStatus ssobj = (SensitiveStatus)obj;
+                return ssobj.getInfoSourceId().equals(infoSourceId)
+                        && ssobj.getSensitivityZone().equals(sensitivityZone)
+                        && (ssobj.getSensitivityCategory().equals(sensitivityCategory));
+            }
+            return false;
+        }
+        public String toString(){
+            StringBuilder builder = new StringBuilder();
+		builder.append("SensitiveStatus [sensitivityZone=");
+		builder.append(this.sensitivityZone);
+                builder.append(", sensitivityCategory=");
+                builder.append(", infoSourceId=");
+		builder.append(this.infoSourceId);
+		builder.append(", infoSourceName=");
+		builder.append(this.infoSourceName);
+		builder.append(", infoSourceURL=");
+		builder.append(this.infoSourceURL);
+		builder.append("]");
+                return builder.toString();
+        }
 
 	/**
 	 * @return the sensitivityZone

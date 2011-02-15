@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.ala.model.ConservationStatus;
+import org.ala.model.SensitiveStatus;
 /**
  * A simple DTO exposing some elements of a species profile.
  * 
@@ -32,6 +33,7 @@ public class SpeciesProfileDTO {
         private String left;
         private String right;
         private List<ConservationStatus> conservationStatus = new ArrayList<ConservationStatus>();
+        private List<SensitiveStatus> sensitiveStatus;
 	/**
 	 * @return the guid
 	 */
@@ -104,6 +106,15 @@ public class SpeciesProfileDTO {
         public void setConservationStatus(List<ConservationStatus> conservationStatus) {
             this.conservationStatus = conservationStatus;
         }
+
+        public List<SensitiveStatus> getSensitiveStatus() {
+            return sensitiveStatus;
+        }
+
+        public void setSensitiveStatus(List<SensitiveStatus> sensitiveStatus) {
+            this.sensitiveStatus = sensitiveStatus;
+        }
+
 
 
 }

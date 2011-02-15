@@ -2262,6 +2262,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				ColumnType.VERNACULAR_COL,
 				ColumnType.HABITAT_COL,
 				ColumnType.CONSERVATION_STATUS_COL,
+                                ColumnType.SENSITIVE_STATUS_COL,
 		};
 		
 		Map<String, Map<String,Object>> rowMaps = storeHelper.getPageOfSubColumns(TC_COL_FAMILY, TC_COL_FAMILY, columns, startGuid, pageSize);
@@ -2286,11 +2287,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					}
 				}
                                 for(ConservationStatus cs: cons){
+                                    //Do not add the international status
                                     if(cs.getRegion() != null){
                                         //TODO work out the best way to make conservation status available...
                                         spDTO.getConservationStatus().add(cs);
                                     }
                                 }
+                                spDTO.setSensitiveStatus((List<SensitiveStatus>)getColumnValue(row, ColumnType.SENSITIVE_STATUS_COL));
 				dtoList.add(spDTO);
 			}
 		}
