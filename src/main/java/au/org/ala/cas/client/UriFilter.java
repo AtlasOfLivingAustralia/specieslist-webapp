@@ -29,24 +29,14 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.jasig.cas.client.authentication.AuthenticationFilter;
 
-import au.org.ala.cas.util.AuthenticationCookieUtils;
 import au.org.ala.cas.util.PatternMatchingUtils;
 
 /**
- * Meta filter that provides filtering based on exclusion and inclusion criteria.
+ * Meta filter that provides filtering based on URI patterns that require authentication (and thus redirection) to the CAS server.
  * <p>
- * The filtering criteria are applied in the following order,
+ * The list of URI patterns is specified as a comma delimited list of reqular expressions in a &lt;context-param&gt;, <code>uriFilterPattern</code>.
  * <p>
- * <table border="1">
- * <tr><th>Criterion</th><th>context-param</th><th>Required</th></tr>
- * <tr><td>URI exclusion</td><td>uriExclusionFilterPattern</td><td>No</td></tr>
- * <tr><td>URI inclusion</td><td>uriFilterPattern</td><td>Yes</td></tr>
- * </table>
- * <p>
- * Each filter criteria is specified as a comma delimited list of reqular expressions in a <code>&lt;context-param&gt;</code>.
- * <p>
- * So if a request is not excluded based on the URI and User-Agent exclusion criteria and is included based on<br>
- * the URI inclusion criterion then the filter specified by the filterClass init-param is invoked.
+ * So if a request's path matches one of the URI patterns then the filter specified by the <code>filterClass</code> &lt;init-param&gt; is invoked.
  * <p>
  * The <code>contextPath</code> parameter value (if present) is prefixed to each URI pattern defined in the <code>uriFilterPattern</code> list.
  * <p>
@@ -59,13 +49,8 @@ import au.org.ala.cas.util.PatternMatchingUtils;
      &lt;/context-param&gt;
   
      &lt;context-param&gt;
-         &lt;param-name&gt;uriExclusionFilterPattern&lt;/param-name&gt;
-         &lt;param-value&gt;.*\.json&lt;/param-value&gt;
-     &lt;/context-param&gt;
-  
-     &lt;context-param&gt;
          &lt;param-name&gt;uriFilterPattern&lt;/param-name&gt;
-         &lt;param-value&gt;/, /occurrences/\d+&lt;/param-value&gt;
+         &lt;param-value&gt;/occurrences/\d+&lt;/param-value&gt;
      &lt;/context-param&gt;
   
      &lt;!-- CAS Authentication Service filters --&gt;
@@ -96,7 +81,6 @@ public class UriFilter implements Filter {
     private Filter filter;
     private String contextPath;
     private List<Pattern> uriInclusionPatterns;
-    private List<Pattern> uriExclusionPatterns;
     
     public void init(FilterConfig filterConfig) throws ServletException {
 
@@ -119,16 +103,6 @@ public class UriFilter implements Filter {
         }
         logger.debug("Included URI Pattern = '" + includedUrlPattern + "'");
         this.uriInclusionPatterns = PatternMatchingUtils.getPatternList(contextPath, includedUrlPattern);
-
-        //
-        // Get URI exclusion filter patterns
-        //
-        String excludedUrlPattern = filterConfig.getServletContext().getInitParameter("uriExclusionFilterPattern");
-        if (excludedUrlPattern == null) {
-            excludedUrlPattern = "";
-        }
-        logger.debug("Excluded URI Pattern = '" + excludedUrlPattern + "'");
-        this.uriExclusionPatterns = PatternMatchingUtils.getPatternList(excludedUrlPattern);
 
         //
         // Get target filter class name
@@ -154,15 +128,7 @@ public class UriFilter implements Filter {
             logger.debug("Request Uri = '" + requestUri + "'");
         }
         
-        if (!AuthenticationCookieUtils.isUserLoggedIn((HttpServletRequest) request)) {
-            logger.debug("Skipping " + filter.getClass().getSimpleName() + " since cookie " + AuthenticationCookieUtils.ALA_AUTH_COOKIE + " not found");
-            chain.doFilter(request, response);
-        } else if (PatternMatchingUtils.matches(requestUri, uriExclusionPatterns)) {
-            if (filter instanceof AuthenticationFilter) {
-                logger.debug("Ignoring URI because it matches uriExclusionFilterPattern");
-            }
-            chain.doFilter(request, response);
-        } else if (PatternMatchingUtils.matches(requestUri, uriInclusionPatterns)) {
+        if (PatternMatchingUtils.matches(requestUri, uriInclusionPatterns)) {
             if (filter instanceof AuthenticationFilter) {
                 logger.debug("Forwarding URI '" + requestUri + "' to CAS authentication filters because it matches uriFilterPattern");
             }
