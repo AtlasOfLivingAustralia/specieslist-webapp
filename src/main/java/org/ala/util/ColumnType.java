@@ -30,6 +30,7 @@ import org.ala.model.PestStatus;
 import org.ala.model.Publication;
 import org.ala.model.Ranking;
 import org.ala.model.Reference;
+import org.ala.model.SensitiveStatus;
 import org.ala.model.SimpleProperty;
 import org.ala.model.SpecimenHolding;
 import org.ala.model.TaxonConcept;
@@ -51,6 +52,7 @@ public enum ColumnType {
     IS_CONGRUENT_TO_COL("IsCongruentTo", TaxonConcept.class, true),
     VERNACULAR_COL("hasVernacularConcept", CommonName.class, true),
     CONSERVATION_STATUS_COL("hasConservationStatus", ConservationStatus.class, true),
+    SENSITIVE_STATUS_COL("hasSensitiveStatus", SensitiveStatus.class, true),
     PEST_STATUS_COL("hasPestStatus", PestStatus.class, true),
     REGION_COL("hasRegion", OccurrencesInGeoregion.class, true),
     EXTANT_STATUS_COL("hasExtantStatus", ExtantStatus.class, true),

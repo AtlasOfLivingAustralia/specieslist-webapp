@@ -767,7 +767,7 @@ public interface TaxonConceptDao {
 	 * @param guid
 	 * @param ss
 	 */
-	void addSensitiveStatus(String guid, SensitiveStatus ss);
+	void addSensitiveStatus(String guid, SensitiveStatus ss) throws Exception;
 	
 	/**
      * Returns the LSID for the CB name usage for the supplied common name.

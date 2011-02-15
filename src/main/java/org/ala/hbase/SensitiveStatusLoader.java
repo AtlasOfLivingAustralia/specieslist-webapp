@@ -95,19 +95,23 @@ public class SensitiveStatusLoader {
 
 				//retrieve taxon concept
 				String guid = taxonConceptDao.findLsidByName(nextLine[0], null);
-				
-				//retrieve the infosource to be used
-				for(int i=0; i<zones.length; i++){
-					SensitiveStatus ss = new SensitiveStatus();
-					ss.setSensitivityCategory(nextLine[4]);
-					ss.setSensitivityZone(zones[i]);
-					InfoSource infosource = infoSourceDao.getByUri(infosources[i].trim());
-    				ss.setInfoSourceId(Integer.toString(infosource.getId()));
-    				ss.setInfoSourceName(infosource.getName());
-    				ss.setInfoSourceURL(infosource.getWebsiteUrl());
-					
-					taxonConceptDao.addSensitiveStatus(guid, ss);
-				}
+				if(guid != null){
+                                    //retrieve the infosource to be used
+                                    for(int i=0; i<zones.length; i++){
+                                            SensitiveStatus ss = new SensitiveStatus();
+                                            ss.setSensitivityCategory(nextLine[5]);
+                                            ss.setSensitivityZone(zones[i]);
+                                            InfoSource infosource = infoSourceDao.getByUri(infosources[i].trim());
+                                            if(infosource != null){
+                                                ss.setInfoSourceId(Integer.toString(infosource.getId()));
+                                                ss.setInfoSourceName(infosource.getName());
+                                                ss.setInfoSourceURL(infosource.getWebsiteUrl());
+                                        }
+
+                                            taxonConceptDao.addSensitiveStatus(guid, ss);
+                                            ctr++;
+                                    }
+                                }
 				lineNo++;
 				nextLine = reader.readNext();
 			}

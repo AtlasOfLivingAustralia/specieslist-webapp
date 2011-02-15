@@ -2269,7 +2269,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                                 for(ConservationStatus cs: cons){
                                     if(cs.getRegion() != null){
                                         //TODO work out the best way to make conservation status available...
-                                        spDTO.getConservationStatus().add(cs);                                   
+                                        spDTO.getConservationStatus().add(cs);
                                     }
                                 }
 				dtoList.add(spDTO);
@@ -2283,9 +2283,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 *  
 	 * @see org.ala.dao.TaxonConceptDao#addSensitiveStatus(java.lang.String, org.ala.model.SensitiveStatus)
 	 */
-	public void addSensitiveStatus(String guid, SensitiveStatus ss) {
-		// TODO Auto-generated method stub
+	public void addSensitiveStatus(String guid, SensitiveStatus ss) throws Exception {
 		
+		storeHelper.put(TC_TABLE, TC_COL_FAMILY,
+				ColumnType.SENSITIVE_STATUS_COL.getColumnName(),
+				guid, ss);
 	}
 	
 	/**
