@@ -111,23 +111,6 @@ public class SearchController {
             return "redirect:/search?q=" + query + "&fq=australian_s:recorded";
         }
 */
-
-        // if filterQuery is null only (empty is consequence search) 
-        // then it is init search, do extra process as below...        
-        SearchResultsDTO<SearchDTO> searchResults = null;
-        if (filterQuery == null) {
-        	filterQuery = new String[]{"australian_s:recorded"};
-        	searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-        	List<SearchDTO> result = searchResults.getResults();
-        	if(result == null || result.size() < 1){        		
-        		filterQuery = new String[]{""};
-        		searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-        		model.addAttribute("isAustralian", false);
-        	}
-        	else{
-        		model.addAttribute("isAustralian", true);
-        	}
-        }
         
         if (startIndex == null) {
             startIndex = 0;
@@ -149,8 +132,25 @@ public class SearchController {
 		model.addAttribute("query", query);
 		model.addAttribute("queryJsEscaped", queryJsEscaped);
 		model.addAttribute("title", StringEscapeUtils.escapeJavaScript(title));
-		
+				
 		logger.debug("Initial query = "+query);
+        // if filterQuery is null only (empty is consequence search) 
+        // then it is init search, do extra process as below...        
+        SearchResultsDTO<SearchDTO> searchResults = null;
+        if (filterQuery == null) {
+        	filterQuery = new String[]{"australian_s:recorded"};
+        	searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+        	List<SearchDTO> result = searchResults.getResults();
+        	if(result == null || result.size() < 1){        		
+        		filterQuery = new String[]{""};
+        		searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+        		model.addAttribute("isAustralian", false);
+        	}
+        	else{
+        		model.addAttribute("isAustralian", true);
+        	}
+        }
+		
 		// if searchResults is null then it is consequence search request.
 		if(searchResults == null){
 			searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
