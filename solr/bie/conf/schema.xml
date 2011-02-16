@@ -579,7 +579,7 @@
    <field name="categories" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
 
    <!-- LinkIdentifier fields -->
-   <field name="linkIdentifier" type="string" indexed="true" stored="true" multiValued="true" omitNorms="true" />
+   <field name="linkIdentifier" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
 
    <!-- end of BIE Lucene Fields -->
 
