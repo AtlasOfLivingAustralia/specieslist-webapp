@@ -23,10 +23,8 @@ import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.log4j.Logger;
 
-import au.org.ala.cas.util.AuthenticationCookieUtils;
-
 /**
- * Simple tag that writes out a login/logout anchor element.
+ * Simple tag that writes out a login/logout anchor element based on confirmed authentication status (not relying on ALA-Auth cookie).
  * 
  * @author Peter Flemming
  */
@@ -47,20 +45,13 @@ public class LoginLogoutTag extends TagSupport {
 
         // Check authentication status
         Principal principal = request.getUserPrincipal();
-        boolean loggedIn;
-        if (principal != null) {
-            loggedIn = true;
-        } else {
-            loggedIn = AuthenticationCookieUtils.isUserLoggedIn(request);
-        }
-
         String html;
-        if (loggedIn) {
+        if (principal != null) {
             html = "<a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a>\n";
         } else {
             html = "<a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a>\n";
         }
-        
+
         try {
             pageContext.getOut().print(html);
         } catch (Exception e) {
