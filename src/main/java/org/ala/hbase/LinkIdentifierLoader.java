@@ -112,6 +112,6 @@ public class LinkIdentifierLoader {
 				}		
 			}
 		}
-		logger.info("total time taken (sec) = " + (System.currentTimeMillis() - start)/1000); 
+		logger.info("total time taken (sec) = " + ((System.currentTimeMillis() - start)/1000)); 
 	}					
 }
