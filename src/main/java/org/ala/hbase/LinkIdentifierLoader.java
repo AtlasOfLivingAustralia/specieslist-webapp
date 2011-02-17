@@ -39,18 +39,7 @@ import org.springframework.stereotype.Component;
 public class LinkIdentifierLoader {
 	protected static Logger logger  = Logger.getLogger(LinkIdentifierLoader.class);	
 	public static final String LINK_IDENTIFIER_COLUMN_NAME = "linkIdentifier";
-	
-//	public static final int ROWS = 1000;
-//	public static final String CHARSET_ENCODING = "UTF-8";
-//	public static final String POOL_NAME = "ALA";
-//	public static final String LINK_IDENTIFIER_COLUMN_NAME = "linkIdentifier";
-//	
-//	private String host = "localhost";
-//	private int port = 9160;
-//	private String keyspace = "bie";
-//	private String columnFamily = "tc";	
-//	private ObjectMapper mapper;
-		
+			
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
 	
