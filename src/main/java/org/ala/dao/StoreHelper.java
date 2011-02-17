@@ -157,5 +157,7 @@ public interface StoreHelper {
 	 */
 	Map<String, Map<String,Object>> getPageOfSubColumns(String tcColFamily, String superColumn, ColumnType[] subColumns, String startGuid, int pageSize);
 	
-	public String getString(String table, String columnFamily, String columnName, String guid) throws Exception;
+	public String getStringValue(String table, String columnFamily, String columnName, String guid) throws Exception;
+	
+	public String updateStringValue(String table, String columnFamily, String columnName, String guid, String value) throws Exception;
 }

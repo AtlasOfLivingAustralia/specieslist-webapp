@@ -14,32 +14,15 @@
  ***************************************************************************/
 package org.ala.hbase;
 
-import java.util.List;
+import org.ala.dao.Scanner;
+import org.ala.dao.StoreHelper;
 import org.ala.dao.TaxonConceptDao;
-import org.ala.model.TaxonConcept;
+import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.util.SpringUtils;
 import org.apache.log4j.Logger;
 import javax.inject.Inject;
-
-import org.apache.cassandra.thrift.Cassandra.Client;
-import org.apache.cassandra.thrift.Column;
-import org.apache.cassandra.thrift.ColumnOrSuperColumn;
-import org.apache.cassandra.thrift.ColumnParent;
-
-import org.apache.cassandra.thrift.ConsistencyLevel;
-import org.apache.cassandra.thrift.KeyRange;
-import org.apache.cassandra.thrift.KeySlice;
-import org.apache.cassandra.thrift.SlicePredicate;
-import org.apache.cassandra.thrift.SliceRange;
-import org.apache.cassandra.thrift.SuperColumn;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import org.wyki.cassandra.pelops.Mutator;
-import org.wyki.cassandra.pelops.Pelops;
-import org.wyki.cassandra.pelops.Policy;
-import org.wyki.cassandra.pelops.Selector;
 
 /**
  * LinkIdentifierLoader.
@@ -55,20 +38,32 @@ import org.wyki.cassandra.pelops.Selector;
 @Component("linkIdentifierLoader")
 public class LinkIdentifierLoader {
 	protected static Logger logger  = Logger.getLogger(LinkIdentifierLoader.class);	
-
-	public static final int ROWS = 1000;
-	public static final String CHARSET_ENCODING = "UTF-8";
-	public static final String POOL_NAME = "ALA";
 	public static final String LINK_IDENTIFIER_COLUMN_NAME = "linkIdentifier";
 	
-	private String host = "localhost";
-	private int port = 9160;
-	private String keyspace = "bie";
-	private String columnFamily = "tc";	
-	private ObjectMapper mapper;
+//	public static final int ROWS = 1000;
+//	public static final String CHARSET_ENCODING = "UTF-8";
+//	public static final String POOL_NAME = "ALA";
+//	public static final String LINK_IDENTIFIER_COLUMN_NAME = "linkIdentifier";
+//	
+//	private String host = "localhost";
+//	private int port = 9160;
+//	private String keyspace = "bie";
+//	private String columnFamily = "tc";	
+//	private ObjectMapper mapper;
 		
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
+	
+	@Inject
+	protected StoreHelper storeHelper;
+	
+	/**
+	 * @param storeHelper
+	 *            the storeHelper to set
+	 */
+	public void setStoreHelper(StoreHelper storeHelper) {
+		this.storeHelper = storeHelper;
+	}
 	
 	/**
 	 * Usage: outputFileName [option: cassandraAddress cassandraPort]
@@ -79,198 +74,55 @@ public class LinkIdentifierLoader {
 		ApplicationContext context = SpringUtils.getContext();
 		LinkIdentifierLoader loader = context.getBean(LinkIdentifierLoader.class);		
 		
-				
-		if (args.length == 1){
-			loader.setHost(args[0]);
-		}		
-		else if (args.length == 2){
-			loader.setHost(args[0]);
-			loader.setPort(Integer.valueOf(args[1]));
-		}
-		
+						
 		// do sitemap
 		try{
-			loader.init();
 			loader.doFullScan();
-			loader.closeConnectionPool();
-
 		}
 		catch(Exception e){			
-			System.out.println("***** Fatal Error !!!.... shutdown cassandra connection.");
+			System.out.println("***** Fatal Error !!!.... shutdown cassandra connection.");			
 			e.printStackTrace();
-			loader.closeConnectionPool();
+			logger.error(e);
 			System.exit(0);	
 		}
-	}
-	
-	public void init(){	
-		Pelops.addPool(POOL_NAME, new String[]{this.host}, this.port, false, this.keyspace, new Policy());
-		mapper = new ObjectMapper();
-		mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		System.exit(0);	
 	}
 	
 	/**
-	 * close cassandra connection pool.
-	 */
-	public void closeConnectionPool(){
-		Pelops.shutdown();
-	}
-	
-	/**
-	 * scan whole columnFamily tree; 
-	 * plant and other in Australia.
+	 * scan cassandra repository
 	 * 
-	 * @param infoSourceIds 
 	 * @throws Exception
 	 */
 	public void doFullScan() throws Exception {
 		long start = System.currentTimeMillis();
-		KeySlice startKey = new KeySlice();
-		KeySlice lastKey = null;		
-		
-		System.out.println("LinkIdentifierLoader process is started.....");
-		ColumnParent columnParent = new ColumnParent(columnFamily);
+		int ctr = 0;
+		int pctr = 0;
+		storeHelper.init();
+		Scanner scanner = storeHelper.getScanner("bie", "tc", "taxonConcept");
+		byte[] guidAsBytes = null;
 
-		KeyRange keyRange = new KeyRange(ROWS);
-		keyRange.setStart_key("");
-		keyRange.setEnd_key("");
-
-		SliceRange sliceRange = new SliceRange();
-		sliceRange.setStart(new byte[0]);
-		sliceRange.setFinish(new byte[0]);
-
-		SlicePredicate slicePredicate = new SlicePredicate();
-		slicePredicate.setSlice_range(sliceRange);
-
-		Client client = Pelops.getDbConnPool(POOL_NAME).getConnection().getAPI();
-		
-		// Iterate over all the rows in a ColumnFamily......
-		// start with the empty string, and after each call use the last key read as the start key 
-		// in the next iteration.
-		// when lastKey == startKey is finish.
-		List<KeySlice> keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);		
-		generateLinkIdentifier(keySlices);
-		while (keySlices.size() > 0){
-			lastKey = keySlices.get(keySlices.size()-1);
-			//end of scan ?
-			if(lastKey.equals(startKey)){
-				break;
+		while ((guidAsBytes = scanner.getNextGuid()) != null) {
+			String guid = new String(guidAsBytes);
+			if("103068681".equals(guid.trim())){
+				System.out.println("hello");
 			}
-			startKey = lastKey;
-			keyRange.setStart_key(lastKey.getKey());			
-			keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
-			generateLinkIdentifier(keySlices);
-			System.gc();
-		}
-		System.out.println("LinkIdentifierLoader process is ended, total time takem: " + ((System.currentTimeMillis() - start)/1000));
-	}
-			
-	private void generateLinkIdentifier(List<KeySlice> keySlices) {
-		Mutator mutator = Pelops.createMutator(POOL_NAME, keyspace);
-		Selector selector = Pelops.createSelector(POOL_NAME, keyspace);
-
-		for (KeySlice keySlice : keySlices) {
-			String guid = keySlice.getKey();
-			System.out.println("**** guid: " +  guid);
-			if(guid == null){
-				continue;
-			}
-			
-			for (ColumnOrSuperColumn columns : keySlice.getColumns()) {
-				if (columns.isSetSuper_column()) {
-					try {
-						SuperColumn scol = columns.getSuper_column();
-						String sColName = new String(scol.getName(), CHARSET_ENCODING);						
-						try {
-							// remove old linkIdentifier column
-							Column col = selector.getSubColumnFromRow(guid, columnFamily, sColName, LINK_IDENTIFIER_COLUMN_NAME, ConsistencyLevel.ONE);								
-							String colName = new String(col.getName(), CHARSET_ENCODING);
-				        	mutator.deleteSubColumn(guid, columnFamily, sColName, colName);
-				        	mutator.execute(ConsistencyLevel.ONE);
-						} 
-						catch (Exception e) {
-							//record not found! do nothing....continue process...
-						}							
-
-						//add linkIdentifier column
-						String name = getSciName(scol, keySlice.getKey());						
-						if(name != null && !name.isEmpty()){							
-							String lsid = taxonConceptDao.findLsidByName(name);
-							if(lsid != null){
-								mutator.writeSubColumn(guid, columnFamily, sColName, mutator.newColumn(LINK_IDENTIFIER_COLUMN_NAME, name));
-				    			mutator.execute(ConsistencyLevel.ONE);
-							}
-							else{
-								mutator.writeSubColumn(guid, columnFamily, sColName, mutator.newColumn(LINK_IDENTIFIER_COLUMN_NAME, guid));
-				    			mutator.execute(ConsistencyLevel.ONE);
-							}
-						}
-						else{
-							mutator.writeSubColumn(guid, columnFamily, sColName, mutator.newColumn(LINK_IDENTIFIER_COLUMN_NAME, guid));
-			    			mutator.execute(ConsistencyLevel.ONE);
-						}						
-					} 
-					catch (Exception e) {
-						logger.error(e);
-						e.printStackTrace();
-					}						
+			ExtendedTaxonConceptDTO taxonConcept = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);	
+			if(taxonConcept != null && taxonConcept.getTaxonConcept() != null){				
+				String name = taxonConcept.getTaxonConcept().getNameString();
+				String lsid = taxonConceptDao.findLsidByName(name);
+				if(lsid == null){
+					storeHelper.updateStringValue("bie", "tc", LINK_IDENTIFIER_COLUMN_NAME, guid, guid);
 				}
+				else{
+					storeHelper.updateStringValue("bie", "tc", LINK_IDENTIFIER_COLUMN_NAME, guid, name);
+				}
+				ctr++;
+				if(pctr++ > 1000){
+					System.out.println("****** guid = " + guid + ", sciName = " + name + ", current count = " + ctr);
+					pctr = 0;
+				}		
 			}
 		}
-	}
-
-	private String getSciName(SuperColumn scol, String guid){
-		String value = null;
-		String colName = null;		
-		String name = null;
-		
-		if(guid == null){
-			return null;
-		}				
-		
-		//scan all columns
-		for (Column col : scol.getColumns()) {
-			try {
-				value = new String(col.getValue(), CHARSET_ENCODING);
-				colName = new String(col.getName(), CHARSET_ENCODING);
-				if("taxonConcept".equalsIgnoreCase(colName)){
-					TaxonConcept taxonConcept = mapper.readValue(value, TaxonConcept.class);
-					name = taxonConcept.getNameString();
-					break;
-				}
-			} catch (Exception e) {
-				logger.error(e);
-			} 	
-		}	
-		return name;
-	}
-		
-	//========= Getter =======
-	public static int getRows() {
-		return ROWS;
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public int getPort() {
-		return port;
-	}
-
-	public String getKeyspace() {
-		return keyspace;
-	}
-
-	public String getColumnFamily() {
-		return columnFamily;
-	}
-	
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	public void setPort(int port) {
-		this.port = port;
-	}	
+		logger.info("total time taken (sec) = " + (System.currentTimeMillis() - start)/1000); 
+	}					
 }

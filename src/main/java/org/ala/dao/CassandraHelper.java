@@ -539,4 +539,18 @@ public class CassandraHelper implements StoreHelper {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public String getStringValue(String table, String columnFamily,
+			String columnName, String guid) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String updateStringValue(String table, String columnFamily,
+			String columnName, String guid, String value) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

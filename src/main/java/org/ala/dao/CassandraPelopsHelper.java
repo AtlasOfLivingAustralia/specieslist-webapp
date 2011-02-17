@@ -162,7 +162,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
      * @see org.ala.dao.StoreHelper#get(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Class)
      */
     @Override
-    public String getString(String table, String columnFamily, String columnName, String guid) throws Exception {
+    public String getStringValue(String table, String columnFamily, String columnName, String guid) throws Exception {
         logger.debug("Pelops get table: " + table + " colFamily: " +columnFamily + " guid: " + guid);
         Selector selector = Pelops.createSelector(pool, keySpace);
         Column col = null;
@@ -185,6 +185,29 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		} else {
 			return null;
 		}
+    }
+ 
+    @Override
+    public String updateStringValue(String table, String columnFamily, String columnName, String guid, String value) throws Exception {
+		Mutator mutator = Pelops.createMutator(pool, keySpace);
+		try{
+			if(value != null && !value.isEmpty()){
+//				String value1 = getStringValue(table, columnFamily, columnName, guid);
+//				if(value1 != null){
+//					// remove old linkIdentifier column
+//			    	mutator.deleteSubColumn(guid, columnFamily, "tc", columnName);
+//			    	mutator.execute(ConsistencyLevel.ONE);
+//				}
+				mutator.writeSubColumn(guid, columnFamily, columnFamily, mutator.newColumn(columnName, value));
+				mutator.execute(ConsistencyLevel.ONE);
+				return value;
+			}
+		}
+		catch(Exception e){
+			logger.info(e);
+			return null;
+		}
+		return null;
     }
     
     /**

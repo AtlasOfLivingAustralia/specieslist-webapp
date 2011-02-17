@@ -467,7 +467,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	}
 
 	public String getLinkIdentifier(String guid) throws Exception {
-		String linkIdentifier = storeHelper.getString(TC_TABLE,
+		String linkIdentifier = storeHelper.getStringValue(TC_TABLE,
 				TC_COL_FAMILY,
 				ColumnType.LINK_IDENTIFIER.getColumnName(), guid);
 		return linkIdentifier;
