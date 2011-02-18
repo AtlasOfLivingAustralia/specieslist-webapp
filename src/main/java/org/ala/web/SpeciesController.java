@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -205,12 +206,21 @@ public class SpeciesController {
         response.getWriter().write(contentAsString);
     }
 
+    /**
+     * Retrieve a list of identifiers for each of the names supplied.
+     * 
+     * @param scientificNames
+     * @param request
+     * @param model
+     * @return
+     * @throws Exception
+     */
 	@RequestMapping(value = "/ws/guid/batch", method = RequestMethod.GET)
 	public @ResponseBody Map<String,List<GuidLookupDTO>> getGuidForNames(
 			@RequestParam("q") List<String> scientificNames,
 			HttpServletRequest request,
             Model model) throws Exception {
-		Map<String,List<GuidLookupDTO>> nameMaps = new HashMap<String,List<GuidLookupDTO>>();
+		Map<String,List<GuidLookupDTO>> nameMaps = new LinkedHashMap<String,List<GuidLookupDTO>>();
 		for(String name: scientificNames){
 			nameMaps.put(name, findGuids(name));
 		}
@@ -675,7 +685,6 @@ public class SpeciesController {
 
 		return searchResults;
 	}
-
 
 	/**
 	 * Utility to pull out common names and remove duplicates, returning a string
