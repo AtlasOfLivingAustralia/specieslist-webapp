@@ -14,6 +14,7 @@
  ***************************************************************************/
 package org.ala.web; 
 
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -94,7 +95,8 @@ public class GeoRegionController {
 			@PathVariable("regionName") String regionName, 
 			Model model) throws Exception {
 		
-		String guid = regionType + "/" +regionName;
+		String guid = URLDecoder.decode(regionType, "utf-8") + "/" +URLDecoder.decode(regionName, "utf-8");
+		
 		logger.debug("Retrieving region with guid: " + guid);
 		ExtendedGeoRegionDTO geoRegion = geoRegionDao.getExtendedGeoRegionByGuid(guid);
 		model.addAttribute("geoRegion", geoRegion.getGeoRegion());

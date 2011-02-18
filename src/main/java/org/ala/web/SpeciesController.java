@@ -14,9 +14,6 @@
  ***************************************************************************/
 package org.ala.web;
 
-import atg.taglib.json.util.JSONObject;
-import au.org.ala.data.model.LinnaeanRankClassification;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.BreakIterator;
@@ -33,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -41,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.ala.dao.DocumentDAO;
 import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.IndexedTypes;
+import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchDTO;
@@ -53,6 +52,7 @@ import org.ala.model.Document;
 import org.ala.model.ExtantStatus;
 import org.ala.model.Habitat;
 import org.ala.model.Image;
+import org.ala.model.InfoSource;
 import org.ala.model.PestStatus;
 import org.ala.model.Reference;
 import org.ala.model.SimpleProperty;
@@ -73,6 +73,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import atg.taglib.json.util.JSONObject;
+import au.org.ala.data.model.LinnaeanRankClassification;
 
 /**
  * Main controller for the BIE site
@@ -81,7 +85,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  *
  * @author "Nick dos Remedios <Nick.dosRemedios@csiro.au>"
  */
-@Controller("speciesController")
+@Controller(value="speciesController")
 public class SpeciesController {
 
 	/** Logger initialisation */
@@ -92,6 +96,8 @@ public class SpeciesController {
 	/** DAO bean for access to repository document table */
 	@Inject
 	private DocumentDAO documentDAO;
+	@Inject
+	protected InfoSourceDAO infoSourceDAO;
 	/** DAO bean for SOLR search queries */
 	@Inject
 	private FulltextSearchDao searchDao;
@@ -113,15 +119,34 @@ public class SpeciesController {
     protected Set<String> lowPrioritySources = new java.util.HashSet<String>();
     /** The URI for JSON data for static occurrence map */
     private final String SPATIAL_JSON_URL = "http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=";
+    
+    public static final String COL_HOME = "http://www.catalogueoflife.org/";
+    public static final String APNI_HOME = "http://www.anbg.gov.au/apni/";
+    public static final String APC_HOME = "http://www.anbg.gov.au/chah/apc/";
+    public static final String AFD_HOME = "http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/home";
+
     /** Max width to Truncate text to */
     private int TEXT_MAX_WIDTH = 200;
-
+    
+    InfoSource afd;
+    InfoSource apni;
+    InfoSource col;
+    
+    
     public SpeciesController(){
         nonTruncatedSources.add("http://www.environment.gov.au/biodiversity/abrs/online-resources/flora/main/index.html");
         lowPrioritySources.add("http://www.ozanimals.com/");
         lowPrioritySources.add("http://en.wikipedia.org/");
         //lowPrioritySources.add("http://plantnet.rbgsyd.nsw.gov.au/floraonline.htm");
     }
+    
+    @PostConstruct
+    public void init(){
+		afd = infoSourceDAO.getByUri(AFD_HOME);
+		apni = infoSourceDAO.getByUri(APNI_HOME);
+		col = infoSourceDAO.getByUri(COL_HOME);
+    }
+    
 	/**
 	 * Custom handler for the welcome view.
 	 * <p>
@@ -180,6 +205,82 @@ public class SpeciesController {
         response.getWriter().write(contentAsString);
     }
 
+	@RequestMapping(value = "/ws/guid/batch", method = RequestMethod.GET)
+	public @ResponseBody Map<String,List<GuidLookupDTO>> getGuidForNames(
+			@RequestParam("q") List<String> scientificNames,
+			HttpServletRequest request,
+            Model model) throws Exception {
+		Map<String,List<GuidLookupDTO>> nameMaps = new HashMap<String,List<GuidLookupDTO>>();
+		for(String name: scientificNames){
+			nameMaps.put(name, findGuids(name));
+		}
+		return nameMaps;
+	}
+    
+	/**
+	 * Map to a /{guid} URI.
+	 * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
+	 * 
+	 * @param guid
+	 * @param model
+	 * @return view name
+	 * @throws Exception
+	 */ 
+	@RequestMapping(value = "/ws/guid/{scientificName}", method = RequestMethod.GET)
+	public @ResponseBody List<GuidLookupDTO> getGuidForName(@PathVariable("scientificName") String scientificName,HttpServletRequest request,
+            Model model) throws Exception {
+    	return findGuids(scientificName);
+	}
+
+	private List<GuidLookupDTO> findGuids(String scientificName)
+			throws Exception {
+		String lsid = getLsidByNameAndKingdom(scientificName);
+    	List<GuidLookupDTO> guids = new ArrayList<GuidLookupDTO>();
+    	
+    	if(lsid != null && lsid.length() > 0){
+        	ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(lsid);
+        	if (etc.getTaxonConcept() != null && etc.getTaxonConcept().getGuid() != null) {
+        		
+        		//FIXME - this should come straight from BIE
+        		TaxonConcept tc = etc.getTaxonConcept();
+        		
+        		GuidLookupDTO preferredGuid = new GuidLookupDTO();
+        		preferredGuid.setIdentifier(tc.getGuid());
+        		preferredGuid.setInfoSourceId(tc.getInfoSourceId());
+        		preferredGuid.setInfoSourceURL(tc.getInfoSourceURL());
+        		preferredGuid.setInfoSourceName(tc.getInfoSourceName());
+        		preferredGuid.setName(tc.getNameString());
+        		guids.add(preferredGuid);
+        		
+        		//add identifiers
+        		for(String identifier: etc.getIdentifiers()){
+            		GuidLookupDTO g = new GuidLookupDTO();
+            		g.setIdentifier(identifier);
+            		g.setName(tc.getNameString());
+            		//FIXME to be removed
+            		if(identifier.contains(":apni.")){
+                		g.setInfoSourceId(Integer.toString(apni.getId()));
+                		g.setInfoSourceURL(apni.getWebsiteUrl());
+                		g.setInfoSourceName(apni.getName());
+                		guids.add(g);
+            		} else if(identifier.contains(":afd.")){
+                		g.setInfoSourceId(Integer.toString(afd.getId()));
+                		g.setInfoSourceURL(afd.getWebsiteUrl());
+                		g.setInfoSourceName(afd.getName());
+                		guids.add(g);
+            		} else if(identifier.contains(":catalogueoflife.")){
+                		g.setInfoSourceId(Integer.toString(col.getId()));
+                		g.setInfoSourceURL(col.getWebsiteUrl());
+                		g.setInfoSourceName(col.getName());
+                		guids.add(g);
+            		}
+        		}
+        	}
+    	}
+    	return guids;
+	}
+    
+    
 	/**
 	 * Map to a /{guid} URI.
 	 * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
@@ -199,7 +300,7 @@ public class SpeciesController {
 		
 		logger.debug("Displaying page for: " + guid +" .....");
 		
-        ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);        
+        ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
         //if etc is empty then guid == sciName and kingkom?
         if(etc == null || etc.getTaxonConcept() == null || etc.getTaxonConcept().getGuid() == null){
         	String lsid = getLsidByNameAndKingdom(guid);
@@ -377,6 +478,7 @@ public class SpeciesController {
         	SearchTaxonConceptDTO st = (SearchTaxonConceptDTO) stcs.getResults().get(0);
         	model.addAttribute("taxonConcept", repoUrlUtils.fixRepoUrls(st));
         }
+		
 		return stcs;
 	}
 	
@@ -411,7 +513,21 @@ public class SpeciesController {
 	@RequestMapping(value = {"/species/{guid}.json","/species/{guid}.xml"}, method = RequestMethod.GET)
 	public ExtendedTaxonConceptDTO showSpeciesJson(@PathVariable("guid") String guid) throws Exception {
 		logger.info("Retrieving concept with guid: "+guid);
-		return repoUrlUtils.fixRepoUrls(taxonConceptDao.getExtendedTaxonConceptByGuid(guid));
+		return findConceptByNameOrGuid(guid);
+	}
+
+	private ExtendedTaxonConceptDTO findConceptByNameOrGuid(String guid) throws Exception {
+		ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
+		if(etc==null || etc.getTaxonConcept()==null || etc.getTaxonConcept().getNameString()==null){
+        	String lsid = getLsidByNameAndKingdom(guid);
+        	if(lsid != null && lsid.length() > 0){
+	        	etc = taxonConceptDao.getExtendedTaxonConceptByGuid(lsid);
+	        	return repoUrlUtils.fixRepoUrls(etc);
+        	}
+		} else {
+			return repoUrlUtils.fixRepoUrls(taxonConceptDao.getExtendedTaxonConceptByGuid(guid));
+		}
+		return null;
 	}
 
 	/**
@@ -426,7 +542,7 @@ public class SpeciesController {
 		Document doc = documentDAO.getById(documentId);
 
 		if (doc != null) {
-			// augment data with title from reading dc file
+		    // augment data with title from reading dc file
 			String fileName = doc.getFilePath()+"/dc";
 			RepositoryFileUtils repoUtils = new RepositoryFileUtils();
 			List<String[]> lines = repoUtils.readRepositoryFile(fileName);
@@ -1068,6 +1184,12 @@ public class SpeciesController {
             }
             return value;
         }
-
     }
+
+	/**
+	 * @param infoSourceDAO the infoSourceDAO to set
+	 */
+	public void setInfoSourceDAO(InfoSourceDAO infoSourceDAO) {
+		this.infoSourceDAO = infoSourceDAO;
+	}
 }
