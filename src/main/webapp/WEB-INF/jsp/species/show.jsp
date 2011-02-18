@@ -893,14 +893,14 @@ include file="/common/taglibs.jsp" %>
                             <c:choose><%-- Note: check for rankId is here due to some taxonHierarchy including taxa at higher rank than requested taxon (bug) --%>
                                 <c:when test="${taxon.rankId <= extendedTaxonConcept.taxonConcept.rankID && taxon.guid != extendedTaxonConcept.taxonConcept.guid}">
                                     <ul><li>${taxon.rank}: <a href="<c:url value='/species/${taxon.guid}#classification'/>" title="${taxon.rank}">
-                                        <alatag:formatSciName name="${taxon.name}" rankId="${taxon.rankId}"/>
+                                        <alatag:formatSciName name="${not empty taxon.nameComplete ? taxon.nameComplete : taxon.name}" rankId="${taxon.rankId}"/>
                                         <c:if test="${not empty taxon.commonNameSingle && taxon.guid == extendedTaxonConcept.taxonConcept.guid}">
                                             : ${taxon.commonNameSingle}
                                         </c:if>
                                     </a></li>
                                 </c:when>
                                 <c:when test="${taxon.guid == extendedTaxonConcept.taxonConcept.guid}">
-                                    <ul><li id="currentTaxonConcept">${taxon.rank}: <span><alatag:formatSciName name="${taxon.name}" rankId="${taxon.rankId}"/>
+                                    <ul><li id="currentTaxonConcept">${taxon.rank}: <span><alatag:formatSciName name="${not empty taxon.nameComplete ? taxon.nameComplete : taxon.name}" rankId="${taxon.rankId}"/>
                                     <c:if test="${not empty taxon.commonNameSingle && taxon.guid == extendedTaxonConcept.taxonConcept.guid}">
                                             : ${taxon.commonNameSingle}
                                         </c:if></span>
@@ -916,7 +916,7 @@ include file="/common/taglibs.jsp" %>
                             <c:forEach items="${childConcepts}" var="child">
                                 <li class="${child.isAustralian}">${child.rank}:
                                     <c:set var="taxonLabel">
-                                        <alatag:formatSciName name="${child.name}" rankId="${child.rankId}"/>
+                                        <alatag:formatSciName name="${not empty child.nameComplete ? child.nameComplete : child.name}" rankId="${child.rankId}"/>
                                         <c:if test="${not empty child.commonNameSingle}">: ${child.commonNameSingle}</c:if>
                                     </c:set>
                                     <a href="<c:url value='/species/${child.guid}#classification'/>">${fn:trim(taxonLabel)}</a>&nbsp;
