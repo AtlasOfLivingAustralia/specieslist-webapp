@@ -1257,10 +1257,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			guid = findLsidByName(genus + " " + specificEpithet,
 					classification, "species");
 		}
-
-                //is statsOnly we can return whether or not the scientific name was found...
-                if(statsOnly)
-                    return guid != null;
+		
+		//is statsOnly we can return whether or not the scientific name was found...
+		if(statsOnly)
+		    return guid != null;
 
 		if (guid != null) {
 
@@ -1290,8 +1290,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						commonName.setIdentifier(dcIdentifier);
 						addCommonName(guid, commonName);
 
-					} else if (triple.predicate
-							.endsWith("hasConservationStatus")) {
+					} else if (triple.predicate.endsWith("hasConservationStatus")) {
 
 						// dont add conservation status to higher ranks than
 						// species
@@ -1359,10 +1358,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						SimpleProperty simpleProperty = new SimpleProperty();
 						simpleProperty.setName(triple.predicate);
 						simpleProperty.setValue(triple.object);
-						simpleProperty.setInfoSourceId(Integer
-								.toString(document.getInfoSourceId()));
-						simpleProperty.setDocumentId(Integer.toString(document
-								.getId()));
+						simpleProperty.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
+						simpleProperty.setDocumentId(Integer.toString(document.getId()));
 						simpleProperty.setInfoSourceName(dcPublisher);
 						simpleProperty.setInfoSourceURL(dcSource);
 						simpleProperty.setTitle(dcTitle);
