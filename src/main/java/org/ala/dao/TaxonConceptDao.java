@@ -433,6 +433,15 @@ public interface TaxonConceptDao {
 	 * @throws Exception
 	 */
 	ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid) throws Exception;
+	
+	/**
+	 * Retrieve the entire profile data for a taxon concept by guid.
+	 *
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid, boolean checkedPrefered) throws Exception;
 
 	/**
 	 * Retrieve the Taxon Name for the supplied GUID.

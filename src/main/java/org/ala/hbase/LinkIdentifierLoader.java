@@ -84,7 +84,7 @@ public class LinkIdentifierLoader {
 
 		while ((guidAsBytes = scanner.getNextGuid()) != null) {
 			String guid = new String(guidAsBytes);
-			ExtendedTaxonConceptDTO taxonConcept = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
+			ExtendedTaxonConceptDTO taxonConcept = taxonConceptDao.getExtendedTaxonConceptByGuid(guid, false);
 			if(taxonConcept != null && taxonConcept.getTaxonConcept() != null){
 				String name = taxonConcept.getTaxonConcept().getNameString();
 				

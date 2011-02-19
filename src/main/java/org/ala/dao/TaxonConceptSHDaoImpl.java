@@ -1787,15 +1787,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						synonymDoc.addField("id", synonym.getGuid());
 						synonymDoc.addField("guid", taxonConcept.getGuid());
 						synonymDoc.addField("idxtype", IndexedTypes.TAXON);
-						addScientificNameToIndex(synonymDoc,
-								synonym.getNameString(), null);
-						synonymDoc.addField("acceptedConceptName",
-								taxonConcept.getNameString());
+						addScientificNameToIndex(synonymDoc,synonym.getNameString(), null);
+						synonymDoc.addField("acceptedConceptName",taxonConcept.getNameString());
 						if (!commonNames.isEmpty()) {
-							synonymDoc.addField("commonNameSort", commonNames
-									.get(0).getNameString());
-							synonymDoc.addField("commonNameDisplay",
-									StringUtils.join(commonNameSet, ", "));
+							synonymDoc.addField("commonNameSort", commonNames.get(0).getNameString());
+							synonymDoc.addField("commonNameDisplay",StringUtils.join(commonNameSet, ", "));
 						}
 						addRankToIndex(synonymDoc, taxonConcept.getRankString());
 						// add the synonym as a separate document
@@ -1838,8 +1834,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					if (image.getRepoLocation() != null) {
 						doc.addField("image", image.getRepoLocation());
 						// Change to adding this in earlier
-						String thumbnail = image.getRepoLocation().replace(
-								"raw", "thumbnail");
+						String thumbnail = image.getRepoLocation().replace("raw", "thumbnail");
 						doc.addField("thumbnail", thumbnail);
 					} else {
 						logger.error("Error adding image to concept: " + image);
@@ -2183,14 +2178,24 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid)
 			throws Exception {
+		return getExtendedTaxonConceptByGuid(guid, true);
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#getExtendedTaxonConceptByGuid(java.lang.String, boolean)
+	 */
+	public ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid, boolean checkPreferred)
+			throws Exception {
 		logger.debug("Retrieving concept for guid: " + guid);
-		guid = getPreferredGuid(guid);
+		if(checkPreferred){
+			guid = getPreferredGuid(guid);
+		}
 		Map<String, Object> map = storeHelper.getSubColumnsByGuid(TC_COL_FAMILY, TC_COL_FAMILY, guid);
 		ExtendedTaxonConceptDTO etc = createExtendedDTO(map);
 		logger.debug("Returned concept for guid: " + guid);
 		return etc;
 	}
-
+	
 	/**
 	 * 
 	 * @param etc
