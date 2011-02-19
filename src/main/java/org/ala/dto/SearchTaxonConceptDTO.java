@@ -50,6 +50,7 @@ public class SearchTaxonConceptDTO extends SearchDTO implements Comparable<Searc
     protected Integer right;
     protected String kingdom;
     protected String author;
+    protected String linkIdentifier;
 
 	/**
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
@@ -431,4 +432,18 @@ public class SearchTaxonConceptDTO extends SearchDTO implements Comparable<Searc
     public void setIsAustralian(String australian) {
         this.isAustralian = australian;
     }
+
+	/**
+	 * @return the linkIdentifier
+	 */
+	public String getLinkIdentifier() {
+		return linkIdentifier;
+	}
+
+	/**
+	 * @param linkIdentifier the linkIdentifier to set
+	 */
+	public void setLinkIdentifier(String linkIdentifier) {
+		this.linkIdentifier = linkIdentifier;
+	}
 }

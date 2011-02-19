@@ -24,6 +24,9 @@ import javax.inject.Inject;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import au.org.ala.checklist.lucene.CBIndexSearch;
+import au.org.ala.checklist.lucene.HomonymException;
+
 /**
  * LinkIdentifierLoader.
  * 
@@ -31,14 +34,10 @@ import org.springframework.stereotype.Component;
  * 
  * History:
  * init version: 14 Sept 2011.
- * 
- * 
- * 
  */
 @Component("linkIdentifierLoader")
 public class LinkIdentifierLoader {
 	protected static Logger logger  = Logger.getLogger(LinkIdentifierLoader.class);	
-	public static final String LINK_IDENTIFIER_COLUMN_NAME = "linkIdentifier";
 			
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
@@ -46,13 +45,8 @@ public class LinkIdentifierLoader {
 	@Inject
 	protected StoreHelper storeHelper;
 	
-	/**
-	 * @param storeHelper
-	 *            the storeHelper to set
-	 */
-	public void setStoreHelper(StoreHelper storeHelper) {
-		this.storeHelper = storeHelper;
-	}
+	@Inject
+	protected CBIndexSearch indexSearch;
 	
 	/**
 	 * Usage: outputFileName [option: cassandraAddress cassandraPort]
@@ -61,11 +55,9 @@ public class LinkIdentifierLoader {
 	 */
 	public static void main(String[] args) throws Exception {
 		ApplicationContext context = SpringUtils.getContext();
-		LinkIdentifierLoader loader = context.getBean(LinkIdentifierLoader.class);		
+		LinkIdentifierLoader loader = context.getBean(LinkIdentifierLoader.class);
 		
-						
-		// do sitemap
-		try{
+		try {
 			loader.doFullScan();
 		}
 		catch(Exception e){			
@@ -92,19 +84,22 @@ public class LinkIdentifierLoader {
 
 		while ((guidAsBytes = scanner.getNextGuid()) != null) {
 			String guid = new String(guidAsBytes);
-			if("103068681".equals(guid.trim())){
-				System.out.println("hello");
-			}
-			ExtendedTaxonConceptDTO taxonConcept = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);	
-			if(taxonConcept != null && taxonConcept.getTaxonConcept() != null){				
+			ExtendedTaxonConceptDTO taxonConcept = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
+			if(taxonConcept != null && taxonConcept.getTaxonConcept() != null){
 				String name = taxonConcept.getTaxonConcept().getNameString();
-				String lsid = taxonConceptDao.findLsidByName(name);
-				if(lsid == null){
-					storeHelper.updateStringValue("bie", "tc", LINK_IDENTIFIER_COLUMN_NAME, guid, guid);
+				
+				try {
+					String lsid = indexSearch.searchForLSID(name);
+					if(lsid == null){
+						taxonConceptDao.setLinkIdentifier(guid, guid);
+					} else {
+						taxonConceptDao.setLinkIdentifier(guid, name);
+					}
+				} catch(HomonymException e){
+					//expected exception
+					taxonConceptDao.setLinkIdentifier(guid, guid);
 				}
-				else{
-					storeHelper.updateStringValue("bie", "tc", LINK_IDENTIFIER_COLUMN_NAME, guid, name);
-				}
+				
 				ctr++;
 				if(pctr++ > 1000){
 					System.out.println("****** guid = " + guid + ", sciName = " + name + ", current count = " + ctr);
@@ -113,5 +108,12 @@ public class LinkIdentifierLoader {
 			}
 		}
 		logger.info("total time taken (sec) = " + ((System.currentTimeMillis() - start)/1000)); 
-	}					
+	}
+	
+	/**
+	 * @param storeHelper the storeHelper to set
+	 */
+	public void setStoreHelper(StoreHelper storeHelper) {
+		this.storeHelper = storeHelper;
+	}
 }

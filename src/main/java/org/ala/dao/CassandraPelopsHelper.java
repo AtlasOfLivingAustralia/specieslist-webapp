@@ -172,15 +172,12 @@ public class CassandraPelopsHelper implements StoreHelper  {
         catch(Exception e){
             //expected behaviour. current thrift API doesnt seem
             //to support a retrieve null getter
-        	if(logger.isTraceEnabled()){
-        		logger.trace(e.getMessage(), e);
-        	}
+        	logger.error(e.getMessage(), e);
         }
 
 		//read the existing value
 		if(col!=null){
 			String value = new String(col.value,charsetEncoding);
-//			logger.info(value);
 			return value;
 		} else {
 			return null;
@@ -188,7 +185,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
     }
  
     @Override
-    public String updateStringValue(String table, String columnFamily, String columnName, String guid, String value) throws Exception {
+    public boolean updateStringValue(String table, String columnFamily, String columnName, String guid, String value) throws Exception {
 		Mutator mutator = Pelops.createMutator(pool, keySpace);
 		try{
 			if(value != null && !value.isEmpty()){
@@ -200,14 +197,14 @@ public class CassandraPelopsHelper implements StoreHelper  {
 //				}
 				mutator.writeSubColumn(guid, columnFamily, columnFamily, mutator.newColumn(columnName, value));
 				mutator.execute(ConsistencyLevel.ONE);
-				return value;
+				return true;
 			}
 		}
 		catch(Exception e){
-			logger.info(e);
-			return null;
+			logger.error(e.getMessage(), e);
+			return false;
 		}
-		return null;
+		return false;
     }
     
     /**

@@ -125,9 +125,9 @@ public class HBaseHelper implements StoreHelper {
 	}
 
 	@Override
-	public String updateStringValue(String table, String columnFamily,
+	public boolean updateStringValue(String table, String columnFamily,
 			String columnName, String guid, String value) throws Exception {
 		// TODO Auto-generated method stub
-		return null;
+		return false;
 	}	
 }

@@ -74,6 +74,26 @@ public interface TaxonConceptDao {
 	boolean addIdentifier(String guid, String alternativeIdentifier) throws Exception;
 	
 	/**
+	 * Retrieve the link identifier value for this concept.
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	public String getLinkIdentifier(String guid) throws Exception;
+	
+	/**
+	 * Set the link identifer for this taxon concept. A link identifier is a value that allows
+	 * unique linking. This is primarily to enable human readable URLs. Hence an example of a link identifier
+	 * would be "Macropus rufus" if this string uniquely identifies the concept within the system.
+	 * If it does not, then we roll back to using the GUID. 
+	 * 
+	 * @param guid
+	 * @param linkIdentifier
+	 * @throws Exception
+	 */
+	boolean setLinkIdentifier(String guid, String linkIdentifier) throws Exception;
+	
+	/**
 	 * Retrieve the images associated with this taxon concept.
 	 *
 	 * @param guid
@@ -597,7 +617,7 @@ public interface TaxonConceptDao {
 	 * 
 	 * @param reference
 	 */
-	abstract boolean addReferences(String guid, List<Reference> references) throws Exception;
+	boolean addReferences(String guid, List<Reference> references) throws Exception;
 
     /**
      * Adds the "earliest" reference to this taxon.
@@ -779,5 +799,5 @@ public interface TaxonConceptDao {
      * @param name
      * @return
      */	
-	public String findLSIDByCommonName(String commonName);
+	String findLSIDByCommonName(String commonName);
 }

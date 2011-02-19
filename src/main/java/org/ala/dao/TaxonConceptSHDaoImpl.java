@@ -2262,7 +2262,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				ColumnType.VERNACULAR_COL,
 				ColumnType.HABITAT_COL,
 				ColumnType.CONSERVATION_STATUS_COL,
-                                ColumnType.SENSITIVE_STATUS_COL,
+				ColumnType.SENSITIVE_STATUS_COL,
 		};
 		
 		Map<String, Map<String,Object>> rowMaps = storeHelper.getPageOfSubColumns(TC_COL_FAMILY, TC_COL_FAMILY, columns, startGuid, pageSize);
@@ -2276,8 +2276,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			if(tc!=null){
 				spDTO.setGuid(tc.getGuid());
 				spDTO.setScientificName(tc.getNameString());
-                                if(tc.getLeft() != null) spDTO.setLeft(tc.getLeft().toString());
-                                if(tc.getRight() != null) spDTO.setRight(tc.getRight().toString());
+				if(tc.getLeft() != null) spDTO.setLeft(tc.getLeft().toString());
+				if(tc.getRight() != null) spDTO.setRight(tc.getRight().toString());
 				if(!cns.isEmpty()){
 					spDTO.setCommonName(cns.get(0).getNameString());
 				}
@@ -2286,14 +2286,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						spDTO.getHabitats().add(habitat.getStatusAsString());
 					}
 				}
-                                for(ConservationStatus cs: cons){
-                                    //Do not add the international status
-                                    if(cs.getRegion() != null){
-                                        //TODO work out the best way to make conservation status available...
-                                        spDTO.getConservationStatus().add(cs);
-                                    }
-                                }
-                                spDTO.setSensitiveStatus((List<SensitiveStatus>)getColumnValue(row, ColumnType.SENSITIVE_STATUS_COL));
+				for(ConservationStatus cs: cons){
+				    //Do not add the international status
+				    if(cs.getRegion() != null){
+				        //TODO work out the best way to make conservation status available...
+				        spDTO.getConservationStatus().add(cs);
+				    }
+				}
+				spDTO.setSensitiveStatus((List<SensitiveStatus>)getColumnValue(row, ColumnType.SENSITIVE_STATUS_COL));
 				dtoList.add(spDTO);
 			}
 		}
@@ -2306,10 +2306,25 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#addSensitiveStatus(java.lang.String, org.ala.model.SensitiveStatus)
 	 */
 	public void addSensitiveStatus(String guid, SensitiveStatus ss) throws Exception {
-		
 		storeHelper.put(TC_TABLE, TC_COL_FAMILY,
 				ColumnType.SENSITIVE_STATUS_COL.getColumnName(),
 				guid, ss);
+	}
+
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#setLinkIdentifier(java.lang.String, java.lang.String)
+	 */
+	public boolean setLinkIdentifier(String guid, String linkIdentifier) throws Exception {
+		return storeHelper.updateStringValue(TC_TABLE, TC_COL_FAMILY, 
+				ColumnType.LINK_IDENTIFIER.getColumnName(), guid, linkIdentifier);
+	}
+	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#setLinkIdentifier(java.lang.String, java.lang.String)
+	 */
+	public String getLinkIdentifier(String guid, String linkIdentifier) throws Exception {
+		return storeHelper.getStringValue(TC_TABLE, TC_COL_FAMILY, 
+				ColumnType.LINK_IDENTIFIER.getColumnName(), guid);
 	}
 	
 	/**
@@ -2322,6 +2337,19 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		if (object != null) {
 			set.add(object);
 		}
+	}
+	
+	/**
+     * Returns the LSID for the CB name usage for the supplied common name.
+     *
+     * When the common name returns more than 1 hit a result is only returned if all the scientific names match
+     * @see CBIndexSearch.getLSIDForUniqueCommonName
+     * 
+     * @param name
+     * @return
+     */	
+	public String findLSIDByCommonName(String commonName){
+		return cbIdxSearcher.searchForLSIDCommonName(commonName);
 	}
 
 	/**
@@ -2345,18 +2373,5 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	public void setSolrUtils(SolrUtils solrUtils) {
 		this.solrUtils = solrUtils;
-	}
-	
-	/**
-     * Returns the LSID for the CB name usage for the supplied common name.
-     *
-     * When the common name returns more than 1 hit a result is only returned if all the scientific names match
-     * @see CBIndexSearch.getLSIDForUniqueCommonName
-     * 
-     * @param name
-     * @return
-     */	
-	public String findLSIDByCommonName(String commonName){
-		return cbIdxSearcher.searchForLSIDCommonName(commonName);
 	}
 }
