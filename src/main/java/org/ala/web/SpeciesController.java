@@ -64,8 +64,6 @@ import org.ala.util.MimeType;
 import org.ala.util.RepositoryFileUtils;
 import org.ala.util.StatusType;
 import org.ala.util.WebUtils;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -76,7 +74,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import atg.taglib.json.util.JSONObject;
 import au.org.ala.data.model.LinnaeanRankClassification;
 
 /**
@@ -251,7 +248,9 @@ public class SpeciesController {
         	ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(lsid);
         	if (etc.getTaxonConcept() != null && etc.getTaxonConcept().getGuid() != null) {
         		
-        		//FIXME - this should come straight from BIE
+        		//FIXME - this should come straight from BIE with a the attribution
+        		//coming from the BIE. The identifier should be a separate model object
+        		//which extends AttributableObject
         		TaxonConcept tc = etc.getTaxonConcept();
         		
         		GuidLookupDTO preferredGuid = new GuidLookupDTO();
@@ -289,7 +288,6 @@ public class SpeciesController {
     	}
     	return guids;
 	}
-    
     
 	/**
 	 * Map to a /{guid} URI.
@@ -346,8 +344,8 @@ public class SpeciesController {
         model.addAttribute("authorship", sciAndAuthor[1]);
         
         //common name with many infosources
-        List<CommonName> names = fixCommonNames(etc.getCommonNames()); // remove duplicate names
-        Map<String, List<CommonName>> namesMap = sortCommonNameSources(names);
+        List<CommonName> names = PageUtils.fixCommonNames(etc.getCommonNames()); // remove duplicate names
+        Map<String, List<CommonName>> namesMap = PageUtils.sortCommonNameSources(names);
         String[] keyArray = namesMap.keySet().toArray(new String[0]);
         Arrays.sort(keyArray, String.CASE_INSENSITIVE_ORDER);
         model.addAttribute("sortCommonNameSources", namesMap);
@@ -392,7 +390,7 @@ public class SpeciesController {
         // add map for conservation status regions to sections in the WP page describing them (http://test.ala.org.au/threatened-species-codes/#International)
         model.addAttribute("statusRegionMap", statusRegionMap());
         // get static occurrence map from spatial portal via JSON lookup
-        model.addAttribute("spatialPortalMap", getSpatialPortalMap(etc.getTaxonConcept().getGuid()));
+        model.addAttribute("spatialPortalMap", PageUtils.getSpatialPortalMap(etc.getTaxonConcept().getGuid()));
         logger.debug("Returning page view for: " + guid +" .....");
 		return SPECIES_SHOW;
 	}
@@ -402,7 +400,7 @@ public class SpeciesController {
 		
 		int i = parameter.indexOf('(');
 		if(i >= 0){
-			name = parameter.substring(0, i);			
+			name = parameter.substring(0, i);
 		}
 		else{
 			name = parameter;
@@ -822,79 +820,6 @@ public class SpeciesController {
         this.lowPrioritySources = lowPrioritySources;
     }
 
-    /**
-     * Fix for some info sources where multiple common names are produced.
-     * Remove duplicates but assumes input List is ordered so that dupes are sequential.
-     * 
-     * @param commonNames
-     * @return commonNames
-     */
-    private List<CommonName> fixCommonNames(List<CommonName> commonNames) {
-        List<CommonName> newNames = new ArrayList<CommonName>();
-        if(commonNames!=null && commonNames.size()>0){
-        	newNames.add(commonNames.get(0));
-        }
-        
-        for (int i = 1; i < commonNames.size(); i++) {
-            CommonName thisCn = commonNames.get(i);
-            
-            String commonName1 = StringUtils.trimToNull(thisCn.getNameString());
-            String infosource1 = StringUtils.trimToNull(thisCn.getInfoSourceName());
-            
-            String commonName2 = StringUtils.trimToNull(commonNames.get(i-1).getNameString());
-            String infosource2 = StringUtils.trimToNull(commonNames.get(i-1).getInfoSourceName());
-            
-            if (commonName1!=null && commonName1.equalsIgnoreCase(commonName2) 
-            		&& infosource1!=null && infosource1.equalsIgnoreCase(infosource2)) {
-                logger.debug("Duplicate commonNames detected: "+thisCn);
-            } else {
-                newNames.add(commonNames.get(i));
-            }
-        }        
-        return newNames;
-    }
-
-    /**
-     * key-pair-value for commonNames & list of infosource
-     * 
-     * @param names
-     * @return
-     */
-    private Map<String, List<CommonName>> sortCommonNameSources(List<CommonName> names){
-    	String pattern = "[^a-zA-Z0-9]";
-    	CommonName prevName = null;
-    	Map<String, List<CommonName>> map = new Hashtable<String, List<CommonName>>();
-    	List<CommonName> list = new ArrayList<CommonName>();
-    	
-    	//made a copy of names, so sorting doesn't effect original list order ....
-    	List<CommonName> newArrayList = (List<CommonName>)((ArrayList<CommonName>)names).clone();
-    	Collections.sort(newArrayList, new CommonNameComparator());
-    	Iterator<CommonName> it = newArrayList.iterator();
-    	if(it.hasNext()){
-    		prevName = it.next();
-    		list.add(prevName);
-    	}
-    	
-    	// group the name with infosource, compare the name with alphabet & number only.
-    	while(it.hasNext()){
-    		CommonName curName = it.next();
-    		if(prevName.getNameString().replaceAll(pattern, "").equalsIgnoreCase(
-    				curName.getNameString().replaceAll(pattern, ""))){
-    			list.add(curName);
-    		}
-    		else{
-    			map.put(prevName.getNameString(), list);
-    			
-    			list = new ArrayList<CommonName>();
-    			list.add(curName);
-    			prevName = curName;    			
-    		}
-    	}
-    	if(prevName != null){
-    		map.put(prevName.getNameString(), list);
-    	}
-    	return map;
-    }
 
     /**
      * Create a list of unique infoSources to display on Overview page.
@@ -1064,49 +989,7 @@ public class SpeciesController {
         return regions;
     }
 
-    /**
-     * Perform JSON service lookup on Spatial Portal for occurrence map Url, etc
-     * for a given GUID.
-     *
-     * @param guid
-     * @return
-     */
-    private Map<String, String> getSpatialPortalMap(String guid) {
-        Map<String, String> mapData = new HashMap<String, String>();
-        try {
-            String jsonString = getUrlContentAsJsonString(SPATIAL_JSON_URL + guid);
-            JSONObject jsonObj = new JSONObject(jsonString);
-            String mapUrl = jsonObj.getString("mapUrl");
-            String legendUrl = jsonObj.getString("legendUrl");
-            String type = jsonObj.getString("type");
-            mapData.put("mapUrl", mapUrl);
-            mapData.put("legendUrl", legendUrl);
-            mapData.put("type", type);
-        } catch (Exception ex) {
-            logger.error("JSON Lookup for Spatial Portal distro map failed. "+ex.getMessage(), ex);
-            mapData.put("error", ex.getLocalizedMessage());
-        }
-        return mapData;
-    }
 
-
-    /**
-     * Retrieve content as String. With HTTP header accept: "application/json".
-     *
-     * @param url
-     * @return
-     * @throws Exception
-     */
-    public String getUrlContentAsJsonString(String url) throws Exception {
-        HttpClient httpClient = new HttpClient();
-        httpClient.getParams().setSoTimeout(1500);
-        GetMethod gm = new GetMethod(url);
-        gm.setRequestHeader("accept", "application/json"); // needed for spatial portal JSON web services
-        gm.setFollowRedirects(true);
-        httpClient.executeMethod(gm);
-        String content = gm.getResponseBodyAsString();
-        return content;
-    }
 
     /**
      * Extract the Image repository Id from the Image and set the repoId field
@@ -1160,13 +1043,6 @@ public class SpeciesController {
     	}
  	}
 
-    protected class CommonNameComparator implements Comparator<CommonName>{
-    	@Override
-        public int compare(CommonName o1, CommonName o2) {
-    		return o1.getNameString().compareToIgnoreCase(o2.getNameString());
-    	}
-    }
-    
     /**
      * Comparator to order the Simple Properties based on their natural ordering
      * and low and high priority info sources.

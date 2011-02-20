@@ -40,8 +40,13 @@
       <required>false</required>
       <rtexprvalue>true</rtexprvalue>
     </attribute>
+    <attribute>
+      <description>The search path to use</description>
+      <name>searchPath</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
   </tag>
-
   <tag>
     <description>Footer Menu Tag</description>
     <name>footerMenu</name>

@@ -14,7 +14,9 @@
         <pattern>/map/sld*</pattern>
         <pattern>/regions/taxa*</pattern>
     </excludes>
-
+    <decorator name="mainFluid" page="mainFluid.jsp">
+        <pattern>/images</pattern>
+    </decorator>
     <decorator name="main" page="main.jsp">
         <pattern>/*</pattern>
     </decorator>

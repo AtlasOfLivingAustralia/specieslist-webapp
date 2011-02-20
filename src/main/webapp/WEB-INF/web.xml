@@ -42,14 +42,14 @@
     <context-param>
         <!-- Parameter used by CAS filters -->
         <param-name>serverName</param-name>
-        <param-value>http://localhost:9999</param-value>
+        <param-value>http://localhost:8080/bie-webapp</param-value>
     </context-param>
 
     <!-- CAS Authentication related properties -->
     <context-param>
         <!-- Parameter used by CAS filters -->
         <param-name>searchServerName</param-name>
-        <param-value>http://localhost:9999/bie-webapp/</param-value>
+        <param-value>http://localhost:8080/bie-webapp</param-value>
     </context-param>
 
     <context-param>
@@ -81,7 +81,7 @@
 
     <context-param>
         <param-name>uriFilterPattern</param-name>
-        <param-value>/search, /species/search, /species/urn:lsid.+, /species/\d+, /share/, /rankTaxonImageWithUser</param-value>
+        <param-value> /share/, /rankTaxonImageWithUser</param-value>
     </context-param>
 
     <!-- CAS Authentication Service filters -->
