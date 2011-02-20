@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -108,6 +109,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 	/** FIXME To be moved to somewhere more maintainable */
 	protected static List<String> regionList = null;
+	protected static Set<String> fishTaxa = null;
 	static {
 		regionList = new ArrayList<String>();
 		regionList.add("New South Wales");
@@ -119,6 +121,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		regionList.add("Australian Capital Territory");
 		regionList.add("Western Australia");
 		regionList.add("Australia");
+		
+		fishTaxa = new HashSet<String>();
+		fishTaxa.add("Myxini".toLowerCase());
+		fishTaxa.add("Chondrichthyes".toLowerCase());
+		fishTaxa.add("Sarcopterygii".toLowerCase());
+		fishTaxa.add("Actinopterygii".toLowerCase());
 	}
 
 	/** The location for the lucene index */
@@ -1824,14 +1832,20 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					addIfNotNull(doc, "bioOrder", classification.getOrder());
 					addIfNotNull(doc, "family", classification.getFamily());
 					addIfNotNull(doc, "genus", classification.getGenus());
+					
 					//speciesGroup
 					if("Arthropoda".equals(classification.getPhylum())) doc.addField("speciesGroup", "Arthropods");
 					if("Mollusca".equals(classification.getPhylum())) doc.addField("speciesGroup", "Molluscs");
 					if("Magnoliophyta".equals(classification.getPhylum())) doc.addField("speciesGroup", "Flowering plants");
-					if("Reptilia".equals(classification.getClass())) doc.addField("speciesGroup", "Reptiles");
-					if("Aves".equals(classification.getClass())) doc.addField("speciesGroup", "Birds");
-					if("Mammalia".equals(classification.getClass())) doc.addField("speciesGroup", "Mammals");
+					if("Reptilia".equals(classification.getClazz())) doc.addField("speciesGroup", "Reptiles");
+					if("Amphibia".equals(classification.getClazz())) doc.addField("speciesGroup", "Frogs");
+					if("Aves".equals(classification.getClazz())) doc.addField("speciesGroup", "Birds");
+					if("Mammalia".equals(classification.getClazz())) doc.addField("speciesGroup", "Mammals");
 					if("Plantae".equals(classification.getKingdom())) doc.addField("speciesGroup", "Plants");
+					if("Animalia".equals(classification.getKingdom())) doc.addField("speciesGroup", "Animals");
+					if(classification.getClass()!=null && fishTaxa.contains(classification.getClazz().toLowerCase())){
+						doc.addField("speciesGroup", "Fish");
+					}
 				}
 				
 				List<Image> images = getImages(guid);
