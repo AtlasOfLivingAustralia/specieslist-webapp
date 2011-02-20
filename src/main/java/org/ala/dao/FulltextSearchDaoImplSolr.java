@@ -265,26 +265,30 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 		//construct a searchable form of the sci name
         try {
         	StringBuffer queryString = new StringBuffer();
-            String cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
-            queryString.append(" commonName:"+cleanQuery);
-            queryString.append(" OR ");
-            queryString.append(" text:"+cleanQuery);
-            queryString.append(" OR ");
-            queryString.append(" scientificNameText:"+cleanQuery);
-            //make the exact matches score higher
-            //The boost is 100000000000 because this is how much of a boost is required to make the "Acacia" exact matches appear first.
-            //Acacia farnesiana has many terms that match with "Acacia" thus the high level boost required.
-            queryString.append(" OR ");
-            queryString.append(" exact_text:" + cleanQuery + "^100000000000");
-            
-            
-    		String canonicalSciName = retrieveCanonicalForm(query);
-            if(canonicalSciName!=null){
+        	if(query!=null && query.length()>0){
+	            String cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
+	            queryString.append(" commonName:"+cleanQuery);
 	            queryString.append(" OR ");
-	            queryString.append(" text:"+canonicalSciName);
-            }
-            
-            logger.info("search query: "+queryString.toString());
+	            queryString.append(" text:"+cleanQuery);
+	            queryString.append(" OR ");
+	            queryString.append(" scientificNameText:"+cleanQuery);
+	            //make the exact matches score higher
+	            //The boost is 100000000000 because this is how much of a boost is required to make the "Acacia" exact matches appear first.
+	            //Acacia farnesiana has many terms that match with "Acacia" thus the high level boost required.
+	            queryString.append(" OR ");
+	            queryString.append(" exact_text:" + cleanQuery + "^100000000000");
+	            
+	            
+	    		String canonicalSciName = retrieveCanonicalForm(query);
+	            if(canonicalSciName!=null){
+		            queryString.append(" OR ");
+		            queryString.append(" text:"+canonicalSciName);
+	            }
+	            
+	            logger.info("search query: "+queryString.toString());
+        	} else {
+        		queryString.append("*:*");
+        	}
             return doSolrSearch(queryString.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
         } catch (SolrServerException ex) {
             logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);

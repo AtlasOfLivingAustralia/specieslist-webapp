@@ -1824,7 +1824,16 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					addIfNotNull(doc, "bioOrder", classification.getOrder());
 					addIfNotNull(doc, "family", classification.getFamily());
 					addIfNotNull(doc, "genus", classification.getGenus());
+					//speciesGroup
+					if("Arthropoda".equals(classification.getPhylum())) doc.addField("speciesGroup", "Arthropods");
+					if("Mollusca".equals(classification.getPhylum())) doc.addField("speciesGroup", "Molluscs");
+					if("Magnoliophyta".equals(classification.getPhylum())) doc.addField("speciesGroup", "Flowering plants");
+					if("Reptilia".equals(classification.getClass())) doc.addField("speciesGroup", "Reptiles");
+					if("Aves".equals(classification.getClass())) doc.addField("speciesGroup", "Birds");
+					if("Mammalia".equals(classification.getClass())) doc.addField("speciesGroup", "Mammals");
+					if("Plantae".equals(classification.getKingdom())) doc.addField("speciesGroup", "Plants");
 				}
+				
 				List<Image> images = getImages(guid);
 				boolean hasImages = !images.isEmpty();
 
