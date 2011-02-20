@@ -40,6 +40,7 @@ public class BannerMenuTag extends TagSupport {
     protected String defaultCasServer = "https://auth.ala.org.au";
     protected String defaultCentralServer = "http://www.ala.org.au";
     protected String defaultSearchServer = "http://bie.ala.org.au";
+    protected String searchPath = "/search";
     
     private boolean populateSearchBox = true;
     
@@ -165,7 +166,7 @@ public class BannerMenuTag extends TagSupport {
                 "<!-- WP Menubar 4.7: end menu nav-site, template Superfish, CSS  -->" +
             "</div><!--close nav-->" +
             "<div id='wrapper_search'>" + 
-            "<form id='search-form' action='"+searchServer+"/search' method='get' name='search-form'>" + 
+            "<form id='search-form' action='"+searchServer+searchPath+"' method='get' name='search-form'>" + 
             "<label for='search'>Search</label>" + 
             "<input type='text' class='filled' id='search' name='q' value='"+query+"'/>" + 
             "<span class='search-button-wrapper'><input type='submit' class='search-button' id='search-button' alt='Search' value='Search' /></span>" + 
@@ -196,4 +197,18 @@ public class BannerMenuTag extends TagSupport {
     public void setPopulateSearchBox(boolean populateSearchBox) {
         this.populateSearchBox = populateSearchBox;
     }
+
+	/**
+	 * @return the searchPath
+	 */
+	public String getSearchPath() {
+		return searchPath;
+	}
+
+	/**
+	 * @param searchPath the searchPath to set
+	 */
+	public void setSearchPath(String searchPath) {
+		this.searchPath = searchPath;
+	}
 }
