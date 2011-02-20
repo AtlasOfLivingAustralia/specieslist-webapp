@@ -160,7 +160,7 @@ public class PageUtils {
 			String[] parts = commonName.getNameString().split(",");
 			for(String part: parts){
 				String normalised = normaliseCommonName(part);
-				System.out.println("Normalised: "+normalised);
+				//System.out.println("Normalised: "+normalised);
 				if(!namesNormalised.contains(normalised)){
 					names.add(part);
 					namesNormalised.add(normalised);
