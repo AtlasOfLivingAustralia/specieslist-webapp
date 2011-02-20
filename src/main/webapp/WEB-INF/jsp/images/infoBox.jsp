@@ -64,8 +64,7 @@ Species page:
 ${extendedTaxonConcept.taxonConcept.nameString}<br/>
 </a>
 Common names:
-<c:forEach items="${extendedTaxonConcept.commonNames}" var="commonName">
-${commonName.nameString}</c:forEach>
+<c:forEach items="${commonNames}" var="commonName" varStatus="status"><c:if test="${status.index>0}">, </c:if>${commonName}</c:forEach>
 </p>
 </body>
 </html>

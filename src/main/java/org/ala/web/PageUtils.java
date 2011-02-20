@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.ala.model.CommonName;
 import org.apache.commons.httpclient.HttpClient;
@@ -57,7 +59,7 @@ public class PageUtils {
     }
     
     private static String normaliseCommonName(String commonName) {
-		return commonName.replaceAll("([.,-]*)?([\\s]*)?", "").toLowerCase();
+		return commonName.replaceAll("([.,-]*)?([\\s]*)?", "").trim().toLowerCase();
 	}
 
     /**
@@ -149,4 +151,22 @@ public class PageUtils {
         String content = gm.getResponseBodyAsString();
         return content;
     }
+
+	public static List<String> dedup(List<CommonName> commonNames) {
+		
+		List<String> names = new ArrayList<String>();
+		Set<String> namesNormalised = new HashSet<String>();
+		for(CommonName commonName: commonNames){
+			String[] parts = commonName.getNameString().split(",");
+			for(String part: parts){
+				String normalised = normaliseCommonName(part);
+				System.out.println("Normalised: "+normalised);
+				if(!namesNormalised.contains(normalised)){
+					names.add(part);
+					namesNormalised.add(normalised);
+				}
+			}
+		}
+		return names;
+	}
 }

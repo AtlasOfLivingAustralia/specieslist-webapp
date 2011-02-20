@@ -24,8 +24,6 @@ import org.ala.dao.TaxonConceptDao;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -84,7 +82,7 @@ public class ImageSearchController {
 		ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
 		model.addAttribute("extendedTaxonConcept",repoUrlUtils.fixRepoUrls(etc));
 		model.addAttribute("spatialPortalMap", PageUtils.getSpatialPortalMap(etc.getTaxonConcept().getGuid()));
-		model.addAttribute("commonNames", PageUtils.sortCommonNameSources(etc.getCommonNames()));
+		model.addAttribute("commonNames", PageUtils.dedup(etc.getCommonNames()));
 		return "images/infoBox";
 	}
 
