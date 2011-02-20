@@ -46,7 +46,7 @@ public class ImageSearchController {
 	@Inject
 	TaxonConceptDao taxonConceptDao;
 	
-	@RequestMapping("/images")
+	@RequestMapping("/image/search")
 	public String search(
 			@RequestParam(value="q", required=false) String query, 
 			@RequestParam(value="fq", required=false) String[] fq,
@@ -69,8 +69,6 @@ public class ImageSearchController {
 		//state?
 		if(state!=null) filterQueries.add("state:"+state);
 		if(rank!=null) filterQueries.add("rank:"+rank);
-		
-		
 		
 		SearchResultsDTO<SearchDTO> results = searchDao.doFullTextSearch(query, (String[]) filterQueries.toArray(new String[0]), startIndex, pageSize, sortField, sortDirection);
 		model.addAttribute("results", repoUrlUtils.fixRepoUrls(results));
