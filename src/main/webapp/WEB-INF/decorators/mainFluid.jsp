@@ -94,7 +94,7 @@ include file="/common/taglibs.jsp" %><!DOCTYPE html>
      <div id="wrapperXXX" >
      <c:set var="returnUrlPath" value="${initParam.serverName}${pageContext.request.requestURI}${not empty pageContext.request.queryString ? '?' : ''}${pageContext.request.queryString}"/>
          
-         <ala:bannerMenu returnUrlPath="${returnUrlPath}" searchPath="/images" />
+         <ala:bannerMenu returnUrlPath="${returnUrlPath}" searchPath="/image/search/" />
          
          <div id="contentXX" style="background-color: #FFFFFF;">
            <div style="position:absolute; top:100px; right: 50px;margin-right:50px;">
