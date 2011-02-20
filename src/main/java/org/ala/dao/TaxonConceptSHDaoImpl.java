@@ -1582,8 +1582,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				}
 			}
 			catch(Exception e){
-				logger.error("*** ERROR -- guid: " + guid);
-				logger.error(e);
+				logger.error("*** ERROR -- guid: " + guid, e);
 				continue;
 			}
 		}
@@ -1843,7 +1842,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					if("Mammalia".equals(classification.getClazz())) doc.addField("speciesGroup", "Mammals");
 					if("Plantae".equals(classification.getKingdom())) doc.addField("speciesGroup", "Plants");
 					if("Animalia".equals(classification.getKingdom())) doc.addField("speciesGroup", "Animals");
-					if(classification.getClass()!=null && fishTaxa.contains(classification.getClazz().toLowerCase())){
+					if(classification.getClazz()!=null && fishTaxa.contains(classification.getClazz().toLowerCase())){
 						doc.addField("speciesGroup", "Fish");
 					}
 				}
