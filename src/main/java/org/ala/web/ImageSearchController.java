@@ -24,8 +24,10 @@ import org.ala.dao.TaxonConceptDao;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -37,6 +39,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller("imageSearchController")
 public class ImageSearchController {
 	
+	private final static Logger logger = Logger.getLogger(ImageSearchController.class);
+	
 	@Inject
 	FulltextSearchDao searchDao;
 	
@@ -45,6 +49,39 @@ public class ImageSearchController {
 	
 	@Inject
 	TaxonConceptDao taxonConceptDao;
+	
+	@RequestMapping("/image/{taxonRank}/{scientificName}")
+	public String search(
+			@PathVariable(value="taxonRank") String taxonRank,
+			@PathVariable(value="scientificName") String scientificName,
+			@RequestParam(value="fq", required=false) String[] fq,
+			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
+			@RequestParam(value="pageSize", required=false, defaultValue ="104") Integer pageSize,
+			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
+			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
+			@RequestParam(value="state", required=false) String state,
+			@RequestParam(value="rank", required=false) String rank,
+			@RequestParam(value="group", required=false) String group,
+			@RequestParam(value="screenWidth", required=false) Integer screenWidth,
+			Model model) throws Exception {
+		
+		List<String> filterQueries = new ArrayList<String>();
+		filterQueries.add("idxtype:TAXON");
+		filterQueries.add("hasImage:true");
+		if(fq!=null && fq.length>0){
+			for(String f: fq) { filterQueries.add(f); }
+		}
+		filterQueries.add(taxonRank+":"+scientificName);
+		
+		//state?
+		if(state!=null) filterQueries.add("state:"+state);
+		if(rank!=null) filterQueries.add("rank:"+rank);
+		
+		SearchResultsDTO<SearchDTO> results = searchDao.doFullTextSearch(null, (String[]) filterQueries.toArray(new String[0]), startIndex, pageSize, sortField, sortDirection);
+		model.addAttribute("results", repoUrlUtils.fixRepoUrls(results));
+		return "images/search";
+	}
+	
 	
 	@RequestMapping("/image/search")
 	public String search(
@@ -57,6 +94,7 @@ public class ImageSearchController {
 			@RequestParam(value="state", required=false) String state,
 			@RequestParam(value="rank", required=false) String rank,
 			@RequestParam(value="group", required=false) String group,
+			@RequestParam(value="screenWidth", required=false) Integer screenWidth,
 			Model model) throws Exception {
 		
 		List<String> filterQueries = new ArrayList<String>();
@@ -74,6 +112,39 @@ public class ImageSearchController {
 		model.addAttribute("results", repoUrlUtils.fixRepoUrls(results));
 		return "images/search";
 	}
+	
+	@RequestMapping("/image/search/table/")
+	public String getImageTable(
+			@RequestParam(value="q", required=false) String query, 
+			@RequestParam(value="fq", required=false) String[] fq,
+			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
+			@RequestParam(value="pageSize", required=false, defaultValue ="104") Integer pageSize,
+			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
+			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
+			@RequestParam(value="state", required=false) String state,
+			@RequestParam(value="rank", required=false) String rank,
+			@RequestParam(value="group", required=false) String group,
+			@RequestParam(value="screenWidth", required=false) Integer screenWidth,
+			Model model) throws Exception {
+		
+		logger.debug("Image table loading....");
+		
+		List<String> filterQueries = new ArrayList<String>();
+		filterQueries.add("idxtype:TAXON");
+		filterQueries.add("hasImage:true");
+		if(fq!=null && fq.length>0){
+			for(String f: fq) { filterQueries.add(f); }
+		}
+		
+		//state?
+		if(state!=null) filterQueries.add("state:"+state);
+		if(rank!=null) filterQueries.add("rank:"+rank);
+		
+		SearchResultsDTO<SearchDTO> results = searchDao.doFullTextSearch(query, (String[]) filterQueries.toArray(new String[0]), startIndex, pageSize, sortField, sortDirection);
+		model.addAttribute("results", repoUrlUtils.fixRepoUrls(results));
+		return "images/imageTable";
+	}
+	
 	
 	@RequestMapping("/images/infoBox")
 	public String getImageInfoBox(@RequestParam("q") String guid, Model model) throws Exception {

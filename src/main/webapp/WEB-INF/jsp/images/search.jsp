@@ -24,6 +24,35 @@
          * OnLoad equivilent in JQuery
          */
         $(document).ready(function() {
+
+            var screenWidth = 1024;
+            if ( $(window).width() >= 800 && $(window).width() < 1024) { 
+                screenWidth = 800;
+            }        
+            if ( $(window).width() >= 1024 && $(window).width() < 1280) { 
+                screenWidth = 1024;
+            }
+            if ( $(window).width() >= 1280 && $(window).width() < 1440) { 
+                screenWidth = 1440;
+            }
+            if ( $(window).width() >= 1440 && $(window).width() < 1680) { 
+                screenWidth = 1680;
+            }
+            if ( $(window).width() >= 1680) { 
+                screenWidth = 1900; //alert("1280");
+            }
+
+            //is there a screen res variable
+            var screenWidthRequestParam = "${param['screenWidth']}";
+            var queryString = "${pageContext.request.queryString}";
+            if(screenWidthRequestParam==""){
+                if(queryString==""){
+                    window.location.replace(window.location.href+"?screenWidth="+screenWidth);
+                } else {
+                 	window.location.replace(window.location.href+"&screenWidth="+screenWidth);
+                }
+            }
+
             // Gallery image popups using ColorBox
             $("a.thumbImage").colorbox({
                 title: function() { return ""; },
@@ -42,7 +71,10 @@
                    //$.fn.colorbox({height:"800px", width:"800px"})
                 }
             });
+
+            
         });
+        
     </script>
 </head>
 <body>
@@ -52,7 +84,7 @@
 
 <h1>
 
-<c:set var="baseUrl" value="${pageContext.request.contextPath}/images?${pageContext.request.queryString}"/>
+<c:set var="baseUrl" value="${pageContext.request.contextPath}/image/search/?${pageContext.request.queryString}"/>
 
 
 </h1>
@@ -80,14 +112,17 @@
 
 <h3>Species group</h3>
 <ul>
-<li><a href="">Birds</a></li>
-<li><a href="">Insects</a></li>
-<li><a href="">Fish</a></li>
-<li><a href="">Mammals</a></li>
-<li><a href="">Plants</a></li>
-<li><a href="">Flowering plants</a></li>
+<li><a href="${baseUrl}&group=Birds">Birds</a></li>
+<li><a href="${baseUrl}&group=Insects">Insects</a></li>
+<li><a href="${baseUrl}&group=Reptiles">Reptiles</a></li>
+<!-- 
+<li><a href="${baseUrl}&group=Amphibians">Amphibians</a></li>
+<li><a href="${baseUrl}&group=Fish">Fish</a></li>
+ -->
+<li><a href="${baseUrl}&group=Mammals">Mammals</a></li>
+<li><a href="${baseUrl}&group=Flowering plants">Flowering plants</a></li>
+<li><a href="${baseUrl}&group=Plants">Plants</a></li>
 </ul>
-
 
 <h3>Rank</h3>
 <c:if test="${not empty param['rank']}">
@@ -115,13 +150,21 @@
 
 <h3><strong>${results.totalRecords}</strong> images returned for 
 <strong>${param['q']} ${param['fq']}</strong>
-
-
 </h3>
+
+
 <table>
 <tr>
+<c:set var="noOfColumns" value="4"/>
+
+<c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1024'}"><c:set var="noOfColumns" value="4"/></c:if>
+<c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1440'}"><c:set var="noOfColumns" value="5"/></c:if>
+<c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1680'}"><c:set var="noOfColumns" value="7"/></c:if>
+<c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1900'}"><c:set var="noOfColumns" value="7"/></c:if>
+
 <c:forEach items="${results.results}" var="searchTaxon" varStatus="status">
-<c:if test="${status.index % 7 == 0 && status.index>0}">
+
+<c:if test="${status.index % noOfColumns == 0 && status.index>0}">
 </tr><tr>
 </c:if>
 <td>
@@ -130,11 +173,14 @@
 </a>
 <br/>
 <c:if test="${not empty searchTaxon.commonNameSingle}">${searchTaxon.commonNameSingle} <br/></c:if>
-${searchTaxon.nameComplete}
+<alatag:formatSciName name="${searchTaxon.nameComplete}" rankId="${searchTaxon.rankId}"/>
 </td>
 </c:forEach>
 </tr>
 </table>
+
+
+
 </td>
 
 

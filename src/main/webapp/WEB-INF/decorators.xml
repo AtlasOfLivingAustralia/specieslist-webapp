@@ -13,9 +13,11 @@
         <pattern>/index.jsp</pattern>
         <pattern>/map/sld*</pattern>
         <pattern>/regions/taxa*</pattern>
+        <pattern>/image/search/table/*</pattern>
     </excludes>
     <decorator name="mainFluid" page="mainFluid.jsp">
         <pattern>/image/search/</pattern>
+        <pattern>/image/*/*</pattern>
     </decorator>
     <decorator name="main" page="main.jsp">
         <pattern>/*</pattern>
