@@ -83,7 +83,7 @@ public class ImageSearchController {
 	}
 	
 	
-	@RequestMapping("/image/search")
+	@RequestMapping("/image/search/")
 	public String search(
 			@RequestParam(value="q", required=false) String query, 
 			@RequestParam(value="fq", required=false) String[] fq,

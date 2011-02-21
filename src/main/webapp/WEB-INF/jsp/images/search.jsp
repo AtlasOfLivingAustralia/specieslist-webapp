@@ -1,23 +1,13 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<%@ page contentType="text/html" pageEncoding="UTF-8" %><%@ 
+include file="/common/taglibs.jsp" %><!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
     <meta name="pageName" content="species"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Image Search</title>
+    <title>${param['q']} | Image Search | Atlas of Living Australia</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css" media="screen" charset="utf-8"/>
     <link type="text/css" media="screen" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/colorbox.css" />
-    <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.4.pack.js"></script>
     <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.colorbox-min.js"></script>
-    <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.easing.1.3.js"></script>
-    <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.favoriteIcon.js"></script>
-    <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.qtip-1.0.0.min.js"></script>
-
     <script type="text/javascript">
         
         /*
@@ -51,17 +41,20 @@
                 } else {
                  	window.location.replace(window.location.href+"&screenWidth="+screenWidth);
                 }
+            }else if(screenWidthRequestParam!=screenWidth){
+                var url = window.location.href.replace("screenWidth="+screenWidthRequestParam,"screenWidth="+screenWidth)
+            	window.location.replace(url);
             }
 
             // Gallery image popups using ColorBox
             $("a.thumbImage").colorbox({
                 title: function() { return ""; },
                 opacity: 0.5,
-                //maxWidth: "80%",
-                //maxHeight: "80%",
                 height: "600px",
                 width: "850px",
                 preloading: false,
+                'easingIn'   : 'easeOutQuad',
+                'easingOut'  : 'easeInQuad',
                 onComplete: function() {
                     //$("#cboxTitle").html(""); // Clear default title div
                     //var index = $(this).attr('id').replace("thumb",""); // get the imdex of this image
@@ -71,7 +64,6 @@
                    //$.fn.colorbox({height:"800px", width:"800px"})
                 }
             });
-
             
         });
         
@@ -146,8 +138,11 @@
 
 <td style="text-align: left;">
 
-<h3><strong>${results.totalRecords}</strong> images returned for 
+<h3><strong>${results.totalRecords}</strong> taxa returned with images
+<c:if test="${not empty param['q']} or not empty ${param['fq']}">
+ for 
 <strong>${param['q']} ${param['fq']}</strong>
+</c:if>
 </h3>
 
 
