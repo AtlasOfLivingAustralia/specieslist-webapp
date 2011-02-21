@@ -93,7 +93,7 @@ public class ImageSearchController {
 			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
 			@RequestParam(value="state", required=false) String state,
 			@RequestParam(value="rank", required=false) String rank,
-			@RequestParam(value="group", required=false) String group,
+			@RequestParam(value="speciesGroup", required=false) String speciesGroup,
 			@RequestParam(value="screenWidth", required=false) Integer screenWidth,
 			Model model) throws Exception {
 		
@@ -107,6 +107,7 @@ public class ImageSearchController {
 		//state?
 		if(state!=null) filterQueries.add("state:"+state);
 		if(rank!=null) filterQueries.add("rank:"+rank);
+		if(speciesGroup!=null) filterQueries.add("speciesGroup:"+speciesGroup);
 		
 		SearchResultsDTO<SearchDTO> results = searchDao.doFullTextSearch(query, (String[]) filterQueries.toArray(new String[0]), startIndex, pageSize, sortField, sortDirection);
 		model.addAttribute("results", repoUrlUtils.fixRepoUrls(results));

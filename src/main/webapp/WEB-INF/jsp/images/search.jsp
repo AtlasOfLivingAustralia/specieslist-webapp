@@ -112,16 +112,14 @@
 
 <h3>Species group</h3>
 <ul>
-<li><a href="${baseUrl}&group=Birds">Birds</a></li>
-<li><a href="${baseUrl}&group=Insects">Insects</a></li>
-<li><a href="${baseUrl}&group=Reptiles">Reptiles</a></li>
-<!-- 
-<li><a href="${baseUrl}&group=Amphibians">Amphibians</a></li>
-<li><a href="${baseUrl}&group=Fish">Fish</a></li>
- -->
-<li><a href="${baseUrl}&group=Mammals">Mammals</a></li>
-<li><a href="${baseUrl}&group=Flowering plants">Flowering plants</a></li>
-<li><a href="${baseUrl}&group=Plants">Plants</a></li>
+<li><a href="${baseUrl}&speciesGroup=Birds">Birds</a></li>
+<li><a href="${baseUrl}&speciesGroup=Insects">Insects</a></li>
+<li><a href="${baseUrl}&speciesGroup=Reptiles">Reptiles</a></li>
+<li><a href="${baseUrl}&speciesGroup=Frogs">Frogs</a></li>
+<li><a href="${baseUrl}&speciesGroup=Fish">Fish</a></li>
+<li><a href="${baseUrl}&speciesGroup=Mammals">Mammals</a></li>
+<li><a href="${baseUrl}&speciesGroup=Flowering plants">Flowering plants</a></li>
+<li><a href="${baseUrl}&speciesGroup=Plants">Plants</a></li>
 </ul>
 
 <h3>Rank</h3>
