@@ -2247,7 +2247,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		etc.setIdentificationKeys((List<IdentificationKey>) getColumnValue(map,ColumnType.IDENTIFICATION_KEY_COL));
 		etc.setSpecimenHolding((List<SpecimenHolding>) getColumnValue(map,ColumnType.SPECIMEN_HOLDING_COL));
 		etc.setIsAustralian((Boolean) getColumnValue(map,ColumnType.IS_AUSTRALIAN));
-
+		etc.setLinkIdentifier((String) getColumnValue(map,ColumnType.LINK_IDENTIFIER));
+		
 		// sort the list of SimpleProperties for display in UI
 		List<SimpleProperty> simpleProperties = (List<SimpleProperty>) getColumnValue(map, ColumnType.TEXT_PROPERTY_COL);
 		Collections.sort(simpleProperties);
