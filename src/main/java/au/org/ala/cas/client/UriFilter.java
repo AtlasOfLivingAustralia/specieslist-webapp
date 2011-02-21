@@ -29,12 +29,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.jasig.cas.client.authentication.AuthenticationFilter;
 
+import au.org.ala.cas.util.AuthenticationCookieUtils;
 import au.org.ala.cas.util.PatternMatchingUtils;
 
 /**
  * Meta filter that provides filtering based on URI patterns that require authentication (and thus redirection) to the CAS server.
  * <p>
- * The list of URI patterns is specified as a comma delimited list of reqular expressions in a &lt;context-param&gt;, <code>uriFilterPattern</code>.
+ * The list of URI patterns is specified as a comma delimited list of regular expressions in a &lt;context-param&gt;, <code>uriFilterPattern</code>.
  * <p>
  * So if a request's path matches one of the URI patterns then the filter specified by the <code>filterClass</code> &lt;init-param&gt; is invoked.
  * <p>
@@ -81,6 +82,7 @@ public class UriFilter implements Filter {
     private Filter filter;
     private String contextPath;
     private List<Pattern> uriInclusionPatterns;
+    private List<Pattern> authOnlyIfLoggedInPatterns;
     
     public void init(FilterConfig filterConfig) throws ServletException {
 
@@ -103,6 +105,16 @@ public class UriFilter implements Filter {
         }
         logger.debug("Included URI Pattern = '" + includedUrlPattern + "'");
         this.uriInclusionPatterns = PatternMatchingUtils.getPatternList(contextPath, includedUrlPattern);
+
+        //
+        // Get Authenticate Only if Logged in filter patterns
+        //
+        String authOnlyIfLoggedInPattern = filterConfig.getServletContext().getInitParameter("authenticateOnlyIfLoggedInFilterPattern");
+        if (authOnlyIfLoggedInPattern == null) {
+            authOnlyIfLoggedInPattern = "";
+        }
+        logger.debug("Authenticate Only if Logged in Pattern = '" + authOnlyIfLoggedInPattern + "'");
+        this.authOnlyIfLoggedInPatterns = PatternMatchingUtils.getPatternList(contextPath, authOnlyIfLoggedInPattern);
 
         //
         // Get target filter class name
@@ -131,6 +143,12 @@ public class UriFilter implements Filter {
         if (PatternMatchingUtils.matches(requestUri, uriInclusionPatterns)) {
             if (filter instanceof AuthenticationFilter) {
                 logger.debug("Forwarding URI '" + requestUri + "' to CAS authentication filters because it matches uriFilterPattern");
+            }
+            filter.doFilter(request, response, chain);
+        } else if (PatternMatchingUtils.matches(requestUri, authOnlyIfLoggedInPatterns) &&
+                    AuthenticationCookieUtils.isUserLoggedIn((HttpServletRequest) request)) {
+            if (filter instanceof AuthenticationFilter) {
+                logger.debug("Forwarding URI '" + requestUri + "' to CAS authentication filters because it matches authenticateOnlyIfLoggedInFilterPattern and ALA-Auth cookie exists");
             }
             filter.doFilter(request, response, chain);
         } else {
