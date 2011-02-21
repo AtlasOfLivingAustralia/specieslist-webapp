@@ -1,36 +1,31 @@
 package org.ala.hbase;
 
-import au.org.ala.data.model.LinnaeanRankClassification;
-import javax.inject.Inject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
-import javax.sql.DataSource;
+
+import javax.inject.Inject;
+
 import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
 import org.ala.model.InfoSource;
 import org.ala.util.SpringUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.gbif.ecat.parser.NameParser;
-import org.gbif.file.CSVReader;
-import org.springframework.stereotype.Component;
 import org.ala.vocabulary.Vocabulary;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
-import org.gbif.dwc.record.DarwinCoreRecord;
-import org.gbif.dwc.terms.ConceptTerm;
-import org.gbif.dwc.terms.GbifTerm;
-import org.gbif.dwc.text.Archive;
-import org.gbif.dwc.text.ArchiveFactory;
+import org.apache.log4j.Logger;
 import org.gbif.ecat.model.ParsedName;
+import org.gbif.ecat.parser.NameParser;
+import org.gbif.file.CSVReader;
 import org.springframework.context.ApplicationContext;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+
+import au.org.ala.data.model.LinnaeanRankClassification;
 
 /**
  * Loads the conservation status and common names from the various conservation files
@@ -639,9 +634,12 @@ public class ConservationDataLoader {
                             addCSInfo(cs, is, null, null);
                             taxonConceptDao.addConservationStatus(guid, cs);
 
-                            String commonName = StringUtils.trimToNull(values[14]);
-                            if(commonName != null){
-                                addCommonName(guid, commonName, is);
+                            String commonNameString = StringUtils.trimToNull(values[14]);
+                            if(commonNameString != null){
+                            	String[] commonNames = commonNameString.split(",");
+                            	for(String commonName: commonNames){
+                            		addCommonName(guid, commonName, is);
+                            	}
                             }
                         }
                     }
