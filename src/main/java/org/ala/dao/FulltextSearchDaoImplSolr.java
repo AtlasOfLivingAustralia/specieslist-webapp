@@ -959,6 +959,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         solrQuery.addFacetField("conservationStatusTAS");
         solrQuery.addFacetField("conservationStatusVIC");
         solrQuery.addFacetField("conservationStatusWA");
+        solrQuery.addFacetField("speciesGroup");
 
         solrQuery.setFacetMinCount(1);
         solrQuery.setRows(10);

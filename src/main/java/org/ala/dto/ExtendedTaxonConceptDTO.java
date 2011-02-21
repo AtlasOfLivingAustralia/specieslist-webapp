@@ -59,19 +59,7 @@ public class ExtendedTaxonConceptDTO {
 	protected List<IdentificationKey> identificationKeys;
 	protected List<SpecimenHolding> specimenHolding;
     protected Boolean isAustralian;
-
-    public List<SpecimenHolding> getSpecimenHolding() {
-		return specimenHolding;
-	}
-	public void setSpecimenHolding(List<SpecimenHolding> specimenHolding) {
-		this.specimenHolding = specimenHolding;
-	}
-	public List<IdentificationKey> getIdentificationKeys() {
-		return identificationKeys;
-	}
-	public void setIdentificationKeys(List<IdentificationKey> identificationKeys) {
-		this.identificationKeys = identificationKeys;
-	}
+    protected String linkIdentifier;
 	
 	/**
 	 * @return the publicationReference
@@ -317,4 +305,40 @@ public class ExtendedTaxonConceptDTO {
     public void setIsAustralian(Boolean isAustralian) {
         this.isAustralian = isAustralian;
     }
+	/**
+	 * @return the linkIdentifier
+	 */
+	public String getLinkIdentifier() {
+		return linkIdentifier;
+	}
+	/**
+	 * @param linkIdentifier the linkIdentifier to set
+	 */
+	public void setLinkIdentifier(String linkIdentifier) {
+		this.linkIdentifier = linkIdentifier;
+	}
+	/**
+	 * @return the identificationKeys
+	 */
+	public List<IdentificationKey> getIdentificationKeys() {
+		return identificationKeys;
+	}
+	/**
+	 * @param identificationKeys the identificationKeys to set
+	 */
+	public void setIdentificationKeys(List<IdentificationKey> identificationKeys) {
+		this.identificationKeys = identificationKeys;
+	}
+	/**
+	 * @return the specimenHolding
+	 */
+	public List<SpecimenHolding> getSpecimenHolding() {
+		return specimenHolding;
+	}
+	/**
+	 * @param specimenHolding the specimenHolding to set
+	 */
+	public void setSpecimenHolding(List<SpecimenHolding> specimenHolding) {
+		this.specimenHolding = specimenHolding;
+	}
 }
