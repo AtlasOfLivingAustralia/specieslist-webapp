@@ -762,6 +762,16 @@ public interface TaxonConceptDao {
 	 * @throws Exception
 	 */
 	boolean addSpecimenHoldings(String guid, List<SpecimenHolding> specimenHoldingList) throws Exception;
+
+	/**
+	 * append new list into a specimen holding for this concept.
+	 * 
+	 * @param guid
+	 * @param specimenHoldingList
+	 * @return
+	 * @throws Exception
+	 */	
+	public boolean appendSpecimenHoldings(String guid, List<SpecimenHolding> specimenHoldingList) throws Exception;
 	
 	/**
 	 * Get the specimen holdings for this concept.

@@ -2177,6 +2177,15 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				guid, SpecimenHolding.class);
 	}
 
+	public boolean appendSpecimenHoldings(String guid,
+			List<SpecimenHolding> specimenHoldingList) throws Exception {
+		List<SpecimenHolding> list = getSpecimenHoldings(guid);
+		specimenHoldingList.addAll(list);
+		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
+				ColumnType.SPECIMEN_HOLDING_COL.getColumnName(),
+				guid, (List) specimenHoldingList, false);
+	}
+	
 	// ===============<ExtendedtaxonConcept>=========
 	private Object getColumnValue(Map<String, Object> map,
 			ColumnType columnType) {

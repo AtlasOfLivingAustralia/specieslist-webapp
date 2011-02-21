@@ -56,16 +56,21 @@ public class SpecimenHoldingLoader {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		if (args.length != 1) {
+		if (args.length < 1) {
 			System.out.println("Input File Name Missing ....");
 			System.exit(0);
-		}		
+		}
 		System.out.println("Starting SpecimenHoldingLoader process.....");
 		ApplicationContext context = SpringUtils.getContext();
 		SpecimenHoldingLoader l = context.getBean(SpecimenHoldingLoader.class);
 		try {
 			System.out.println("Starting load process.....");
-			l.load(args[0]);
+			if(args.length > 1){
+				l.load(args[0], Boolean.parseBoolean(args[1]));
+			}
+			else{
+				l.load(args[0], true);
+			}
 			System.out.println("load process finished.....");
 		} catch (Exception e) {			
 			e.printStackTrace();
@@ -77,7 +82,7 @@ public class SpecimenHoldingLoader {
 	/**
 	 * data load process
 	 */
-	private void load(String fileName){
+	private void load(String fileName, boolean append){
 		int ctr = 0;
 		String[] nextLine = null;
 		CSVReader reader = null;
@@ -119,8 +124,15 @@ public class SpecimenHoldingLoader {
 				}
 				if(!list.isEmpty() && sh.getIdentifier() != null && sh.getIdentifier().length() > 0){
 					try {
-						ctr += list.size();
-						taxonConceptDao.addSpecimenHoldings(sh.getIdentifier(), list);
+						ctr += list.size();						
+						if(append){
+							//append the list into existing json.
+							taxonConceptDao.appendSpecimenHoldings(sh.getIdentifier(), list);
+						}
+						else{
+							//overwrite the existing json.
+							taxonConceptDao.addSpecimenHoldings(sh.getIdentifier(), list);
+						}
 					} catch (Exception e) {
 						logger.error(e);
 						e.printStackTrace();
