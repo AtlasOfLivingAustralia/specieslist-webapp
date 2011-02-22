@@ -136,6 +136,7 @@ public class ImageSearchController {
 		filterQueries.add("idxtype:TAXON");
 		filterQueries.add("hasImage:true");
 		filterQueries.add("australian_s:recorded");
+
 		
 		if(fq!=null && fq.length>0){
 			for(String f: fq) { filterQueries.add(f); }
@@ -144,6 +145,7 @@ public class ImageSearchController {
 		//state?
 		if(state!=null) filterQueries.add("state:"+state);
 		if(rank!=null) filterQueries.add("rank:"+rank);
+		if(speciesGroup!=null) filterQueries.add("speciesGroup:"+speciesGroup);
 		
 		SearchResultsDTO<SearchDTO> results = searchDao.doFullTextSearch(query, (String[]) filterQueries.toArray(new String[0]), startIndex, pageSize, sortField, sortDirection);
 		model.addAttribute("results", repoUrlUtils.fixRepoUrls(results));
