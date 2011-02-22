@@ -3,7 +3,7 @@
     <excludes>
         <pattern>/styles/*</pattern>
         <pattern>/scripts/*</pattern>
-        <pattern>/images/*</pattern>
+        <pattern>/static/images/*</pattern>
         <pattern>/ajax/*</pattern>
         <pattern>/css/*</pattern>
         <pattern>/static/*</pattern>
@@ -13,11 +13,14 @@
         <pattern>/index.jsp</pattern>
         <pattern>/map/sld*</pattern>
         <pattern>/regions/taxa*</pattern>
-        <pattern>/image/search/table/*</pattern>
+        <pattern>/images/search/table/*</pattern>
+        <pattern>/images/infoBox*</pattern>
     </excludes>
     <decorator name="mainFluid" page="mainFluid.jsp">
-        <pattern>/image/search/</pattern>
-        <pattern>/image/*/*</pattern>
+        <pattern>/images/search/</pattern>
+        <pattern>/images/</pattern>
+        <pattern>/images/*/*</pattern>
+        <pattern>/images/*/*/</pattern>
     </decorator>
     <decorator name="main" page="main.jsp">
         <pattern>/*</pattern>
