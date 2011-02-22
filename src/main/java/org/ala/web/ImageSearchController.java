@@ -126,7 +126,7 @@ public class ImageSearchController {
 			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
 			@RequestParam(value="state", required=false) String state,
 			@RequestParam(value="rank", required=false) String rank,
-			@RequestParam(value="group", required=false) String group,
+			@RequestParam(value="group", required=false) String speciesGroup,
 			@RequestParam(value="screenWidth", required=false) Integer screenWidth,
 			Model model) throws Exception {
 		
