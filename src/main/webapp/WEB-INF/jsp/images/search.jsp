@@ -76,7 +76,7 @@ include file="/common/taglibs.jsp" %><!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0
 
 <h1>
 
-<c:set var="baseUrl" value="${pageContext.request.contextPath}/image/search/?${pageContext.request.queryString}"/>
+<c:set var="baseUrl" value="${pageContext.request.contextPath}/images/search/?${pageContext.request.queryString}"/>
 
 
 </h1>

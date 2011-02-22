@@ -47,14 +47,14 @@ No. <span id="imageCounter">1</span> of ${fn:length(extendedTaxonConcept.images)
 <a href="javascript:nextImage();">Next image</a>
 
 </c:if>
-<img id="selectedImage" src="${fn:replace(extendedTaxonConcept.images[0].repoLocation,'raw','smallRaw')}" width="300"/>
+<img id="selectedImage" src="${fn:replace(extendedTaxonConcept.images[0].repoLocation,'raw','smallRaw')}" style="max-width: 550px; max-height: 400px;"/>
 <br/>
 
 
 
 </td>
 <td style="vertical-align: top;">
-<img src="${spatialPortalMap.mapUrl}" class="distroImg" alt="" width="425" style="margin-bottom:-30px;"/>
+<img src="${spatialPortalMap.mapUrl}" class="distroImg" alt="" width="375" style="margin-bottom:-30px;"/>
 </td>
 </tr>
 </table>
@@ -63,8 +63,10 @@ Species page:
 <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}">
 ${extendedTaxonConcept.taxonConcept.nameString}<br/>
 </a>
+<c:if test="${not empty commonNames}">
 Common names:
 <c:forEach items="${commonNames}" var="commonName" varStatus="status"><c:if test="${status.index>0}">, </c:if>${commonName}</c:forEach>
+</c:if>
 </p>
 </body>
 </html>

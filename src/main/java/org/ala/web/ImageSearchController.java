@@ -29,6 +29,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -50,7 +51,7 @@ public class ImageSearchController {
 	@Inject
 	TaxonConceptDao taxonConceptDao;
 	
-	@RequestMapping("/image/{taxonRank}/{scientificName}")
+	@RequestMapping("/images/{taxonRank}/{scientificName}")
 	public String search(
 			@PathVariable(value="taxonRank") String taxonRank,
 			@PathVariable(value="scientificName") String scientificName,
@@ -82,8 +83,7 @@ public class ImageSearchController {
 		return "images/search";
 	}
 	
-	
-	@RequestMapping("/image/search/")
+	@RequestMapping(value={"/images/search/","/images/"}, method = RequestMethod.GET)
 	public String search(
 			@RequestParam(value="q", required=false) String query, 
 			@RequestParam(value="fq", required=false) String[] fq,
@@ -100,6 +100,8 @@ public class ImageSearchController {
 		List<String> filterQueries = new ArrayList<String>();
 		filterQueries.add("idxtype:TAXON");
 		filterQueries.add("hasImage:true");
+		filterQueries.add("australian_s:recorded");
+		
 		if(fq!=null && fq.length>0){
 			for(String f: fq) { filterQueries.add(f); }
 		}
@@ -114,7 +116,7 @@ public class ImageSearchController {
 		return "images/search";
 	}
 	
-	@RequestMapping("/image/search/table/")
+	@RequestMapping("/images/search/table/")
 	public String getImageTable(
 			@RequestParam(value="q", required=false) String query, 
 			@RequestParam(value="fq", required=false) String[] fq,
@@ -133,6 +135,8 @@ public class ImageSearchController {
 		List<String> filterQueries = new ArrayList<String>();
 		filterQueries.add("idxtype:TAXON");
 		filterQueries.add("hasImage:true");
+		filterQueries.add("australian_s:recorded");
+		
 		if(fq!=null && fq.length>0){
 			for(String f: fq) { filterQueries.add(f); }
 		}

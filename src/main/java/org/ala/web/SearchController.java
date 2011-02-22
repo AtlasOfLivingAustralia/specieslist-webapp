@@ -91,7 +91,7 @@ public class SearchController {
 		    Model model,
             HttpServletRequest request) throws Exception {
 		
-		if (StringUtils.isEmpty(query)) {
+		if (StringUtils.isEmpty(query) && (filterQuery==null || filterQuery.length==0)) {
 			return SEARCH;
 		}
 		
@@ -130,7 +130,7 @@ public class SearchController {
                 
 		String queryJsEscaped = StringEscapeUtils.escapeJavaScript(query);
 		model.addAttribute("query", query);
-		model.addAttribute("queryJsEscaped", queryJsEscaped);
+		model.addAttribute("queryJsEscaped", queryJsEscaped.replaceAll("[ ]{2,}", " "));
 		model.addAttribute("title", StringEscapeUtils.escapeJavaScript(title));
 				
 		logger.debug("Initial query = "+query);

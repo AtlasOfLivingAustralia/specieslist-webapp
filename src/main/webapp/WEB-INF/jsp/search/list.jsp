@@ -32,7 +32,11 @@
             // highlight search terms in results
             //$('.results p').highlight('${queryJsEscaped}');
             var words = '${fn:trim(queryJsEscaped)}'; // remove leading + trailing white space
-            $.each(words.split(" "), function(idx, val) { $('.results p').highlight(val); });
+            if(words!=''){
+              $.each(words.split(" "), function(idx, val) {
+                  $('.results p').highlight(val); 
+              });
+            }
 
             // if no results, then highlight search input on link click
             $('#refineSearch').click(function(e) {

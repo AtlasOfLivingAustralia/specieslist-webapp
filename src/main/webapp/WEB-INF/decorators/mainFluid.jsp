@@ -93,23 +93,27 @@ include file="/common/taglibs.jsp" %><!DOCTYPE html>
     <body class="two-column-rightXXX">
      <div id="wrapperXXX" >
      <c:set var="returnUrlPath" value="${initParam.serverName}${pageContext.request.requestURI}${not empty pageContext.request.queryString ? '?' : ''}${pageContext.request.queryString}"/>
-         <ala:bannerMenu returnUrlPath="${returnUrlPath}" searchPath="/image/search/" />
-         
-         <script>
-         
-         
-         </script>
-         
-         
-         
+         <ala:bannerMenu returnUrlPath="${returnUrlPath}" searchPath="/images/search/" />
          <div id="contentXX" style="background-color: #FFFFFF;">
-           <div style="position:absolute; top:100px; right: 50px;margin-right:50px;">
+           <div style="position:absolute; top:90px; right: 10px;">
+           <h3>
            <a href="${pageContext.request.contextPath}/search?q=${param['q']}">ALA</a> 
-           | Images 
+           | Images
+           
+           <c:choose>
+           <c:when test="${not empty param['q']}"> 
            | <a href="http://biocache.ala.org.au/occurrences/search?q=${param['q']}">Specimens & Observations</a>
+           </c:when>
+           <c:otherwise>
+           | <a href="http://biocache.ala.org.au/">Specimens & Observations</a>
+           </c:otherwise>
+           </c:choose>
+           </h3>
+           
            <c:if test="${!empty pageContext.request.remoteUser}">
                <div id="loginId">You are logged in as: ${pageContext.request.remoteUser}</div>
            </c:if>
+           
            </div>
            <decorator:body />
          </div><!--close content-->
