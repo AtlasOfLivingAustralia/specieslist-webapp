@@ -79,6 +79,9 @@ public class UriFilter implements Filter {
 
     private final static Logger logger = Logger.getLogger(UriFilter.class);
     
+    private static final String URI_FILTER_PATTERN = "uriFilterPattern";
+    private static final String AUTHENTICATE_ONLY_IF_LOGGED_IN_FILTER_PATTERN = "authenticateOnlyIfLoggedInFilterPattern";
+
     private Filter filter;
     private String contextPath;
     private List<Pattern> uriInclusionPatterns;
@@ -99,7 +102,7 @@ public class UriFilter implements Filter {
         //
         // Get URI inclusion filter patterns
         //
-        String includedUrlPattern = filterConfig.getServletContext().getInitParameter("uriFilterPattern");
+        String includedUrlPattern = filterConfig.getServletContext().getInitParameter(URI_FILTER_PATTERN);
         if (includedUrlPattern == null) {
             includedUrlPattern = "";
         }
@@ -109,7 +112,7 @@ public class UriFilter implements Filter {
         //
         // Get Authenticate Only if Logged in filter patterns
         //
-        String authOnlyIfLoggedInPattern = filterConfig.getServletContext().getInitParameter("authenticateOnlyIfLoggedInFilterPattern");
+        String authOnlyIfLoggedInPattern = filterConfig.getServletContext().getInitParameter(AUTHENTICATE_ONLY_IF_LOGGED_IN_FILTER_PATTERN);
         if (authOnlyIfLoggedInPattern == null) {
             authOnlyIfLoggedInPattern = "";
         }
@@ -142,13 +145,13 @@ public class UriFilter implements Filter {
         
         if (PatternMatchingUtils.matches(requestUri, uriInclusionPatterns)) {
             if (filter instanceof AuthenticationFilter) {
-                logger.debug("Forwarding URI '" + requestUri + "' to CAS authentication filters because it matches uriFilterPattern");
+                logger.debug("Forwarding URI '" + requestUri + "' to CAS authentication filters because it matches " + URI_FILTER_PATTERN);
             }
             filter.doFilter(request, response, chain);
         } else if (PatternMatchingUtils.matches(requestUri, authOnlyIfLoggedInPatterns) &&
                     AuthenticationCookieUtils.isUserLoggedIn((HttpServletRequest) request)) {
             if (filter instanceof AuthenticationFilter) {
-                logger.debug("Forwarding URI '" + requestUri + "' to CAS authentication filters because it matches authenticateOnlyIfLoggedInFilterPattern and ALA-Auth cookie exists");
+                logger.debug("Forwarding URI '" + requestUri + "' to CAS authentication filters because it matches " + AUTHENTICATE_ONLY_IF_LOGGED_IN_FILTER_PATTERN + " and ALA-Auth cookie exists");
             }
             filter.doFilter(request, response, chain);
         } else {
