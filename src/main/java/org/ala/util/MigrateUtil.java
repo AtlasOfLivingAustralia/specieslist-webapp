@@ -34,11 +34,16 @@ public class MigrateUtil {
         String columnFamily = args[3];
         String column = args[4];
 
+        System.out.println("Source: "+sourceHost);
+        System.out.println("Target: "+targetHost);
+        System.out.println("Keyspace: "+keyspace);
+        System.out.println("Column family: "+columnFamily);
+
 		//get connection pool for OLD cassandra
-		Pelops.addPool("cassandra-old", new String[]{sourceHost}, 9160, false, keyspace, new Policy());
+		Pelops.addPool("cassandra-source", new String[]{sourceHost}, 9160, false, keyspace, new Policy());
 
 		//get connection pool for NEW cassandra
-		Pelops.addPool("cassandra-new", new String[]{targetHost}, 9161, false, keyspace, new Policy());
+		Pelops.addPool("cassandra-target", new String[]{targetHost}, 9160, false, keyspace, new Policy());
 		
 		//get scanner
 		Scanner scanner = new CassandraScanner(Pelops.getDbConnPool("cassandra-old").getConnection().getAPI(),
@@ -51,12 +56,12 @@ public class MigrateUtil {
 		while (rowKey!=null){
 			counter++;
 			//get all subcolumns for row from OLD
-			Selector selector = Pelops.createSelector("cassandra-old", keyspace);
+			Selector selector = Pelops.createSelector("cassandra-source", keyspace);
 			String rowKeyAsString = new String(rowKey);
 			List<Column> columns = selector.getSubColumnsFromRow(rowKeyAsString,columnFamily,columnFamily.getBytes(),slicePredicate,ConsistencyLevel.ONE);
 			
 			//write all subcolumns to NEW
-			Mutator mutator = Pelops.createMutator("cassandra-new", keyspace);
+			Mutator mutator = Pelops.createMutator("cassandra-target", keyspace);
 			for(Column col: columns){
 				//write them back
 				mutator.writeSubColumn(rowKeyAsString, columnFamily, columnFamily, col);
