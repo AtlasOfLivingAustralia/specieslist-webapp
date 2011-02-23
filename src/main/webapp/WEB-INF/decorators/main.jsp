@@ -95,9 +95,7 @@ include file="/common/taglibs.jsp" %><!DOCTYPE html>
 	 <c:set var="returnUrlPath" value="${initParam.serverName}${pageContext.request.requestURI}${not empty pageContext.request.queryString ? '?' : ''}${pageContext.request.queryString}"/>
          <ala:bannerMenu returnUrlPath="${returnUrlPath}" />
          <div id="content">
-             <c:if test="${!empty pageContext.request.remoteUser}">
-                 <div id="loginId">You are logged in as: ${pageContext.request.remoteUser}</div>
-             </c:if>
+             <ala:loggedInUserId />
              <decorator:body />
          </div><!--close content-->
          <div id="footer">
