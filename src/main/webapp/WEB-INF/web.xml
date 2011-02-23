@@ -38,17 +38,15 @@
         <location>/WEB-INF/jsp/uncaughtException.jsp</location>
     </error-page>
 
-    <!-- CAS Authentication related properties -->
     <context-param>
-        <!-- Parameter used by CAS filters -->
-        <param-name>serverName</param-name>
+        <param-name>searchServerName</param-name>
         <param-value>http://localhost:8080/bie-webapp</param-value>
     </context-param>
 
     <!-- CAS Authentication related properties -->
     <context-param>
         <!-- Parameter used by CAS filters -->
-        <param-name>searchServerName</param-name>
+        <param-name>serverName</param-name>
         <param-value>http://localhost:8080/bie-webapp</param-value>
     </context-param>
 
@@ -70,18 +68,13 @@
     </context-param>
 
     <context-param>
-        <param-name>userAgentExclusionFilterPattern</param-name>
-        <param-value>.*Googlebot.*</param-value>
-    </context-param>
-
-    <context-param>
-        <param-name>uriExclusionFilterPattern</param-name>
-        <param-value>.*\.json, /regions/taxa</param-value>
-    </context-param>
-
-    <context-param>
         <param-name>uriFilterPattern</param-name>
-        <param-value> /share/, /rankTaxonImageWithUser</param-value>
+        <param-value></param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>authenticateOnlyIfLoggedInFilterPattern</param-name>
+        <param-value>/species/.*</param-value>
     </context-param>
 
     <!-- CAS Authentication Service filters -->
