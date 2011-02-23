@@ -46,7 +46,7 @@ public class MigrateUtil {
 		Pelops.addPool("cassandra-target", new String[]{targetHost}, 9160, false, keyspace, new Policy());
 		
 		//get scanner
-		Scanner scanner = new CassandraScanner(Pelops.getDbConnPool("cassandra-old").getConnection().getAPI(),
+		Scanner scanner = new CassandraScanner(Pelops.getDbConnPool("cassandra-source").getConnection().getAPI(),
                 keyspace, columnFamily, column);
 		
 		//for each row
