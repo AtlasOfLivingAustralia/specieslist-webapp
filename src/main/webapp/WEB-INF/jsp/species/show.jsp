@@ -754,6 +754,62 @@ include file="/common/taglibs.jsp" %>
                             </c:otherwise>
                         </c:choose>
                     </div>
+                    <h2>Videos</h2>
+                    <div id="imageGallery">
+                        <c:choose>
+                            <c:when test="${not empty extendedTaxonConcept.screenshotImages}">
+                                <c:forEach var="screenshot" items="${extendedTaxonConcept.screenshotImages}" varStatus="status">
+<!--                                    ${screenshot.repoLocation}-->
+<!--                                    ${screenshot.thumbnail}-->
+                                    <c:set var="thumbUri">${screenshot.repoLocation}</c:set>
+                                    <c:set var="screenshotUri">
+                                            <c:choose>
+                                                <c:when test="${not empty screenshot.isPartOf}">
+                                                    ${screenshot.isPartOf}
+                                                </c:when>
+                                                <c:when test="${not empty screenshot.identifier}">
+                                                    ${screenshot.identifier}
+                                                </c:when>
+                                                <c:otherwise>
+                                                    ${screenshot.infoSourceURL}
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </c:set>
+                                    <table>
+                                    	<tr>
+                                    		<td>	
+                                    			<a class="screenshotThumb" title="${screenshot.title}" href="${screenshotUri}" target="_blank"><img src="${thumbUri}" alt="${screenshot.infoSourceName}" title="${imageTitle}" width="120px" height="120px" style="width:120px;height:120px;padding-right:3px;"/></a>
+                                    		</td>
+                                    		<td>
+                                      			<c:if test="${not empty screenshot.title}">
+                                            		${screenshot.title}<br/>
+                                        		</c:if>
+                                        		<c:if test="${not empty screenshot.creator}">
+                                            		Video by: ${screenshot.creator}<br/>
+                                        		</c:if>
+                                        		<c:if test="${not empty screenshot.locality}">
+                                            		Locality: ${screenshot.locality}<br/>
+                                        		</c:if>
+                                        		<c:if test="${not empty screenshot.licence}">
+                                            		Licence: ${screenshot.licence}<br/>
+                                        		</c:if>
+                                        		<c:if test="${not empty screenshot.rights}">
+                                            		Rights: ${screenshot.rights}<br/>
+                                        		</c:if>
+                                        
+                                            	Source: <a href="${screenshotUri}" target="_blank">${screenshot.infoSourceName}</a>
+                                            </td>
+                                       	</tr>
+                                        
+                                       	</table>
+                                    </c:forEach>
+                                </c:when>
+                                <c:otherwise>
+                                There are no videos for this taxon.
+                            </c:otherwise>
+                        </c:choose>
+                    
+                    </div>
                 </div>
             </div><!---->
             <div id="column-two">
