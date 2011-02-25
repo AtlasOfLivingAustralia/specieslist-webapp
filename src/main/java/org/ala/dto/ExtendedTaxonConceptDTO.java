@@ -50,7 +50,8 @@ public class ExtendedTaxonConceptDTO {
     protected List<SimpleProperty> simpleProperties;
 	protected List<Image> images;
 	protected List<Image> distributionImages;
-	protected List<ExtantStatus> extantStatuses;
+	protected List<Image> screenshotImages;
+    protected List<ExtantStatus> extantStatuses;
 	protected List<Habitat> habitats;
 	protected List<RegionTypeDTO> regionTypes;
 	protected List<Reference> references;
@@ -304,6 +305,19 @@ public class ExtendedTaxonConceptDTO {
 	 */
     public void setIsAustralian(Boolean isAustralian) {
         this.isAustralian = isAustralian;
+    }
+    /**
+     * @return the screenshotImages
+     */
+    public List<Image> getScreenshotImages() {
+        return screenshotImages;
+    }
+    
+    /**
+     * @param screenshotImages the screenshotImages to set
+     */
+    public void setScreenshotImages(List<Image> screenshotImages) {
+        this.screenshotImages = screenshotImages;
     }
 	/**
 	 * @return the linkIdentifier

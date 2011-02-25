@@ -59,6 +59,7 @@ public enum ColumnType {
     HABITAT_COL("hasHabitat", Habitat.class, true),
     IMAGE_COL("hasImage", Image.class, true),
     DIST_IMAGE_COL("hasDistributionImage", Image.class, true),
+    SCREENSHOT_IMAGE_COL("hasScreenshotImage", Image.class, true),
     IS_CHILD_COL_OF("IsChildTaxonOf", TaxonConcept.class, true),
     IS_PARENT_COL_OF("IsParentTaxonOf", TaxonConcept.class, true),
     TEXT_PROPERTY_COL("hasTextProperty", SimpleProperty.class, true),

@@ -319,6 +319,15 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				ColumnType.DIST_IMAGE_COL.getColumnName(), guid,
 				image);
 	}
+	
+	public boolean addScreenshotImage(String guid, Image image)
+	        throws Exception {
+	    System.out.println("!!!!!ADDING SCREENSHOT TO GUID: " + guid);
+	    
+	    return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
+	            ColumnType.SCREENSHOT_IMAGE_COL.getColumnName(), guid,
+	            image);
+	}
 
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#addSynonym(java.lang.String,
@@ -489,6 +498,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				ColumnType.DIST_IMAGE_COL.getColumnName(), guid,
 				Image.class);
 	}
+	
+	public List<Image> getScreenshotImages(String guid) throws Exception {
+        return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
+                ColumnType.SCREENSHOT_IMAGE_COL.getColumnName(), guid,
+                Image.class);
+    }
 
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getPestStatuses(java.lang.String)
@@ -1127,6 +1142,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		String dcPublisher = null;
 		String dcIdentifier = null;
 		String dcTitle = null;
+		
+		boolean isScreenshot = false;
 
 		if (document != null) {
 			dcPublisher = document.getInfoSourceName();
@@ -1174,6 +1191,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			if (predicate.endsWith("hasScientificName")) {
 				scientificNames.add(triple.object);
 			}
+			if (predicate.endsWith("hasVideoPageUrl")) {
+			    isScreenshot = true;
+			}
 		}
 
 		if (scientificNames.isEmpty() && subspecies.isEmpty()
@@ -1184,7 +1204,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					+ document.getFilePath());
 			return false; // we have nothing to work with, so give up
 		}
-
+		
 		// Lookup LSID in Checklist Bank data
 		String rank = null;
 		Rank rankObj = null;
@@ -1261,19 +1281,18 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 		if (guid == null && genus != null && specificEpithet != null) {
 			LinnaeanRankClassification classification = new LinnaeanRankClassification(
-					kingdom, phylum, klass, order, family, genus, null);
+			        kingdom, phylum, klass, order, family, genus, null);
 			guid = findLsidByName(genus + " " + specificEpithet,
-					classification, "species");
+			        classification, "species");
+		}
+		//is statsOnly we can return whether or not the scientific name was found...
+		if(statsOnly) {
+		    return guid != null;
 		}
 		
-		//is statsOnly we can return whether or not the scientific name was found...
-		if(statsOnly)
-		    return guid != null;
-
 		if (guid != null) {
 
 			for (Triple triple : triples) {
-
 				// check for an empty object
 				String object = StringUtils.trimToNull(triple.object);
 
@@ -1388,9 +1407,15 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 								document.getMimeType())) {
 					Image image = new Image();
 					image.setContentType(document.getMimeType());
-					image.setRepoLocation(document.getFilePath()
+					if (!isScreenshot) {
+					    image.setRepoLocation(document.getFilePath()
 							+ File.separator + FileType.RAW.getFilename()
 							+ MimeType.getFileExtension(document.getMimeType()));
+					} else {
+					    image.setRepoLocation(document.getFilePath()
+	                            + File.separator + FileType.SCREENSHOT.getFilename()
+	                            + MimeType.getFileExtension(document.getMimeType()));
+					}
 					image.setInfoSourceId(Integer.toString(document
 							.getInfoSourceId()));
 					image.setDocumentId(Integer.toString(document.getId()));
@@ -1414,9 +1439,15 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 					if (hasPredicate(triples, Predicates.DIST_MAP_IMG_URL)) {
 						addDistributionImage(guid, image);
-					} else {
+					}
+					
+					if (hasPredicate(triples, Predicates.IMAGE_URL)) {
 						addImage(guid, image);
 					}
+					
+					if (hasPredicate(triples, Predicates.VIDEO_PAGE_URL)) {
+                        addScreenshotImage(guid, image);
+                    } 
 				} else {
 					// do something for videos.....
 				}
@@ -1429,7 +1460,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 			return true;
 		} else {
-			System.out.println("GUID null");
+			logger.info("GUID null");
 			return false;
 		}
 	}
@@ -2247,6 +2278,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		etc.setConservationStatuses((List<ConservationStatus>) getColumnValue(map, ColumnType.CONSERVATION_STATUS_COL));
 		etc.setImages((List<Image>) getColumnValue(map,ColumnType.IMAGE_COL));
 		etc.setDistributionImages((List<Image>) getColumnValue(map,ColumnType.DIST_IMAGE_COL));
+		etc.setScreenshotImages((List<Image>) getColumnValue(map,ColumnType.SCREENSHOT_IMAGE_COL));
 		etc.setExtantStatuses((List<ExtantStatus>) getColumnValue(map,ColumnType.EXTANT_STATUS_COL));
 		etc.setHabitats((List<Habitat>) getColumnValue(map,ColumnType.HABITAT_COL));
 		etc.setRegionTypes(OccurrencesInGeoregion.getRegionsByType((List<OccurrencesInGeoregion>) getColumnValue(map, ColumnType.REGION_COL)));
