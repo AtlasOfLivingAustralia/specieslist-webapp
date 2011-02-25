@@ -353,6 +353,7 @@ public class SpeciesController {
         
         etc.setCommonNames(names); 
         etc.setImages(addImageDocIds(etc.getImages()));
+//        etc.setScreenshotImages(addImageDocIds(etc.getScreenshotImages()));
         model.addAttribute("extendedTaxonConcept", repoUrlUtils.fixRepoUrls(etc));
 		model.addAttribute("commonNames", getCommonNamesString(etc));
 		model.addAttribute("textProperties", filterSimpleProperties(etc));
@@ -895,6 +896,21 @@ public class SpeciesController {
                 }
             }
         }
+        if (etc.getScreenshotImages() != null) {
+            for (Image img : etc.getScreenshotImages()) {
+                StringBuilder text = new StringBuilder("Screenshot image from " + img.getInfoSourceName());
+                
+                System.out.println(img.getRepoLocation());
+                if (img.getCreator() != null) {
+                    text.append("(by ").append(img.getCreator()).append(")");
+                }
+                if (img.getIsPartOf() != null) {
+                    extractInfoSources(img, infoSourceMap, text.toString(), "Images", img.getIsPartOf());
+                } else {
+                    extractInfoSources(img, infoSourceMap, text.toString(), "Images");
+                }
+            }
+        }        
         if (etc.getPublicationReference() != null) {
             for (Reference ref : etc.getPublicationReference()) {
                 extractInfoSources(ref, infoSourceMap, "Reference: " + ref.getTitle(), "Publication");
@@ -1003,6 +1019,8 @@ public class SpeciesController {
         // Extract the repository document id from repoLocation field
         // E.g. Http://bie.ala.org.au/repo/1040/38/388624/Raw.jpg -> 388624
         for (Image img : images) {
+//            System.out.println(img.getRepoLocation());
+            
         	String[] paths = StringUtils.split(img.getRepoLocation(), "/");
             // unix format file path
             if(paths.length >= 2){

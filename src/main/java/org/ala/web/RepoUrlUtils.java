@@ -124,6 +124,12 @@ public class RepoUrlUtils {
 				fixRepoUrls(image);
 			}
 		}
+		images = taxonConceptDTO.getScreenshotImages();
+        if(images!=null){
+            for(Image image: images){
+                fixRepoUrls(image);
+            }
+        }
 		return taxonConceptDTO;
 	}
 
