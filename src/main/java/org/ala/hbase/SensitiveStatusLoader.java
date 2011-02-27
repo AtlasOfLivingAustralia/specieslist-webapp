@@ -32,6 +32,14 @@ import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * A temporary loader that adds sensitivity status values to taxa.
+ *
+ * To create dump file :
+ * select ss.scientific_name, IFNULL(ss.family,''), IFNULL(ss.common_name,''),ssz.sensitivity_zone, ssz.authority_name,ssz.sensitivity_category,
+case authority_name  when 'Birds Australia' then 'http://www.birdsaustralia.com.au/'
+when 'DERM' then 'http://www.derm.qld.gov.au' when 'NSW DECCW' then 'http://www.environment.nsw.gov.au' when 'NT DNRETA' then 'http://www.nt.gov.au/nreta'
+when 'Tasmania' then 'http://www.dpiw.tas.gov.au' when 'Vic DSE' then 'http://www.dse.vic.gov.au' else '' end
+From sensitive_species ss join sensitive_species_zones ssz on ss.scientific_name = ssz.scientific_name where ssz.authority_name <> 'AQIS'
+into outfile '/data/bie-staging/sds/SensitiveSpecies.csv'
  * 
  * This should eventually be replaced with a class that relies on SDS
  * webservices.
@@ -90,27 +98,24 @@ public class SensitiveStatusLoader {
 			
 			while (nextLine != null && nextLine.length==7) {
 				//a single line contains multiple status
-				String[] zones = nextLine[3].split(",");
-				String[] infosources = nextLine[6].split(",");
+				
 
 				//retrieve taxon concept
 				String guid = taxonConceptDao.findLsidByName(nextLine[0], null);
 				if(guid != null){
                                     //retrieve the infosource to be used
-                                    for(int i=0; i<zones.length; i++){
-                                            SensitiveStatus ss = new SensitiveStatus();
-                                            ss.setSensitivityCategory(nextLine[5]);
-                                            ss.setSensitivityZone(zones[i]);
-                                            InfoSource infosource = infoSourceDao.getByUri(infosources[i].trim());
-                                            if(infosource != null){
-                                                ss.setInfoSourceId(Integer.toString(infosource.getId()));
-                                                ss.setInfoSourceName(infosource.getName());
-                                                ss.setInfoSourceURL(infosource.getWebsiteUrl());
-                                        }
-
-                                            taxonConceptDao.addSensitiveStatus(guid, ss);
-                                            ctr++;
+                                    SensitiveStatus ss = new SensitiveStatus();
+                                    //TODO should the categories be mapped to a vocabulary?
+                                    ss.setSensitivityCategory(nextLine[5]);
+                                    ss.setSensitivityZone(nextLine[3]);
+                                    InfoSource infosource = infoSourceDao.getByUri(nextLine[6].trim());
+                                    if(infosource != null){
+                                        ss.setInfoSourceId(Integer.toString(infosource.getId()));
+                                        ss.setInfoSourceName(infosource.getName());
+                                        ss.setInfoSourceURL(infosource.getWebsiteUrl());
                                     }
+                                    taxonConceptDao.addSensitiveStatus(guid, ss);
+                                    ctr++;
                                 }
 				lineNo++;
 				nextLine = reader.readNext();
