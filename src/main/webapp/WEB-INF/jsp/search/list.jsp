@@ -328,10 +328,22 @@
                     <c:choose>
                         <c:when test="${result.class.name == 'org.ala.dto.SearchTaxonConceptDTO'}">
                             <h4> 
-                                <c:if test="${not empty result.thumbnail}"><a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><img class="alignright" src="${result.thumbnail}" width="85" height="85" alt="species image thumbnail"/></a></c:if>
+                                <c:if test="${not empty result.thumbnail}">
+                                	<c:if test="${not empty result.linkIdentifier}">
+                                		<a href="${pageContext.request.contextPath}/species/${result.linkIdentifier}" class="occurrenceLink"><img class="alignright" src="${result.thumbnail}" width="85" height="85" alt="species image thumbnail"/></a>
+                                	</c:if>
+                                	<c:if test="${empty result.linkIdentifier}">
+                                		<a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><img class="alignright" src="${result.thumbnail}" width="85" height="85" alt="species image thumbnail"/></a>
+                                	</c:if>
+                               	</c:if>
                                 <c:if test="${empty result.thumbnail}"><div class="alignright" style="width:85px; height:40px;"></div></c:if>
                                 <span style="text-transform: capitalize; display: inline;">${result.rank}</span>:
-                                <a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${result.rankId}" name="${not empty result.nameComplete ? result.nameComplete : result.name}" acceptedName="${result.acceptedConceptName}"/> ${result.author}</a>
+                                <c:if test="${not empty result.linkIdentifier}">
+                                	<a href="${pageContext.request.contextPath}/species/${result.linkIdentifier}" class="occurrenceLink"><alatag:formatSciName rankId="${result.rankId}" name="${not empty result.nameComplete ? result.nameComplete : result.name}" acceptedName="${result.acceptedConceptName}"/> ${result.author}</a>
+                                </c:if>
+                                <c:if test="${empty result.linkIdentifier}">
+                                	<a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><alatag:formatSciName rankId="${result.rankId}" name="${not empty result.nameComplete ? result.nameComplete : result.name}" acceptedName="${result.acceptedConceptName}"/> ${result.author}</a>
+                                </c:if>
                                 <c:if test="${not empty result.commonNameSingle}"><span class="commonNameSummary">&nbsp;&ndash;&nbsp; ${result.commonNameSingle}</span></c:if>
                             </h4>
                             <p>
