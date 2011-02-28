@@ -1443,6 +1443,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					
 					if (hasPredicate(triples, Predicates.IMAGE_URL)) {
 						addImage(guid, image);
+						logger.info("ADDING IMAGE TO: " + guid);
 					}
 					
 					if (hasPredicate(triples, Predicates.VIDEO_PAGE_URL)) {
