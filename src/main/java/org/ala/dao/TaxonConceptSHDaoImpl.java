@@ -1439,16 +1439,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 					if (hasPredicate(triples, Predicates.DIST_MAP_IMG_URL)) {
 						addDistributionImage(guid, image);
-					}
-					
-					if (hasPredicate(triples, Predicates.IMAGE_URL)) {
+					} else if (hasPredicate(triples, Predicates.VIDEO_PAGE_URL)) {
+                        addScreenshotImage(guid, image);
+                    } else {
 						addImage(guid, image);
 						logger.info("ADDING IMAGE TO: " + guid);
 					}
 					
-					if (hasPredicate(triples, Predicates.VIDEO_PAGE_URL)) {
-                        addScreenshotImage(guid, image);
-                    } 
+					
 				} else {
 					// do something for videos.....
 				}
