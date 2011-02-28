@@ -95,7 +95,12 @@ public class CassandraPelopsHelper implements StoreHelper  {
             		if(type != null){
             			// convertion is based on pre-define ColumnType.
 		            	if(!type.isList()){
-		            		o = mapper.readValue(value, type.getClazz());
+		            		if(type == ColumnType.LINK_IDENTIFIER){
+		            			o = value;
+		            		}
+		            		else{
+		            			o = mapper.readValue(value, type.getClazz());
+		            		}
 		            	}
 		            	else{
 		            		o = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, type.getClazz()));
