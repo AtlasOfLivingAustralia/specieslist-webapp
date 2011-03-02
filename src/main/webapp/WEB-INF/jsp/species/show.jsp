@@ -764,11 +764,12 @@ include file="/common/taglibs.jsp" %>
                                     <c:set var="thumbUri">${screenshot.repoLocation}</c:set>
                                     <c:set var="screenshotUri">
                                             <c:choose>
-                                                <c:when test="${not empty screenshot.isPartOf}">
-                                                    ${screenshot.isPartOf}
-                                                </c:when>
+                                                
                                                 <c:when test="${not empty screenshot.identifier}">
                                                     ${screenshot.identifier}
+                                                </c:when>
+                                                <c:when test="${not empty screenshot.isPartOf}">
+                                                    ${screenshot.isPartOf}
                                                 </c:when>
                                                 <c:otherwise>
                                                     ${screenshot.infoSourceURL}
