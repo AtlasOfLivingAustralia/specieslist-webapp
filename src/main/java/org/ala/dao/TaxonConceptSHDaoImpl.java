@@ -1435,6 +1435,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 								.toString()));
 						image.setRights(dublinCore.get(Predicates.DC_RIGHTS
 								.toString()));
+						image.setIdentifier(dublinCore.get(Predicates.DC_IDENTIFIER
+                                .toString()));
 					}
 
 					if (hasPredicate(triples, Predicates.DIST_MAP_IMG_URL)) {
@@ -1443,7 +1445,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                         addScreenshotImage(guid, image);
                     } else {
 						addImage(guid, image);
-						logger.info("ADDING IMAGE TO: " + guid);
+//						logger.info("ADDING IMAGE TO: " + guid);
 					}
 					
 					
