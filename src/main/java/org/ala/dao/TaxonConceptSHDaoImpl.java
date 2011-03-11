@@ -2343,8 +2343,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			if(tc!=null){
 				spDTO.setGuid(tc.getGuid());
 				spDTO.setScientificName(tc.getNameString());
-				if(tc.getLeft() != null) spDTO.setLeft(tc.getLeft().toString());
-				if(tc.getRight() != null) spDTO.setRight(tc.getRight().toString());
+                                spDTO.setRank(tc.getRankString());
+                                if(tc.getLeft() != null) spDTO.setLeft(tc.getLeft().toString());
+                                if(tc.getRight() != null) spDTO.setRight(tc.getRight().toString());
 				if(!cns.isEmpty()){
 					spDTO.setCommonName(cns.get(0).getNameString());
 				}

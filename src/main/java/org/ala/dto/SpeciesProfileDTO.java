@@ -29,6 +29,7 @@ public class SpeciesProfileDTO {
 	private String guid;
 	private String scientificName;
 	private String commonName;
+        private String rank;
 	private List<String> habitats = new ArrayList<String>();
         private String left;
         private String right;
@@ -115,6 +116,13 @@ public class SpeciesProfileDTO {
             this.sensitiveStatus = sensitiveStatus;
         }
 
+        public String getRank() {
+            return rank;
+        }
+
+        public void setRank(String rank) {
+            this.rank = rank;
+        }
 
 
 }
