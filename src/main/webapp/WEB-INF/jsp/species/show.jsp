@@ -250,7 +250,7 @@ include file="/common/taglibs.jsp" %>
                                         // build content string
                                         content = content + li;
                                     });
-                                    content = content + '</ul><div id="'+facet.fieldName+'_chart_div" style="margin: -15px;"></div>';
+                                    content = content + '</ul><div id="'+facet.fieldName+'_chart_div" style="margin: -10px;"></div>';
                                     $('#recordBreakdowns').append(content);
 
                                     if (facet.fieldName == 'occurrence_date' || facet.fieldName == 'month') {
