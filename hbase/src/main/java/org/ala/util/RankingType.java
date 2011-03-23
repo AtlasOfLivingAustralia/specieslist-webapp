@@ -13,14 +13,17 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 public enum RankingType {
 //	RK_IMAGE("rk", "image", ColumnType.IMAGE_COL, "identifier", ImageRanking.class),
-	RK_IMAGE("rk", "image", ColumnType.IMAGE_COL, ImageRanking.class), 
-	RK_COMMON_NAME("rk", "commonName", ColumnType.VERNACULAR_COL, BaseRanking.class);
+//	RK_IMAGE("rk", "image", ColumnType.IMAGE_COL, BaseRanking.class), 
+//	RK_COMMON_NAME("rk", "commonName", ColumnType.VERNACULAR_COL, BaseRanking.class);
+
+	RK_IMAGE("rk", "image", ColumnType.IMAGE_COL, new String[]{"identifier"}), 
+	RK_COMMON_NAME("rk", "commonName", ColumnType.VERNACULAR_COL, new String[]{"nameString"});
 
 	private String superColumnName;
 	private String columnFamily;
 	private ColumnType columnType;
-//	private String compareFieldName; //AttributableObject.identifier (Image and CommonName)
-	private Class clazz;
+	private String[] compareFieldName; //AttributableObject.identifier (Image and CommonName)
+//	private Class clazz;
 			
 	private static final Map<String, RankingType> columnNameLookup = new HashMap<String, RankingType>();
 	private static final Map<ColumnType, RankingType> tcColumnTypeLookup = new HashMap<ColumnType, RankingType>();
@@ -51,12 +54,12 @@ public enum RankingType {
 	 * 
 	 * @param mimeType
 	 */
-	private RankingType(String columnFamily, String superColumnName, ColumnType columnType, Class clazz) {
+	private RankingType(String columnFamily, String superColumnName, ColumnType columnType, String[] compareFieldName) {
 		this.superColumnName = superColumnName;
 		this.columnFamily = columnFamily;
 		this.columnType = columnType;
-//		this.compareFieldName = compareFieldName;
-		this.clazz = clazz;
+		this.compareFieldName = compareFieldName;
+//		this.clazz = clazz;
 	}
 
 	public String getSuperColumnName() {
@@ -67,17 +70,17 @@ public enum RankingType {
 		return columnFamily;
 	} 
 	
-//	public String getCompareFieldName() {
-//		return compareFieldName;
-//	}
+	public String[] getCompareFieldName() {
+		return compareFieldName;
+	}
 	
 	public ColumnType getColumnType() {
 		return columnType;
 	}
 	
-	public Class getClazz() {
-		return clazz;
-	}
+//	public Class getClazz() {
+//		return clazz;
+//	}
 	
     @Override
     public String toString() {
