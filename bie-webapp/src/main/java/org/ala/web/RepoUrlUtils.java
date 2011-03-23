@@ -147,6 +147,9 @@ public class RepoUrlUtils {
 		}
 		
 		int lastFileSep = imageLocation.lastIndexOf(File.separatorChar);
+		if(lastFileSep < 0){
+			lastFileSep = imageLocation.lastIndexOf("/");
+		}
 		String baseUrl = imageLocation.substring(0, lastFileSep+1);
 		String fileName = imageLocation.substring(lastFileSep+1);
 		String extension = FilenameUtils.getExtension(fileName);

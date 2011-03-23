@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -107,6 +108,18 @@ public class PageUtils {
     		map.put(prevName.getNameString(), list);
     	}
     	return map;
+    }
+    
+    public static String[] commonNameRankingOrderKey(Set<String> keys, List<CommonName> names){
+    	LinkedHashSet<String> set = new LinkedHashSet<String>();
+    	Iterator<CommonName> it = names.iterator();
+    	while(it.hasNext()){
+    		CommonName cName = it.next();
+    		if(keys.contains(cName.getNameString())){
+    			set.add(cName.getNameString());
+    		}
+    	}
+    	return set.toArray(new String[0]);
     }
     
 	/**

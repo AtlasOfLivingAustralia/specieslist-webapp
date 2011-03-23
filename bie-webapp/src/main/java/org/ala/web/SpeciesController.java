@@ -346,8 +346,9 @@ public class SpeciesController {
         //common name with many infosources
         List<CommonName> names = PageUtils.fixCommonNames(etc.getCommonNames()); // remove duplicate names
         Map<String, List<CommonName>> namesMap = PageUtils.sortCommonNameSources(names);
-        String[] keyArray = namesMap.keySet().toArray(new String[0]);
-        Arrays.sort(keyArray, String.CASE_INSENSITIVE_ORDER);
+        String[] keyArray = PageUtils.commonNameRankingOrderKey(namesMap.keySet(), names);
+//        String[] keyArray = namesMap.keySet().toArray(new String[0]);
+//        Arrays.sort(keyArray, String.CASE_INSENSITIVE_ORDER);
         model.addAttribute("sortCommonNameSources", namesMap);
         model.addAttribute("sortCommonNameKeys", keyArray);
         
@@ -368,7 +369,7 @@ public class SpeciesController {
         	rankedUris.add(sr.getUri());
         	rankingMap.put(sr.getUri(), sr.isPositive());
         }
-
+        
         TaxonConcept tc = etc.getTaxonConcept();
         
         //load the hierarchy
