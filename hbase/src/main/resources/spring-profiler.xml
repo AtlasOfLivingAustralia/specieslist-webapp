@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <!--  Scan source files for annotations for DI -->
+    <context:component-scan base-package="org.ala"/>
+    
+    <!-- Over-ride bean properties - including dataSource configs -->
+    <context:property-override location="classpath:bie.properties" ignore-unresolvable="true" ignore-resource-not-found="true"/>
+    
+    <bean id="CBIndexSearch" class="au.org.ala.checklist.lucene.CBIndexSearch" lazy-init="true">
+        <constructor-arg value="/data/lucene/namematching"/>
+    </bean>
+
+    <bean id="cassandraHelper" class="org.ala.dao.CassandraPelopsHelper" init-method="init" lazy-init="true"/>
+    <!--  bean id="cassandraHelper" class="org.ala.dao.CassandraHelper" init-method="init" lazy-init="true"/ -->
+    
+    <bean id="taxonConceptDao" class="org.ala.dao.TaxonConceptSHDaoImpl" lazy-init="true">
+      <property name="storeHelper" ref="cassandraHelper"/>
+    </bean>
+    
+    <bean id="geoRegionDao" class="org.ala.dao.GeoRegionDaoImpl" lazy-init="true">
+      <property name="storeHelper" ref="cassandraHelper"/>
+    </bean>
+    
+    <bean id="rankingDao" class="org.ala.dao.RankingDaoImpl" lazy-init="true">
+      <property name="storeHelper" ref="cassandraHelper"/>
+    </bean>
+</beans>
