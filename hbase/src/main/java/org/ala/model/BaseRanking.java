@@ -10,8 +10,8 @@ public class BaseRanking implements Comparable<BaseRanking> {
 	protected String fullName;
 	protected boolean positive;
 	protected boolean isBlackListed = false;
-//	protected String uri;
 	
+	//image field name = identifier, common name fie
 	protected Map<String, String> compareFieldValue;
 	
 	@Override
@@ -19,14 +19,6 @@ public class BaseRanking implements Comparable<BaseRanking> {
 		return 0;
 	}
 
-//	public String getUri() {
-//		return uri;
-//	}
-//
-//	public void setUri(String uri) {
-//		this.uri = uri;
-//	}
-	
 	public Map<String, String> getCompareFieldValue() {
 		return compareFieldValue;
 	}
