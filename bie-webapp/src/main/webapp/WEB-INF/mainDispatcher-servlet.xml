@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd
+           http://www.springframework.org/schema/mvc 
+           http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+    
+    <!-- Scans the classpath of this application for @Components to deploy as beans -->
+    <context:component-scan base-package="org.ala.web"/>
+    
+    <!-- Configures the @Controller programming model -->
+    <mvc:annotation-driven />
+
+    <!-- Where to load static resources (css, js, images) -->
+    <mvc:resources mapping="/static/**" location="/" />
+    <mvc:resources mapping="/robots.txt" location="/robots.txt" />
+    <mvc:resources mapping="/sitemap*" location="/" />
+
+    <!-- Resolves view names to protected .jsp resources within the /WEB-INF/views directory -->
+    <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver" p:order="10">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!-- Application Message Bundle -->
+    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basename" value="/WEB-INF/messages"/>
+        <property name="cacheSeconds" value="10"/><!-- loads changes without restarting container -->
+        <property name="useCodeAsDefaultMessage" value="true"/>
+    </bean>
+
+    <!-- This will override the default DefaultAnnotationHandlerMapping that is created,
+      -  and not map file extensions automagically -->
+    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" p:order="2">
+        <property name="useDefaultSuffixPattern" value="false"/>
+    </bean>
+   
+    <!--
+      - This bean resolves specific types of exceptions to corresponding logical
+      - view names for error views. The default behaviour of DispatcherServlet
+      - is to propagate all exceptions to the servlet container: this will happen
+      - here with all other types of exceptions.
+     -->
+    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionAttribute" value="error"/>
+        <property name="defaultStatusCode" value="500"/>
+        <property name="exceptionMappings">
+            <props>
+                <prop key="org.springframework.web.servlet.PageNotFound">error/pageNotFound</prop>
+                <prop key="org.springframework.dao.DataAccessException">error/dataAccessFailure</prop>
+                <prop key="org.springframework.transaction.TransactionException">error/dataAccessFailure</prop>
+            </props>
+        </property>
+        <property name="defaultErrorView" value="error/general" />
+    </bean>
+
+    <!-- Content negotiation view resolver - uses either accept header mime type of the request
+     -   or the file extention for the request URL -->
+    <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver" p:order="1">
+        <property name="mediaTypes">
+            <map>
+                <entry key="html" value="text/html" />
+                <entry key="xml"  value="application/xml"/>
+                <entry key="json" value="application/json"/>
+            </map>
+        </property>
+        <property name="defaultViews">
+            <list>
+                <bean class="org.springframework.web.servlet.view.xml.MarshallingView">
+                    <property name="marshaller">
+                        <bean class="org.springframework.oxm.xstream.XStreamMarshaller">
+                            <property name="autodetectAnnotations" value="true" />
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView" />
+            </list>
+        </property>
+        <property name="defaultContentType" ref="htmlMediaType" />
+        <property name="ignoreAcceptHeader" value="true" />
+    </bean>
+    
+    <!-- Specify the default media type (html) as we have disabled the 
+      -  default setting with DefaultAnnotationHandlerMapping -->
+    <bean id="htmlMediaType" class="org.springframework.http.MediaType">
+        <constructor-arg index="0" value="text" />
+        <constructor-arg index="1" value="html" />
+    </bean>
+
+    <!-- Over-ride bean properties - including dataSource configs -->
+    <context:property-override location="classpath:bie.properties" ignore-unresolvable="true" ignore-resource-not-found="true"/>
+    
+</beans>

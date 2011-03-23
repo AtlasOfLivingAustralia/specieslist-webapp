@@ -1,0 +1,188 @@
+/* 
+    Document   : alastyles
+    Created on : 17/07/2009, 9:56:10 AM
+    Author     : oak021
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root {
+    display: block;
+}
+body {
+  font:13px arial,verdana,sans-serif;font-size:small;font:x-small; /*Y!*/
+	color:#000;
+	background-color:#fff;
+	margin-top:0 !important;
+	margin-right:2%;
+	margin-bottom:0 !important;
+	margin-left:2%;
+}
+
+#header {
+  background-color: #FFFFFF;
+  color: #bed600;
+  width: 100%;
+  height: 90px;
+  font: 24px/48px "Lucida Grande", "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+#topmenu{
+  background-color: #FFFFFF;
+  width: 100%;
+  height: 3em;
+}
+
+#topmenu ul
+{
+list-style: none;
+padding: 0;
+margin: 0;
+}
+
+#topmenu li
+{
+float: left;
+margin: 0 0.15em;
+}
+
+#topmenu li a
+{
+    background-image:url(../background.gif);
+background:  #999999 bottom left repeat-x;
+height: 2em;
+line-height: 2em;
+float: left;
+width: 9em;
+display: block;
+border: 0.1em solid #dcdce9;
+text-decoration: none;
+text-align: center;
+}
+#facetBar {
+  clear: both;
+  background-color: #FFFFFF; color: #bed600;
+  float: left;
+  width: 15%;
+display:inline;
+}
+#facetBar li { margin: 0; }
+
+#facetBar a,.FieldName
+{
+display: block;
+padding: 5px 10px;
+width: 200px;
+color: #000;
+background-color: #bed600;
+text-decoration: none;
+border-top: 1px solid #fff;
+border-left: 1px solid #fff;
+border-bottom: 1px solid #333;
+border-right: 1px solid #333;
+font-weight: bold;
+font-size: .8em;
+background-image: url(images/vertical06.jpg);
+background-repeat: no-repeat;
+background-position: 0 0;
+}
+
+#facetBar a:hover
+{
+color: #000;
+background-color: #bed600;
+text-decoration: none;
+border-top: 1px solid #333;
+border-left: 1px solid #333;
+border-bottom: 1px solid #fff;
+border-right: 1px solid #fff;
+background-image: url(images/vertical06a.jpg);
+background-repeat: no-repeat;
+background-position: 0 0;
+}
+
+#facetBar ul ul li { margin: 0; }
+
+#facetBar ul ul a
+{
+display: block;
+padding: 5px 5px 5px 30px;
+width: 200px;
+color: #000;
+background-color: #e1eaa4;
+text-decoration: none;
+font-weight: normal;
+}
+
+#facetBar ul ul a:hover
+{
+color: #000;
+background-color: #bed600;
+text-decoration: none;
+}
+#facetBar { margin-left: 30px; }
+#facetBar ul
+{
+margin: 0;
+padding: 0;
+list-style-type: none;
+font-family: verdana, arial, Helvetica, sans-serif;
+}
+
+#sidemenu {
+clear: both;
+background-image:url('castle.gif');
+  background-color: #FFFFFF; color: #bed600;
+  float: left;
+  width: 15%;
+  height: 500px;
+}
+
+#content {
+  float: left;
+  width: 70%;
+  height: 500px;
+  margin: 0.3em 1em;
+
+  background-color: #fff;
+	font: 11px/24px "Lucida Grande", "Trebuchet MS", Arial, Helvetica, sans-serif;
+	color: #36C;
+}
+.propertyTable th {
+     border:2px solid #999;
+     vertical-align:top;
+     background-color:#e1eaa4;
+     padding:5px;
+ }
+ .propertyTable tr {
+     background-color:#fff;
+ }
+ .propertyTable td {
+     border:1px solid #999;
+     vertical-align:top;
+     padding:5px;
+ }
+ .resultTable th {
+     border:2px solid #999;
+     vertical-align:top;
+     background-color:#e1eaa4;
+     padding:5px;
+ }
+ .resultTable tr {
+     background-color:#fff;
+ }
+ .resultTable td {
+     border:1px solid #999;
+     vertical-align:top;
+ }
+.resultTable em {
+    background: #e1eaa4;
+}
+#footer {
+  background-color: #FFFFFF; color: #FFFFFF;
+  clear: both;
+  width: 100%;
+  height: 50px;
+}
+ s:textfield {
+     width:auto;
+ }
