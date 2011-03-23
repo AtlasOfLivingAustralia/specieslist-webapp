@@ -1,6 +1,0 @@
-The file "content-only.php" is part of the WordPress plugin "Show Content Only" and has been
-modified so that WP can be crawled and indexed using SOLR (see org.ala.lucene.CreateWordPressIndex).
-
-http://wordpress.org/extend/plugins/show-content-only/
-
-Nick dos Remedios <nick.dosremedios@csiro.au>
