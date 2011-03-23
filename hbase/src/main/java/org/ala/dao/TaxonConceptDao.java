@@ -21,6 +21,7 @@ import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.dto.SpeciesProfileDTO;
+import org.ala.model.BaseRanking;
 import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
@@ -38,6 +39,7 @@ import org.ala.model.SpecimenHolding;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
 import org.ala.model.Triple;
+import org.ala.util.ColumnType;
 import org.ala.util.StatusType;
 import org.apache.lucene.queryParser.ParseException;
 
@@ -819,4 +821,6 @@ public interface TaxonConceptDao {
      * @return
      */	
 	String findLSIDByCommonName(String commonName);
+	
+	public boolean setRanking(String guid, ColumnType columnType, BaseRanking ir)throws Exception;
 }

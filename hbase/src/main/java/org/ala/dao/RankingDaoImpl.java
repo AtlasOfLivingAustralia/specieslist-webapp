@@ -14,15 +14,32 @@
  ***************************************************************************/
 package org.ala.dao;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.inject.Inject;
 
 import org.ala.model.Ranking;
 import org.apache.log4j.Logger;
+
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.common.SolrInputDocument;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+
+import org.ala.util.ColumnType;
+import org.ala.util.RankingType;
+import org.ala.util.SpringUtils;
+import org.ala.model.BaseRanking;
+import org.ala.dto.FacetResultDTO;
+import org.ala.dto.FieldResultDTO;
+import org.ala.dto.SearchResultsDTO;
 
 /**
  * Simple ranking DAO implementation
@@ -156,4 +173,173 @@ public class RankingDaoImpl implements RankingDao {
 	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
 		this.taxonConceptDao = taxonConceptDao;
 	}
+	
+	/** ======================================
+	 * Ranking functions
+	 * 
+	 * ColumnFamily = 'rk'
+	 =========================================*/
+	@Inject
+	private FulltextSearchDao searchDao;
+	
+	@Inject
+	protected SolrUtils solrUtils;
+
+	public static String RK_COLUMN_FAMILY = "rk";	
+	protected SolrServer solrServer = null;
+
+	/**
+	 * @see org.ala.dao.RankingDao#rankImageForTaxon(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Integer, boolean)
+	 */
+	public boolean rankingForTaxon(String guid, ColumnType columnType, BaseRanking baseRanking) throws Exception {
+		RankingType rankingType = RankingType.getRankingTypeByTcColumnType(columnType);		
+		
+		String key = "" + System.currentTimeMillis();
+		//save rk table	
+		storeHelper.put(rankingType.getColumnFamily(), rankingType.getColumnFamily(), rankingType.getSuperColumnName(), key, guid, baseRanking);
+		// save tc table
+		taxonConceptDao.setRanking(guid, rankingType.getColumnType(), baseRanking);
+		// update solr index
+		addRankingIndex(rankingType, baseRanking, key, guid);
+
+		return true;
+	}	
+		
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#createIndex()
+	 */
+	public void createIndex() throws Exception {
+		long start = System.currentTimeMillis();
+
+		if(solrServer == null){
+			solrServer = solrUtils.getSolrServer();
+		}		
+        solrServer.deleteByQuery("idxtype:"+IndexedTypes.RANKING); // delete everything!
+    	
+    	int i = 0;
+    	int j = 0;
+    	
+		Scanner scanner = storeHelper.getScanner(RK_COLUMN_FAMILY, RK_COLUMN_FAMILY);		
+		byte[] guidAsBytes = null;		
+		while ((guidAsBytes = scanner.getNextGuid())!=null) {    		
+			String guid = new String(guidAsBytes);
+			i++;
+			
+			if(i%1000==0){
+				logger.info("Indexed records: "+i+", current guid: "+guid);
+			}
+    		
+    		//get taxon concept details
+			List<String> list = storeHelper.getSuperColumnsByGuid(guid, RK_COLUMN_FAMILY);
+			for(String superColumnName : list){
+				RankingType rankingType = RankingType.getRankingTypeByColumnName(superColumnName);
+				Map<String, List<Comparable>> columnList = storeHelper.getColumnList(RK_COLUMN_FAMILY, superColumnName, guid, rankingType.getClazz());
+				Set<String> keys = columnList.keySet();
+				Iterator<String> itr = keys.iterator();
+				while(itr.hasNext()){
+					String key = itr.next();
+					List<Comparable> rankingList = columnList.get(key);
+					for(Comparable c : rankingList){
+						BaseRanking br = (BaseRanking)c;
+			    		SolrInputDocument doc = new SolrInputDocument();
+			    		doc.addField("idxtype", IndexedTypes.RANKING);
+			    		doc.addField("userId", br.getUserId());
+			    		doc.addField("userIP", br.getUserIP());
+			    		doc.addField("id", key);
+			    		doc.addField("guid", guid);
+			    		doc.addField("superColumnName", superColumnName);
+			            solrServer.add(doc);
+			            solrServer.commit();
+			            j++;
+						if(j%1000==0){
+							logger.info("Indexed records: "+j+", current guid: "+guid);
+						}
+					}
+				}
+			}
+    	}
+    	long finish = System.currentTimeMillis();
+    	logger.info("Index created in: "+((finish-start)/1000)+" seconds with  species: " + i + ", column items: " + j);
+	}
+	
+	private void addRankingIndex(RankingType rankingType, BaseRanking baseRanking, String columnName, String guid) throws Exception{
+		if(solrServer == null){
+			solrServer = solrUtils.getSolrServer();
+		}
+		
+		SolrInputDocument doc = new SolrInputDocument();
+		doc.addField("idxtype", IndexedTypes.RANKING);
+		doc.addField("userId", baseRanking.getUserId());
+		doc.addField("userIP", baseRanking.getUserIP());
+		doc.addField("id", columnName); //timestamp
+		doc.addField("guid", guid);
+		doc.addField("superColumnName", rankingType.getSuperColumnName());
+        solrServer.add(doc);
+        solrServer.commit();		
+	}
+	
+	private static void printFacetResult(Collection collection){
+		Iterator itr = collection.iterator();
+		while(itr.hasNext()){
+			FacetResultDTO dto = (FacetResultDTO)itr.next();
+			System.out.println("****** fieldName: " + dto.getFieldName());
+			List<FieldResultDTO> l = dto.getFieldResult();
+			for(FieldResultDTO fieldResultDTO : l){
+				System.out.println("****** fieldValue: " + fieldResultDTO.getLabel());
+				System.out.println("****** fieldCount: " + fieldResultDTO.getCount() + "\n");
+			}
+		}
+	}
+			
+	public static void main(String[] args){
+		try {
+			ApplicationContext context = SpringUtils.getContext();
+			RankingDao rankingDao = context.getBean(RankingDaoImpl.class);
+			FulltextSearchDao searchDao = context.getBean(FulltextSearchDaoImplSolr.class);
+			
+			//create ranking solr index of 'rk' columnFamily
+//			rankingDao.createIndex();
+			
+			String guid = "urn:lsid:biodiversity.org.au:afd.taxon:f6e0d6c9-80fe-4355-bbe9-d94b426ab52e";
+			String userId = "waiman.mok@csiro.au";
+			
+			BaseRanking baseRanking = new BaseRanking();
+			baseRanking.setUserId(userId);
+			baseRanking.setUserIP("127.0.0.1");
+			baseRanking.setFullName("hello");
+			baseRanking.setBlackListed(false);
+			baseRanking.setPositive(true);
+			
+			Map<String, String> map = new Hashtable<String, String> ();
+			
+			//ranking common name....
+//			baseRanking.setUri("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/47d3bff0-5df7-41d9-b682-913428aed5f0");			
+			map.put("nameString", "Fine-spotted Porcupine-fish");
+			baseRanking.setCompareFieldValue(map);
+//			boolean b = rankingDao.rankingForTaxon(guid, ColumnType.VERNACULAR_COL, baseRanking); 
+			
+			//ranking image....
+//			baseRanking.setUri("http://upload.wikimedia.org/wikipedia/commons/d/de/Ameisenigel_Unterseite-drawing.jpg");
+			map.clear();
+			map.put("identifier", "http://upload.wikimedia.org/wikipedia/commons/d/de/Ameisenigel_Unterseite-drawing.jpg");
+			baseRanking.setCompareFieldValue(null);
+//			b = rankingDao.rankingForTaxon(guid, ColumnType.IMAGE_COL, baseRanking);
+			
+			//search ranking info....
+			searchDao.updateSolrIndexRanking(guid, "", "Yellow Boxfish");
+			
+//			Collection result = searchDao.getRankingFacetByUserIdAndGuid(userId, null);
+//			printFacetResult(result);
+//			System.out.println("\n===========================\n");
+//			result = searchDao.getRankingFacetByUserIdAndGuid(userId, guid);
+//			printFacetResult(result);
+//			System.out.println("\n===========================\n");
+//			result = searchDao.getUserIdFacetByGuid(guid);
+//			printFacetResult(result);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		System.exit(0);
+	}				
 }

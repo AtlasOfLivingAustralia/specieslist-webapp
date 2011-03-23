@@ -15,6 +15,7 @@
 package org.ala.dao;
 
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.ala.dto.AutoCompleteDTO;
@@ -209,4 +210,8 @@ public interface FulltextSearchDao {
      * @throws Exception
      */
     List<AutoCompleteDTO> getAutoCompleteList(String value,IndexedTypes indexType, boolean gsOnly, int maxTerms) throws Exception;
+    
+    public Collection getRankingFacetByUserIdAndGuid(String userId, String guid) throws Exception;
+    public Collection getUserIdFacetByGuid(String guid) throws Exception;
+    public void updateSolrIndexRanking(String guid, String thumbnailUri, String commonNameSingle) throws Exception;
 }

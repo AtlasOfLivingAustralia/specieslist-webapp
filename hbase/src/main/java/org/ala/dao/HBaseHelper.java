@@ -129,5 +129,27 @@ public class HBaseHelper implements StoreHelper {
 			String columnName, String guid, String value) throws Exception {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public Scanner getScanner(String table, String columnFamily)
+			throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<String> getSuperColumnsByGuid(String guid, String columnFamily)
+			throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, List<Comparable>> getColumnList(String columnFamily,
+			String superColumnName, String guid, Class theClass)
+			throws Exception {
+		// TODO Auto-generated method stub
+		return null;
 	}	
 }

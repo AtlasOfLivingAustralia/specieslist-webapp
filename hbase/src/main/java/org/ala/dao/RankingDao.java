@@ -14,6 +14,11 @@
  ***************************************************************************/
 package org.ala.dao;
 
+import org.ala.dto.SearchResultsDTO;
+import org.ala.model.BaseRanking;
+import org.ala.util.ColumnType;
+import org.ala.util.RankingType;
+
 /**
  * A simple ranking Dao for ranking artefacts within the BIE.
  *
@@ -59,4 +64,12 @@ public interface RankingDao {
          * Reloads the image ranks from the rk columnFamily to the tc columnFamily
          */
         public void reloadImageRanks();
+        
+    	/** ======================================
+    	 * Ranking functions
+    	 * 
+    	 * ColumnFamily = 'rk'
+    	 =========================================*/
+        public void createIndex() throws Exception;
+        public boolean rankingForTaxon(String guid, ColumnType columnType, BaseRanking baseRanking) throws Exception;
 }

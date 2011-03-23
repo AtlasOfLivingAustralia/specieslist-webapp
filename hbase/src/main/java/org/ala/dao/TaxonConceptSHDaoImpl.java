@@ -16,10 +16,12 @@ package org.ala.dao;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +34,7 @@ import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.dto.SpeciesProfileDTO;
 import org.ala.model.AttributableObject;
+import org.ala.model.BaseRanking;
 import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
@@ -43,6 +46,7 @@ import org.ala.model.OccurrencesInGeoregion;
 import org.ala.model.PestStatus;
 import org.ala.model.Publication;
 import org.ala.model.Rank;
+import org.ala.model.Rankable;
 import org.ala.model.Reference;
 import org.ala.model.SensitiveStatus;
 import org.ala.model.SimpleProperty;
@@ -56,6 +60,7 @@ import org.ala.util.FileType;
 import org.ala.util.MimeType;
 import org.ala.util.StatusType;
 import org.ala.vocabulary.Vocabulary;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
@@ -76,7 +81,12 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.util.ClientUtils;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.gbif.ecat.model.ParsedName;
 import org.gbif.ecat.parser.NameParser;
@@ -89,6 +99,7 @@ import au.org.ala.checklist.lucene.model.NameSearchResult;
 import au.org.ala.data.model.LinnaeanRankClassification;
 import au.org.ala.data.util.RankType;
 
+import org.ala.util.RankingType;
 /**
  * Database agnostic implementation if Taxon concept DAO.
  * 
@@ -2442,4 +2453,166 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public void setSolrUtils(SolrUtils solrUtils) {
 		this.solrUtils = solrUtils;
 	}
+	
+	/** ======================================
+	 * Ranking functions
+	 * 
+	 =========================================*/
+	public List getColumn(ColumnType columnType, String guid) throws Exception {
+		return storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
+				columnType.getColumnName(), guid, columnType.getClazz());
+	}
+		
+	private Rankable changeRanking(Rankable rankable, BaseRanking ir){
+		if(ir.isBlackListed()){
+			rankable.setIsBlackListed(ir.isBlackListed());
+		}
+		else{
+			Integer ranking = rankable.getRanking();
+			Integer noOfRankings = rankable.getNoOfRankings();
+			if (ranking == null) {
+				if (ir.isPositive()) {
+					ranking = new Integer(1);
+				} else {
+					ranking = new Integer(-1);
+				}
+				noOfRankings = new Integer(1);
+			} else {
+				if (ir.isPositive()) {
+					ranking++;
+				} else {
+					ranking--;
+				}
+				noOfRankings++;
+			}
+			rankable.setRanking(ranking);				
+			rankable.setNoOfRankings(noOfRankings);
+		}		
+		return rankable;
+	}
+		
+	
+	public boolean setRanking(String guid, ColumnType columnType, BaseRanking baseRanking)throws Exception{
+		List list = new ArrayList();
+		
+		RankingType rt = RankingType.getRankingTypeByTcColumnType(columnType);
+		List<Rankable> objs = getColumn(columnType, guid);		
+		//In common Name, it will increase/decrease ranking for all columns with same commonName.
+		//In Image, it will increase/decrease ranking for one column with same uri.
+		for (Rankable rankable : objs) {
+			// All Rankable object are extended from AttributableObject, eg: 'identifier' is 
+			// a field name of AttributableObject, it stored the uri value.			
+			boolean ok = true;
+			Map<String, String> map = baseRanking.getCompareFieldValue();				
+			if(map != null){
+				Set keys = map.keySet();
+				Iterator itr = keys.iterator();
+				while(itr.hasNext()){
+					String key = (String) itr.next();
+					String value = BeanUtils.getProperty(rankable, key);
+					String compareValue = map.get(key);
+					if(!compareValue.equalsIgnoreCase(value)){
+						ok = false;
+						break;
+					}
+				}
+			}
+			if(ok){
+				list.add(changeRanking(rankable, baseRanking));	
+			}
+			else{
+				list.add(rankable);	
+			}			
+		}
+
+		// re-sort based on the rankings
+		Collections.sort(list);
+		
+		//update solr index
+		if(list.size() > 0){	
+			Object o = list.get(0);
+			if(RankingType.RK_IMAGE == rt){
+				String value = BeanUtils.getProperty(o, "repoLocation");
+				value = value.replace("raw", "thumbnail");
+				updateSolrIndexRanking(guid, value, null);
+			}
+			else if(RankingType.RK_COMMON_NAME == rt){
+				String value = BeanUtils.getProperty(o, "nameString");
+				updateSolrIndexRanking(guid, null, value);
+			}
+		}
+		logger.debug("setRanking(..) save to Cassandta !!!");
+		// write back to database
+		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
+				columnType.getColumnName(), guid, (List)list, false);
+	}	
+	
+	private void updateSolrIndexRanking(String guid, String thumbnailUri, String commonNameSingle) throws Exception {
+		String key = null;
+		
+		SolrQuery solrQuery = new SolrQuery();
+        solrQuery.setQueryType("standard");	        
+	    
+		if(guid == null || guid.length() < 1 || "*".equals(guid)){
+			logger.info("Invalid guid: " + guid);
+			return;
+		}
+		else{
+			key = ClientUtils.escapeQueryChars(guid);
+		}		
+		solrQuery.setQuery("idxtype:" + IndexedTypes.TAXON + " AND id:" + key);
+		
+		// do the Solr search
+        QueryResponse qr = solrUtils.getSolrServer().query(solrQuery); // can throw exception
+        SolrDocumentList sdl = qr.getResults();
+
+        //assume only one record in the list.
+        logger.debug("*** sdl size: " + sdl.size());
+        if(sdl != null && sdl.size() > 0){
+        	SolrDocument d = sdl.get(0);
+        	String id = (String)d.get("id");
+        	SolrInputDocument doc = new SolrInputDocument();
+        	
+        	//populate new doc with new value
+        	doc.addField("id", id);
+        	Object o = d.get("thumbnail");
+        	if(o != null){
+        		if(thumbnailUri != null && !"".equals(thumbnailUri)){
+        			doc.addField("thumbnail", thumbnailUri);
+        		}
+        		else{
+        			doc.addField("thumbnail", o);
+        		}
+        	}
+        	o = d.get("commonNameSingle");
+        	if(o != null){
+        		if(commonNameSingle != null && !"".equals(commonNameSingle)){
+        			doc.addField("commonNameSingle", commonNameSingle);
+        		}
+        		else{
+        			doc.addField("commonNameSingle", o);
+        		}        	
+        	}
+        	
+        	// copy old value into new doc.
+        	Iterator<Map.Entry<String, Object>> i = d.iterator();
+        	while(i.hasNext()){
+        		Map.Entry<String, Object> e2 = i.next();
+        		if(!"thumbnail".equals(e2.getKey()) && !"commonNameSingle".equals(e2.getKey()) && !"id".equals(e2.getKey())){
+        			doc.addField(e2.getKey(), e2.getValue());
+        		} 
+        	}
+        	if(id != null){
+        		SolrServer server = solrUtils.getSolrServer();
+        		//delete old doc
+//        		server.deleteById(id);
+//        		server.commit();
+        		//add new doc
+        		server.add(doc);
+        		server.commit();
+        		
+        		logger.debug("updateSolrIndexRanking !!!");
+        	}
+        }
+	}	
 }

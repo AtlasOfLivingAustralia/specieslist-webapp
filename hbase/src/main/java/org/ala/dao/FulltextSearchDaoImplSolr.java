@@ -17,8 +17,10 @@ package org.ala.dao;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -40,12 +42,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.SolrInputDocument;
 import org.gbif.ecat.model.ParsedName;
 import org.gbif.ecat.parser.NameParser;
 import org.springframework.stereotype.Component;
@@ -1143,4 +1147,145 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         }
         return new ArrayList<AutoCompleteDTO>();
     }
+    
+    /*
+     * if guid is null then return all guid been updated by userId.
+     * 
+     * @return collection of FacetResultDTO
+     */
+	public Collection getRankingFacetByUserIdAndGuid(String userId, String guid) throws Exception {
+		String key = null;
+		String sortField = null;
+		try {
+			String[] fq = new String[]{};
+			SolrQuery solrQuery = new SolrQuery();
+	        solrQuery.setQueryType("standard");	        
+	        solrQuery.setRows(0);
+	        solrQuery.setFacet(true);
+	        solrQuery.setFacetMinCount(1);
+	        solrQuery.setFacetLimit(-1);  // unlimited = -1
+		    
+			if(guid == null || guid.length() < 1 || "*".equals(guid)){
+				key = "*";
+		        solrQuery.addFacetField("guid");
+		        sortField = "guid";
+			}
+			else{
+				key = ClientUtils.escapeQueryChars(guid);
+				sortField = "superColumnName";
+			}
+	        solrQuery.addFacetField("superColumnName");
+			solrQuery.setQuery("idxtype:" + IndexedTypes.RANKING + " AND userId:" + userId + " AND guid:" + key);
+			
+			SearchResultsDTO qr = doSolrQuery(solrQuery, fq, 100, 0, sortField, "asc");
+		    if(qr == null || qr.getFacetResults() == null){
+		    	return new ArrayList();
+		    }
+		    return qr.getFacetResults();
+		} catch (SolrServerException ex) {
+		    logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
+		    return new ArrayList();
+		}
+	}    	
+	
+	/*
+     * @return collection of FacetResultDTO
+     */
+	public Collection getUserIdFacetByGuid(String guid) throws Exception {
+		String key = null;
+
+		try {
+			String[] fq = new String[]{};
+			SolrQuery solrQuery = new SolrQuery();
+	        solrQuery.setQueryType("standard");	        
+	        solrQuery.setRows(0);
+	        solrQuery.setFacet(true);
+	        solrQuery.setFacetMinCount(1);
+	        solrQuery.setFacetLimit(-1);  // unlimited = -1
+		    
+			if(guid == null || guid.length() < 1 || "*".equals(guid)){
+				logger.info("Invalid guid: " + guid);
+				return new ArrayList();
+			}
+			else{
+				key = ClientUtils.escapeQueryChars(guid);
+			}
+	        solrQuery.addFacetField("userId");
+			solrQuery.setQuery("idxtype:" + IndexedTypes.RANKING + " AND guid:" + key);
+			
+		    SearchResultsDTO qr = doSolrQuery(solrQuery, fq, 100, 0, "userId", "asc");
+		    if(qr == null || qr.getFacetResults() == null){
+		    	return new ArrayList();
+		    }
+		    return qr.getFacetResults();
+		} catch (SolrServerException ex) {
+		    logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
+		    return new ArrayList();
+		}
+	}  
+	
+	public void updateSolrIndexRanking(String guid, String thumbnailUri, String commonNameSingle) throws Exception {
+		String key = null;
+		
+		SolrQuery solrQuery = new SolrQuery();
+        solrQuery.setQueryType("standard");	        
+	    
+		if(guid == null || guid.length() < 1 || "*".equals(guid)){
+			logger.info("Invalid guid: " + guid);
+			return;
+		}
+		else{
+			key = ClientUtils.escapeQueryChars(guid);
+		}		
+		solrQuery.setQuery("idxtype:" + IndexedTypes.TAXON + " AND id:" + key);
+		
+		// do the Solr search
+        QueryResponse qr = solrUtils.getSolrServer().query(solrQuery); // can throw exception
+        SolrDocumentList sdl = qr.getResults();
+
+        int j = 1;
+        for(SolrDocument d : sdl){
+        	String id = (String)d.get("id");
+        	SolrInputDocument doc = new SolrInputDocument();
+        	System.out.println("\n" + (j++) + " : ==========================");
+        	
+        	//populate new doc
+        	doc.addField("id", id);
+        	Object o = d.get("thumbnail");
+        	if(o != null){
+        		if(thumbnailUri != null && !"".equals(thumbnailUri)){
+        			doc.addField("thumbnail", thumbnailUri);
+        		}
+        		else{
+        			doc.addField("thumbnail", o);
+        		}
+        	}
+        	o = d.get("commonNameSingle");
+        	if(o != null){
+        		if(commonNameSingle != null && !"".equals(commonNameSingle)){
+        			doc.addField("commonNameSingle", commonNameSingle);
+        		}
+        		else{
+        			doc.addField("commonNameSingle", o);
+        		}        	
+        	}
+        	
+        	Iterator<Map.Entry<String, Object>> i = d.iterator();
+        	while(i.hasNext()){
+        		Map.Entry<String, Object> e2 = i.next();
+        		if(!"thumbnail".equals(e2.getKey()) && !"commonNameSingle".equals(e2.getKey()) && !"id".equals(e2.getKey())){
+        			doc.addField(e2.getKey(), e2.getValue());
+        		} 
+        		System.out.println(e2.getKey() + " : " + e2.getValue());
+        	}
+        	if(id != null){
+        		SolrServer server = solrUtils.getSolrServer();
+        		server.deleteById(id);
+        		server.commit();
+        		
+        		server.add(doc);
+        		server.commit();
+        	}
+        }
+	}
 }
