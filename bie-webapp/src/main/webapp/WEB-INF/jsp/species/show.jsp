@@ -914,12 +914,57 @@ include file="/common/taglibs.jsp" %>
                         </table>
                     </c:if>                    
                     <c:if test="${not empty extendedTaxonConcept.commonNames}">
+                    	<script type="text/javascript">
+                    		function rankThisCommonName(guid, documentId, blackList, positive, name){
+                    			 var url = "${pageContext.request.contextPath}/rankTaxonCommonName${not empty pageContext.request.remoteUser ? 'WithUser' : ''}?guid="+guid+"&blackList="+blackList+"&positive="+positive+"&name="+name;
+								var linkId = 'cnRank-'+documentId;                   			 
+								$('.cnRank-'+documentId).html('Sending your ranking....');
+				                var jqxhr = $.getJSON(url, function(data){
+
+				                	$('.cnRank-'+documentId).each(function(index) {
+										   $(this).html('Thanks for your help!');
+								         }); 
+				                });				               				                			                	 
+	                         }
+                    	</script>
                         <h2>Common Names</h2>
                         <table>
                     </c:if>
                     <c:forEach items="${sortCommonNameKeys}" var="nkey">
+                    	<c:set var="cNames" value="${sortCommonNameSources[nkey]}" />
+                    	<c:set var="fName" value='${fn:replace(nkey, " ", "")}' />
+                    	<c:set var="fName" value='${fn:replace(fName, ",", "")}' />
                     	<tr>
-                            <td>${nkey}</td>
+                            <td>
+                            	${nkey}                            	
+							<c:choose>
+                            <c:when test="${fn:contains(rankedImageUris,fName)}">
+                            <p>  
+                            <%--                          
+                            	You have ranked this Common Name as 
+                            		<c:if test="${!rankedImageUriMap[fName]}">
+                            			NOT
+                            		</c:if>
+                          			representative of ${extendedTaxonConcept.taxonConcept.nameString}
+                          			 --%>
+                          			</p>
+                            </c:when>
+                            <c:otherwise>                            	
+                            	<c:if test="${not empty cNames}">
+                                    <p class='cnRank-${fName}'>
+	       	                            	Is this Common Name representative of ${extendedTaxonConcept.taxonConcept.rankString} ?  
+	           	                           <a class="isrepresent" href="javascript:rankThisCommonName('${extendedTaxonConcept.taxonConcept.guid}','${fName}',false,true,'${nkey}');"> 
+	           	                           	  YES
+	           	                           </a>
+	           	                           	 |
+	           	                           <a class="isnotrepresent" href="javascript:rankThisCommonName('${extendedTaxonConcept.taxonConcept.guid}','${fName}',false,false,'${nkey}');"> 
+	           	                           	  NO
+	           	                           </a>
+                                	</p>
+                                </c:if> 
+                                </c:otherwise>
+                                </c:choose>                         
+                            </td>
                             <td class="source">
                                 <c:forEach items="${sortCommonNameSources[nkey]}" var="commonName">
                                     <c:choose>
