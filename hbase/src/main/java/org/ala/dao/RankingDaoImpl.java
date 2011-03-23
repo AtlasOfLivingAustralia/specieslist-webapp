@@ -233,7 +233,8 @@ public class RankingDaoImpl implements RankingDao {
 			List<String> list = storeHelper.getSuperColumnsByGuid(guid, RK_COLUMN_FAMILY);
 			for(String superColumnName : list){
 				RankingType rankingType = RankingType.getRankingTypeByColumnName(superColumnName);
-				Map<String, List<Comparable>> columnList = storeHelper.getColumnList(RK_COLUMN_FAMILY, superColumnName, guid, rankingType.getClazz());
+//				Map<String, List<Comparable>> columnList = storeHelper.getColumnList(RK_COLUMN_FAMILY, superColumnName, guid, rankingType.getClazz());
+				Map<String, List<Comparable>> columnList = storeHelper.getColumnList(RK_COLUMN_FAMILY, superColumnName, guid, BaseRanking.class);
 				Set<String> keys = columnList.keySet();
 				Iterator<String> itr = keys.iterator();
 				while(itr.hasNext()){
@@ -314,14 +315,14 @@ public class RankingDaoImpl implements RankingDao {
 			
 			//ranking common name....
 //			baseRanking.setUri("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/47d3bff0-5df7-41d9-b682-913428aed5f0");			
-			map.put("nameString", "Fine-spotted Porcupine-fish");
+			map.put(RankingType.RK_COMMON_NAME.getCompareFieldName()[0], "Fine-spotted Porcupine-fish");
 			baseRanking.setCompareFieldValue(map);
 //			boolean b = rankingDao.rankingForTaxon(guid, ColumnType.VERNACULAR_COL, baseRanking); 
 			
 			//ranking image....
 //			baseRanking.setUri("http://upload.wikimedia.org/wikipedia/commons/d/de/Ameisenigel_Unterseite-drawing.jpg");
 			map.clear();
-			map.put("identifier", "http://upload.wikimedia.org/wikipedia/commons/d/de/Ameisenigel_Unterseite-drawing.jpg");
+			map.put(RankingType.RK_IMAGE.getCompareFieldName()[0], "http://upload.wikimedia.org/wikipedia/commons/d/de/Ameisenigel_Unterseite-drawing.jpg");
 			baseRanking.setCompareFieldValue(null);
 //			b = rankingDao.rankingForTaxon(guid, ColumnType.IMAGE_COL, baseRanking);
 			

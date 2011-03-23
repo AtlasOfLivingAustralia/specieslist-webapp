@@ -2537,7 +2537,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				updateSolrIndexRanking(guid, value, null);
 			}
 			else if(RankingType.RK_COMMON_NAME == rt){
-				String value = BeanUtils.getProperty(o, "nameString");
+				String value = BeanUtils.getProperty(o, RankingType.RK_COMMON_NAME.getCompareFieldName()[0]);
 				updateSolrIndexRanking(guid, null, value);
 			}
 		}
@@ -2548,6 +2548,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	}	
 	
 	private void updateSolrIndexRanking(String guid, String thumbnailUri, String commonNameSingle) throws Exception {
+		String thumbnailFieldName = "thumbnail";
+		String commonNameSingleFieldName = "commonNameSingle";
+		
 		String key = null;
 		
 		SolrQuery solrQuery = new SolrQuery();
@@ -2575,22 +2578,22 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         	
         	//populate new doc with new value
         	doc.addField("id", id);
-        	Object o = d.get("thumbnail");
+        	Object o = d.get(thumbnailFieldName);
         	if(o != null){
         		if(thumbnailUri != null && !"".equals(thumbnailUri)){
-        			doc.addField("thumbnail", thumbnailUri);
+        			doc.addField(thumbnailFieldName, thumbnailUri);
         		}
         		else{
-        			doc.addField("thumbnail", o);
+        			doc.addField(thumbnailFieldName, o);
         		}
         	}
-        	o = d.get("commonNameSingle");
+        	o = d.get(commonNameSingleFieldName);
         	if(o != null){
         		if(commonNameSingle != null && !"".equals(commonNameSingle)){
-        			doc.addField("commonNameSingle", commonNameSingle);
+        			doc.addField(commonNameSingleFieldName, commonNameSingle);
         		}
         		else{
-        			doc.addField("commonNameSingle", o);
+        			doc.addField(commonNameSingleFieldName, o);
         		}        	
         	}
         	
@@ -2598,7 +2601,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         	Iterator<Map.Entry<String, Object>> i = d.iterator();
         	while(i.hasNext()){
         		Map.Entry<String, Object> e2 = i.next();
-        		if(!"thumbnail".equals(e2.getKey()) && !"commonNameSingle".equals(e2.getKey()) && !"id".equals(e2.getKey())){
+        		if(!thumbnailFieldName.equals(e2.getKey()) && !commonNameSingleFieldName.equals(e2.getKey()) && !"id".equals(e2.getKey())){
         			doc.addField(e2.getKey(), e2.getValue());
         		} 
         	}
