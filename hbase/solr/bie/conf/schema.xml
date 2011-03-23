@@ -582,6 +582,11 @@
    <!-- LinkIdentifier fields -->
    <field name="linkIdentifier" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
 
+   <!-- Ranking fields -->
+   <field name="userId" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
+   <field name="userIP" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
+   <field name="superColumnName" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
+
    <!-- end of BIE Lucene Fields -->
 
    <!-- catchall field, containing all other searchable text fields (implemented
