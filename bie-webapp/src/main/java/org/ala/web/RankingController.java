@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.ala.dao.RankingDao;
 import org.ala.model.BaseRanking;
 import org.ala.util.ColumnType;
+import org.ala.util.RankingType;
 import org.apache.log4j.Logger;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.springframework.stereotype.Controller;
@@ -84,7 +85,7 @@ public class RankingController {
 		//extra value checking
 		Map<String, String> map = new Hashtable<String, String> ();
 		// CommonName object field name
-		map.put("identifier", uri);
+		map.put(RankingType.RK_IMAGE.getCompareFieldName()[0], uri);
 		baseRanking.setCompareFieldValue(map);		
 		rankingDao.rankingForTaxon(guid, ColumnType.IMAGE_COL, baseRanking);
 		
@@ -125,7 +126,7 @@ public class RankingController {
 		//extra value checking
 		Map<String, String> map = new Hashtable<String, String> ();
 		// CommonName object field name
-		map.put("nameString", name);
+		map.put(RankingType.RK_COMMON_NAME.getCompareFieldName()[0], name);
 		baseRanking.setCompareFieldValue(map);
 		
 		rankingDao.rankingForTaxon(guid, ColumnType.VERNACULAR_COL, baseRanking);
