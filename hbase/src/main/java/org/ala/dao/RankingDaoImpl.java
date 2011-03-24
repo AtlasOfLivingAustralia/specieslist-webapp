@@ -327,16 +327,14 @@ public class RankingDaoImpl implements RankingDao {
 //			b = rankingDao.rankingForTaxon(guid, ColumnType.IMAGE_COL, baseRanking);
 			
 			//search ranking info....
-			searchDao.updateSolrIndexRanking(guid, "", "Yellow Boxfish");
-			
-//			Collection result = searchDao.getRankingFacetByUserIdAndGuid(userId, null);
-//			printFacetResult(result);
-//			System.out.println("\n===========================\n");
-//			result = searchDao.getRankingFacetByUserIdAndGuid(userId, guid);
-//			printFacetResult(result);
-//			System.out.println("\n===========================\n");
-//			result = searchDao.getUserIdFacetByGuid(guid);
-//			printFacetResult(result);
+			Collection result = searchDao.getRankingFacetByUserIdAndGuid(userId, null);
+			printFacetResult(result);
+			System.out.println("\n===========================\n");
+			result = searchDao.getRankingFacetByUserIdAndGuid(userId, guid);
+			printFacetResult(result);
+			System.out.println("\n===========================\n");
+			result = searchDao.getUserIdFacetByGuid(guid);
+			printFacetResult(result);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

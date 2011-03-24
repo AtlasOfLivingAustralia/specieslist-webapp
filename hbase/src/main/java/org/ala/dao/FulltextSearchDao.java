@@ -211,7 +211,9 @@ public interface FulltextSearchDao {
      */
     List<AutoCompleteDTO> getAutoCompleteList(String value,IndexedTypes indexType, boolean gsOnly, int maxTerms) throws Exception;
     
+    /**
+     * ranking search functions
+     */
     public Collection getRankingFacetByUserIdAndGuid(String userId, String guid) throws Exception;
     public Collection getUserIdFacetByGuid(String guid) throws Exception;
-    public void updateSolrIndexRanking(String guid, String thumbnailUri, String commonNameSingle) throws Exception;
 }
