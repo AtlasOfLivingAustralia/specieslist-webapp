@@ -2458,11 +2458,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * Ranking functions
 	 * 
 	 =========================================*/
+	/**
+	 * get cassandta column data with different columnFamilies ('tc', 'rk')
+	 */
 	public List getColumn(ColumnType columnType, String guid) throws Exception {
 		return storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
 				columnType.getColumnName(), guid, columnType.getClazz());
 	}
-		
+			
 	private Rankable changeRanking(Rankable rankable, BaseRanking ir){
 		if(ir.isBlackListed()){
 			rankable.setIsBlackListed(ir.isBlackListed());
@@ -2491,7 +2494,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		return rankable;
 	}
 		
-	
+	/**
+	 *  increase/decrease ranking no in 'tc' column type, and update solr index.
+	 *  
+	 *  @param guid guid
+	 *  @param columnType 'tc' column type
+	 *  @param baseRanking 'rk' column data
+	 */
 	public boolean setRanking(String guid, ColumnType columnType, BaseRanking baseRanking)throws Exception{
 		List list = new ArrayList();
 		
@@ -2528,7 +2537,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		// re-sort based on the rankings
 		Collections.sort(list);
 		
-		//update solr index
+		//update 'tc' solr index
 		if(list.size() > 0){	
 			Object o = list.get(0);
 			if(RankingType.RK_IMAGE == rt){
