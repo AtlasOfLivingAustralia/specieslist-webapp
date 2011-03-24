@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  *
  * @author mok011
  */
-@Controller("RankingController")
+@Controller("rankingController")
 public class RankingController {
 
 	private final static Logger logger = Logger.getLogger(SpeciesController.class);
