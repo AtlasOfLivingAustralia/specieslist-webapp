@@ -84,7 +84,7 @@ public class RankingController {
 		
 		//extra value checking
 		Map<String, String> map = new Hashtable<String, String> ();
-		// CommonName object field name
+		// image object field name
 		map.put(RankingType.RK_IMAGE.getCompareFieldName()[0], uri);
 		baseRanking.setCompareFieldValue(map);		
 		rankingDao.rankingForTaxon(guid, ColumnType.IMAGE_COL, baseRanking);
@@ -121,7 +121,6 @@ public class RankingController {
 		BaseRanking baseRanking = populateUserInfo(request);
 		baseRanking.setBlackListed(blackList);
 		baseRanking.setPositive(positive);
-//		baseRanking.setUri(uri);
 		
 		//extra value checking
 		Map<String, String> map = new Hashtable<String, String> ();
@@ -131,9 +130,10 @@ public class RankingController {
 		
 		rankingDao.rankingForTaxon(guid, ColumnType.VERNACULAR_COL, baseRanking);
 		
-		//cookie can't handle multiple words. special treatment required
+		//cookie can't handle multiple words. concatrating multiple words.
 		String str = name.replace(" ", "");
 		str = str.replace(",", "");
+		
 		String cookieValue = RankingCookieUtils.getCookieValue(guid, str, positive);
 		Cookie cookie = new Cookie(Long.toString(System.currentTimeMillis()), cookieValue);
 		cookie.setMaxAge(60*60*24*365);
