@@ -199,7 +199,7 @@ public class RankingDaoImpl implements RankingDao {
 		storeHelper.put(rankingType.getColumnFamily(), rankingType.getColumnFamily(), rankingType.getSuperColumnName(), key, guid, baseRanking);
 		// save tc table
 		taxonConceptDao.setRanking(guid, rankingType.getColumnType(), baseRanking);
-		// update solr index
+		// update 'rk' solr index
 		addRankingIndex(rankingType, baseRanking, key, guid);
 
 		return true;
