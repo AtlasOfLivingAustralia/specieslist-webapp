@@ -41,6 +41,11 @@ public class RegionTypeDTO {
 		this.regions = new ArrayList<OccurrencesInGeoregion>();
 	}
 
+    /**
+     * No-arg constructor. NdR.
+     */
+    public RegionTypeDTO() {}
+
 	/**
 	 * @return the regionType
 	 */
