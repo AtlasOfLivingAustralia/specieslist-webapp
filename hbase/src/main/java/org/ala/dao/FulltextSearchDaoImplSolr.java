@@ -276,6 +276,9 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 	            queryString.append(" text:"+cleanQuery);
 	            queryString.append(" OR ");
 	            queryString.append(" scientificNameText:"+cleanQuery);
+	            queryString.append(" OR ");
+	            queryString.append("concat_name:" + cleanQuery);
+	            
 	            //make the exact matches score higher
 	            //The boost is 100000000000 because this is how much of a boost is required to make the "Acacia" exact matches appear first.
 	            //Acacia farnesiana has many terms that match with "Acacia" thus the high level boost required.
@@ -1096,7 +1099,9 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
     public List<AutoCompleteDTO> getAutoCompleteList(String value, IndexedTypes indexType, boolean gsOnly, int maxTerms) throws Exception {
         StringBuffer queryString = new StringBuffer();
 
-        String cleanQuery = ClientUtils.escapeQueryChars(value);//.toLowerCase();
+//        String cleanQuery = ClientUtils.escapeQueryChars(value);//.toLowerCase();
+        String cleanQuery = SolrUtils.cleanName(value);
+        
         if (StringUtils.trimToNull(cleanQuery) != null && cleanQuery.length() >= 3) {
             if(indexType != null){
                 queryString.append("idxtype:" + indexType);
@@ -1113,6 +1118,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             queryString.append("auto_text:" + cleanQuery);
             queryString.append(" OR ");
             queryString.append("auto_text_edge:" + cleanQuery); //This field ensures that matches at the start of the term have a higher ranking
+            queryString.append(" OR ");
+            queryString.append("concat_name:" + cleanQuery);
             queryString.append(")");
             solrQuery.setQuery(queryString.toString());
             solrQuery.setQueryType("standard");

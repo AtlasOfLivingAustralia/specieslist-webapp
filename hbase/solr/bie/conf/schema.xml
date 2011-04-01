@@ -267,6 +267,8 @@
         <analyzer type="index">
             <tokenizer class="solr.KeywordTokenizerFactory"/>
 			<filter class="solr.LowerCaseFilterFactory" />
+			<filter class="solr.PatternReplaceFilterFactory" pattern="([^a-zA-Z])" replacement=" " replace="all" />
+			<filter class="solr.PatternReplaceFilterFactory" pattern="\\b\\s{2,}\\b" replacement=" " replace="all" />			
 			<filter class="solr.NGramFilterFactory" minGramSize="3" maxGramSize="30" />
         </analyzer>
 		<analyzer type="query">
@@ -277,15 +279,48 @@
 	<!-- Allows the hits at the start of the words to score higher that middle when used in
 	conjunction with the auto_text fieldType in a search
 	-->
-	    <fieldType name="auto_text_edge" class="solr.TextField">
+	<fieldType name="auto_text_edge" class="solr.TextField">
         <analyzer type="index">
             <tokenizer class="solr.KeywordTokenizerFactory"/>
 			<filter class="solr.LowerCaseFilterFactory" />
+			<filter class="solr.PatternReplaceFilterFactory" pattern="([^a-zA-Z])" replacement=" " replace="all" />
+			<filter class="solr.PatternReplaceFilterFactory" pattern="\\b\\s{2,}\\b" replacement=" " replace="all" />
 			<filter class="solr.EdgeNGramFilterFactory" minGramSize="3" maxGramSize="30" />
         </analyzer>
 		<analyzer type="query">
             <tokenizer class="solr.KeywordTokenizerFactory"/>
 			<filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>
+
+    <fieldType name="concat_name" class="solr.TextField">
+        <analyzer type="index">
+            <tokenizer class="solr.KeywordTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory" />			
+			<filter class="solr.TrimFilterFactory" /> 
+			<filter class="solr.PatternReplaceFilterFactory" pattern="([^a-zA-Z])" replacement="" replace="all" /> 
+        </analyzer>
+		<analyzer type="query">
+            <tokenizer class="solr.KeywordTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>
+  
+    <fieldType name="stopped_common_name" class="solr.TextField">
+        <analyzer type="index">
+            <tokenizer class="solr.KeywordTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory" />			
+			<filter class="solr.TrimFilterFactory" />
+			<filter class="solr.StopFilterFactory"
+                ignoreCase="true"
+                words="bie_stopwords.txt"
+                enablePositionIncrements="true"/> 
+			<filter class="solr.PatternReplaceFilterFactory" pattern="([^a-zA-Z])" replacement=" " replace="all" />
+			<filter class="solr.PatternReplaceFilterFactory" pattern="\\b\\s{2,}\\b" replacement=" " replace="all" />
+        </analyzer>
+		<analyzer type="query">
+            <tokenizer class="solr.KeywordTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory"/>			
         </analyzer>
     </fieldType>
 
@@ -586,7 +621,7 @@
    <field name="userId" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
    <field name="userIP" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
    <field name="superColumnName" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
-
+   
    <!-- end of BIE Lucene Fields -->
 
    <!-- catchall field, containing all other searchable text fields (implemented
@@ -594,6 +629,9 @@
    <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
    <field name="auto_text" type="auto_text" indexed="true" stored="false" multiValued="true" omitNorms="true" omitTermFreqAndPositions="true"/>
    <field name="auto_text_edge" type="auto_text_edge" indexed="true" stored="false" multiValued="true" omitNorms="true" omitTermFreqAndPositions="true"/>
+   <field name="concat_name" type="concat_name" indexed="true" stored="false" multiValued="true" omitNorms="true" omitTermFreqAndPositions="true"/>
+   <field name="stopped_common_name" type="stopped_common_name" indexed="true" stored="false" multiValued="true" omitNorms="true" omitTermFreqAndPositions="true"/>
+   
    <!-- Fields used to rank exact matches higher -->
    <field name="exact_text" type="lowercase" indexed="true" stored="false" multiValued="true"/>
    
@@ -676,7 +714,9 @@
    <copyField source="scientificName" dest="exact_text"/>
    <copyField source="scientificNameRaw" dest="exact_text"/>
    <copyField source="commonNameExact" dest="exact_text"/>
-   
+   <copyField source="scientificName" dest="concat_name"/>
+   <copyField source="commonName" dest="concat_name"/>
+   <copyField source="commonName" dest="stopped_common_name"/>
 
    <!-- Above, multiple source fields are copied to the [text] field.
 	  Another way to map multiple source fields to the same

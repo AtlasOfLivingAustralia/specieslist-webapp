@@ -822,5 +822,7 @@ public interface TaxonConceptDao {
      */	
 	String findLSIDByCommonName(String commonName);
 	
+	public String findLSIDByConcatName(String concatName);
+	
 	public boolean setRanking(String guid, ColumnType columnType, BaseRanking ir)throws Exception;
 }

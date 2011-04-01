@@ -4,6 +4,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.core.CoreContainer;
 import org.springframework.stereotype.Component;
 /**
@@ -48,4 +49,20 @@ public class SolrUtils {
 	public void setSolrHome(String solrHome) {
 		this.solrHome = solrHome;
 	}
+	
+	public static String cleanName(String name){        
+        String patternA = "[^a-zA-Z]";
+    	/* replace multiple whitespaces between words with single blank */
+    	String patternB = "\\b\\s{2,}\\b";
+    	
+    	String cleanQuery = "";
+    	if(name != null){
+    		cleanQuery = ClientUtils.escapeQueryChars(name);//.toLowerCase();
+    		cleanQuery = cleanQuery.toLowerCase();
+	    	cleanQuery = cleanQuery.replaceAll(patternA, " ");
+	    	cleanQuery = cleanQuery.replaceAll(patternB, " ");
+	    	cleanQuery = cleanQuery.trim();
+    	}
+    	return cleanQuery;
+    }		
 }

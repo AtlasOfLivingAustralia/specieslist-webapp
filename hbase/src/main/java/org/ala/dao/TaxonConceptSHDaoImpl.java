@@ -2428,9 +2428,77 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
      * @return
      */	
 	public String findLSIDByCommonName(String commonName){
-		return cbIdxSearcher.searchForLSIDCommonName(commonName);
+		String lsid = null; 
+
+		StringBuffer queryString = new StringBuffer();		
+		String cleanQuery = SolrUtils.cleanName(commonName);
+		
+		queryString.append("stopped_common_name:\"" + cleanQuery + "\"");
+		queryString.append(" OR exact_text:\"" + cleanQuery + "\"");
+		SolrQuery solrQuery = new SolrQuery();
+        solrQuery.setQuery(queryString.toString());
+        solrQuery.setQueryType("standard");
+        solrQuery.setFields("*", "score");
+        solrQuery.setRows(10);
+
+        try {
+			QueryResponse qr = solrUtils.getSolrServer().query(solrQuery);
+			SolrDocumentList sdl = qr.getResults();
+            if (sdl != null && sdl.size() == 1) {
+                SolrDocument doc = sdl.get(0);               
+                lsid = (String)doc.getFieldValue("guid");                
+            }
+		} 
+        catch (Exception e) {
+			// do nothing
+		}	
+		
+		if(lsid == null || lsid.length() < 1){
+			lsid = cbIdxSearcher.searchForLSIDCommonName(commonName); 
+		}
+        return lsid;		
 	}
 
+	private String concatName(String name){        
+        String patternA = "[^a-zA-Z]";
+    	/* replace multiple whitespaces between words with single blank */
+    	String patternB = "\\b\\s{2,}\\b";
+    	
+    	String cleanQuery = "";
+    	if(name != null){
+    		cleanQuery = ClientUtils.escapeQueryChars(name);//.toLowerCase();
+    		cleanQuery = cleanQuery.toLowerCase();
+	    	cleanQuery = cleanQuery.replaceAll(patternA, "");
+	    	cleanQuery = cleanQuery.replaceAll(patternB, "");
+	    	cleanQuery = cleanQuery.trim();
+    	}
+    	return cleanQuery;
+    }
+	
+	
+	public String findLSIDByConcatName(String name){
+		String concatName = concatName(name);
+		
+		SolrQuery solrQuery = new SolrQuery();
+        solrQuery.setQuery("concat_name:\"" + concatName + "\"");
+        solrQuery.setQueryType("standard");
+        solrQuery.setFields("*", "score");
+        solrQuery.setRows(10);
+
+        try {
+			QueryResponse qr = solrUtils.getSolrServer().query(solrQuery);
+			SolrDocumentList sdl = qr.getResults();
+            if (sdl != null && sdl.size() == 1) {
+                SolrDocument doc = sdl.get(0);                
+                return (String)doc.getFieldValue("guid");
+            }
+		} 
+        catch (Exception e) {
+			// do nothing
+		}	
+        return null;
+	}
+	
 	/**
 	 * @param storeHelper
 	 *            the storeHelper to set
