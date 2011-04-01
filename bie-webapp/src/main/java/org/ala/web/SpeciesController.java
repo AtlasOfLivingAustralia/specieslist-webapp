@@ -438,14 +438,21 @@ public class SpeciesController {
 	        cl.setScientificName(name);
 	        lsid = taxonConceptDao.findLsidByName(cl.getScientificName(), cl, null);
 		}
-		else{
-			lsid = taxonConceptDao.findLsidByName(name);
-		}
-		
+				
 		if(lsid == null || lsid.length() < 1){
 			lsid = taxonConceptDao.findLSIDByCommonName(name);
 		}
-        return lsid;
+		
+		if(lsid == null || lsid.length() < 1){
+			lsid = taxonConceptDao.findLSIDByConcatName(name);
+		}
+		
+		if(lsid == null || lsid.length() < 1){
+//			if(name != null && !name.toLowerCase().startsWith("australia")){
+				lsid = taxonConceptDao.findLsidByName(name);
+//			}
+		}
+		return lsid;
 	}
 	
 	/**
