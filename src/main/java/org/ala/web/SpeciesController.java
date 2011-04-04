@@ -519,9 +519,35 @@ public class SpeciesController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = {"/species/{guid}.json","/species/{guid}.xml"}, method = RequestMethod.GET)
-	public ExtendedTaxonConceptDTO showSpeciesJson(@PathVariable("guid") String guid) throws Exception {
-		logger.info("Retrieving concept with guid: "+guid);
+	@RequestMapping(value = {"/species/{guid}.json","/species/{guid}.jsonp"}, method = RequestMethod.GET)
+    public @ResponseBody ExtendedTaxonConceptDTO showSpeciesJson(@PathVariable("guid") String guid) throws Exception {
+		logger.info("Retrieving concept JSON with guid: "+guid);
+		return findConceptByNameOrGuid(guid);
+	}
+
+    /**
+	 * JSON output (via request header) for TC guid
+	 *
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+    @RequestMapping(value="/species/{guid:.+}", method=RequestMethod.GET, headers="Accept=application/json")
+    public @ResponseBody ExtendedTaxonConceptDTO showSpeciesJsonAcceptHeader(@PathVariable("guid") String guid) throws Exception {
+		logger.info("Retrieving concept JSON with guid: "+guid);
+		return findConceptByNameOrGuid(guid);
+	}
+
+    /**
+	 * XML output for TC guid
+	 *
+	 * @param guid
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/species/{guid}.xml", method = RequestMethod.GET)
+    public ExtendedTaxonConceptDTO showSpeciesXml(@PathVariable("guid") String guid) throws Exception {
+		logger.info("Retrieving concept XML with guid: "+guid);
 		return findConceptByNameOrGuid(guid);
 	}
 
