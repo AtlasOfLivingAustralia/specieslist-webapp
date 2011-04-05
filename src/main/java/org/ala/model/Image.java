@@ -56,8 +56,10 @@ public class Image extends AttributableObject implements Comparable<Image>, Rank
     protected Integer repoId;
     /** Indicates the image should be blacklisted, and hence removed from certain views */
     protected boolean isBlackListed = false;
+    /** The description */
+    protected String description;
     
-    public Image(String guid, String contentType, String repoLocation,
+	public Image(String guid, String contentType, String repoLocation,
 			String dcLocation, String thumbnail, String title,
 			String identifier, String creator, String locality,
 			String isPartOf, String licence, String rights,
@@ -337,4 +339,14 @@ public class Image extends AttributableObject implements Comparable<Image>, Rank
 				+ ", repoLocation=" + repoLocation + ", rights=" + rights
 				+ ", thumbnail=" + thumbnail + ", title=" + title + "]";
 	}
+	
+    public String getDescription() {
+		return description;
+	}
+
+    public void setDescription(String description) {
+		this.description = description;
+	}
+
+	
 }

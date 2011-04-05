@@ -97,81 +97,106 @@ public class RepoDataLoader {
 	}
 	
 	/**
-	 * Scan through the repository, retrieve triples and
-	 * add to taxon concepts
+	 * Scan through the single directory, retrieve triples and
+	 * add to taxon concepts. used by admin imageUpload
 	 * 
-	 * @param filePath Root directory of harvested repository
-	 * @param repoDirs Optional array of Infosource directories to scan passed as program arguments
+	 * @param repoDir scan single directory
 	 * @throws Exception
 	 */
-	 public int load(String filePath, String[] repoDirs, boolean allowStats) throws Exception {
-		 FileOutputStream statsOut = null;
-		    
-		logger.info("Scanning directory: "+filePath);
-
-                //open the statistics file
-		if(allowStats){
-                statsOut = FileUtils.openOutputStream(new File("/data/bie/bie_name_matching_stats_"+System.currentTimeMillis() + ".csv"));
-                statsOut.write("InfoSource ID, InfoSource Name, URL, ANBG matches, Other matches, Missing, Homonyms detected\n".getBytes());
-		}
-
+	 public int singleImageUploadLoad(String repoDir) throws Exception {
 		// reset counts
         totalFilesRead = 0;
         totalPropertiesSynced = 0;
-        
+	        
 		//start scan
-		File file = new File(filePath);
-		File [] dirs = null;
-
-		// See if array of infosource directories passed as program arguments
-		if (repoDirs.length > 0) {
-			dirs = new File [repoDirs.length];
-			for (int i = 0; i < repoDirs.length; i++) {
-				dirs[i] = new File(file.getAbsolutePath() + File.separator + repoDirs[i]);
-				logger.info("Processing directories..."+dirs[i].getAbsolutePath());
-			}
-		} else {
-			//list immediate directories - this will give the 
-			logger.info("Listing all directories...");
-			dirs = file.listFiles();
-		}
+		File dir = null;
+		dir = new File(repoDir);
+		logger.info("Processing directories..."+dir.getAbsolutePath());		
 		
-		//go through each infosource directory
-		for(File childFile: dirs){
-			logger.info("Listing directories for infosource directory: "+childFile.getAbsolutePath());
-			
-			if(childFile.isDirectory()){
-                            taxonConceptDao.resetStats();
-				//  takes us to /data/bie/<infosource-id>/<section-id>
-				logger.info("Listing directories for the section: "+childFile.getAbsolutePath());
-				File[] infosourceSection = childFile.listFiles();
-				for(File sectionDirectory: infosourceSection){
-					//this will list all the files in the
-					if(sectionDirectory.isDirectory()){
-						File[] dirsToScan = sectionDirectory.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
-						scanDirectory(dirsToScan);
-					}
-				}
-				if(allowStats){
-                                //report the stats
-                                if(org.apache.commons.lang.StringUtils.isNumeric(childFile.getName())){
-                                InfoSource infoSource = infoSourceMap.get(new Integer(childFile.getName()));
-                                taxonConceptDao.reportStats(statsOut, infoSource.getId() + ","+infoSource.getName() + "," + infoSource.getWebsiteUrl());
-                            }
-				}
-                                
-			}
-
+		if(dir.isDirectory()){
+			File[] dirsToScan = {dir};
+			scanDirectory(dirsToScan);			
 		}
-
 		logger.info("Files read: "+totalFilesRead+", files matched: "+totalPropertiesSynced);
-		if(allowStats){
-                statsOut.flush();
-                statsOut.close();
-		}
 		return totalFilesRead;
 	}
 
+		/**
+		 * Scan through the repository, retrieve triples and
+		 * add to taxon concepts
+		 * 
+		 * @param filePath Root directory of harvested repository
+		 * @param repoDirs Optional array of Infosource directories to scan passed as program arguments
+		 * @throws Exception
+		 */
+		 public int load(String filePath, String[] repoDirs, boolean allowStats) throws Exception {
+			 FileOutputStream statsOut = null;
+			    
+			logger.info("Scanning directory: "+filePath);
+
+	                //open the statistics file
+			if(allowStats){
+	                statsOut = FileUtils.openOutputStream(new File("/data/bie/bie_name_matching_stats_"+System.currentTimeMillis() + ".csv"));
+	                statsOut.write("InfoSource ID, InfoSource Name, URL, ANBG matches, Other matches, Missing, Homonyms detected\n".getBytes());
+			}
+
+			// reset counts
+	        totalFilesRead = 0;
+	        totalPropertiesSynced = 0;
+	        
+			//start scan
+			File file = new File(filePath);
+			File [] dirs = null;
+
+			// See if array of infosource directories passed as program arguments
+			if (repoDirs.length > 0) {
+				dirs = new File [repoDirs.length];
+				for (int i = 0; i < repoDirs.length; i++) {
+					dirs[i] = new File(file.getAbsolutePath() + File.separator + repoDirs[i]);
+					logger.info("Processing directories..."+dirs[i].getAbsolutePath());
+				}
+			} else {
+				//list immediate directories - this will give the 
+				logger.info("Listing all directories...");
+				dirs = file.listFiles();
+			}
+			
+			//go through each infosource directory
+			for(File childFile: dirs){
+				logger.info("Listing directories for infosource directory: "+childFile.getAbsolutePath());
+				
+				if(childFile.isDirectory()){
+	                            taxonConceptDao.resetStats();
+					//  takes us to /data/bie/<infosource-id>/<section-id>
+					logger.info("Listing directories for the section: "+childFile.getAbsolutePath());
+					File[] infosourceSection = childFile.listFiles();
+					for(File sectionDirectory: infosourceSection){
+						//this will list all the files in the
+						if(sectionDirectory.isDirectory()){
+							File[] dirsToScan = sectionDirectory.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
+							scanDirectory(dirsToScan);
+						}
+					}
+					if(allowStats){
+	                                //report the stats
+	                                if(org.apache.commons.lang.StringUtils.isNumeric(childFile.getName())){
+	                                InfoSource infoSource = infoSourceMap.get(new Integer(childFile.getName()));
+	                                taxonConceptDao.reportStats(statsOut, infoSource.getId() + ","+infoSource.getName() + "," + infoSource.getWebsiteUrl());
+	                            }
+					}
+	                                
+				}
+
+			}
+
+			logger.info("Files read: "+totalFilesRead+", files matched: "+totalPropertiesSynced);
+			if(allowStats){
+	                statsOut.flush();
+	                statsOut.close();
+			}
+			return totalFilesRead;
+		}
+	 
 	/**
 	 * Retrieve the scientific name from the list of triples.
 	 * 

@@ -1437,6 +1437,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 								.toString()));
 						image.setIdentifier(dublinCore.get(Predicates.DC_IDENTIFIER
                                 .toString()));
+						image.setDescription(dublinCore.get(Predicates.DC_DESCRIPTION.toString()));
 					}
 
 					if (hasPredicate(triples, Predicates.DIST_MAP_IMG_URL)) {
