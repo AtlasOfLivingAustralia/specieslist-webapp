@@ -2586,14 +2586,16 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				Iterator itr = keys.iterator();
 				while(itr.hasNext()){
 					String key = (String) itr.next();
-					String value = BeanUtils.getProperty(rankable, key);
-					String compareValue = map.get(key);
+					String value = URLDecoder.decode(BeanUtils.getProperty(rankable, key), "UTF-8");
+					String compareValue = URLDecoder.decode(map.get(key), "UTF-8");
+					logger.debug("**** setRanking() - value: " + value + ", compareValue: " + compareValue);
 					if(!compareValue.equalsIgnoreCase(value)){
 						ok = false;
 						break;
 					}
 				}
 			}
+			logger.debug("**** setRanking() - ok: " + ok);
 			if(ok){
 				list.add(changeRanking(rankable, baseRanking));	
 			}
