@@ -693,6 +693,12 @@ include file="/common/taglibs.jsp" %>
 								   $(this).html('Thanks for your help!');
 						         });
 	                         }
+                    		
+                    		function editThisImage(guid, uri){
+                    			var url = "http://localhost:8089/bie-admin/edit?guid="+guid+"&uri="+uri;
+                    			window.open(url);
+                    			}
+
                     	</script>
                         <c:choose>
                             <c:when test="${not empty extendedTaxonConcept.images}">
@@ -765,6 +771,10 @@ include file="/common/taglibs.jsp" %>
    	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  BlackList
    	            	                           </a>
+   	            	                           |
+												<a class="isnotrepresent" href="#" onClick="editThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}');return false;">
+													Edit
+												</a>
    	            	                           </c:if>
                             	            </c:otherwise>
                                 	        </c:choose>   
