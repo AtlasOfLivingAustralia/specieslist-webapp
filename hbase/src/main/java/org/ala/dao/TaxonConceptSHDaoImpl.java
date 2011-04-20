@@ -2458,10 +2458,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
         return lsid;		
 	}
-
+/*
 	private String concatName(String name){        
         String patternA = "[^a-zA-Z]";
-    	/* replace multiple whitespaces between words with single blank */
+    	// replace multiple whitespaces between words with single blank
     	String patternB = "\\b\\s{2,}\\b";
     	
     	String cleanQuery = "";
@@ -2474,10 +2474,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     	}
     	return cleanQuery;
     }
-	
+*/	
 	
 	public String findLSIDByConcatName(String name){
-		String concatName = concatName(name);
+		String concatName = SolrUtils.concatName(name);
 		
 		SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("concat_name:\"" + concatName + "\"");

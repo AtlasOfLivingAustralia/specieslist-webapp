@@ -64,5 +64,22 @@ public class SolrUtils {
 	    	cleanQuery = cleanQuery.trim();
     	}
     	return cleanQuery;
-    }		
+    }
+	
+	public static String concatName(String name){        
+        String patternA = "[^a-zA-Z]";
+    	/* replace multiple whitespaces between words with single blank */
+    	String patternB = "\\b\\s{2,}\\b";
+    	
+    	String cleanQuery = "";
+    	if(name != null){
+    		cleanQuery = ClientUtils.escapeQueryChars(name);//.toLowerCase();
+    		cleanQuery = cleanQuery.toLowerCase();
+	    	cleanQuery = cleanQuery.replaceAll(patternA, "");
+	    	cleanQuery = cleanQuery.replaceAll(patternB, "");
+	    	cleanQuery = cleanQuery.trim();
+    	}
+    	return cleanQuery;
+    }
+	
 }

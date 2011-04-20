@@ -1119,7 +1119,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             queryString.append(" OR ");
             queryString.append("auto_text_edge:\"" + cleanQuery + "\""); //This field ensures that matches at the start of the term have a higher ranking
             queryString.append(" OR ");
-            queryString.append("concat_name:\"" + cleanQuery + "\"");
+            queryString.append("concat_name:\"" + SolrUtils.concatName(cleanQuery) + "\"");
             queryString.append(")");
             solrQuery.setQuery(queryString.toString());
             solrQuery.setQueryType("standard");
