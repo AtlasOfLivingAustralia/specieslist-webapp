@@ -1,0 +1,20 @@
+<projectDescription>
+  <name>bie-webapp</name>
+  <comment>This is a Spring 3.0 MVC web application for the BIE project. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
+  <projects>
+    <project>ala-cas-client</project>
+    <project>ala-common-ui</project>
+    <project>ala-logger</project>
+    <project>ala-name-matching</project>
+    <project>bie-hbase</project>
+    <project>bie-repository</project>
+  </projects>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+  </natures>
+</projectDescription>
