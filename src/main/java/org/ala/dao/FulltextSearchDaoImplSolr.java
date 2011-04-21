@@ -17,8 +17,10 @@ package org.ala.dao;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -40,12 +42,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.SolrInputDocument;
 import org.gbif.ecat.model.ParsedName;
 import org.gbif.ecat.parser.NameParser;
 import org.springframework.stereotype.Component;
@@ -272,6 +276,9 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 	            queryString.append(" text:"+cleanQuery);
 	            queryString.append(" OR ");
 	            queryString.append(" scientificNameText:"+cleanQuery);
+	            queryString.append(" OR ");
+	            queryString.append("concat_name:" + cleanQuery);
+	            
 	            //make the exact matches score higher
 	            //The boost is 100000000000 because this is how much of a boost is required to make the "Acacia" exact matches appear first.
 	            //Acacia farnesiana has many terms that match with "Acacia" thus the high level boost required.
@@ -1092,7 +1099,9 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
     public List<AutoCompleteDTO> getAutoCompleteList(String value, IndexedTypes indexType, boolean gsOnly, int maxTerms) throws Exception {
         StringBuffer queryString = new StringBuffer();
 
-        String cleanQuery = ClientUtils.escapeQueryChars(value);//.toLowerCase();
+//        String cleanQuery = ClientUtils.escapeQueryChars(value);//.toLowerCase();
+        String cleanQuery = SolrUtils.cleanName(value);
+        
         if (StringUtils.trimToNull(cleanQuery) != null && cleanQuery.length() >= 3) {
             if(indexType != null){
                 queryString.append("idxtype:" + indexType);
@@ -1106,9 +1115,11 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             queryString.append("(");
             List<AutoCompleteDTO> items = new ArrayList<AutoCompleteDTO>();
             SolrQuery solrQuery = new SolrQuery();
-            queryString.append("auto_text:" + cleanQuery);
+            queryString.append("auto_text:\"" + cleanQuery + "\"");
             queryString.append(" OR ");
-            queryString.append("auto_text_edge:" + cleanQuery); //This field ensures that matches at the start of the term have a higher ranking
+            queryString.append("auto_text_edge:\"" + cleanQuery + "\""); //This field ensures that matches at the start of the term have a higher ranking
+            queryString.append(" OR ");
+            queryString.append("concat_name:\"" + SolrUtils.concatName(cleanQuery) + "\"");
             queryString.append(")");
             solrQuery.setQuery(queryString.toString());
             solrQuery.setQueryType("standard");
@@ -1143,4 +1154,80 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         }
         return new ArrayList<AutoCompleteDTO>();
     }
+    
+    /*
+     * if guid is null then return all guid been updated by userId.
+     * 
+     * @return collection of FacetResultDTO
+     */
+	public Collection getRankingFacetByUserIdAndGuid(String userId, String guid) throws Exception {
+		String key = null;
+		String sortField = null;
+		try {
+			String[] fq = new String[]{};
+			SolrQuery solrQuery = new SolrQuery();
+	        solrQuery.setQueryType("standard");	        
+	        solrQuery.setRows(0);
+	        solrQuery.setFacet(true);
+	        solrQuery.setFacetMinCount(1);
+	        solrQuery.setFacetLimit(-1);  // unlimited = -1
+		    
+			if(guid == null || guid.length() < 1 || "*".equals(guid)){
+				key = "*";
+		        solrQuery.addFacetField("guid");
+		        sortField = "guid";
+			}
+			else{
+				key = ClientUtils.escapeQueryChars(guid);
+				sortField = "superColumnName";
+			}
+	        solrQuery.addFacetField("superColumnName");
+			solrQuery.setQuery("idxtype:" + IndexedTypes.RANKING + " AND userId:" + userId + " AND guid:" + key);
+			
+			SearchResultsDTO qr = doSolrQuery(solrQuery, fq, 100, 0, sortField, "asc");
+		    if(qr == null || qr.getFacetResults() == null){
+		    	return new ArrayList();
+		    }
+		    return qr.getFacetResults();
+		} catch (SolrServerException ex) {
+		    logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
+		    return new ArrayList();
+		}
+	}    	
+	
+	/*
+     * @return collection of FacetResultDTO
+     */
+	public Collection getUserIdFacetByGuid(String guid) throws Exception {
+		String key = null;
+
+		try {
+			String[] fq = new String[]{};
+			SolrQuery solrQuery = new SolrQuery();
+	        solrQuery.setQueryType("standard");	        
+	        solrQuery.setRows(0);
+	        solrQuery.setFacet(true);
+	        solrQuery.setFacetMinCount(1);
+	        solrQuery.setFacetLimit(-1);  // unlimited = -1
+		    
+			if(guid == null || guid.length() < 1 || "*".equals(guid)){
+				logger.info("Invalid guid: " + guid);
+				return new ArrayList();
+			}
+			else{
+				key = ClientUtils.escapeQueryChars(guid);
+			}
+	        solrQuery.addFacetField("userId");
+			solrQuery.setQuery("idxtype:" + IndexedTypes.RANKING + " AND guid:" + key);
+			
+		    SearchResultsDTO qr = doSolrQuery(solrQuery, fq, 100, 0, "userId", "asc");
+		    if(qr == null || qr.getFacetResults() == null){
+		    	return new ArrayList();
+		    }
+		    return qr.getFacetResults();
+		} catch (SolrServerException ex) {
+		    logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
+		    return new ArrayList();
+		}
+	}  	
 }

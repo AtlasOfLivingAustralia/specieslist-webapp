@@ -180,4 +180,13 @@ public interface StoreHelper {
 	 * @throws Exception
 	 */
 	boolean updateStringValue(String table, String columnFamily, String columnName, String guid, String value) throws Exception;
+	
+	/**
+	 * for create Ranking index (ColumnFamily = 'rk').
+	 * @see RankingDaoImpl.createIndex()
+	 */
+	Scanner getScanner(String table, String columnFamily) throws Exception;
+	List<String> getSuperColumnsByGuid(String guid, String columnFamily) throws Exception;	
+	Map<String, List<Comparable>> getColumnList(String columnFamily, String superColumnName, String guid, Class theClass) throws Exception;
+	
 }

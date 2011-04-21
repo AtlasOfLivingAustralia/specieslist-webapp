@@ -20,8 +20,10 @@ import java.util.List;
 import org.apache.cassandra.thrift.Cassandra;
 import org.apache.cassandra.thrift.ColumnParent;
 import org.apache.cassandra.thrift.ConsistencyLevel;
+import org.apache.cassandra.thrift.KeyRange;
 import org.apache.cassandra.thrift.KeySlice;
 import org.apache.cassandra.thrift.SlicePredicate;
+import org.apache.cassandra.thrift.SliceRange;
 
 /**
  * An implementation of a scanner for Cassandra. 
@@ -139,4 +141,26 @@ public class CassandraScanner implements Scanner {
 	public void setPageSize(int pageSize) {
 		this.pageSize = pageSize;
 	}
+	
+	public CassandraScanner(Cassandra.Client clientConnection, String keySpace, String columnFamily) throws Exception {
+		
+		this.clientConnection = clientConnection;
+		this.keySpace = keySpace;
+		this.columnParent = new ColumnParent(columnFamily);
+		this.slicePredicate = new SlicePredicate();
+
+		KeyRange keyRange = new KeyRange(pageSize);
+		keyRange.setStart_key("");
+		keyRange.setEnd_key("");
+		
+		SliceRange sliceRange = new SliceRange();
+		sliceRange.setStart(new byte[0]);
+		sliceRange.setFinish(new byte[0]);
+		
+		slicePredicate.setSlice_range(sliceRange);
+				
+		//get the first page of data preloaded
+		this.keySlices = clientConnection.get_range_slices(keySpace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
+	}
+	
 }

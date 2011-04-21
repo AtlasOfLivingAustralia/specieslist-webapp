@@ -29,6 +29,7 @@ import org.apache.cassandra.thrift.Column;
 import org.apache.cassandra.thrift.ConsistencyLevel;
 import org.apache.cassandra.thrift.KeyRange;
 import org.apache.cassandra.thrift.SlicePredicate;
+import org.apache.cassandra.thrift.SuperColumn;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.DeserializationConfig;
@@ -635,4 +636,52 @@ public class CassandraPelopsHelper implements StoreHelper  {
 	public void setCharsetEncoding(String charsetEncoding) {
 		this.charsetEncoding = charsetEncoding;
 	}
+	
+	public Scanner getScanner(String table, String columnFamily) throws Exception {
+    	return new CassandraScanner(Pelops.getDbConnPool(pool).getConnection().getAPI(), keySpace, columnFamily);
+    }
+	
+    public List<String> getSuperColumnsByGuid(String guid, String columnFamily) throws Exception {
+		List<String> al = new ArrayList<String>();
+		Selector selector = Pelops.createSelector(pool, keySpace);
+		List<SuperColumn> l = selector.getSuperColumnsFromRow(guid, columnFamily, Selector.newColumnsPredicateAll(true, 10000), ConsistencyLevel.ONE);
+		for(int i = 0; i < l.size(); i++){
+			SuperColumn s = l.get(i);
+			al.add(new String(s.getName(), "UTF-8"));			
+		}		
+		return al;		    	
+    }
+    
+    public Map<String, List<Comparable>> getColumnList(String columnFamily, String superColumnName, String guid, Class theClass) throws Exception {
+        Selector selector = Pelops.createSelector(pool, keySpace);
+        List<Column> cl = null;
+        Map<String, List<Comparable>> al = new HashMap<String, List<Comparable>>();
+        
+        try{ 
+        	cl = selector.getSubColumnsFromRow(guid, columnFamily, superColumnName, Selector.newColumnsPredicateAll(true, 10000), ConsistencyLevel.ONE);            
+        }
+        catch(Exception e){
+            //expected behaviour. current thrift API doesnt seem
+            //to support a retrieve null getter
+        	if(logger.isTraceEnabled()){
+        		logger.trace(e.getMessage(), e);
+        	}
+        }
+        
+		if(cl != null){
+			//initialise the object mapper
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+			for(Column c : cl){
+				String name = new String(c.getName(), "utf-8");
+				String value = new String(c.getValue(), "utf-8");					
+				List<Comparable> objectList = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, theClass));
+				if(objectList != null && objectList.size() > 0){
+					al.put(name, objectList);
+				}
+			}
+		}        
+		return al;
+    }	
 }
