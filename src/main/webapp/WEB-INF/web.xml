@@ -50,6 +50,13 @@
         <param-value>http://localhost:8080/bie-webapp</param-value>
     </context-param>
 
+    <!-- bie admin server url -->
+    <context-param>
+        <!-- Parameter used by CAS filters -->
+        <param-name>bieAdminServerName</param-name>
+        <param-value>http://diasbtest1.ala.org.au:8080/bie-admin</param-value>
+    </context-param>
+
     <context-param>
         <param-name>casServerName</param-name>
         <param-value>https://auth.ala.org.au</param-value>
