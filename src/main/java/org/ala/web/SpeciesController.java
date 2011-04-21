@@ -298,7 +298,7 @@ public class SpeciesController {
 	 * @return view name
 	 * @throws Exception
 	 */ 
-	@RequestMapping(value = "/species/{guid:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/species/{guid:.+}", method = RequestMethod.GET, headers="Accept=text/html")
 	public String showSpecies(
             @PathVariable("guid") String guidParam,
             @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
@@ -346,8 +346,9 @@ public class SpeciesController {
         //common name with many infosources
         List<CommonName> names = PageUtils.fixCommonNames(etc.getCommonNames()); // remove duplicate names
         Map<String, List<CommonName>> namesMap = PageUtils.sortCommonNameSources(names);
-        String[] keyArray = namesMap.keySet().toArray(new String[0]);
-        Arrays.sort(keyArray, String.CASE_INSENSITIVE_ORDER);
+        String[] keyArray = PageUtils.commonNameRankingOrderKey(namesMap.keySet(), names);
+//        String[] keyArray = namesMap.keySet().toArray(new String[0]);
+//        Arrays.sort(keyArray, String.CASE_INSENSITIVE_ORDER);
         model.addAttribute("sortCommonNameSources", namesMap);
         model.addAttribute("sortCommonNameKeys", keyArray);
         
@@ -368,7 +369,7 @@ public class SpeciesController {
         	rankedUris.add(sr.getUri());
         	rankingMap.put(sr.getUri(), sr.isPositive());
         }
-
+        
         TaxonConcept tc = etc.getTaxonConcept();
         
         //load the hierarchy
@@ -437,14 +438,21 @@ public class SpeciesController {
 	        cl.setScientificName(name);
 	        lsid = taxonConceptDao.findLsidByName(cl.getScientificName(), cl, null);
 		}
-		else{
-			lsid = taxonConceptDao.findLsidByName(name);
-		}
-		
+				
 		if(lsid == null || lsid.length() < 1){
 			lsid = taxonConceptDao.findLSIDByCommonName(name);
 		}
-        return lsid;
+		
+		if(lsid == null || lsid.length() < 1){
+			lsid = taxonConceptDao.findLSIDByConcatName(name);
+		}
+		
+		if(lsid == null || lsid.length() < 1){
+//			if(name != null && !name.toLowerCase().startsWith("australia")){
+				lsid = taxonConceptDao.findLsidByName(name);
+//			}
+		}
+		return lsid;
 	}
 	
 	/**

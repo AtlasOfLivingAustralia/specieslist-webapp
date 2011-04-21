@@ -54,7 +54,7 @@ public class ImageRankController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = {"/rankTaxonImage*","/rankTaxonImageWithUser*"}, method = RequestMethod.GET)
+//	@RequestMapping(value = {"/rankTaxonImage*","/rankTaxonImageWithUser*"}, method = RequestMethod.GET)
 	public void rankTaxonImageByUser(
 			@RequestParam(value="guid", required=true) String guid,
 			@RequestParam(value="name", required=true) String name,
