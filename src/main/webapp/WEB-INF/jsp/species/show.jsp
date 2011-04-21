@@ -5,6 +5,8 @@ include file="/common/taglibs.jsp" %>
 <c:set var="wordPressUrl">${initParam.centralServer}</c:set>
 <c:set var="biocacheUrl">http://biocache.ala.org.au/</c:set>
 <c:set var="collectoryUrl">http://collections.ala.org.au</c:set>
+<c:set var="bieAdminServerUrl">${initParam.bieAdminServerName}</c:set>
+
 <c:set var="threatenedSpeciesCodes">${wordPressUrl}/about/program-of-projects/sds/threatened-species-codes/</c:set>
 <!DOCTYPE html>
 <html dir="ltr" lang="en-US">
@@ -357,7 +359,7 @@ include file="/common/taglibs.jsp" %>
                     $('ul.childClassification li').hide();
                     $('ul.childClassification li.recorded').show();
                 });
-           
+
 
             });  // end document ready function
 
@@ -374,6 +376,29 @@ include file="/common/taglibs.jsp" %>
 
         </script>
         <link rel="stylesheet" type="text/css" href="${wordPressUrl}/wp-content/themes/ala/css/speciesPage.css" media="screen" />
+        <style type="text/css">
+            /* Temp styles to be added to speciesPage.css in WP ALA theme */
+            div.rankCommonName {
+                position: relative;
+                width: 170px;
+                font-size: 11px;
+                line-height: 1.3em;
+                background-color: #FFF;
+                padding: 5px;
+                margin-left: 10px;
+                border: 1px solid gray;
+                -webkit-border-radius: 0 8px 8px 8px;
+                -moz-border-radius: 0 8px 8px 8px;
+                border-radius: 0 8px 8px 8px;
+                -webkit-box-shadow: 4px 4px 4px #ccc;
+                -moz-box-shadow: 4px 4px 4px #ccc;
+                box-shadow: 4px 4px 4px #ccc;
+            }
+             #names table div.rankCommonName a {
+                 background: none;
+                 padding: 0;
+            }
+        </style>
     </head>
     <body id="taxon">
         <div id="header" class="taxon">
@@ -544,7 +569,7 @@ include file="/common/taglibs.jsp" %>
             </div><!-- end column-one -->
             <div id="column-two">
                 <div class="toggle section no-padding-bottom">
-                    <div id="status"class="status">
+                    <div id="status" class="status">
                         <c:if test="${extendedTaxonConcept.taxonConcept.rankID >= 7000}">
                             <c:choose>
                                 <c:when test="${extendedTaxonConcept.isAustralian}">
@@ -670,6 +695,12 @@ include file="/common/taglibs.jsp" %>
 								   $(this).html('Thanks for your help!');
 						         });
 	                         }
+                    		
+                    		function editThisImage(guid, uri){
+                    			var url = "${bieAdminServerUrl}/edit?guid="+guid+"&uri="+uri;
+                    			window.open(url);
+                    			}
+
                     	</script>
                         <c:choose>
                             <c:when test="${not empty extendedTaxonConcept.images}">
@@ -742,6 +773,10 @@ include file="/common/taglibs.jsp" %>
    	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  BlackList
    	            	                           </a>
+   	            	                           |
+												<a class="isnotrepresent" href="#" onClick="editThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}');return false;">
+													Edit
+												</a>
    	            	                           </c:if>
                             	            </c:otherwise>
                                 	        </c:choose>   
@@ -914,12 +949,55 @@ include file="/common/taglibs.jsp" %>
                         </table>
                     </c:if>                    
                     <c:if test="${not empty extendedTaxonConcept.commonNames}">
+                    	<script type="text/javascript">
+                    		function rankThisCommonName(guid, documentId, blackList, positive, name) {
+                                var url = "${pageContext.request.contextPath}/rankTaxonCommonName${not empty pageContext.request.remoteUser ? 'WithUser' : ''}?guid="+guid+"&blackList="+blackList+"&positive="+positive+"&name="+name;
+								var linkId = 'cnRank-'+documentId;
+                    			$('#cnRank-'+documentId).html('Sending your ranking....');
+				                var jqxhr = $.getJSON(url, function(data){
+                                    $('#cnRank-'+documentId).each(function(index) {
+                                        $(this).html('Thanks for your help!');
+                                    });
+				                }).error(function(jqXHR, textStatus, errorThrown) {
+                                    // catch ajax errors (requiers JQuery 1.5+) - usually 500 error
+                                    $('#cnRank-'+documentId).html('An error occurred: ' + errorThrown + " (" + jqXHR.status + ")");
+                                });
+	                        }
+                    	</script>
                         <h2>Common Names</h2>
                         <table>
                     </c:if>
                     <c:forEach items="${sortCommonNameKeys}" var="nkey">
+                    	<c:set var="cNames" value="${sortCommonNameSources[nkey]}" />
+                    	<c:set var="fName" value='${fn:replace(nkey, " ", "")}' />
+                    	<c:set var="fName" value='${fn:replace(fName, ",", "")}' />
                     	<tr>
-                            <td>${nkey}</td>
+                            <td>
+                            	${nkey}                            	
+							<c:choose>
+                            <c:when test="${fn:contains(rankedImageUris,fName)}">
+                            <p>  
+                            <%--                          
+                            	You have ranked this Common Name as 
+                            		<c:if test="${!rankedImageUriMap[fName]}">
+                            			NOT
+                            		</c:if>
+                          			representative of ${extendedTaxonConcept.taxonConcept.nameString}
+                          			 --%>
+                          			</p>
+                            </c:when>
+                            <c:otherwise>                            	
+                            	<c:if test="${not empty cNames}">
+                                    <div id='cnRank-${fName}' class="rankCommonName">
+	       	                            	Is this a preferred common name for this ${extendedTaxonConcept.taxonConcept.rankString}?
+	           	                           <a class="isrepresent" href="#" onclick="rankThisCommonName('${extendedTaxonConcept.taxonConcept.guid}','${fName}',false,true,'${nkey}');return false;">YES</a>
+                                            |
+	           	                           <a class="isnotrepresent" href="#" onclick="rankThisCommonName('${extendedTaxonConcept.taxonConcept.guid}','${fName}',false,false,'${nkey}');return false;">NO</a>
+                                	</div>
+                                </c:if> 
+                                </c:otherwise>
+                                </c:choose>                         
+                            </td>
                             <td class="source">
                                 <c:forEach items="${sortCommonNameSources[nkey]}" var="commonName">
                                     <c:choose>
@@ -1022,7 +1100,7 @@ include file="/common/taglibs.jsp" %>
                             <div class="recordMapOtherSource" style="display: block">
                                 <c:set var="imageLink">${not empty distribImage.isPartOf ? distribImage.isPartOf : distribImage.infoSourceURL}</c:set>
                                 <a href="${imageLink}">
-                                    <img src="${distribImage.repoLocation}"/>
+                                    <img src="${distribImage.repoLocation}" alt="3rd party distribution map"/>
                                 </a>
                                 <br/>
                                 <cite>Source:
