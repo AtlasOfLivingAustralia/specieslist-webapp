@@ -298,7 +298,7 @@ public class SpeciesController {
 	 * @return view name
 	 * @throws Exception
 	 */ 
-	@RequestMapping(value = "/species/{guid:.+}", method = RequestMethod.GET, headers="Accept=text/html")
+	@RequestMapping(value = "/species/{guid:.+}", method = RequestMethod.GET)
 	public String showSpecies(
             @PathVariable("guid") String guidParam,
             @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
@@ -540,11 +540,13 @@ public class SpeciesController {
 	 * @return
 	 * @throws Exception
 	 */
-    @RequestMapping(value="/species/{guid:.+}", method=RequestMethod.GET, headers="Accept=application/json")
-    public @ResponseBody ExtendedTaxonConceptDTO showSpeciesJsonAcceptHeader(@PathVariable("guid") String guid) throws Exception {
-		logger.info("Retrieving concept JSON with guid: "+guid);
-		return findConceptByNameOrGuid(guid);
-	}
+	//@todo firefox request accept header included application/json field. firefox not working properly in species page.
+	
+//    @RequestMapping(value="/species/{guid:.+}", method=RequestMethod.GET, headers="Accept=application/json")
+//    public @ResponseBody ExtendedTaxonConceptDTO showSpeciesJsonAcceptHeader(@PathVariable("guid") String guid) throws Exception {
+//		logger.info("Retrieving concept JSON with guid: "+guid);
+//		return findConceptByNameOrGuid(guid);
+//	}
 
     /**
 	 * XML output for TC guid
