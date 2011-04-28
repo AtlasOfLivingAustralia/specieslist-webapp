@@ -79,7 +79,6 @@ public class LinkIdentifierLoader {
 		long start = System.currentTimeMillis();
 		int ctr = 0;
 		int pctr = 0;
-		((CassandraPelopsHelper)storeHelper).setHost("ala-biedb2.vm.csiro.au");
 		storeHelper.init();
 		Scanner scanner = storeHelper.getScanner("bie", "tc", "taxonConcept");
 		byte[] guidAsBytes = null;
