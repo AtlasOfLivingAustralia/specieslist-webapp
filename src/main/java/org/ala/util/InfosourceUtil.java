@@ -102,18 +102,4 @@ public class InfosourceUtil {
         }
     }
     
-    private static List<String[]> deserialiseJsonMap(Map<String, String> jsonMap) {
-        List<String[]> lines =  new ArrayList<String[]>();
-        Iterator it = jsonMap.entrySet().iterator();
-        
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry)it.next();
-            System.out.println("deserialiseJsonMap: "+ pairs.getKey() + " = " + pairs.getValue());
-            String[] fields = {(String) pairs.getKey(), (String) pairs.getValue()};
-            lines.add(fields);
-        }
-
-        return lines;
-    }
-    
 }
