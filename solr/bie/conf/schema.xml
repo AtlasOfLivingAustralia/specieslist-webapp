@@ -298,7 +298,8 @@
             <tokenizer class="solr.KeywordTokenizerFactory"/>
 			<filter class="solr.LowerCaseFilterFactory" />			
 			<filter class="solr.TrimFilterFactory" /> 
-			<filter class="solr.PatternReplaceFilterFactory" pattern="([^a-zA-Z])" replacement="" replace="all" /> 
+			<filter class="solr.PatternReplaceFilterFactory" pattern="([^a-zA-Z])" replacement="" replace="all" />
+			<filter class="solr.NGramFilterFactory" minGramSize="3" maxGramSize="30" /> 
         </analyzer>
 		<analyzer type="query">
             <tokenizer class="solr.KeywordTokenizerFactory"/>
