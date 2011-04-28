@@ -14,6 +14,7 @@
  ***************************************************************************/
 package org.ala.hbase;
 
+import org.ala.dao.CassandraPelopsHelper;
 import org.ala.dao.Scanner;
 import org.ala.dao.StoreHelper;
 import org.ala.dao.TaxonConceptDao;
@@ -78,7 +79,8 @@ public class LinkIdentifierLoader {
 		long start = System.currentTimeMillis();
 		int ctr = 0;
 		int pctr = 0;
-//		storeHelper.init();
+		((CassandraPelopsHelper)storeHelper).setHost("ala-biedb2.vm.csiro.au");
+		storeHelper.init();
 		Scanner scanner = storeHelper.getScanner("bie", "tc", "taxonConcept");
 		byte[] guidAsBytes = null;
 
