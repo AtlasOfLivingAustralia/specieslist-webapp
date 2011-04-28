@@ -21,8 +21,7 @@ public class InfosourceUtil {
     private static final String jsonUrl = "http://collections.ala.org.au/ws/dataResource.json?resourceType=website";
     
     public static void main(String[] args) {
-        String[] locations = {"classpath*:spring.xml"};
-        ApplicationContext context = new ClassPathXmlApplicationContext(locations);
+        ApplicationContext context = SpringUtils.getContext();
         
         BasicDataSource dataSource = (BasicDataSource) context.getBean("dataSource");
         InfoSourceDAOImpl infoSourceDAOImpl = new InfoSourceDAOImpl(dataSource);
