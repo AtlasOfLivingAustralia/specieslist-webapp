@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -277,7 +278,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 	            queryString.append(" OR ");
 	            queryString.append(" scientificNameText:"+cleanQuery);
 	            queryString.append(" OR ");
-	            queryString.append("concat_name:" + cleanQuery);
+//	            queryString.append("concat_name:" + cleanQuery);
+	            queryString.append("concat_name:\"" + SolrUtils.concatName(cleanQuery) + "\"");
 	            
 	            //make the exact matches score higher
 	            //The boost is 100000000000 because this is how much of a boost is required to make the "Acacia" exact matches appear first.
@@ -1027,21 +1029,25 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
       * @return
       */
      private List<String> getHighlightedNames(List<String> names, java.util.regex.Matcher m, String prefix, String suffix){
-        List<String> hlnames =null;
+    	LinkedHashSet<String> hlnames =null;
+    	List<String> lnames =null;
         if(names != null){
-            hlnames = new ArrayList<String>();
+            hlnames = new LinkedHashSet<String>();
             for(String name : names){
-                m.reset(name);
+            	String name1 = SolrUtils.concatName(name.trim());
+                m.reset(name1);
                 if(m.find()){
                     //insert <b> and </b>at the start and end index
                     name = name.substring(0, m.start()) + prefix + name.substring(m.start(), m.end()) + suffix + name.substring(m.end(), name.length());
                     hlnames.add(name);
                 }
             }
-            if(hlnames.isEmpty())
-                hlnames = null;
-        }
-        return hlnames;
+            if(!hlnames.isEmpty()){
+            	lnames = new ArrayList<String>(hlnames);
+            	Collections.sort(lnames);
+            }            	
+        }        
+        return lnames;
     }
     /**
      * Creates an auto complete DTO from the supplied result.
@@ -1050,7 +1056,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
      * @param value
      * @return
      */
-    private AutoCompleteDTO createAutoCompleteFromIndex(QueryResponse qr, SolrDocument doc, String value){
+    private AutoCompleteDTO createAutoCompleteFromIndex(QueryResponse qr, SolrDocument doc, String value1){    	
         AutoCompleteDTO autoDto = new AutoCompleteDTO();
         autoDto.setGuid((String) doc.getFirstValue("guid"));
         autoDto.setName((String) doc.getFirstValue("scientificNameRaw"));
@@ -1063,6 +1069,10 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         autoDto.setLeft((Integer)doc.getFirstValue("left"));
         autoDto.setRight((Integer)doc.getFirstValue("right"));
         
+        String value = null;
+        if(value1 != null){
+        	value = SolrUtils.concatName(value1.trim());	
+        }
         Pattern p = Pattern.compile(value, Pattern.CASE_INSENSITIVE);
         java.util.regex.Matcher m = p.matcher(value);
         List<String> matchedNames = new ArrayList<String>(); // temp list to stored matched names
