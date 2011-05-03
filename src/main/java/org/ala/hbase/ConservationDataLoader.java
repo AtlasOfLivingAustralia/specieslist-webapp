@@ -46,7 +46,7 @@ public class ConservationDataLoader {
     @Inject
     protected TaxonConceptDao taxonConceptDao;
     protected Map<String, String[]> regionLookup;
-    private boolean statsOnly = true;
+    private boolean statsOnly = false;
 //   @Inject
     //protected DataSource gisDataSource;
 //    /** JDBC Template for Postgres DB */
