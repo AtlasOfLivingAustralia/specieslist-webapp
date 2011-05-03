@@ -23,16 +23,18 @@ public class MigrateUtil {
 	 */
 	public static void main(String[] args) throws Exception {
 
-        if(args.length!=5){
-            System.out.println("Usage: <sourceHost> <targetHost> <keyspace> <columnFamily> <column>");
+        if(args.length!=7){
+            System.out.println("Usage: <sourceHost> <sourcePort> <targetHost> <targetPort> <keyspace> <columnFamily> <column>");
             System.exit(1);
         }
 
         String sourceHost = args[0];
-        String targetHost = args[1];
-        String keyspace = args[2];
-        String columnFamily = args[3];
-        String column = args[4];
+        String sourcePort = args[1];
+        String targetHost = args[2];
+        String targetPort = args[3];
+        String keyspace = args[4];
+        String columnFamily = args[5];
+        String column = args[6];
 
         System.out.println("Source: "+sourceHost);
         System.out.println("Target: "+targetHost);
@@ -40,10 +42,10 @@ public class MigrateUtil {
         System.out.println("Column family: "+columnFamily);
 
 		//get connection pool for OLD cassandra
-		Pelops.addPool("cassandra-source", new String[]{sourceHost}, 9160, false, keyspace, new Policy());
+		Pelops.addPool("cassandra-source", new String[]{sourceHost}, Integer.valueOf(sourcePort), false, keyspace, new Policy());
 
 		//get connection pool for NEW cassandra
-		Pelops.addPool("cassandra-target", new String[]{targetHost}, 9160, false, keyspace, new Policy());
+		Pelops.addPool("cassandra-target", new String[]{targetHost}, Integer.valueOf(targetPort), false, keyspace, new Policy());
 		
 		//get scanner
 		Scanner scanner = new CassandraScanner(Pelops.getDbConnPool("cassandra-source").getConnection().getAPI(),
