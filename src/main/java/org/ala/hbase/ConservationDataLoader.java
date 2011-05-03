@@ -46,7 +46,7 @@ public class ConservationDataLoader {
     @Inject
     protected TaxonConceptDao taxonConceptDao;
     protected Map<String, String[]> regionLookup;
-    private boolean statsOnly = false;
+    private boolean statsOnly = true;
 //   @Inject
     //protected DataSource gisDataSource;
 //    /** JDBC Template for Postgres DB */
@@ -70,8 +70,11 @@ public class ConservationDataLoader {
     private static final String iucnFile = "/data/bie-staging/conservation/iucn/2008_REDLIST.csv";
     private static final String tasFile = "/data/bie-staging/conservation/tas/species_20101015_1503(1).csv";
     private static final String summaryFile ="/data/bie-staging/conservation/cons_name_matching_stats"+System.currentTimeMillis()+".csv";
+    private static final String matchesFile = "/data/bie-staging/conservation/matches.csv";
     
     private static FileOutputStream summaryOut;
+    private static FileOutputStream matchesOut;
+
     
 
     public static void main(String args[]) {
@@ -107,6 +110,8 @@ public class ConservationDataLoader {
             loader.loadGenericStateOptionalClassification(tasFile, "Tasmania", "", 509,4 , 23, 5, 6, 7, 8, 9, 10, 3, 24);
             summaryOut.flush();
             summaryOut.close();
+            matchesOut.flush();
+            matchesOut.close();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -117,6 +122,8 @@ public class ConservationDataLoader {
     public void init(ApplicationContext context) throws Exception {
         summaryOut = FileUtils.openOutputStream(new File(summaryFile));
         summaryOut.write("source,filename,ANBG matched,Other match,No Match,Homonyms detected\n".getBytes());
+        matchesOut = FileUtils.openOutputStream(new File(matchesFile));
+        matchesOut.write("file,scientific name,matched\n".getBytes());
         //populate the region lookup for use in the EPBC infosource
         //This should be change to use the Gazetteer 
         regionLookup = new HashMap<String, String[]>();
@@ -139,6 +146,9 @@ public class ConservationDataLoader {
 //        gisTemplate = new JdbcTemplate(gisDataSource);
         //TODO Fix up how this is obtaining the region information
 
+    }
+    private void writeMatch(String source, String name, String lsid) throws Exception{
+        matchesOut.write(("\"" + source + "\",\"" + name + "\",\"" + lsid + "\"\n").getBytes());
     }
 
     private String[] getRegionInfo(String region) {
@@ -170,6 +180,7 @@ public class ConservationDataLoader {
                 LinnaeanRankClassification cl = new LinnaeanRankClassification(values[6], values[7], values[8], values[9], values[10], genus, speciesName);
                 String guid = taxonConceptDao.findLsidByName(values[0], cl, null);
                 if (guid != null) {
+                    writeMatch("EPBC", values[0], guid);
                     processed++;
                     if(guid.startsWith("urn:lsid:biodiversity.org.au"))
                         anbg++;
@@ -271,6 +282,7 @@ public class ConservationDataLoader {
                 //We may need to change this if there are homonyms...
                 String guid = taxonConceptDao.findLsidByName(sciName);
                 if (guid != null) {
+                    writeMatch("QLD", sciName, guid);
                     processed++;
                     if(guid.startsWith("urn:lsid:biodiversity.org.au"))
                         anbg++;
@@ -329,6 +341,7 @@ public class ConservationDataLoader {
                 cl.setFamily(values[8]);
                 String guid = taxonConceptDao.findLsidByName(sciName, cl, null);
                 if (guid != null) {
+                    writeMatch("WA Fauna", sciName, guid);
                     processed++;
                     if(guid.startsWith("urn:lsid:biodiversity.org.au"))
                         anbg++;
@@ -383,6 +396,7 @@ public class ConservationDataLoader {
                 String sciName = values[0];
                 String guid = taxonConceptDao.findLsidByName(sciName);
                 if (guid != null) {
+                    writeMatch("WA Flora", sciName, guid);
                     processed++;
                     if(guid.startsWith("urn:lsid:biodiversity.org.au"))
                         anbg++;
@@ -430,6 +444,7 @@ public class ConservationDataLoader {
 
                 String guid = taxonConceptDao.findLsidByName(sciName, cl, null);
                 if (guid != null) {
+                    writeMatch("NSW " +type, sciName, guid);
                     processed++;
                      if(guid.startsWith("urn:lsid:biodiversity.org.au"))
                         anbg++;
@@ -504,6 +519,7 @@ public class ConservationDataLoader {
                 //get the guid for the species
                 String guid = taxonConceptDao.findLsidByName(sciName, cl, null);
                 if (guid != null) {
+                    writeMatch(state + " " + type, sciName, guid);
                     processed++;
                      if(guid.startsWith("urn:lsid:biodiversity.org.au"))
                         anbg++;
@@ -565,6 +581,7 @@ public class ConservationDataLoader {
                 //get the guid for the species
                 String guid = taxonConceptDao.findLsidByName(sciName);
                 if (guid != null) {
+                    writeMatch(state + " "+ type, sciName, guid);
                     processed++;
                      if(guid.startsWith("urn:lsid:biodiversity.org.au"))
                         anbg++;
@@ -624,6 +641,7 @@ public class ConservationDataLoader {
                     String guid = taxonConceptDao.findLsidByName(sciName, cl, null);
 
                     if(guid != null){
+                        writeMatch("IUCN", sciName, guid);
                         processed++;
                          if(guid.startsWith("urn:lsid:biodiversity.org.au"))
                         anbg++;
