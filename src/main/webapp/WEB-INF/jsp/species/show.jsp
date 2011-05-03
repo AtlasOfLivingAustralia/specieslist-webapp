@@ -525,7 +525,7 @@ include file="/common/taglibs.jsp" %>
                         <tbody> 
                             <c:forEach var="entry" items="${infoSources}" varStatus="status">
                                 <c:set var="infoSource" value="${entry.value}"/>
-                                <c:if test="${infoSource.infoSourceId!=1051 && infoSource.infoSourceId!=1061}">
+                                <c:if test="${infoSource.infoSourceId!=1051 && infoSource.infoSourceId!=1061 && infoSource.infoSourceId!=1073}">
                                 <tr class="border-top">
                                     <td style="white-space: nowrap;">
                                         <c:choose>
@@ -547,6 +547,28 @@ include file="/common/taglibs.jsp" %>
                                     </tr>
                                 </c:if>
                                 </c:if>
+                                <c:if test="${infoSource.infoSourceId==1073}">
+                                <tr class="border-top">
+                                    <td style="white-space: nowrap;">
+                                        <c:choose>
+                                            <c:when test="${not empty infoSource.infoSourceURL}"><a href="${infoSource.infoSourceURL}" target="_blank" class="infosource">${infoSource.infoSourceName}</a></c:when>
+                                            <c:otherwise>${infoSource.infoSourceName}</c:otherwise>
+                                        </c:choose><!--${status.count}-->
+                                    </td>
+                                    <td class="small-font">
+                                        <c:forEach items="${infoSource.sections}" var="section" varStatus="s">
+                                            <fmt:message key="${section}"/><c:if test="${!s.last}">,</c:if>
+                                        </c:forEach>
+                                    </td>
+                                </tr>
+                                <c:if test="${fn:length(infoSource.text) > 100}">
+                                    <tr>
+                                        <td colspan="2"><p><span class="truncate">${infoSource.text}</span>
+                                        <c:if test="${not empty infoSource.identifier && fn:length(infoSource.text) > 100}"><a href="${infoSource.identifier}" target="_blank">more</a></p></td></c:if>
+                                    </tr>
+                                </c:if>
+                                </c:if>
+                                
                             </c:forEach>
                         </tbody> 
                     </table> 
@@ -746,6 +768,9 @@ include file="/common/taglibs.jsp" %>
                                         <c:when test="${image.infoSourceURL == 'http://www.ala.org.au'}">
                                             <cite>Source: ${image.infoSourceName}</cite>
                                          </c:when>
+                                         <c:when test="${image.infoSourceURL == 'http://www.elfram.com/'}">
+                                            <cite>Source: <a href="${image.infoSourceURL}" target="_blank">${image.infoSourceName}</a></cite>
+                                         </c:when>                                         
                                          <c:otherwise>
                                             <cite>Source: <a href="${imageUri}" target="_blank">${image.infoSourceName}</a></cite>
                                          </c:otherwise>
