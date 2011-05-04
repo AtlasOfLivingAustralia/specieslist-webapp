@@ -23,7 +23,7 @@ public class MigrateUtil {
 	 */
 	public static void main(String[] args) throws Exception {
 
-        if(args.length!=7){
+        if(args.length < 6){
             System.out.println("Usage: <sourceHost> <sourcePort> <targetHost> <targetPort> <keyspace> <columnFamily> <column>");
             System.exit(1);
         }
@@ -34,8 +34,11 @@ public class MigrateUtil {
         String targetPort = args[3];
         String keyspace = args[4];
         String columnFamily = args[5];
-        String column = args[6];
-
+        String column = null;
+        if(args.length > 6){
+        	column = args[6];
+        }
+        
         System.out.println("Source: "+sourceHost);
         System.out.println("Target: "+targetHost);
         System.out.println("Keyspace: "+keyspace);
@@ -74,5 +77,7 @@ public class MigrateUtil {
 		}
 		//end
 		System.out.println("FINISHED. Counter: "+counter);
+		Pelops.shutdown();
+		System.exit(0);
 	}
 }

@@ -60,8 +60,17 @@ public class CassandraScanner implements Scanner {
 		this.slicePredicate = new SlicePredicate();
 		
 		List<byte[]> colNames = new ArrayList<byte[]>();
-		colNames.add(column.getBytes());
-		slicePredicate.setColumn_names(colNames);
+		if(column != null && column.length() > 0){
+			colNames.add(column.getBytes());
+			slicePredicate.setColumn_names(colNames);
+		}
+		else{
+			SliceRange sliceRange = new SliceRange();
+			sliceRange.setStart(new byte[0]);
+			sliceRange.setFinish(new byte[0]);
+
+			slicePredicate.setSlice_range(sliceRange);
+		}
 		
 		//get the first page of data preloaded
 		this.keySlices = clientConnection.get_range_slice(keySpace, columnParent, slicePredicate, "", "", pageSize, ConsistencyLevel.ONE);
