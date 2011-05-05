@@ -272,26 +272,27 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         	StringBuffer queryString = new StringBuffer();
         	if(query!=null && query.length()>0){
 	            String cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
-	            queryString.append(" commonName:"+cleanQuery);
+	            queryString.append(" commonName:\""+cleanQuery+"\"");
 	            queryString.append(" OR ");
-	            queryString.append(" text:"+cleanQuery);
+	            queryString.append(" text:\""+cleanQuery+"\"");
 	            queryString.append(" OR ");
-	            queryString.append(" scientificNameText:"+cleanQuery);
+	            queryString.append(" scientificNameText:\""+cleanQuery+"\"");
 	            queryString.append(" OR ");
-//	            queryString.append("concat_name:" + cleanQuery);
-	            queryString.append("concat_name:\"" + SolrUtils.concatName(cleanQuery) + "\"");
+	            queryString.append(" concat_name:\"" + SolrUtils.concatName(cleanQuery) + "\"");
+	            queryString.append(" OR ");
+	            queryString.append(" stopped_common_name:" + cleanQuery + "");
 	            
 	            //make the exact matches score higher
 	            //The boost is 100000000000 because this is how much of a boost is required to make the "Acacia" exact matches appear first.
 	            //Acacia farnesiana has many terms that match with "Acacia" thus the high level boost required.
 	            queryString.append(" OR ");
-	            queryString.append(" exact_text:" + cleanQuery + "^100000000000");
+	            queryString.append(" exact_text:\"" + cleanQuery + "\"^100000000000");
 	            
 	            
 	    		String canonicalSciName = retrieveCanonicalForm(query);
 	            if(canonicalSciName!=null){
 		            queryString.append(" OR ");
-		            queryString.append(" text:"+canonicalSciName);
+		            queryString.append(" text:\""+canonicalSciName + "\"");
 	            }
 	            
 	            logger.info("search query: "+queryString.toString());
