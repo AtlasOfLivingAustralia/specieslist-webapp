@@ -86,38 +86,38 @@ import au.org.ala.data.model.LinnaeanRankClassification;
 @Controller(value="speciesController")
 public class SpeciesController {
 
-	/** Logger initialisation */
-	private final static Logger logger = Logger.getLogger(SpeciesController.class);
-	/** DAO bean for access to taxon concepts */
-	@Inject
-	private TaxonConceptDao taxonConceptDao;
-	/** DAO bean for access to repository document table */
-	@Inject
-	private DocumentDAO documentDAO;
-	@Inject
-	protected InfoSourceDAO infoSourceDAO;
-	/** DAO bean for SOLR search queries */
-	@Inject
-	private FulltextSearchDao searchDao;
-	/** Name of view for site home page */
-	private String HOME_PAGE = "homePage";
-	/** Name of view for a single taxon */
-	private final String SPECIES_SHOW = "species/show";
-	/** Name of view for a single taxon */
-	private final String SPECIES_SHOW_BRIEF = "species/showBrief";	
+    /** Logger initialisation */
+    private final static Logger logger = Logger.getLogger(SpeciesController.class);
+    /** DAO bean for access to taxon concepts */
+    @Inject
+    private TaxonConceptDao taxonConceptDao;
+    /** DAO bean for access to repository document table */
+    @Inject
+    private DocumentDAO documentDAO;
+    @Inject
+    protected InfoSourceDAO infoSourceDAO;
+    /** DAO bean for SOLR search queries */
+    @Inject
+    private FulltextSearchDao searchDao;
+    /** Name of view for site home page */
+    private String HOME_PAGE = "homePage";
+    /** Name of view for a single taxon */
+    private final String SPECIES_SHOW = "species/show";
+    /** Name of view for a single taxon */
+    private final String SPECIES_SHOW_BRIEF = "species/showBrief";	
     /** Name of view for a taxon error page */
-	private final String SPECIES_ERROR = "species/error";
-	/** Name of view for list of pest/conservation status */
-	private final String STATUS_LIST = "species/statusList";
-	@Inject
-	protected RepoUrlUtils repoUrlUtils;
+    private final String SPECIES_ERROR = "species/error";
+    /** Name of view for list of pest/conservation status */
+    private final String STATUS_LIST = "species/statusList";
+    @Inject
+    protected RepoUrlUtils repoUrlUtils;
     /** The set of data sources that will not be truncated **/
     protected Set<String> nonTruncatedSources = new java.util.HashSet<String>();
     /** The set of data sources that have low priority (ie displayed at the end of the list or removed if other sources available) **/
     protected Set<String> lowPrioritySources = new java.util.HashSet<String>();
     /** The URI for JSON data for static occurrence map */
     private final String SPATIAL_JSON_URL = "http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=";
-    
+
     public static final String COL_HOME = "http://www.catalogueoflife.org/";
     public static final String APNI_HOME = "http://www.anbg.gov.au/apni/";
     public static final String APC_HOME = "http://www.anbg.gov.au/chah/apc/";
@@ -125,69 +125,69 @@ public class SpeciesController {
 
     /** Max width to Truncate text to */
     private int TEXT_MAX_WIDTH = 200;
-    
+
     InfoSource afd;
     InfoSource apni;
     InfoSource col;
-    
-    
+
+
     public SpeciesController(){
         nonTruncatedSources.add("http://www.environment.gov.au/biodiversity/abrs/online-resources/flora/main/index.html");
         lowPrioritySources.add("http://www.ozanimals.com/");
         lowPrioritySources.add("http://en.wikipedia.org/");
         //lowPrioritySources.add("http://plantnet.rbgsyd.nsw.gov.au/floraonline.htm");
     }
-    
+
     @PostConstruct
     public void init(){
-		afd = infoSourceDAO.getByUri(AFD_HOME);
-		apni = infoSourceDAO.getByUri(APNI_HOME);
-		col = infoSourceDAO.getByUri(COL_HOME);
+        afd = infoSourceDAO.getByUri(AFD_HOME);
+        apni = infoSourceDAO.getByUri(APNI_HOME);
+        col = infoSourceDAO.getByUri(COL_HOME);
     }
-    
-	/**
-	 * Custom handler for the welcome view.
-	 * <p>
-	 * Note that this handler relies on the RequestToViewNameTranslator to
-	 * determine the logical view name based on the request URL: "/welcome.do"
-	 * -&gt; "welcome".
-	 *
-	 * @return viewname to render
-	 */
-	@RequestMapping("/")
-	public String homePageHandler() {
-		return HOME_PAGE;
-	}
 
-	/**
-	 * Map to a /{guid} URI.
-	 * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
-	 * 
-	 * @param guid
-	 * @param model
-	 * @return view name
-	 * @throws Exception
-	 */ 
-	@RequestMapping(value = "/species/charts/{guid:.+}*", method = RequestMethod.GET)
-	public String showChartInfo(@PathVariable("guid") String guid,
+    /**
+     * Custom handler for the welcome view.
+     * <p>
+     * Note that this handler relies on the RequestToViewNameTranslator to
+     * determine the logical view name based on the request URL: "/welcome.do"
+     * -&gt; "welcome".
+     *
+     * @return viewname to render
+     */
+    @RequestMapping("/")
+    public String homePageHandler() {
+        return HOME_PAGE;
+    }
+
+    /**
+     * Map to a /{guid} URI.
+     * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
+     * 
+     * @param guid
+     * @param model
+     * @return view name
+     * @throws Exception
+     */ 
+    @RequestMapping(value = "/species/charts/{guid:.+}*", method = RequestMethod.GET)
+    public String showChartInfo(@PathVariable("guid") String guid,
             HttpServletResponse response) throws Exception {
-		String contentAsString = WebUtils.getUrlContentAsString("http://biocache.ala.org.au/occurrences/searchByTaxon.json?q="+guid);
-		response.setContentType("application/json");
-		response.getWriter().write(contentAsString);
-		return null;
-	}
+        String contentAsString = WebUtils.getUrlContentAsString("http://biocache.ala.org.au/occurrences/searchByTaxon.json?q="+guid);
+        response.setContentType("application/json");
+        response.getWriter().write(contentAsString);
+        return null;
+    }
 
-	private List<Image> removeBlackListedImageItem(List<Image> images){
-		List<Image> il = new ArrayList<Image>();
-		
-		for(Image image : images){
-			if(!image.getIsBlackListed()){
-				il.add(image);
-			}
-		}
-		return il;
-	}
-	
+    private List<Image> removeBlackListedImageItem(List<Image> images){
+        List<Image> il = new ArrayList<Image>();
+
+        for(Image image : images){
+            if(!image.getIsBlackListed()){
+                il.add(image);
+            }
+        }
+        return il;
+    }
+
     /**
      * Get the list of collections, institutes, data resources and data providers that have specimens for the supplied taxon concept guid
      * Wrapper around the biocache service: http://biocache.ala.org.au/occurrences/sourceByTaxon
@@ -212,127 +212,162 @@ public class SpeciesController {
      * @return
      * @throws Exception
      */
-	@RequestMapping(value = "/ws/guid/batch", method = RequestMethod.GET)
-	public @ResponseBody Map<String,List<GuidLookupDTO>> getGuidForNames(
-			@RequestParam("q") List<String> scientificNames,
-			HttpServletRequest request,
+    @RequestMapping(value = "/ws/guid/batch", method = RequestMethod.GET)
+    public @ResponseBody Map<String,List<GuidLookupDTO>> getGuidForNames(
+            @RequestParam("q") List<String> scientificNames,
+            HttpServletRequest request,
             Model model) throws Exception {
-		Map<String,List<GuidLookupDTO>> nameMaps = new LinkedHashMap<String,List<GuidLookupDTO>>();
-		for(String name: scientificNames){
-			nameMaps.put(name, findGuids(name));
-		}
-		return nameMaps;
-	}
-    
-	/**
-	 * Map to a /{guid} URI.
-	 * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
-	 * 
-	 * @param guid
-	 * @param model
-	 * @return view name
-	 * @throws Exception
-	 */ 
-	@RequestMapping(value = "/ws/guid/{scientificName}", method = RequestMethod.GET)
-	public @ResponseBody List<GuidLookupDTO> getGuidForName(@PathVariable("scientificName") String scientificName,HttpServletRequest request,
-            Model model) throws Exception {
-    	return findGuids(scientificName);
-	}
+        Map<String,List<GuidLookupDTO>> nameMaps = new LinkedHashMap<String,List<GuidLookupDTO>>();
+        for(String name: scientificNames){
+            nameMaps.put(name, findGuids(name));
+        }
+        return nameMaps;
+    }
 
-	private List<GuidLookupDTO> findGuids(String scientificName)
-			throws Exception {
-		String lsid = getLsidByNameAndKingdom(scientificName);
-    	List<GuidLookupDTO> guids = new ArrayList<GuidLookupDTO>();
-    	
-    	if(lsid != null && lsid.length() > 0){
-        	ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(lsid);
-        	if (etc.getTaxonConcept() != null && etc.getTaxonConcept().getGuid() != null) {
-        		
-        		//FIXME - this should come straight from BIE with a the attribution
-        		//coming from the BIE. The identifier should be a separate model object
-        		//which extends AttributableObject
-        		TaxonConcept tc = etc.getTaxonConcept();
-        		
-        		GuidLookupDTO preferredGuid = new GuidLookupDTO();
-        		preferredGuid.setIdentifier(tc.getGuid());
-        		preferredGuid.setInfoSourceId(tc.getInfoSourceId());
-        		preferredGuid.setInfoSourceURL(tc.getInfoSourceURL());
-        		preferredGuid.setInfoSourceName(tc.getInfoSourceName());
-        		preferredGuid.setName(tc.getNameString());
-        		guids.add(preferredGuid);
-        		
-        		//add identifiers
-        		for(String identifier: etc.getIdentifiers()){
-            		GuidLookupDTO g = new GuidLookupDTO();
-            		g.setIdentifier(identifier);
-            		g.setName(tc.getNameString());
-            		//FIXME to be removed
-            		if(identifier.contains(":apni.")){
-                		g.setInfoSourceId(Integer.toString(apni.getId()));
-                		g.setInfoSourceURL(apni.getWebsiteUrl());
-                		g.setInfoSourceName(apni.getName());
-                		guids.add(g);
-            		} else if(identifier.contains(":afd.")){
-                		g.setInfoSourceId(Integer.toString(afd.getId()));
-                		g.setInfoSourceURL(afd.getWebsiteUrl());
-                		g.setInfoSourceName(afd.getName());
-                		guids.add(g);
-            		} else if(identifier.contains(":catalogueoflife.")){
-                		g.setInfoSourceId(Integer.toString(col.getId()));
-                		g.setInfoSourceURL(col.getWebsiteUrl());
-                		g.setInfoSourceName(col.getName());
-                		guids.add(g);
-            		}
-        		}
-        	}
-    	}
-    	return guids;
-	}
-    
-	/**
-	 * Map to a /{guid} URI.
-	 * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
-	 * 
-	 * @param guid
-	 * @param model
-	 * @return view name
-	 * @throws Exception
-	 */ 
-	@RequestMapping(value = "/species/{guid:.+}", method = RequestMethod.GET)
-	public String showSpecies(
+    /**
+     * Map to a /{guid} URI.
+     * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
+     * 
+     * @param guid
+     * @param model
+     * @return view name
+     * @throws Exception
+     */ 
+    @RequestMapping(value = "/ws/guid/{scientificName}", method = RequestMethod.GET)
+    public @ResponseBody List<GuidLookupDTO> getGuidForName(@PathVariable("scientificName") String scientificName,HttpServletRequest request,
+            Model model) throws Exception {
+        return findGuids(scientificName);
+    }
+
+    private List<GuidLookupDTO> findGuids(String scientificName)
+    throws Exception {
+        String lsid = getLsidByNameAndKingdom(scientificName);
+        List<GuidLookupDTO> guids = new ArrayList<GuidLookupDTO>();
+
+        if(lsid != null && lsid.length() > 0){
+            ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(lsid);
+            if (etc.getTaxonConcept() != null && etc.getTaxonConcept().getGuid() != null) {
+
+                //FIXME - this should come straight from BIE with a the attribution
+                //coming from the BIE. The identifier should be a separate model object
+                //which extends AttributableObject
+                TaxonConcept tc = etc.getTaxonConcept();
+
+                GuidLookupDTO preferredGuid = new GuidLookupDTO();
+                preferredGuid.setIdentifier(tc.getGuid());
+                preferredGuid.setInfoSourceId(tc.getInfoSourceId());
+                preferredGuid.setInfoSourceURL(tc.getInfoSourceURL());
+                preferredGuid.setInfoSourceName(tc.getInfoSourceName());
+                preferredGuid.setName(tc.getNameString());
+                guids.add(preferredGuid);
+
+                //add identifiers
+                for(String identifier: etc.getIdentifiers()){
+                    GuidLookupDTO g = new GuidLookupDTO();
+                    g.setIdentifier(identifier);
+                    g.setName(tc.getNameString());
+                    //FIXME to be removed
+                    if(identifier.contains(":apni.")){
+                        g.setInfoSourceId(Integer.toString(apni.getId()));
+                        g.setInfoSourceURL(apni.getWebsiteUrl());
+                        g.setInfoSourceName(apni.getName());
+                        guids.add(g);
+                    } else if(identifier.contains(":afd.")){
+                        g.setInfoSourceId(Integer.toString(afd.getId()));
+                        g.setInfoSourceURL(afd.getWebsiteUrl());
+                        g.setInfoSourceName(afd.getName());
+                        guids.add(g);
+                    } else if(identifier.contains(":catalogueoflife.")){
+                        g.setInfoSourceId(Integer.toString(col.getId()));
+                        g.setInfoSourceURL(col.getWebsiteUrl());
+                        g.setInfoSourceName(col.getName());
+                        guids.add(g);
+                    }
+                }
+            }
+        }
+        return guids;
+    }
+
+    /**
+     * Get the repo location of a image according to {guid} .
+     * E.g. /species/image/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
+     * 
+     * @param guid
+     * @param model
+     * @return view name
+     * @throws Exception
+     */ 
+    @RequestMapping(value = "/species/image/{imageType}/{guid:.+}", method = RequestMethod.GET)
+    public String showImages(
+            @PathVariable("guid") String guidParam,
+            @PathVariable("imageType") String imageType,
+            @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
+            HttpServletRequest request,
+            Model model) throws Exception {
+        String guid = guidParam;
+        logger.info("Displaying image for: " + guid +" .....");
+
+        SearchResultsDTO<SearchDTO> stcs = searchDao.findByName(IndexedTypes.TAXON, guid, null, 0, 1, "score", "asc");
+        if(stcs.getTotalRecords()>0){
+            SearchTaxonConceptDTO st = (SearchTaxonConceptDTO) stcs.getResults().get(0);
+            repoUrlUtils.fixRepoUrls(st);
+//            logger.info(st.getImage());
+            if ("thumbnail".equals(imageType) && st.getThumbnail() != null && !"".equals(st.getThumbnail())) {
+                return "redirect:" + st.getThumbnail();
+            } else if ("small".equals(imageType) && st.getImage() != null && !"".equals(st.getImage())) {
+                return "redirect:" + st.getImage().replaceAll("raw", "smallRaw");
+            }
+        }
+
+        return "redirect:/images/noImage85.jpg"; // no image 
+    }
+
+
+    /**
+     * Map to a /{guid} URI.
+     * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
+     * 
+     * @param guid
+     * @param model
+     * @return view name
+     * @throws Exception
+     */ 
+    @RequestMapping(value = "/species/{guid:.+}", method = RequestMethod.GET)
+    public String showSpecies(
             @PathVariable("guid") String guidParam,
             @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
             HttpServletRequest request,
             Model model) throws Exception {
-		String guid = guidParam;
-		
-		logger.debug("Displaying page for: " + guid +" .....");
-		
+        String guid = guidParam;
+
+        logger.debug("Displaying page for: " + guid +" .....");
+
         ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
         //if etc is empty then guid == sciName and kingkom?
         if(etc == null || etc.getTaxonConcept() == null || etc.getTaxonConcept().getGuid() == null){
-        	String lsid = getLsidByNameAndKingdom(guid);
-        	if(lsid != null && lsid.length() > 0){
-	        	etc = taxonConceptDao.getExtendedTaxonConceptByGuid(lsid);
-	        	if (etc.getTaxonConcept() != null && etc.getTaxonConcept().getGuid() != null) {
-	        		guid = lsid;
-	        	}
-        	}
-        	else{
-        		//no match for the parameter, redirect to search page.
-        		return "redirect:/search?q=" + extractScientificName(guid);
-        	}
+            String lsid = getLsidByNameAndKingdom(guid);
+            if(lsid != null && lsid.length() > 0){
+                etc = taxonConceptDao.getExtendedTaxonConceptByGuid(lsid);
+                if (etc.getTaxonConcept() != null && etc.getTaxonConcept().getGuid() != null) {
+                    guid = lsid;
+                }
+            }
+            else{
+                //no match for the parameter, redirect to search page.
+                return "redirect:/search?q=" + extractScientificName(guid);
+            }
         }
-        
+
         //remove blackListed image...
         etc.setImages(removeBlackListedImageItem(etc.getImages()));        
         if (request.getRemoteUser() != null && request.isUserInRole("ROLE_ADMIN")) {
-        	model.addAttribute("isRoleAdmin", true);
+            model.addAttribute("isRoleAdmin", true);
         }
         else{
-        	model.addAttribute("isRoleAdmin", false);
+            model.addAttribute("isRoleAdmin", false);
         }
-        
+
         if (etc.getTaxonConcept() == null || etc.getTaxonConcept().getGuid() == null) {
             model.addAttribute("errorMessage", "The requested taxon was not found: "+conceptName+" ("+ guid+")");
             return SPECIES_ERROR;
@@ -342,42 +377,42 @@ public class SpeciesController {
         String[] sciAndAuthor = getScientificNameAndAuthorship(etc);
         model.addAttribute("scientificName", sciAndAuthor[0]);
         model.addAttribute("authorship", sciAndAuthor[1]);
-        
+
         //common name with many infosources
         List<CommonName> names = PageUtils.fixCommonNames(etc.getCommonNames()); // remove duplicate names
         Map<String, List<CommonName>> namesMap = PageUtils.sortCommonNameSources(names);
         String[] keyArray = PageUtils.commonNameRankingOrderKey(namesMap.keySet(), names);
-//        String[] keyArray = namesMap.keySet().toArray(new String[0]);
-//        Arrays.sort(keyArray, String.CASE_INSENSITIVE_ORDER);
+        //        String[] keyArray = namesMap.keySet().toArray(new String[0]);
+        //        Arrays.sort(keyArray, String.CASE_INSENSITIVE_ORDER);
         model.addAttribute("sortCommonNameSources", namesMap);
         model.addAttribute("sortCommonNameKeys", keyArray);
-        
+
         etc.setCommonNames(names); 
         etc.setImages(addImageDocIds(etc.getImages()));
-//        etc.setScreenshotImages(addImageDocIds(etc.getScreenshotImages()));
+        //        etc.setScreenshotImages(addImageDocIds(etc.getScreenshotImages()));
         model.addAttribute("extendedTaxonConcept", repoUrlUtils.fixRepoUrls(etc));
-		model.addAttribute("commonNames", getCommonNamesString(etc));
-		model.addAttribute("textProperties", filterSimpleProperties(etc));
+        model.addAttribute("commonNames", getCommonNamesString(etc));
+        model.addAttribute("textProperties", filterSimpleProperties(etc));
         model.addAttribute("infoSources", getInfoSource(etc));
-        
+
         //retrieve cookies indicating user has ranked
         List<StoredRanking> srs = RankingCookieUtils.getRankedImageUris(request.getCookies(), guid);
         //create a list of URLs
         List<String> rankedUris = new ArrayList<String>();
         Map<String, Boolean> rankingMap = new HashMap<String, Boolean>();
         for(StoredRanking sr : srs){
-        	rankedUris.add(sr.getUri());
-        	rankingMap.put(sr.getUri(), sr.isPositive());
+            rankedUris.add(sr.getUri());
+            rankingMap.put(sr.getUri(), sr.isPositive());
         }
-        
+
         TaxonConcept tc = etc.getTaxonConcept();
-        
+
         //load the hierarchy
         if(tc.getLeft()!=null){
-        	SearchResultsDTO<SearchTaxonConceptDTO> taxonHierarchy = searchDao.getClassificationByLeftNS(tc.getLeft());
-        	model.addAttribute("taxonHierarchy", taxonHierarchy.getResults());
+            SearchResultsDTO<SearchTaxonConceptDTO> taxonHierarchy = searchDao.getClassificationByLeftNS(tc.getLeft());
+            model.addAttribute("taxonHierarchy", taxonHierarchy.getResults());
         }
-        
+
         //load child concept using search indexes
         List<SearchTaxonConceptDTO> childConcepts = searchDao.getChildConceptsParentId(Integer.toString(tc.getId()));
         //Reorder the children concepts so that ordering is based on rank followed by name
@@ -385,7 +420,7 @@ public class SpeciesController {
         Collections.sort(childConcepts, new TaxonRankNameComparator());
 
         model.addAttribute("childConcepts", childConcepts);
-        
+
         //create a map
         model.addAttribute("rankedImageUris", rankedUris);
         model.addAttribute("rankedImageUriMap", rankingMap);
@@ -394,247 +429,247 @@ public class SpeciesController {
         // get static occurrence map from spatial portal via JSON lookup
         model.addAttribute("spatialPortalMap", PageUtils.getSpatialPortalMap(etc.getTaxonConcept().getGuid()));
         logger.debug("Returning page view for: " + guid +" .....");
-		return SPECIES_SHOW;
-	}
-	
-	private String extractScientificName(String parameter){
-		String name = null;
-		
-		int i = parameter.indexOf('(');
-		if(i >= 0){
-			name = parameter.substring(0, i);
-		}
-		else{
-			name = parameter;
-		}
-		name = name.replaceAll("_", " ");
-		name = name.replaceAll("\\+", " ");
-		name = name.trim();
-		
-		return name;
-	}
-	
-	private String extractKingdom(String parameter){
-		String kingdom = null;
-		
-		int i = parameter.indexOf('(');
-		int j = parameter.indexOf(')');
-		if(i >= 0 && j >= 0 && j > i){
-			kingdom = parameter.substring(i + 1, j);
-			kingdom = kingdom.trim();
-		}
-		return kingdom;
-	}
-	
-	private String getLsidByNameAndKingdom(String parameter){
-		String lsid = null;
-		String name = null;
-		String kingdom = null;
-		
-		name = extractScientificName(parameter);
-		kingdom = extractKingdom(parameter);
-		if(kingdom != null){
-			LinnaeanRankClassification cl = new LinnaeanRankClassification(kingdom, null);
-	        cl.setScientificName(name);
-	        lsid = taxonConceptDao.findLsidByName(cl.getScientificName(), cl, null);
-		}
-				
-		if(lsid == null || lsid.length() < 1){
-			lsid = taxonConceptDao.findLSIDByCommonName(name);
-		}
-		
-		if(lsid == null || lsid.length() < 1){
-			lsid = taxonConceptDao.findLSIDByConcatName(name);
-		}
-		
-		if(lsid == null || lsid.length() < 1){
-//			if(name != null && !name.toLowerCase().startsWith("australia")){
-				lsid = taxonConceptDao.findLsidByName(name);
-//			}
-		}
-		return lsid;
-	}
-	
-	/**
-	 * FIXME it should be possible to factor this out at some point
-	 * 
-	 * @param etc
-	 * @return
-	 */
-	private String[] getScientificNameAndAuthorship(ExtendedTaxonConceptDTO etc) {
-		
-		String[] parts = new String[2];
-		//for AFD, and CoL this is fine
-		parts[0] = etc.getTaxonConcept().getNameString();
-		parts[1] = etc.getTaxonConcept().getAuthor();
-		
-		//for APNI, APC...
-		if(etc.getTaxonConcept().getGuid()!=null && etc.getTaxonConcept().getGuid().contains(":apni.taxon:") && etc.getTaxonName()!=null){
-			parts[0] = etc.getTaxonName().getNameComplete();
-			parts[1] = etc.getTaxonName().getAuthorship();
-		}
-		return parts;
-	}
-	/**
-	 * Map to a /{guid}.json or /{guid}.xml URI.
-	 * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
-	 * 
-	 * @param guid
-	 * @param model
-	 * @return view name
-	 * @throws Exception
-	 */ 
-	@RequestMapping(value = {"/species/info/{guid}.json","/species/info/{guid}.xml"}, method = RequestMethod.GET)
-	public SearchResultsDTO showInfoSpecies(
-            @PathVariable("guid") String guid,
-            @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
-            Model model) throws Exception {
-		
-		SearchResultsDTO<SearchDTO> stcs = searchDao.findByName(IndexedTypes.TAXON, guid, null, 0, 1, "score", "asc");
-        if(stcs.getTotalRecords()>0){
-        	SearchTaxonConceptDTO st = (SearchTaxonConceptDTO) stcs.getResults().get(0);
-        	model.addAttribute("taxonConcept", repoUrlUtils.fixRepoUrls(st));
+        return SPECIES_SHOW;
+    }
+
+    private String extractScientificName(String parameter){
+        String name = null;
+
+        int i = parameter.indexOf('(');
+        if(i >= 0){
+            name = parameter.substring(0, i);
         }
-		
-		return stcs;
-	}
-	
-	/**
-	 * Map to a /{guid}.json or /{guid}.xml URI.
-	 * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
-	 * 
-	 * @param guid
-	 * @param model
-	 * @return view name
-	 * @throws Exception
-	 */ 
-	@RequestMapping(value = {"/species/moreInfo/{guid}.json","/species/moreInfo/{guid}.xml"}, method = RequestMethod.GET)
-	public String showMoreInfoSpecies(
+        else{
+            name = parameter;
+        }
+        name = name.replaceAll("_", " ");
+        name = name.replaceAll("\\+", " ");
+        name = name.trim();
+
+        return name;
+    }
+
+    private String extractKingdom(String parameter){
+        String kingdom = null;
+
+        int i = parameter.indexOf('(');
+        int j = parameter.indexOf(')');
+        if(i >= 0 && j >= 0 && j > i){
+            kingdom = parameter.substring(i + 1, j);
+            kingdom = kingdom.trim();
+        }
+        return kingdom;
+    }
+
+    private String getLsidByNameAndKingdom(String parameter){
+        String lsid = null;
+        String name = null;
+        String kingdom = null;
+
+        name = extractScientificName(parameter);
+        kingdom = extractKingdom(parameter);
+        if(kingdom != null){
+            LinnaeanRankClassification cl = new LinnaeanRankClassification(kingdom, null);
+            cl.setScientificName(name);
+            lsid = taxonConceptDao.findLsidByName(cl.getScientificName(), cl, null);
+        }
+
+        if(lsid == null || lsid.length() < 1){
+            lsid = taxonConceptDao.findLSIDByCommonName(name);
+        }
+
+        if(lsid == null || lsid.length() < 1){
+            lsid = taxonConceptDao.findLSIDByConcatName(name);
+        }
+
+        if(lsid == null || lsid.length() < 1){
+            //			if(name != null && !name.toLowerCase().startsWith("australia")){
+            lsid = taxonConceptDao.findLsidByName(name);
+            //			}
+        }
+        return lsid;
+    }
+
+    /**
+     * FIXME it should be possible to factor this out at some point
+     * 
+     * @param etc
+     * @return
+     */
+    private String[] getScientificNameAndAuthorship(ExtendedTaxonConceptDTO etc) {
+
+        String[] parts = new String[2];
+        //for AFD, and CoL this is fine
+        parts[0] = etc.getTaxonConcept().getNameString();
+        parts[1] = etc.getTaxonConcept().getAuthor();
+
+        //for APNI, APC...
+        if(etc.getTaxonConcept().getGuid()!=null && etc.getTaxonConcept().getGuid().contains(":apni.taxon:") && etc.getTaxonName()!=null){
+            parts[0] = etc.getTaxonName().getNameComplete();
+            parts[1] = etc.getTaxonName().getAuthorship();
+        }
+        return parts;
+    }
+    /**
+     * Map to a /{guid}.json or /{guid}.xml URI.
+     * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
+     * 
+     * @param guid
+     * @param model
+     * @return view name
+     * @throws Exception
+     */ 
+    @RequestMapping(value = {"/species/info/{guid}.json","/species/info/{guid}.xml"}, method = RequestMethod.GET)
+    public SearchResultsDTO showInfoSpecies(
             @PathVariable("guid") String guid,
             @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
             Model model) throws Exception {
-		guid = taxonConceptDao.getPreferredGuid(guid);
-       	model.addAttribute("taxonConcept", taxonConceptDao.getByGuid(guid));
-       	model.addAttribute("commonNames", taxonConceptDao.getCommonNamesFor(guid));
-       	model.addAttribute("images", repoUrlUtils.fixRepoUrls(taxonConceptDao.getImages(guid)));
-		return SPECIES_SHOW_BRIEF;
-	}
-	
-	/**
-	 * JSON output for TC guid
-	 *
-	 * @param guid
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = {"/species/{guid}.json","/species/{guid}.jsonp"}, method = RequestMethod.GET)
-    public @ResponseBody ExtendedTaxonConceptDTO showSpeciesJson(@PathVariable("guid") String guid) throws Exception {
-		logger.info("Retrieving concept JSON with guid: "+guid);
-		return findConceptByNameOrGuid(guid);
-	}
+
+        SearchResultsDTO<SearchDTO> stcs = searchDao.findByName(IndexedTypes.TAXON, guid, null, 0, 1, "score", "asc");
+        if(stcs.getTotalRecords()>0){
+            SearchTaxonConceptDTO st = (SearchTaxonConceptDTO) stcs.getResults().get(0);
+            model.addAttribute("taxonConcept", repoUrlUtils.fixRepoUrls(st));
+        }
+
+        return stcs;
+    }
 
     /**
-	 * JSON output (via request header) for TC guid
-	 *
-	 * @param guid
-	 * @return
-	 * @throws Exception
-	 */
-	//@todo firefox request accept header included application/json field. firefox not working properly in species page.
-	
-//    @RequestMapping(value="/species/{guid:.+}", method=RequestMethod.GET, headers="Accept=application/json")
-//    public @ResponseBody ExtendedTaxonConceptDTO showSpeciesJsonAcceptHeader(@PathVariable("guid") String guid) throws Exception {
-//		logger.info("Retrieving concept JSON with guid: "+guid);
-//		return findConceptByNameOrGuid(guid);
-//	}
-
-    /**
-	 * XML output for TC guid
-	 *
-	 * @param guid
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/species/{guid}.xml", method = RequestMethod.GET)
-    public ExtendedTaxonConceptDTO showSpeciesXml(@PathVariable("guid") String guid) throws Exception {
-		logger.info("Retrieving concept XML with guid: "+guid);
-		return findConceptByNameOrGuid(guid);
-	}
-
-	private ExtendedTaxonConceptDTO findConceptByNameOrGuid(String guid) throws Exception {
-		ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
-		if(etc==null || etc.getTaxonConcept()==null || etc.getTaxonConcept().getNameString()==null){
-        	String lsid = getLsidByNameAndKingdom(guid);
-        	if(lsid != null && lsid.length() > 0){
-	        	etc = taxonConceptDao.getExtendedTaxonConceptByGuid(lsid);
-	        	return repoUrlUtils.fixRepoUrls(etc);
-        	}
-		} else {
-			return repoUrlUtils.fixRepoUrls(taxonConceptDao.getExtendedTaxonConceptByGuid(guid));
-		}
-		return null;
-	}
-
-	/**
-	 * JSON web service (AJAX) to return details for a repository document
-	 *
-	 * @param documentId
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/species/document/{documentId}.json", method = RequestMethod.GET)
-	public Document getDocumentDetails(@PathVariable("documentId") int documentId) throws Exception {
-		Document doc = documentDAO.getById(documentId);
-
-		if (doc != null) {
-		    // augment data with title from reading dc file
-			String fileName = doc.getFilePath()+"/dc";
-			RepositoryFileUtils repoUtils = new RepositoryFileUtils();
-			List<String[]> lines = repoUtils.readRepositoryFile(fileName);
-			//System.err.println("docId:"+documentId+"|filename:"+fileName);
-			for (String[] line : lines) {
-				// get the dc.title value
-				if (line[0].endsWith(Predicates.DC_TITLE.getLocalPart())) {
-					doc.setTitle(line[1]);
-				} else if (line[0].endsWith(Predicates.DC_IDENTIFIER.getLocalPart())) {
-					doc.setIdentifier(line[1]);
-				}
-			}
-		}
-		return doc;
-	}
-
-	/**
-	 * Dynamically generate a scaled and/or square image
+     * Map to a /{guid}.json or /{guid}.xml URI.
+     * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
      * 
-	 * @param documentId
-	 * @param scale
-	 * @param square
-	 * @param outputStream
-	 * @param response
-	 * @throws IOException
-	 */
-	@RequestMapping(value="/species/images/{documentId}.jpg", method = RequestMethod.GET)
-	public void thumbnailHandler(@PathVariable("documentId") int documentId, 
-			@RequestParam(value="scale", required=false, defaultValue ="1000") Integer scale,
-			@RequestParam(value="square", required=false, defaultValue ="false") Boolean square,
-			OutputStream outputStream,
-			HttpServletResponse response) throws IOException {
-		logger.debug("Requested image " + documentId + ".jpg ");
-		Document doc = documentDAO.getById(documentId);
-		if (doc != null) {
-			// augment data with title from reading dc file
-			MimeType mt = MimeType.getForMimeType(doc.getMimeType());
-			String fileName = doc.getFilePath()+"/raw"+mt.getFileExtension();
+     * @param guid
+     * @param model
+     * @return view name
+     * @throws Exception
+     */ 
+    @RequestMapping(value = {"/species/moreInfo/{guid}.json","/species/moreInfo/{guid}.xml"}, method = RequestMethod.GET)
+    public String showMoreInfoSpecies(
+            @PathVariable("guid") String guid,
+            @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
+            Model model) throws Exception {
+        guid = taxonConceptDao.getPreferredGuid(guid);
+        model.addAttribute("taxonConcept", taxonConceptDao.getByGuid(guid));
+        model.addAttribute("commonNames", taxonConceptDao.getCommonNamesFor(guid));
+        model.addAttribute("images", repoUrlUtils.fixRepoUrls(taxonConceptDao.getImages(guid)));
+        return SPECIES_SHOW_BRIEF;
+    }
+
+    /**
+     * JSON output for TC guid
+     *
+     * @param guid
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = {"/species/{guid}.json","/species/{guid}.jsonp"}, method = RequestMethod.GET)
+    public @ResponseBody ExtendedTaxonConceptDTO showSpeciesJson(@PathVariable("guid") String guid) throws Exception {
+        logger.info("Retrieving concept JSON with guid: "+guid);
+        return findConceptByNameOrGuid(guid);
+    }
+
+    /**
+     * JSON output (via request header) for TC guid
+     *
+     * @param guid
+     * @return
+     * @throws Exception
+     */
+    //@todo firefox request accept header included application/json field. firefox not working properly in species page.
+
+    //    @RequestMapping(value="/species/{guid:.+}", method=RequestMethod.GET, headers="Accept=application/json")
+    //    public @ResponseBody ExtendedTaxonConceptDTO showSpeciesJsonAcceptHeader(@PathVariable("guid") String guid) throws Exception {
+    //		logger.info("Retrieving concept JSON with guid: "+guid);
+    //		return findConceptByNameOrGuid(guid);
+    //	}
+
+    /**
+     * XML output for TC guid
+     *
+     * @param guid
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/species/{guid}.xml", method = RequestMethod.GET)
+    public ExtendedTaxonConceptDTO showSpeciesXml(@PathVariable("guid") String guid) throws Exception {
+        logger.info("Retrieving concept XML with guid: "+guid);
+        return findConceptByNameOrGuid(guid);
+    }
+
+    private ExtendedTaxonConceptDTO findConceptByNameOrGuid(String guid) throws Exception {
+        ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
+        if(etc==null || etc.getTaxonConcept()==null || etc.getTaxonConcept().getNameString()==null){
+            String lsid = getLsidByNameAndKingdom(guid);
+            if(lsid != null && lsid.length() > 0){
+                etc = taxonConceptDao.getExtendedTaxonConceptByGuid(lsid);
+                return repoUrlUtils.fixRepoUrls(etc);
+            }
+        } else {
+            return repoUrlUtils.fixRepoUrls(taxonConceptDao.getExtendedTaxonConceptByGuid(guid));
+        }
+        return null;
+    }
+
+    /**
+     * JSON web service (AJAX) to return details for a repository document
+     *
+     * @param documentId
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/species/document/{documentId}.json", method = RequestMethod.GET)
+    public Document getDocumentDetails(@PathVariable("documentId") int documentId) throws Exception {
+        Document doc = documentDAO.getById(documentId);
+
+        if (doc != null) {
+            // augment data with title from reading dc file
+            String fileName = doc.getFilePath()+"/dc";
+            RepositoryFileUtils repoUtils = new RepositoryFileUtils();
+            List<String[]> lines = repoUtils.readRepositoryFile(fileName);
+            //System.err.println("docId:"+documentId+"|filename:"+fileName);
+            for (String[] line : lines) {
+                // get the dc.title value
+                if (line[0].endsWith(Predicates.DC_TITLE.getLocalPart())) {
+                    doc.setTitle(line[1]);
+                } else if (line[0].endsWith(Predicates.DC_IDENTIFIER.getLocalPart())) {
+                    doc.setIdentifier(line[1]);
+                }
+            }
+        }
+        return doc;
+    }
+
+    /**
+     * Dynamically generate a scaled and/or square image
+     * 
+     * @param documentId
+     * @param scale
+     * @param square
+     * @param outputStream
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping(value="/species/images/{documentId}.jpg", method = RequestMethod.GET)
+    public void thumbnailHandler(@PathVariable("documentId") int documentId, 
+            @RequestParam(value="scale", required=false, defaultValue ="1000") Integer scale,
+            @RequestParam(value="square", required=false, defaultValue ="false") Boolean square,
+            OutputStream outputStream,
+            HttpServletResponse response) throws IOException {
+        logger.debug("Requested image " + documentId + ".jpg ");
+        Document doc = documentDAO.getById(documentId);
+        if (doc != null) {
+            // augment data with title from reading dc file
+            MimeType mt = MimeType.getForMimeType(doc.getMimeType());
+            String fileName = doc.getFilePath()+"/raw"+mt.getFileExtension();
             logger.debug("filename = "+fileName);
             ImageUtils iu = new ImageUtils();
             try {
-            	logger.debug("Loading with image utils...");
+                logger.debug("Loading with image utils...");
                 iu.load(fileName); // problem with Jetty 7.0.1
                 logger.debug("Loaded");
                 // create a square image (crops)
                 if (square) {
-                	logger.debug("Producing square images...");
+                    logger.debug("Producing square images...");
                     iu.square();
                 }
                 // scale if original is bigger than "scale" pixels
@@ -642,113 +677,113 @@ public class SpeciesController {
                 logger.debug("Thumbnailing success..."+success);
                 if(success){
                     logger.debug("Thumbnailing success...");
-	                response.setContentType(mt.getMimeType());
-	                ImageIO.write(iu.getModifiedImage(), mt.name(), outputStream);
+                    response.setContentType(mt.getMimeType());
+                    ImageIO.write(iu.getModifiedImage(), mt.name(), outputStream);
                 } else {
-                	logger.debug("Fixing URL for file name: " +fileName+", "+repoUrlUtils);
+                    logger.debug("Fixing URL for file name: " +fileName+", "+repoUrlUtils);
                     String url = repoUrlUtils.fixSingleUrl(fileName);
                     logger.debug("Small image detected, redirecting to source: " +url);
                     response.sendRedirect(repoUrlUtils.fixSingleUrl(url));
                     return;
                 }
             } catch (Exception ex) {
-            	logger.error("Problem loading image with JAI: " + ex.getMessage(), ex);
+                logger.error("Problem loading image with JAI: " + ex.getMessage(), ex);
                 String url = repoUrlUtils.fixSingleUrl(fileName);
                 logger.warn("Redirecting to: "+url);
                 response.sendRedirect(repoUrlUtils.fixSingleUrl(url));
                 return;
             }
-		} else {
-			logger.error("Requested image " + documentId + ".jpg was not found");
+        } else {
+            logger.error("Requested image " + documentId + ".jpg was not found");
             response.sendError(response.SC_NOT_FOUND, "Requested image " + documentId + ".jpg was not found");
         }
-	}
+    }
 
-	/**
-	 * Pest / Conservation status list
-	 *
-	 * @param statusStr
-	 * @param filterQuery 
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/species/status/{status}", method = RequestMethod.GET)
-	public String listStatus(
-			@PathVariable("status") String statusStr,
-			@RequestParam(value="fq", required=false) String filterQuery,
-			Model model) throws Exception {
-		StatusType statusType = StatusType.getForStatusType(statusStr);
-		if (statusType==null) {
-			return "redirect:/error.jsp";
-		}
-		model.addAttribute("statusType", statusType);
-		model.addAttribute("filterQuery", filterQuery);
-		SearchResultsDTO searchResults = searchDao.findAllByStatus(statusType, filterQuery,  0, 10, "score", "asc");// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
-		model.addAttribute("searchResults", searchResults);
-		return STATUS_LIST;
-	}
+    /**
+     * Pest / Conservation status list
+     *
+     * @param statusStr
+     * @param filterQuery 
+     * @param model
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/species/status/{status}", method = RequestMethod.GET)
+    public String listStatus(
+            @PathVariable("status") String statusStr,
+            @RequestParam(value="fq", required=false) String filterQuery,
+            Model model) throws Exception {
+        StatusType statusType = StatusType.getForStatusType(statusStr);
+        if (statusType==null) {
+            return "redirect:/error.jsp";
+        }
+        model.addAttribute("statusType", statusType);
+        model.addAttribute("filterQuery", filterQuery);
+        SearchResultsDTO searchResults = searchDao.findAllByStatus(statusType, filterQuery,  0, 10, "score", "asc");// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
+        model.addAttribute("searchResults", searchResults);
+        return STATUS_LIST;
+    }
 
-	/**
-	 * Pest / Conservation status JSON (for yui datatable)
-	 *
-	 * @param statusStr
-	 * @param filterQuery 
-	 * @param startIndex
-	 * @param pageSize
-	 * @param sortField
-	 * @param sortDirection
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/species/status/{status}.json", method = RequestMethod.GET)
-	public SearchResultsDTO listStatusJson(@PathVariable("status") String statusStr,
-			@RequestParam(value="fq", required=false) String filterQuery,
-			@RequestParam(value="startIndex", required=false, defaultValue="0") Integer startIndex,
-			@RequestParam(value="results", required=false, defaultValue ="10") Integer pageSize,
-			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
-			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
-			Model model) throws Exception {
+    /**
+     * Pest / Conservation status JSON (for yui datatable)
+     *
+     * @param statusStr
+     * @param filterQuery 
+     * @param startIndex
+     * @param pageSize
+     * @param sortField
+     * @param sortDirection
+     * @param model
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/species/status/{status}.json", method = RequestMethod.GET)
+    public SearchResultsDTO listStatusJson(@PathVariable("status") String statusStr,
+            @RequestParam(value="fq", required=false) String filterQuery,
+            @RequestParam(value="startIndex", required=false, defaultValue="0") Integer startIndex,
+            @RequestParam(value="results", required=false, defaultValue ="10") Integer pageSize,
+            @RequestParam(value="sort", required=false, defaultValue="score") String sortField,
+            @RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
+            Model model) throws Exception {
 
-		StatusType statusType = StatusType.getForStatusType(statusStr);
-		SearchResultsDTO searchResults = null;
+        StatusType statusType = StatusType.getForStatusType(statusStr);
+        SearchResultsDTO searchResults = null;
 
-		if (statusType!=null) {
-			searchResults = searchDao.findAllByStatus(statusType, filterQuery, startIndex, pageSize, sortField, sortDirection);// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
-		}
+        if (statusType!=null) {
+            searchResults = searchDao.findAllByStatus(statusType, filterQuery, startIndex, pageSize, sortField, sortDirection);// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
+        }
 
-		return searchResults;
-	}
+        return searchResults;
+    }
 
-	/**
-	 * Utility to pull out common names and remove duplicates, returning a string
-	 *
-	 * @param etc
-	 * @return
-	 */
-	private String getCommonNamesString(ExtendedTaxonConceptDTO etc) {
-		HashMap<String, String> cnMap = new HashMap<String, String>();
+    /**
+     * Utility to pull out common names and remove duplicates, returning a string
+     *
+     * @param etc
+     * @return
+     */
+    private String getCommonNamesString(ExtendedTaxonConceptDTO etc) {
+        HashMap<String, String> cnMap = new HashMap<String, String>();
 
-		for (CommonName cn : etc.getCommonNames()) {
-			String lcName = cn.getNameString().toLowerCase().trim();
+        for (CommonName cn : etc.getCommonNames()) {
+            String lcName = cn.getNameString().toLowerCase().trim();
 
-			if (!cnMap.containsKey(lcName)) {
-				cnMap.put(lcName, cn.getNameString());
-			}
-		}
+            if (!cnMap.containsKey(lcName)) {
+                cnMap.put(lcName, cn.getNameString());
+            }
+        }
 
-		return StringUtils.join(cnMap.values(), ", ");
-	}
+        return StringUtils.join(cnMap.values(), ", ");
+    }
 
-	/**
-	 * Filter a list of SimpleProperty objects so that the resulting list only
-	 * contains objects with a name ending in "Text". E.g. "hasDescriptionText".
-	 *
-	 * @param etc
-	 * @return
-	 */
-	 private List<SimpleProperty> filterSimpleProperties(ExtendedTaxonConceptDTO etc) {
+    /**
+     * Filter a list of SimpleProperty objects so that the resulting list only
+     * contains objects with a name ending in "Text". E.g. "hasDescriptionText".
+     *
+     * @param etc
+     * @return
+     */
+    private List<SimpleProperty> filterSimpleProperties(ExtendedTaxonConceptDTO etc) {
         List<SimpleProperty> simpleProperties = etc.getSimpleProperties();
         List<SimpleProperty> textProperties = new ArrayList<SimpleProperty>();
 
@@ -787,7 +822,7 @@ public class SpeciesController {
      * @param min
      * @return
      */
-     private String truncateTextBySentence(String text, int min) {
+    private String truncateTextBySentence(String text, int min) {
         try {
             if (text != null && text.length() > min) {
                 java.text.BreakIterator bi = java.text.BreakIterator.getSentenceInstance();
@@ -808,7 +843,7 @@ public class SpeciesController {
      * @param min
      * @return
      */
-     private String truncateTextByWord(String text, int min) {
+    private String truncateTextByWord(String text, int min) {
         try {
             if (text != null && text.length() > min) {
                 BreakIterator bi = BreakIterator.getWordInstance();
@@ -825,19 +860,19 @@ public class SpeciesController {
         return text;
     }
 
-	/**
-	 * @param taxonConceptDao the taxonConceptDao to set
-	 */
-	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
-		this.taxonConceptDao = taxonConceptDao;
-	}
+    /**
+     * @param taxonConceptDao the taxonConceptDao to set
+     */
+    public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
+        this.taxonConceptDao = taxonConceptDao;
+    }
 
-	/**
-	 * @param repoUrlUtils the repoUrlUtils to set
-	 */
-	public void setRepoUrlUtils(RepoUrlUtils repoUrlUtils) {
-		this.repoUrlUtils = repoUrlUtils;
-	}
+    /**
+     * @param repoUrlUtils the repoUrlUtils to set
+     */
+    public void setRepoUrlUtils(RepoUrlUtils repoUrlUtils) {
+        this.repoUrlUtils = repoUrlUtils;
+    }
 
     public Set<String> getNonTruncatedSources() {
         return nonTruncatedSources;
@@ -935,7 +970,7 @@ public class SpeciesController {
         if (etc.getScreenshotImages() != null) {
             for (Image img : etc.getScreenshotImages()) {
                 StringBuilder text = new StringBuilder("Screenshot image from " + img.getInfoSourceName());
-                
+
                 System.out.println(img.getRepoLocation());
                 if (img.getCreator() != null) {
                     text.append("(by ").append(img.getCreator()).append(")");
@@ -1050,29 +1085,29 @@ public class SpeciesController {
      * @return
      */
     private List<Image> addImageDocIds(List<Image> images) {
-    	String repoIdStr = "";
-    	
+        String repoIdStr = "";
+
         // Extract the repository document id from repoLocation field
         // E.g. Http://bie.ala.org.au/repo/1040/38/388624/Raw.jpg -> 388624
         for (Image img : images) {
-//            System.out.println(img.getRepoLocation());
-            
-        	String[] paths = StringUtils.split(img.getRepoLocation(), "/");
+            //            System.out.println(img.getRepoLocation());
+
+            String[] paths = StringUtils.split(img.getRepoLocation(), "/");
             // unix format file path
             if(paths.length >= 2){
-            	repoIdStr = paths[paths.length - 2]; // get path before filename
+                repoIdStr = paths[paths.length - 2]; // get path before filename
             }
             else{
-            	// windows format file path
-            	paths = StringUtils.split(img.getRepoLocation(), "\\");
-            	if(paths.length >= 2){
-            		repoIdStr = paths[paths.length - 2]; // get path before filename
-            	}
-            	else{
-                	continue;
+                // windows format file path
+                paths = StringUtils.split(img.getRepoLocation(), "\\");
+                if(paths.length >= 2){
+                    repoIdStr = paths[paths.length - 2]; // get path before filename
+                }
+                else{
+                    continue;
                 }
             }
-            
+
             if (repoIdStr != null && !repoIdStr.isEmpty()) {
                 Integer docId = Integer.parseInt(repoIdStr);
                 logger.debug("setting docId = "+docId);
@@ -1081,21 +1116,21 @@ public class SpeciesController {
         }
         return images;
     }
-    
+
     protected class TaxonRankNameComparator implements Comparator<SearchTaxonConceptDTO>{
-    	@Override
-    	public int compare(SearchTaxonConceptDTO t1, SearchTaxonConceptDTO t2) {
-    		if(t1!= null && t1 != null){
-    			if(t1.getRankId() != t2.getRankId()){
-    				return t1.getRankId() -t2.getRankId();
-    			}
-    			else{
-    				return t1.compareTo(t2);
-    			}
-    		}
-    	return 0;
-    	}
- 	}
+        @Override
+        public int compare(SearchTaxonConceptDTO t1, SearchTaxonConceptDTO t2) {
+            if(t1!= null && t1 != null){
+                if(t1.getRankId() != t2.getRankId()){
+                    return t1.getRankId() -t2.getRankId();
+                }
+                else{
+                    return t1.compareTo(t2);
+                }
+            }
+            return 0;
+        }
+    }
 
     /**
      * Comparator to order the Simple Properties based on their natural ordering
@@ -1106,7 +1141,7 @@ public class SpeciesController {
         @Override
         public int compare(SimpleProperty o1, SimpleProperty o2) {
             int value = o1.compareTo(o2);
-            
+
             if(value ==0){
                 //we want the low priority items to appear at the end of the list
                 boolean low1 = lowPrioritySources.contains(o1.getInfoSourceURL());
@@ -1125,10 +1160,10 @@ public class SpeciesController {
         }
     }
 
-	/**
-	 * @param infoSourceDAO the infoSourceDAO to set
-	 */
-	public void setInfoSourceDAO(InfoSourceDAO infoSourceDAO) {
-		this.infoSourceDAO = infoSourceDAO;
-	}
+    /**
+     * @param infoSourceDAO the infoSourceDAO to set
+     */
+    public void setInfoSourceDAO(InfoSourceDAO infoSourceDAO) {
+        this.infoSourceDAO = infoSourceDAO;
+    }
 }
