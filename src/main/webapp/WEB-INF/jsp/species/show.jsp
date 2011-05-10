@@ -710,7 +710,8 @@ include file="/common/taglibs.jsp" %>
                     <div id="imageGallery">
                     	<script type="text/javascript">
                     		function rankThisImage(guid, uri, infosourceId, documentId, blackList, positive, name){
-                    			 var url = "${pageContext.request.contextPath}/rankTaxonImage${not empty pageContext.request.remoteUser ? 'WithUser' : ''}?guid="+guid+"&uri="+uri+"&infosourceId="+infosourceId+"&blackList="+blackList+"&positive="+positive+"&name="+name;
+                    			var encodedUri = escape(uri); 
+                    			var url = "${pageContext.request.contextPath}/rankTaxonImage${not empty pageContext.request.remoteUser ? 'WithUser' : ''}?guid="+guid+"&uri="+encodedUri+"&infosourceId="+infosourceId+"&blackList="+blackList+"&positive="+positive+"&name="+name;
                        			 $('.imageRank-'+documentId).html('Sending your ranking....');
 				                 $.getJSON(url, function(data){ });
 			                	 $('.imageRank-'+documentId).each(function(index) {
