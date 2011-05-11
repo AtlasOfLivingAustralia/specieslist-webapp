@@ -263,49 +263,75 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             return searchResults;
         }
 	}
+	
+	private String replacePrefix(String field, String query){
+		query = query.trim().replaceAll("[()]", ""); //remove '(' and ')'
+		query = query.replaceAll("\\s+", " "); //replace multiple spaces to single space
+		return " (" +field +":" + query.replaceAll(" ", " AND "+field +":")+")";
+	}
 
+	private String buildQuery(String query, boolean textTermOr){
+    	StringBuffer queryString = new StringBuffer();
+    	if(query!=null && query.length()>0){
+            String cleanQuery = query.toLowerCase(); //ClientUtils.escapeQueryChars(query).toLowerCase();
+            queryString.append(replacePrefix("commonName", cleanQuery)); //" commonName:"+replacePrefix("commonName",cleanQuery));
+            queryString.append(" OR ");
+            //text term in OR operator
+            if(textTermOr){
+            	queryString.append(" text:"+cleanQuery+"");
+            }
+            else{
+            	queryString.append(" text:\""+cleanQuery+"\"");
+            }
+            queryString.append(" OR ");
+            queryString.append(replacePrefix("scientificNameText", cleanQuery));//queryString.append(" scientificNameText:\""+cleanQuery+"\"");
+            
+            queryString.append(" OR ");	            
+            queryString.append(replacePrefix("name_complete", cleanQuery));  //queryString.append(" name_complete:\""+cleanQuery+"\"");
+            queryString.append(" OR ");
+            queryString.append(" concat_name:\"" + SolrUtils.concatName(cleanQuery) + "\"");
+            queryString.append(" OR ");
+            queryString.append(replacePrefix("stopped_common_name", cleanQuery)); //" stopped_common_name:\"" + cleanQuery + "\"");
+            
+            //make the exact matches score higher
+            //The boost is 100000000000 because this is how much of a boost is required to make the "Acacia" exact matches appear first.
+            //Acacia farnesiana has many terms that match with "Acacia" thus the high level boost required.
+            queryString.append(" OR ");
+            queryString.append(" exact_text:\"" + cleanQuery + "\"^100000000000");
+            
+            
+    		String canonicalSciName = retrieveCanonicalForm(query);
+            if(canonicalSciName!=null){
+	            queryString.append(" OR ");
+	            queryString.append(" text:\""+canonicalSciName + "\"");
+            }
+            
+            logger.info("search query: "+queryString.toString());
+    	} else {
+    		queryString.append("*:*");
+    	}
+    	return queryString.toString();
+	}
+		
 	public SearchResultsDTO<SearchDTO> doFullTextSearch(String query, String[] filterQuery, Integer startIndex, Integer pageSize, String sortField, String sortDirection) throws Exception {
-        
+		SearchResultsDTO<SearchDTO> dto = null;
+		
 		//parse scientific name into a canonical form, strip authorships etc
 		//construct a searchable form of the sci name
         try {
-        	StringBuffer queryString = new StringBuffer();
-        	if(query!=null && query.length()>0){
-	            String cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
-	            queryString.append(" commonName:\""+cleanQuery+"\"");
-	            queryString.append(" OR ");
-	            queryString.append(" text:\""+cleanQuery+"\"");
-	            queryString.append(" OR ");
-	            queryString.append(" scientificNameText:\""+cleanQuery+"\"");
-	            queryString.append(" OR ");
-	            queryString.append(" concat_name:\"" + SolrUtils.concatName(cleanQuery) + "\"");
-	            queryString.append(" OR ");
-	            queryString.append(" stopped_common_name:" + cleanQuery + "");
-	            
-	            //make the exact matches score higher
-	            //The boost is 100000000000 because this is how much of a boost is required to make the "Acacia" exact matches appear first.
-	            //Acacia farnesiana has many terms that match with "Acacia" thus the high level boost required.
-	            queryString.append(" OR ");
-	            queryString.append(" exact_text:\"" + cleanQuery + "\"^100000000000");
-	            
-	            
-	    		String canonicalSciName = retrieveCanonicalForm(query);
-	            if(canonicalSciName!=null){
-		            queryString.append(" OR ");
-		            queryString.append(" text:\""+canonicalSciName + "\"");
-	            }
-	            
-	            logger.info("search query: "+queryString.toString());
-        	} else {
-        		queryString.append("*:*");
-        	}
-            return doSolrSearch(queryString.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
+        	String queryString = buildQuery(query, false);
+            dto = doSolrSearch(queryString, filterQuery, pageSize, startIndex, sortField, sortDirection);
+            if(dto == null || dto.getResults() == null || dto.getResults().size() < 1){
+            	queryString = buildQuery(query, true);
+            	dto = doSolrSearch(queryString, filterQuery, pageSize, startIndex, sortField, sortDirection);
+            }
         } catch (SolrServerException ex) {
             logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
     		SearchResultsDTO searchResults = new SearchResultsDTO();
             searchResults.setStatus("ERROR"); // TODO also set a message field on this bean with the error message(?)
             return searchResults;
         }
+        return dto;
 	}
 
 	/**
@@ -1085,11 +1111,23 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
                 matchedNames.addAll(getHighlightedNames(commonNames, m, "", ""));
             }
         }
-        List<String> scientificNames = org.springframework.util.CollectionUtils.arrayToList(((String)doc.get("scientificNameRaw")).split(","));
+//        List<String> scientificNames = org.springframework.util.CollectionUtils.arrayToList(((String)doc.get("scientificNameRaw")).split(","));
+//        List<String> scientificNames = org.springframework.util.CollectionUtils.arrayToList(((String)doc.get("nameComplete")).split(","));        
+        String[] name1 = ((String)doc.get("scientificNameRaw")).split(",");
+        String[] name2 = ((String)doc.get("nameComplete")).split(",");
+        ArrayList<String> scientificNames = new ArrayList<String>();
+        for(String name : name1){
+        	scientificNames.add(name);
+        }
+        for(String name : name2){
+        	scientificNames.add(name);
+        }
+        
         autoDto.setScientificNameMatches(getHighlightedNames(scientificNames, m, "<b>", "</b>"));
         if (autoDto.getScientificNameMatches() != null) {
             matchedNames.addAll(getHighlightedNames(scientificNames, m, "", ""));
         }
+        
         autoDto.setMatchedNames(matchedNames);
         //get the highlighted values
         //NC TODO get partial term matching highlighting to work - I am not sure on the SOLR configurations that are required
@@ -1111,7 +1149,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         StringBuffer queryString = new StringBuffer();
 
 //        String cleanQuery = ClientUtils.escapeQueryChars(value);//.toLowerCase();
-        String cleanQuery = SolrUtils.cleanName(value);
+//        String cleanQuery = SolrUtils.cleanName(value);
+        String cleanQuery = value.toLowerCase();
         
         if (StringUtils.trimToNull(cleanQuery) != null && cleanQuery.length() >= 3) {
             if(indexType != null){
@@ -1131,6 +1170,10 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             queryString.append("auto_text_edge:\"" + cleanQuery + "\""); //This field ensures that matches at the start of the term have a higher ranking
             queryString.append(" OR ");
             queryString.append("concat_name:\"" + SolrUtils.concatName(cleanQuery) + "\"");
+            queryString.append(" OR ");	            
+            queryString.append(replacePrefix("name_complete", cleanQuery)); //queryString.append(" name_complete:\""+cleanQuery+"\"");
+            queryString.append(" OR ");
+            queryString.append(replacePrefix("stopped_common_name", cleanQuery));
             queryString.append(")");
             solrQuery.setQuery(queryString.toString());
             solrQuery.setQueryType("standard");
