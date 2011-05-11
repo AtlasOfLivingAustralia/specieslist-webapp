@@ -1113,8 +1113,14 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         }
 //        List<String> scientificNames = org.springframework.util.CollectionUtils.arrayToList(((String)doc.get("scientificNameRaw")).split(","));
 //        List<String> scientificNames = org.springframework.util.CollectionUtils.arrayToList(((String)doc.get("nameComplete")).split(","));        
-        String[] name1 = ((String)doc.get("scientificNameRaw")).split(",");
-        String[] name2 = ((String)doc.get("nameComplete")).split(",");
+        String[] name1 = new String[0];
+        if((String)doc.get("scientificNameRaw") != null){
+        	name1 = ((String)doc.get("scientificNameRaw")).split(",");
+        }
+        String[] name2 = new String[0];
+        if((String)doc.get("nameComplete") != null){
+        	name2 = ((String)doc.get("nameComplete")).split(",");
+        }
         ArrayList<String> scientificNames = new ArrayList<String>();
         for(String name : name1){
         	scientificNames.add(name);
@@ -1145,12 +1151,14 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
     /**
      * @see org.ala.dao.FulltextSearchDao#getAutoCompleteList(String, String[], int)
      */
-    public List<AutoCompleteDTO> getAutoCompleteList(String value, IndexedTypes indexType, boolean gsOnly, int maxTerms) throws Exception {
+    public List<AutoCompleteDTO> getAutoCompleteList(String value, IndexedTypes indexType, boolean gsOnly, int maxTerms) {
         StringBuffer queryString = new StringBuffer();
 
 //        String cleanQuery = ClientUtils.escapeQueryChars(value);//.toLowerCase();
 //        String cleanQuery = SolrUtils.cleanName(value);
         String cleanQuery = value.toLowerCase();
+        cleanQuery = cleanQuery.trim().replaceAll("[()]", ""); //remove '(' and ')'
+        cleanQuery = cleanQuery.replaceAll("\\s+", " "); //replace multiple spaces to single space
         
         if (StringUtils.trimToNull(cleanQuery) != null && cleanQuery.length() >= 3) {
             if(indexType != null){
@@ -1180,15 +1188,17 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             solrQuery.setFields("*", "score");
             solrQuery.setRows(maxTerms);
 
-            QueryResponse qr = solrUtils.getSolrServer().query(solrQuery);
-
-            SolrDocumentList sdl = qr.getResults();
-            if (sdl != null && !sdl.isEmpty()) {
-                for (SolrDocument doc : sdl) {
-                    if (IndexedTypes.TAXON.toString().equalsIgnoreCase((String) doc.getFieldValue("idxtype"))) {
-                        items.add(createAutoCompleteFromIndex(qr, doc, value));
-
-                    }
+            QueryResponse qr;
+			try {
+				qr = solrUtils.getSolrServer().query(solrQuery);
+				
+	            SolrDocumentList sdl = qr.getResults();
+	            if (sdl != null && !sdl.isEmpty()) {
+	                for (SolrDocument doc : sdl) {
+	                    if (IndexedTypes.TAXON.toString().equalsIgnoreCase((String) doc.getFieldValue("idxtype"))) {
+	                        items.add(createAutoCompleteFromIndex(qr, doc, value));
+	
+	                    }
 //                else if(IndexedTypes.COLLECTION.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
 //                    results.add(createCollectionFromIndex(qr, doc));
 //            	} else if(IndexedTypes.INSTITUTION.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
@@ -1202,8 +1212,11 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 //            	} else if(IndexedTypes.LOCALITY.toString().equalsIgnoreCase((String)doc.getFieldValue("idxtype"))){
 ////                    results.add(createTaxonConceptFromIndex(qr, doc));
 //            	}
-                }
-            }
+	                }
+	            }
+            } catch (Exception e) {
+				logger.error(e);
+			}
             return items;
         }
         return new ArrayList<AutoCompleteDTO>();
