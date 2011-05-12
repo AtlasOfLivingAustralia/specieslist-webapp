@@ -7,6 +7,7 @@ import org.ala.dao.Scanner;
 import org.apache.cassandra.thrift.Column;
 import org.apache.cassandra.thrift.ConsistencyLevel;
 import org.apache.cassandra.thrift.SlicePredicate;
+import org.apache.cassandra.thrift.SuperColumn;
 import org.wyki.cassandra.pelops.Mutator;
 import org.wyki.cassandra.pelops.Pelops;
 import org.wyki.cassandra.pelops.Policy;
@@ -51,25 +52,57 @@ public class MigrateUtil {
 		Pelops.addPool("cassandra-target", new String[]{targetHost}, Integer.valueOf(targetPort), false, keyspace, new Policy());
 		
 		//get scanner
-		Scanner scanner = new CassandraScanner(Pelops.getDbConnPool("cassandra-source").getConnection().getAPI(),
+		Scanner scanner = null;
+		if(args.length > 6){
+			scanner = new CassandraScanner(Pelops.getDbConnPool("cassandra-source").getConnection().getAPI(),
                 keyspace, columnFamily, column);
+		}
+		else{
+			scanner = new CassandraScanner(Pelops.getDbConnPool("cassandra-source").getConnection().getAPI(),
+	                keyspace, columnFamily);
+		}
 		
 		//for each row
 		byte[] rowKey = scanner.getNextGuid();
 		SlicePredicate slicePredicate = Selector.newColumnsPredicateAll(true, 10000);
 		int counter = 0;
+		//write all subcolumns to NEW
+		Mutator mutator = Pelops.createMutator("cassandra-target", keyspace);
 		while (rowKey!=null){
 			counter++;
 			//get all subcolumns for row from OLD
 			Selector selector = Pelops.createSelector("cassandra-source", keyspace);
 			String rowKeyAsString = new String(rowKey);
-			List<Column> columns = selector.getSubColumnsFromRow(rowKeyAsString,columnFamily,columnFamily.getBytes(),slicePredicate,ConsistencyLevel.ONE);
-			
-			//write all subcolumns to NEW
-			Mutator mutator = Pelops.createMutator("cassandra-target", keyspace);
-			for(Column col: columns){
-				//write them back
-				mutator.writeSubColumn(rowKeyAsString, columnFamily, columnFamily, col);
+			if("rk".equalsIgnoreCase(columnFamily)){
+				if(args.length > 6){
+					List<Column> columns = selector.getSubColumnsFromRow(rowKeyAsString,columnFamily, column.getBytes(),slicePredicate,ConsistencyLevel.ONE);	
+					
+					for(Column col: columns){
+						//write them back
+						mutator.writeSubColumn(rowKeyAsString, columnFamily, columnFamily, col);
+					}
+				}
+				else{
+					List<SuperColumn> superColumns = selector.getSuperColumnsFromRow(rowKeyAsString,columnFamily,slicePredicate,ConsistencyLevel.ONE);				
+					
+					for(SuperColumn sc : superColumns){
+						List<Column> columns = selector.getSubColumnsFromRow(rowKeyAsString,columnFamily, sc.getName(),slicePredicate,ConsistencyLevel.ONE);	
+						
+						for(Column col: columns){
+							//write them back
+							mutator.writeSubColumn(rowKeyAsString, columnFamily, columnFamily, col);
+						}
+					}					
+				}
+			}
+			else{
+				List<Column> columns = selector.getSubColumnsFromRow(rowKeyAsString,columnFamily,columnFamily.getBytes(),slicePredicate,ConsistencyLevel.ONE);				
+				
+				for(Column col: columns){
+					//write them back
+					mutator.writeSubColumn(rowKeyAsString, columnFamily, columnFamily, col);
+				}
+				
 			}
 			mutator.execute(ConsistencyLevel.ONE);
 			rowKey = scanner.getNextGuid();
