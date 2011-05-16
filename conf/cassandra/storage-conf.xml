@@ -168,7 +168,7 @@
    ~ (hostname, name resolution, etc), and the Right Thing is to use the
    ~ address associated with the hostname (it might not be).
   -->
-  <ListenAddress>localhost</ListenAddress>
+  <ListenAddress>ala-biedb2.vm.csiro.au</ListenAddress>
   <!-- internal communications port -->
   <StoragePort>7000</StoragePort>
 
@@ -180,7 +180,7 @@
    ~ Leaving this blank has the same effect it does for ListenAddress,
    ~ (i.e. it will be based on the configured hostname of the node).
   -->
-  <ThriftAddress>localhost</ThriftAddress>
+  <ThriftAddress>ala-biedb2.vm.csiro.au</ThriftAddress>
   <!-- Thrift RPC port (the port clients connect to). -->
   <ThriftPort>9160</ThriftPort>
   <!-- 
