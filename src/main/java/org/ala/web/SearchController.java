@@ -230,10 +230,11 @@ public class SearchController {
             @RequestParam(value="limit", required=false, defaultValue ="10") int maxTerms,
             Model model) throws Exception {
 
-        logger.debug("Autocomplete on " + query + " geoOnly: " + geoRefOnly  );
+        
         IndexedTypes it = idxType != null ? IndexedTypes.valueOf(idxType.toUpperCase()):null;
         List<AutoCompleteDTO> autoCompleteList = searchDao.getAutoCompleteList(query,it, geoRefOnly , maxTerms);
         model.addAttribute("autoCompleteList", autoCompleteList);
+        logger.debug("Autocomplete on " + query + " geoOnly: " + geoRefOnly + ", return size: " + autoCompleteList.size() );
         return AUTO_JSON;
     }
 

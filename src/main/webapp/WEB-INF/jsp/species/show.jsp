@@ -10,6 +10,7 @@ include file="/common/taglibs.jsp" %>
 <c:set var="threatenedSpeciesCodes">${wordPressUrl}/about/program-of-projects/sds/threatened-species-codes/</c:set>
 <!DOCTYPE html>
 <html dir="ltr" lang="en-US">
+	<% long start = System.currentTimeMillis(); %>
     <head>
     	<c:set var="pageName">${extendedTaxonConcept.taxonConcept.nameString} <c:if test="${not empty extendedTaxonConcept.commonNames}"> : ${extendedTaxonConcept.commonNames[0].nameString}</c:if></c:set>	
         <meta name="pageName" content="Taxon profile page for ${pageName}" />
@@ -27,12 +28,31 @@ include file="/common/taglibs.jsp" %>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.qtip-1.0.0.min.js"></script>
         <script type="text/javascript" src="http://www.google.com/jsapi"></script>
         <script type="text/javascript">
-            
+ 
+        // load the spital map
+
             /*
              * OnLoad equivilent in JQuery
              */
             $(document).ready(function() {
-
+                var spitalUrl = "../map/map.json?guid=${extendedTaxonConcept.taxonConcept.guid}"; 
+                $.getJSON(spitalUrl, function(data) {
+                	  if(data != null){
+                		 if(data.mapUrl != null && data.mapUrl.length > 0){ 
+                	  		$("#mapImage").attr("src",data.mapUrl);
+                	  		$("#mapImage").attr("hidden",false);
+                	  		if(data.legendUrl != null && data.legendUrl.length > 0
+                   				 && data.type != null && data.type == 'heatmap'){
+                   			 	$("#mapLegend").attr("src",data.legendUrl);
+                   			 	$("#mapLegend").attr("hidden",false);
+                   		 	}
+                		 }
+                		 else{
+                			 $("#divMap").css("display","none"); 
+                		 }                		 
+                	  }
+                	});
+ 
                 // LSID link to show popup with LSID info and links
                 $("a#lsid").fancybox({
                     'hideOnContentClick' : false,
@@ -359,8 +379,7 @@ include file="/common/taglibs.jsp" %>
                     $('ul.childClassification li').hide();
                     $('ul.childClassification li.recorded').show();
                 });
-
-
+                
             });  // end document ready function
 
             /**
@@ -478,24 +497,32 @@ include file="/common/taglibs.jsp" %>
                     <c:if test="${not empty descriptionBlock || (not empty spatialPortalMap && !fn:containsIgnoreCase(spatialPortalMap.mapUrl, 'mapaus1_white'))}">
                         <h2 style="text-transform: capitalize;">${extendedTaxonConcept.taxonConcept.rankString} overview</h2>
                     </c:if>
-                    <c:if test="${not empty spatialPortalMap && !fn:containsIgnoreCase(spatialPortalMap.mapUrl, 'mapaus1_white')}">
-                        <div class="distroMap section no-margin">
+                    <!--c:if test="${not empty spatialPortalMap && !fn:containsIgnoreCase(spatialPortalMap.mapUrl, 'mapaus1_white')}"-->
+                        <div  id="divMap" class="distroMap section no-margin">
                             <h3>Mapped occurrence records</h3>
                             <p>
                                 <a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View occurrence records list</a>
                                 | <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="View interactive map">View interactive map</a>
                             </p>
                             <div class="left">
-                                <img src="${spatialPortalMap.mapUrl}" class="distroImg" width="360" alt="occurrence map"/>
+                                <img id="mapImage" src="" class="distroImg" width="360" alt="occurrence map" hidden="true"/>
                             </div>
+                            <div class="left" style="margin-top: 80px; margin-left: 20px;">                                
+                                <img id="mapLegend" src="" class="distroLegend" style="" alt="map legend" hidden="true"/>
+                            </div>
+                            <!-- 
+                            <div class="left">
+                                <img src="${spatialPortalMap.mapUrl}" class="distroImg" width="360" alt="occurrence map"/>
+                            </div>                                                         
                             <div class="left" style="margin-top: 80px; margin-left: 20px;">
                                 <c:if test="${not empty spatialPortalMap.legendUrl && spatialPortalMap.type == 'heatmap'}">
                                     <img src="${spatialPortalMap.legendUrl}" class="distroLegend" style="" alt="map legend"/>
                                 </c:if>
                             </div>
+                            -->
                             <p style="clear: both; margin-left: 50px;"><span class="asterisk-container"><a href="${wordPressUrl}/about/progress/map-ranges/">Learn more about Atlas maps</a>&nbsp;</span></p>
                         </div>
-                    </c:if>
+                    <!-- /c:if -->
                     <c:set var="descriptionBlock">
                         <c:forEach var="textProperty" items="${textProperties}" varStatus="status">
                             <c:if test="${fn:endsWith(textProperty.name, 'hasDescriptiveText') && status.count < 3 && textProperty.infoSourceId!=1051}">
@@ -1338,4 +1365,5 @@ include file="/common/taglibs.jsp" %>
             </div>
         </div>
     </body>
+    <% request.setAttribute("jspTime", System.currentTimeMillis() - start); %>
 </html>

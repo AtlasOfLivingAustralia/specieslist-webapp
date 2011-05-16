@@ -1,9 +1,15 @@
 package org.ala.web;
 
+import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -86,5 +92,19 @@ public class RegionMapController {
     	model.addAttribute("namedLayer", namedLayer);
     	model.addAttribute("layerParam", layerParam);
         return "sld";
+    }
+    
+    @RequestMapping(value="/map/map.json*", method = RequestMethod.GET)
+    public void getJson(           
+            @RequestParam(value="guid", defaultValue ="", required=true) String guid,            
+            HttpServletResponse response) throws Exception {
+    	String jsonString = PageUtils.getUrlContentAsJsonString(PageUtils.SPATIAL_JSON_URL + guid);
+    	response.setContentType("application/json;charset=UTF-8");
+    	response.setStatus(200);
+    	PrintWriter out = response.getWriter();    	
+    	out.write(jsonString);
+    	out.flush();
+    	out.close();
+    	response.flushBuffer();
     }
 }

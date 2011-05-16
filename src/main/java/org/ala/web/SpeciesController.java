@@ -427,7 +427,7 @@ public class SpeciesController {
         // add map for conservation status regions to sections in the WP page describing them (http://test.ala.org.au/threatened-species-codes/#International)
         model.addAttribute("statusRegionMap", statusRegionMap());
         // get static occurrence map from spatial portal via JSON lookup
-        model.addAttribute("spatialPortalMap", PageUtils.getSpatialPortalMap(etc.getTaxonConcept().getGuid()));
+//        model.addAttribute("spatialPortalMap", PageUtils.getSpatialPortalMap(etc.getTaxonConcept().getGuid()));
         logger.debug("Returning page view for: " + guid +" .....");
         return SPECIES_SHOW;
     }
