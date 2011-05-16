@@ -10,6 +10,25 @@ include file="/common/taglibs.jsp" %><!DOCTYPE html>
     <head profile="http://gmpg.org/xfn/11">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title><decorator:title default="Atlas of Living Australia" /></title>
+        
+<SCRIPT LANGUAGE="JavaScript">
+//calculate the time before calling the function in window.onload
+beforeload = (new Date()).getTime();
+function pageloadingtime()
+{
+
+	 //calculate the current time in afterload 
+	afterload = (new Date()).getTime();
+	 // now use the beforeload and afterload to calculate the seconds
+	secondes = (afterload-beforeload)/1000;
+	 // If necessary update in window.status
+	window.status='Page Load took  ' + secondes + ' seconde(s).';
+	 // Place the seconds in the innerHTML to show the results
+	document.getElementById("loadingtime").innerHTML = "Page Load took " + secondes + " seconds.";
+	
+}
+</SCRIPT>        
+        
         <link rel="stylesheet" href="${initParam.centralServer}/wp-content/themes/ala/style.css" type="text/css" media="screen" />
         <link rel="icon" type="image/x-icon" href="${initParam.centralServer}/wp-content/themes/ala/images/favicon.ico" />
         <link rel="shortcut icon" type="image/x-icon" href="${initParam.centralServer}/wp-content/themes/ala/images/favicon.ico" />
@@ -100,7 +119,13 @@ include file="/common/taglibs.jsp" %><!DOCTYPE html>
              <decorator:body />
          </div><!--close content-->
          <div id="footer">
-             <ala:footerMenu returnUrlPath="${returnUrlPath}"/>
+             <ala:footerMenu returnUrlPath="${returnUrlPath}"/>                        
+             <c:if test="${not empty jspTime && not empty executeTime}">
+             	<c:set var="controllerTime" value="${executeTime - jspTime}"/>
+             	<p>jsp: ${jspTime} millisec, controller: ${executeTime} millisec</p>
+             </c:if>
+             <script type="text/javascript">window.onload = pageloadingtime;</script>  
+             <div id="loadingtime"></div>
          </div><!--close footer-->
      </div><!--close wrapper-->
     </body>
