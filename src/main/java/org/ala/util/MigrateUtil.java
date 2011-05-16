@@ -66,9 +66,10 @@ public class MigrateUtil {
 		byte[] rowKey = scanner.getNextGuid();
 		SlicePredicate slicePredicate = Selector.newColumnsPredicateAll(true, 10000);
 		int counter = 0;
-		//write all subcolumns to NEW
-		Mutator mutator = Pelops.createMutator("cassandra-target", keyspace);
+				
 		while (rowKey!=null){
+			//write all subcolumns to NEW
+			Mutator mutator = Pelops.createMutator("cassandra-target", keyspace);
 			counter++;
 			//get all subcolumns for row from OLD
 			Selector selector = Pelops.createSelector("cassandra-source", keyspace);
