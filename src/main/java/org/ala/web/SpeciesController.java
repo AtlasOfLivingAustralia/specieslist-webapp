@@ -340,7 +340,7 @@ public class SpeciesController {
             HttpServletRequest request,
             Model model) throws Exception {
         String guid = guidParam;
-
+        long startTime = System.currentTimeMillis();
         logger.debug("Displaying page for: " + guid +" .....");
 
         ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
@@ -428,6 +428,7 @@ public class SpeciesController {
         model.addAttribute("statusRegionMap", statusRegionMap());
         // get static occurrence map from spatial portal via JSON lookup
 //        model.addAttribute("spatialPortalMap", PageUtils.getSpatialPortalMap(etc.getTaxonConcept().getGuid()));
+        model.addAttribute("executeTime", System.currentTimeMillis() - startTime);
         logger.debug("Returning page view for: " + guid +" .....");
         return SPECIES_SHOW;
     }

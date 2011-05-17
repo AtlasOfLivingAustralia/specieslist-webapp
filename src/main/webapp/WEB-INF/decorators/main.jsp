@@ -121,7 +121,6 @@ function pageloadingtime()
          <div id="footer">
              <ala:footerMenu returnUrlPath="${returnUrlPath}"/>                        
              <c:if test="${not empty jspTime && not empty executeTime}">
-             	<c:set var="controllerTime" value="${executeTime - jspTime}"/>
              	<p>jsp: ${jspTime} millisec, controller: ${executeTime} millisec</p>
              </c:if>
              <script type="text/javascript">window.onload = pageloadingtime;</script>  
