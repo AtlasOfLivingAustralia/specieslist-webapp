@@ -1,12 +1,11 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %><%@ 
-include file="/common/taglibs.jsp" %>
+include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" prefix="string" %>
 <c:set var="spatialPortalUrl">${initParam.centralServer}/explore/species-maps/</c:set>
 <c:set var="spatialPortalWMSUrl">http://spatial.ala.org.au/alaspatial/</c:set>
 <c:set var="wordPressUrl">${initParam.centralServer}</c:set>
 <c:set var="biocacheUrl">http://biocache.ala.org.au/</c:set>
 <c:set var="collectoryUrl">http://collections.ala.org.au</c:set>
 <c:set var="bieAdminServerUrl">${initParam.bieAdminServerName}</c:set>
-
 <c:set var="threatenedSpeciesCodes">${wordPressUrl}/about/program-of-projects/sds/threatened-species-codes/</c:set>
 <!DOCTYPE html>
 <html dir="ltr" lang="en-US">
@@ -736,11 +735,11 @@ include file="/common/taglibs.jsp" %>
                     <h2>Images</h2>
                     <div id="imageGallery">
                     	<script type="text/javascript">
-                    		function rankThisImage(guid, uri, infosourceId, documentId, blackList, positive, name){
-                    			var encodedUri = escape(uri); 
+                    		function rankThisImage(guid, encodedUri, infosourceId, documentId, blackList, positive, name){
+                    			//var encodedUri = escape(uri); 
                     			var url = "${pageContext.request.contextPath}/rankTaxonImage${not empty pageContext.request.remoteUser ? 'WithUser' : ''}?guid="+guid+"&uri="+encodedUri+"&infosourceId="+infosourceId+"&blackList="+blackList+"&positive="+positive+"&name="+name;
                        			 $('.imageRank-'+documentId).html('Sending your ranking....');
-				                 $.getJSON(url, function(data){ });
+				                 $.getJSON(url, function(data){ })
 			                	 $('.imageRank-'+documentId).each(function(index) {
 								   $(this).html('Thanks for your help!');
 						         });
@@ -814,20 +813,20 @@ include file="/common/taglibs.jsp" %>
         	                                </c:when>
             	                            <c:otherwise>
             	                            	Is this image representative of ${extendedTaxonConcept.taxonConcept.rankString} ?  
-   	            	                           <a class="isrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,true,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
+   	            	                           <a class="isrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','<string:encodeUrl>${image.identifier}</string:encodeUrl>','${image.infoSourceId}','${image.documentId}',false,true,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  YES
    	            	                           </a>
    	            	                           	 |
-   	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
+   	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','<string:encodeUrl>${image.identifier}</string:encodeUrl>','${image.infoSourceId}','${image.documentId}',false,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  NO
    	            	                           </a>
    	            	                           <c:if test="${not empty isRoleAdmin && isRoleAdmin}">
    	            	                           	 |   	            	                           
-   	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
+   	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','<string:encodeUrl>${image.identifier}</string:encodeUrl>','${image.infoSourceId}','${image.documentId}',true,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  BlackList
    	            	                           </a>
    	            	                           |
-												<a class="isnotrepresent" href="#" onClick="editThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}');return false;">
+												<a class="isnotrepresent" href="#" onClick="editThisImage('${extendedTaxonConcept.taxonConcept.guid}','<string:encodeUrl>${image.identifier}</string:encodeUrl>');return false;">
 													Edit
 												</a>
    	            	                           </c:if>
@@ -1043,9 +1042,9 @@ include file="/common/taglibs.jsp" %>
                             	<c:if test="${not empty cNames}">
                                     <div id='cnRank-${fName}' class="rankCommonName">
 	       	                            	Is this a preferred common name for this ${extendedTaxonConcept.taxonConcept.rankString}?
-	           	                           <a class="isrepresent" href="#" onclick="rankThisCommonName('${extendedTaxonConcept.taxonConcept.guid}','${fName}',false,true,'${nkey}');return false;">YES</a>
+	           	                           <a class="isrepresent" href="#" onclick="rankThisCommonName('<string:encodeUrl>${extendedTaxonConcept.taxonConcept.guid}</string:encodeUrl>','${fName}',false,true,'${nkey}');return false;">YES</a>
                                             |
-	           	                           <a class="isnotrepresent" href="#" onclick="rankThisCommonName('${extendedTaxonConcept.taxonConcept.guid}','${fName}',false,false,'${nkey}');return false;">NO</a>
+	           	                           <a class="isnotrepresent" href="#" onclick="rankThisCommonName('<string:encodeUrl>${extendedTaxonConcept.taxonConcept.guid}</string:encodeUrl>','${fName}',false,false,'${nkey}');return false;">NO</a>
                                 	</div>
                                 </c:if> 
                                 </c:otherwise>

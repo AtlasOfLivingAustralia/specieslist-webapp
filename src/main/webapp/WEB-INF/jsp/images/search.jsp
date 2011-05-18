@@ -15,6 +15,16 @@ include file="/common/taglibs.jsp" %><!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0
          */
         $(document).ready(function() {
 
+          <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1024'}"><c:set var="noOfColumns" value="4"/></c:if>
+          <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1440'}"><c:set var="noOfColumns" value="5"/></c:if>
+          <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1680'}"><c:set var="noOfColumns" value="7"/></c:if>
+          <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1900'}"><c:set var="noOfColumns" value="7"/></c:if>
+          <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2200'}"><c:set var="noOfColumns" value="9"/></c:if>
+          <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2500'}"><c:set var="noOfColumns" value="11"/></c:if>
+          <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2900'}"><c:set var="noOfColumns" value="13"/></c:if>
+          <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '3201'}"><c:set var="noOfColumns" value="15"/></c:if>
+          <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '3500'}"><c:set var="noOfColumns" value="17"/></c:if>
+            
             var screenWidth = 1024;
             if ( $(window).width() >= 800 && $(window).width() < 1024) { 
                 screenWidth = 800;
@@ -28,8 +38,23 @@ include file="/common/taglibs.jsp" %><!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0
             if ( $(window).width() >= 1440 && $(window).width() < 1680) { 
                 screenWidth = 1680;
             }
-            if ( $(window).width() >= 1680) { 
+            if ( $(window).width() >= 1680 && $(window).width() < 2201) { 
                 screenWidth = 1900; //alert("1280");
+            }
+            if ( $(window).width() >= 2201 && $(window).width() < 2501) { 
+                screenWidth = 2200; //alert("1280");
+            }
+            if ( $(window).width() >= 2501 && $(window).width() < 2901) { 
+                screenWidth = 2500; //alert("1280");
+            }
+            if ( $(window).width() >= 2901 && $(window).width() < 3201) { 
+                screenWidth = 2900; //alert("1280");
+            }
+            if ( $(window).width() >= 3201 && $(window).width() < 3501) { 
+                screenWidth = 3200; //alert("1280");
+            }
+            if ( $(window).width() >= 3501 ) { 
+                screenWidth = 3500; //alert("1280");
             }
 
             //is there a screen res variable
@@ -154,6 +179,11 @@ include file="/common/taglibs.jsp" %><!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0
 <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1440'}"><c:set var="noOfColumns" value="5"/></c:if>
 <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1680'}"><c:set var="noOfColumns" value="7"/></c:if>
 <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1900'}"><c:set var="noOfColumns" value="7"/></c:if>
+<c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2200'}"><c:set var="noOfColumns" value="9"/></c:if>
+<c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2500'}"><c:set var="noOfColumns" value="11"/></c:if>
+<c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2900'}"><c:set var="noOfColumns" value="13"/></c:if>
+<c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '3200'}"><c:set var="noOfColumns" value="15"/></c:if>
+<c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '3500'}"><c:set var="noOfColumns" value="17"/></c:if>
 
 <c:forEach items="${results.results}" var="searchTaxon" varStatus="status">
 
