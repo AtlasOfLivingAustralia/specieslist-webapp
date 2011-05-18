@@ -22,7 +22,7 @@ function pageloadingtime()
 	 // now use the beforeload and afterload to calculate the seconds
 	secondes = (afterload-beforeload)/1000;
 	 // If necessary update in window.status
-	window.status='Page Load took  ' + secondes + ' seconde(s).';
+	window.status='Page Load took  ' + secondes + ' second(s).';
 	// Place the seconds in the innerHTML to show the results
 	// document.getElementById("loadingtime").innerHTML = "Page Load took " + secondes + " seconds.";
 	
