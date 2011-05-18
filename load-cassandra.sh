@@ -60,13 +60,13 @@ echo "LOAD : loading the LinkIdentifier into the BIE $('date')"
 java -classpath $CLASSPATH org.ala.hbase.LinkIdentifierLoader
 
 echo "LOAD : running Create Search Indexes from BIE for the Web Application $('date')"
-java  -Xmx1g -Xms1g -classpath $CLASSPATH org.ala.lucene.CreateSearchIndex
+java  -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.lucene.CreateSearchIndex
 
 echo "LOAD : running Create Search Indexes from External databases for the Web Application $('date')"
-java  -Xmx1g -Xms1g -classpath $CLASSPATH org.ala.lucene.ExternalIndexLoader
+java  -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.lucene.ExternalIndexLoader
 
 echo "LOAD : optimising indexes $('date')"
-java  -Xmx1g -Xms1g -classpath $CLASSPATH org.ala.lucene.OptimizeIndex
+java  -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.lucene.OptimizeIndex
 
 echo "LOAD : processing complete at $('date')"
 
