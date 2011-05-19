@@ -14,9 +14,13 @@
  ***************************************************************************/
 package org.ala.web;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -29,6 +33,7 @@ import org.ala.dto.FacetResultDTO;
 import org.ala.dto.FieldResultDTO;
 import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
+import org.ala.dto.SearchTaxonConceptDTO;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -154,7 +159,9 @@ public class SearchController {
 		// if searchResults is null then it is consequence search request.
 		if(searchResults == null){
 			searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-		}
+		}		
+		searchResults.setResults(removedDuplicateCommonName(searchResults.getResults()));
+		
         repoUrlUtils.fixRepoUrls(searchResults);
         model.addAttribute("facetMap", addFacetMap(filterQuery));
         
@@ -180,6 +187,31 @@ public class SearchController {
         logger.debug("Selected view: "+view);
         
 		return view;
+	}
+	
+	private List<SearchDTO> removedDuplicateCommonName(List<SearchDTO> results){
+		Hashtable<String, String> hlnames =null;
+    	List<String> lnames =null;
+    	
+		for(SearchDTO result : results){
+			String names = ((SearchTaxonConceptDTO)result).getCommonName();
+			List<String> commonNames = org.springframework.util.CollectionUtils.arrayToList(names.split(","));
+			if(names != null){
+	            hlnames = new Hashtable<String, String>();
+	            for(String name : commonNames){
+	            	if(!hlnames.containsKey(name.trim().toLowerCase())){
+	            		hlnames.put(name.trim().toLowerCase(), name);
+	            	}
+	            }
+	            if(!hlnames.isEmpty()){
+	            	lnames = new ArrayList<String>(hlnames.values());
+	            	Collections.sort(lnames);
+	            	names = lnames.toString();
+	            	((SearchTaxonConceptDTO)result).setCommonName(names.substring(1, names.length() - 1));
+	            }   
+			}
+		}
+		return results;
 	}
 	
 	@RequestMapping(value = {"/search.json","/search.xml"}, method = RequestMethod.GET)
