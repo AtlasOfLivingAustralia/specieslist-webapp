@@ -194,26 +194,28 @@ public class SearchController {
     	List<String> lnames =null;
     	
 		for(SearchDTO result : results){
-			String names = ((SearchTaxonConceptDTO)result).getCommonName();
-			List<String> commonNames = org.springframework.util.CollectionUtils.arrayToList(names.split(","));
-			if(names != null){
-	            hlnames = new Hashtable<String, String>();
-	            for(String name : commonNames){
-	            	if(!hlnames.containsKey(name.trim().toLowerCase())){
-	            		hlnames.put(name.trim().toLowerCase(), name);
-	            	}
-	            }
-	            if(!hlnames.isEmpty()){
-	            	lnames = new ArrayList<String>(hlnames.values());
-	            	Collections.sort(lnames);
-	            	names = lnames.toString();
-	            	if(names != null && names.length() > 1){
-	            		((SearchTaxonConceptDTO)result).setCommonName(names.substring(1, names.length() - 1));
-	            	}
-	            	else{
-	            		((SearchTaxonConceptDTO)result).setCommonName(names);
-	            	}
-	            }   
+			if(result instanceof SearchTaxonConceptDTO){
+				String names = ((SearchTaxonConceptDTO)result).getCommonName();			
+				if(names != null){
+					List<String> commonNames = org.springframework.util.CollectionUtils.arrayToList(names.split(","));
+		            hlnames = new Hashtable<String, String>();
+		            for(String name : commonNames){
+		            	if(!hlnames.containsKey(name.trim().toLowerCase())){
+		            		hlnames.put(name.trim().toLowerCase(), name);
+		            	}
+		            }
+		            if(!hlnames.isEmpty()){
+		            	lnames = new ArrayList<String>(hlnames.values());
+		            	Collections.sort(lnames);
+		            	names = lnames.toString();
+		            	if(names != null && names.length() > 1){
+		            		((SearchTaxonConceptDTO)result).setCommonName(names.substring(1, names.length() - 1));
+		            	}
+		            	else{
+		            		((SearchTaxonConceptDTO)result).setCommonName(names);
+		            	}
+		            }   
+				}
 			}
 		}
 		return results;
