@@ -207,7 +207,12 @@ public class SearchController {
 	            	lnames = new ArrayList<String>(hlnames.values());
 	            	Collections.sort(lnames);
 	            	names = lnames.toString();
-	            	((SearchTaxonConceptDTO)result).setCommonName(names.substring(1, names.length() - 1));
+	            	if(names != null && names.length() > 1){
+	            		((SearchTaxonConceptDTO)result).setCommonName(names.substring(1, names.length() - 1));
+	            	}
+	            	else{
+	            		((SearchTaxonConceptDTO)result).setCommonName(names);
+	            	}
 	            }   
 			}
 		}
