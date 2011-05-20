@@ -33,14 +33,10 @@ public class PatternMatchingUtils {
 				patternList.add(Pattern.compile(context + regex.trim(), Pattern.CASE_INSENSITIVE));
 			}
 		}
-		
+
 		return patternList;
 	}
-	
-	public static List<Pattern> getPatternList(String regexPatterns) {
-		return getPatternList("", regexPatterns);
-	}
-	
+
 	public static boolean matches(String str, List<Pattern> patterns) {
 		for (Pattern pattern : patterns) {
 			Matcher matcher = pattern.matcher(str);
@@ -52,7 +48,7 @@ public class PatternMatchingUtils {
 				logger.trace("No match");
 			}
 		}
-		
+
 		return false;
 	}
 }
