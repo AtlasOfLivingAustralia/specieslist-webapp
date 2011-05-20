@@ -9,29 +9,25 @@ import au.org.ala.cas.util.PatternMatchingUtils;
 public class PatternMatchingTest extends TestCase {
 
 	public void testMatches() {
-		String contextPath = "/biocache-webapp";
+		String contextPath = "/webapp";
 		String uriPattern = "/, /occurrences/\\d+";
+		String uriExclusionPattern = "/images.*,/css.*,/js.*";
 
 		List<Pattern> patterns = PatternMatchingUtils.getPatternList(contextPath, uriPattern);
 		assertFalse(PatternMatchingUtils.matches("", patterns));
 		assertFalse(PatternMatchingUtils.matches("/", patterns));
-		assertTrue(PatternMatchingUtils.matches("/biocache-webapp/", patterns));
-		assertTrue(PatternMatchingUtils.matches("/biocache-webapp/occurrences/35661424", patterns));
+		assertTrue(PatternMatchingUtils.matches("/webapp/", patterns));
+		assertTrue(PatternMatchingUtils.matches("/webapp/occurrences/35661424", patterns));
 		assertFalse(PatternMatchingUtils.matches("/favicon.ico", patterns));
 
-		List<Pattern> noContextPatterns = PatternMatchingUtils.getPatternList(uriPattern);
-		assertTrue(PatternMatchingUtils.matches("/", noContextPatterns));
-		assertFalse(PatternMatchingUtils.matches("/biocache-webapp/", noContextPatterns));
-		assertTrue(PatternMatchingUtils.matches("/occurrences/35661424", noContextPatterns));
-		
+        List<Pattern> exclusionPatterns = PatternMatchingUtils.getPatternList(contextPath, uriExclusionPattern);
+        assertTrue(PatternMatchingUtils.matches("/webapp/images/abrsskin/collections-button.png", exclusionPatterns));
+
 		List<Pattern> noPatterns = PatternMatchingUtils.getPatternList(null, null);
 		assertFalse(PatternMatchingUtils.matches("", noPatterns));
 
 		List<Pattern> emptyPatterns = PatternMatchingUtils.getPatternList("", "");
 		assertFalse(PatternMatchingUtils.matches("", emptyPatterns));
-		
-		List<Pattern> userAgentPatterns = PatternMatchingUtils.getPatternList(".*Googlebot.*");
-		assertTrue(PatternMatchingUtils.matches("Googlebot/2.1 (+http://www.google.com/bot.html)", userAgentPatterns));
 
 		try {
 			List<Pattern> badPatterns = PatternMatchingUtils.getPatternList("", "\\k");
