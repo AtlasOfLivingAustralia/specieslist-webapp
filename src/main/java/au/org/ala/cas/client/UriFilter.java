@@ -48,12 +48,12 @@ import au.org.ala.cas.util.PatternMatchingUtils;
          &lt;param-name&gt;contextPath&lt;/param-name&gt;
          &lt;param-value&gt;/biocache-webapp&lt;/param-value&gt;
      &lt;/context-param&gt;
-  
+
      &lt;context-param&gt;
          &lt;param-name&gt;uriFilterPattern&lt;/param-name&gt;
          &lt;param-value&gt;/occurrences/\d+&lt;/param-value&gt;
      &lt;/context-param&gt;
-  
+
      &lt;!-- CAS Authentication Service filters --&gt;
      &lt;filter&gt;
          &lt;filter-name&gt;CAS Authentication Filter&lt;/filter-name&gt;
@@ -78,19 +78,21 @@ import au.org.ala.cas.util.PatternMatchingUtils;
 public class UriFilter implements Filter {
 
     private final static Logger logger = Logger.getLogger(UriFilter.class);
-    
+
     private static final String URI_FILTER_PATTERN = "uriFilterPattern";
+    private static final String URI_EXCLUSION_FILTER_PATTERN = "uriExclusionFilterPattern";
     private static final String AUTHENTICATE_ONLY_IF_LOGGED_IN_FILTER_PATTERN = "authenticateOnlyIfLoggedInFilterPattern";
 
     private Filter filter;
     private String contextPath;
     private List<Pattern> uriInclusionPatterns;
     private List<Pattern> authOnlyIfLoggedInPatterns;
-    
+    private List<Pattern> uriExclusionPatterns;
+
     public void init(FilterConfig filterConfig) throws ServletException {
 
         //
-        // Get contextPath param
+        // Get contextPath parameter
         //
         this.contextPath = filterConfig.getServletContext().getInitParameter("contextPath");
         if (this.contextPath == null) {
@@ -108,6 +110,16 @@ public class UriFilter implements Filter {
         }
         logger.debug("Included URI Pattern = '" + includedUrlPattern + "'");
         this.uriInclusionPatterns = PatternMatchingUtils.getPatternList(contextPath, includedUrlPattern);
+
+        //
+        // Get URI exclusion filter patterns
+        //
+        String excludedUrlPattern = filterConfig.getServletContext().getInitParameter(URI_EXCLUSION_FILTER_PATTERN);
+        if (excludedUrlPattern == null) {
+            excludedUrlPattern = "";
+        }
+        logger.debug("Excluded URI Pattern = '" + excludedUrlPattern + "'");
+        this.uriExclusionPatterns = PatternMatchingUtils.getPatternList(excludedUrlPattern);
 
         //
         // Get Authenticate Only if Logged in filter patterns
@@ -137,13 +149,18 @@ public class UriFilter implements Filter {
      */
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
-        
+
         String requestUri = ((HttpServletRequest) request).getRequestURI();
         if (filter instanceof AuthenticationFilter) {
             logger.debug("Request Uri = '" + requestUri + "'");
         }
-        
-        if (PatternMatchingUtils.matches(requestUri, uriInclusionPatterns)) {
+
+        if (PatternMatchingUtils.matches(requestUri, uriExclusionPatterns)) {
+            if (filter instanceof AuthenticationFilter) {
+                logger.debug("Ignoring URI because it matches " + URI_EXCLUSION_FILTER_PATTERN);
+            }
+            chain.doFilter(request, response);
+        } else if (PatternMatchingUtils.matches(requestUri, uriInclusionPatterns)) {
             if (filter instanceof AuthenticationFilter) {
                 logger.debug("Forwarding URI '" + requestUri + "' to CAS authentication filters because it matches " + URI_FILTER_PATTERN);
             }
