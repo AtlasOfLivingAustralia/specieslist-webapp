@@ -119,7 +119,7 @@ public class UriFilter implements Filter {
             excludedUrlPattern = "";
         }
         logger.debug("Excluded URI Pattern = '" + excludedUrlPattern + "'");
-        this.uriExclusionPatterns = PatternMatchingUtils.getPatternList(excludedUrlPattern);
+        this.uriExclusionPatterns = PatternMatchingUtils.getPatternList(contextPath, excludedUrlPattern);
 
         //
         // Get Authenticate Only if Logged in filter patterns
