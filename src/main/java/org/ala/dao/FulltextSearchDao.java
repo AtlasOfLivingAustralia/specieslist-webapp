@@ -216,4 +216,8 @@ public interface FulltextSearchDao {
      */
     public Collection getRankingFacetByUserIdAndGuid(String userId, String guid) throws Exception;
     public Collection getUserIdFacetByGuid(String guid) throws Exception;
+
+    SearchResultsDTO<SearchDTO> findByUid(IndexedTypes indexType, String query,
+            String[] filterQuery, Integer startIndex, Integer pageSize,
+            String sortField, String sortDirection) throws Exception;
 }

@@ -264,6 +264,34 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         }
 	}
 	
+	/**
+     * @see org.ala.dao.FulltextSearchDao#findByName(java.lang.String, int)
+     */
+    @Override
+    public SearchResultsDTO<SearchDTO> findByUid(IndexedTypes indexType, String query, String[] filterQuery, Integer startIndex, Integer pageSize, String sortField, String sortDirection) throws Exception {
+        
+        try {
+            StringBuffer queryString = new StringBuffer();
+            String cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
+            queryString.append("idxtype:"+indexType);
+            query = StringUtils.trimToNull(query);
+            if(query!=null){
+                cleanQuery = ClientUtils.escapeQueryChars(query).toLowerCase();
+                queryString.append(" AND ");
+                queryString.append(" (");
+                queryString.append(" uid:"+cleanQuery);
+                queryString.append(")");
+            }
+            logger.info("search query: "+queryString.toString());
+            return doSolrSearch(queryString.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
+        } catch (SolrServerException ex) {
+            logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
+            SearchResultsDTO searchResults = new SearchResultsDTO();
+            searchResults.setStatus("ERROR"); // TODO also set a message field on this bean with the error message(?)
+            return searchResults;
+        }
+    }
+	
 	private String replacePrefix(String field, String query){
 		query = query.trim().replaceAll("[()]", ""); //remove '(' and ')'
 		query = query.replaceAll("\\s+", " "); //replace multiple spaces to single space

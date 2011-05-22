@@ -52,6 +52,7 @@ public class InfoSourceDAOImpl extends JdbcDaoSupport implements InfoSourceDAO {
 	private static final Logger logger = Logger.getLogger(InfoSourceDAOImpl.class);
 	
     private static final String SELECT_ALL_IDS = "select id from infosource";
+    private static final String SELECT_UID_BY_INFOSOURCE_ID = "select uid from infosource where id=?";
 	private static final String GET_BY_ID = "select inf.id, inf.name, uri, logo_url, description, connection_params, hv.class, " +
 	            "document_mapper from infosource inf " +
 	            "LEFT JOIN harvester hv ON hv.id=inf.harvester_id " +
@@ -67,7 +68,7 @@ public class InfoSourceDAOImpl extends JdbcDaoSupport implements InfoSourceDAO {
             "GROUP BY ins.id " +
             "ORDER BY ins.dataset_type, name";
     
-    
+    @Override
     public void insertUidByName(final String name, final String uid){
         getJdbcTemplate().update(
             new PreparedStatementCreator() {
@@ -82,6 +83,17 @@ public class InfoSourceDAOImpl extends JdbcDaoSupport implements InfoSourceDAO {
                 }
             }
         );
+    }
+    
+    @Override
+    public String getUidByInfosourceId (final String infosourceId) {
+        List<String> uidList = (List<String>) getJdbcTemplate().queryForList(SELECT_UID_BY_INFOSOURCE_ID, new Object[] {infosourceId}, String.class);
+        
+        if (uidList.size() == 1) {
+            return uidList.get(0);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -163,6 +175,25 @@ public class InfoSourceDAOImpl extends JdbcDaoSupport implements InfoSourceDAO {
                  datasetTypeRowMapper
      		);
         return infoSources;
+    }
+    
+    /**
+     * Get the map between infosource Uid and infosource id
+     *
+     * @return uidInfosourceIDMap
+     */
+    @Override
+    public Map<String, String> getInfosourceIdUidMap() {
+        Map<String, String> uidInfosourceIDMap = new HashMap<String, String>();
+        
+        List<Integer> infosourceIdList = getIdsforAll();
+        
+        for (Integer infosourceId : infosourceIdList) {
+            String uid = getUidByInfosourceId(infosourceId.toString());
+            uidInfosourceIDMap.put(infosourceId.toString(), uid);
+        }
+        
+        return uidInfosourceIDMap;
     }
 
     final RowMapper<InfoSource> rowMapper = new RowMapper<InfoSource>(){

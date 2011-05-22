@@ -159,6 +159,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 	/** The spring wired store helper to use */
 	protected StoreHelper storeHelper;
+	
+	@Inject
+    protected InfoSourceDAO infoSourceDAO;
 
 	@Inject
 	protected SolrUtils solrUtils;
@@ -1642,6 +1645,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				+ " seconds with " + i + " taxon concepts processed.");
 	}
 
+	public Set<String> getUidFromExtendedTaxonConceptDTO(ExtendedTaxonConceptDTO eto) 
+	        throws Exception{
+	    Set<String> uidSet = new HashSet<String>();
+	    
+	    return uidSet;
+	}
+	
 	/**
 	 * Index the supplied taxon concept.
 	 * 
@@ -1681,6 +1691,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 			// save all infosource ids to add in a Set to index at the end
 			Set<String> infoSourceIds = new TreeSet<String>();
+			Set<String> infoSourceUids = new TreeSet<String>();
 
 			// get alternative ids
 			List<String> identifiers = getIdentifiers(guid);
@@ -1710,6 +1721,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				doc.addField("otherGuid", taxonConcept.getId());
 
 				addToSetSafely(infoSourceIds, taxonConcept.getInfoSourceId());
+//				addToSetSafely(infoSourceUids,taxonConcept.getInfoSourceUid());
 
 				TaxonName taxonName = getTaxonNameFor(guid);
 				if (taxonName != null && taxonName.getNameComplete() != null) {
@@ -1923,6 +1935,16 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 				doc.addField("hasChildren",Boolean.toString(!children.isEmpty()));
 				doc.addField("dataset", StringUtils.join(infoSourceIds, " "));
+				Iterator it = infoSourceIds.iterator();
+				
+				while (it.hasNext()) {
+				    String uid = infoSourceDAO.getUidByInfosourceId((String) it.next());
+				    
+				    if (uid != null && !"".equals(uid)) {
+				        doc.addField("uid", uid);
+				        logger.info("uid added: " + uid);
+				    }
+				}
 
 				docsToAdd.add(doc);
 			}
@@ -2391,6 +2413,22 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				guid, ss);
 	}
 
+//	/**
+//     * @see org.ala.dao.TaxonConceptDao#setInfosourceUid(java.lang.String, java.lang.String)
+//     */
+//    public boolean setInfosourceUid(String guid, String infosourceUid) throws Exception {
+//        return storeHelper.updateStringValue(TC_TABLE, TC_COL_FAMILY, 
+//                ColumnType.INFOSOURCE_UID.getColumnName(), guid, infosourceUid);
+//    }
+//    
+//    /**
+//     * @see org.ala.dao.TaxonConceptDao#getInfosourceUid(java.lang.String, java.lang.String)
+//     */
+//    public String getInfosourceUid(String guid, String infosourceUid) throws Exception {
+//        return storeHelper.getStringValue(TC_TABLE, TC_COL_FAMILY, 
+//                ColumnType.INFOSOURCE_UID.getColumnName(), guid);
+//    }
+	
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#setLinkIdentifier(java.lang.String, java.lang.String)
 	 */

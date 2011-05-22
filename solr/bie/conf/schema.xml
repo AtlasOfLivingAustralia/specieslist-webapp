@@ -588,6 +588,7 @@
    <field name="scientificNameText" type="text_ws" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="nameComplete" type="string" indexed="false" stored="true" multiValued="false" omitNorms="false" />
    <field name="dataset" type="string" indexed="true" stored="true" required="false" omitNorms="true" multiValued="true" />
+   <field name="uid" type="string" indexed="true" stored="true" required="false" omitNorms="true" multiValued="true" />
    <field name="occurrenceCount" type="int" indexed="true" stored="true" multiValued="false" omitNorms="true" />
    <field name="georeferencedCount" type="int" indexed="true" stored="true" multiValued="false" omitNorms="true" />
    <!-- nested set functionality -->

@@ -18,7 +18,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class InfosourceUtil {
     
-    private static final String jsonUrl = "http://collections.ala.org.au/ws/dataResource.json?resourceType=website";
+    private static final String jsonUrl = "http://collections.ala.org.au/ws/dataResource.json";
     
     public static void main(String[] args) {
         ApplicationContext context = SpringUtils.getContext();

@@ -95,6 +95,17 @@ public interface TaxonConceptDao {
 	 */
 	boolean setLinkIdentifier(String guid, String linkIdentifier) throws Exception;
 	
+	
+//	/**
+//     * @see org.ala.dao.TaxonConceptDao#setInfosourceUid(java.lang.String, java.lang.String)
+//     */
+//    public boolean setInfosourceUid(String guid, String infosourceUid) throws Exception;
+//    
+//    /**
+//     * @see org.ala.dao.TaxonConceptDao#getInfosourceUid(java.lang.String, java.lang.String)
+//     */
+//    public String getInfosourceUid(String guid, String infosourceUid) throws Exception;
+	
 	/**
 	 * Retrieve the images associated with this taxon concept.
 	 *

@@ -22,9 +22,10 @@ package org.ala.model;
  */
 public abstract class AttributableObject {
 
-	//attribution
-	protected String infoSourceId;
-	protected String documentId;
+    //attribution
+    protected String infoSourceId;
+    protected String infoSourceUid;
+    protected String documentId;
     protected String infoSourceName;
     /** The URL of the infoSource */
     protected String infoSourceURL;
@@ -34,20 +35,20 @@ public abstract class AttributableObject {
     protected String identifier;    
 
     /**
-	 * Custom equals method to use documentId for uniqueness
+     * Custom equals method to use documentId for uniqueness
      *
      * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if(obj!=null && obj instanceof AttributableObject){
-			AttributableObject attrObj = (AttributableObject) obj;
-			if(attrObj.getDocumentId()!=null && documentId!=null){
-				return attrObj.getDocumentId().equals(documentId);
-			}
-		}
-		return false;
-	}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if(obj!=null && obj instanceof AttributableObject){
+            AttributableObject attrObj = (AttributableObject) obj;
+            if(attrObj.getDocumentId()!=null && documentId!=null){
+                return attrObj.getDocumentId().equals(documentId);
+            }
+        }
+        return false;
+    }
 
     @Override
     public int hashCode() {
@@ -56,33 +57,33 @@ public abstract class AttributableObject {
         return hash;
     }
 
-	/**
-	 * @return the infoSourceId
-	 */
-	public String getInfoSourceId() {
-		return infoSourceId;
-	}
+    /**
+     * @return the infoSourceId
+     */
+    public String getInfoSourceId() {
+        return infoSourceId;
+    }
 
-	/**
-	 * @param infoSourceId the infoSourceId to set
-	 */
-	public void setInfoSourceId(String infoSourceId) {
-		this.infoSourceId = infoSourceId;
-	}
+    /**
+     * @param infoSourceId the infoSourceId to set
+     */
+    public void setInfoSourceId(String infoSourceId) {
+        this.infoSourceId = infoSourceId;
+    }
 
-	/**
-	 * @return the documentId
-	 */
-	public String getDocumentId() {
-		return documentId;
-	}
+    /**
+     * @return the documentId
+     */
+    public String getDocumentId() {
+        return documentId;
+    }
 
-	/**
-	 * @param documentId the documentId to set
-	 */
-	public void setDocumentId(String documentId) {
-		this.documentId = documentId;
-	}
+    /**
+     * @param documentId the documentId to set
+     */
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
+    }
 
     /**
      * @return the infoSourceName
@@ -113,31 +114,39 @@ public abstract class AttributableObject {
         this.infoSourceURL = infoSourceURL;
     }
 
-	/**
-	 * @return the title
-	 */
-	public String getTitle() {
-		return title;
-	}
+    /**
+     * @return the title
+     */
+    public String getTitle() {
+        return title;
+    }
 
-	/**
-	 * @param title the title to set
-	 */
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    /**
+     * @param title the title to set
+     */
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	/**
-	 * @return the identifier
-	 */
-	public String getIdentifier() {
-		return identifier;
-	}
+    /**
+     * @return the identifier
+     */
+    public String getIdentifier() {
+        return identifier;
+    }
 
-	/**
-	 * @param identifier the identifier to set
-	 */
-	public void setIdentifier(String identifier) {
-		this.identifier = identifier;
-	}
+    /**
+     * @param identifier the identifier to set
+     */
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public String getInfoSourceUid() {
+        return infoSourceUid;
+    }
+
+    public void setInfoSourceUid(String infoSourceUid) {
+        this.infoSourceUid = infoSourceUid;
+    }
 }
