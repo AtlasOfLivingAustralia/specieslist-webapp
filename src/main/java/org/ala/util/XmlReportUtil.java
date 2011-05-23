@@ -54,12 +54,23 @@ public class XmlReportUtil {
     public static void main(String[] args) {
 
         XmlReportUtil xmlReportUtil = new XmlReportUtil();
-        try {
-            xmlReportUtil.generateReport(UID);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            System.exit(1);
+
+        if (args.length == 0) {
+            try {
+                xmlReportUtil.generateReport(UID);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                System.exit(1);
+            }
+        } else if (args.length == 1) {
+            try {
+                xmlReportUtil.generateReport(args[0]);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                System.exit(1);
+            }
         }
         System.exit(0);
     }
@@ -145,7 +156,7 @@ public class XmlReportUtil {
 
                 List<Image> imageObjects = dedicatedEtc.getImages();
                 imageObjects.addAll(dedicatedEtc.getScreenshotImages());
-                
+
                 for (Image image : imageObjects) {
                     writer.write("<dataObject>");
                     writer.write('\n');
