@@ -130,7 +130,8 @@ public class ExternalIndexLoader {
 			doc.addField("url", baseUrlForCollectory+uid);
 			doc.addField("id", baseUrlForCollectory+uid);
 			doc.addField("idxtype", IndexedTypes.COLLECTION);
-			doc.addField("aus_s", "yes");
+//			doc.addField("aus_s", "yes");
+			doc.addField("australian_s", "recorded"); // so they appear in default QF search
 
 			solrServer.add(doc);
 			solrServer.commit();
@@ -180,7 +181,8 @@ public class ExternalIndexLoader {
 			doc.addField("id", baseUrlForCollectory+uid);
 			doc.addField("idxtype", IndexedTypes.INSTITUTION);
 			doc.addField("institutionType", institutionType);
-			doc.addField("aus_s", "yes");
+//			doc.addField("aus_s", "yes");
+			doc.addField("australian_s", "recorded"); // so they appear in default QF search
 			solrServer.add(doc);
 			solrServer.commit();
 		}
@@ -231,7 +233,8 @@ public class ExternalIndexLoader {
 			doc.addField("dataProviderName", dataProviderName);
 			doc.addField("description", description);
 			doc.addField("idxtype", IndexedTypes.DATASET);
-			doc.addField("aus_s", "yes");
+//			doc.addField("aus_s", "yes");
+			doc.addField("australian_s", "recorded"); // so they appear in default QF search
 			solrServer.add(doc);
 			solrServer.commit();
 		}
@@ -270,7 +273,8 @@ public class ExternalIndexLoader {
 			doc.addField("name", name);
 			doc.addField("description", description);
 			doc.addField("idxtype", IndexedTypes.DATAPROVIDER);
-			doc.addField("aus_s", "yes");
+//			doc.addField("aus_s", "yes");
+			doc.addField("australian_s", "recorded"); // so they appear in default QF search
 			solrServer.add(doc);
 			solrServer.commit();
 		}
