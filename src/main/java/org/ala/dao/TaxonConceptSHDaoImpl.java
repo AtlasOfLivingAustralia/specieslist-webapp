@@ -2645,7 +2645,20 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 		// re-sort based on the rankings
 		Collections.sort(list);
+				
+		boolean ok = storeHelper.putList(TC_TABLE, TC_COL_FAMILY, columnType.getColumnName(), guid, (List)list, false);
+		if(ok){
+			List<SolrInputDocument> docList = indexTaxonConcept(guid);
+			SolrServer solrServer = solrUtils.getSolrServer();
+			if(solrServer != null){
+				solrServer.add(docList);
+				solrServer.commit();
+			}
+		}		
+		return ok;
 		
+		// replaced with indexTaxonConcept(guid) function.
+		/*
 		//update 'tc' solr index
 		if(list.size() > 0){	
 			Object o = list.get(0);
@@ -2663,8 +2676,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		// write back to database
 		return storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
 				columnType.getColumnName(), guid, (List)list, false);
+				*/
 	}	
-	
+	/*
 	private void updateSolrIndexRanking(String guid, String thumbnailUri, String commonNameSingle) throws Exception {
 		String thumbnailFieldName = "thumbnail";
 		String commonNameSingleFieldName = "commonNameSingle";
@@ -2735,5 +2749,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         		logger.debug("updateSolrIndexRanking !!!");
         	}
         }
-	}	
+	}
+	*/	
 }
