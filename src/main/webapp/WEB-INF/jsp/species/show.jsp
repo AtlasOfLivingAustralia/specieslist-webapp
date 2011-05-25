@@ -841,7 +841,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                             </c:otherwise>
                         </c:choose>
                     </div>
-                    <h2>Videos</h2>
+                    <h2 style="margin-top:40px;">Videos</h2>
                     <div id="imageGallery">
                         <c:choose>
                             <c:when test="${not empty extendedTaxonConcept.screenshotImages}">
@@ -1343,9 +1343,9 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                 </c:choose>
                             </span></a></h2>
                     </div>
-                    <c:set var="wpParams">guid=${extendedTaxonConcept.taxonConcept.guid}&scientificName=${extendedTaxonConcept.taxonConcept.nameString}&commonName=${extendedTaxonConcept.commonNames[0].nameString}</c:set>
+                    <c:set var="wpParams">guid=${extendedTaxonConcept.taxonConcept.guid}&scientificName=${fn:replace(extendedTaxonConcept.taxonConcept.nameString,' ','+')}<c:if test="${not empty extendedTaxonConcept.commonNames}">&commonName=${fn:replace(extendedTaxonConcept.commonNames[0].nameString,' ','+')}</c:if></c:set>
                     <div class="photos">
-                        <h2><a href="${initParam.centralServer}/share/share-images/?${wpParams}">Photos <span>Share your images with the Atlas</span></a></h2>
+                        <h2><a href="${initParam.centralServer}/share-images/?${wpParams}">Photos <span>Share your images with the Atlas</span></a></h2>
                     </div>
                     <div class="analogue-data">
                         <h2><a href="${initParam.centralServer}/share/share-links/?${wpParams}">Links, ideas, information <span>Share

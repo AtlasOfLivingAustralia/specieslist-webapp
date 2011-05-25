@@ -327,14 +327,15 @@
                     </c:set>
                     <c:choose>
                         <c:when test="${result.class.name == 'org.ala.dto.SearchTaxonConceptDTO'}">
-                            <h4> 
+                            <h4>
+                                <c:set var="speciesPageLink">${pageContext.request.contextPath}/species/${not empty result.linkIdentifier ? result.linkIdentifier : result.guid}</c:set>
+
                                 <c:if test="${not empty result.thumbnail}">
                                 	<c:if test="${not empty result.linkIdentifier}">
-                                		<a href="${pageContext.request.contextPath}/species/${result.linkIdentifier}" class="occurrenceLink"><img class="alignright" src="${result.thumbnail}" width="85" height="85" alt="species image thumbnail"/></a>
+                                		<a href="${speciesPageLink}" class="occurrenceLink"><img class="alignright" src="${result.thumbnail}" width="85" height="85" alt="species image thumbnail"/></a>
                                 	</c:if>
                                 	<c:if test="${empty result.linkIdentifier}">
-                                		<a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><img class="alignright" src="${result.thumbnail}" width="85" height="85" alt="species image thumbnail"/></a>
-                                	</c:if>
+                                		<a href="${pageContext.request.contextPath}/species/${result.guid}" class="occurrenceLink"><img class="alignright" src="${result.thumbnail}" width="85" height="85" alt="species                                 	</c:if>
                                	</c:if>
                                 <c:if test="${empty result.thumbnail}"><div class="alignright" style="width:85px; height:40px;"></div></c:if>
                                 <span style="text-transform: capitalize; display: inline;">${result.rank}</span>:
@@ -358,7 +359,7 @@
                                 </c:if>
 	                            <c:if test="${not empty result.rankId && result.rankId>5000}">
 	                            	<span class="recordSighting" style="display:inline;"><a href="http://biocache.ala.org.au/share/sighting/${result.guid}">Record a sighting</a></span>
-	                            	<span class="sharePhoto" style="display:inline;"><a href="${initParam.centralServer}/share/share-images/?guid=${result.guid}&scientificName=${not empty result.acceptedConceptName ? result.acceptedConceptName : result.name}&commonName=${result.commonNameSingle}">Share a photo</a></span>
+	                            	<span class="sharePhoto" style="display:inline;"><a href="${initParam.centralServer}/share-images/?guid=${result.guid}&scientificName=${not empty result.acceptedConceptName ? result.acceptedConceptName : result.name}&commonName=${result.commonNameSingle}">Share a photo</a></span>
 	                            </c:if>
                                 <!-- ${sectionText} -->
                             </p>
