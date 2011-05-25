@@ -140,6 +140,7 @@ public class GeoRegionDaoImpl implements GeoRegionDao {
 	    		doc.addField("regionType", geoRegion.getRegionTypeName());
 	    		doc.addField("acronym", geoRegion.getAcronym());
 	    		doc.addField("aus_s", "yes");
+	    		doc.addField("australian_s", "recorded"); // so they appear in default QF search	    		
 	            solrServer.add(doc);
 	            solrServer.commit();
 			}
