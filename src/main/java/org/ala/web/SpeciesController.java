@@ -452,13 +452,14 @@ public class SpeciesController {
             model.addAttribute("taxonHierarchy", taxonHierarchy.getResults());
         }
         sb.append(", get hierarchy:" + (System.currentTimeMillis() - startTime));
+        startTime = System.currentTimeMillis();
         
         //load child concept using search indexes
         List<SearchTaxonConceptDTO> childConcepts = searchDao.getChildConceptsParentId(Integer.toString(tc.getId()));
         //Reorder the children concepts so that ordering is based on rank followed by name
         //TODO: Currently this is being performed here instead of in the DAO incase somewhere relies on the default order.  We may need to move this
         Collections.sort(childConcepts, new TaxonRankNameComparator());
-
+        
         model.addAttribute("childConcepts", childConcepts);
         sb.append(", get child concept:" + (System.currentTimeMillis() - startTime));
         startTime = System.currentTimeMillis();
