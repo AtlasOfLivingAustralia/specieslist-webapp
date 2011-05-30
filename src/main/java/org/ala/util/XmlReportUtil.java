@@ -7,6 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +27,8 @@ import org.ala.model.PestStatus;
 import org.ala.model.TaxonConcept;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.context.ApplicationContext;
 
 public class XmlReportUtil {
@@ -71,12 +75,29 @@ public class XmlReportUtil {
                 e.printStackTrace();
                 System.exit(1);
             }
+        } else if (args.length == 2) {
+            try {
+                File outputDir = new File(args[1]);
+
+                if (outputDir.isDirectory()) {
+                    xmlReportUtil.generateReport(args[0], args[1]);
+                } else {
+                    System.out.println(args[1] + " is not a Directory!");
+                }
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                System.exit(1);
+            }
         }
         System.exit(0);
     }
 
-
     public void generateReport(String uid) throws Exception {
+        generateReport(uid, OUTPUT_DIR);
+    }
+
+    public void generateReport(String uid, String outputPath) throws Exception {
         ApplicationContext context = SpringUtils.getContext();
         List <ExtendedTaxonConceptDTO> etcList = new ArrayList<ExtendedTaxonConceptDTO>();
 
@@ -102,7 +123,7 @@ public class XmlReportUtil {
                 //                System.out.println("SCI NAME:" + sciName);
             }
         }
-        Writer writer = getWriter(uid);
+        Writer writer = getWriter(uid, outputPath);
 
         //        String xmlStr = buildXmlReport(etcList, uid).toString();
 
@@ -114,94 +135,138 @@ public class XmlReportUtil {
         writer.close();
     }
 
-    public void buildXmlReport(List <ExtendedTaxonConceptDTO> etcList, String uid, Writer writer) throws IOException {
+    public void buildXmlReport(List <ExtendedTaxonConceptDTO> etcList, String uid, Writer writer) throws Exception {
 
         //        StringBuffer xmlStrBuf = new StringBuffer();
         writer.write(XML_HEADER);
 
-        for (ExtendedTaxonConceptDTO etc : etcList) {
-            ExtendedTaxonConceptDTO dedicatedEtc = refineEtc(etc, uid);
+        String license = getLicense(uid);
 
-            if (dedicatedEtc.getImages().size() > 0 || dedicatedEtc.getScreenshotImages().size() > 0) {
-                writer.write("<taxon>");
-                writer.write('\n');
-                writer.write("<dc:identifier>" + dedicatedEtc.getTaxonConcept().getGuid() + "</dc:identifier>");
-                writer.write('\n');
-                writer.write("<dc:source>" + dedicatedEtc.getTaxonConcept().getIdentifier() + "</dc:source>");
-                writer.write('\n');
-                writer.write("<dwc:Kingdom>" + dedicatedEtc.getClassification().getKingdom() + "</dwc:Kingdom>");
-                writer.write('\n');
-                writer.write("<dwc:Class>" + dedicatedEtc.getClassification().getClazz() + "</dwc:Class>");
-                writer.write('\n');
-                writer.write("<dwc:Order>" + dedicatedEtc.getClassification().getOrder() + "</dwc:Order>");
-                writer.write('\n');
-                writer.write("<dwc:Family>" + dedicatedEtc.getClassification().getFamily() + "</dwc:Family>");
-                writer.write('\n');
-                writer.write("<dwc:ScientificName>" + dedicatedEtc.getClassification().getScientificName() + "</dwc:ScientificName>");
+        if (license != null) {
 
-                if (dedicatedEtc.getCommonNames().size() > 0) {
-                    for (CommonName commonName : dedicatedEtc.getCommonNames()) {
-                        writer.write("<commonName xml:lang=\"en\">" + URLEncoder.encode(commonName.getNameString(), "UTF8").replaceAll("\\+", " ") + "</commonName>");
+            for (ExtendedTaxonConceptDTO etc : etcList) {
+                ExtendedTaxonConceptDTO dedicatedEtc = refineEtc(etc, uid);
+
+                if (dedicatedEtc.getImages().size() > 0 || dedicatedEtc.getScreenshotImages().size() > 0) {
+                    writer.write("<taxon>");
+                    writer.write('\n');
+                    writer.write("<dc:identifier>" + dedicatedEtc.getTaxonConcept().getGuid() + "</dc:identifier>");
+                    writer.write('\n');
+                    writer.write("<dc:source>" + dedicatedEtc.getTaxonConcept().getIdentifier() + "</dc:source>");
+                    writer.write('\n');
+                    writer.write("<dwc:Kingdom>" + dedicatedEtc.getClassification().getKingdom() + "</dwc:Kingdom>");
+                    writer.write('\n');
+                    writer.write("<dwc:Class>" + dedicatedEtc.getClassification().getClazz() + "</dwc:Class>");
+                    writer.write('\n');
+                    writer.write("<dwc:Order>" + dedicatedEtc.getClassification().getOrder() + "</dwc:Order>");
+                    writer.write('\n');
+                    writer.write("<dwc:Family>" + dedicatedEtc.getClassification().getFamily() + "</dwc:Family>");
+                    writer.write('\n');
+                    writer.write("<dwc:ScientificName>" + dedicatedEtc.getClassification().getScientificName() + "</dwc:ScientificName>");
+
+                    if (dedicatedEtc.getCommonNames().size() > 0) {
+                        for (CommonName commonName : dedicatedEtc.getCommonNames()) {
+                            writer.write("<commonName xml:lang=\"en\">" + URLEncoder.encode(commonName.getNameString(), "UTF8").replaceAll("\\+", " ") + "</commonName>");
+                            writer.write('\n');
+                        }
+                    } else {
+                        writer.write("<commonName xml:lang=\"en\"></commonName>");
                         writer.write('\n');
                     }
-                } else {
-                    writer.write("<commonName xml:lang=\"en\"></commonName>");
-                    writer.write('\n');
-                }
 
-                writer.write("<dcterms:created></dcterms:created>");
-                writer.write('\n');
-                writer.write("<dcterms:modified></dcterms:modified>");
-                writer.write('\n');
-
-                List<Image> imageObjects = dedicatedEtc.getImages();
-                imageObjects.addAll(dedicatedEtc.getScreenshotImages());
-
-                for (Image image : imageObjects) {
-                    writer.write("<dataObject>");
-                    writer.write('\n');
-                    writer.write("<dc:identifier>" + image.getIdentifier() + "</dc:identifier>");
-                    writer.write('\n');
-                    writer.write("<dataType>http://purl.org/dc/dcmitype/StillImage</dataType>");
-                    writer.write('\n');
-                    writer.write("<mimeType>image/jpeg</mimeType>");
-                    writer.write('\n');
-                    writer.write("<agent role=\"photographer\" homepage=\"" + image.getInfoSourceURL() +"\">" + encode(image.getCreator() != null ? image.getCreator() : "") + "</agent>");
-                    writer.write('\n');
-                    writer.write("<agent role=\"author\" homepage=\"" + image.getInfoSourceURL() +"\">" + encode(image.getCreator() != null ? image.getCreator() : "") + "</agent>");
-                    writer.write('\n');
                     writer.write("<dcterms:created></dcterms:created>");
                     writer.write('\n');
-                    writer.write("<dc:title xml:lang=\"en\">" + encode(image.getTitle() != null ? image.getTitle() : "") + "</dc:title>");
+                    writer.write("<dcterms:modified></dcterms:modified>");
                     writer.write('\n');
-                    writer.write("<license>" + image.getLicence() + "</license>");
-                    writer.write('\n');
-                    writer.write("<dcterms:rightsHolder>" + encode(image.getCreator() != null ? image.getCreator() : "") + "</dcterms:rightsHolder>");
-                    writer.write('\n');
-                    writer.write("<audience>General public</audience>");
-                    writer.write('\n');
-                    writer.write("<audience>Children</audience>");
-                    writer.write('\n');
-                    writer.write("<dc:description xml:lang=\"en\">" + encode(image.getDescription() != null ? image.getDescription() : "") + "</dc:description>");
-                    writer.write('\n');
-                    writer.write("<mediaURL>" + image.getRepoLocation() + "</mediaURL>");
-                    writer.write('\n');
-                    writer.write("<thumbnailURL>" + image.getThumbnail().replaceAll("thumbnail", "smallRaw") + "</thumbnailURL>");
-                    writer.write('\n');
-                    writer.write("<location>" + encode(image.getLocality() != null ? image.getLocality() : "") + "</location>");
-                    writer.write('\n');
-                    writer.write("</dataObject>");
+
+                    List<Image> imageObjects = dedicatedEtc.getImages();
+                    imageObjects.addAll(dedicatedEtc.getScreenshotImages());
+
+                    for (Image image : imageObjects) {
+                        writer.write("<dataObject>");
+                        writer.write('\n');
+                        writer.write("<dc:identifier>" + image.getIdentifier() + "</dc:identifier>");
+                        writer.write('\n');
+                        writer.write("<dataType>http://purl.org/dc/dcmitype/StillImage</dataType>");
+                        writer.write('\n');
+                        writer.write("<mimeType>image/jpeg</mimeType>");
+                        writer.write('\n');
+                        writer.write("<agent role=\"photographer\" homepage=\"" + image.getInfoSourceURL() +"\">" + encode(image.getCreator() != null ? image.getCreator() : "") + "</agent>");
+                        writer.write('\n');
+                        writer.write("<agent role=\"author\" homepage=\"" + image.getInfoSourceURL() +"\">" + encode(image.getCreator() != null ? image.getCreator() : "") + "</agent>");
+                        writer.write('\n');
+                        writer.write("<dcterms:created></dcterms:created>");
+                        writer.write('\n');
+                        writer.write("<dc:title xml:lang=\"en\">" + encode(image.getTitle() != null ? image.getTitle() : "") + "</dc:title>");
+                        writer.write('\n');
+                        writer.write("<license>" + license + "</license>");
+                        writer.write('\n');
+                        writer.write("<dcterms:rightsHolder>" + encode(image.getCreator() != null ? image.getCreator() : "") + "</dcterms:rightsHolder>");
+                        writer.write('\n');
+                        writer.write("<audience>General public</audience>");
+                        writer.write('\n');
+                        writer.write("<audience>Children</audience>");
+                        writer.write('\n');
+                        writer.write("<dc:description xml:lang=\"en\">" + encode(image.getDescription() != null ? image.getDescription() : "") + "</dc:description>");
+                        writer.write('\n');
+                        writer.write("<mediaURL>" + image.getRepoLocation() + "</mediaURL>");
+                        writer.write('\n');
+                        writer.write("<thumbnailURL>" + image.getThumbnail().replaceAll("thumbnail", "smallRaw") + "</thumbnailURL>");
+                        writer.write('\n');
+                        writer.write("<location>" + encode(image.getLocality() != null ? image.getLocality() : "") + "</location>");
+                        writer.write('\n');
+                        writer.write("</dataObject>");
+                        writer.write('\n');
+                    }
+
+                    writer.write("</taxon>");
                     writer.write('\n');
                 }
-
-                writer.write("</taxon>");
-                writer.write('\n');
             }
+        } else {
+            System.out.println("License is NULL");
         }
 
         writer.write(XML_FOOTER);
         //        return xmlStrBuf;
 
+    }
+
+    private String getLicense(String uid) throws Exception {
+        String license = null;
+        String jsonUrl = "http://collections.ala.org.au/ws/dataResource/" + uid + ".json";
+
+        String jsonStr = WebUtils.getUrlContentAsString(jsonUrl);
+        //        if (jsonStr.startsWith("[") && jsonStr.endsWith("]")) {
+        //            jsonStr = jsonStr.substring(1,jsonStr.length()-1);
+        //        }
+
+        //        System.out.println(jsonStr);
+
+        ObjectMapper om = new ObjectMapper();
+
+        JsonNode root = om.readTree(jsonStr);
+        license = root.get("licenseType").getTextValue();
+
+        if ("CC BY".equals(license)) {
+            license = "http://creativecommons.org/licenses/by/3.0/";
+        } else if ("CC BY-SA".equals(license)) {
+            license = "http://creativecommons.org/licenses/by-sa/3.0/";
+        } else if ("CC BY-ND".equals(license)) {
+            license = "http://creativecommons.org/licenses/by-nd/3.0/";
+        } else if ("CC BY-NC".equals(license)) {
+            license = "http://creativecommons.org/licenses/by-nc/3.0/";
+        } else if ("CC BY-NC-SA".equals(license)) {
+            license = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        } else if ("CC BY-NC-ND".equals(license)) {
+            license = "http://creativecommons.org/licenses/by-nc-nd/3.0/";
+        } else {
+            license = "http://creativecommons.org/licenses/by/3.0/";
+        }
+        
+        System.out.println(license);
+
+        return license;
     }
 
     private String encode(String str) {
@@ -404,8 +469,8 @@ public class XmlReportUtil {
         return url;
     }
 
-    public Writer getWriter(String uid) throws IOException {
-        String dataDir = OUTPUT_DIR;
+    public Writer getWriter(String uid, String outputPath) throws IOException {
+        String dataDir = outputPath;
         FileUtils.forceMkdir(new File(dataDir));
         File outputFile = new File(dataDir + uid + ".xml");
         if(outputFile.exists())
