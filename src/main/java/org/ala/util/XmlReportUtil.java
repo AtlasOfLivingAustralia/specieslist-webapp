@@ -152,7 +152,11 @@ public class XmlReportUtil {
                     writer.write('\n');
                     writer.write("<dc:identifier>" + dedicatedEtc.getTaxonConcept().getGuid() + "</dc:identifier>");
                     writer.write('\n');
-                    writer.write("<dc:source>" + dedicatedEtc.getTaxonConcept().getIdentifier() + "</dc:source>");
+                    if (dedicatedEtc.getImages().size() > 0) {
+                        writer.write("<dc:source>" + dedicatedEtc.getImages().get(0).getIsPartOf() + "</dc:source>");
+                    } else {
+                        writer.write("<dc:source>" + dedicatedEtc.getScreenshotImages().get(0).getIsPartOf() + "</dc:source>");
+                    }
                     writer.write('\n');
                     writer.write("<dwc:Kingdom>" + dedicatedEtc.getClassification().getKingdom() + "</dwc:Kingdom>");
                     writer.write('\n');
