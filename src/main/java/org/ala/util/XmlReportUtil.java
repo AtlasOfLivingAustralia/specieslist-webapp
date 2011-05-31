@@ -28,6 +28,7 @@ import org.ala.model.TaxonConcept;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.context.ApplicationContext;
 
@@ -249,8 +250,12 @@ public class XmlReportUtil {
 
         ObjectMapper om = new ObjectMapper();
 
-        JsonNode root = om.readTree(jsonStr);
-        license = root.get("licenseType").getTextValue();
+        try {
+            JsonNode root = om.readTree(jsonStr);
+            license = root.get("licenseType").getTextValue();
+        } catch (JsonParseException jpe) {
+            jpe.printStackTrace();
+        }
 
         if ("CC BY".equals(license)) {
             license = "http://creativecommons.org/licenses/by/3.0/";
@@ -267,7 +272,7 @@ public class XmlReportUtil {
         } else {
             license = "http://creativecommons.org/licenses/by/3.0/";
         }
-        
+
         System.out.println(license);
 
         return license;
