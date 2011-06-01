@@ -479,7 +479,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
             <div id="nav-tabs">
                 <ul>
                     <li><a href="#overview">Overview</a></li>
-                    <li><a href="#gallery">Gallery</a></li>
+                    <c:if test="${not empty extendedTaxonConcept.screenshotImages || not empty extendedTaxonConcept.images}"><li><a href="#gallery">Gallery</a></li></c:if>
                     <%--<li><a href="#identification">Identification</a></li>--%>
                     <li><a href="#names">Names</a></li>
                     <li><a href="#classification">Classification</a></li>
@@ -729,6 +729,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                 </div><!--close tools-->
             </div><!--close -->
         </div><!--close overview-->
+
+        <c:if test="${not empty extendedTaxonConcept.screenshotImages || not empty extendedTaxonConcept.images}">
         <div id="gallery">
             <div id="column-one">
                 <div class="section">
@@ -924,6 +926,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                 </div><!--close-->
             </div><!--close -->
         </div><!--close multimedia-->
+        </c:if>
         <%--<div id="identification">
             <div id="column-one">
                 <div class="section">
