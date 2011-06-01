@@ -486,7 +486,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     <li><a href="#records">Records</a></li>
                     <%--<li><a href="#biology">Biology</a></li>
                     <li><a href="#molecular">Molecular</a></li>--%>
-                    <li><a href="#literature">Literature</a></li>
+                    <c:if test="${not empty extendedTaxonConcept.references}"><li><a href="#literature">Literature</a></li></c:if>
                 </ul>
             </div>
         </div><!--close section_page-->
@@ -754,7 +754,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                         <c:choose>
                             <c:when test="${not empty extendedTaxonConcept.images}">
                                 <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
-                                    <c:set var="thumbUri">${image.thumbnail}</c:set>
+                                    <c:set var="thumbUri">${fn:replace(image.thumbnail,'thumbnail','rawSmall')}</c:set>
                                     <c:set var="imageUri">
                                         <c:choose>
                                             <c:when test="${not empty image.repoId}">images/${image.repoId}.jpg</c:when>
@@ -1281,6 +1281,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
             </div><!--close -->
         </div><!--close molecular-->
 --%>
+        <c:if test="${not empty extendedTaxonConcept.references}">
         <div id="literature">
             <div id="column-one" class="full-width">
                 <div class="section">
@@ -1332,6 +1333,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                 </div>
             </div><!---->
         </div><!--close references-->
+        </c:if>
         <div style="display: none;"><!-- hidden div for fancybox pop-up share links -->
             <div id="contributeOverlay">
                 <div class="section buttons no-borders no-margin-bottom" style="text-align: left !important">

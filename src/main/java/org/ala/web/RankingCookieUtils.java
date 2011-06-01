@@ -56,9 +56,9 @@ public class RankingCookieUtils {
 		if(cookies!=null){
 	        for(Cookie cookie: cookies){
 	        	String value = cookie.getValue();
-	        	System.out.println("Retrieved cookie value = "+value);
+	        	logger.debug("Retrieved cookie value = "+value);
 	        	String[] parts = value.split(propertyDelimiter);
-	        	System.out.println("Retrieved parts = "+parts.length);
+	        	logger.debug("Retrieved parts = "+parts.length);
 	        	if(parts.length==3){
 		        	if(guid.equals(parts[0])){
 		        		StoredRanking sf = new StoredRanking();
@@ -67,10 +67,10 @@ public class RankingCookieUtils {
 		        		rankedImageUris.add(sf);
 		        	}
 	        	}
-	        	logger.info("Cookie value:"+value);
+	        	logger.debug("Cookie value:"+value);
 	        }
 		}
-    	logger.info("Number of cookies found :"+rankedImageUris.size());
+    	logger.debug("Number of cookies found :"+rankedImageUris.size());
         return rankedImageUris;
 	}
 }
