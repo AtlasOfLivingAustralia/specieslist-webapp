@@ -1911,6 +1911,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					Image image = images.get(0);
 					if (image.getRepoLocation() != null) {
 						doc.addField("image", image.getRepoLocation());
+						try {
+						    String imageInfosourceId = getImageInfosourceId(image.getRepoLocation());
+						
+						    logger.debug("!!!" + imageInfosourceId);
+						    infoSourceIds.add(imageInfosourceId);
+						} catch (Exception e) {
+						    logger.warn("Image infosourceId could not be retrieved");
+						}
 						// Change to adding this in earlier
 						String thumbnail = image.getRepoLocation().replace("raw", "thumbnail");
 						doc.addField("thumbnail", thumbnail);
@@ -1950,6 +1958,21 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			}
 		}
 		return docsToAdd;
+	}
+	
+	/**
+     * Get image Infosource Id according to repolocation
+     * 
+     * @param repoLocation
+     */
+	
+	private String getImageInfosourceId(String repoLocation) {
+	    String infoId = null;
+	    
+	    infoId = repoLocation.replaceAll("/[a-z]{1,}",  "");
+	    infoId = infoId.split("/")[1];
+	    
+	    return infoId;
 	}
 
 	/**
