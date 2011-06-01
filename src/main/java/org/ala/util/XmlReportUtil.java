@@ -188,40 +188,43 @@ public class XmlReportUtil {
                     imageObjects.addAll(dedicatedEtc.getScreenshotImages());
 
                     for (Image image : imageObjects) {
-                        writer.write("<dataObject>");
-                        writer.write('\n');
-                        writer.write("<dc:identifier>" + image.getIdentifier() + "</dc:identifier>");
-                        writer.write('\n');
-                        writer.write("<dataType>http://purl.org/dc/dcmitype/StillImage</dataType>");
-                        writer.write('\n');
-                        writer.write("<mimeType>image/jpeg</mimeType>");
-                        writer.write('\n');
-                        writer.write("<agent role=\"photographer\" homepage=\"" + image.getInfoSourceURL() +"\">" + encode(image.getCreator() != null ? image.getCreator() : "") + "</agent>");
-                        writer.write('\n');
-                        writer.write("<agent role=\"author\" homepage=\"" + image.getInfoSourceURL() +"\">" + encode(image.getCreator() != null ? image.getCreator() : "") + "</agent>");
-                        writer.write('\n');
-                        writer.write("<dcterms:created></dcterms:created>");
-                        writer.write('\n');
-                        writer.write("<dc:title xml:lang=\"en\">" + encode(image.getTitle() != null ? image.getTitle() : "") + "</dc:title>");
-                        writer.write('\n');
-                        writer.write("<license>" + license + "</license>");
-                        writer.write('\n');
-                        writer.write("<dcterms:rightsHolder>" + encode(image.getCreator() != null ? image.getCreator() : "") + "</dcterms:rightsHolder>");
-                        writer.write('\n');
-                        writer.write("<audience>General public</audience>");
-                        writer.write('\n');
-                        writer.write("<audience>Children</audience>");
-                        writer.write('\n');
-                        writer.write("<dc:description xml:lang=\"en\">" + encode(image.getDescription() != null ? image.getDescription() : "") + "</dc:description>");
-                        writer.write('\n');
-                        writer.write("<mediaURL>" + image.getRepoLocation() + "</mediaURL>");
-                        writer.write('\n');
-                        writer.write("<thumbnailURL>" + image.getThumbnail().replaceAll("thumbnail", "smallRaw") + "</thumbnailURL>");
-                        writer.write('\n');
-                        writer.write("<location>" + encode(image.getLocality() != null ? image.getLocality() : "") + "</location>");
-                        writer.write('\n');
-                        writer.write("</dataObject>");
-                        writer.write('\n');
+                        
+                        if (!image.getIsBlackListed()) {
+                            writer.write("<dataObject>");
+                            writer.write('\n');
+                            writer.write("<dc:identifier>" + image.getIdentifier() + "</dc:identifier>");
+                            writer.write('\n');
+                            writer.write("<dataType>http://purl.org/dc/dcmitype/StillImage</dataType>");
+                            writer.write('\n');
+                            writer.write("<mimeType>image/jpeg</mimeType>");
+                            writer.write('\n');
+                            writer.write("<agent role=\"photographer\" homepage=\"" + image.getInfoSourceURL() +"\">" + encode(image.getCreator() != null ? image.getCreator() : "") + "</agent>");
+                            writer.write('\n');
+                            writer.write("<agent role=\"author\" homepage=\"" + image.getInfoSourceURL() +"\">" + encode(image.getCreator() != null ? image.getCreator() : "") + "</agent>");
+                            writer.write('\n');
+                            writer.write("<dcterms:created></dcterms:created>");
+                            writer.write('\n');
+                            writer.write("<dc:title xml:lang=\"en\">" + encode(image.getTitle() != null ? image.getTitle() : "") + "</dc:title>");
+                            writer.write('\n');
+                            writer.write("<license>" + license + "</license>");
+                            writer.write('\n');
+                            writer.write("<dcterms:rightsHolder>" + encode(image.getCreator() != null ? image.getCreator() : "") + "</dcterms:rightsHolder>");
+                            writer.write('\n');
+                            writer.write("<audience>General public</audience>");
+                            writer.write('\n');
+                            writer.write("<audience>Children</audience>");
+                            writer.write('\n');
+                            writer.write("<dc:description xml:lang=\"en\">" + encode(image.getDescription() != null ? image.getDescription() : "") + "</dc:description>");
+                            writer.write('\n');
+                            writer.write("<mediaURL>" + image.getRepoLocation() + "</mediaURL>");
+                            writer.write('\n');
+                            writer.write("<thumbnailURL>" + image.getThumbnail().replaceAll("thumbnail", "smallRaw") + "</thumbnailURL>");
+                            writer.write('\n');
+                            writer.write("<location>" + encode(image.getLocality() != null ? image.getLocality() : "") + "</location>");
+                            writer.write('\n');
+                            writer.write("</dataObject>");
+                            writer.write('\n');
+                        }
                     }
 
                     writer.write("</taxon>");
