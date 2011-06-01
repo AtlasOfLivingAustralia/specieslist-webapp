@@ -756,7 +756,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                         <c:choose>
                             <c:when test="${not empty extendedTaxonConcept.images}">
                                 <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
-                                    <c:set var="thumbUri">${fn:replace(image.thumbnail,'thumbnail','rawSmall')}</c:set>
+                                    <c:set var="thumbUri">${image.thumbnail}</c:set>
                                     <c:set var="imageUri">
                                         <c:choose>
                                             <c:when test="${not empty image.repoId}">images/${image.repoId}.jpg</c:when>
