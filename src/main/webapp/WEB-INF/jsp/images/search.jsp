@@ -19,15 +19,15 @@
          */
         $(document).ready(function() {
 
-            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1024'}"><c:set var="noOfColumns" value="4"/></c:if>
-            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1440'}"><c:set var="noOfColumns" value="5"/></c:if>
-            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1680'}"><c:set var="noOfColumns" value="7"/></c:if>
-            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1900'}"><c:set var="noOfColumns" value="7"/></c:if>
-            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2200'}"><c:set var="noOfColumns" value="9"/></c:if>
-            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2500'}"><c:set var="noOfColumns" value="11"/></c:if>
-            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2900'}"><c:set var="noOfColumns" value="13"/></c:if>
-            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '3201'}"><c:set var="noOfColumns" value="15"/></c:if>
-            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '3500'}"><c:set var="noOfColumns" value="17"/></c:if>
+            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1024'}"><c:set var="noOfColumns" value="6"/></c:if>
+            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1440'}"><c:set var="noOfColumns" value="7"/></c:if>
+            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1680'}"><c:set var="noOfColumns" value="8"/></c:if>
+            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1900'}"><c:set var="noOfColumns" value="9"/></c:if>
+            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2200'}"><c:set var="noOfColumns" value="11"/></c:if>
+            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2500'}"><c:set var="noOfColumns" value="13"/></c:if>
+            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2900'}"><c:set var="noOfColumns" value="15"/></c:if>
+            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '3201'}"><c:set var="noOfColumns" value="17"/></c:if>
+            <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '3500'}"><c:set var="noOfColumns" value="19"/></c:if>
 
             var screenWidth = 1024;
             if ($(window).width() >= 800 && $(window).width() < 1024) {
@@ -101,8 +101,9 @@
     </script>
 </head>
 <body>
-<table>
+<table style="width:100%;">
     <tr>
+                    <!--
         <td style="width:80px; padding-left:10px;">
 
             <h1><c:set var="baseUrl"
@@ -157,9 +158,9 @@
 
 
         </td>
+         -->
 
-
-        <td style="text-align: left;">
+        <td>
 
             <h3><strong>${results.totalRecords}</strong> taxa returned with images
                 <c:if test="${not empty param['q']} or not empty ${param['fq']}">
@@ -171,26 +172,26 @@
 
             <table>
                 <tr>
-                    <c:set var="noOfColumns" value="4"/>
+                    <c:set var="noOfColumns" value="6"/>
 
                     <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1024'}"><c:set
-                            var="noOfColumns" value="4"/></c:if>
+                            var="noOfColumns" value="6"/></c:if>
                     <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1440'}"><c:set
-                            var="noOfColumns" value="5"/></c:if>
+                            var="noOfColumns" value="7"/></c:if>
                     <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1680'}"><c:set
-                            var="noOfColumns" value="7"/></c:if>
+                            var="noOfColumns" value="8"/></c:if>
                     <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '1900'}"><c:set
-                            var="noOfColumns" value="7"/></c:if>
-                    <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2200'}"><c:set
                             var="noOfColumns" value="9"/></c:if>
-                    <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2500'}"><c:set
+                    <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2200'}"><c:set
                             var="noOfColumns" value="11"/></c:if>
-                    <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2900'}"><c:set
+                    <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2500'}"><c:set
                             var="noOfColumns" value="13"/></c:if>
-                    <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '3200'}"><c:set
+                    <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '2900'}"><c:set
                             var="noOfColumns" value="15"/></c:if>
-                    <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '3500'}"><c:set
+                    <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '3200'}"><c:set
                             var="noOfColumns" value="17"/></c:if>
+                    <c:if test="${not empty param['screenWidth'] && param['screenWidth'] == '3500'}"><c:set
+                            var="noOfColumns" value="19"/></c:if>
 
                     <c:forEach items="${results.results}" var="searchTaxon" varStatus="status">
 
