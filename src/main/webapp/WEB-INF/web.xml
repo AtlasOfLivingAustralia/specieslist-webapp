@@ -40,14 +40,14 @@
 
     <context-param>
         <param-name>searchServerName</param-name>
-        <param-value>http://localhost:8080/bie-webapp</param-value>
+        <param-value>http://localhost:8080</param-value>
     </context-param>
 
     <!-- CAS Authentication related properties -->
     <context-param>
         <!-- Parameter used by CAS filters -->
         <param-name>serverName</param-name>
-        <param-value>http://localhost:8080/bie-webapp</param-value>
+        <param-value>http://localhost:8080</param-value>
     </context-param>
 
     <!-- bie admin server url -->
@@ -77,6 +77,11 @@
     <context-param>
         <param-name>uriFilterPattern</param-name>
         <param-value></param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>uriExclusionFilterPattern</param-name>
+        <param-value>/images.*,/css.*,/js.*,.*json</param-value>
     </context-param>
 
     <context-param>

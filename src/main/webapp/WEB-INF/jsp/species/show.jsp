@@ -36,21 +36,23 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
             $(document).ready(function() {
                 var spitalUrl = "../map/map.json?guid=${extendedTaxonConcept.taxonConcept.guid}"; 
                 $.getJSON(spitalUrl, function(data) {
-                	  if(data != null){
-                		 if(data.mapUrl != null && data.mapUrl.length > 0){ 
-                	  		$("#mapImage").attr("src",data.mapUrl);
-                	  		$("#mapImage").attr("hidden",false);
-                	  		if(data.legendUrl != null && data.legendUrl.length > 0
-                   				 && data.type != null && data.type == 'heatmap'){
-                   			 	$("#mapLegend").attr("src",data.legendUrl);
-                   			 	$("#mapLegend").attr("hidden",false);
-                   		 	}
-                		 }
-                		 else{
-                			 $("#divMap").css("display","none"); 
-                		 }                		 
-                	  }
-                	});
+                     //alert(data.type)
+                     if(data!=null && data.mapUrl != null && data.mapUrl.length > 0 && data.type != "blank"){
+                        $("#mapImage").attr("src",data.mapUrl);
+                        //$("#mapImage").attr("hidden",false);
+                        if(data.legendUrl != null && data.legendUrl.length > 0
+                             && data.type != null && data.type == 'heatmap'){
+                            $("#mapLegend").attr("src",data.legendUrl);
+                            $("#mapLegend").css("display","block");
+                            $("#legendDiv").css("display","block");
+                        } else {
+                            $("#legendDiv").css("display","none");
+                        }
+                        $("#divMap").css("display","block");
+                     } else {
+                         $("#divMap").css("display","none");
+                     }
+                });
  
                 // LSID link to show popup with LSID info and links
                 $("a#lsid").fancybox({
@@ -496,32 +498,20 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     <c:if test="${not empty descriptionBlock || (not empty spatialPortalMap && !fn:containsIgnoreCase(spatialPortalMap.mapUrl, 'mapaus1_white'))}">
                         <h2 style="text-transform: capitalize;">${extendedTaxonConcept.taxonConcept.rankString} overview</h2>
                     </c:if>
-                    <!--c:if test="${not empty spatialPortalMap && !fn:containsIgnoreCase(spatialPortalMap.mapUrl, 'mapaus1_white')}"-->
-                        <div  id="divMap" class="distroMap section no-margin">
-                            <h3>Mapped occurrence records</h3>
-                            <p>
-                                <a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View occurrence records list</a>
-                                | <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="View interactive map">View interactive map</a>
-                            </p>
-                            <div class="left">
-                                <img id="mapImage" src="" class="distroImg" width="360" alt="occurrence map" hidden="true"/>
-                            </div>
-                            <div class="left" style="margin-top: 80px; margin-left: 20px;">                                
-                                <img id="mapLegend" src="" class="distroLegend" style="" alt="map legend" hidden="true"/>
-                            </div>
-                            <!-- 
-                            <div class="left">
-                                <img src="${spatialPortalMap.mapUrl}" class="distroImg" width="360" alt="occurrence map"/>
-                            </div>                                                         
-                            <div class="left" style="margin-top: 80px; margin-left: 20px;">
-                                <c:if test="${not empty spatialPortalMap.legendUrl && spatialPortalMap.type == 'heatmap'}">
-                                    <img src="${spatialPortalMap.legendUrl}" class="distroLegend" style="" alt="map legend"/>
-                                </c:if>
-                            </div>
-                            -->
-                            <p style="clear: both; margin-left: 50px;"><span class="asterisk-container"><a href="${wordPressUrl}/about/progress/map-ranges/">Learn more about Atlas maps</a>&nbsp;</span></p>
+                    <div  id="divMap" class="distroMap section no-margin">
+                        <h3>Mapped occurrence records</h3>
+                        <p>
+                            <a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View occurrence records list</a>
+                            | <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="View interactive map">View interactive map</a>
+                        </p>
+                        <div class="left">
+                            <img id="mapImage" src="" class="distroImg" width="360" alt="occurrence map"/>
                         </div>
-                    <!-- /c:if -->
+                        <div id="legendDiv" class="left" style="margin-top: 80px; margin-left: 20px;">
+                            <img id="mapLegend" src="" class="distroLegend" alt="map legend"/>
+                        </div>
+                        <p style="clear: both; margin-left: 50px;"><span class="asterisk-container"><a href="${wordPressUrl}/about/progress/map-ranges/">Learn more about Atlas maps</a>&nbsp;</span></p>
+                    </div>
                     <c:set var="descriptionBlock">
                         <c:forEach var="textProperty" items="${textProperties}" varStatus="status">
                             <c:if test="${fn:endsWith(textProperty.name, 'hasDescriptiveText') && status.count < 3 && textProperty.infoSourceId!=1051}">
@@ -1144,8 +1134,6 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                 list of all <span id="occurenceCount"></span> occurrence records for this taxon</a></p>
                         <div id="recordBreakdowns" style="display: block">
                         </div>
-
-                        
                     </div>
                                 
                     <%-- Distribution map images --%>

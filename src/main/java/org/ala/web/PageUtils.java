@@ -166,15 +166,18 @@ public class PageUtils {
 
        HttpClient httpClient = new HttpClient();
         // DM: set this to HTTP/1.0
-       httpClient.getParams().setParameter("http.protocol.version",
-       HttpVersion.HTTP_1_0);
-
-       httpClient.getParams().setSoTimeout(1500);
+       httpClient.getParams().setParameter("http.protocol.version", HttpVersion.HTTP_1_0);
+       httpClient.getParams().setSoTimeout(10000);
+       logger.debug("Retrieving the following URL: " + url);
        GetMethod gm = new GetMethod(url);
-       gm.setRequestHeader("accept", "application/json"); // needed for spatial portal JSON web services
+       gm.setRequestHeader("Accept", "application/json"); // needed for spatial portal JSON web services
        gm.setFollowRedirects(true);
        httpClient.executeMethod(gm);
-       return gm.getResponseBodyAsString();
+       String responseString =  gm.getResponseBodyAsString();
+       if(logger.isDebugEnabled()){
+           logger.debug("Response: " + responseString);
+       }
+       return responseString;
     }
 
 	public static List<String> dedup(List<CommonName> commonNames) {
