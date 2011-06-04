@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.ala.model.CommonName;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpVersion;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -155,14 +156,25 @@ public class PageUtils {
      * @throws Exception
      */
     public static String getUrlContentAsJsonString(String url) throws Exception {
-        HttpClient httpClient = new HttpClient();
-        httpClient.getParams().setSoTimeout(1500);
-        GetMethod gm = new GetMethod(url);
-        gm.setRequestHeader("accept", "application/json"); // needed for spatial portal JSON web services
-        gm.setFollowRedirects(true);
-        httpClient.executeMethod(gm);
-        String content = gm.getResponseBodyAsString();
-        return content;
+//        HttpClient httpClient = new HttpClient();
+//        httpClient.getParams().setSoTimeout(1500);
+//        GetMethod gm = new GetMethod(url);
+//        gm.setRequestHeader("accept", "application/json"); // needed for spatial portal JSON web services
+//        gm.setFollowRedirects(true);
+//        httpClient.executeMethod(gm);
+//        String content = gm.getResponseBodyAsString();
+
+       HttpClient httpClient = new HttpClient();
+        // DM: set this to HTTP/1.0
+       httpClient.getParams().setParameter("http.protocol.version",
+       HttpVersion.HTTP_1_0);
+
+       httpClient.getParams().setSoTimeout(1500);
+       GetMethod gm = new GetMethod(url);
+       gm.setRequestHeader("accept", "application/json"); // needed for spatial portal JSON web services
+       gm.setFollowRedirects(true);
+       httpClient.executeMethod(gm);
+       return gm.getResponseBodyAsString();
     }
 
 	public static List<String> dedup(List<CommonName> commonNames) {

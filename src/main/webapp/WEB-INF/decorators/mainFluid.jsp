@@ -98,8 +98,8 @@ include file="/common/taglibs.jsp" %><!DOCTYPE html>
            <div style="position:absolute; top:90px; right: 10px;">
            <h3>
            <a href="${pageContext.request.contextPath}/search?q=${param['q']}">ALA</a> 
-           | Images
-           
+           |
+           Images
            <c:choose>
            <c:when test="${not empty param['q']}"> 
            | <a href="http://biocache.ala.org.au/occurrences/search?q=${param['q']}">Specimens & Observations</a>

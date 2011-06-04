@@ -12,14 +12,11 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
        <div class="section">
        	<h1>Biodiversity Information Explorer (BIE)</h1>
         <p>Welcome to the Atlas of Living Australia <strong>Biodiversity Information Explorer</strong>.</p>
-        <p>
-          This is an early release of this functionality for <strong>release 5 (October 29th 2010)</strong>.
-        </p>
         <ul>
 	        <li><a href="regions/">Explore the states</a></li>
 	        <li><a href="contributors">Contributors list</a></li>
+	        <li><a href="images">Search with images (Alpha)</a></li>
 	    </ul>
-	    
         <h2>Free text occurrence search the BIE</h2>
 		<div id="inpage_search">
 			<form id="search-inpage" action="search" method="get" name="search-form">
