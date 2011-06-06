@@ -14,7 +14,6 @@
     
 	<properties>
 		<spring.version>3.0.0.RELEASE</spring.version>
-        <junit.version>4.7.0</junit.version>
 	</properties>	
 		
     <organization>
@@ -24,11 +23,11 @@
 		
     <dependencies>
 		<dependency>
-			<groupId>org.junit</groupId>
-			<artifactId>com.springsource.org.junit</artifactId>
-			<version>${junit.version}</version>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.7</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency>		
         <!-- LOG4J -->
         <dependency>
             <groupId>log4j</groupId>
