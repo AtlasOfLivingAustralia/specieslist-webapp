@@ -2416,7 +2416,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	}
 	
 	private AttributableObject populateUid(AttributableObject ao, Map <String, String> infosourceIdUIDMap) {
-	    if (ao.getInfoSourceId() != null && !"".equals(ao.getInfoSourceId())) {
+	    if (ao != null && ao.getInfoSourceId() != null && !"".equals(ao.getInfoSourceId())) {
 	        String uid = (String)infosourceIdUIDMap.get(ao.getInfoSourceId().trim());
 	        
 	        logger.info("UID FOUND: " + uid);
