@@ -18,9 +18,9 @@
     Source: ${image.infoSourceName}
  </c:when>
  <c:when test="${image.infoSourceURL == 'http://www.elfram.com/'}">
-    Source: <a href="${image.infoSourceURL}" target="_blank">${image.infoSourceName}</a>
+    Source: <a href="${image.infoSourceURL}" target="_blank" onclick="javascript:window.location.href='${image.infoSourceURL}';">${image.infoSourceName}</a>
  </c:when>
  <c:otherwise>
-    Source: <a href="${imageUri}" target="_blank">${image.infoSourceName}</a>
+    Source: <a href="${imageUri}" target="_blank" onclick="javascript:window.location.href='${imageUri}';">${image.infoSourceName}</a>
  </c:otherwise>
 </c:choose>
