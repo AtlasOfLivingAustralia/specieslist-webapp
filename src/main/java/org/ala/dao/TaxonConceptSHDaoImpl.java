@@ -2323,20 +2323,77 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	private ExtendedTaxonConceptDTO createExtendedDTO(Map<String, Object> map) {
 		// populate the dto
 		ExtendedTaxonConceptDTO etc = new ExtendedTaxonConceptDTO();
-		etc.setTaxonConcept((TaxonConcept) getColumnValue(map,ColumnType.TAXONCONCEPT_COL));
-		etc.setTaxonName((TaxonName) getFirstItem((List) getColumnValue(map,ColumnType.TAXONNAME_COL)));
-		etc.setClassification((Classification) getFirstItem((List<Classification>) getColumnValue(map, ColumnType.CLASSIFICATION_COL)));
+		Map <String, String> infosourceIdUIDMap = infoSourceDAO.getInfosourceIdUidMap();
+		
+		etc.setTaxonConcept((TaxonConcept)populateUid((TaxonConcept) getColumnValue(map,ColumnType.TAXONCONCEPT_COL), infosourceIdUIDMap));
+		etc.setTaxonName((TaxonName)populateUid((TaxonName) getFirstItem((List) getColumnValue(map,ColumnType.TAXONNAME_COL)), infosourceIdUIDMap));
+		etc.setClassification((Classification)populateUid((Classification) getFirstItem((List<Classification>) getColumnValue(map, ColumnType.CLASSIFICATION_COL)), infosourceIdUIDMap));
 		etc.setIdentifiers((List<String>) getColumnValue(map,ColumnType.IDENTIFIER_COL));
-		etc.setSynonyms((List<TaxonConcept>) getColumnValue(map,ColumnType.SYNONYM_COL));
-		etc.setCommonNames((List<CommonName>) getColumnValue(map,ColumnType.VERNACULAR_COL));
-		etc.setChildConcepts((List<TaxonConcept>) getColumnValue(map,ColumnType.IS_PARENT_COL_OF));
-		etc.setParentConcepts((List<TaxonConcept>) getColumnValue(map,ColumnType.IS_CHILD_COL_OF));
-		etc.setPestStatuses((List<PestStatus>) getColumnValue(map,ColumnType.PEST_STATUS_COL));
-		etc.setConservationStatuses((List<ConservationStatus>) getColumnValue(map, ColumnType.CONSERVATION_STATUS_COL));
-		etc.setImages((List<Image>) getColumnValue(map,ColumnType.IMAGE_COL));
-		etc.setDistributionImages((List<Image>) getColumnValue(map,ColumnType.DIST_IMAGE_COL));
-		etc.setScreenshotImages((List<Image>) getColumnValue(map,ColumnType.SCREENSHOT_IMAGE_COL));
-		etc.setExtantStatuses((List<ExtantStatus>) getColumnValue(map,ColumnType.EXTANT_STATUS_COL));
+		
+		List<TaxonConcept> synonyms = new ArrayList<TaxonConcept>();
+		for (TaxonConcept synonym : (List<TaxonConcept>) getColumnValue(map,ColumnType.SYNONYM_COL)) {
+		    synonyms.add((TaxonConcept)populateUid(synonym, infosourceIdUIDMap));
+		}
+		etc.setSynonyms(synonyms);
+		
+		List<CommonName> commonNames = new ArrayList<CommonName>();
+        for (CommonName commonName : (List<CommonName>) getColumnValue(map,ColumnType.VERNACULAR_COL)) {
+            commonNames.add((CommonName)populateUid(commonName, infosourceIdUIDMap));
+        }
+		etc.setCommonNames(commonNames);
+		
+		List<TaxonConcept> childConcepts = new ArrayList<TaxonConcept>();
+        for (TaxonConcept childConcept : (List<TaxonConcept>) getColumnValue(map,ColumnType.IS_PARENT_COL_OF)) {
+            childConcepts.add((TaxonConcept)populateUid(childConcept, infosourceIdUIDMap));
+        }
+		etc.setChildConcepts(childConcepts);
+		
+		List<TaxonConcept> parentConcepts = new ArrayList<TaxonConcept>();
+        for (TaxonConcept parentConcept : (List<TaxonConcept>) getColumnValue(map,ColumnType.IS_CHILD_COL_OF)) {
+            parentConcepts.add((TaxonConcept)populateUid(parentConcept, infosourceIdUIDMap));
+        }
+		etc.setParentConcepts(parentConcepts);
+		
+		List<PestStatus> pestStatuses = new ArrayList<PestStatus>();
+        for (PestStatus pestStatus : (List<PestStatus>) getColumnValue(map,ColumnType.PEST_STATUS_COL)) {
+            pestStatuses.add((PestStatus)populateUid(pestStatus, infosourceIdUIDMap));
+        }
+		etc.setPestStatuses(pestStatuses);
+		
+		List<ConservationStatus> conservationStatuses = new ArrayList<ConservationStatus>();
+        for (ConservationStatus conservationStatus : (List<ConservationStatus>) getColumnValue(map,ColumnType.CONSERVATION_STATUS_COL)) {
+            conservationStatuses.add((ConservationStatus)populateUid(conservationStatus, infosourceIdUIDMap));
+        }
+		etc.setConservationStatuses(conservationStatuses);
+		
+		List<Image> images = new ArrayList<Image>();
+        for (Image image : (List<Image>) getColumnValue(map,ColumnType.IMAGE_COL)) {
+            images.add((Image)populateUid(image, infosourceIdUIDMap));
+        }
+		etc.setImages(images);
+		
+		List<Image> distributionImages = new ArrayList<Image>();
+        for (Image distributionImage : (List<Image>) getColumnValue(map,ColumnType.DIST_IMAGE_COL)) {
+            distributionImages.add((Image)populateUid(distributionImage, infosourceIdUIDMap));
+        }
+		etc.setDistributionImages(distributionImages);
+		
+		List<Image> screenshotImages = new ArrayList<Image>();
+        for (Image screenshotImage : (List<Image>) getColumnValue(map,ColumnType.SCREENSHOT_IMAGE_COL)) {
+            screenshotImages.add((Image)populateUid(screenshotImage, infosourceIdUIDMap));
+        }
+		etc.setScreenshotImages(screenshotImages);
+		
+		List<ExtantStatus> extantStatuses = new ArrayList<ExtantStatus>();
+        for (ExtantStatus extantStatus : (List<ExtantStatus>) getColumnValue(map,ColumnType.EXTANT_STATUS_COL)) {
+            extantStatuses.add((ExtantStatus)populateUid(extantStatus, infosourceIdUIDMap));
+        }
+		etc.setExtantStatuses(extantStatuses);
+		
+		List<Habitat> habitats = new ArrayList<Habitat>();
+        for (Habitat habitat : (List<Habitat>) getColumnValue(map,ColumnType.HABITAT_COL)) {
+            habitats.add((Habitat)populateUid(habitat, infosourceIdUIDMap));
+        }
 		etc.setHabitats((List<Habitat>) getColumnValue(map,ColumnType.HABITAT_COL));
 		etc.setRegionTypes(OccurrencesInGeoregion.getRegionsByType((List<OccurrencesInGeoregion>) getColumnValue(map, ColumnType.REGION_COL)));
 		etc.setReferences((List<Reference>) getColumnValue(map,ColumnType.REFERENCE_COL));
@@ -2352,6 +2409,16 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		Collections.sort(simpleProperties);
 		etc.setSimpleProperties(simpleProperties);
 		return etc;
+	}
+	
+	private AttributableObject populateUid(AttributableObject ao, Map <String, String> infosourceIdUIDMap) {
+	    if (ao.getInfoSourceId() != null && !"".equals(ao.getInfoSourceId())) {
+	        String uid = (String)infosourceIdUIDMap.get(ao.getInfoSourceId().trim());
+	        
+	        logger.info("UID FOUND: " + uid);
+	        ao.setInfoSourceUid(uid);
+	    }
+	    return ao;
 	}
 	
 	/**
