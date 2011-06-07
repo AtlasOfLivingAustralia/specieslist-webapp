@@ -2405,7 +2405,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		etc.setLinkIdentifier((String) getColumnValue(map,ColumnType.LINK_IDENTIFIER));
 		
 		// sort the list of SimpleProperties for display in UI
-		List<SimpleProperty> simpleProperties = (List<SimpleProperty>) getColumnValue(map, ColumnType.TEXT_PROPERTY_COL);
+		
+		List<SimpleProperty> simpleProperties = new ArrayList<SimpleProperty>();
+		for (SimpleProperty simpleProperty : (List<SimpleProperty>) getColumnValue(map,ColumnType.TEXT_PROPERTY_COL)) {
+		    simpleProperties.add((SimpleProperty)populateUid(simpleProperty, infosourceIdUIDMap));
+        }
 		Collections.sort(simpleProperties);
 		etc.setSimpleProperties(simpleProperties);
 		return etc;
