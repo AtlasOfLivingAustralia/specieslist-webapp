@@ -1,5 +1,6 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %><%@ 
 include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" prefix="string" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 <c:set var="spatialPortalUrl">${initParam.centralServer}/explore/species-maps/</c:set>
 <c:set var="spatialPortalWMSUrl">http://spatial.ala.org.au/alaspatial/</c:set>
 <c:set var="wordPressUrl">${initParam.centralServer}</c:set>
@@ -678,7 +679,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                             <c:if test="${not empty image.rights}">
                                             <br/>Rights: ${image.rights}
                                             </c:if>
-                                            <br/>Source: ${image.infoSourceName}
+                                            <br/><alatag:imageSourceURL image="${image}"/>
                                         </cite>
                                     </c:if>
                                 </li>
@@ -798,7 +799,9 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                          <c:otherwise>
                                             <cite>Source: <a href="${imageUri}" target="_blank">${image.infoSourceName}</a></cite>
                                          </c:otherwise>
-                                        </c:choose> 
+                                        </c:choose>
+
+                                        <cite>
                                      	<p class="imageRank-${image.documentId}">
                                         <c:choose>
 	                                        <c:when test="${fn:contains(rankedImageUris,image.identifier)}">
