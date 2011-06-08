@@ -37,6 +37,9 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.ala.client.appender.RestLevel;
+import org.ala.client.model.LogEventType;
+import org.ala.client.model.LogEventVO;
 import org.ala.dao.DocumentDAO;
 import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.IndexedTypes;
@@ -473,10 +476,39 @@ public class SpeciesController {
 //        model.addAttribute("spatialPortalMap", PageUtils.getSpatialPortalMap(etc.getTaxonConcept().getGuid()));
         sb.append(", get map:" + (System.currentTimeMillis() - startTime));
         model.addAttribute("executeTime", sb.toString() + ", total: " + (System.currentTimeMillis() - sTime));
+        
+        //send message to logger service
+        String userAgent = request.getHeader("User-Agent");
+        if(userAgent == null || !userAgent.toLowerCase().contains("googlebot")){
+	        Map<String, Integer> imap = createImageSourceMap(etc);
+	        if(imap.size() > 0){
+		        LogEventVO vo = new LogEventVO(LogEventType.IMAGE_VIEWED, "", "species image view", request.getLocalAddr(), imap);
+		        logger.log(RestLevel.REMOTE, vo);
+	        }
+        }
         logger.debug("Returning page view for: " + guid +" .....");
         return SPECIES_SHOW;
     }
 
+    private Map<String, Integer> createImageSourceMap(ExtendedTaxonConceptDTO etc){
+    	Map<String, Integer> recordCounts = new Hashtable<String, Integer>();
+    	if(etc != null && etc.getImages() != null){
+    		for(Image image: etc.getImages()){
+    			String uid = image.getInfoSourceUid();
+    			if(uid != null && !"".equals(uid)){
+    				if(recordCounts.containsKey(uid)){
+    					Integer value = recordCounts.get(uid);
+    					recordCounts.put(uid, value + 1);
+    				}
+    				else{
+    					recordCounts.put(uid, 1);
+    				}
+    			}
+    		}
+    	}
+    	return recordCounts;
+    }
+    
     private String extractScientificName(String parameter){
         String name = null;
 
