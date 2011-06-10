@@ -13,7 +13,7 @@
 		}).each(function() {
 			var link = jQuery(this);
 			var faviconURL = link.attr('href').replace(/^(http:\/\/[^\/]+).*$/, '$1')+'/'+options.iconSearched;
-			var faviconIMG = jQuery('<img class="'+options.iconClass+'" src="" alt="" />')[options.insertMethod](link);
+			var faviconIMG = jQuery('<img class="'+options.iconClass+'" src="'+options.missingImgUrl+'" alt="" />')[options.insertMethod](link);
 			var extImg = new Image();
 			extImg.src = faviconURL;
 			if (extImg.complete) {
@@ -23,11 +23,7 @@
                         }
                         // check for broken favicon URL and replace with plain icon
                         $("img."+options.iconClass).error(function () {
-                            if (options.missingImgUrl) {
-                                $(this).unbind("error").attr("src", options.missingImgUrl);
-                            } else{
                                 $(this).unbind("error").hide();
-                            }
                         });
                         $("img."+options.iconClass).css('max-height','16px').css('max-width','16px');
 		});
