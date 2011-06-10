@@ -40,16 +40,22 @@ public class LogEventVO implements Serializable {
 	
 	private Map<String, Integer> recordCounts = new Hashtable<String, Integer>();
 
-	private String userEmail = "";	
+	private String userEmail = "";
 	
-    public LogEventVO() {
+	private String month = "";
+	
+	public LogEventVO() {
     }
 
     public LogEventVO(LogEventType eventType, String userEmail, String comment, String userIP, Map<String, Integer> recordCounts) {
-    	this(eventType.getId(), userEmail, comment, userIP, recordCounts);
+    	this(eventType.getId(), userEmail, comment, userIP, null, recordCounts);
     }
     
-    private LogEventVO(int eventTypeId, String userEmail, String comment, String userIP, Map<String, Integer> recordCounts) {
+    public LogEventVO(LogEventType eventType, String userEmail, String comment, String userIP, String month, Map<String, Integer> recordCounts) {
+    	this(eventType.getId(), userEmail, comment, userIP, month, recordCounts);
+    }
+    
+    private LogEventVO(int eventTypeId, String userEmail, String comment, String userIP, String month, Map<String, Integer> recordCounts) {
     	this.eventTypeId = eventTypeId;
     	if(userEmail != null){
     		this.userEmail = userEmail;
@@ -59,6 +65,9 @@ public class LogEventVO implements Serializable {
     	}
     	if(userIP != null){
     		this.userIP = userIP;
+    	}
+    	if(month != null){
+    		this.month = month;
     	}
     	if(recordCounts != null){
     		this.recordCounts = recordCounts;
@@ -106,6 +115,14 @@ public class LogEventVO implements Serializable {
 		this.userIP = userIP;
 	}
 	
+    public String getMonth() {
+		return month;
+	}
+
+	public void setMonth(String month) {
+		this.month = month;
+	}
+
     /**
      * To-string method.
      */
