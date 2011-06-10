@@ -298,7 +298,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                 $("#onlineResources a.infosource").favoriteIcon({
                     iconClass : 'favoriteIcon',
                     insertMethod: 'insertBefore',
-                    missingImgUrl: ''
+                    missingImgUrl: '${pageContext.request.contextPath}/static/images/blank.gif'
                 });
 
                 // change body id for Dena's custom CSS
@@ -506,10 +506,10 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                             | <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="View interactive map">View interactive map</a>
                         </p>
                         <div class="left">
-                            <img id="mapImage" src="static/images/au.gif" class="distroImg" width="360" alt="occurrence map"/>
+                            <img id="mapImage" src="../static/images/blank.gif" class="distroImg" width="360" alt="occurrence map"/>
                         </div>
                         <div id="legendDiv" class="left" style="margin-top: 80px; margin-left: 20px;">
-                            <img id="mapLegend" src="static/images/au.gif" class="distroLegend" alt="map legend"/>
+                            <img id="mapLegend" src="../static/images/blank.gif" class="distroLegend" alt="map legend"/>
                         </div>
                         <p style="clear: both; margin-left: 50px;"><span class="asterisk-container"><a href="${wordPressUrl}/about/progress/map-ranges/">Learn more about Atlas maps</a>&nbsp;</span></p>
                     </div>
