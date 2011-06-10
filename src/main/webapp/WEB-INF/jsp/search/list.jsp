@@ -305,7 +305,8 @@
                         <option value="score" <c:if test="${param.sort eq 'score'}">selected</c:if>>best match</option>
                         <option value="scientificNameRaw" <c:if test="${param.sort eq 'scientificNameRaw'}">selected</c:if>>scientific name</option>
                         <!--                            <option value="rank">rank</option>-->
-                        <option value="commonNameSort" <c:if test="${param.sort eq 'commonNameSort'}">selected</c:if>>common name</option>
+                        <!-- <option value="commonNameSort" <c:if test="${param.sort eq 'commonNameSort'}">selected</c:if>>common name</option>  -->
+                        <option value="commonNameSingle" <c:if test="${param.sort eq 'commonNameSingle'}">selected</c:if>>common name</option>
                         <option value="rank" <c:if test="${param.sort eq 'rank'}">selected</c:if>>taxon rank</option>
                     </select>
                     Sort order
