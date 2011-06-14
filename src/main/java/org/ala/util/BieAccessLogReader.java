@@ -39,6 +39,8 @@ import org.springframework.stereotype.Component;
 /**
  * Upload apache bie-access-log image data into logger service.
  * 
+ * Note : please run this apps in your local machine. 
+ * 
  * @author mok011
  *
  */
