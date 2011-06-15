@@ -832,7 +832,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
    	            	                           </c:if>
                             	            </c:otherwise>
                                 	        </c:choose>   
-                                	       </p> 
+                                	       </p>
+                                	       </cite> 
                                         </div>
                                     </c:forEach>
                                 </c:when>
