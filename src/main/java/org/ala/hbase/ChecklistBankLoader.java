@@ -31,6 +31,7 @@ import org.ala.model.CommonName;
 import org.ala.model.InfoSource;
 import org.ala.model.Rank;
 import org.ala.model.TaxonConcept;
+import org.ala.model.TaxonName;
 import org.ala.util.SpringUtils;
 import org.ala.util.TabReader;
 import org.apache.commons.io.FileUtils;
@@ -456,7 +457,15 @@ public class ChecklistBankLoader {
 		    				tc.setInfoSourceURL(afd.getWebsiteUrl());
 //		    				if(isLSID(guid)){
 //		    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
-		    				tc.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+scientificName.replaceAll(" ", "%20"));
+		    				TaxonName tn = taxonConceptDao.getTaxonNameFor(guid);
+		                    String sciFullName = null;
+		                    if (tn != null) {
+		                        sciFullName = URLEncoder.encode(tn.getNameComplete(), "UTF-8");
+		                    } else {
+		                        sciFullName = scientificName;
+		                    }
+		    				
+		    				tc.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+sciFullName.replaceAll("\\+", "%20"));
 //		    				}
 		    			}
 						
