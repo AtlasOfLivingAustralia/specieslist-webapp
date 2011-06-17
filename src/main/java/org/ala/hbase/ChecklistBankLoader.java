@@ -17,6 +17,7 @@ package org.ala.hbase;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -453,10 +454,10 @@ public class ChecklistBankLoader {
 		    				tc.setInfoSourceId(Integer.toString(afd.getId()));
 		    				tc.setInfoSourceName(afd.getName());
 		    				tc.setInfoSourceURL(afd.getWebsiteUrl());
-		    				if(isLSID(guid)){
-		    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
-		    					tc.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+internalId);
-		    				}
+//		    				if(isLSID(guid)){
+//		    					String internalId = guid.substring(guid.lastIndexOf(":")+1);
+		    				tc.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+scientificName.replaceAll(" ", "%20"));
+//		    				}
 		    			}
 						
 						if (taxonConceptDao.create(tc)) {
