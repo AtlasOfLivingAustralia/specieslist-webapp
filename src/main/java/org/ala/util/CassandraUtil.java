@@ -242,7 +242,7 @@ public class CassandraUtil {
 //                System.out.println(tc.getInfoSourceURL());
                 String infoSrcUrl = tc.getInfoSourceURL();
                 infoSrcUrl = infoSrcUrl.substring(0, infoSrcUrl.lastIndexOf("/")+1) + scientificName;
-                System.out.println(guid + "::" + tc.getInfoSourceURL() + "::" + infoSrcUrl);
+//                System.out.println(guid + "::" + tc.getInfoSourceURL() + "::" + infoSrcUrl);
                 tc.setInfoSourceURL(infoSrcUrl);
                 if (!taxonConceptDao.update(tc)) {
                     System.out.println("UPDATE FAILURE");
