@@ -55,7 +55,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
 
 	protected static String keySpace = "bie";
 
-	protected String host = "localhost";
+	protected String host = "ala-biedb2.vm.csiro.au";
 
 	protected String pool = "ALA";
 
