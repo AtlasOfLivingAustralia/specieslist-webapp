@@ -66,6 +66,7 @@ public class CassandraPelopsHelper implements StoreHelper  {
 	@Override
 	public void init() throws Exception {
 		//set up the connection pool
+	    logger.info(host);
 		Pelops.addPool(pool, new String[]{host}, port, false, keySpace, new Policy());
 	}
 
