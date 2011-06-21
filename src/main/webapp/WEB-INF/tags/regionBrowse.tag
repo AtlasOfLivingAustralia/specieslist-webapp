@@ -33,13 +33,15 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
    <c:if test="${taxonWithImagesCount>24}">
    <div class="pagers">
     <span class="previousPage">
-    <span class="pager">&#x276E;</span>
+    <!-- <span class="pager">&#x276E;</span> -->
+    <span class="pager">&lt;</span>
     <a id="${idSuffix}Previous" href="javascript:show${idSuffix}PreviousPage(this,'${pageContext.request.contextPath}/regions/taxa?regionType=${regionType}&regionName=${regionName}&higherTaxon=${higherTaxa}&rank=${rank}&withImages=true&limit=24');">Previous</a>
     </span>
     <span id="${idSuffix}Loading" class="loadingMessage">Loading...</span>
     <span class="nextPage">
     <a id="${idSuffix}Next"  href="javascript:show${idSuffix}NextPage(this,'${pageContext.request.contextPath}/regions/taxa?regionType=${regionType}&regionName=${regionName}&higherTaxon=${higherTaxa}&rank=${rank}&withImages=true&limit=24');">Next</a> 
-    <span class="pager">&#x276F;</span>
+    <!-- <span class="pager">&#x276F;</span> -->
+    <span class="pager">&gt;</span>
     </span>
     </div>
     </c:if>
