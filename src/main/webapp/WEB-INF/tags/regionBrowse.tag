@@ -17,6 +17,7 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
 		<td class="taxonGroupCell">
 			<span class="taxonGroupTitle">${taxonGroup}: ${taxaCount} (Number with images: ${taxonWithImagesCount})</span>
 		</td>
+		<%--
 		<td class="showHideCell">
 			<c:if test="${!fn:contains(header['User-Agent'],'MSIE 7.0')}">
 				<button id="view${taxonGroup}List" class="downloadButton">Show/Hide</button>
@@ -25,6 +26,17 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
 		<td class="downloadCell">
 			<button id="${idSuffix}DL" class="downloadButton">Download</button>
 		</td>
+		--%>
+		<%-- css not working in IE7 --%>
+		<td>
+			<c:if test="${!fn:contains(header['User-Agent'],'MSIE 0.0')}">
+				<button id="view${taxonGroup}List">Show/Hide</button>
+			</c:if>
+		</td>	
+		<td>
+			<button id="${idSuffix}DL">Download</button>
+		</td>
+		
 	</tr>
    </table>
    
@@ -46,9 +58,8 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
     </div>
     </c:if>
     
-    <table id="${idSuffix}List" class="taxonList">
-        
-    </table>
+    <div id="${idSuffix}List"></div>
+    
    </div>
 
    <script type="text/javascript">
@@ -60,7 +71,7 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
 			${idSuffix}InitialLoad = true;		
             $('#${idSuffix}Loading').show();
             $.get("${pageContext.request.contextPath}/regions/taxa?regionType=${regionType}&regionName=${regionName}&higherTaxon=${higherTaxa}&rank=${rank}&withImages=true&limit=24&start=0", function(data) {
-                $('#${idSuffix}List').html(data);
+                $('#${idSuffix}List').html('<table id="${idSuffix}Table" class="taxonList">' + data + '</table>');
                 $('#${idSuffix}Loading').hide();
             });
 		}
@@ -82,7 +93,7 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
             var start = ${idSuffix}PageCounter * 24;
             $('#${idSuffix}Loading').show();
             $.get(url+"&start="+start, function(data) {
-                $('#${idSuffix}List').html(data);
+                $('#${idSuffix}List').html('<table id="${idSuffix}Table" class="taxonList">' + data + '</table>');
                 $('#${idSuffix}Loading').hide();
             });
         }
@@ -93,7 +104,7 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
             var start = ${idSuffix}PageCounter * 24;
             $('#${idSuffix}Loading').show();
             $.get(url+"&start="+start, function(data) {
-                $('#${idSuffix}List').html(data);
+                $('#${idSuffix}List').html('<table id="${idSuffix}Table" class="taxonList">' + data + '</table>');
                 $('#${idSuffix}Loading').hide();
             });
         }
