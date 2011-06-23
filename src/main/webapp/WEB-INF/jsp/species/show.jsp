@@ -1306,7 +1306,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                         <td>${extendedTaxonConcept.earliestReference.volume}</td>
                                         <td>${extendedTaxonConcept.earliestReference.authorship}</td>
                                         <td>${extendedTaxonConcept.earliestReference.year}</td>
-                                        <td><a href="http://library.ala.org.au/page/${extendedTaxonConcept.earliestReference.pageIdentifiers[0]}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
+                                        <td><a href="http://bhl.ala.org.au/page/${extendedTaxonConcept.earliestReference.pageIdentifiers[0]}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
                                     </tr>
                                 </c:if>
                                 <c:forEach items="${extendedTaxonConcept.references}" var="reference">
