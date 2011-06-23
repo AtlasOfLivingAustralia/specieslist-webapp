@@ -103,7 +103,7 @@ public class CassandraUtil {
         ApplicationContext context = SpringUtils.getContext();
         CassandraUtil cassandraUtil = context.getBean(CassandraUtil.class);
 
-        String host = "localhost";
+        String host = "diasbtest1-cbr.vm.csiro.au";
         int port = 9160;
 
         if (args.length > 0) {
