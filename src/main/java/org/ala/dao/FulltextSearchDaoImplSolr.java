@@ -95,7 +95,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             StringBuffer queryString = new StringBuffer();
             queryString.append("idxtype:"+IndexedTypes.TAXON);
             String[] fq = new String[]{"left:[* TO "+leftNSValue+"]", "right:["+leftNSValue+" TO *]"};
-            logger.info("search query: "+queryString.toString());
+            logger.debug("search query: "+queryString.toString());
             return doSolrSearch(queryString.toString(), fq, 100, 0, "rankId", "asc");
         } catch (SolrServerException ex) {
         	SearchResultsDTO searchResults = new SearchResultsDTO();
@@ -119,7 +119,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 	            queryString.append("rankId:"+rankId);
             }
             String[] fq = new String[]{"left:["+leftNS+" TO "+rightNS+"]"};
-            logger.info("search query: "+queryString.toString());
+            logger.debug("search query: "+queryString.toString());
             SearchResultsDTO<SearchTaxonConceptDTO> tcs =  doSolrSearch(queryString.toString(), fq, maxResultsForChildConcepts, 0, "name", "asc");
             List<SearchTaxonConceptDTO> stds = tcs.getResults();
             Collections.sort(stds);
@@ -141,7 +141,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             StringBuffer queryString = new StringBuffer();
             queryString.append("idxtype:"+IndexedTypes.TAXON);
             String[] fq = new String[]{"parentId:"+parentId};
-            logger.info("search query: "+queryString.toString());
+            logger.debug("search query: "+queryString.toString());
             SearchResultsDTO<SearchTaxonConceptDTO> tcs =  doSolrSearch(queryString.toString(), fq, maxResultsForChildConcepts, 0, "name", "asc");
             List<SearchTaxonConceptDTO> stds = tcs.getResults();
             Collections.sort(stds);
@@ -215,7 +215,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             queryString.append("idxtype:"+IndexedTypes.REGION);
             String[] fq = new String[]{"regionTypeId:["+regionType.getLowerId() +" TO "+regionType.getHigherId()+"]"};
 //            String[] fq = new String[]{};
-            logger.info("search query: "+queryString.toString());
+            logger.debug("search query: "+queryString.toString());
             return doSolrSearch(queryString.toString(), fq, 1000, 0, "name", "asc");
         } catch (SolrServerException ex) {
             logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
@@ -254,7 +254,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 	            
 	            queryString.append(")");
             }
-            logger.info("search query: "+queryString.toString());
+            logger.debug("search query: "+queryString.toString());
             return doSolrSearch(queryString.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
         } catch (SolrServerException ex) {
             logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
@@ -282,7 +282,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
                 queryString.append(" uid:"+cleanQuery);
                 queryString.append(")");
             }
-            logger.info("search query: "+queryString.toString());
+            logger.debug("search query: "+queryString.toString());
             return doSolrSearch(queryString.toString(), filterQuery, pageSize, startIndex, sortField, sortDirection);
         } catch (SolrServerException ex) {
             logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
@@ -334,7 +334,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 	            queryString.append(" text:\""+canonicalSciName + "\"");
             }
             
-            logger.info("search query: "+queryString.toString());
+            logger.debug("search query: "+queryString.toString());
     	} else {
     		queryString.append("*:*");
     	}

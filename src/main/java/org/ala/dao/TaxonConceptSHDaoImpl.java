@@ -17,8 +17,7 @@ package org.ala.dao;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.URLDecoder;
-import java.util.ArrayList;
+import java.net.URLDecoder;import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1083,7 +1082,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 
 		try {
-			taxonConcept.setRankId(Integer.parseInt(doc.get("rankId")));
+			if(doc.get("rankId")!=null){
+				taxonConcept.setRankId(Integer.parseInt(doc.get("rankId")));
+			}
 		} catch (NumberFormatException ex) {
 			logger.error("Error parsing rankId: " + ex.getMessage() + " for taxon concept : " + taxonConcept.getGuid());
 		}
