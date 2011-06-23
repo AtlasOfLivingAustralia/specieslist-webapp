@@ -326,6 +326,56 @@ public class SpeciesController {
         return "redirect:/images/noImage85.jpg"; // no image 
     }
 
+    /**
+     * Map to a /{guid}.json or /{guid}.xml URI.
+     * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
+     *
+     * @param guid
+     * @param model
+     * @return view name
+     * @throws Exception
+     */
+    @RequestMapping(value = {"/species/shortProfile/{guid}.json","/species/shortProfile/{guid}.xml"}, method = RequestMethod.GET)
+    public void showInfoSpecies(
+            @PathVariable("guid") String guid, Model model) throws Exception {
+
+        ExtendedTaxonConceptDTO edto = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
+
+        if(edto!=null){
+
+            repoUrlUtils.fixRepoUrls(edto);
+
+            model.addAttribute("scientificName", edto.getTaxonConcept().getNameString());
+
+            model.addAttribute("year", edto.getTaxonConcept().getAuthorYear()); //to be added - currently blank
+            model.addAttribute("scientificNameAuthorship", edto.getTaxonConcept().getAuthor());
+            model.addAttribute("rank", edto.getTaxonConcept().getRankString());
+            model.addAttribute("rankID", edto.getTaxonConcept().getRankID());
+
+            if(edto.getTaxonName()!=null){
+                model.addAttribute("author", edto.getTaxonName().getAuthorship());
+            } else {
+                model.addAttribute("author", edto.getTaxonConcept().getAuthor());
+            }
+
+            if(edto.getClassification()!=null){
+                model.addAttribute("family", edto.getClassification().getFamily());
+            model.addAttribute("kingdom", edto.getClassification().getKingdom());
+
+            model.addAttribute("year", edto.getTaxonConcept().getAuthorYear());
+
+            if(!edto.getCommonNames().isEmpty()){
+                CommonName cn = edto.getCommonNames().get(0);
+                model.addAttribute("commonName", cn.getNameString());
+                model.addAttribute("commonNameGUID", cn.getGuid());
+            }
+            if(!edto.getImages().isEmpty()){
+                Image image = edto.getImages().get(0);
+                model.addAttribute("imageURL", image.getRepoLocation());
+                model.addAttribute("thumbnail", image.getThumbnail());
+            }
+        }
+    }
 
     /**
      * Map to a /{guid} URI.
