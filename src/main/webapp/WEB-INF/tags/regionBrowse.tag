@@ -17,17 +17,18 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
 		<td class="taxonGroupCell">
 			<span class="taxonGroupTitle">${taxonGroup}: ${taxaCount} (Number with images: ${taxonWithImagesCount})</span>
 		</td>
-		<%--
+		
 		<td class="showHideCell">
-			<c:if test="${!fn:contains(header['User-Agent'],'MSIE 7.0')}">
+			<c:if test="${!fn:contains(header['User-Agent'],'MSIE 0.0')}">
 				<button id="view${taxonGroup}List" class="downloadButton">Show/Hide</button>
 			</c:if>
 		</td>	
 		<td class="downloadCell">
 			<button id="${idSuffix}DL" class="downloadButton">Download</button>
 		</td>
-		--%>
+		
 		<%-- css not working in IE7 --%>
+		<%--
 		<td>
 			<c:if test="${!fn:contains(header['User-Agent'],'MSIE 0.0')}">
 				<button id="view${taxonGroup}List">Show/Hide</button>
@@ -36,7 +37,7 @@ attribute name="rank" required="true" type="java.lang.String"  rtexprvalue="true
 		<td>
 			<button id="${idSuffix}DL">Download</button>
 		</td>
-		
+		--%>
 	</tr>
    </table>
    
