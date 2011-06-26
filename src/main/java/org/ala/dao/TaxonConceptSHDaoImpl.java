@@ -2675,6 +2675,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		else{
 			Integer ranking = rankable.getRanking();
 			Integer noOfRankings = rankable.getNoOfRankings();
+			if(noOfRankings == null){
+				noOfRankings = 0;
+			}
 			if (ranking == null) {
 				if (ir.isPositive()) {
 					ranking = new Integer(1);
