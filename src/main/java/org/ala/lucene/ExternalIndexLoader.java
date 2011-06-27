@@ -206,7 +206,7 @@ public class ExternalIndexLoader {
 		Statement stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		ResultSet rs = stmt.executeQuery("select dr.uid, dr.guid, dr.name, dr.acronym as acronym, dp.name as data_provider_name, dr.pub_description as description " +
 				"from data_resource dr " +
-				"inner join data_provider dp ON dp.id=dr.data_provider_id ");
+				"left join data_provider dp ON dp.id=dr.data_provider_id ");
 		
 		SolrServer solrServer = solrUtils.getSolrServer();
 		solrServer.deleteByQuery("idxtype:"+IndexedTypes.DATASET);
