@@ -63,9 +63,8 @@ import org.wyki.cassandra.pelops.Selector;
 public class CassandraUtil {
     protected Logger logger = Logger.getLogger(this.getClass());
 
-    @Inject
     protected InfoSourceDAO infoSourceDAO;
-    @Inject
+
     protected TaxonConceptDao taxonConceptDao;
 
     public static final int ROWS = 1000;
@@ -101,9 +100,9 @@ public class CassandraUtil {
      */
     public static void main(String[] args) throws Exception {
         ApplicationContext context = SpringUtils.getContext();
-        CassandraUtil cassandraUtil = context.getBean(CassandraUtil.class);
+        CassandraUtil cassandraUtil = (CassandraUtil) context.getBean("cassandraUtil");
 
-        String host = "diasbtest1-cbr.vm.csiro.au";
+        String host = "localhost";
         int port = 9160;
 
         if (args.length > 0) {
@@ -299,5 +298,21 @@ public class CassandraUtil {
         public String getSColName() {
             return sColName;
         }			
+    }
+    
+    public InfoSourceDAO getInfoSourceDAO() {
+        return infoSourceDAO;
+    }
+
+    public void setInfoSourceDAO(InfoSourceDAO infoSourceDAO) {
+        this.infoSourceDAO = infoSourceDAO;
+    }
+
+    public TaxonConceptDao getTaxonConceptDao() {
+        return taxonConceptDao;
+    }
+
+    public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
+        this.taxonConceptDao = taxonConceptDao;
     }
 }
