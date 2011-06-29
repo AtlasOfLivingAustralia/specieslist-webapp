@@ -20,8 +20,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.ala.dao.InfoSourceDAO;
+import org.ala.dao.Scanner;
+import org.ala.dao.StoreHelper;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.hbase.InfosourceUidLoader;
+import org.ala.model.AttributableObject;
+import org.ala.model.CommonName;
+import org.ala.model.Image;
 import org.ala.model.InfoSource;
 import org.ala.model.TaxonConcept;
 import org.ala.model.TaxonName;
@@ -66,6 +71,7 @@ public class CassandraUtil {
     protected InfoSourceDAO infoSourceDAO;
 
     protected TaxonConceptDao taxonConceptDao;
+    protected StoreHelper storeHelper;
 
     public static final int ROWS = 1000;
     public static final String CHARSET_ENCODING = "UTF-8";
@@ -73,6 +79,9 @@ public class CassandraUtil {
     public static final String PREFIX = "--";
     public static final String HOST_PREFIX = "-host=";
     public static final String PORT_PREFIX = "-port=";
+    private static final String TC_TABLE = "taxonConcept";
+    private static final String TC_COL_FAMILY = "tc";
+    private static final String APNI_INFOSOURCE_ID = "2";
 
     private String host = "localhost";
     private int port = 9160;
@@ -100,6 +109,8 @@ public class CassandraUtil {
      */
     public static void main(String[] args) throws Exception {
         ApplicationContext context = SpringUtils.getContext();
+        List<String> infosourceNameList = new ArrayList<String>();
+
         CassandraUtil cassandraUtil = (CassandraUtil) context.getBean("cassandraUtil");
 
         String host = "localhost";
@@ -115,6 +126,8 @@ public class CassandraUtil {
                 }
                 else if(tmp.startsWith(PORT_PREFIX)){
                     port = Integer.parseInt(tmp.substring(PORT_PREFIX.length()));
+                } else {
+                    infosourceNameList.add(tmp);
                 }
             }
         }
@@ -122,7 +135,15 @@ public class CassandraUtil {
         System.out.println("Connecting to: " + host + " port: " + port);
         //        CassandraUidUtil cassandraUidUtil = new CassandraUidUtil(host, port);
         //        String[] cast = new String[]{};
-        cassandraUtil.doFullScanAndUpdateInfosourceURL();
+        for (String infosourceName : infosourceNameList) {
+            if ("afd".equalsIgnoreCase(infosourceName)) {
+                cassandraUtil.doFullScanAndUpdateInfosourceURLForAFD();
+            } else if ("apni".equalsIgnoreCase(infosourceName)) {
+                cassandraUtil.doFullScanAndUpdateInfosourceURLForAPNI();
+            }
+        }
+
+
         cassandraUtil.closeConnectionPool();
         System.exit(0);
     }
@@ -147,13 +168,87 @@ public class CassandraUtil {
         Pelops.shutdown();
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public void doFullScanAndUpdateInfosourceURLForAPNI() throws Exception {
+        Scanner scanner = storeHelper.getScanner(TC_TABLE, TC_COL_FAMILY,
+                ColumnType.TAXONCONCEPT_COL.getColumnName());
+
+        byte[] guidAsBytes = null;
+        int i = 0;
+        while ((guidAsBytes = scanner.getNextGuid()) != null) {
+
+            String guid = new String(guidAsBytes);
+            
+            if ("urn:lsid:biodiversity.org.au:apni.taxon:296709".equals(guid)) {
+                System.out.println("DEBUG!");
+            }
+            
+            // get common names
+            List<CommonName> commonNames = taxonConceptDao.getCommonNamesFor(guid);
+
+            updateInfsourceURLForInfosource((List) commonNames, APNI_INFOSOURCE_ID, guid);
+            storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
+                    ColumnType.VERNACULAR_COL.getColumnName(),
+                    guid, (List) commonNames, false);
+
+            // get common names
+            List<Image> images = taxonConceptDao.getImages(guid);
+            updateInfsourceURLForInfosource((List) images, APNI_INFOSOURCE_ID, guid);
+            storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
+                    ColumnType.IMAGE_COL.getColumnName(), guid,
+                    (List) images, false);
+            i++;
+
+            if (i % 1000 == 0) {
+                logger.debug(i + " records processed. Last ID: " + guid);
+            }
+        }
+    }
+
+    private String generateAPNIURLForGuid(String guid) throws Exception {
+        String url = null;
+        TaxonConcept tc = taxonConceptDao.getByGuid(guid);
+        String scientificName = null;
+        
+        if (tc != null) {
+            scientificName = tc.getNameString();
+        }
+        
+        if (scientificName != null && scientificName.contains(" ")) {
+            url = "http://www.anbg.gov.au/cgi-bin/apni?genus=" + scientificName.split(" ")[0] + "&species=" + scientificName.split(" ")[1];
+        }
+        
+        return url;
+    }
+
+    private void updateInfsourceURLForInfosource(List<AttributableObject> objects,
+            String id, String guid) throws Exception {
+
+        List<AttributableObject> toUpdate = new ArrayList<AttributableObject>();
+        for (AttributableObject object : objects) {
+            if (object.getInfoSourceId() != null
+                    && id.equals(object.getInfoSourceId())) {
+                toUpdate.add(object);
+            }
+        }
+        objects.removeAll(toUpdate);
+
+        String newUrl = generateAPNIURLForGuid(guid);
+
+        for (AttributableObject ao: toUpdate) {
+            ao.setInfoSourceURL(newUrl);
+        }
+
+        objects.addAll(toUpdate);
+    }
+
     /**
      * scan whole columnFamily tree, any column contains infoSourceId is equal to user input
      * then load uid. 
      * @param infoSourceIds 
      * @throws Exception
      */
-    public void doFullScanAndUpdateInfosourceURL() throws Exception {
+    public void doFullScanAndUpdateInfosourceURLForAFD() throws Exception {
         long start = System.currentTimeMillis();
         long ctr = 1;
         long totalDelCtr = 0;
@@ -225,23 +320,23 @@ public class CassandraUtil {
             String guid = keySlice.getKey();
 
             TaxonConcept tc = taxonConceptDao.getByGuid(guid);
-            
+
 
             if (tc != null && Integer.toString(afd.getId()).equals(tc.getInfoSourceId())) {
                 TaxonName tn = taxonConceptDao.getTaxonNameFor(guid);
-                
+
                 String scientificName = null;
                 if (tn != null) {
                     scientificName = URLEncoder.encode(tn.getNameComplete(), "UTF-8");
                 } else {
                     scientificName = URLEncoder.encode(tc.getNameString(), "UTF-8");
                 }
-                
+
                 scientificName = scientificName.replaceAll("\\+", "%20");
-//                System.out.println(tc.getInfoSourceURL());
+                //                System.out.println(tc.getInfoSourceURL());
                 String infoSrcUrl = tc.getInfoSourceURL();
                 infoSrcUrl = infoSrcUrl.substring(0, infoSrcUrl.lastIndexOf("/")+1) + scientificName;
-//                System.out.println(guid + "::" + tc.getInfoSourceURL() + "::" + infoSrcUrl);
+                //                System.out.println(guid + "::" + tc.getInfoSourceURL() + "::" + infoSrcUrl);
                 tc.setInfoSourceURL(infoSrcUrl);
                 if (!taxonConceptDao.update(tc)) {
                     System.out.println("UPDATE FAILURE");
@@ -299,7 +394,7 @@ public class CassandraUtil {
             return sColName;
         }			
     }
-    
+
     public InfoSourceDAO getInfoSourceDAO() {
         return infoSourceDAO;
     }
@@ -314,5 +409,14 @@ public class CassandraUtil {
 
     public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
         this.taxonConceptDao = taxonConceptDao;
+    }
+
+
+    public StoreHelper getStoreHelper() {
+        return storeHelper;
+    }
+
+    public void setStoreHelper(StoreHelper storeHelper) {
+        this.storeHelper = storeHelper;
     }
 }
