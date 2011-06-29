@@ -1096,7 +1096,7 @@ public class SpeciesController {
             for (Image img : etc.getScreenshotImages()) {
                 StringBuilder text = new StringBuilder("Screenshot image from " + img.getInfoSourceName());
 
-                System.out.println(img.getRepoLocation());
+                //System.out.println(img.getRepoLocation());
                 if (img.getCreator() != null) {
                     text.append("(by ").append(img.getCreator()).append(")");
                 }
