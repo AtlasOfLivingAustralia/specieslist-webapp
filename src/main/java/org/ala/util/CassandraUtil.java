@@ -178,11 +178,22 @@ public class CassandraUtil {
         while ((guidAsBytes = scanner.getNextGuid()) != null) {
 
             String guid = new String(guidAsBytes);
-            
+
             if ("urn:lsid:biodiversity.org.au:apni.taxon:296709".equals(guid)) {
                 System.out.println("DEBUG!");
             }
-            
+
+            TaxonConcept tc = taxonConceptDao.getByGuid(guid);
+
+            if (APNI_INFOSOURCE_ID.equals(tc.getInfoSourceId())) {
+                String infoSrcUrl = generateAPNIURLForGuid(guid);
+
+                tc.setInfoSourceURL(infoSrcUrl);
+                if (!taxonConceptDao.update(tc)) {
+                    System.out.println("UPDATE FAILURE");
+                }
+            }
+
             // get common names
             List<CommonName> commonNames = taxonConceptDao.getCommonNamesFor(guid);
 
@@ -191,7 +202,7 @@ public class CassandraUtil {
                     ColumnType.VERNACULAR_COL.getColumnName(),
                     guid, (List) commonNames, false);
 
-            // get common names
+            // get images
             List<Image> images = taxonConceptDao.getImages(guid);
             updateInfsourceURLForInfosource((List) images, APNI_INFOSOURCE_ID, guid);
             storeHelper.putList(TC_TABLE, TC_COL_FAMILY,
@@ -209,15 +220,15 @@ public class CassandraUtil {
         String url = null;
         TaxonConcept tc = taxonConceptDao.getByGuid(guid);
         String scientificName = null;
-        
+
         if (tc != null) {
             scientificName = tc.getNameString();
         }
-        
+
         if (scientificName != null && scientificName.contains(" ")) {
             url = "http://www.anbg.gov.au/cgi-bin/apni?genus=" + scientificName.split(" ")[0] + "&species=" + scientificName.split(" ")[1];
         }
-        
+
         return url;
     }
 
