@@ -185,7 +185,7 @@ public class CassandraUtil {
 
             TaxonConcept tc = taxonConceptDao.getByGuid(guid);
 
-            if (APNI_INFOSOURCE_ID.equals(tc.getInfoSourceId())) {
+            if (tc != null && APNI_INFOSOURCE_ID.equals(tc.getInfoSourceId())) {
                 String infoSrcUrl = generateAPNIURLForGuid(guid);
 
                 tc.setInfoSourceURL(infoSrcUrl);
