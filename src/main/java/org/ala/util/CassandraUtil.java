@@ -175,8 +175,18 @@ public class CassandraUtil {
 
         byte[] guidAsBytes = null;
         int i = 0;
-        while ((guidAsBytes = scanner.getNextGuid()) != null) {
-
+        while (true) {
+            
+            try {
+                guidAsBytes = scanner.getNextGuid();
+            } catch(Exception e) {
+                continue;
+            }
+            
+            if (guidAsBytes == null) {
+                break;
+            }
+            
             String guid = new String(guidAsBytes);
 
             if ("urn:lsid:biodiversity.org.au:apni.taxon:296709".equals(guid)) {
