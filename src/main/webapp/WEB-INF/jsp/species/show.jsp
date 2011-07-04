@@ -1324,7 +1324,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                         <td>
                                             <span class="year">${reference.year}</span>
                                         </td>
-                                        <td><a href="http://library.ala.org.au/page/${reference.pageIdentifiers[0]}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
+                                        <td><a href="http://bhl.ala.org.au/page/${reference.pageIdentifiers[0]}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
                                     </tr>
                                 </c:forEach>
                             </table>
