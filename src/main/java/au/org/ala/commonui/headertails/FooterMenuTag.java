@@ -35,6 +35,7 @@ public class FooterMenuTag extends TagSupport {
 
     private static final long serialVersionUID = -6406031197753714478L;
     protected static Logger logger = Logger.getLogger(FooterMenuTag.class);
+    private static final String GOOGLE_ANALYTICS_KEY = "UA-4355440-1";
     protected String defaultCentralServer = "http://www.ala.org.au";
     private String returnUrlPath = "";
     protected final String FOOTER_HTML_URL = "http://www2.ala.org.au/datasets/footer.xml";
@@ -51,51 +52,34 @@ public class FooterMenuTag extends TagSupport {
             centralServer = defaultCentralServer;
         }
 
+        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        String casServer = pageContext.getServletContext().getInitParameter("casServerName");
+
+        // Check authentication status
+        Principal principal = request.getUserPrincipal();
+        boolean loggedIn;
+        if (principal != null) {
+            loggedIn = true;
+        } else {
+            loggedIn = AuthenticationCookieUtils.isUserLoggedIn(request);
+        }
+
+
+
         String html = null;
         try {
-            html = WebUtils.getUrlContentAsString(FOOTER_HTML_URL);
+            html = HeaderAndTailUtil.getFooter(loggedIn, centralServer, casServer, centralServer);
         } catch (Exception e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        if (html != null) {
-            html = html.replaceAll(centralServerTag, centralServer);
 
-            if (returnUrlPath.equals("")) {
-                // Note: has a last class inserted
-                html = html.replaceAll(returnPathNullTag, "<li id='menu-item-10433' class='last menu-item menu-item-type-post_type menu-item-10433'><a href='"+centralServer+"/my-profile/'>My Profile</a></li>");
-            } else {
-                HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-                String casServer = pageContext.getServletContext().getInitParameter("casServerName");
-
-                // Check authentication status
-                Principal principal = request.getUserPrincipal();
-                boolean loggedIn;
-                if (principal != null) {
-                    loggedIn = true;
-                } else {
-                    loggedIn = AuthenticationCookieUtils.isUserLoggedIn(request);
-                }
-
-                String loginLogoutAnchor;
-                if (loggedIn) {
-                    loginLogoutAnchor = "<a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a>";
-                } else {
-                    loginLogoutAnchor = "<a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a>";
-                }
-
-                html = html.replaceAll(returnPathNullTag,
-                        "<li id='menu-item-10433' class='menu-item menu-item-type-post_type menu-item-10433'><a href='"+centralServer+"/my-profile/'>My Profile</a></li>" +
-                        "<li id='menu-item-1052' class='last menu-item menu-item-type-custom menu-item-1052'>" + loginLogoutAnchor + "</li>");
-            }
-
-            try {
-                pageContext.getOut().print(html);
-                logger.info(html.toString());
-            } catch (Exception e) {
-                logger.error("FooterMenuTag: " + e.getMessage(), e);
-                throw new JspTagException("FooterMenuTag: " + e.getMessage());
-            }
+        try {
+            pageContext.getOut().print(html);
+            logger.info(html.toString());
+        } catch (Exception e) {
+            logger.error("FooterMenuTag: " + e.getMessage(), e);
+            throw new JspTagException("FooterMenuTag: " + e.getMessage());
         }
         return super.doStartTag();
     }

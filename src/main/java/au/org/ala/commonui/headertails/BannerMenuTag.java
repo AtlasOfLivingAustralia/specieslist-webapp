@@ -102,23 +102,15 @@ public class BannerMenuTag extends TagSupport {
                 loggedIn = AuthenticationCookieUtils.isUserLoggedIn(request);
             }
 
-            String loginLogoutListItem;
-            if (loggedIn) {
-                loginLogoutListItem = "<li class='nav-logout nav-right'><a href='" + casServer + "/cas/logout?url=" + returnUrlPath + "'>Log out</a></li>";
-            } else {
-                loginLogoutListItem = "<li class='nav-login nav-right'><a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a></li>";
-            }
-    
-            
-            
-            String html = WebUtils.getUrlContentAsString(BANNER_HTML_URL);
-            
-            html = html.replaceAll(centralServerTag, centralServer);
-            html = html.replaceAll(casServerTag, casServer);
-            html = html.replaceAll(loginLogoutListItemTag, loginLogoutListItem);
-            html = html.replaceAll(searchServerTag, searchServer);
-            html = html.replaceAll(searchPathTag, searchPath);
-            html = html.replaceAll(queryTag, query);
+            String html = HeaderAndTailUtil.getHeader(loggedIn, centralServer, casServer, searchServer, returnUrlPath, query);
+//                WebUtils.getUrlContentAsString(BANNER_HTML_URL);
+//            
+//            html = html.replaceAll(centralServerTag, centralServer);
+//            html = html.replaceAll(casServerTag, casServer);
+//            html = html.replaceAll(loginLogoutListItemTag, loginLogoutListItem);
+//            html = html.replaceAll(searchServerTag, searchServer);
+//            html = html.replaceAll(searchPathTag, searchPath);
+//            html = html.replaceAll(queryTag, query);
             
             pageContext.getOut().print(html);
         } catch (Exception e) {
