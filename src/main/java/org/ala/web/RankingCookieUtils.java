@@ -14,6 +14,8 @@
  ***************************************************************************/
 package org.ala.web;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +58,11 @@ public class RankingCookieUtils {
 		if(cookies!=null){
 	        for(Cookie cookie: cookies){
 	        	String value = cookie.getValue();
+	        	try {
+					value = URLDecoder.decode(value, "utf8");
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
 	        	logger.debug("Retrieved cookie value = "+value);
 	        	String[] parts = value.split(propertyDelimiter);
 	        	logger.debug("Retrieved parts = "+parts.length);

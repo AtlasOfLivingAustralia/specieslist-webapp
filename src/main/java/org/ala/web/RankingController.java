@@ -14,6 +14,7 @@
  ***************************************************************************/
 package org.ala.web;
 
+import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.Hashtable;
 import java.util.Map;
@@ -89,7 +90,9 @@ public class RankingController {
 		baseRanking.setCompareFieldValue(map);		
 		rankingDao.rankingForTaxon(guid, ColumnType.IMAGE_COL, baseRanking);
 		
-		String cookieValue = RankingCookieUtils.getCookieValue(guid, uri, positive);
+//		String cookieValue = RankingCookieUtils.getCookieValue(guid, uri, positive);
+		String str = URLEncoder.encode(uri, "utf8");
+		String cookieValue = RankingCookieUtils.getCookieValue(guid, str, positive);
 		Cookie cookie = new Cookie(Long.toString(System.currentTimeMillis()), cookieValue);
 		cookie.setMaxAge(60*60*24*365);
 		response.addCookie(cookie);		
@@ -133,6 +136,7 @@ public class RankingController {
 		//cookie can't handle multiple words. concatrating multiple words.
 		String str = name.replace(" ", "");
 		str = str.replace(",", "");
+		str = URLEncoder.encode(str, "utf8");
 		
 		String cookieValue = RankingCookieUtils.getCookieValue(guid, str, positive);
 		Cookie cookie = new Cookie(Long.toString(System.currentTimeMillis()), cookieValue);
