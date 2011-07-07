@@ -82,6 +82,7 @@ public class CassandraUtil {
     private static final String TC_TABLE = "taxonConcept";
     private static final String TC_COL_FAMILY = "tc";
     private static final String APNI_INFOSOURCE_ID = "2";
+    private static final String APC_INFOSOURCE_ID = "5";
 
     private String host = "localhost";
     private int port = 9160;
@@ -195,7 +196,7 @@ public class CassandraUtil {
 
             TaxonConcept tc = taxonConceptDao.getByGuid(guid);
 
-            if (tc != null && APNI_INFOSOURCE_ID.equals(tc.getInfoSourceId())) {
+            if (tc != null && APNI_INFOSOURCE_ID.equals(tc.getInfoSourceId()) || APC_INFOSOURCE_ID.equals(tc.getInfoSourceId())) {
                 String infoSrcUrl = generateAPNIURLForGuid(guid);
 
                 tc.setInfoSourceURL(infoSrcUrl);
