@@ -91,7 +91,9 @@ public class RankingController {
 		rankingDao.rankingForTaxon(guid, ColumnType.IMAGE_COL, baseRanking);
 		
 //		String cookieValue = RankingCookieUtils.getCookieValue(guid, uri, positive);
-		String str = URLEncoder.encode(uri, "utf8");
+		logger.debug("set cookie original value = "+uri);
+		String str = URLEncoder.encode(uri, "UTF-8");
+		logger.debug("set cookie encoded value = "+str);
 		String cookieValue = RankingCookieUtils.getCookieValue(guid, str, positive);
 		Cookie cookie = new Cookie(Long.toString(System.currentTimeMillis()), cookieValue);
 		cookie.setMaxAge(60*60*24*365);
@@ -136,7 +138,9 @@ public class RankingController {
 		//cookie can't handle multiple words. concatrating multiple words.
 		String str = name.replace(" ", "");
 		str = str.replace(",", "");
-		str = URLEncoder.encode(str, "utf8");
+		logger.debug("set cookie original value = "+str);
+		str = URLEncoder.encode(str, "UTF-8");
+		logger.debug("set cookie encoded value = "+str);
 		
 		String cookieValue = RankingCookieUtils.getCookieValue(guid, str, positive);
 		Cookie cookie = new Cookie(Long.toString(System.currentTimeMillis()), cookieValue);

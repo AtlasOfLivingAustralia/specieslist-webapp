@@ -58,12 +58,14 @@ public class RankingCookieUtils {
 		if(cookies!=null){
 	        for(Cookie cookie: cookies){
 	        	String value = cookie.getValue();
+	        	logger.debug("Retrieved cookie encoded value = "+value);
 	        	try {
-					value = URLDecoder.decode(value, "utf8");
+					String temp = URLDecoder.decode(value, "UTF-8");
+					value = temp;
 				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
+					logger.info(e);
 				}
-	        	logger.debug("Retrieved cookie value = "+value);
+	        	logger.debug("Retrieved cookie decoded value = "+value);
 	        	String[] parts = value.split(propertyDelimiter);
 	        	logger.debug("Retrieved parts = "+parts.length);
 	        	if(parts.length==3){
