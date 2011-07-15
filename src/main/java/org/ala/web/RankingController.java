@@ -122,6 +122,9 @@ public class RankingController {
 			@RequestParam(value="positive", required=true) boolean positive,
 			HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
+		if(name == null || guid == null){
+			return;
+		}
 		
 		BaseRanking baseRanking = populateUserInfo(request);
 		baseRanking.setBlackListed(blackList);
@@ -135,12 +138,8 @@ public class RankingController {
 		
 		rankingDao.rankingForTaxon(guid, ColumnType.VERNACULAR_COL, baseRanking);
 		
-		//cookie can't handle multiple words. concatrating multiple words.
-		String str = name.replace(" ", "");
-		str = str.replace(",", "");
-		logger.debug("set cookie original value = "+str);
-		str = URLEncoder.encode(str, "UTF-8");
-		logger.debug("set cookie encoded value = "+str);
+		//matchup with show.jsp ${fname} value
+		String str = "" + name.hashCode();
 		
 		String cookieValue = RankingCookieUtils.getCookieValue(guid, str, positive);
 		Cookie cookie = new Cookie(Long.toString(System.currentTimeMillis()), cookieValue);
