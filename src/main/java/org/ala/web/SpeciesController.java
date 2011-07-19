@@ -18,19 +18,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.BreakIterator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.logging.Level;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
@@ -62,7 +59,6 @@ import org.ala.model.PestStatus;
 import org.ala.model.Reference;
 import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
-import org.ala.model.TaxonName;
 import org.ala.repository.Predicates;
 import org.ala.util.ImageUtils;
 import org.ala.util.MimeType;
@@ -896,8 +892,8 @@ public class SpeciesController {
         for (String guid : guids) {
             String name = null;
             try {
-                TaxonName tn = taxonConceptDao.getTaxonNameFor(guid);
-                name = tn.getNameComplete();
+                TaxonConcept tc = taxonConceptDao.getByGuid(guid);
+                name = tc.getNameString();
             } catch (Exception ex) {
                 logger.warn("No TN found for guid: " + guid, ex);
             }
