@@ -127,7 +127,7 @@ public class LimneticDataLoader {
 								h.setInfoSourceName(infosource.getName());
 								habitatList.add(h);
 
-//								System.out.println("Adding guid=" + guid + " SciName=" + currentScientificName + " Habitat=" + HABITAT_CODE);
+								System.out.println("Adding guid=" + guid + " SciName=" + currentScientificName + " Habitat=" + HABITAT_CODE);
 								taxonConceptDao.addHabitat(guid, habitatList);
 								matchCounter++;
 							}
