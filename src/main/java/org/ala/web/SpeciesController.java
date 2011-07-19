@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.logging.Level;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
@@ -61,6 +62,7 @@ import org.ala.model.PestStatus;
 import org.ala.model.Reference;
 import org.ala.model.SimpleProperty;
 import org.ala.model.TaxonConcept;
+import org.ala.model.TaxonName;
 import org.ala.repository.Predicates;
 import org.ala.util.ImageUtils;
 import org.ala.util.MimeType;
@@ -879,6 +881,31 @@ public class SpeciesController {
         }
 
         return searchResults;
+    }
+    
+    /**
+     * JSON web service to return a list of scientific names for an input list of GUIDs
+     * 
+     * @param guids
+     * @return names
+     */
+    @RequestMapping(value = "/species/namesFromGuids.json", method = RequestMethod.GET)
+    public @ResponseBody List<String> getNamesForGuids(@RequestParam(value="guid", required=true) String[] guids) {
+        List<String> names = new ArrayList<String>();
+        
+        for (String guid : guids) {
+            String name = null;
+            try {
+                TaxonName tn = taxonConceptDao.getTaxonNameFor(guid);
+                name = tn.getNameComplete();
+            } catch (Exception ex) {
+                logger.warn("No TN found for guid: " + guid, ex);
+            }
+            
+            names.add(name); // note: will add null if no name is found as we want size of output list to be same as input array
+        }
+        
+        return names;
     }
 
     /**
