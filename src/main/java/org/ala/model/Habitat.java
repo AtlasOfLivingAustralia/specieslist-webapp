@@ -28,6 +28,9 @@ public class Habitat extends AttributableObject implements Comparable<Habitat> {
 	 * M  = Known marine (including brackish)
 	 * MN = Known marine & known nonmarine
 	 * N  = Known nonmarine only (includes freshwater, terrestrial etc.)
+	 * 
+	 * The following status is derive from alternative source:
+	 * Limnetic 
 	 */
 	protected String status;
 	
@@ -73,7 +76,10 @@ public class Habitat extends AttributableObject implements Comparable<Habitat> {
 				return "Non-marine";
 			} else if (this.status.equalsIgnoreCase("MN")) {
 				return "Marine and Non-marine";
-			} else {
+			} else if (this.status.equalsIgnoreCase("Limnetic")){
+				return "Limnetic";
+			}
+			else {
 				return null;
 			}
 		}
