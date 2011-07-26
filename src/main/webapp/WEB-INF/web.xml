@@ -68,11 +68,13 @@
         <param-value>http://www.ala.org.au</param-value>
     </context-param>
 
-    <!-- for local development -->
+    <!-- CAS filter context path - for local development - there is no context for production deployment -->
+    <!--
     <context-param>
         <param-name>contextPath</param-name>
         <param-value>/bie-webapp</param-value>
     </context-param>
+    -->
 
     <context-param>
         <param-name>uriFilterPattern</param-name>
