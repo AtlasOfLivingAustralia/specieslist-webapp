@@ -923,15 +923,15 @@ public class SpeciesController {
             for (TaxonConcept tc : tcs) {
                 Map<String, String> syn = new HashMap<String, String>();
                 String name = tc.getNameString();
-                String author = tc.getAuthor();
-                String nameComplete = null;
+                String author = (tc.getAuthor() != null) ? tc.getAuthor() : "";
+                String nameComplete = name;
                 // incosistent format in nameString - some include author and others don't...
-                if (StringUtils.contains(name, author)) {
+                if (!author.isEmpty() && StringUtils.contains(name, author)) {
                     nameComplete = name;
-                    name = StringUtils.remove(name, author);
-                } else {
+                    name = StringUtils.remove(name, author).trim();
+                } else if (!author.isEmpty()) {
                     nameComplete = name + " " + author;
-                }
+                } 
                 
                 //syn.put(tc.getGuid(), nameAuthor);
                 syn.put("guid", tc.getGuid());
