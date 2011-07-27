@@ -911,7 +911,7 @@ public class SpeciesController {
      * @param guid
      * @return synonyms
      */
-    @RequestMapping(value = "/species/taxonNamesForGuid/{guid}", method = RequestMethod.GET)
+    @RequestMapping(value = "/species/synonymsForGuid/{guid}", method = RequestMethod.GET)
     public @ResponseBody  List<Map<String, String>> getNamesForGuids(@PathVariable("guid") String guid) {
         List<Map<String, String>> synonyms = new ArrayList<Map<String, String>>();
         
