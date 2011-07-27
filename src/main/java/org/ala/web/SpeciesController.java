@@ -903,6 +903,38 @@ public class SpeciesController {
         
         return names;
     }
+    
+    /**
+     * JSON web service to return a list of synonyms for a GUID/LSID.
+     * Note: accepted taxonConcept is included as first element of output list.
+     * 
+     * @param guid
+     * @return synonyms
+     */
+    @RequestMapping(value = "/species/taxonNamesForGuid/{guid}", method = RequestMethod.GET)
+    public @ResponseBody  List<Map<String, String>> getNamesForGuids(@PathVariable("guid") String guid) {
+        List<Map<String, String>> synonyms = new ArrayList<Map<String, String>>();
+        
+        try {
+            List<TaxonConcept> tcs = taxonConceptDao.getSynonymsFor(guid);
+            TaxonConcept accepted = taxonConceptDao.getByGuid(guid);
+            tcs.add(0, accepted);
+            
+            for (TaxonConcept tc : tcs) {
+                Map<String, String> syn = new HashMap<String, String>();
+                String name = tc.getNameString();
+                String author = tc.getAuthor();
+                String nameAuthor = (StringUtils.contains(name, author)) ? name : name + " " + author;
+                syn.put(tc.getGuid(), nameAuthor);
+                synonyms.add(syn);
+            }
+            
+        } catch (Exception ex) {
+            logger.warn("No TNs found for guid: " + guid, ex);
+        }
+        
+        return synonyms;
+    }
 
     /**
      * Utility to pull out common names and remove duplicates, returning a string
