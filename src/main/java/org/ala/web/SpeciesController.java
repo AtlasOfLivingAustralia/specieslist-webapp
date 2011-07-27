@@ -924,8 +924,20 @@ public class SpeciesController {
                 Map<String, String> syn = new HashMap<String, String>();
                 String name = tc.getNameString();
                 String author = tc.getAuthor();
-                String nameAuthor = (StringUtils.contains(name, author)) ? name : name + " " + author;
-                syn.put(tc.getGuid(), nameAuthor);
+                String nameComplete = null;
+                // incosistent format in nameString - some include author and others don't...
+                if (StringUtils.contains(name, author)) {
+                    nameComplete = name;
+                    name = StringUtils.remove(name, author);
+                } else {
+                    nameComplete = name + " " + author;
+                }
+                
+                //syn.put(tc.getGuid(), nameAuthor);
+                syn.put("guid", tc.getGuid());
+                syn.put("nameComplete", nameComplete);
+                syn.put("name", name);
+                syn.put("author", author);
                 synonyms.add(syn);
             }
             
