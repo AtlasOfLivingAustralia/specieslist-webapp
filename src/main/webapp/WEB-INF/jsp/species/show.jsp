@@ -546,6 +546,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                 <tr class="border-top">
                                     <td style="white-space: nowrap;">
                                         <c:choose>
+                                        	<c:when test="${not empty infoSource.infoSourceURL && infoSource.infoSourceURL == 'http://www.ala.org.au'}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${infoSource.infoSourceName}</c:when>
                                             <c:when test="${not empty infoSource.identifier}"><a href="${infoSource.identifier}" target="_blank" class="infosource">${infoSource.infoSourceName}</a></c:when>
                                             <c:when test="${not empty infoSource.infoSourceURL}"><a href="${infoSource.infoSourceURL}" target="_blank" class="infosource">${infoSource.infoSourceName}</a></c:when>
                                             <c:otherwise>${infoSource.infoSourceName}</c:otherwise>
