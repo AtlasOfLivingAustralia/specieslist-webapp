@@ -46,6 +46,7 @@ public class LimneticDataLoader {
 
 	protected static final String HABITAT_CODE= "Limnetic";
 	protected static final int INFOSOURCE_ID = 1063;
+	protected static final String DEFAULT_INFOSOURCE_URL = "http://www.ala.org.au";
 
 	@Inject
 	protected InfoSourceDAO infoSourceDao;
@@ -125,9 +126,10 @@ public class LimneticDataLoader {
 								Habitat h = new Habitat(HABITAT_CODE);
 								h.setInfoSourceId(Integer.toString(infosource.getId()));
 								h.setInfoSourceName(infosource.getName());
+								h.setInfoSourceURL(DEFAULT_INFOSOURCE_URL);
 								habitatList.add(h);
 
-								System.out.println("Adding guid=" + guid + " SciName=" + currentScientificName + " Habitat=" + HABITAT_CODE);
+								logger.info("Adding guid=" + guid + " SciName=" + currentScientificName + " Habitat=" + HABITAT_CODE);
 								taxonConceptDao.addHabitat(guid, habitatList);
 								matchCounter++;
 							}
