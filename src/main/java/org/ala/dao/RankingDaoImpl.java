@@ -14,6 +14,7 @@
  ***************************************************************************/
 package org.ala.dao;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,6 +30,7 @@ import org.ala.model.Ranking;
 import org.apache.log4j.Logger;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -197,11 +199,16 @@ public class RankingDaoImpl implements RankingDao {
 		String key = "" + System.currentTimeMillis();
 		//save rk table	
 		storeHelper.put(rankingType.getColumnFamily(), rankingType.getColumnFamily(), rankingType.getSuperColumnName(), key, guid, baseRanking);
+/*
 		// save tc table
 		taxonConceptDao.setRanking(guid, rankingType.getColumnType(), baseRanking);
 		// update 'rk' solr index
 		addRankingIndex(rankingType, baseRanking, key, guid);
-
+*/
+		// update tc & rk solr index in separate thread
+		Thread thread1 = new Thread(new RankingUpdateSolrThread(guid, rankingType, baseRanking, key)); 
+		thread1.start();
+				
 		return true;
 	}	
 		
@@ -276,7 +283,7 @@ public class RankingDaoImpl implements RankingDao {
 		doc.addField("guid", guid);
 		doc.addField("superColumnName", rankingType.getSuperColumnName());
         solrServer.add(doc);
-        solrServer.commit();		
+        solrServer.commit(true, true);        
 	}
 	
 	private static void printFacetResult(Collection collection){
@@ -340,5 +347,34 @@ public class RankingDaoImpl implements RankingDao {
 		}
 		
 		System.exit(0);
-	}				
+	}	
+	
+	/*
+	 *  inner runnable class for solr index update thread 
+	 */
+	class RankingUpdateSolrThread implements Runnable {
+		private String guid = null;
+		private RankingType rankingType = null;
+		private BaseRanking baseRanking = null;
+		private String key = null;
+		
+		public RankingUpdateSolrThread(String guid, RankingType rankingType, BaseRanking baseRanking, String key) throws Exception {
+			this.guid = guid;
+			this.rankingType = rankingType;
+			this.baseRanking = baseRanking;
+			this.key = key;
+		}
+
+		@Override
+		public void run() {
+		    try {
+		    	if(taxonConceptDao != null && guid != null && rankingType != null && baseRanking != null && key != null){
+		    		taxonConceptDao.setRanking(guid, rankingType.getColumnType(), baseRanking);
+		    		addRankingIndex(rankingType, baseRanking, key, guid);		    		
+		    	}
+			} catch (Exception e) {
+				logger.error(e);
+			}     		
+		}
+	}	
 }

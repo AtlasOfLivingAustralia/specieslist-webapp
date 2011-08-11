@@ -2750,7 +2750,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			SolrServer solrServer = solrUtils.getSolrServer();
 			if(solrServer != null){
 				solrServer.add(docList);
-				solrServer.commit();
+				solrServer.commit(true, true);
 			}
 		}		
 		return ok;
