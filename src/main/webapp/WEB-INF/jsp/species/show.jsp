@@ -5,6 +5,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
 <c:set var="spatialPortalWMSUrl">http://spatial.ala.org.au/alaspatial/</c:set>
 <c:set var="wordPressUrl">${initParam.centralServer}</c:set>
 <c:set var="biocacheUrl">http://biocache.ala.org.au/</c:set>
+<c:set var="citizenSciUrl">http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid=</c:set>
 <c:set var="collectoryUrl">http://collections.ala.org.au</c:set>
 <c:set var="bieAdminServerUrl">${initParam.bieAdminServerName}</c:set>
 <c:set var="threatenedSpeciesCodes">${wordPressUrl}/about/program-of-projects/sds/threatened-species-codes/</c:set>
@@ -1343,7 +1344,9 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
             <div id="contributeOverlay">
                 <div class="section buttons no-borders no-margin-bottom" style="text-align: left !important">
                     <div class="sightings">
-                        <h2><a href="${contributeURL}">Sightings <span>Record your observations of
+                    	<!-- changed to citizenScience url -->
+                       	<!-- <h2><a href="${contributeURL}">Sightings <span>Record your observations of -->                     
+                        <h2><a href="${citizenSciUrl}${extendedTaxonConcept.taxonConcept.guid}">Sightings <span>Record your observations of
                                 <c:choose>
                                     <c:when test="${not empty extendedTaxonConcept.commonNames}">the <strong>${extendedTaxonConcept.commonNames[0].nameString}</strong></c:when>
                                     <c:otherwise><c:if test="${extendedTaxonConcept.taxonConcept.rankID <= 6000}">the ${extendedTaxonConcept.taxonConcept.rankString} </c:if><strong>${sciNameFormatted}</strong></c:otherwise>
