@@ -1903,12 +1903,24 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					}
 				}
 				
+				//check valid image (not blacklisted)
 				List<Image> images = getImages(guid);
-				boolean hasImages = !images.isEmpty();
+				boolean hasImages = false;
+				int firstValidImage = -1;
+				if(!images.isEmpty()){
+					for(int i = 0; i < images.size(); i++){
+						Image image = images.get(i);
+						if(!image.getIsBlackListed()){
+							hasImages = true;
+							firstValidImage = i;
+							break;
+						}
+					}
+				}
 
-				if (hasImages) {
+				if (hasImages && firstValidImage >= 0) {
 					// FIXME should be replaced by the highest ranked image
-					Image image = images.get(0);
+					Image image = images.get(firstValidImage);
 					if (image.getRepoLocation() != null) {
 						doc.addField("image", image.getRepoLocation());
 						try {
