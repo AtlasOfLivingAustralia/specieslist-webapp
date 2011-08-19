@@ -25,7 +25,7 @@ import au.com.bytecode.opencsv.CSVReader;
 /**
  * This class loads data from the new biocache dynamically through WS calls to the biocache
  * 
- * DOES NOT HAVE THE CORRECT URLs YET DO NOT RUN ON PRODUCTION.
+ * 
  * 
  * @author Natasha Carter (Natasha.Carter@csiro.au)
  */
@@ -41,6 +41,8 @@ public class BiocacheDynamicLoader {
     public static void main(String[] args) throws Exception {
         ApplicationContext context = SpringUtils.getContext();
         BiocacheDynamicLoader l = context.getBean(BiocacheDynamicLoader.class);
+        if(args.length>0)
+            l.geoLoads = args;
         l.load(5);
         System.exit(0);
     }
@@ -51,9 +53,13 @@ public class BiocacheDynamicLoader {
         List<SolrInputDocument>docs = Collections.synchronizedList(new ArrayList<SolrInputDocument>(100));
         IndexingThread primaryThread = new IndexingThread(lsidQueue, docs, 1);
         new Thread(primaryThread).start();
+        IndexingThread[] otherThreads = new IndexingThread[workers-1];
+        int i =0;
         while(workers >1){
-            new Thread(new IndexingThread(lsidQueue, docs, workers)).start();
-            workers--;
+            IndexingThread it = new IndexingThread(lsidQueue, docs, workers--);
+            otherThreads[i++] =it;
+            new Thread(it).start();
+           
         }
         for(String loadUrl : geoLoads){
             logger.info("Starting to reload " + loadUrl);
@@ -63,6 +69,9 @@ public class BiocacheDynamicLoader {
                 CSVReader reader = new CSVReader(new InputStreamReader(gm.getResponseBodyAsStream(), gm.getResponseCharSet()));
                 String[] values = reader.readNext();
                 boolean lookup = !(values[0].contains("lsid") || values[0].contains("guid"));
+                primaryThread.setLookup(lookup);
+                for(IndexingThread it : otherThreads)
+                    it.setLookup(lookup);
                 values =reader.readNext();
                 while(values!= null){
                     if(values.length == 2){
@@ -70,10 +79,10 @@ public class BiocacheDynamicLoader {
                         if(lsid != null && lsid.length()>0){
                             //update the value of the count
                             Integer count= Integer.parseInt(values[1]);
-                            logger.debug("Updating: " + lsid +" : " + count);
-                            taxonConceptDao.setGeoreferencedRecordsCount(lsid, count);
+                            //logger.debug("Updating: " + values[0] +" : " + count);
+                            taxonConceptDao.setGeoreferencedRecordsCount(values[0], count);
                             //now add it to the lsidQueue
-                            lsidQueue.put(lsid);
+                            lsidQueue.put(values[0]);
                         }
                     }
                     values = reader.readNext();
@@ -87,7 +96,7 @@ public class BiocacheDynamicLoader {
             }
         }
         while(!lsidQueue.isEmpty()){
-                logger.debug(">>>>>>The lsid queue has " + lsidQueue.size());
+                //logger.debug(">>>>>>The lsid queue has " + lsidQueue.size());
             try{
                 Thread.currentThread().sleep(50);
             }
@@ -108,17 +117,20 @@ public class BiocacheDynamicLoader {
         private SolrServer solrServer = null;
         private List<SolrInputDocument> docs = null;
         private boolean isPrimary =false;
+        private boolean lookup = false;
         private int id;
         IndexingThread(BlockingQueue<String> queue, List<SolrInputDocument> docs, int num){
             lsidQueue=queue;
             isPrimary = num==1;
             id = num;
             this.docs = docs;
-            try{
-                solrServer = solrUtils.getSolrServer();
-            }
-            catch(Exception e){
-                
+            if(isPrimary){
+                try{
+                    solrServer = solrUtils.getSolrServer();
+                }
+                catch(Exception e){
+                    
+                }
             }
         }
         public void shutdown(){
@@ -130,11 +142,16 @@ public class BiocacheDynamicLoader {
                 e.printStackTrace();
             }
         }
+        public void setLookup(boolean lu){
+            this.lookup = lu;
+        }
         private void index(){
             try{
                 //logger.debug("sending " + docs.size() + " to the index");
-               // solrServer.add(docs);
-                docs.clear();
+                synchronized(docs){
+                    solrServer.add(docs);                    
+                    docs.clear();
+                }
             }
             catch(Exception e){
                 e.printStackTrace();
@@ -143,13 +160,19 @@ public class BiocacheDynamicLoader {
         public void run(){
             while(true){
                 if(lsidQueue.size()>0){
-                    String lsid = lsidQueue.poll();
-                    try{
-                     logger.debug(id+">>Indexing " + lsid);   
-                    docs.addAll(taxonConceptDao.indexTaxonConcept(lsid));
+                    String value = lsidQueue.poll();
+                    try{                      
+                      String lsid = lookup?taxonConceptDao.findLsidByName(value):value;
+                      if(lsid != null){
+                          //logger.debug(id+">>Indexing " + lsid);
+                          docs.addAll(taxonConceptDao.indexTaxonConcept(lsid));
+                      }
+                      else{
+                          logger.warn("Unable to locate " + value);
+                      }
                     }
                     catch(Exception e){
-                        logger.warn("Unable to generate index documents for " + lsid);
+                        logger.warn("Unable to generate index documents for " + value);
                     }
                     if(docs.size()>=100 && isPrimary)
                         index();
