@@ -4,7 +4,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
 <c:set var="spatialPortalUrl">${initParam.centralServer}/explore/species-maps/</c:set>
 <c:set var="spatialPortalWMSUrl">http://spatial.ala.org.au/alaspatial/</c:set>
 <c:set var="wordPressUrl">${initParam.centralServer}</c:set>
-<c:set var="biocacheUrl">http://biocache-test.ala.org.au/</c:set>
+<c:set var="biocacheUrl">${initParam.biocacheUrl}</c:set>
 <c:set var="biocacheWSUrl">http://biocache.ala.org.au/ws/</c:set>
 <c:set var="citizenSciUrl">http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid=</c:set>
 <c:set var="collectoryUrl">http://collections.ala.org.au</c:set>
