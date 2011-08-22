@@ -4,7 +4,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
 <c:set var="spatialPortalUrl">${initParam.centralServer}/explore/species-maps/</c:set>
 <c:set var="spatialPortalWMSUrl">http://spatial.ala.org.au/alaspatial/</c:set>
 <c:set var="wordPressUrl">${initParam.centralServer}</c:set>
-<c:set var="biocacheUrl">http://biocache.ala.org.au/</c:set>
+<c:set var="biocacheUrl">http://biocache-test.ala.org.au/</c:set>
+<c:set var="biocacheWSUrl">http://biocache.ala.org.au/ws/</c:set>
 <c:set var="citizenSciUrl">http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid=</c:set>
 <c:set var="collectoryUrl">http://collections.ala.org.au</c:set>
 <c:set var="bieAdminServerUrl">${initParam.bieAdminServerName}</c:set>
@@ -158,7 +159,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     state: "State &amp; Territory",
                     data_resource: "Dataset",
                     month: "Date (by month)", 
-                    occurrence_date: "Date (by decade)"
+                    occurrence_year: "Date (by decade)"
                 };
                 var months = {
                     "01": "January",
@@ -177,16 +178,16 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                 
                 // load the collections that contain specimens
                 //var colSpecUrl = "${pageContext.request.contextPath}/species/source/${extendedTaxonConcept.taxonConcept.guid}"; 
-                var colSpecUrl = "http://biocache.ala.org.au/occurrences/sourceByTaxon/${extendedTaxonConcept.taxonConcept.guid}.json?fq=basis_of_record:specimen&callback=?"; 
+                var colSpecUrl = "${biocacheWSUrl}occurrences/taxon/source/${extendedTaxonConcept.taxonConcept.guid}.json?fq=basis_of_record:PreservedSpecimen&callback=?"; 
                 $.getJSON(colSpecUrl, function(data) {
-                    if (data != null &&data.occurrenceSources != null && data.occurrenceSources.length >0){
+                    if (data != null &&data != null && data.length >0){
                         var content = '<h4>Collections that hold specimens: </h4>';
                         content = content +'<ul>';
-                        $.each(data.occurrenceSources, function(i, li) {
+                        $.each(data, function(i, li) {
                             if(li.uid.match("^co")=="co"){
                                 var link1 = '<a href="${collectoryUrl}/public/show/' + li.uid +'">' + li.name + '</a>';
-                                var link2 = '(<a href="${biocacheUrl}/occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}&fq=collection_code_uid:'
-                                link2 = link2 + li.uid +'&fq=basis_of_record:specimen">' + li.count + ' records</a>)';
+                                var link2 = '(<a href="${biocacheUrl}/occurrences/taxa/${extendedTaxonConcept.taxonConcept.guid}?fq=collection_uid:'
+                                link2 = link2 + li.uid +'&fq=basis_of_record:PreservedSpecimen">' + li.count + ' records</a>)';
                                 content = content+'<li>' + link1 + ' ' + link2+'</li>';
 
                             }
@@ -198,14 +199,16 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
 
                 // load occurrence breakdowns for states
                 //var biocachUrl = "${pageContext.request.contextPath}/species/charts/${extendedTaxonConcept.taxonConcept.guid}";
-                var biocachUrl = "http://biocache.ala.org.au/occurrences/searchByTaxon.json?q=${extendedTaxonConcept.taxonConcept.guid}&callback=?";
+                var biocachUrl = "${biocacheWSUrl}occurrences/taxon/${extendedTaxonConcept.taxonConcept.guid}.json?callback=?";
+                //var biocachUrl = "${biocacheWSUrl}occurrences/search.json?q=lsid:${extendedTaxonConcept.taxonConcept.guid}&facets=state&facets=month&facets=data_resource&facets=year&callback=?";
                 $.getJSON(biocachUrl, function(data) {
-                    if (data.searchResult != null && data.searchResult.totalRecords > 0) {
-                        //alert("hi "+data.searchResult.totalRecords);
-                        var count = data.searchResult.totalRecords + ""; // concat of emtyp string forces var to a String
+                	
+                    if (data.totalRecords != null && data.totalRecords > 0) {
+                        //alert("hi "+data.totalRecords);
+                        var count = data.totalRecords + ""; // concat of emtyp string forces var to a String
                         $('#occurenceCount').html(count.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")); // update link text at top with count (formatted)
-                        //console.log('facets: ', data.searchResult.facetResults);
-                        var facets = data.searchResult.facetResults;
+                        //console.log('facets: ', data.facetResults);
+                        var facets = data.facetResults;
                         $.each(facets, function(index, facet) {
                             //console.log(node.fieldName, node.fieldResult);
                             //if (node.fieldName == 'state' || node.fieldName == 'state' ||node.fieldName == 'state') {
@@ -227,12 +230,12 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                 $.each(facet.fieldResult, function(i, li) {
                                     if (li.count > 0) {
                                         totalCount += li.count; // keep a tally of total counts
-                                        var label = li.fieldValue;
+                                        var label = li.label;
                                         var toValue;
                                         var displayCount = (li.count + "").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-                                        var link = '<a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}&fq='
+                                        var link = '<a href="${biocacheUrl}occurrences/taxa/${extendedTaxonConcept.taxonConcept.guid}?fq='
                                         
-                                        if (facet.fieldName == 'occurrence_date') {
+                                        if (facet.fieldName == 'occurrence_year') {
                                             if (label == 'before') { // label.indexOf(searchValue, fromIndex)
                                                 label = label + ' 1850';
                                                 toValue = '1850' + isoDateSuffix;
@@ -242,13 +245,13 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                                 toValue = parseInt(label) + 10;
                                                 label = label + '-' + toValue;
                                                 toValue = toValue + isoDateSuffix;
-                                                link = link + facet.fieldName+':['+li.fieldValue+' TO '+toValue+']">';
+                                                link = link + facet.fieldName+':['+li.label+' TO '+toValue+']">';
                                             }
                                         } else if (facet.fieldName == 'month') {
-                                            link = link + facet.fieldName+':'+li.fieldValue+'">';
+                                            link = link + facet.fieldName+':'+li.label+'">';
                                             label = months[label]; // substitiute month name for int value
                                         } else {
-                                            link = link + facet.fieldName+':'+li.fieldValue+'">';
+                                            link = link + facet.fieldName+':'+li.label+'">';
                                         }
                                         //content = content +'<li>'+label+': ' + link + displayCount + ' records</a></li>';
                                         // add values to chart
@@ -503,7 +506,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     <div  id="divMap" class="distroMap section no-margin">
                         <h3>Mapped occurrence records</h3>
                         <p>
-                            <a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View occurrence records list</a>
+                            <a href="${biocacheUrl}occurrences/taxa/${extendedTaxonConcept.taxonConcept.guid}">View occurrence records list</a>
                             | <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="View interactive map">View interactive map</a>
                         </p>
                         <div class="left">
@@ -1145,7 +1148,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                 <div class="section">
                     <h2>Occurrence Records</h2>
                     <div id="occurrenceRecords">
-                        <p><a href="${biocacheUrl}occurrences/searchByTaxon?q=${extendedTaxonConcept.taxonConcept.guid}">View
+                        <p><a href="${biocacheUrl}occurrences/taxa/${extendedTaxonConcept.taxonConcept.guid}">View
                                 list of all <span id="occurenceCount"></span> occurrence records for this taxon</a></p>
                         <div id="recordBreakdowns" style="display: block">
                         </div>
