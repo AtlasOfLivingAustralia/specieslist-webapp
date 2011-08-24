@@ -354,7 +354,8 @@
                                     <span><strong class="resultsLabel">Kingdom</strong>: ${result.kingdom}</span>
                                 </c:if>
 	                            <c:if test="${not empty result.rankId && result.rankId>5000}">
-	                            	<span class="recordSighting" style="display:inline;"><a href="http://biocache.ala.org.au/share/sighting/${result.guid}">Record a sighting</a></span>
+	                            <!-- <span class="recordSighting" style="display:inline;"><a href="http://biocache.ala.org.au/share/sighting/${result.guid}">Record a sighting</a></span> -->	                            
+	                            	<span class="recordSighting" style="display:inline;"><a href="http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid=${result.guid}">Record a sighting</a></span>
 	                            	<span class="sharePhoto" style="display:inline;"><a href="${initParam.centralServer}/share-images/?guid=${result.guid}&scientificName=${not empty result.acceptedConceptName ? result.acceptedConceptName : result.name}&commonName=${result.commonNameSingle}">Share a photo</a></span>
 	                            </c:if>
                                 <!-- ${sectionText} -->
