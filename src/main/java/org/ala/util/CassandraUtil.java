@@ -64,7 +64,7 @@ import org.wyki.cassandra.pelops.Selector;
  * @author Tommy Wang
  * 
  */
-//@Component("cassandraUtil")
+@Component("cassandraUtil")
 public class CassandraUtil {
     protected Logger logger = Logger.getLogger(this.getClass());
 
