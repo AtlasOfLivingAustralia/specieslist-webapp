@@ -114,7 +114,7 @@ public class CassandraUtil {
 
         CassandraUtil cassandraUtil = (CassandraUtil) context.getBean("cassandraUtil");
 
-        String host = "localhost";
+        String host = "ala-biedb2.vm.csiro.au";
         int port = 9160;
 
         if (args.length > 0) {
@@ -150,7 +150,7 @@ public class CassandraUtil {
     }
 
     public CassandraUtil(){
-        this("bie", "tc", "localhost", 9160);
+        this("bie", "tc", "ala-biedb2.vm.csiro.au", 9160);
     }
 
     public CassandraUtil(String host, int port){
