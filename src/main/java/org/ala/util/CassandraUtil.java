@@ -84,7 +84,7 @@ public class CassandraUtil {
     private static final String APNI_INFOSOURCE_ID = "2";
     private static final String APC_INFOSOURCE_ID = "5";
 
-    private String host = "localhost";
+    private String host = "ala-biedb2.vm.csiro.au";
     private int port = 9160;
     private String keyspace = "bie";
     private String columnFamily = "tc";	
@@ -112,7 +112,7 @@ public class CassandraUtil {
         ApplicationContext context = SpringUtils.getContext();
         List<String> infosourceNameList = new ArrayList<String>();
 
-//        CassandraUtil cassandraUtil = (CassandraUtil) context.getBean("cassandraUtil");
+        CassandraUtil cassandraUtil = (CassandraUtil) context.getBean("cassandraUtil");
 
         String host = "localhost";
         int port = 9160;
@@ -134,7 +134,7 @@ public class CassandraUtil {
         }
 
         System.out.println("Connecting to: " + host + " port: " + port);
-        CassandraUtil cassandraUtil = new CassandraUtil(host, port);
+//        CassandraUtil cassandraUtil = new CassandraUtil(host, port);
         //        String[] cast = new String[]{};
         for (String infosourceName : infosourceNameList) {
             if ("afd".equalsIgnoreCase(infosourceName)) {
