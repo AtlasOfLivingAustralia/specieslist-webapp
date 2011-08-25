@@ -112,9 +112,9 @@ public class CassandraUtil {
         ApplicationContext context = SpringUtils.getContext();
         List<String> infosourceNameList = new ArrayList<String>();
 
-        CassandraUtil cassandraUtil = (CassandraUtil) context.getBean("cassandraUtil");
+//        CassandraUtil cassandraUtil = (CassandraUtil) context.getBean("cassandraUtil");
 
-        String host = "ala-biedb2.vm.csiro.au";
+        String host = "localhost";
         int port = 9160;
 
         if (args.length > 0) {
@@ -134,7 +134,7 @@ public class CassandraUtil {
         }
 
         System.out.println("Connecting to: " + host + " port: " + port);
-        //        CassandraUidUtil cassandraUidUtil = new CassandraUidUtil(host, port);
+        CassandraUtil cassandraUtil = new CassandraUtil(host, port);
         //        String[] cast = new String[]{};
         for (String infosourceName : infosourceNameList) {
             if ("afd".equalsIgnoreCase(infosourceName)) {
