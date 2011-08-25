@@ -35,6 +35,7 @@ public class BiocacheDynamicLoader {
         protected TaxonConceptDao taxonConceptDao;
     @Inject
     protected SolrUtils solrUtils;
+    private long start = System.currentTimeMillis();
     protected static Logger logger  = Logger.getLogger(BiocacheDynamicLoader.class);
     private String[] geoLoads = new String[]{"http://biocache.ala.org.au/ws/occurrences/facets/download?q=data_resource_uid:dr344&facets=taxon_concept_lsid&count=true",
             "http://biocache.ala.org.au/ws/occurrences/facets/download?q=data_resource_uid:dr344&facets=family&count=true"};//,"http://biocache.ala.org.au/ws/occurrences/facets/download?q=latitude:[* TO *]&facets=taxon_concept_lsid&count=true", "http://biocache.ala.org.au/ws/occurrences/facets/download?q=latitude:[* TO *]&facets=species_guid&count=true"};
@@ -49,7 +50,7 @@ public class BiocacheDynamicLoader {
     public void load(int workers){
         //so we need to load all the information from WS's
         HttpClient httpClient = new HttpClient();
-        ArrayBlockingQueue<String> lsidQueue = new ArrayBlockingQueue<String>(500);
+        ArrayBlockingQueue<String[]> lsidQueue = new ArrayBlockingQueue<String[]>(500);
         List<SolrInputDocument>docs = Collections.synchronizedList(new ArrayList<SolrInputDocument>(100));
         IndexingThread primaryThread = new IndexingThread(lsidQueue, docs, 1);
         new Thread(primaryThread).start();
@@ -82,28 +83,28 @@ public class BiocacheDynamicLoader {
                             //logger.debug("Updating: " + values[0] +" : " + count);
                             taxonConceptDao.setGeoreferencedRecordsCount(values[0], count);
                             //now add it to the lsidQueue
-                            lsidQueue.put(values[0]);
+                            lsidQueue.put(values);
                         }
                     }
                     values = reader.readNext();
                    
                 }
-                
-                
+                while(!lsidQueue.isEmpty()){
+                    //logger.debug(">>>>>>The lsid queue has " + lsidQueue.size());
+                    try{
+                        Thread.currentThread().sleep(50);
+                    }
+                    catch(Exception e){
+                    
+                    }
+                }
+                               
             }
             catch(Exception e){
                 logger.error("Unable to reload " + geoLoads[0], e);
             }
         }
-        while(!lsidQueue.isEmpty()){
-                //logger.debug(">>>>>>The lsid queue has " + lsidQueue.size());
-            try{
-                Thread.currentThread().sleep(50);
-            }
-            catch(Exception e){
-                
-            }
-        }
+        
         primaryThread.shutdown();
     }
 
@@ -113,13 +114,15 @@ public class BiocacheDynamicLoader {
      *
      */
     private class IndexingThread implements Runnable{
-        private BlockingQueue<String> lsidQueue;
+        private BlockingQueue<String[]> lsidQueue;
         private SolrServer solrServer = null;
         private List<SolrInputDocument> docs = null;
         private boolean isPrimary =false;
         private boolean lookup = false;
         private int id;
-        IndexingThread(BlockingQueue<String> queue, List<SolrInputDocument> docs, int num){
+        private int count =0;
+        private long lastStart = System.currentTimeMillis(); 
+        IndexingThread(BlockingQueue<String[]> queue, List<SolrInputDocument> docs, int num){
             lsidQueue=queue;
             isPrimary = num==1;
             id = num;
@@ -134,9 +137,11 @@ public class BiocacheDynamicLoader {
             }
         }
         public void shutdown(){
-            try{                
+            try{ 
+                
                 index();
                 solrServer.commit();
+                logger.info("Finished loading");
             }
             catch(Exception e){
                 e.printStackTrace();
@@ -149,8 +154,19 @@ public class BiocacheDynamicLoader {
             try{
                 //logger.debug("sending " + docs.size() + " to the index");
                 synchronized(docs){
+                    count+=docs.size();
+                    logger.info("Adding items " + docs.size() + " to index");
                     solrServer.add(docs);                    
-                    docs.clear();
+                    
+                    long end = System.currentTimeMillis();
+                logger.info(count
+                        + " >> "
+                        + ", records per sec: " + ((float)docs.size()) / (((float)(end - lastStart)) / 1000f)
+                        + ", time taken for "+docs.size()+" records: " + ((float)(end - lastStart)) / 1000f
+                        + ", total time: "+ ((float)(end - start)) / 60000f +" minutes");
+                logger.info("");
+                docs.clear();
+                lastStart = System.currentTimeMillis();
                 }
             }
             catch(Exception e){
@@ -160,11 +176,14 @@ public class BiocacheDynamicLoader {
         public void run(){
             while(true){
                 if(lsidQueue.size()>0){
-                    String value = lsidQueue.poll();
+                    String value[] = lsidQueue.poll();
                     try{                      
-                      String lsid = lookup?taxonConceptDao.findLsidByName(value):value;
+                      String lsid = lookup?taxonConceptDao.findLsidByName(value[0]):value[0];
                       if(lsid != null){
-                          //logger.debug(id+">>Indexing " + lsid);
+                          logger.debug(id+">>Indexing " + lsid);
+                          Integer count= Integer.parseInt(value[1]);
+                          logger.debug("Updating: " + value[0] +" : " + count);
+                          taxonConceptDao.setGeoreferencedRecordsCount(lsid, count);
                           docs.addAll(taxonConceptDao.indexTaxonConcept(lsid));
                       }
                       else{
