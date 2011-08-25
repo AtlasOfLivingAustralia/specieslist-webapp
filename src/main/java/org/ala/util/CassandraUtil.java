@@ -198,8 +198,10 @@ public class CassandraUtil {
 
             if (tc != null && (APNI_INFOSOURCE_ID.equals(tc.getInfoSourceId()) || APC_INFOSOURCE_ID.equals(tc.getInfoSourceId()))) {
                 String infoSrcUrl = generateAPNIURLForGuid(guid);
-
-                tc.setInfoSourceURL(infoSrcUrl);
+                
+                if (infoSrcUrl != null && !"".equals(infoSrcUrl)) {
+                    tc.setInfoSourceURL(infoSrcUrl);
+                }
                 if (!taxonConceptDao.update(tc)) {
                     System.out.println("UPDATE FAILURE");
                 }
@@ -258,7 +260,9 @@ public class CassandraUtil {
         String newUrl = generateAPNIURLForGuid(guid);
 
         for (AttributableObject ao: toUpdate) {
-            ao.setInfoSourceURL(newUrl);
+            if (newUrl != null && !"".equals(newUrl)) {
+                ao.setInfoSourceURL(newUrl);
+            }
         }
 
         objects.addAll(toUpdate);
@@ -359,7 +363,9 @@ public class CassandraUtil {
                 String infoSrcUrl = tc.getInfoSourceURL();
                 infoSrcUrl = infoSrcUrl.substring(0, infoSrcUrl.lastIndexOf("/")+1) + scientificName;
                 //                System.out.println(guid + "::" + tc.getInfoSourceURL() + "::" + infoSrcUrl);
-                tc.setInfoSourceURL(infoSrcUrl);
+                if (infoSrcUrl != null && !"".equals(infoSrcUrl)) {
+                    tc.setInfoSourceURL(infoSrcUrl);
+                }
                 if (!taxonConceptDao.update(tc)) {
                     System.out.println("UPDATE FAILURE");
                 }
