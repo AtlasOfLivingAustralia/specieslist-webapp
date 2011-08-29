@@ -134,7 +134,7 @@ public class SearchController {
         sortDirection = getSortDirection(sortField, sortDirection);
                 
 		String queryJsEscaped = StringEscapeUtils.escapeJavaScript(query);
-		model.addAttribute("query", query);
+		model.addAttribute("query", query.trim());
 		model.addAttribute("queryJsEscaped", queryJsEscaped.replaceAll("[ ]{2,}", " "));
 		model.addAttribute("title", StringEscapeUtils.escapeJavaScript(title));
 				
@@ -143,16 +143,43 @@ public class SearchController {
         // then it is init search, do extra process as below...        
         SearchResultsDTO<SearchDTO> searchResults = null;
         if (filterQuery == null) {
+        	List<SearchDTO> result = null;
+        	boolean foundExact = false;
+        	
+        	// exact search for all records
         	filterQuery = new String[]{"australian_s:recorded"};
-        	searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-        	List<SearchDTO> result = searchResults.getResults();
-        	if(result == null || result.size() < 1){        		
-        		filterQuery = new String[]{""};
+        	searchResults = searchDao.doExactTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+        	result = searchResults.getResults();
+        	if(result != null && result.size() > 0){
+        		foundExact = true;
+        		model.addAttribute("isAustralian", true);
+        	}
+    		else{
+    			filterQuery = new String[]{""};
+            	searchResults = searchDao.doExactTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+            	result = searchResults.getResults();
+            	if(result != null && result.size() > 0){
+            		foundExact = true;
+            		model.addAttribute("isAustralian", false);
+            	}
+    		}
+        	
+        	
+        	if(foundExact){
         		searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-        		model.addAttribute("isAustralian", false);
         	}
         	else{
-        		model.addAttribute("isAustralian", true);
+	        	filterQuery = new String[]{"australian_s:recorded"};
+	        	searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+	        	result = searchResults.getResults();
+	        	if(result == null || result.size() < 1){        		
+	        		filterQuery = new String[]{""};
+	        		searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+	        		model.addAttribute("isAustralian", false);
+	        	}
+	        	else{
+	        		model.addAttribute("isAustralian", true);
+	        	}
         	}
         }
 		

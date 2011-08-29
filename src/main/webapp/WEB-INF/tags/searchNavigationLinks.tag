@@ -14,7 +14,11 @@
     <c:if test="${empty maxPageLinks}"><c:set var="maxPageLinks" value="10"/></c:if>
     <fmt:formatNumber var="pageNumber" value="${(startIndex / pageSize) + 1}" pattern="0" />
     <c:set var="hash" value=""/>
-    <c:set var="coreParams">?q=${param.q}<c:if test="${not empty paramValues.fq}">&fq=${fn:join(paramValues.fq, "&fq=")}</c:if>&sort=${param.sort}&dir=${param.dir}&pageSize=${pageSize}</c:set>
+    <c:set var="trimText" value=""/>
+    <c:if test="${not empty param.q}">
+    	<c:set var="trimText" value="${fn:trim(param.q)}"/>
+    </c:if>
+    <c:set var="coreParams">?q=${trimText}<c:if test="${not empty paramValues.fq}">&fq=${fn:join(paramValues.fq, "&fq=")}</c:if><c:if test="${empty paramValues.fq && pageNumber ==1}"><c:choose><c:when test="${not empty isAustralian}"><c:if test="${isAustralian}">&fq=australian_s:recorded</c:if><c:if test="${not isAustralian}">&fq=</c:if></c:when><c:otherwise>&fq=</c:otherwise></c:choose></c:if>&sort=${param.sort}&dir=${param.dir}&pageSize=${pageSize}</c:set>
     <!-- coreParams = ${coreParams} || lastPage = ${lastPage} || startIndex = ${startIndex} || pageNumber = ${pageNumber} -->
     <c:set var="startPageLink">
         <c:choose>
