@@ -1733,7 +1733,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 				// add multiple forms of the scientific name to the index
 				addScientificNameToIndex(doc, taxonConcept.getNameString(),
-						taxonConcept.getRankString());
+						taxonConcept.getRankString(), taxonConcept.getRankID());
 
 				if (taxonConcept.getParentGuid() != null) {
 					doc.addField("parentGuid", taxonConcept.getParentGuid());
@@ -1850,7 +1850,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						synonymDoc.addField("id", synonym.getGuid());
 						synonymDoc.addField("guid", taxonConcept.getGuid());
 						synonymDoc.addField("idxtype", IndexedTypes.TAXON);
-						addScientificNameToIndex(synonymDoc,synonym.getNameString(), null);
+						addScientificNameToIndex(synonymDoc,synonym.getNameString(), null, -1);
 						synonymDoc.addField("acceptedConceptName",taxonConcept.getNameString());
 						if (!commonNames.isEmpty()) {
 							synonymDoc.addField("commonNameSort", commonNames.get(0).getNameString());
@@ -2010,7 +2010,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @param taxonRank
 	 */
 	public void addScientificNameToIndex(SolrInputDocument doc,
-			String scientificName, String taxonRank) {
+			String scientificName, String taxonRank, int taxonRankId) {
 
 		NameParser nameParser = new NameParser();
 		Integer rankId = -1;
@@ -2031,6 +2031,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 
 		ParsedName parsedName = nameParser.parseIgnoreAuthors(normalized);
+//		parsedName.type.
 		// store scientific name values in a set before adding to Lucene so we
 		// don't get duplicates
 		TreeSet<String> sciNames = new TreeSet<String>();
@@ -2043,7 +2044,16 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			}
 
 			// add lowercased version
-			sciNames.add(parsedName.buildCanonicalName().toLowerCase());
+			// NameParser not working correctly, solr exact_text/scientificName field are incorrect.
+			// added condition check (eg: olearia)
+			if(!isIncorrectRank(parsedName, taxonRankId)){
+				sciNames.add(parsedName.buildCanonicalName().toLowerCase());
+			}
+			else{
+				//add the supplied scientific name
+				sciNames.add(scientificName.toLowerCase());
+			}
+			
 			// add to Lucene
 			for (String sciName : sciNames) {
 				// doc.add(new Field(SCI_NAME, sciName, Store.YES,
@@ -2054,12 +2064,17 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			Float boost = 0.8f;
 
 			if (rankId != null) {
-				if (rankId == 6000) {
-					// genus higher than species so it appears first
-					boost = 3f;
-				} else if (rankId == 7000) {
-					// species higher than subspecies so it appears first
-					boost = 2f;
+//				if (rankId == 6000) {
+//					// genus higher than species so it appears first
+//					boost = 3f;
+//				} else if (rankId == 7000) {
+//					// species higher than subspecies so it appears first
+//					boost = 2f;
+//				}
+				// boost the major taxon classification
+				// genus = 3f - kingdom;phylum;class;order;family;species = 2f - subspecies;section;....etc = null
+				if(RankType.getForId(rankId) != null && RankType.getForId(rankId).getBoost() != null){
+					boost = RankType.getForId(rankId).getBoost();
 				}
 			}
 
@@ -2085,6 +2100,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 	}
 
+	public boolean isIncorrectRank(ParsedName parsedName, int rankId) {
+		if (rankId>6000 && parsedName.rankMarker==null && (parsedName.infraSpecificEpithet==null && (parsedName.specificEpithet!=null || parsedName.infraGeneric==null))){ 
+			return true;
+		}
+        return false;
+    }
+	
 	/**
 	 * Add the rank to the search document.
 	 * 

@@ -220,4 +220,7 @@ public interface FulltextSearchDao {
     SearchResultsDTO<SearchDTO> findByUid(IndexedTypes indexType, String query,
             String[] filterQuery, Integer startIndex, Integer pageSize,
             String sortField, String sortDirection) throws Exception;
+    
+	public SearchResultsDTO<SearchDTO> doExactTextSearch(String query, String[] filterQuery, Integer startIndex, Integer pageSize, String sortField, String sortDirection) throws Exception;
+
 }

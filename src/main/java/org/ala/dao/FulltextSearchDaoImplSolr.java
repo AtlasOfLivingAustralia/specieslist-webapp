@@ -362,6 +362,23 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         return dto;
 	}
 
+	public SearchResultsDTO<SearchDTO> doExactTextSearch(String query, String[] filterQuery, Integer startIndex, Integer pageSize, String sortField, String sortDirection) throws Exception {
+		SearchResultsDTO<SearchDTO> dto = null;
+		
+        try {
+        	if(query!=null && query.length()>0){
+	        	String queryString = " exact_text:\"" + query.toLowerCase().trim() + "\"";
+	            dto = doSolrSearch(queryString, filterQuery, pageSize, startIndex, sortField, sortDirection); 
+        	}
+        } catch (SolrServerException ex) {
+            logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
+    		SearchResultsDTO searchResults = new SearchResultsDTO();
+            searchResults.setStatus("ERROR"); // TODO also set a message field on this bean with the error message(?)
+            return searchResults;
+        }
+        return dto;
+	}
+
 	/**
 	 * Retrieve a canonical form of the name to search with.
 	 * @param query
