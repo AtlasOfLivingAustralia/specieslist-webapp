@@ -815,6 +815,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
     	                                    			NOT
     	                                    		</c:if>
   	                                    			representative of ${extendedTaxonConcept.taxonConcept.nameString}
+  	                                    			 </p>
+                                	       </cite> 
         	                                </c:when>
             	                            <c:otherwise>
             	                            	Is this image representative of ${extendedTaxonConcept.taxonConcept.rankString} ?  
@@ -825,8 +827,9 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
    	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','<string:encodeUrl>${image.identifier}</string:encodeUrl>','${image.infoSourceId}','${image.documentId}',false,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  NO
    	            	                           </a>
-   	            	                           <c:if test="${not empty isRoleAdmin && isRoleAdmin}">
-   	            	                           	 |   	            	                           
+   	            	                           </p>
+                                	       </cite> 
+   	            	                           <c:if test="${not empty isRoleAdmin && isRoleAdmin}">            	                           
    	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','<string:encodeUrl>${image.identifier}</string:encodeUrl>','${image.infoSourceId}','${image.documentId}',true,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  BlackList
    	            	                           </a>
@@ -836,9 +839,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
 												</a>
    	            	                           </c:if>
                             	            </c:otherwise>
-                                	        </c:choose>   
-                                	       </p>
-                                	       </cite> 
+                                	        </c:choose>                                  	      
                                         </div>
                                     </c:forEach>
                                 </c:when>
