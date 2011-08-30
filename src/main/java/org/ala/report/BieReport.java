@@ -416,13 +416,13 @@ public class BieReport {
 		if(classifications.size() != 1){
 			return Taxa.INVALID;
 		}
-		if(PLANT_LIST.contains(classifications.get(0).getKingdom().toLowerCase())){
+		if(PLANT_LIST.contains(classifications.get(0).getKingdom() == null? classifications.get(0).getKingdom() : classifications.get(0).getKingdom().toLowerCase())){
 			taxa = Taxa.PLANT;
 		}
-		else if(INVERTEBRATE_LIST.contains(classifications.get(0).getPhylum().toLowerCase())){
+		else if(INVERTEBRATE_LIST.contains(classifications.get(0).getPhylum() == null? classifications.get(0).getPhylum():classifications.get(0).getPhylum().toLowerCase())){
 			taxa = Taxa.INVERTEBRATE;
 		}
-		else if(VERTEBRATE_LIST.contains(classifications.get(0).getPhylum().toLowerCase())){
+		else if(VERTEBRATE_LIST.contains(classifications.get(0).getPhylum() == null?classifications.get(0).getPhylum():classifications.get(0).getPhylum().toLowerCase())){
 			taxa = Taxa.VERTEBRATE;
 		}
 		return taxa;
