@@ -37,13 +37,11 @@ public class BiocacheDynamicLoader {
     protected SolrUtils solrUtils;
     private long start = System.currentTimeMillis();
     protected static Logger logger  = Logger.getLogger(BiocacheDynamicLoader.class);
-    private String[] geoLoads = new String[]{"http://biocache.ala.org.au/ws/occurrences/facets/download?q=data_resource_uid:dr344&facets=taxon_concept_lsid&count=true",
-            "http://biocache.ala.org.au/ws/occurrences/facets/download?q=data_resource_uid:dr344&facets=family&count=true"};//,"http://biocache.ala.org.au/ws/occurrences/facets/download?q=latitude:[* TO *]&facets=taxon_concept_lsid&count=true", "http://biocache.ala.org.au/ws/occurrences/facets/download?q=latitude:[* TO *]&facets=species_guid&count=true"};
+    private String suffix = "http://biocache.ala.org.au/ws/occurrences/facets/download?q=lat_long:%5B*+TO+*%5D&count=true&facets=";     
+    private String[] geoLoads = new String[]{"species_guid", "genus_guid","family","order","class","phylum","kingdom"};
     public static void main(String[] args) throws Exception {
         ApplicationContext context = SpringUtils.getContext();
         BiocacheDynamicLoader l = context.getBean(BiocacheDynamicLoader.class);
-        if(args.length>0)
-            l.geoLoads = args;
         l.load(5);
         System.exit(0);
     }
@@ -62,13 +60,17 @@ public class BiocacheDynamicLoader {
             new Thread(it).start();
            
         }
-        for(String loadUrl : geoLoads){
+        for(String load : geoLoads){
+            String loadUrl = suffix + load;
             logger.info("Starting to reload " + loadUrl);
-            GetMethod gm = new GetMethod(loadUrl);        
-            try{
-                httpClient.executeMethod(gm);
+                   
+            try{                
+                GetMethod gm = new GetMethod(loadUrl); 
+                logger.info("Response code for get method: " +httpClient.executeMethod(gm));
+                
                 CSVReader reader = new CSVReader(new InputStreamReader(gm.getResponseBodyAsStream(), gm.getResponseCharSet()));
                 String[] values = reader.readNext();
+                logger.info("values: " + values.length);
                 boolean lookup = !(values[0].contains("lsid") || values[0].contains("guid"));
                 primaryThread.setLookup(lookup);
                 for(IndexingThread it : otherThreads)
@@ -77,12 +79,7 @@ public class BiocacheDynamicLoader {
                 while(values!= null){
                     if(values.length == 2){
                         String lsid = lookup?taxonConceptDao.findLsidByName(values[0]):values[0];
-                        if(lsid != null && lsid.length()>0){
-                            //update the value of the count
-                            Integer count= Integer.parseInt(values[1]);
-                            //logger.debug("Updating: " + values[0] +" : " + count);
-                            taxonConceptDao.setGeoreferencedRecordsCount(values[0], count);
-                            //now add it to the lsidQueue
+                        if(lsid != null && lsid.length()>0){                            
                             lsidQueue.put(values);
                         }
                     }
@@ -98,14 +95,15 @@ public class BiocacheDynamicLoader {
                     
                     }
                 }
-                               
+                //after each level has been processed commit the index
+                primaryThread.commit();              
             }
             catch(Exception e){
                 logger.error("Unable to reload " + geoLoads[0], e);
             }
         }
         
-        primaryThread.shutdown();
+        
     }
 
     /**
@@ -136,7 +134,7 @@ public class BiocacheDynamicLoader {
                 }
             }
         }
-        public void shutdown(){
+        public void commit(){
             try{ 
                 
                 index();
@@ -154,9 +152,11 @@ public class BiocacheDynamicLoader {
             try{
                 //logger.debug("sending " + docs.size() + " to the index");
                 synchronized(docs){
-                    count+=docs.size();
-                    logger.info("Adding items " + docs.size() + " to index");
-                    solrServer.add(docs);                    
+                    if(docs.size() >0){
+                        count+=docs.size();
+                        logger.info("Adding items " + docs.size() + " to index");
+                        solrServer.add(docs);
+                    }
                     
                     long end = System.currentTimeMillis();
                 logger.info(count
