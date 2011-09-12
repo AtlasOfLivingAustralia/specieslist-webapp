@@ -291,6 +291,7 @@ public class RepoDataLoader {
 	private boolean sync(File currentFile, List<Triple> triples, String infosourceId) throws Exception {
 		
 		String documentId = currentFile.getParentFile().getName();
+		 
 		// Read dublin core
 		// Added info source data to the Document via info source Map
 		InfoSource infoSource = infoSourceMap.get(new Integer(infosourceId));
@@ -300,6 +301,13 @@ public class RepoDataLoader {
 		document.setInfoSourceName(infoSource.getName());
 		document.setInfoSourceUri(infoSource.getWebsiteUrl());
 		document.setFilePath(currentFile.getParentFile().getAbsolutePath());
+		
+		String infoSourceUid = infoSourceDAO.getUidByInfosourceId(String.valueOf(infoSource.getId()));
+		
+		if (infoSourceUid != null && !"".equals(infoSourceUid)) {
+		    document.setInfoSourceUid(infoSourceUid);
+		}
+		
 		Map<String, String> dc = readDcFileAsMap(currentFile);
 		// Sync the triples and associated DC data
 		logger.info("Attempting to sync triple where Scientific Name = " + getScientificName(triples));

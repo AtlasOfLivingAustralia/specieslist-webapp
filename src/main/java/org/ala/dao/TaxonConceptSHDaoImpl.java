@@ -1324,6 +1324,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						commonName.setNameString(commonNameString);
 						commonName.setInfoSourceId(Integer.toString(document
 								.getInfoSourceId()));
+						commonName.setInfoSourceUid(document
+                                .getInfoSourceUid());
 						commonName.setDocumentId(Integer.toString(document
 								.getId()));
 						commonName.setInfoSourceName(dcPublisher);
@@ -1351,6 +1353,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 							cs.setInfoSourceId(Integer.toString(document
 									.getInfoSourceId()));
+							cs.setInfoSourceUid(document
+	                                .getInfoSourceUid());
 							cs.setDocumentId(Integer.toString(document.getId()));
 							cs.setInfoSourceName(dcPublisher);
 							cs.setInfoSourceURL(dcSource);
@@ -1374,6 +1378,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 							ps.setInfoSourceId(Integer.toString(document
 									.getInfoSourceId()));
+							ps.setInfoSourceUid(document
+                                    .getInfoSourceUid());
 							ps.setDocumentId(Integer.toString(document.getId()));
 							ps.setInfoSourceName(dcPublisher);
 							ps.setInfoSourceURL(dcSource);
@@ -1401,6 +1407,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						simpleProperty.setName(triple.predicate);
 						simpleProperty.setValue(triple.object);
 						simpleProperty.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
+						simpleProperty.setInfoSourceUid(document.getInfoSourceUid());
 						simpleProperty.setDocumentId(Integer.toString(document.getId()));
 						simpleProperty.setInfoSourceName(dcPublisher);
 						simpleProperty.setInfoSourceURL(dcSource);
@@ -1433,6 +1440,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					}
 					image.setInfoSourceId(Integer.toString(document
 							.getInfoSourceId()));
+					image.setInfoSourceUid(document.getInfoSourceUid());
 					image.setDocumentId(Integer.toString(document.getId()));
 					image.setInfoSourceName(dcPublisher);
 					image.setInfoSourceURL(dcSource);
