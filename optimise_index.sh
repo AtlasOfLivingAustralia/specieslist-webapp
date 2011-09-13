@@ -1,8 +1,13 @@
 #!/bin/sh
-login_site=https://auth.ala.org.au/cas/login?service=http://diasbtest1.ala.org.au:8080/bie-webapp/admin/optimise
+
+# sample url
+#login_site=https://auth.ala.org.au/cas/login?service=http://diasbtest1.ala.org.au:8080/bie-webapp/admin/optimise
+#ws_site=http://diasbtest1.ala.org.au:8080/bie-webapp/admin/optimise
+
+login_site=https://auth.ala.org.au/cas/login?service=http://bie.ala.org.au/admin/optimise
 username=your.name@csiro.au
 password=yourPassword
-ws_site=http://diasbtest1.ala.org.au:8080/bie-webapp/admin/optimise
+ws_site=http://bie.ala.org.au/admin/optimise
 
 cookies=cookies.txt
 
