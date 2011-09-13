@@ -806,8 +806,12 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                          </c:otherwise>
                                         </c:choose>
 
-                                        <cite>
-                                     	<p class="imageRank-${image.documentId}">
+                                        
+<p class="imageRank-${image.documentId}">
+									<cite>
+                                     	<c:choose>
+                                     		<c:when test="${not isReadOnly}">
+                                     	                                    	
                                         <c:choose>
 	                                        <c:when test="${fn:contains(rankedImageUris,image.identifier)}">
     	                                    	You have ranked this image as 
@@ -815,8 +819,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
     	                                    			NOT
     	                                    		</c:if>
   	                                    			representative of ${extendedTaxonConcept.taxonConcept.nameString}
-  	                                    			 </p>
-                                	       </cite> 
+</p>
+</cite> 
         	                                </c:when>
             	                            <c:otherwise>
             	                            	Is this image representative of ${extendedTaxonConcept.taxonConcept.rankString} ?  
@@ -827,9 +831,9 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
    	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','<string:encodeUrl>${image.identifier}</string:encodeUrl>','${image.infoSourceId}','${image.documentId}',false,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  NO
    	            	                           </a>
-   	            	                           </p>
                                 	       </cite> 
-   	            	                           <c:if test="${not empty isRoleAdmin && isRoleAdmin}">            	                           
+   	            	                           <c:if test="${not empty isRoleAdmin && isRoleAdmin}"> 
+         	                           
    	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','<string:encodeUrl>${image.identifier}</string:encodeUrl>','${image.infoSourceId}','${image.documentId}',true,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  BlackList
    	            	                           </a>
@@ -837,9 +841,20 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
 												<a class="isnotrepresent" href="#" onClick="editThisImage('${extendedTaxonConcept.taxonConcept.guid}','<string:encodeUrl>${image.identifier}</string:encodeUrl>');return false;">
 													Edit
 												</a>
+
    	            	                           </c:if>
+</p>   	            	                           
                             	            </c:otherwise>
-                                	        </c:choose>                                  	      
+                                	        </c:choose>
+                                	        
+                                	        </c:when>
+                                     		<c:otherwise>
+                                     			<br/>
+                                     			<b>Read Only Mode</b>
+</p>                                     			
+                                     		</c:otherwise>
+                                     	</c:choose>
+                                     	                                     	                                  	      
                                         </div>
                                     </c:forEach>
                                 </c:when>
@@ -1038,6 +1053,10 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     	<tr>
                             <td>
                             	${nkey}                    	
+
+<c:choose>
+<c:when test="${not isReadOnly}">						
+							
 							<c:choose>
                             <c:when test="${fn:contains(rankedImageUris,fName)}">
                             <p>  
@@ -1060,7 +1079,16 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                 	</div>
                                 </c:if> 
                                 </c:otherwise>
-                                </c:choose>                         
+                                </c:choose>
+                                
+</c:when>
+<c:otherwise>
+<div id='cnRank-${fName}' class="rankCommonName">
+Read Only Mode
+</div>
+</c:otherwise>
+</c:choose>
+                                                         
                             </td>
                             <td class="source">
                                 <c:forEach items="${sortCommonNameSources[nkey]}" var="commonName">

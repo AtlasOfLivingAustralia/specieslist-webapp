@@ -62,6 +62,7 @@ import org.ala.model.TaxonConcept;
 import org.ala.repository.Predicates;
 import org.ala.util.ImageUtils;
 import org.ala.util.MimeType;
+import org.ala.util.ReadOnlyLock;
 import org.ala.util.RepositoryFileUtils;
 import org.ala.util.StatusType;
 import org.ala.util.WebUtils;
@@ -441,6 +442,8 @@ public class SpeciesController {
         }        
         sb.append("get ETC:" + (System.currentTimeMillis() - startTime));
         startTime = System.currentTimeMillis();
+        
+        model.addAttribute("isReadOnly", ReadOnlyLock.getInstance().isReadOnly());
         
         //remove blackListed image...
         etc.setImages(removeBlackListedImageItem(etc.getImages()));        

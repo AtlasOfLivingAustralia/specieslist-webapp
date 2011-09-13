@@ -50,13 +50,14 @@
         <param-value>http://localhost:8080</param-value>
     </context-param>
 
-    <!-- bie admin server url -->
+    <!-- bie admin server url (NOT USED)-->
+    <!-- 
     <context-param>
-        <!-- Parameter used by CAS filters -->
         <param-name>bieAdminServerName</param-name>
         <param-value>http://diasbtest1.ala.org.au:8080/bie-admin</param-value>
     </context-param>
-
+	-->
+	
     <context-param>
         <param-name>casServerName</param-name>
         <param-value>https://auth.ala.org.au</param-value>
@@ -84,7 +85,7 @@
 
     <context-param>
         <param-name>uriFilterPattern</param-name>
-        <param-value></param-value>
+        <param-value>/admin, /admin/edit*, /admin/upload, /admin/multiUpload, /admin/multiUpload/.*, /admin/optimise, /admin/reloadAllRanks, /admin/loadCaab</param-value>
     </context-param>
 
     <context-param>

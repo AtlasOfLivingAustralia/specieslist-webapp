@@ -108,4 +108,11 @@
     <!-- Over-ride bean properties - including dataSource configs -->
     <context:property-override location="classpath:bie.properties" ignore-unresolvable="true" ignore-resource-not-found="true"/>
     
+    <!-- bie-admin -->
+    <!-- Configure the multipart resolver -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- one of the properties available; the maximum file size in bytes -->
+        <property name="maxUploadSize" value="10000000"/>
+    </bean>
+    
 </beans>
