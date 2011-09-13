@@ -230,6 +230,7 @@ public class RepoDataLoader {
 				if (currentFile.getName().equals(FileType.RDF.toString())) {
 					filesRead++;
 					String infosourceId = currentFile.getParentFile().getParentFile().getParentFile().getName();
+					String infoSourceUid = infoSourceDAO.getUidByInfosourceId(String.valueOf(infosourceId));
 					//read the dublin core in the same directory - determine if its an image
 					try {
 	                    logger.info("Reading file: " + currentFile.getAbsolutePath());
@@ -250,7 +251,7 @@ public class RepoDataLoader {
 	                    		//sync these triples
 //								/data/bie/1036/23/235332/rdf
 								
-								boolean success = sync(currentFile, splitBySubject, infosourceId);
+								boolean success = sync(currentFile, splitBySubject, infosourceId, infoSourceUid);
 								if (success) {
 									propertiesSynced++;
 								}
@@ -263,7 +264,7 @@ public class RepoDataLoader {
 	
 	                    //sort out the buffer
 						if (!splitBySubject.isEmpty()) {
-							boolean success = sync(currentFile, splitBySubject, infosourceId);
+							boolean success = sync(currentFile, splitBySubject, infosourceId, infoSourceUid);
 							if (success) {
 								propertiesSynced++;
 							}
@@ -288,7 +289,7 @@ public class RepoDataLoader {
 	 * @param triples
 	 * @throws Exception
 	 */
-	private boolean sync(File currentFile, List<Triple> triples, String infosourceId) throws Exception {
+	private boolean sync(File currentFile, List<Triple> triples, String infosourceId, String infoSourceUid) throws Exception {
 		
 		String documentId = currentFile.getParentFile().getName();
 		 
@@ -302,7 +303,7 @@ public class RepoDataLoader {
 		document.setInfoSourceUri(infoSource.getWebsiteUrl());
 		document.setFilePath(currentFile.getParentFile().getAbsolutePath());
 		
-		String infoSourceUid = infoSourceDAO.getUidByInfosourceId(String.valueOf(infoSource.getId()));
+		
 		
 		if (infoSourceUid != null && !"".equals(infoSourceUid)) {
 		    document.setInfoSourceUid(infoSourceUid);
