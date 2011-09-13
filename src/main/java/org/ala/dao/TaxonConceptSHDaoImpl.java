@@ -1718,6 +1718,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			if (count != null) {
 				doc.addField("occurrenceCount", count);
 			}
+			//Index the Georeferenced count
+			Integer gsCount= getGeoreferencedRecordsCount(guid);
+			if(gsCount != null){
+			    doc.addField("georeferencedCount", gsCount);
+			}
 
 			if (taxonConcept.getNameString() != null) {
 
@@ -2280,6 +2285,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				ColumnType.OCCURRENCE_RECORDS_COUNT_COL
 						.getColumnName(), guid, Integer.class);
 	}
+	
+	public Integer getGeoreferencedRecordsCount(String guid) throws Exception {
+        return (Integer) storeHelper.get(TC_TABLE, TC_COL_FAMILY,
+                ColumnType.GEOREF_RECORDS_COUNT_COL
+                        .getColumnName(), guid, Integer.class);
+    }
 
 	public boolean addIdentificationKeys(String guid,
 			List<IdentificationKey> identificationKeyList) throws Exception {

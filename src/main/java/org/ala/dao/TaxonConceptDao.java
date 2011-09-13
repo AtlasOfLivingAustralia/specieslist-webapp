@@ -250,6 +250,14 @@ public interface TaxonConceptDao {
      * @throws Exception
      */
     Integer getOccurrenceRecordCount(String guid) throws Exception;
+    
+    /**
+     * Retrieves the number of occurrences that are georeferenced for this taxon concept
+     * @param guid
+     * @return
+     * @throws Exception
+     */
+    Integer getGeoreferencedRecordsCount(String guid) throws Exception;
 
 	/**
 	 * Store the following taxon concept
