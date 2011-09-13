@@ -1,7 +1,7 @@
 #!/bin/sh
 login_site=https://auth.ala.org.au/cas/login?service=http://diasbtest1.ala.org.au:8080/bie-webapp/admin/optimise
-username=waiman.mok@csiro.au
-password=password
+username=your.name@csiro.au
+password=yourPassword
 ws_site=http://diasbtest1.ala.org.au:8080/bie-webapp/admin/optimise
 
 cookies=cookies.txt
