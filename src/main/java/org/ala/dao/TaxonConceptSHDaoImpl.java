@@ -114,7 +114,8 @@ import org.ala.util.RankingType;
  */
 @Component("taxonConceptDao")
 public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
-
+	public static final String DEFAULT_NAME_VALUE_FIELD_NAME = "defaultValue";
+	
 	static Logger logger = Logger.getLogger(TaxonConceptSHDaoImpl.class);
 
 	/** FIXME To be moved to somewhere more maintainable */
@@ -2710,37 +2711,55 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				columnType.getColumnName(), guid, columnType.getClazz());
 	}
 			
-	private Rankable changeRanking(Rankable rankable, BaseRanking ir){
+	private Rankable changeRanking(Rankable rankable, BaseRanking ir, boolean hasNameDefault){
 		if(ir.isBlackListed()){
 			rankable.setIsBlackListed(ir.isBlackListed());
 		}
 		else{
 			Integer ranking = rankable.getRanking();
 			Integer noOfRankings = rankable.getNoOfRankings();
-			if(noOfRankings == null){
-				noOfRankings = 0;
+
+			if(hasNameDefault){
+				if(noOfRankings == null){
+					noOfRankings = 0;
+				}
+				if (ranking == null) {
+					ranking = 100000;
+				}
+				else{
+					ranking += 100000;
+				}
 			}
-			if (ranking == null) {
-				if (ir.isPositive()) {
-					ranking = new Integer(1);
-				} else {
-					ranking = new Integer(-1);
+			else{
+				if(noOfRankings == null){
+					noOfRankings = 0;
 				}
-				noOfRankings = new Integer(1);
-			} else {
-				if (ir.isPositive()) {
-					ranking++;
+				if (ranking == null) {
+					if (ir.isPositive()) {
+						ranking = new Integer(1);
+					} else {
+						ranking = new Integer(-1);
+					}
+					noOfRankings = new Integer(1);
 				} else {
-					ranking--;
+					if (ir.isPositive()) {
+						ranking++;
+					} else {
+						ranking--;
+					}
+					noOfRankings++;
 				}
-				noOfRankings++;
 			}
 			rankable.setRanking(ranking);				
 			rankable.setNoOfRankings(noOfRankings);
 		}		
 		return rankable;
 	}
-		
+	
+	public boolean setRanking(String guid, ColumnType columnType, BaseRanking baseRanking)throws Exception{
+		return setRanking(guid, columnType, baseRanking, true);
+	}
+	
 	/**
 	 *  increase/decrease ranking no in 'tc' column type, and update solr index.
 	 *  
@@ -2748,7 +2767,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 *  @param columnType 'tc' column type
 	 *  @param baseRanking 'rk' column data
 	 */
-	public boolean setRanking(String guid, ColumnType columnType, BaseRanking baseRanking)throws Exception{
+	public boolean setRanking(String guid, ColumnType columnType, BaseRanking baseRanking, boolean reindex)throws Exception{
 		List list = new ArrayList();
 		
 		RankingType rt = RankingType.getRankingTypeByTcColumnType(columnType);
@@ -2759,24 +2778,33 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			// All Rankable object are extended from AttributableObject, eg: 'identifier' is 
 			// a field name of AttributableObject, it stored the uri value.			
 			boolean ok = true;
+			boolean hasNameDefault = false;
+			
 			Map<String, String> map = baseRanking.getCompareFieldValue();				
 			if(map != null){
 				Set keys = map.keySet();
+				// for loading perfered name default value = 100000
+				if(keys.contains(DEFAULT_NAME_VALUE_FIELD_NAME)){
+					hasNameDefault = true;
+				}
+				
 				Iterator itr = keys.iterator();
 				while(itr.hasNext()){
 					String key = (String) itr.next();
-					String value = URLDecoder.decode(BeanUtils.getProperty(rankable, key), "UTF-8");
-					String compareValue = URLDecoder.decode(map.get(key), "UTF-8");
-					logger.debug("**** setRanking() - value: " + value + ", compareValue: " + compareValue);
-					if(!compareValue.equalsIgnoreCase(value)){
-						ok = false;
-						break;
+					if(!DEFAULT_NAME_VALUE_FIELD_NAME.equalsIgnoreCase(key)){
+						String value = URLDecoder.decode(BeanUtils.getProperty(rankable, key) != null?BeanUtils.getProperty(rankable, key):"", "UTF-8");
+						String compareValue = URLDecoder.decode(map.get(key), "UTF-8");
+						logger.debug("**** setRanking() - value: " + value + ", compareValue: " + compareValue);
+						if(!compareValue.equalsIgnoreCase(value)){
+							ok = false;
+							break;
+						}
 					}
 				}
 			}
 			logger.debug("**** setRanking() - ok: " + ok);
 			if(ok){
-				list.add(changeRanking(rankable, baseRanking));	
+				list.add(changeRanking(rankable, baseRanking, hasNameDefault));	
 			}
 			else{
 				list.add(rankable);	
@@ -2787,7 +2815,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		Collections.sort(list);
 				
 		boolean ok = storeHelper.putList(TC_TABLE, TC_COL_FAMILY, columnType.getColumnName(), guid, (List)list, false);
-		if(ok){
+		if(ok && reindex){
 			List<SolrInputDocument> docList = indexTaxonConcept(guid);
 			SolrServer solrServer = solrUtils.getSolrServer();
 			if(solrServer != null){
@@ -2891,4 +2919,23 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
         }
 	}
 	*/	
+		
+	public void resetRanking(String guid, ColumnType columnType, Integer value)throws Exception{
+		List list = new ArrayList();
+		
+		RankingType rt = RankingType.getRankingTypeByTcColumnType(columnType);
+		List<Rankable> objs = getColumn(columnType, guid);		
+		for (Rankable rankable : objs) {
+			if(value == null){
+				rankable.setRanking(0);				
+				rankable.setNoOfRankings(0);
+			}
+			else{
+				rankable.setRanking(value);				
+				rankable.setNoOfRankings(value);				
+			}
+			list.add(rankable);			
+		}
+		storeHelper.putList(TC_TABLE, TC_COL_FAMILY, columnType.getColumnName(), guid, (List)list, false);
+	}		
 }

@@ -14,11 +14,12 @@
  ***************************************************************************/
 package org.ala.dao;
 
-import java.io.IOException;
+import java.io.File;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,21 +28,24 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import org.ala.model.Ranking;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import org.ala.util.ColumnType;
 import org.ala.util.RankingType;
+import org.ala.util.ReadOnlyLock;
 import org.ala.util.SpringUtils;
 import org.ala.model.BaseRanking;
 import org.ala.dto.FacetResultDTO;
 import org.ala.dto.FieldResultDTO;
-import org.ala.dto.SearchResultsDTO;
+import org.gbif.file.CSVReader;
+
+import au.org.ala.data.model.LinnaeanRankClassification;
 
 /**
  * Simple ranking DAO implementation
@@ -57,7 +61,7 @@ public class RankingDaoImpl implements RankingDao {
 	
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
-	
+		
 	public boolean rankImageForTaxon(
 			String userIP,
 			String userId,
@@ -84,28 +88,30 @@ public class RankingDaoImpl implements RankingDao {
 			Integer imageInfoSourceId,
 			boolean blackList,
 			boolean positive) throws Exception {
+		if(!ReadOnlyLock.getInstance().isReadOnly()){			
+			Ranking r = new Ranking();
+			if(blackList){
+				r.setBlackListed(blackList);
+			}
+			else{
+				r.setPositive(positive);
+			}
 			
-		Ranking r = new Ranking();
-		if(blackList){
-			r.setBlackListed(blackList);
+			r.setUri(imageUri);
+			r.setUserId(userId);
+			r.setFullName(fullName);
+			r.setUserIP(userIP);
+			
+			//store the ranking event
+			logger.debug("Storing the rank event...");
+			storeHelper.put("rk", "rk", "image", ""+System.currentTimeMillis(), taxonGuid, r);
+			logger.debug("Updating the images ranking...");
+			taxonConceptDao.setRankingOnImage(taxonGuid, imageUri, positive, blackList);
+			logger.debug("Finished updating ranking");
+			
+			return true;
 		}
-		else{
-			r.setPositive(positive);
-		}
-		
-		r.setUri(imageUri);
-		r.setUserId(userId);
-		r.setFullName(fullName);
-		r.setUserIP(userIP);
-		
-		//store the ranking event
-		logger.debug("Storing the rank event...");
-		storeHelper.put("rk", "rk", "image", ""+System.currentTimeMillis(), taxonGuid, r);
-		logger.debug("Updating the images ranking...");
-		taxonConceptDao.setRankingOnImage(taxonGuid, imageUri, positive, blackList);
-		logger.debug("Finished updating ranking");
-		
-		return true;
+		return false;
 	}
         /**
          * @see org.ala.dao.RankingDao#reloadImageRanks() 
@@ -194,22 +200,24 @@ public class RankingDaoImpl implements RankingDao {
 	 * @see org.ala.dao.RankingDao#rankImageForTaxon(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Integer, boolean)
 	 */
 	public boolean rankingForTaxon(String guid, ColumnType columnType, BaseRanking baseRanking) throws Exception {
-		RankingType rankingType = RankingType.getRankingTypeByTcColumnType(columnType);		
-		
-		String key = "" + System.currentTimeMillis();
-		//save rk table	
-		storeHelper.put(rankingType.getColumnFamily(), rankingType.getColumnFamily(), rankingType.getSuperColumnName(), key, guid, baseRanking);
-/*
-		// save tc table
-		taxonConceptDao.setRanking(guid, rankingType.getColumnType(), baseRanking);
-		// update 'rk' solr index
-		addRankingIndex(rankingType, baseRanking, key, guid);
-*/
-		// update tc & rk solr index in separate thread
-		Thread thread1 = new Thread(new RankingUpdateSolrThread(guid, rankingType, baseRanking, key)); 
-		thread1.start();
-				
-		return true;
+		if(!ReadOnlyLock.getInstance().isReadOnly()){
+			RankingType rankingType = RankingType.getRankingTypeByTcColumnType(columnType);		
+			
+			String key = "" + System.currentTimeMillis();
+			//save rk table	
+			storeHelper.put(rankingType.getColumnFamily(), rankingType.getColumnFamily(), rankingType.getSuperColumnName(), key, guid, baseRanking);
+	/*
+			// save tc table
+			taxonConceptDao.setRanking(guid, rankingType.getColumnType(), baseRanking);
+			// update 'rk' solr index
+			addRankingIndex(rankingType, baseRanking, key, guid);
+	*/
+			// update tc & rk solr index in separate thread
+			Thread thread1 = new Thread(new RankingUpdateSolrThread(guid, rankingType, baseRanking, key)); 
+			thread1.start();
+			return true;
+		}	
+		return false;
 	}	
 		
 	/**
@@ -302,9 +310,40 @@ public class RankingDaoImpl implements RankingDao {
 	public static void main(String[] args){
 		try {
 			ApplicationContext context = SpringUtils.getContext();
-			RankingDao rankingDao = context.getBean(RankingDaoImpl.class);
-			FulltextSearchDao searchDao = context.getBean(FulltextSearchDaoImplSolr.class);
-			
+			RankingDao rankingDao = context.getBean(RankingDaoImpl.class);						
+			if(args.length ==1){
+		        try{
+		            if(args[0].equals("-caab"))
+		            	rankingDao.loadCAAB();
+		        }
+		        catch(Exception e){
+		            e.printStackTrace();
+		        }
+		        
+		        try{
+		            if(args[0].equals("-reload"))
+		            	rankingDao.reloadAllRanks();
+		        }
+		        catch(Exception e){
+		            e.printStackTrace();
+		        }
+		        
+		        try{
+		            if(args[0].equals("-optimise"))
+		            	rankingDao.optimiseIndex();
+		        }
+		        catch(Exception e){
+		            e.printStackTrace();
+		        }
+	        }
+		    else{
+		    	System.out.println("Please provide args: -reload or -caab");
+		    }
+
+/*	
+//below code for debug only .......
+
+			FulltextSearchDao searchDao = context.getBean(FulltextSearchDaoImplSolr.class);		
 			//create ranking solr index of 'rk' columnFamily
 //			rankingDao.createIndex();
 			
@@ -342,11 +381,12 @@ public class RankingDaoImpl implements RankingDao {
 			System.out.println("\n===========================\n");
 			result = searchDao.getUserIdFacetByGuid(guid);
 			printFacetResult(result);
-		} catch (Exception e) {
+*/				
+		} 
+		catch (Exception e) {
 			e.printStackTrace();
-		}
-		
-		System.exit(0);
+		}	
+		System.exit(0);		
 	}	
 	
 	/*
@@ -376,5 +416,268 @@ public class RankingDaoImpl implements RankingDao {
 				logger.error(e);
 			}     		
 		}
-	}	
+	}
+	
+	private void resetRanks() throws Exception{
+		int ctr = 0;
+		//reset image ranking to zero
+		logger.debug("Reset Image Rank...");
+        Scanner scanner;
+		scanner = storeHelper.getScanner("bie", RankingType.RK_IMAGE.getColumnFamily(), RankingType.RK_IMAGE.getSuperColumnName());
+        byte[] guidAsBytes = null;
+        try{
+	        while((guidAsBytes = scanner.getNextGuid()) != null){
+	            String guid = new String(guidAsBytes);
+	            logger.debug("Processing Image ranks for " +guid);
+	            taxonConceptDao.resetRanking(guid, ColumnType.IMAGE_COL, 0);
+	            ctr++;
+	        }
+        }
+        catch(Exception e){
+        	e.printStackTrace();
+        }
+        
+        //reset commonName ranking to zero
+        logger.debug("Reset common Name Rank...");
+        scanner = storeHelper.getScanner("bie", RankingType.RK_COMMON_NAME.getColumnFamily(), RankingType.RK_COMMON_NAME.getSuperColumnName());
+        try{
+	        while((guidAsBytes = scanner.getNextGuid()) != null){
+	            String guid = new String(guidAsBytes);
+	            logger.debug("Processing Image ranks for " +guid);
+	            taxonConceptDao.resetRanking(guid, ColumnType.VERNACULAR_COL, 0);
+	            ctr++;
+	        }
+        }
+        catch(Exception e){
+        	e.printStackTrace();
+        }
+        logger.debug("Reset Ranks finished... records count = " + ctr);
+	}
+		
+	private void reloadRanks() throws Exception {
+		SolrServer solrServer = solrUtils.getSolrServer();
+		long start = System.currentTimeMillis();
+		Map<String, String> compareFieldValue = new HashMap<String, String>();
+    	int i = 0;
+    	int j = 0;
+    	logger.debug("reload Ranks...");
+		Scanner scanner = storeHelper.getScanner(RK_COLUMN_FAMILY, RK_COLUMN_FAMILY);		
+		byte[] guidAsBytes = null;		
+		while ((guidAsBytes = scanner.getNextGuid())!=null) {    		
+			String guid = new String(guidAsBytes);
+			i++;
+			
+			if(i%1000==0){
+				logger.info("Indexed records: "+i+", current guid: "+guid);
+			}
+			try{			
+	    		//get taxon concept details
+				List<String> list = storeHelper.getSuperColumnsByGuid(guid, RK_COLUMN_FAMILY);
+				for(String superColumnName : list){
+					RankingType rankingType = RankingType.getRankingTypeByColumnName(superColumnName);
+	//				Map<String, List<Comparable>> columnList = storeHelper.getColumnList(RK_COLUMN_FAMILY, superColumnName, guid, rankingType.getClazz());
+					Map<String, List<Comparable>> columnList = storeHelper.getColumnList(RK_COLUMN_FAMILY, superColumnName, guid, BaseRanking.class);
+					Set<String> keys = columnList.keySet();
+					Iterator<String> itr = keys.iterator();
+					while(itr.hasNext()){
+						String key = itr.next();
+						List<Comparable> rankingList = columnList.get(key);
+						for(Comparable c : rankingList){
+							BaseRanking br = (BaseRanking)c;
+							if("rk".equalsIgnoreCase(superColumnName)){
+								//old record convert to baseRanking
+								compareFieldValue.clear();
+								compareFieldValue.put("identifier", br.getUri());
+								br.setCompareFieldValue(compareFieldValue);	
+								rankingType = RankingType.RK_IMAGE;
+							}
+							// defaultNameValue
+							else if(RankingType.RK_NAME_VALUE.getSuperColumnName().equalsIgnoreCase(superColumnName)){
+								compareFieldValue.clear();
+								compareFieldValue.put("nameString", key);
+								compareFieldValue.put("identifier", br.getUri());
+								compareFieldValue.put("defaultValue", "100000");
+								
+								br.setCompareFieldValue(compareFieldValue);							
+								rankingType = RankingType.RK_COMMON_NAME;
+							}
+							//no reindex by each common name						
+							taxonConceptDao.setRanking(guid, rankingType.getColumnType(), br, false);
+				            
+							j++;
+							if(j%1000==0){
+								logger.info("Indexed records: "+j+", current guid: "+guid);
+							}
+						}
+					}
+				}
+				//reindex whole row record
+				List<SolrInputDocument> docList = taxonConceptDao.indexTaxonConcept(guid);
+				if(solrServer == null){
+					solrServer = solrUtils.getSolrServer();
+				}
+				if(solrServer != null && docList != null && docList.size() > 0){
+					solrServer.add(docList);
+				}			
+			}
+			catch(Exception ex){
+				logger.error("***** guid: " + guid + " ," + ex);
+			}
+    	}
+		if(solrServer == null){
+			solrServer = solrUtils.getSolrServer();
+		}
+		if(solrServer != null){
+			solrServer.commit();
+		}
+		
+    	long finish = System.currentTimeMillis();
+    	logger.info("Index created in: "+((finish-start)/1000)+" seconds with  species: " + i + ", column items: " + j);
+    	logger.debug("reload Ranks finished...");
+	}
+	
+	public boolean optimiseIndex() throws Exception{
+		Calendar ticket = null;
+		boolean completed = false;
+		
+		try{
+			if(!ReadOnlyLock.getInstance().isReadOnly()){
+				ticket = Calendar.getInstance(); 			
+				if(ReadOnlyLock.getInstance().setLock(ticket)){	
+					logger.info("**** setLock-isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());
+					if(solrServer == null){
+						solrServer = solrUtils.getSolrServer();
+					}
+					if(solrServer != null){
+						solrServer.optimize();
+						completed = true;
+					}
+				}
+				else{
+					logger.info("**** isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());
+				}
+				logger.info("optimiseIndex in (sec): "+((Calendar.getInstance().getTimeInMillis() - ticket.getTimeInMillis())/1000));
+			}
+			else{
+				logger.info("**** isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());
+			}			
+		}
+		finally{
+			if(ReadOnlyLock.getInstance().isReadOnly()){
+				ReadOnlyLock.getInstance().setUnlock(ticket);
+				logger.info("**** setUnlock-isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());
+			}			
+		}
+		return completed;
+	}
+	
+	public boolean reloadAllRanks() throws Exception{
+		Calendar ticket = null;
+		boolean completed = false;
+		
+		try{
+			if(!ReadOnlyLock.getInstance().isReadOnly()){ 
+				ticket = Calendar.getInstance(); 			
+				if(ReadOnlyLock.getInstance().setLock(ticket)){			
+					logger.info("**** setLock-isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());
+					
+					// reset ranking to zero in tc[guid][hasImage] & tc[guid][hasVernacularConcept]
+					resetRanks();
+					// reapply all ranks based on bie 'rk' table
+					reloadRanks();	
+					completed = true;
+				}
+				else{
+					logger.info("**** isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());
+				}
+				logger.info("reloadAllRanks in (sec): "+((Calendar.getInstance().getTimeInMillis() - ticket.getTimeInMillis())/1000));
+			}
+			else{
+				logger.info("**** isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());
+			}			
+		}
+		finally{
+			if(ReadOnlyLock.getInstance().isReadOnly()){
+				ReadOnlyLock.getInstance().setUnlock(ticket);
+				logger.info("**** setUnlock-isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());
+			}			
+		}
+		return completed;
+	}
+
+	/** copied from StandardNameLoader.java **/
+    // apply commonName default value = 100000 into 'rk' table
+    public boolean loadCAAB() throws Exception{
+    	Calendar ticket = null;
+    	boolean completed = false;
+    	try{
+    		if(!ReadOnlyLock.getInstance().isReadOnly()){
+    			ticket = Calendar.getInstance(); 			
+				if(ReadOnlyLock.getInstance().setLock(ticket)){	
+					logger.info("**** setLock-isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());
+					
+			    	File file = new File("/data/bie-staging/vernacular/caab/caab-fishes-standard-names-20101209.csv");
+			        CSVReader reader = CSVReader.buildReader(file, "UTF-8", ',', '"', 1);
+			        while(reader.hasNext()){
+			            String[] values = reader.readNext();
+			            if(values != null && values.length>=7){
+			                //only want to handle the "australian" region for now
+			                //Tony Rees comment:
+			                /*
+			                 FYI the "List Status Code" = "A" for fishes quoted as occurring in
+			                 Australian waters (not including sub/antarctic territories e.g. Macquarie I,
+			                 heard/MacDonald, and AAT), plus a few "R" which is in the Australian region
+			                 of interest adjacent to the EEZ but not actually in it
+			                 (maybe a bit north, or Tasman Sea). I have left these in the list
+			                 in case they are needed.
+			                 */
+			                if(values[0].equals("A")){
+			                    String identifier = "http://www.marine.csiro.au/caabsearch/caab_search.caab_report?spcode=" + values[1];
+			                    LinnaeanRankClassification cl = new LinnaeanRankClassification(null, null, null, null, values[6], null, values[2]);
+			                    String name = values[4];
+			                    if(StringUtils.isEmpty(name)){
+			                        if(!values[5].startsWith("["))
+			                            name = values[5];
+			                    }
+			                    if(!StringUtils.isEmpty(name)){
+			                        loadCommonName(cl, name, identifier);
+			                    }	
+			                }		
+			            }
+			        }
+			        taxonConceptDao.reportStats(System.out, "Final CAAB name stats: ");
+			        completed = true;
+				}
+				else{
+					logger.info("**** isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());
+				}
+				logger.info("loadCAAB in (sec): "+((Calendar.getInstance().getTimeInMillis() - ticket.getTimeInMillis())/1000));
+    		}
+			else{
+				logger.info("**** isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());
+			}
+    	}
+    	finally{
+			if(ReadOnlyLock.getInstance().isReadOnly()){
+				ReadOnlyLock.getInstance().setUnlock(ticket);
+				logger.info("**** setUnlock-isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());				
+			}    		
+    	}        
+    	return completed;
+    }   
+    
+    private void loadCommonName(LinnaeanRankClassification cl,String commonName, String identifier) throws Exception{    	    	
+    	String guid = taxonConceptDao.findLsidByName(cl.getScientificName(), cl, null);
+        if(guid != null && commonName != null && commonName.length() > 0){
+        	BaseRanking br = new BaseRanking();
+        	br.setUri(identifier);
+        	
+			//save rk table	
+    		storeHelper.put(RankingType.RK_NAME_VALUE.getColumnFamily(), RankingType.RK_NAME_VALUE.getColumnFamily(), RankingType.RK_NAME_VALUE.getSuperColumnName(), commonName.trim(), guid, br);
+        }
+        else{
+            logger.info("Unable to locate " + cl.getScientificName());
+        }
+    }
+		    
 }

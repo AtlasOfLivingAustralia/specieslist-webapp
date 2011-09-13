@@ -36,7 +36,8 @@ public enum RankingType {
 //	RK_COMMON_NAME("rk", "commonName", ColumnType.VERNACULAR_COL, BaseRanking.class);
 
 	RK_IMAGE("rk", "image", ColumnType.IMAGE_COL, new String[]{"identifier"}), 
-	RK_COMMON_NAME("rk", "commonName", ColumnType.VERNACULAR_COL, new String[]{"nameString"});
+	RK_COMMON_NAME("rk", "commonName", ColumnType.VERNACULAR_COL, new String[]{"nameString"}),
+	RK_NAME_VALUE("rk", "defaultNameValue", ColumnType.VERNACULAR_COL, new String[]{"nameString","identifier"});
 
 	private String superColumnName;
 	private String columnFamily;

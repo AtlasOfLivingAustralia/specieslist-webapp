@@ -837,5 +837,8 @@ public interface TaxonConceptDao {
 	public String findLSIDByConcatName(String concatName);
 	
 	public boolean setRanking(String guid, ColumnType columnType, BaseRanking ir)throws Exception;
+	public boolean setRanking(String guid, ColumnType columnType, BaseRanking baseRanking, boolean reindex)throws Exception;
 	List<SolrInputDocument> indexTaxonConcept(String guid) throws Exception;
+	
+	public void resetRanking(String guid, ColumnType columnType, Integer value)throws Exception;
 }
