@@ -204,6 +204,21 @@
             <artifactId>json-taglib</artifactId>
             <version>0.4.1</version>
         </dependency>
+        
+        <!-- bie-admin -->
+        <!-- JSR 303 BEAN VALIDATION -->
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>1.0.0.GA</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>com.springsource.org.hibernate.validator</artifactId>
+            <version>4.0.0.GA</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <repositories>
         <!-- ALA repository  -->
