@@ -17,6 +17,9 @@ package org.ala.model;
 
 import java.util.Map;
 
+import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang.builder.EqualsBuilder;
+
 //import org.apache.commons.lang.builder.EqualsBuilder;
 
 /**
@@ -30,21 +33,35 @@ public class BaseRanking implements Comparable<BaseRanking> {
 	protected String fullName;
 	protected boolean positive;
 	protected boolean isBlackListed = false;
+	protected String uri;
 	
 	//image field name = 'identifier', common name field name = 'nameString'
 	protected Map<String, String> compareFieldValue;
 	
 	@Override
 	public int compareTo(BaseRanking o) {
-		return 0;
+		return CompareToBuilder.reflectionCompare(this, o);
 	}
-
+	
+	@Override
+	public boolean equals(Object obj) {
+		return EqualsBuilder.reflectionEquals(this, obj);
+	}
+	
 	public Map<String, String> getCompareFieldValue() {
 		return compareFieldValue;
 	}
 
 	public void setCompareFieldValue(Map<String, String> compareFieldValue) {
 		this.compareFieldValue = compareFieldValue;
+	}
+	
+	public String getUri() {
+		return uri;
+	}
+
+	public void setUri(String uri) {
+		this.uri = uri;
 	}
 	
 	/**
