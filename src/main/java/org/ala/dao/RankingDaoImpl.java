@@ -511,14 +511,19 @@ public class RankingDaoImpl implements RankingDao {
 						}
 					}
 				}
-				//reindex whole row record
-				List<SolrInputDocument> docList = taxonConceptDao.indexTaxonConcept(guid);
-				if(solrServer == null){
-					solrServer = solrUtils.getSolrServer();
+				try{
+					//reindex whole row record
+					List<SolrInputDocument> docList = taxonConceptDao.indexTaxonConcept(guid);
+					if(solrServer == null){
+						solrServer = solrUtils.getSolrServer();
+					}
+					if(solrServer != null && docList != null && docList.size() > 0){
+						solrServer.add(docList);
+					}	
 				}
-				if(solrServer != null && docList != null && docList.size() > 0){
-					solrServer.add(docList);
-				}			
+				catch(Exception e){
+					logger.error("***** add solr record failed. guid: " + guid + " ," + e);
+				}
 			}
 			catch(Exception ex){
 				logger.error("***** guid: " + guid + " ," + ex);
