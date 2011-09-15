@@ -37,7 +37,7 @@ public enum RankingType {
 
 	RK_IMAGE("rk", "image", ColumnType.IMAGE_COL, new String[]{"identifier"}), 
 	RK_COMMON_NAME("rk", "commonName", ColumnType.VERNACULAR_COL, new String[]{"nameString"}),
-	RK_NAME_VALUE("rk", "defaultNameValue", ColumnType.VERNACULAR_COL, new String[]{"nameString","identifier"});
+	RK_NAME_VALUE("rk", "defaultNameValue", ColumnType.DEFAULT_COMMON_NAME, new String[]{"nameString","identifier"});
 
 	private String superColumnName;
 	private String columnFamily;

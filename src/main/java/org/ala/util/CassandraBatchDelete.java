@@ -59,6 +59,7 @@ public class CassandraBatchDelete {
 	public static final String PREFIX = "--";
 	public static final String HOST_PREFIX = "-host=";
 	public static final String PORT_PREFIX = "-port=";
+	public static final String RK_PREFIX = "-rk";
 	
 	private String host = "localhost";
 	private int port = 9160;
@@ -85,6 +86,7 @@ public class CassandraBatchDelete {
 		List<String> infoSrcIdList = new ArrayList<String>();
 		String host = "localhost";
 		int port = 9160;
+		boolean _rk = false;
 		
 		if (args.length < 1) {
 			System.out.println("Please provide a list of infoSourceIds or columnNames....");
@@ -103,15 +105,25 @@ public class CassandraBatchDelete {
 			else if(tmp.startsWith(PORT_PREFIX)){
 				port = Integer.parseInt(tmp.substring(PORT_PREFIX.length()));
 			}
+			else if(tmp.startsWith(RK_PREFIX)){
+				_rk = true;
+			}
 			else{
 				infoSrcIdList.add(tmp);
 			}
 		}
 		
 		System.out.println("Connecting to: " + host + " port: " + port);
-		CassandraBatchDelete cassandraBatchDelete = new CassandraBatchDelete(host, port);
 		String[] cast = new String[]{};
-		cassandraBatchDelete.doFullScanAndDelete(infoSrcIdList.toArray(cast), columnNameList.toArray(cast));
+		CassandraBatchDelete cassandraBatchDelete = null;
+		if(_rk){
+			cassandraBatchDelete = new CassandraBatchDelete("bie", "rk", host, port);
+			cassandraBatchDelete.doRkDelete(columnNameList.toArray(cast));
+		}
+		else{
+			cassandraBatchDelete = new CassandraBatchDelete(host, port);
+			cassandraBatchDelete.doFullScanAndDelete(infoSrcIdList.toArray(cast), columnNameList.toArray(cast));
+		}				
 		cassandraBatchDelete.closeConnectionPool();
 		System.exit(1);
 	}
@@ -123,7 +135,7 @@ public class CassandraBatchDelete {
 	public CassandraBatchDelete(String host, int port){
 		this("bie", "tc", host, port);
 	}
-	
+		
 	public CassandraBatchDelete(String keySpace, String columnFamily, String host, int port){
 		this.keyspace = keySpace;
 		this.columnFamily = columnFamily;
@@ -171,11 +183,11 @@ public class CassandraBatchDelete {
 		// in the next iteration.
 		// when lastKey == startKey is finish.
 		List<KeySlice> keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
-		List<DeleteItemInfo> delList = getDeleteItemsList(keySlices, infoSourceIds, columnNames);
+		List<DeleteItemInfo> delList = getDeleteItemsList(keySlices, infoSourceIds, columnNames);		
 		//dump test case
 		/*
 		delList = getDumpDeleteItemsList();
-		*/
+		*/		
 		int delCtr = doValueUpdate(delList, infoSourceIds, columnNames);
 		totalDelCtr += delCtr;
 		logger.debug("Delete Count:" + delCtr);
@@ -412,6 +424,83 @@ public class CassandraBatchDelete {
 	public String getColumnFamily() {
 		return columnFamily;
 	}
+	
+	public void doRkDelete(String[] columnNames) throws Exception {
+		long start = System.currentTimeMillis();
+		long ctr = 1;
+		long totalDelCtr = 0;
+		KeySlice startKey = new KeySlice();
+		KeySlice lastKey = null;
+		
+		System.out.println("Delete process is started.....");
+		
+		ColumnParent columnParent = new ColumnParent(columnFamily);
+
+		KeyRange keyRange = new KeyRange(ROWS);
+		keyRange.setStart_key("");
+		keyRange.setEnd_key("");
+
+		SliceRange sliceRange = new SliceRange();
+		sliceRange.setStart(new byte[0]);
+		sliceRange.setFinish(new byte[0]);
+
+		SlicePredicate slicePredicate = new SlicePredicate();
+		slicePredicate.setSlice_range(sliceRange);
+
+		Client client = Pelops.getDbConnPool(POOL_NAME).getConnection().getAPI();
+		
+		// Iterate over all the rows in a ColumnFamily......
+		// start with the empty string, and after each call use the last key read as the start key 
+		// in the next iteration.
+		// when lastKey == startKey is finish.
+		List<KeySlice> keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
+		int delCtr = doDeleteRkItems(keySlices, columnNames);
+		
+		totalDelCtr += delCtr;
+		logger.debug("Delete Count:" + delCtr);
+
+		while (keySlices.size() > 0){
+			lastKey = keySlices.get(keySlices.size()-1);
+			//end of row ?
+			if(lastKey.equals(startKey)){
+				break;
+			}
+			startKey = lastKey;
+			keyRange.setStart_key(lastKey.getKey());			
+			keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
+			delCtr = doDeleteRkItems(keySlices, columnNames);
+			totalDelCtr += delCtr;
+			System.out.println("Total Column Update Count:" + totalDelCtr);
+			System.out.println("Row Count:" + (ROWS * ctr++) + " >>>> lastKey: " + lastKey.getKey());
+			System.gc();
+		}				
+		System.out.println("Total time taken (sec): "	+ ((System.currentTimeMillis() - start)/1000));
+	}
+	
+	private int doDeleteRkItems(List<KeySlice> keySlices, String[] columnNames) throws Exception{
+		int ctr = 0;
+		String sColName = null;
+		Mutator mutator = Pelops.createMutator(POOL_NAME, keyspace);
+		for (KeySlice keySlice : keySlices) {
+			for (ColumnOrSuperColumn columns : keySlice.getColumns()) {
+				
+				if (columns.isSetSuper_column()) {
+					SuperColumn scol = columns.getSuper_column();
+					sColName = new String(scol.getName(), CHARSET_ENCODING);
+					String key = keySlice.getKey();
+					if("defaultNameValue".equalsIgnoreCase(sColName)){
+			        	mutator.deleteColumn(key, columnFamily, sColName);
+			        	mutator.execute(ConsistencyLevel.ONE);
+			        	ctr++;
+					}
+				} 
+			}
+		}
+		return ctr;
+	}
+
+	
+	
 	
 	//	============<inner class>================== 
 	class DeleteItemInfo {

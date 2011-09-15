@@ -51,6 +51,7 @@ public enum ColumnType {
     SYNONYM_COL("hasSynonym", TaxonConcept.class, true),
     IS_CONGRUENT_TO_COL("IsCongruentTo", TaxonConcept.class, true),
     VERNACULAR_COL("hasVernacularConcept", CommonName.class, true),
+    DEFAULT_COMMON_NAME("hasVernacularConcept", CommonName.class, true),
     CONSERVATION_STATUS_COL("hasConservationStatus", ConservationStatus.class, true),
     SENSITIVE_STATUS_COL("hasSensitiveStatus", SensitiveStatus.class, true),
     PEST_STATUS_COL("hasPestStatus", PestStatus.class, true),

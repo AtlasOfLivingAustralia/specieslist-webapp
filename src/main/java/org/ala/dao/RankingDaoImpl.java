@@ -615,6 +615,7 @@ public class RankingDaoImpl implements RankingDao {
     public boolean loadCAAB() throws Exception{
     	Calendar ticket = null;
     	boolean completed = false;
+    	int ctr = 0;
     	try{
     		if(!ReadOnlyLock.getInstance().isReadOnly()){
     			ticket = Calendar.getInstance(); 			
@@ -624,6 +625,7 @@ public class RankingDaoImpl implements RankingDao {
 			    	File file = new File("/data/bie-staging/vernacular/caab/caab-fishes-standard-names-20101209.csv");
 			        CSVReader reader = CSVReader.buildReader(file, "UTF-8", ',', '"', 1);
 			        while(reader.hasNext()){
+			        	ctr++;
 			            String[] values = reader.readNext();
 			            if(values != null && values.length>=7){
 			                //only want to handle the "australian" region for now
@@ -656,7 +658,7 @@ public class RankingDaoImpl implements RankingDao {
 				else{
 					logger.info("**** isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());
 				}
-				logger.info("loadCAAB in (sec): "+((Calendar.getInstance().getTimeInMillis() - ticket.getTimeInMillis())/1000));
+				logger.info("loadCAAB in (sec): "+((Calendar.getInstance().getTimeInMillis() - ticket.getTimeInMillis())/1000) + ", ctr = " + ctr);
     		}
 			else{
 				logger.info("**** isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());
