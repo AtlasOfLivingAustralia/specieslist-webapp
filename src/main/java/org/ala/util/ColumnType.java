@@ -18,6 +18,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.ala.model.BaseRanking;
 import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.ConservationStatus;
@@ -51,7 +52,6 @@ public enum ColumnType {
     SYNONYM_COL("hasSynonym", TaxonConcept.class, true),
     IS_CONGRUENT_TO_COL("IsCongruentTo", TaxonConcept.class, true),
     VERNACULAR_COL("hasVernacularConcept", CommonName.class, true),
-    DEFAULT_COMMON_NAME("hasVernacularConcept", CommonName.class, true),
     CONSERVATION_STATUS_COL("hasConservationStatus", ConservationStatus.class, true),
     SENSITIVE_STATUS_COL("hasSensitiveStatus", SensitiveStatus.class, true),
     PEST_STATUS_COL("hasPestStatus", PestStatus.class, true),
@@ -77,6 +77,8 @@ public enum ColumnType {
 //    INFOSOURCE_UID("infosourceUid", String.class, false),
     OCCURRENCE_RECORDS_COUNT_COL("hasOccurrenceRecords", Integer.class, false),
     GEOREF_RECORDS_COUNT_COL("hasGeoReferencedRecords", Integer.class, false),
+    // for rk Family Column
+    DEFAULT_COMMON_NAME("defaultNameValue", BaseRanking.class, false),
     RANKING("TIMESTAMP", Ranking.class, true);
     public static final String COLUMN_FAMILY_NAME = "tc";
     public static final String SUPER_COLUMN_NAME = "tc";
