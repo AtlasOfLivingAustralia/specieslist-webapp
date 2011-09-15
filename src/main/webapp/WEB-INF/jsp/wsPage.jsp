@@ -132,7 +132,7 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
         	<ul>
 	        	<li><strong>Optimise Index: </strong>${pageContext.request.contextPath}/admin/optimise - optimise embedded solr index.</strong>
 	        	</li>
-	        	<li><strong>Reload All Ranks: </strong>${pageContext.request.contextPath}/admin/reloadAllRanks - reapply all ranks from 'rk' to 'tc' table.
+	        	<li><strong>Reload All Ranks: </strong>${pageContext.request.contextPath}/admin/reloadAllRanks - reapply all rankings from 'rk' to 'tc' table.
 				</li>
 				<li><strong>Reload Fish Common Name Default Value: </strong>${pageContext.request.contextPath}/admin/loadCaab - reload default common name rank value into 'rk' table.
 				</li>        	
