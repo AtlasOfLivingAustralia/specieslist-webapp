@@ -8,7 +8,6 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
 <c:set var="biocacheWSUrl">http://biocache.ala.org.au/ws/</c:set>
 <c:set var="citizenSciUrl">http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid=</c:set>
 <c:set var="collectoryUrl">http://collections.ala.org.au</c:set>
-<c:set var="bieAdminServerUrl">${initParam.bieAdminServerName}</c:set>
 <c:set var="threatenedSpeciesCodes">${wordPressUrl}/about/program-of-projects/sds/threatened-species-codes/</c:set>
 <!DOCTYPE html>
 <html dir="ltr" lang="en-US">
@@ -749,7 +748,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
 	                         }
                     		
                     		function editThisImage(guid, uri){
-                    			var url = "${bieAdminServerUrl}/edit?guid="+guid+"&uri="+uri;
+                    			var url = "${pageContext.request.contextPath}/admin/edit?guid="+guid+"&uri="+uri;
                     			window.open(url);
                     			}
 
