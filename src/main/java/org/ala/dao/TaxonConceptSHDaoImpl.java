@@ -1175,37 +1175,37 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					.lastIndexOf("#") + 1);
 
 			if (predicate.endsWith("hasKingdom")) {
-				kingdom = triple.object;
+				kingdom = triple.object.trim();
 			}
 			if (predicate.endsWith("hasPhylum")) {
-				phylum = triple.object;
+				phylum = triple.object.trim();
 			}
 			if (predicate.endsWith("hasClass")) {
-				klass = triple.object;
+				klass = triple.object.trim();
 			}
 			if (predicate.endsWith("hasOrder")) {
-				order = triple.object;
+				order = triple.object.trim();
 			}
 			if (predicate.endsWith("hasFamily")) {
-				family = triple.object;
+				family = triple.object.trim();
 			}
 			if (predicate.endsWith("hasSuperFamily")) {
-				superfamily = triple.object;
+				superfamily = triple.object.trim();
 			}
 			if (predicate.endsWith("hasGenus")) {
-				genus = triple.object;
+				genus = triple.object.trim();
 			}
 			if (predicate.endsWith("hasSpecies")) {
-				species.add(triple.object);
+				species.add(triple.object.trim());
 			}
 			if (predicate.endsWith("hasSubSpecies")) {
-				subspecies.add(triple.object);
+				subspecies.add(triple.object.trim());
 			}
 			if (predicate.endsWith("hasSpecificEpithet")) {
-				specificEpithet = triple.object;
+				specificEpithet = triple.object.trim();
 			}
 			if (predicate.endsWith("hasScientificName")) {
-				scientificNames.add(triple.object);
+				scientificNames.add(triple.object.trim());
 			}
 			if (predicate.endsWith("hasVideoPageUrl")) {
 			    isScreenshot = true;
@@ -1322,7 +1322,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						CommonName commonName = new CommonName();
 						String commonNameString = WordUtils
 								.capitalizeFully(triple.object);
-						commonName.setNameString(commonNameString);
+						commonName.setNameString(commonNameString.trim());
 						commonName.setInfoSourceId(Integer.toString(document
 								.getInfoSourceId()));
 						commonName.setInfoSourceUid(document
@@ -1349,7 +1349,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 											triple.object);
 							if (cs == null) {
 								cs = new ConservationStatus();
-								cs.setStatus(triple.object);
+								cs.setStatus(triple.object.trim());
 							}
 
 							cs.setInfoSourceId(Integer.toString(document
@@ -1361,7 +1361,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 							cs.setInfoSourceURL(dcSource);
 							cs.setTitle(dcTitle);
 							cs.setIdentifier(dcIdentifier);
-							cs.setRawStatus(triple.object);
+							cs.setRawStatus(triple.object.trim());
 							addConservationStatus(guid, cs);
 						}
 
@@ -1374,7 +1374,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 									document.getInfoSourceId(), triple.object);
 							if (ps == null) {
 								ps = new PestStatus();
-								ps.setStatus(triple.object);
+								ps.setStatus(triple.object.trim());
 							}
 
 							ps.setInfoSourceId(Integer.toString(document
@@ -1386,7 +1386,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 							ps.setInfoSourceURL(dcSource);
 							ps.setTitle(dcTitle);
 							ps.setIdentifier(dcIdentifier);
-							ps.setRawStatus(triple.object);
+							ps.setRawStatus(triple.object.trim());
 							addPestStatus(guid, ps);
 						}
 
@@ -1406,7 +1406,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						// namespace
 						SimpleProperty simpleProperty = new SimpleProperty();
 						simpleProperty.setName(triple.predicate);
-						simpleProperty.setValue(triple.object);
+						simpleProperty.setValue(triple.object.trim());
 						simpleProperty.setInfoSourceId(Integer.toString(document.getInfoSourceId()));
 						simpleProperty.setInfoSourceUid(document.getInfoSourceUid());
 						simpleProperty.setDocumentId(Integer.toString(document.getId()));
