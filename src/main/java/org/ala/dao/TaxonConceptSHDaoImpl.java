@@ -2804,9 +2804,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					String key = (String) itr.next();
 					if(!DEFAULT_NAME_VALUE_FIELD_NAME.equalsIgnoreCase(key)){
 						String value = URLDecoder.decode(BeanUtils.getProperty(rankable, key) != null?BeanUtils.getProperty(rankable, key):"", "UTF-8");
-						String compareValue = URLDecoder.decode(map.get(key), "UTF-8");
+						String compareValue = URLDecoder.decode(map.get(key)!=null?map.get(key):"", "UTF-8");
 						logger.debug("**** setRanking() - value: " + value + ", compareValue: " + compareValue);
-						if(!compareValue.equalsIgnoreCase(value)){
+						if(!compareValue.trim().equalsIgnoreCase(value.trim())){
 							ok = false;
 							break;
 						}
