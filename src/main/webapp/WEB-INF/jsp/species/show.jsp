@@ -1043,8 +1043,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     </c:if>
                     <c:forEach items="${sortCommonNameKeys}" var="nkey">
                     	<c:set var="cNames" value="${sortCommonNameSources[nkey]}" />
-                    	<%-- special treatment for <div> id and cookie name/value. matchup with Ranking Controller.rankTaxonCommonNameByUser --%>
-                      	<c:set var="fName" value='<%= pageContext.getAttribute("nkey").hashCode() %>' />
+                    	<%-- special treatment for <div> id and cookie name/value. matchup with Ranking Controller.rankTaxonCommonNameByUser --%>                      	
+                      	<c:set var="fName" value='<%= ((String)pageContext.getAttribute("nkey")).trim().hashCode() %>' />
                     	
                     	<%-- jacascript treatment: manual translate special charater, because string:encodeURL cannot handle non-english character --%>
                     	<c:set var="enKey" value='<%= org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(pageContext.getAttribute("nkey").toString()) %>' />
@@ -1072,9 +1072,9 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                             	<c:if test="${not empty cNames}">
                                     <div id='cnRank-${fName}' class="rankCommonName">
 	       	                            	Is this a preferred common name for this ${extendedTaxonConcept.taxonConcept.rankString}?
-	           	                           <a class="isrepresent" href="#" onclick="rankThisCommonName('<string:encodeUrl>${extendedTaxonConcept.taxonConcept.guid}</string:encodeUrl>','${fName}',false,true,'${enKey }');return false;">YES</a>
+	           	                           <a class="isrepresent" href="#" onclick="rankThisCommonName('<string:encodeUrl>${extendedTaxonConcept.taxonConcept.guid}</string:encodeUrl>','${fName}',false,true,'${fn:trim(enKey)}');return false;">YES</a>
                                             |
-	           	                           <a class="isnotrepresent" href="#" onclick="rankThisCommonName('<string:encodeUrl>${extendedTaxonConcept.taxonConcept.guid}</string:encodeUrl>','${fName}',false,false,'${enKey }');return false;">NO</a>
+	           	                           <a class="isnotrepresent" href="#" onclick="rankThisCommonName('<string:encodeUrl>${extendedTaxonConcept.taxonConcept.guid}</string:encodeUrl>','${fName}',false,false,'${fn:trim(enKey)}');return false;">NO</a>
                                 	</div>
                                 </c:if> 
                                 </c:otherwise>
