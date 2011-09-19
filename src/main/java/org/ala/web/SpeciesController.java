@@ -15,6 +15,7 @@
 package org.ala.web;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.BreakIterator;
 import java.util.ArrayList;
@@ -68,6 +69,8 @@ import org.ala.util.StatusType;
 import org.ala.util.WebUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -240,6 +243,42 @@ public class SpeciesController {
         }
     }
 
+    public TaxonDTO createTaxonDTO(ExtendedTaxonConceptDTO edto){
+        TaxonDTO t = new TaxonDTO();
+
+        t.setGuid(edto.getTaxonConcept().getGuid());
+        t.setScientificName(edto.getTaxonConcept().getNameString());
+
+        t.setYear(edto.getTaxonConcept().getAuthorYear());
+        t.setScientificNameAuthorship(edto.getTaxonConcept().getAuthor());
+        t.setRank(edto.getTaxonConcept().getRankString());
+        t.setRankID(edto.getTaxonConcept().getRankID());
+
+        if(edto.getTaxonName()!=null){
+            t.setAuthor(edto.getTaxonName().getAuthorship());
+        } else {
+            t.setAuthor(edto.getTaxonConcept().getAuthor());
+        }
+
+        if(edto.getClassification()!=null){
+            t.setFamily(edto.getClassification().getFamily());
+            t.setKingdom(edto.getClassification().getKingdom());
+        }
+
+        if(!edto.getCommonNames().isEmpty()){
+            CommonName cn = edto.getCommonNames().get(0);
+            t.setCommonName(cn.getNameString());
+            t.setCommonNameGuid(cn.getGuid());
+        }
+        if(!edto.getImages().isEmpty()){
+            Image image = edto.getImages().get(0);
+            t.setImageURL(image.getRepoLocation());
+            t.setThumbnail(image.getThumbnail());
+        }
+
+        return t;
+    }
+
     /**
      * Get the list of collections, institutes, data resources and data providers that have specimens for the supplied taxon concept guid
      * Wrapper around the biocache service: http://biocache.ala.org.au/occurrences/sourceByTaxon
@@ -290,8 +329,7 @@ public class SpeciesController {
         return findGuids(scientificName);
     }
 
-    private List<GuidLookupDTO> findGuids(String scientificName)
-    throws Exception {
+    private List<GuidLookupDTO> findGuids(String scientificName) throws Exception {
         String lsid = getLsidByNameAndKingdom(scientificName);
         List<GuidLookupDTO> guids = new ArrayList<GuidLookupDTO>();
 
@@ -372,8 +410,6 @@ public class SpeciesController {
 
         return "redirect:/images/noImage85.jpg"; // no image 
     }
-
-
 
     /**
      * Map to a /{guid} URI.
@@ -900,13 +936,35 @@ public class SpeciesController {
             } catch (Exception ex) {
                 logger.warn("No TN found for guid: " + guid, ex);
             }
-            
             names.add(name); // note: will add null if no name is found as we want size of output list to be same as input array
         }
-        
         return names;
     }
-    
+
+    /**
+     * JSON web service to return a list of brief taxon profiles for an input list of GUIDs
+     *
+     * @return names
+     */
+    @RequestMapping(value = {"/species/fieldGuides", "/species/fieldGuides.json"}, method = RequestMethod.POST)
+    public @ResponseBody List<TaxonDTO> getTaxonDTOForGuids(HttpServletRequest request) throws Exception {
+
+        List<TaxonDTO> taxa = new ArrayList<TaxonDTO>();
+        InputStream body = request.getInputStream();
+        ObjectMapper om = new ObjectMapper();
+        List<String> guids = om.readValue(body, new TypeReference<List<String>>(){});
+        for (String guid : guids) {
+            try {
+                ExtendedTaxonConceptDTO tc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
+                repoUrlUtils.fixRepoUrls(tc);
+                taxa.add(createTaxonDTO(tc));
+            } catch (Exception ex) {
+                logger.warn("No TN found for guid: " + guid, ex);
+            }
+        }
+        return taxa;
+    }
+
     /**
      * JSON web service to return a list of synonyms for a GUID/LSID.
      * Note: accepted taxonConcept is included as first element of output list.
