@@ -245,15 +245,14 @@ public class SpeciesController {
 
     public TaxonDTO createTaxonDTO(ExtendedTaxonConceptDTO edto){
         TaxonDTO t = new TaxonDTO();
-
         t.setGuid(edto.getTaxonConcept().getGuid());
         t.setScientificName(edto.getTaxonConcept().getNameString());
-
+        t.setTaxonInfosourceURL(edto.getTaxonConcept().getInfoSourceURL());
+        t.setTaxonInfosourceName(edto.getTaxonConcept().getInfoSourceName());
         t.setYear(edto.getTaxonConcept().getAuthorYear());
         t.setScientificNameAuthorship(edto.getTaxonConcept().getAuthor());
         t.setRank(edto.getTaxonConcept().getRankString());
         t.setRankID(edto.getTaxonConcept().getRankID());
-
         if(edto.getTaxonName()!=null){
             t.setAuthor(edto.getTaxonName().getAuthorship());
         } else {
@@ -264,7 +263,6 @@ public class SpeciesController {
             t.setFamily(edto.getClassification().getFamily());
             t.setKingdom(edto.getClassification().getKingdom());
         }
-
         if(!edto.getCommonNames().isEmpty()){
             CommonName cn = edto.getCommonNames().get(0);
             t.setCommonName(cn.getNameString());
@@ -274,8 +272,10 @@ public class SpeciesController {
             Image image = edto.getImages().get(0);
             t.setImageURL(image.getRepoLocation());
             t.setThumbnail(image.getThumbnail());
+            t.setImageRights(image.getRights());
+            t.setImageCreator(image.getCreator());
+            t.setImageisPartOf(image.getIsPartOf());
         }
-
         return t;
     }
 
@@ -1114,39 +1114,6 @@ public class SpeciesController {
     }
 
     /**
-     * @param taxonConceptDao the taxonConceptDao to set
-     */
-    public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
-        this.taxonConceptDao = taxonConceptDao;
-    }
-
-    /**
-     * @param repoUrlUtils the repoUrlUtils to set
-     */
-    public void setRepoUrlUtils(RepoUrlUtils repoUrlUtils) {
-        this.repoUrlUtils = repoUrlUtils;
-    }
-
-    public Set<String> getNonTruncatedSources() {
-        return nonTruncatedSources;
-    }
-
-    public void setNonTruncatedSources(Set<String> nonTruncatedSources) {
-        logger.debug("Setting the non truncated sources");
-        this.nonTruncatedSources = nonTruncatedSources;
-    }
-
-    public Set<String> getLowPrioritySources() {
-        return lowPrioritySources;
-    }
-
-    public void setLowPrioritySources(Set<String> lowPrioritySources) {
-        logger.debug("setting the low priority sources");
-        this.lowPrioritySources = lowPrioritySources;
-    }
-
-
-    /**
      * Create a list of unique infoSources to display on Overview page.
      * 
      * @param etc
@@ -1329,8 +1296,6 @@ public class SpeciesController {
         return regions;
     }
 
-
-
     /**
      * Extract the Image repository Id from the Image and set the repoId field
      *
@@ -1418,5 +1383,38 @@ public class SpeciesController {
      */
     public void setInfoSourceDAO(InfoSourceDAO infoSourceDAO) {
         this.infoSourceDAO = infoSourceDAO;
+    }
+
+
+    /**
+     * @param taxonConceptDao the taxonConceptDao to set
+     */
+    public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
+        this.taxonConceptDao = taxonConceptDao;
+    }
+
+    /**
+     * @param repoUrlUtils the repoUrlUtils to set
+     */
+    public void setRepoUrlUtils(RepoUrlUtils repoUrlUtils) {
+        this.repoUrlUtils = repoUrlUtils;
+    }
+
+    public Set<String> getNonTruncatedSources() {
+        return nonTruncatedSources;
+    }
+
+    public void setNonTruncatedSources(Set<String> nonTruncatedSources) {
+        logger.debug("Setting the non truncated sources");
+        this.nonTruncatedSources = nonTruncatedSources;
+    }
+
+    public Set<String> getLowPrioritySources() {
+        return lowPrioritySources;
+    }
+
+    public void setLowPrioritySources(Set<String> lowPrioritySources) {
+        logger.debug("setting the low priority sources");
+        this.lowPrioritySources = lowPrioritySources;
     }
 }

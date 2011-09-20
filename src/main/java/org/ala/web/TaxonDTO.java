@@ -4,6 +4,8 @@ package org.ala.web;
 public class TaxonDTO {
 
     protected String guid;
+    protected String taxonInfosourceName;
+    protected String taxonInfosourceURL;
     protected String scientificName;
     protected String scientificNameAuthorship;
     protected String year;
@@ -16,6 +18,53 @@ public class TaxonDTO {
     protected String commonNameGuid;
     protected String imageURL;
     protected String thumbnail;
+    //additional image fields to be populated
+    protected String smallImageURL;
+    protected String imageCreator;
+    protected String imageisPartOf;
+    protected String imageLicence;
+    protected String imageRights;
+
+
+    public String getSmallImageURL() {
+        return smallImageURL;
+    }
+
+    public void setSmallImageURL(String smallImageURL) {
+        this.smallImageURL = smallImageURL;
+    }
+
+    public String getImageCreator() {
+        return imageCreator;
+    }
+
+    public void setImageCreator(String imageCreator) {
+        this.imageCreator = imageCreator;
+    }
+
+    public String getImageisPartOf() {
+        return imageisPartOf;
+    }
+
+    public void setImageisPartOf(String imageisPartOf) {
+        this.imageisPartOf = imageisPartOf;
+    }
+
+    public String getImageLicence() {
+        return imageLicence;
+    }
+
+    public void setImageLicence(String imageLicence) {
+        this.imageLicence = imageLicence;
+    }
+
+    public String getImageRights() {
+        return imageRights;
+    }
+
+    public void setImageRights(String imageRights) {
+        this.imageRights = imageRights;
+    }
 
     public String getGuid() {
         return guid;
@@ -119,5 +168,21 @@ public class TaxonDTO {
 
     public void setCommonNameGuid(String commonNameGuid) {
         this.commonNameGuid = commonNameGuid;
+    }
+
+    public String getTaxonInfosourceName() {
+        return taxonInfosourceName;
+    }
+
+    public void setTaxonInfosourceName(String taxonInfosourceName) {
+        this.taxonInfosourceName = taxonInfosourceName;
+    }
+
+    public String getTaxonInfosourceURL() {
+        return taxonInfosourceURL;
+    }
+
+    public void setTaxonInfosourceURL(String taxonInfosourceURL) {
+        this.taxonInfosourceURL = taxonInfosourceURL;
     }
 }
