@@ -21,6 +21,25 @@ public class TaxonDTO {
     //additional image fields to be populated
     protected String smallImageURL;
     protected String imageCreator;
+    protected String imageInfosourceName;
+    protected String imageInfosourceURL;
+
+    public String getImageInfosourceName() {
+        return imageInfosourceName;
+    }
+
+    public void setImageInfosourceName(String imageInfosourceName) {
+        this.imageInfosourceName = imageInfosourceName;
+    }
+
+    public String getImageInfosourceURL() {
+        return imageInfosourceURL;
+    }
+
+    public void setImageInfosourceURL(String imageInfosourceURL) {
+        this.imageInfosourceURL = imageInfosourceURL;
+    }
+
     protected String imageisPartOf;
     protected String imageLicence;
     protected String imageRights;

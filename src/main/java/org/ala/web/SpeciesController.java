@@ -275,6 +275,8 @@ public class SpeciesController {
             t.setImageRights(image.getRights());
             t.setImageCreator(image.getCreator());
             t.setImageisPartOf(image.getIsPartOf());
+            t.setImageInfosourceName(image.getInfoSourceName());
+            t.setImageInfosourceURL(image.getInfoSourceURL());
         }
         return t;
     }
