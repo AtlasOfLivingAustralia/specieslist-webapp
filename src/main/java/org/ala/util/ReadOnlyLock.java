@@ -39,4 +39,13 @@ public class ReadOnlyLock {
 		logger.debug("after setLock - isReadOnly: " + isReadOnly + " , owner: " + owner + " , caller: " + ticket);
 		return isReadOnly;
 	}
+	
+	public boolean forceUnlock(String password){
+		boolean ok = false;
+		if("P@33w0rd".equals(password)){
+			owner = null;
+			isReadOnly = false;
+		}
+		return ok;
+	}
 }

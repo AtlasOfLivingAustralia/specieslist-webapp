@@ -544,19 +544,17 @@ public class RankingDaoImpl implements RankingDao {
 	public boolean optimiseIndex() throws Exception{
 		Calendar ticket = null;
 		boolean completed = false;
-		
+
+		if(solrServer == null){
+			solrServer = solrUtils.getSolrServer();
+		}
 		try{
-			if(!ReadOnlyLock.getInstance().isReadOnly()){
+			if(!ReadOnlyLock.getInstance().isReadOnly() && solrServer != null){
 				ticket = Calendar.getInstance(); 			
 				if(ReadOnlyLock.getInstance().setLock(ticket)){	
 					logger.info("**** setLock-isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());
-					if(solrServer == null){
-						solrServer = solrUtils.getSolrServer();
-					}
-					if(solrServer != null){
-						solrServer.optimize();
-						completed = true;
-					}
+					solrServer.optimize();
+					completed = true;
 				}
 				else{
 					logger.info("**** isReadOnly: " + ReadOnlyLock.getInstance().isReadOnly());
