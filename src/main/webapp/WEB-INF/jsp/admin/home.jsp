@@ -69,6 +69,10 @@ function callAdminWs(wsName) {
                     <tr><td><a href="javascript:callAdminWs('reloadAllRanks')">Reload All Ranks</a></td></tr>
                     <tr><td><a href="javascript:callAdminWs('loadCaab')">Reload Prefered Common Name (Fish only)</a></td></tr>
                     <tr><td><a href="javascript:callAdminWs('optimise')">Optimise Solr Index</a></td></tr>
+                    <tr><td><a href="javascript:callAdminWs('reloadCollections')">Reload Collections</a></td></tr>
+                    <tr><td><a href="javascript:callAdminWs('reloadInstitutions')">Reload Institutions</a></td></tr>
+                    <tr><td><a href="javascript:callAdminWs('reloadDataProviders')">Reload Data Providers</a></td></tr>
+                    <tr><td><a href="javascript:callAdminWs('reloadDataResources')">Reload Data Resources</a></td></tr>                    
             </table>
             <hr/>
             </c:if>

@@ -115,4 +115,30 @@
         <property name="maxUploadSize" value="10000000"/>
     </bean>
     
+     <!-- beans for RestTemplate  -->
+    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" >
+        <property name="messageConverters">
+            <list>
+                <bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="jacksonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper" />
+    <bean id="jacksonSerializationConfig" class="org.codehaus.jackson.map.SerializationConfig"
+        factory-bean="jacksonObjectMapper" factory-method="getSerializationConfig" />
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="jacksonSerializationConfig" />
+        <property name="targetMethod" value="setSerializationInclusion" />
+        <property name="arguments">
+            <list>
+                <value type="org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion">NON_NULL</value>
+            </list>
+        </property>
+    </bean>
+    
+     <bean id="collectionDao" class="org.ala.web.admin.dao.Impl.CollectionDaoImpl">
+        <constructor-arg ref="restTemplate"/>
+    </bean>
+   
 </beans>

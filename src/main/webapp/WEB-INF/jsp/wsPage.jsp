@@ -15,7 +15,7 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
 		<br/>
         <h3>Search</h3>
         <ul>
-            <li><strong>Full Text Search:</strong> /search.json or /search.xml - needs request param definition<br>
+            <li><strong>Full Text Search:</strong> /search.json or /search.xml - needs request param definition<br/>
             Performs a search across all objects, and selects to show the view for the closest match. Params:
             <ul>
             	<li>q - the initial query</li>
@@ -28,8 +28,8 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
             </ul>
             </li>
  
-            <li><strong>Auto Complete Search:</strong> /search/auto.json* - needs request param definition<br>
-            Provides the auto complete service. Params:
+            <li><strong>Auto Complete Search:</strong> /search/auto.json* - needs request param definition<br/>
+            Used to provide a list of scientific and common names that can be used to automatically complete a supplied partial name. Params:
             <ul>
             	<li>q - The value to auto complete</li>
             	<li>geoOnly - When true only include results that have some geospatial occurrence records</li>
@@ -41,21 +41,37 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
 
         <h3>Species</h3>
         <ul>
-        	<li><strong>Show Species:</strong> /species/{guid}.json or /species/{guid}.jsonp or /species/{guid}.xml</li>
-            <li><strong>Show Short Species Info:</strong> /species/shortProfile/{guid}.json or /species/shortProfile/{guid}.xml</li>
-            <li><strong>Show Species Info:</strong> /species/info/{guid}.json or /species/info/{guid}.xml</li>
-            <li><strong>Show More Species Info:</strong> /species/moreInfo/{guid}.json or /species/moreInfo/{guid}.xml</li>
-            <li><strong>Show Chart Info:</strong> /species/charts/{guid:.+}*</li>
-            <li><strong>Show Source Info:</strong> /species/source/{guid:.+}*</li>
-            <li><strong>Get Guid For Names:</strong> /ws/guid/{scientificName}</li>
-            <li><strong>Get Guids For Names:</strong> /ws/guid/batch - needs request param definition. Param:
+        	<li><strong>Show Species:</strong> /species/{guid}.json or /species/{guid}.jsonp or /species/{guid}.xml<br/>
+        	Returns all available data for a given taxon concept. URI path must contain a valid identifier (usually an LSID).
+        	</li>
+            <li><strong>Show Short Species Info:</strong> /species/shortProfile/{guid}.json or /species/shortProfile/{guid}.xml <br/>
+            Returns the abbreviated profile for a given taxon concepts.
+            </li>
+            <li><strong>Show Species Info:</strong> /species/info/{guid}.json or /species/info/{guid}.xml<br/>
+            Returns the profile for a given taxon concept.
+            </li>
+            <li><strong>Show More Species Info:</strong> /species/moreInfo/{guid}.json or /species/moreInfo/{guid}.xml<br/>
+            Returns the extended profile for a given taxon concept.
+            </li>
+            <li><strong>Show Chart Info:</strong> /species/charts/{guid:.+}*.<br/>
+            Returns the occurrence info for a given taxon concept.
+            </li>
+            <li><strong>Show Source Info:</strong> /species/source/{guid:.+}*<br/>
+            Get the list of collections, institutes, data resources and data providers that have specimens for the supplied taxon concept guid
+            </li>
+            <li><strong>Get Guid For Names:</strong> /ws/guid/{scientificName}<br/>
+            Returns guid for a name.
+            </li>
+            <li><strong>Get Guids For Names:</strong> /ws/guid/batch - needs request param definition. Param:<br/>
+            Intended for batch or bulk use – returns guids for a specified list of names.
             	<ul><li>q - list of scientific names</li></ul>
             </li>
             <li><strong>Get Image Repo Location</strong> /species/image/{imageType}/{guid:.+} - needs request param definition. <br/>
             	Get the repo location of a image according to guid. Param:
             	<ul><li>imageType - thumbnail OR small </li></ul>
             </li>
-            <li><strong>Get Document Details:</strong> /species/document/{documentId}.json - JSON web service (AJAX) to return details for a repository document</li>
+            <li><strong>Get Document Details:</strong> /species/document/{documentId}.json <br/>
+            JSON web service (AJAX) to return details for a repository document</li>
             <li><strong>Get List Status:</strong> /species/status/{status}.json - needs request param definition. <br/>
             	Pest / Conservation status JSON. Params:
 	 			<ul>
@@ -67,15 +83,18 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
 	            	<li>dir - sort direction [asc/dec]</li>
 	            </ul>           
             </li>
-            <li><strong>Get Names For Guids:</strong> /species/namesFromGuids.json - return a list of scientific names for an input list of GUIDs. Param:
+            <li><strong>Get Names For Guids:</strong> /species/namesFromGuids.json <br/>
+            	return a list of scientific names for an input list of GUIDs. Param:
             	<ul><li>guid - list of guids</li></ul>
             </li>
-            <li><strong>Get Synonym Names For Guid:</strong> /species/synonymsForGuid/{guid} - return a list of synonyms for a GUID/LSID</li>
+            <li><strong>Get Synonym Names For Guid:</strong> /species/synonymsForGuid/{guid} <br/>
+            return a list of synonyms for a GUID/LSID</li>
         </ul>
 
         <h3>GeoSpatial</h3>
         <ul>
-        	<li><strong>Get Species Location Map Info</strong> /map/map.json* - needs request param definition:
+        	<li><strong>Get Species Location Map Info</strong> /map/map.json* - needs request param definition:<br/>
+        	Returns urls for map images 
             	<ul><li>guid - guid </li></ul>
             </li>
 <!--            
@@ -130,12 +149,20 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
         	The remaining services in the section is support GET method and protected by CAS security framework. To consume these services must logon into CAS server.<br/>
         	All services will place the bie-webapp in read only mode until the process has been completed
         	<ul>
-	        	<li><strong>Optimise Index: </strong>${pageContext.request.contextPath}/admin/optimise - optimise embedded solr index.</strong>
+	        	<li><strong>Optimise Index: </strong>/admin/optimise - optimise embedded solr index.</strong>
 	        	</li>
-	        	<li><strong>Reload All Ranks: </strong>${pageContext.request.contextPath}/admin/reloadAllRanks - reapply all rankings from 'rk' to 'tc' table.
+	        	<li><strong>Reload All Ranks: </strong>/admin/reloadAllRanks - reapply all rankings from 'rk' to 'tc' table.
 				</li>
-				<li><strong>Reload Fish Common Name Default Value: </strong>${pageContext.request.contextPath}/admin/loadCaab - reload default common name rank value into 'rk' table.
-				</li>        	
+				<li><strong>Reload Fish Common Name Default Value: </strong>/admin/loadCaab - reload default common name rank value into 'rk' table.
+				</li>  
+	        	<li><strong>Reload Collections: </strong>/admin/reloadCollections - reload the collections into Solr index.</strong>
+	        	</li>
+	        	<li><strong>Reload Institutions: </strong>/admin/reloadreloadInstitutions - reload the institutions into Solr index.
+				</li>
+				<li><strong>Reload Data Providers: </strong>/admin/reloadDataProviders - reload the data providers into Solr index.
+				</li>  
+				<li><strong>Reload Data Resources: </strong>/admin/reloadDataResources - reload the datasets into Solr index.
+				</li>        					      					      					      	
         	</ul>       
     </body>
 </html>
