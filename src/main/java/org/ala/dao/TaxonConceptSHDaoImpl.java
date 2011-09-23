@@ -2381,7 +2381,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		Map <String, String> infosourceIdUIDMap = infoSourceDAO.getInfosourceIdUidMap();
 		
 		etc.setTaxonConcept((TaxonConcept)populateUid((TaxonConcept) getColumnValue(map,ColumnType.TAXONCONCEPT_COL), infosourceIdUIDMap));
-		logger.info("!!!!!!" + etc.getTaxonConcept().getInfoSourceURL());
+		logger.info("!!!!!!" + ((etc.getTaxonConcept()!=null && etc.getTaxonConcept().getInfoSourceURL()!=null)?etc.getTaxonConcept().getInfoSourceURL():""));
 		etc.setTaxonName((TaxonName)populateUid((TaxonName) getFirstItem((List) getColumnValue(map,ColumnType.TAXONNAME_COL)), infosourceIdUIDMap));
 		etc.setClassification((Classification)populateUid((Classification) getFirstItem((List<Classification>) getColumnValue(map, ColumnType.CLASSIFICATION_COL)), infosourceIdUIDMap));
 		etc.setIdentifiers((List<String>) getColumnValue(map,ColumnType.IDENTIFIER_COL));
