@@ -435,16 +435,16 @@ public class SpeciesController {
         ExtendedTaxonConceptDTO etc = null;
         StringBuffer sb = new StringBuffer();
        
-        if(guid == null || guid.length() < 3){
+        if(guid == null || guid.length() < 1){
         	//no match for the parameter, redirect to search page.
             return "redirect:/search?q=" + extractScientificName(guid);
         }
         
         if (guid.matches("(urn\\:lsid[a-zA-Z\\-0-9\\:\\.]*)") || guid.matches("([0-9]*)")) {   
-        	if(guid.matches("([0-9]*)") && guid.length() < 8){
-        		//no match for the parameter, redirect to search page.
-                return "redirect:/search?q=" + extractScientificName(guid);
-        	}
+//        	if(guid.matches("([0-9]*)") && guid.length() < 8){
+//        		//no match for the parameter, redirect to search page.
+//                return "redirect:/search?q=" + extractScientificName(guid);
+//        	}
         	etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
         }
         else{
