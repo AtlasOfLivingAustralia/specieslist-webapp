@@ -323,12 +323,16 @@ public class BieReport {
 				if("hasImage".equalsIgnoreCase(colName)){
 					List<Image> images = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, Image.class));
 					imageCtr = images.size();
-					hasImages = true;
+					if(imageCtr > 0){
+						hasImages = true;
+					}
 				}
 				if("hasSynonym".equalsIgnoreCase(colName)){
 					List<TaxonConcept> synonym = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, TaxonConcept.class));
 					synonymCtr = synonym.size();
-					hasSynonym = true;
+					if(synonymCtr > 0){
+						hasSynonym = true;
+					}
 				}
 				if("taxonConcept".equalsIgnoreCase(colName)){
 					TaxonConcept taxonConcept = mapper.readValue(value, TaxonConcept.class);
