@@ -109,7 +109,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 	 * @see org.ala.dao.FulltextSearchDao#getChildConcepts(int)
 	 */
 	@Override
-	public List<SearchTaxonConceptDTO> getChildConceptsByNS(int leftNS, int rightNS, Integer rankId) throws Exception {
+	public List<SearchTaxonConceptDTO> getChildConceptsByNS(int leftNS, int rightNS, Integer rankId, int maxResults) throws Exception {
         try {
             // set the query
             StringBuffer queryString = new StringBuffer();
@@ -120,7 +120,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             }
             String[] fq = new String[]{"left:["+leftNS+" TO "+rightNS+"]"};
             logger.debug("search query: "+queryString.toString());
-            SearchResultsDTO<SearchTaxonConceptDTO> tcs =  doSolrSearch(queryString.toString(), fq, maxResultsForChildConcepts, 0, "name", "asc");
+            SearchResultsDTO<SearchTaxonConceptDTO> tcs =  doSolrSearch(queryString.toString(), fq, maxResults, 0, "name", "asc");
             List<SearchTaxonConceptDTO> stds = tcs.getResults();
             Collections.sort(stds);
             return stds;
@@ -129,6 +129,11 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
             return searchResults;
         }
+	}
+	
+	@Override
+	public List<SearchTaxonConceptDTO> getChildConceptsByNS(int leftNS, int rightNS, Integer rankId) throws Exception {
+		return getChildConceptsByNS(leftNS, rightNS, rankId, maxResultsForChildConcepts);
 	}
 	
     /**

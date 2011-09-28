@@ -60,6 +60,7 @@ public interface FulltextSearchDao {
 	 * @throws Exception
 	 */
     List<SearchTaxonConceptDTO> getChildConceptsByNS(int left, int right, Integer rankId) throws Exception;
+    List<SearchTaxonConceptDTO> getChildConceptsByNS(int left, int right, Integer rankId, int maxResults) throws Exception;
     
     /**
      * Search for taxon concept with the following status type
