@@ -220,7 +220,7 @@
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>com.springsource.org.hibernate.validator</artifactId>
+            <artifactId>hibernate-validator</artifactId>
             <version>4.0.0.GA</version>
             <type>jar</type>
         </dependency>
