@@ -446,6 +446,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				true);
 	}
 
+	public boolean setIsAustralian(String guid, boolean bool) throws Exception {
+		return storeHelper.putSingle(TC_TABLE, TC_COL_FAMILY,
+				ColumnType.IS_AUSTRALIAN.getColumnName(), guid,
+				bool);
+	}
+
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#getSynonymsFor(java.lang.String)
 	 */

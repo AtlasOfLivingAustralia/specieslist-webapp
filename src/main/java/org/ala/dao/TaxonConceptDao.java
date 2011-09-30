@@ -736,7 +736,7 @@ public interface TaxonConceptDao {
      * @throws Exception
      */
     boolean setIsAustralian(String guid) throws Exception;
-
+	boolean setIsAustralian(String guid, boolean bool) throws Exception;
     /**
      * Is this concept Aussie ?
      * 
