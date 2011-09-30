@@ -1436,11 +1436,11 @@ public class SpeciesController {
 	 
 	    	ObjectMapper om = new ObjectMapper();
 	        Map map = om.readValue(jsonString, Map.class);
-	        if(map != null && isAussie != null && isAussie.length() > 0){
+	        if(map != null && isAussie != null){
 	        	Object isAustralian = map.get("isAustralian");
 	        	if(!isAussie.trim().equalsIgnoreCase(isAustralian.toString())){
 	        		try{
-	        			taxonConceptDao.setIsAustralian(guid, (Boolean)isAustralian);
+	        			taxonConceptDao.setIsAustralian(guid, ((Boolean)isAustralian).booleanValue());
 	        		}
 	        		catch(Exception ex){
 	        			logger.error(ex);
