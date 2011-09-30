@@ -36,7 +36,26 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
              * OnLoad equivilent in JQuery
              */
             $(document).ready(function() {
-                var spitalUrl = "../map/map.json?guid=${extendedTaxonConcept.taxonConcept.guid}"; 
+                
+            	if(${extendedTaxonConcept.taxonConcept.rankID} >= 7000){
+            		var isAussie = "${extendedTaxonConcept.isAustralian}";
+	            	var isAustralianUrl = "../species/isAustralian.json?guid=${extendedTaxonConcept.taxonConcept.guid}&isAussie=${extendedTaxonConcept.isAustralian}"; 
+	                $.getJSON(isAustralianUrl, function(data) {
+	                	if(isAussie == null || isAussie == ""){
+	                		isAussie = false;
+	                	}
+	                	if(data!=null && data.isAustralian != isAussie){
+	                		if(data.isAustralian){                	
+	                			$("#iucn_div").html('<span id="iucn_span" class="iucn native">&nbsp;</span>Recorded In Australia');
+	                		}
+	                		else{
+	                			$("#iucn_div").html('<span id="iucn_span" class="iucn nonnative">&nbsp;</span>Not Recorded In Australia');
+	                		}
+	                	}
+	                });
+            	}
+            	
+            	var spitalUrl = "../map/map.json?guid=${extendedTaxonConcept.taxonConcept.guid}"; 
                 $.getJSON(spitalUrl, function(data) {
                      //alert(data.type)
                      if(data!=null && data.mapUrl != null && data.mapUrl.length > 0 && data.type != "blank"){
@@ -616,10 +635,10 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                         <c:if test="${extendedTaxonConcept.taxonConcept.rankID >= 7000}">
                             <c:choose>
                                 <c:when test="${extendedTaxonConcept.isAustralian}">
-                                    <div><span class="iucn native">&nbsp;</span>Recorded In Australia</div>
+                                    <div id="iucn_div"><span class="iucn native">&nbsp;</span>Recorded In Australia</div>
                                 </c:when>
                                 <c:otherwise>
-                                    <div><span class="iucn nonnative">&nbsp;</span>Not Recorded In Australia</div>
+                                    <div id="iucn_div"><span class="iucn nonnative">&nbsp;</span>Not Recorded In Australia</div>
                                 </c:otherwise>
                             </c:choose>
                         </c:if>

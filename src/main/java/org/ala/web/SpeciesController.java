@@ -17,6 +17,7 @@ package org.ala.web;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,6 +72,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -78,8 +80,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestOperations;
 
 import au.org.ala.data.model.LinnaeanRankClassification;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * Main controller for the BIE site
@@ -134,7 +139,6 @@ public class SpeciesController {
     InfoSource afd;
     InfoSource apni;
     InfoSource col;
-
 
     public SpeciesController(){
         nonTruncatedSources.add("http://www.environment.gov.au/biodiversity/abrs/online-resources/flora/main/index.html");
@@ -1419,4 +1423,37 @@ public class SpeciesController {
         logger.debug("setting the low priority sources");
         this.lowPrioritySources = lowPrioritySources;
     }
+    
+    @RequestMapping(value="/species/isAustralian.json*", method = RequestMethod.GET)
+    public void getJson(           
+            @RequestParam(value="guid", defaultValue ="", required=true) String guid, 
+            @RequestParam(value="isAussie", defaultValue ="", required=true) String isAussie,
+            HttpServletResponse response) throws Exception {
+    	String jsonString = "{}";
+    	
+    	if(guid != null && guid.length() > 0){    		    	
+	    	jsonString = PageUtils.getUrlContentAsJsonString("http://biocache.ala.org.au/ws/australian/taxon/" + guid);
+	 
+	    	ObjectMapper om = new ObjectMapper();
+	        Map map = om.readValue(jsonString, Map.class);
+	        if(map != null && isAussie != null && isAussie.length() > 0){
+	        	Object isAustralian = map.get("isAustralian");
+	        	if(!isAussie.trim().equalsIgnoreCase(isAustralian.toString())){
+	        		try{
+	        			taxonConceptDao.setIsAustralian(guid, (Boolean)isAustralian);
+	        		}
+	        		catch(Exception ex){
+	        			logger.error(ex);
+	        		}
+	        	}
+	        }
+    	}
+    	response.setContentType("application/json;charset=UTF-8");
+    	response.setStatus(200);
+    	PrintWriter out = response.getWriter();    	
+    	out.write(jsonString);
+    	out.flush();
+    	out.close();
+    	response.flushBuffer();
+    }    
 }
