@@ -176,6 +176,7 @@ public class SpeciesController {
      * @return view name
      * @throws Exception
      */ 
+    @Deprecated
     @RequestMapping(value = "/species/charts/{guid:.+}*", method = RequestMethod.GET)
     public String showChartInfo(@PathVariable("guid") String guid,
             HttpServletResponse response) throws Exception {
@@ -300,6 +301,7 @@ public class SpeciesController {
      * @param response
      * @throws Exception
      */
+    @Deprecated
     @RequestMapping(value = "/species/source/{guid:.+}*", method = RequestMethod.GET)
     public void showSourceInfo(@PathVariable("guid") String guid,
             HttpServletResponse response) throws Exception {
