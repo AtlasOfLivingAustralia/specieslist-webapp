@@ -179,7 +179,15 @@ public class SpeciesController {
     @RequestMapping(value = "/species/charts/{guid:.+}*", method = RequestMethod.GET)
     public String showChartInfo(@PathVariable("guid") String guid,
             HttpServletResponse response) throws Exception {
-        String contentAsString = WebUtils.getUrlContentAsString("http://biocache.ala.org.au/occurrences/searchByTaxon.json?q="+guid);
+        String url = null;
+        if(guid.trim().endsWith(".json")){
+        	url = "http://biocache.ala.org.au/ws/occurrences/taxon/" + guid;
+        }
+        else{
+        	url = "http://biocache.ala.org.au/ws/occurrences/taxon/" + guid + ".json";
+        }
+//        String contentAsString = WebUtils.getUrlContentAsString("http://biocache.ala.org.au/occurrences/searchByTaxon.json?q="+guid);   	
+        String contentAsString = WebUtils.getUrlContentAsString(url);
         response.setContentType("application/json");
         response.getWriter().write(contentAsString);
         return null;

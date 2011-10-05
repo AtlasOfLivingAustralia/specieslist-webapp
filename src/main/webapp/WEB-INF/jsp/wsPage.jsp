@@ -53,10 +53,12 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
             <li><strong>Show More Species Info:</strong> /species/moreInfo/{guid}.json or /species/moreInfo/{guid}.xml<br/>
             Returns the extended profile for a given taxon concept.
             </li>
-            <li><strong>Show Chart Info:</strong> /species/charts/{guid:.+}*.<br/>
+            <li><strong><font color="red">DEPRECATED - </font>Show Chart Info:</strong> /species/charts/{guid:.+}*.<br/>
+            <font color="red">replaced by http://biocache.ala.org.au/ws/occurrences/taxon/{guid}.json </font><br/>
             Returns the occurrence info for a given taxon concept.
             </li>
-            <li><strong>Show Source Info:</strong> /species/source/{guid:.+}*<br/>
+            <li><strong><font color="red">DEPRECATED - </font>Show Source Info:</strong> /species/source/{guid:.+}*<br/>
+            <font color="red">replaced by http://biocache.ala.org.au/ws/occurrences/taxon/source/{guid}.json </font><br/>
             Get the list of collections, institutes, data resources and data providers that have specimens for the supplied taxon concept guid
             </li>
             <li><strong>Get Guid For Names:</strong> /ws/guid/{scientificName}<br/>
