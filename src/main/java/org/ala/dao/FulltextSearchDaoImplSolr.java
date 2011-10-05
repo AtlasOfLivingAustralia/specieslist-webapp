@@ -16,6 +16,7 @@ package org.ala.dao;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,6 +38,7 @@ import org.ala.dto.SearchInstitutionDTO;
 import org.ala.dto.SearchRegionDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
+import org.ala.util.ColumnType;
 import org.ala.util.StatusType;
 import org.ala.vocabulary.Vocabulary;
 import org.apache.commons.lang.StringUtils;
@@ -994,7 +996,12 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         taxonConcept.setConservationStatusVIC((String) doc.getFirstValue("conservationStatusVIC"));
         taxonConcept.setConservationStatusWA((String) doc.getFirstValue("conservationStatusWA"));
         taxonConcept.setIsAustralian((String) doc.getFirstValue("australian_s"));
-        taxonConcept.setLinkIdentifier((String) doc.getFirstValue("linkIdentifier"));
+//        taxonConcept.setLinkIdentifier((String) doc.getFirstValue("linkIdentifier"));
+		try {
+			taxonConcept.setLinkIdentifier(java.net.URLEncoder.encode((String) doc.getFirstValue("linkIdentifier"), "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			taxonConcept.setLinkIdentifier((String) doc.getFirstValue("linkIdentifier"));
+		}
         
         try {
         	Integer rankId = (Integer) doc.getFirstValue("rankId");
