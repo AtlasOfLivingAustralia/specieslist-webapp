@@ -16,7 +16,7 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
         
 	    </ul>
 	    
-	    <h2>Multiple Taxa (separate with commas)</h2>
+	    <h2>Multiple Taxa (separate with newline)</h2>
 		<div class="section">
 			<form id="taxaDownloadArea" action="taxaDownload" method="get" name="taxaDownload">
 			<TEXTAREA id="download_area" NAME="higherTaxon" ROWS="10" COLS="50"></TEXTAREA>

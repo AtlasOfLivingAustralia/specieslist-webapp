@@ -79,7 +79,7 @@ public class TaxaDownloadController {
 	private int handleMultiTaxa(String higherTaxon, CSVWriter csvWriter) throws Exception{
 		int resultsCount = 0;
 				
-		String[] taxa = higherTaxon.trim().split(",");
+		String[] taxa = higherTaxon.trim().split("\n");
 		if(taxa == null || taxa.length < 1){
 			return resultsCount;
 		}
@@ -281,7 +281,7 @@ public class TaxaDownloadController {
 			response.setContentType("text/csv");
 			ServletOutputStream output = response.getOutputStream();
 
-            csvWriter = new CSVWriter(new OutputStreamWriter(output), '\t', '"');            
+            csvWriter = new CSVWriter(new OutputStreamWriter(output), ',', '"');            
             csvWriter.writeNext(new String[]{
             		"GUID",
             		"Scientific name",
