@@ -202,9 +202,8 @@
                     <td>
                         <a class="thumbImage"
                            href="${pageContext.request.contextPath}/images/infoBox?q=${searchTaxon.guid}">
-                            <img src="${fn:replace(searchTaxon.thumbnail, 'thumbnail', 'smallRaw' )}" width="175"
-                                 style="border: 1px solid gray;"/>
-                        </a>
+<img src="${fn:replace(searchTaxon.thumbnail, 'thumbnail', 'smallRaw' )}" style="border: 1px solid gray;max-width:175px; height:150px;"/>                        
+				</a>
                         <br/>
                         <c:if test="${not empty searchTaxon.commonNameSingle}">${searchTaxon.commonNameSingle}
                             <br/></c:if>
