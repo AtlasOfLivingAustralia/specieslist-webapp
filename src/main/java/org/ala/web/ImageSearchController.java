@@ -51,7 +51,7 @@ public class ImageSearchController {
 	@Inject
 	TaxonConceptDao taxonConceptDao;
 	
-	@RequestMapping("/images/{taxonRank}/{scientificName}")
+	@RequestMapping("/image-search/{taxonRank}/{scientificName}")
 	public String search(
 			@PathVariable(value="taxonRank") String taxonRank,
 			@PathVariable(value="scientificName") String scientificName,
@@ -83,7 +83,7 @@ public class ImageSearchController {
 		return "images/search";
 	}
 	
-	@RequestMapping(value={"/images/search/","/images/"}, method = RequestMethod.GET)
+	@RequestMapping(value={"/image-search/search/","/image-search/"}, method = RequestMethod.GET)
 	public String search(
 			@RequestParam(value="q", required=false) String query, 
 			@RequestParam(value="fq", required=false) String[] fq,
@@ -116,7 +116,7 @@ public class ImageSearchController {
 		return "images/search";
 	}
 	
-	@RequestMapping("/images/search/table/")
+	@RequestMapping("/image-search/search/table/")
 	public String getImageTable(
 			@RequestParam(value="q", required=false) String query, 
 			@RequestParam(value="fq", required=false) String[] fq,
@@ -153,7 +153,7 @@ public class ImageSearchController {
 	}
 	
 	
-	@RequestMapping("/images/infoBox")
+	@RequestMapping("/image-search/infoBox")
 	public String getImageInfoBox(@RequestParam("q") String guid, Model model) throws Exception {
 		ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
 		model.addAttribute("extendedTaxonConcept",repoUrlUtils.fixRepoUrls(etc));

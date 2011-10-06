@@ -18,6 +18,9 @@ public class TaxonDTO {
     protected String commonNameGuid;
     protected String imageURL;
     protected String thumbnail;
+    protected String imageisPartOf;
+    protected String imageLicence;
+    protected String imageRights;
     //additional image fields to be populated
     protected String smallImageURL;
     protected String imageCreator;
@@ -39,11 +42,6 @@ public class TaxonDTO {
     public void setImageInfosourceURL(String imageInfosourceURL) {
         this.imageInfosourceURL = imageInfosourceURL;
     }
-
-    protected String imageisPartOf;
-    protected String imageLicence;
-    protected String imageRights;
-
 
     public String getSmallImageURL() {
         return smallImageURL;
