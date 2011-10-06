@@ -19,7 +19,7 @@
 </tr><tr>
 </c:if>
 <td>
- <a class="thumbImage" href="${pageContext.request.contextPath}/images/infoBox?q=${searchTaxon.guid}">
+ <a class="thumbImage" href="${pageContext.request.contextPath}/image-search/infoBox?q=${searchTaxon.guid}">
     <img src="${fn:replace(searchTaxon.thumbnail, 'thumbnail', 'smallRaw' )}" style="border: 1px solid gray;max-width:175px;height:50px;"/>
 </a>
 <br/>
