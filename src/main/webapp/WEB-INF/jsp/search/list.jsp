@@ -239,10 +239,10 @@
                                     <fmt:message key="facet.${item.key}"/>:
                                     <c:choose>
                                         <c:when test="${fn:containsIgnoreCase(item.key, 'australian_s')}">
-                                            <b><fmt:message key="recorded.${item.value}"/></b>${closeLink}
+                                            <b><fmt:message key="recorded.${item.value}"/>&nbsp;${collectionsMap[item.value]}</b>${closeLink}
                                         </c:when>
                                         <c:otherwise>
-                                            <b><fmt:message key="${item.value}"/></b>${closeLink}
+                                            <b><fmt:message key="${item.value}"/>&nbsp;${collectionsMap[item.value]}</b>${closeLink}
                                         </c:otherwise>
                                     </c:choose>
                                 </li>

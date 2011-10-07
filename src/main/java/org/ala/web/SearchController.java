@@ -22,6 +22,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +40,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -190,6 +192,42 @@ public class SearchController {
 		searchResults.setResults(removedDuplicateCommonName(searchResults.getResults()));
 		
         repoUrlUtils.fixRepoUrls(searchResults);
+        
+        //if fq contains uid then translate uid to name
+        Map<String, String>collectionsMap = new HashMap<String, String>();
+        try{
+	        for(String fqr:filterQuery){
+	        	if(fqr.contains("uid:")){
+	        		String[] fqBits = StringUtils.split(fqr, ":", 2);
+	        		if(fqBits != null && fqBits.length > 1 && !"".equals(fqBits[1])){
+	        			String uid = fqBits[1];
+	        			String jsonString = "[]";
+	        			if(uid.startsWith("dr")){
+	        				jsonString = PageUtils.getUrlContentAsJsonString("http://collections.ala.org.au/ws/dataResource/" + uid);
+	        			}
+	        			else if(uid.startsWith("dp")){
+	        				jsonString = PageUtils.getUrlContentAsJsonString("http://collections.ala.org.au/ws/dataProvider/" + uid);
+	        			}
+	        			else if(uid.startsWith("in")){
+	        				jsonString = PageUtils.getUrlContentAsJsonString("http://collections.ala.org.au/ws/institution/" + uid);
+	        			}
+	        			else if(uid.startsWith("co")){
+	        				jsonString = PageUtils.getUrlContentAsJsonString("http://collections.ala.org.au/ws/collection/" + uid);
+	        			}
+	        			ObjectMapper om = new ObjectMapper();
+	        	        Map map = om.readValue(jsonString, Map.class);        	        
+	        	        if(map != null && map.get("name") != null){
+	        	        	Object name = map.get("name");
+	        	        	collectionsMap.put(uid, name.toString());
+	        	        }       			
+	        		}        		
+	        	}
+	        }
+        }
+        catch(Exception ee){
+        	logger.error(ee);
+        }
+        model.addAttribute("collectionsMap", collectionsMap);
         model.addAttribute("facetMap", addFacetMap(filterQuery));
         
 		//get facets - and counts to model for each idx type
