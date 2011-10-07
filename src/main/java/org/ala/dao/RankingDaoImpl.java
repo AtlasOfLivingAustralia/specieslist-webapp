@@ -410,7 +410,8 @@ public class RankingDaoImpl implements RankingDao {
 		    try {
 		    	if(taxonConceptDao != null && guid != null && rankingType != null && baseRanking != null && key != null){
 		    		taxonConceptDao.setRanking(guid, rankingType.getColumnType(), baseRanking);
-		    		addRankingIndex(rankingType, baseRanking, key, guid);		    		
+		    		addRankingIndex(rankingType, baseRanking, key, guid);	
+		    		logger.debug("addRankingIndex completed. guid:" + guid + " ,key:" + key);
 		    	}
 			} catch (Exception e) {
 				logger.error(e);
