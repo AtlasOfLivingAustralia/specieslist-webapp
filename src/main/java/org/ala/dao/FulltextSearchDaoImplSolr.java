@@ -1230,6 +1230,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             queryString.append("(");
             List<AutoCompleteDTO> items = new ArrayList<AutoCompleteDTO>();
             SolrQuery solrQuery = new SolrQuery();
+            queryString.append(buildQuery(cleanQuery, true));
+            queryString.append(" OR ");
             queryString.append("auto_text:\"" + cleanQuery + "\"");
             queryString.append(" OR ");
             queryString.append("auto_text_edge:\"" + cleanQuery + "\""); //This field ensures that matches at the start of the term have a higher ranking
