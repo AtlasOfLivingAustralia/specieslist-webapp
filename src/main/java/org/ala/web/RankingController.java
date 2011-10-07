@@ -144,6 +144,7 @@ public class RankingController {
 		String cookieValue = RankingCookieUtils.getCookieValue(guid, str, positive);
 		Cookie cookie = new Cookie(Long.toString(System.currentTimeMillis()), cookieValue);
 		cookie.setMaxAge(60*60*24*365);
+		logger.debug("Create cookie: " + cookie.toString() + " ,guid: " + guid + " , str: " + str);
 		response.addCookie(cookie);		
 	}	
 	
