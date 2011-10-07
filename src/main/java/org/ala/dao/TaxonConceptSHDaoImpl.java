@@ -336,7 +336,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	
 	public boolean addScreenshotImage(String guid, Image image)
 	        throws Exception {
-	    System.out.println("!!!!!ADDING SCREENSHOT TO GUID: " + guid);
+//	    System.out.println("!!!!!ADDING SCREENSHOT TO GUID: " + guid);
 	    
 	    return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
 	            ColumnType.SCREENSHOT_IMAGE_COL.getColumnName(), guid,
@@ -2481,7 +2481,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    if (ao != null && ao.getInfoSourceId() != null && !"".equals(ao.getInfoSourceId())) {
 	        String uid = (String)infosourceIdUIDMap.get(ao.getInfoSourceId().trim());
 	        
-	        logger.info("UID FOUND: " + uid);
+	        logger.debug("UID FOUND: " + uid);
 	        ao.setInfoSourceUid(uid);
 	    }
 	    return ao;
