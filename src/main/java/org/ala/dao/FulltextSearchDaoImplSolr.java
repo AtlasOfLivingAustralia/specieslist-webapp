@@ -999,7 +999,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 //        taxonConcept.setLinkIdentifier((String) doc.getFirstValue("linkIdentifier"));
 		try {
 			taxonConcept.setLinkIdentifier(java.net.URLEncoder.encode((String) doc.getFirstValue("linkIdentifier"), "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
+		} catch (Exception e) {
 			taxonConcept.setLinkIdentifier((String) doc.getFirstValue("linkIdentifier"));
 		}
         
