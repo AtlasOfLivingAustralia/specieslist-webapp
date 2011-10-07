@@ -2481,7 +2481,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	    if (ao != null && ao.getInfoSourceId() != null && !"".equals(ao.getInfoSourceId())) {
 	        String uid = (String)infosourceIdUIDMap.get(ao.getInfoSourceId().trim());
 	        
-	        logger.debug("UID FOUND: " + uid);
+//	        logger.info("UID FOUND: " + uid);
 	        ao.setInfoSourceUid(uid);
 	    }
 	    return ao;
