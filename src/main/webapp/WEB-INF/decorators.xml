@@ -13,14 +13,16 @@
         <pattern>/index.jsp</pattern>
         <pattern>/map/sld*</pattern>
         <pattern>/regions/taxa*</pattern>
-        <pattern>/images/search/table/*</pattern>
-        <pattern>/images/infoBox*</pattern>
+        <pattern>/image-search/search/table/*</pattern>
+        <pattern>/image-search/infoBox*</pattern>
+        <pattern>/image-search/showSpecies</pattern>        
     </excludes>
     <decorator name="mainFluid" page="mainFluid.jsp">
-        <pattern>/images/search/</pattern>
-        <pattern>/images/</pattern>
-        <pattern>/images/*/*</pattern>
-        <pattern>/images/*/*/</pattern>
+        <pattern>/image-search/showSpecies</pattern>
+        <pattern>/image-search/search/</pattern>
+        <pattern>/image-search/</pattern>
+        <pattern>/image-search/*/*</pattern>
+        <pattern>/image-search/*/*/</pattern>
     </decorator>
     <decorator name="main" page="main.jsp">
         <pattern>/*</pattern>

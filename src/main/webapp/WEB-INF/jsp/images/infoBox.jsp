@@ -11,6 +11,9 @@
 </head>
 <body>
 
+<style type="text/css">
+    .multiImages:hover { cursor: pointer; }
+</style>
 <script>
 
 var imageIndex = 0;
@@ -26,6 +29,18 @@ function nextImage(){
     }
 }
 
+function nextImageWithRoll(){
+    if(imageIndex + 1 < noOfImages){
+        imageIndex = imageIndex +1;
+        $('#selectedImage').attr('src',imageArray[imageIndex]);
+        $('#imageCounter').html(imageIndex+1)
+    } else {
+        imageIndex = 0
+        $('#selectedImage').attr('src',imageArray[imageIndex]);
+        $('#imageCounter').html(imageIndex+1)
+    }
+}
+
 function previousImage(){
 	if(imageIndex>0){
 	    imageIndex = imageIndex - 1;
@@ -36,37 +51,34 @@ function previousImage(){
 
 </script>
 
+<h1 style="text-align: left; margin-bottom:10px; margin-left:15px; margin-top:5px;">
+<a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}" style="text-decoration: none;">
+<span ><i>${extendedTaxonConcept.taxonConcept.nameString}</i></span>
+<c:if test="${not empty commonNames}"> |
+${commonNames[0]}
+    </c:if>
+</a>
+</h1>
+
 <table style="border:0px;">
 <tr>
-<td style="vertical-align: top;">
-<c:if test="${fn:length(extendedTaxonConcept.images) >1}">
+<td style="vertical-align: top; width: 400px;">
 
-No. <span id="imageCounter">1</span> of ${fn:length(extendedTaxonConcept.images)} images
-
-<a href="javascript:previousImage();">Previous image</a> |
-<a href="javascript:nextImage();">Next image</a>
-
-</c:if>
-<img id="selectedImage" src="${fn:replace(extendedTaxonConcept.images[0].repoLocation,'raw','smallRaw')}" style="max-width: 550px; max-height: 400px;"/>
+<img id="selectedImage"
+     class="<c:if test="${fn:length(extendedTaxonConcept.images) > 1}">multiImages</c:if>"
+     src="${fn:replace(extendedTaxonConcept.images[0].repoLocation,'raw','smallRaw')}" style="max-width: 400px; max-height: 245px;" onclick="javascript:nextImageWithRoll();"/>
 <br/>
-
-
-
+<c:if test="${fn:length(extendedTaxonConcept.images) >1}">
+    No. <span id="imageCounter">1</span> of ${fn:length(extendedTaxonConcept.images)} images
+    <a href="javascript:previousImage();">Previous image</a> |
+    <a href="javascript:nextImage();">Next image</a>
+</c:if>
 </td>
-<td style="vertical-align: top;">
-<img src="${spatialPortalMap.mapUrl}" class="distroImg" alt="" width="375" style="margin-bottom:-30px;"/>
+<td style="vertical-align: top; width: 300px;">
+<img src="${spatialPortalMap.mapUrl}" alt="" style="max-width: 300px; max-height: 265px;"/>
 </td>
 </tr>
 </table>
-<p style="text-align: left; border-top: 1px solid gray; padding:10px; margin: 10px;">
-Species page: 
-<a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}">
-${extendedTaxonConcept.taxonConcept.nameString}<br/>
-</a>
-<c:if test="${not empty commonNames}">
-Common names:
-<c:forEach items="${commonNames}" var="commonName" varStatus="status"><c:if test="${status.index>0}">, </c:if>${commonName}</c:forEach>
-</c:if>
-</p>
+
 </body>
 </html>

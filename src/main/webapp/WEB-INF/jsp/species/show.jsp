@@ -1,4 +1,4 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8" %><%@ 
+<%@ page contentType="text/html" pageEncoding="UTF-8" %><%@
 include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" prefix="string" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="alatag" %>
 <c:set var="spatialPortalUrl">${initParam.centralServer}/explore/species-maps/</c:set>
@@ -681,7 +681,9 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     </div> 
                     <p class="trigger left no-padding-bottom" style="display: none"><a href="#">View all statuses</a></p>
                 </div>
+
                 <div id="images" class="section">
+
                     <ul>
                         <c:choose>
                             <c:when test="${not empty extendedTaxonConcept.taxonConcept.rankID && extendedTaxonConcept.taxonConcept.rankID < 7000}">
@@ -960,9 +962,18 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                         </h3>
                     </div>
                 </div>
+                <c:if test="${not empty extendedTaxonConcept.taxonConcept.rankID && extendedTaxonConcept.taxonConcept.rankID < 7000}">
                 <div class="section">
-                    <h2></h2>
+                    <ul>
+                    <li>
+                    <a href="${pageContext.request.contextPath}/image-search/showSpecies?taxonRank=${extendedTaxonConcept.taxonConcept.rankString}&scientificName=${extendedTaxonConcept.taxonConcept.nameString}">
+                        View images of species for ${sciNameFormatted}
+
+                    </a>
+                    </li>
+                    </ul>
                 </div><!--close-->
+                </c:if>
             </div><!--close -->
         </div><!--close multimedia-->
         </c:if>

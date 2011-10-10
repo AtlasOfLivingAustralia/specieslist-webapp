@@ -42,6 +42,8 @@ public class ImageSearchController {
 	
 	private final static Logger logger = Logger.getLogger(ImageSearchController.class);
 	
+	protected Integer maxWidthImages = 170;
+	
 	@Inject
 	FulltextSearchDao searchDao;
 	
@@ -51,35 +53,38 @@ public class ImageSearchController {
 	@Inject
 	TaxonConceptDao taxonConceptDao;
 	
-	@RequestMapping("/image-search/{taxonRank}/{scientificName}")
+	@RequestMapping("/image-search/showSpecies")
 	public String search(
-			@PathVariable(value="taxonRank") String taxonRank,
-			@PathVariable(value="scientificName") String scientificName,
+			@RequestParam(value="taxonRank") String taxonRank,
+			@RequestParam(value="scientificName") String scientificName,
 			@RequestParam(value="fq", required=false) String[] fq,
 			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
-			@RequestParam(value="pageSize", required=false, defaultValue ="104") Integer pageSize,
 			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
 			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
-			@RequestParam(value="state", required=false) String state,
-			@RequestParam(value="rank", required=false) String rank,
-			@RequestParam(value="group", required=false) String group,
-			@RequestParam(value="screenWidth", required=false) Integer screenWidth,
+			@RequestParam(value="sw", required=false, defaultValue="1024") Integer screenWidth,
 			Model model) throws Exception {
 		
 		List<String> filterQueries = new ArrayList<String>();
 		filterQueries.add("idxtype:TAXON");
 		filterQueries.add("hasImage:true");
+        //filterQueries.add("rank:(species OR subspecies)");
+        filterQueries.add("rank:species");
+        filterQueries.add("australian_s:recorded");
+
 		if(fq!=null && fq.length>0){
 			for(String f: fq) { filterQueries.add(f); }
 		}
 		filterQueries.add(taxonRank+":"+scientificName);
-		
-		//state?
-		if(state!=null) filterQueries.add("state:"+state);
-		if(rank!=null) filterQueries.add("rank:"+rank);
-		
+
+        Integer noOfColumns = screenWidth / (maxWidthImages + 2);
+        Integer pageSize = noOfColumns * 12;
+
 		SearchResultsDTO<SearchDTO> results = searchDao.doFullTextSearch(null, (String[]) filterQueries.toArray(new String[0]), startIndex, pageSize, sortField, sortDirection);
 		model.addAttribute("results", repoUrlUtils.fixRepoUrls(results));
+
+		model.addAttribute("noOfColumns", noOfColumns);		
+		model.addAttribute("maxWidthImages", maxWidthImages);
+        model.addAttribute("pageSize", pageSize);
 		return "images/search";
 	}
 	
@@ -88,24 +93,27 @@ public class ImageSearchController {
 			@RequestParam(value="q", required=false) String query, 
 			@RequestParam(value="fq", required=false) String[] fq,
 			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
-			@RequestParam(value="pageSize", required=false, defaultValue ="104") Integer pageSize,
 			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
 			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
 			@RequestParam(value="state", required=false) String state,
 			@RequestParam(value="rank", required=false) String rank,
 			@RequestParam(value="speciesGroup", required=false) String speciesGroup,
-			@RequestParam(value="screenWidth", required=false) Integer screenWidth,
+			@RequestParam(value="sw", required=false, defaultValue="1024") Integer screenWidth,
 			Model model) throws Exception {
 		
 		List<String> filterQueries = new ArrayList<String>();
 		filterQueries.add("idxtype:TAXON");
 		filterQueries.add("hasImage:true");
 		filterQueries.add("australian_s:recorded");
+        filterQueries.add("rank:species");
 		
 		if(fq!=null && fq.length>0){
 			for(String f: fq) { filterQueries.add(f); }
 		}
-		
+
+        Integer columns = screenWidth / 172;
+        Integer pageSize = columns * 10;
+
 		//state?
 		if(state!=null) filterQueries.add("state:"+state);
 		if(rank!=null) filterQueries.add("rank:"+rank);
@@ -116,44 +124,7 @@ public class ImageSearchController {
 		return "images/search";
 	}
 	
-	@RequestMapping("/image-search/search/table/")
-	public String getImageTable(
-			@RequestParam(value="q", required=false) String query, 
-			@RequestParam(value="fq", required=false) String[] fq,
-			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
-			@RequestParam(value="pageSize", required=false, defaultValue ="104") Integer pageSize,
-			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
-			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
-			@RequestParam(value="state", required=false) String state,
-			@RequestParam(value="rank", required=false) String rank,
-			@RequestParam(value="group", required=false) String speciesGroup,
-			@RequestParam(value="screenWidth", required=false) Integer screenWidth,
-			Model model) throws Exception {
-		
-		logger.debug("Image table loading....");
-		
-		List<String> filterQueries = new ArrayList<String>();
-		filterQueries.add("idxtype:TAXON");
-		filterQueries.add("hasImage:true");
-		filterQueries.add("australian_s:recorded");
-
-		
-		if(fq!=null && fq.length>0){
-			for(String f: fq) { filterQueries.add(f); }
-		}
-		
-		//state?
-		if(state!=null) filterQueries.add("state:"+state);
-		if(rank!=null) filterQueries.add("rank:"+rank);
-		if(speciesGroup!=null) filterQueries.add("speciesGroup:"+speciesGroup);
-		
-		SearchResultsDTO<SearchDTO> results = searchDao.doFullTextSearch(query, (String[]) filterQueries.toArray(new String[0]), startIndex, pageSize, sortField, sortDirection);
-		model.addAttribute("results", repoUrlUtils.fixRepoUrls(results));
-		return "images/imageTable";
-	}
-	
-	
-	@RequestMapping("/image-search/infoBox")
+ 	@RequestMapping("/image-search/infoBox")
 	public String getImageInfoBox(@RequestParam("q") String guid, Model model) throws Exception {
 		ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
 		model.addAttribute("extendedTaxonConcept",repoUrlUtils.fixRepoUrls(etc));

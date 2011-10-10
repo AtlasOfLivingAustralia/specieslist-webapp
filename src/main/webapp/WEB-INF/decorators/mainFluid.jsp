@@ -86,6 +86,29 @@ include file="/common/taglibs.jsp" %><!DOCTYPE html>
             }); // End docuemnt ready
 
         </script>
+
+        <style type="text/css">
+            #contentXX {
+margin: 5px auto 0 auto;
+background-color: white;
+border: 1px solid #C4C4C4;
+-moz-border-radius: 7px 7px 0 0;
+-webkit-border-radius: 7px 7px 0 0;
+border-radius: 7px 7px 0 0;
+            }
+
+#headingBar {
+min-height: 55px;
+/*border-bottom: 1px solid #CCC;*/
+margin-left: 30px;
+padding-top: 15px;
+height: 40px;
+padding-left: 30px;
+font-size: 13px;
+line-height: 1.5em;
+}
+
+        </style>
         <meta name="robots" content="index,follow"/>
         <META name="y_key" content="d5130872f549aec9" />
         <decorator:head />
@@ -93,8 +116,11 @@ include file="/common/taglibs.jsp" %><!DOCTYPE html>
     <body class="two-column-rightXXX">
      <div id="wrapperXXX" >
      <c:set var="returnUrlPath" value="${initParam.serverName}${pageContext.request.requestURI}${not empty pageContext.request.queryString ? '?' : ''}${pageContext.request.queryString}"/>
-         <ala:bannerMenu returnUrlPath="${returnUrlPath}" searchPath="/images/search/" />
+         <ala:bannerMenu returnUrlPath="${returnUrlPath}"/>
+
          <div id="contentXX" style="background-color: #FFFFFF;">
+
+           <!--
            <div style="position:absolute; top:90px; right: 10px;">
            <h3>
            <a href="${pageContext.request.contextPath}/search?q=${param['q']}">ALA</a> 
@@ -115,6 +141,8 @@ include file="/common/taglibs.jsp" %><!DOCTYPE html>
            </c:if>
            
            </div>
+           -->
+
            <decorator:body />
          </div><!--close content-->
      </div><!--close wrapper-->

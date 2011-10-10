@@ -14,8 +14,7 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
         <p>Welcome to the Atlas of Living Australia <strong>Biodiversity Information Explorer</strong>.</p>
         <ul>
 	        <li><a href="regions/">Explore the states</a></li>
-	        <li><a href="contributors">Contributors list</a></li>
-	        <li><a href="images">Search with images (Alpha)</a></li>
+	        <li><a href="image-search/">Search with images (Alpha)</a></li>
 	    </ul>
         <h2>Free text occurrence search the BIE</h2>
 		<div id="inpage_search">
