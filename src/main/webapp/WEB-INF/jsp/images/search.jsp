@@ -69,9 +69,17 @@
             margin-bottom: 30px;
         }
 
+        #headingBar  {
+            margin-left:0px;
+            padding-left:10px;
+        }
+
         #headingBar h1 {
             text-align: left;
         }
+
+        #headingBar h1 a { text-decoration: none;}
+
 
     </style>
 </head>
@@ -80,13 +88,10 @@
 
 <div id="headingBar">
     <h1>
-        Images of species for
-        <a style="text-decoration: none;"
-                href="${pageContext.request.contextPath}/species/${param['scientificName']}">${param['taxonRank']}
-            : ${param['scientificName']}</a>
-        -
-        ${results.totalRecords} taxa returned with images
-    </h1>
+        Images of ${results.totalRecords} species from ${param['taxonRank']}
+        <a href="${pageContext.request.contextPath}/species/${param['scientificName']}">
+        ${param['scientificName']}</a>
+     </h1>
 </div>
 
 <div id="imageResults">
