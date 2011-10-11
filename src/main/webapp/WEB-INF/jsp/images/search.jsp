@@ -57,9 +57,11 @@
     <style type="text/css">
         .searchImage {
             background-color: white;
+            /*
             -moz-border-radius: 7px 7px 7px 7px;
             -webkit-border-radius: 7px 7px 7px 7px;
             border-radius: 7px 7px 7px 7px;
+            */
         }
 
         #loadMoreLink {
@@ -101,7 +103,7 @@
         <c:forEach items="${results.results}" var="searchTaxon" varStatus="status">
         <c:if test="${status.index % noOfColumns == 0 && status.index>0}"></tr>
     <tr></c:if>
-        <td>
+        <td style="width:${maxWidthImages}px">
             <a class="thumbImage"
                href="${pageContext.request.contextPath}/image-search/infoBox?q=${searchTaxon.guid}">
                 <img src="${fn:replace(searchTaxon.thumbnail, 'thumbnail', 'smallRaw' )}"
@@ -112,6 +114,11 @@
             <c:if test="${not empty searchTaxon.commonNameSingle}">${searchTaxon.commonNameSingle}<br/></c:if>
             <alatag:formatSciName name="${searchTaxon.nameComplete}" rankId="${searchTaxon.rankId}"/>
         </td>
+        </c:forEach>
+
+        <!-- padding -->
+        <c:forEach begin="0" end="${fn:length(results.results) % noOfColumns}">
+            <td style="width:${maxWidthImages}px">&nbsp;</td>
         </c:forEach>
     </tr>
 </table>
