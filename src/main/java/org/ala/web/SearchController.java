@@ -219,7 +219,11 @@ public class SearchController {
 	        	        if(map != null && map.get("name") != null){
 	        	        	Object name = map.get("name");
 	        	        	collectionsMap.put(uid, name.toString());
-	        	        }       			
+	        	        } 
+	        	        if(map != null && map.get("resourceType") != null){
+	        	        	Object resourceType = map.get("resourceType");
+	        	        	collectionsMap.put(uid + "_resourceType", resourceType.toString());
+	        	        }
 	        		}        		
 	        	}
 	        }

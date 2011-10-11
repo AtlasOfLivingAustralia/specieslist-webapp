@@ -236,16 +236,24 @@
                             <c:forEach var="item" items="${facetMap}">
                                 <li style="text-indent: -12px; text-transform: none;">
                                     <c:set var="closeLink">&nbsp;[<b><a href="#" onClick="javascript:removeFacet('${item.key}:${item.value}'); return true;" style="text-decoration: none" title="remove">X</a></b>]</c:set>
-                                    <fmt:message key="facet.${item.key}"/>:
                                     <c:choose>
-                                        <c:when test="${fn:containsIgnoreCase(item.key, 'australian_s')}">
-                                            <b><fmt:message key="recorded.${item.value}"/>&nbsp;${collectionsMap[item.value]}</b>${closeLink}
+                                        <c:when test="${fn:containsIgnoreCase(item.key, 'uid')}">
+                                        	<c:set var="_resourceType" value="${item.value}_resourceType" />
+                                            ${collectionsMap[_resourceType]}:<b>&nbsp;${collectionsMap[item.value]}</b>${closeLink}
                                         </c:when>
                                         <c:otherwise>
-                                            <b><fmt:message key="${item.value}"/>&nbsp;${collectionsMap[item.value]}</b>${closeLink}
+                                            <fmt:message key="facet.${item.key}"/>:
+                                            <c:choose>
+		                                        <c:when test="${fn:containsIgnoreCase(item.key, 'australian_s')}">
+		                                            <b><fmt:message key="recorded.${item.value}"/></b>${closeLink}
+		                                        </c:when>
+		                                        <c:otherwise>
+		                                            <b><fmt:message key="${item.value}"/></b>${closeLink}
+		                                        </c:otherwise>
+		                                    </c:choose>
                                         </c:otherwise>
                                     </c:choose>
-                                </li>
+                                 </li>
                             </c:forEach>
                         </ul>
                      </div>
