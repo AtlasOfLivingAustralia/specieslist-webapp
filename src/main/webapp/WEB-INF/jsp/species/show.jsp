@@ -701,7 +701,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                 <li>
                                     <a href="${status.index}" title=""><img src="${imageSrc}" class="overviewImage" style="max-width: ${imageSize}px" alt="" /></a>
                                     <c:if test="${not empty image.creator}">
-                                        <cite>Photo by: ${image.creator}
+                                        <cite>Image by: ${image.creator}
                                             <c:if test="${not empty image.rights}">
                                             <br/>Rights: ${image.rights}
                                             </c:if>

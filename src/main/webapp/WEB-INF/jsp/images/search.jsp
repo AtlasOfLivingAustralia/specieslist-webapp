@@ -108,7 +108,7 @@
                href="${pageContext.request.contextPath}/image-search/infoBox?q=${searchTaxon.guid}">
                 <img src="${fn:replace(searchTaxon.thumbnail, 'thumbnail', 'smallRaw' )}"
                      class="searchImage"
-                     style="border: 1px solid gray;max-width:${maxWidthImages}px; max-height:150px;"/>
+                     style="max-width:${maxWidthImages}px; max-height:150px;"/>
             </a>
             <br/>
             <c:if test="${not empty searchTaxon.commonNameSingle}">${searchTaxon.commonNameSingle}<br/></c:if>
