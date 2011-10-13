@@ -33,6 +33,8 @@ public class RankingCookieUtils {
 	private final static Logger logger = Logger.getLogger(RankingCookieUtils.class);
 	
 	public static final String propertyDelimiter = "@@@@@@@@@@";
+	public static final String RANKING_SESSION_COOKIES = "rankingCookies";
+
 	
 	/**
 	 * Retrieve a cookie value

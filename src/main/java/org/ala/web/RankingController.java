@@ -16,7 +16,9 @@ package org.ala.web;
 
 import java.net.URLEncoder;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -97,10 +99,12 @@ public class RankingController {
 		String cookieValue = RankingCookieUtils.getCookieValue(guid, str, positive);
 		Cookie cookie = new Cookie(Long.toString(System.currentTimeMillis()), cookieValue);
 		cookie.setMaxAge(60*60*24*365);
-		response.addCookie(cookie);		
+		
+		logger.debug("Create cookie: " + cookie.toString() + " ,guid: " + guid + " , str: " + str);
+		addRankingCookie(cookie, request);
+//		response.addCookie(cookie);		
 	}
 
-	
 	/**
 	 * Store an ranking for an commonName.
 	 * 
@@ -145,7 +149,8 @@ public class RankingController {
 		Cookie cookie = new Cookie(Long.toString(System.currentTimeMillis()), cookieValue);
 		cookie.setMaxAge(60*60*24*365);
 		logger.debug("Create cookie: " + cookie.toString() + " ,guid: " + guid + " , str: " + str);
-		response.addCookie(cookie);		
+		addRankingCookie(cookie, request);
+		//response.addCookie(cookie);		
 	}	
 	
 	private BaseRanking populateUserInfo(HttpServletRequest request){
@@ -168,6 +173,20 @@ public class RankingController {
 		baseRanking.setFullName(fullName);	
 		
 		return baseRanking;
-	}	
+	}
+	
+	public void addRankingCookie(Cookie cookie,	HttpServletRequest request) {
+		try{
+			List<Cookie> cookies = (List<Cookie>)request.getSession(true).getAttribute(RankingCookieUtils.RANKING_SESSION_COOKIES);
+			if(cookies == null){
+				cookies = new ArrayList<Cookie>();
+			}
+			cookies.add(cookie);
+			request.getSession(true).setAttribute(RankingCookieUtils.RANKING_SESSION_COOKIES, cookies);
+		}
+		catch(Exception e){
+			logger.error("[addRankingCookie]: " + e);
+		}
+	}		
 }
 

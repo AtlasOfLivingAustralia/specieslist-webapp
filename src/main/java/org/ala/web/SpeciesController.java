@@ -34,6 +34,7 @@ import java.util.TreeMap;
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -545,7 +546,20 @@ public class SpeciesController {
         model.addAttribute("infoSources", getInfoSource(etc));
 
         //retrieve cookies indicating user has ranked
-        List<StoredRanking> srs = RankingCookieUtils.getRankedImageUris(request.getCookies(), guid);
+        //List<StoredRanking> srs = RankingCookieUtils.getRankedImageUris(request.getCookies(), guid);
+        List<StoredRanking> srs = null;
+        try{
+	        List<Cookie> cookieList = (List<Cookie>)request.getSession(true).getAttribute(RankingCookieUtils.RANKING_SESSION_COOKIES);
+	        if(cookieList == null){
+	        	cookieList = new ArrayList<Cookie>();
+	        	request.getSession(true).setAttribute(RankingCookieUtils.RANKING_SESSION_COOKIES, cookieList);
+	        }
+	        Cookie[] cookies = new Cookie[cookieList.size()];        
+	        srs = RankingCookieUtils.getRankedImageUris(cookieList.toArray(cookies), guid);
+        }
+        catch(Exception ee){
+        	logger.error(ee);
+        }
         //create a list of URLs
         List<String> rankedUris = new ArrayList<String>();
         Map<String, Boolean> rankingMap = new HashMap<String, Boolean>();
