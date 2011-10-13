@@ -849,7 +849,7 @@ public class SpeciesController {
      * @param response
      * @throws IOException
      */
-    @RequestMapping(value="/species/images/{documentId}.jpg", method = RequestMethod.GET)
+//    @RequestMapping(value="/species/images/{documentId}.jpg", method = RequestMethod.GET)
     public void thumbnailHandler(@PathVariable("documentId") int documentId, 
             @RequestParam(value="scale", required=false, defaultValue ="1000") Integer scale,
             @RequestParam(value="square", required=false, defaultValue ="false") Boolean square,
@@ -899,6 +899,50 @@ public class SpeciesController {
         }
     }
 
+    /**
+     * Dynamically generate a scaled and/or square image
+     * 
+     * @param documentId
+     * @param scale
+     * @param square
+     * @param outputStream
+     * @param response
+     * @throws IOException
+     */
+    @RequestMapping(value="/species/images/{documentId}.jpg", method = RequestMethod.GET)
+    public void largeRawHandler(@PathVariable("documentId") int documentId, 
+            @RequestParam(value="scale", required=false, defaultValue ="1000") Integer scale,
+            @RequestParam(value="square", required=false, defaultValue ="false") Boolean square,
+            OutputStream outputStream,
+            HttpServletResponse response) throws IOException {
+        logger.debug("Requested image " + documentId + ".jpg ");
+        Document doc = documentDAO.getById(documentId);
+        if (doc != null) {
+            // augment data with title from reading dc file
+            MimeType mt = MimeType.getForMimeType(doc.getMimeType());
+            String fileName = doc.getFilePath()+"/largeRaw"+mt.getFileExtension();
+            logger.debug("filename = "+fileName);
+            ImageUtils iu = new ImageUtils();
+            try {
+                logger.debug("Loading with image utils...");
+                iu.load(fileName); // problem with Jetty 7.0.1
+                logger.debug("Loaded");                
+                response.setContentType(mt.getMimeType());
+                ImageIO.write(iu.getModifiedImage(), mt.name(), outputStream);
+
+            } catch (Exception ex) {
+                logger.error("Problem loading image with JAI: " + ex.getMessage(), ex);
+                String url = repoUrlUtils.fixSingleUrl(fileName);
+                logger.warn("Redirecting to: "+url);
+                response.sendRedirect(repoUrlUtils.fixSingleUrl(url));
+                return;
+            }
+        } else {
+            logger.error("Requested image " + documentId + ".jpg was not found");
+            response.sendError(response.SC_NOT_FOUND, "Requested image " + documentId + ".jpg was not found");
+        }
+    }
+    
     /**
      * Pest / Conservation status list
      *
