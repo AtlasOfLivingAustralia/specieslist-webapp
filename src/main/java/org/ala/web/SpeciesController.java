@@ -1030,19 +1030,14 @@ public class SpeciesController {
      */
     @RequestMapping(value = {"/species/fieldGuides", "/species/fieldGuides.json"}, method = RequestMethod.POST)
     public @ResponseBody List<TaxonDTO> getTaxonDTOForGuids(HttpServletRequest request) throws Exception {
-
         List<TaxonDTO> taxa = new ArrayList<TaxonDTO>();
         InputStream body = request.getInputStream();
         ObjectMapper om = new ObjectMapper();
         List<String> guids = om.readValue(body, new TypeReference<List<String>>(){});
-        for (String guid : guids) {
-            try {
-                ExtendedTaxonConceptDTO tc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
-                repoUrlUtils.fixRepoUrls(tc);
-                taxa.add(createTaxonDTO(tc));
-            } catch (Exception ex) {
-                logger.warn("No TN found for guid: " + guid, ex);
-            }
+        List<ExtendedTaxonConceptDTO> tcs = taxonConceptDao.getExtendedTaxonConceptByGuids(guids);
+        for (ExtendedTaxonConceptDTO tc : tcs) {
+            repoUrlUtils.fixRepoUrls(tc);
+            taxa.add(createTaxonDTO(tc));
         }
         return taxa;
     }
