@@ -463,7 +463,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid, boolean checkedPrefered) throws Exception;
+	ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid, boolean checkedPreferred) throws Exception;
 
 	/**
 	 * Retrieve the Taxon Name for the supplied GUID.
@@ -482,7 +482,7 @@ public interface TaxonConceptDao {
 	 * @return
 	 * @throws Exception
 	 */
-	List<SearchTaxonConceptDTO> findByScientificName(String input, int limit) throws Exception;
+	List<SearchTaxonConceptDTO> findByScientificName(String scientificName, int limit) throws Exception;
 
 	/**
 	 * Search for taxon concept with the following scientific name
@@ -554,12 +554,10 @@ public interface TaxonConceptDao {
 
     /**
      * Reports the name matching statistics to the supplied output stream
-     * @param output
-     * @param source The name of the source for the stats
-     * @param filename The associated file/directory for the stats
+     * @param outputStream
      * @throws Exception
      */
-    void reportStats(java.io.OutputStream output, String prefix) throws Exception;
+    void reportStats(java.io.OutputStream outputStream, String prefix) throws Exception;
 
     /**
      * Resets the name matching statistics
@@ -588,11 +586,11 @@ public interface TaxonConceptDao {
 	/**
 	 * Delete the TaxonConcept for the supplied guid
 	 *
-	 * @param guid
+	 * @param infoSourceIds
 	 * @return true if a delete was performed
 	 * @throws Exception
 	 */
-	boolean deleteForInfosources(String[] infoSourceId) throws Exception;
+	boolean deleteForInfosources(String[] infoSourceIds) throws Exception;
 
 	/**
 	 * Synchronises these triples to a taxon concept in hbase.
@@ -600,12 +598,10 @@ public interface TaxonConceptDao {
 	 * @return true if we where able to add these properties to an existing
 	 * taxon. False otherwise
 	 *
-	 * @param infosourceId the infosource supplying the triples
 	 * @param document the document supplying the triples
 	 * @param triples the triples to add
-	 * @param the filepath of the document
-         * @param statsOnly true when we only want to record statistics.
-         * false when we want to add it to the repository
+     * @param statsOnly true when we only want to record statistics.
+     * false when we want to add it to the repository
 	 * @throws Exception
 	 */
 	boolean syncTriples(org.ala.model.Document document, List<Triple> triples, Map<String,String> dublinCore, boolean statsOnly) throws Exception;
@@ -646,7 +642,7 @@ public interface TaxonConceptDao {
 	/**
 	 * Adds a (literature) reference to this taxon.
 	 * 
-	 * @param reference
+	 * @param references
 	 */
 	boolean addReferences(String guid, List<Reference> references) throws Exception;
 
@@ -704,9 +700,7 @@ public interface TaxonConceptDao {
     /**
      * Sets the image ranking to the specified rank and count
      * @param taxonGuid
-     * @param imageUri
-     * @param count
-     * @param rank
+     * @param rankings
      * @return
      * @throws Exception
      */
@@ -736,7 +730,8 @@ public interface TaxonConceptDao {
      * @throws Exception
      */
     boolean setIsAustralian(String guid) throws Exception;
-	boolean setIsAustralian(String guid, boolean bool) throws Exception;
+	  
+	  boolean setIsAustralian(String guid, boolean bool) throws Exception;
     /**
      * Is this concept Aussie ?
      * 
@@ -807,8 +802,7 @@ public interface TaxonConceptDao {
 	/**
 	 * Retrieve the synonyms for the Taxon Concept with the supplied guid.
 	 *
-	 * @param guid
-	 * @return
+	 * @param startGuid
 	 * @throws Exception
 	 */
 	List<ExtendedTaxonConceptDTO> getPage(String startGuid, int pageSize) throws Exception;
@@ -816,8 +810,7 @@ public interface TaxonConceptDao {
 	/**
 	 * Retrieve the synonyms for the Taxon Concept with the supplied guid.
 	 *
-	 * @param guid
-	 * @return
+	 * @param startGuid
 	 * @throws Exception
 	 */
 	List<SpeciesProfileDTO> getProfilePage(String startGuid, int pageSize) throws Exception;
@@ -835,14 +828,12 @@ public interface TaxonConceptDao {
      *
      * When the common name returns more than 1 hit a result is only returned if all the scientific names match
      * 
-     * @see CBIndexSearch.getLSIDForUniqueCommonName
-     * 
-     * @param name
-     * @return
+     * @param commonName
+     * @return the lsid, null if not found
      */	
 	String findLSIDByCommonName(String commonName);
 	
-	public String findLSIDByConcatName(String concatName);
+	String findLSIDByConcatName(String concatName);
 	
 	public boolean setRanking(String guid, ColumnType columnType, BaseRanking ir)throws Exception;
 	public boolean setRanking(String guid, ColumnType columnType, BaseRanking baseRanking, boolean reindex)throws Exception;

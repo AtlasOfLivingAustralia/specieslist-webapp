@@ -147,7 +147,7 @@ public interface StoreHelper {
 	 * @return a Map keys on record GUID
 	 */
 	Map<String, Map<String,Object>> getPageOfSubColumns(String tcColFamily, String superColumn, String startGuid, int pageSize);
-	
+
 	/**
 	 * 
 	 * @param tcColFamily
@@ -156,6 +156,24 @@ public interface StoreHelper {
 	 * @param pageSize
 	 */
 	Map<String, Map<String,Object>> getPageOfSubColumns(String tcColFamily, String superColumn, ColumnType[] subColumns, String startGuid, int pageSize);
+
+    /**
+     *
+     * @param columnFamily
+     * @param superColName
+     * @param guids
+     * @return
+     */
+    Map<String, Map<String,Object>> getPageOfSubColumns(String columnFamily, String superColName, ColumnType[] subColumns,List<String> guids);
+
+    /**
+     *
+     * @param columnFamily
+     * @param superColName
+     * @param guids
+     * @return
+     */
+    Map<String, Map<String,Object>> getPageOfSubColumns(String columnFamily, String superColName, List<String> guids);
 	
 	/**
 	 * Get a single string value property.
@@ -180,13 +198,35 @@ public interface StoreHelper {
 	 * @throws Exception
 	 */
 	boolean updateStringValue(String table, String columnFamily, String columnName, String guid, String value) throws Exception;
-	
-	/**
-	 * for create Ranking index (ColumnFamily = 'rk').
-	 * @see RankingDaoImpl.createIndex()
-	 */
+
+    /**
+     * Retrieve a scanner for this column family.
+     * @param table
+     * @param columnFamily
+     * @return
+     * @throws Exception
+     */
 	Scanner getScanner(String table, String columnFamily) throws Exception;
-	List<String> getSuperColumnsByGuid(String guid, String columnFamily) throws Exception;	
-	Map<String, List<Comparable>> getColumnList(String columnFamily, String superColumnName, String guid, Class theClass) throws Exception;
-	
+
+    /**
+     * Get the
+     *
+     * @param guid
+     * @param columnFamily
+     * @return
+     * @throws Exception
+     */
+	List<String> getSuperColumnsByGuid(String guid, String columnFamily) throws Exception;
+
+    /**
+     * Retrieve a list of columns
+     *
+     * @param columnFamily
+     * @param superColumnName
+     * @param guid
+     * @param theClass
+     * @return
+     * @throws Exception
+     */
+    Map<String, List<Comparable>> getColumnList(String columnFamily, String superColumnName, String guid, Class theClass) throws Exception;
 }

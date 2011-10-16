@@ -107,7 +107,6 @@ import org.ala.util.RankingType;
  * datastore in use.
  * 
  * @see StoreHelper
- * @see HBaseHelper
  * @see CassandraHelper
  * 
  * @author Dave Martin
@@ -225,8 +224,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 
 		if (tc != null && tc.getGuid() == null) {
-			throw new IllegalArgumentException(
-					"Supplied GUID for the Taxon Concept is null.");
+			throw new IllegalArgumentException("Supplied GUID for the Taxon Concept is null.");
 		}
 
 		// FIXME this is here to update some information not available in the
@@ -336,8 +334,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	
 	public boolean addScreenshotImage(String guid, Image image)
 	        throws Exception {
-//	    System.out.println("!!!!!ADDING SCREENSHOT TO GUID: " + guid);
-	    
+	    //System.out.println("!!!!!ADDING SCREENSHOT TO GUID: " + guid);
 	    return storeHelper.put(TC_TABLE, TC_COL_FAMILY,
 	            ColumnType.SCREENSHOT_IMAGE_COL.getColumnName(), guid,
 	            image);
@@ -795,14 +792,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		List<String> statusTerms = vocabulary.getTermsForStatusType(statusType);
 
 		String query = StringUtils.join(statusTerms, "|");
-		System.out.println(statusType + " query = " + query + ".");
+		//System.out.println(statusType + " query = " + query + ".");
 		BooleanQuery searchQuery = new BooleanQuery();
 
 		for (String st : statusTerms) {
 			searchQuery.add(new TermQuery(new Term(statusType.toString(), st)),
 					BooleanClause.Occur.SHOULD);
 		}
-		System.out.println("search query = " + searchQuery.toString());
+		//System.out.println("search query = " + searchQuery.toString());
 		return sortPageSearch(searchQuery, startIndex, pageSize, sortField,
 				sortDirection);
 	}
@@ -864,10 +861,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		return lsid;
 	}
 
-	/**
-	 * @see org.ala.dao.TaxonConceptDao#findCBDataByName(java.lang.String,
-	 *      java.lang.String, java.lang.String, java.lang.String)
-	 */
 	@Override
 	public NameSearchResult findCBDataByName(String scientificName,
 			LinnaeanRankClassification classification, String rank)
@@ -876,9 +869,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				RankType.getForName(rank));
 	}
 
-    /**
-     * @see org.ala.dao.TaxonConceptDao#reportStats(java.io.OutputStream, java.lang.String, java.lang.String) 
-     */
     public void reportStats(java.io.OutputStream output, String prefix) throws Exception{
         String line = prefix + "," + anbgMatched+"," +otherMatched + "," + failedMatch+"," +homonyms+"\n";
         output.write(line.getBytes());
@@ -996,7 +986,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			if (rank != null) {
 				image.setNoOfRankings(rank[0]);
 				image.setRanking(rank[1]);
-				System.out.println("Reinitialising the ranking for "
+				logger.debug("Reinitialising the ranking for "
 						+ image.getIdentifier());
 
 			}
@@ -1645,7 +1635,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				}
 			}
 			catch(Exception e){
-				logger.error("*** ERROR -- guid: " + guid, e);
+				logger.error("*** Error indexing guid: " + guid, e);
 				continue;
 			}
 		}
@@ -1661,13 +1651,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				+ " seconds with " + i + " taxon concepts processed.");
 	}
 
-	public Set<String> getUidFromExtendedTaxonConceptDTO(ExtendedTaxonConceptDTO eto) 
-	        throws Exception{
-	    Set<String> uidSet = new HashSet<String>();
-	    
-	    return uidSet;
-	}
-	
 	/**
 	 * Index the supplied taxon concept.
 	 * 
@@ -2051,7 +2034,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 
 		ParsedName parsedName = nameParser.parseIgnoreAuthors(normalized);
-//		parsedName.type.
 		// store scientific name values in a set before adding to Lucene so we
 		// don't get duplicates
 		TreeSet<String> sciNames = new TreeSet<String>();
@@ -2159,7 +2141,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	}
 
 	/**
-	 * @see org.ala.dao.TaxonConceptDao#addReference(org.ala.model.Reference)
+	 * @see org.ala.dao.TaxonConceptDao#addReferences(String, java.util.List)
 	 */
 	public boolean addReferences(String guid,
 			List<org.ala.model.Reference> references) throws Exception {
@@ -2180,8 +2162,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	}
 
 	/**
-	 * @see org.ala.dao.TaxonConceptDao#addPublicationReference(java.lang.String,
-	 *      org.ala.model.Reference)
+	 * @see org.ala.dao.TaxonConceptDao#addPublicationReference(String, java.util.List)
 	 */
 	public boolean addPublicationReference(String guid,
 			List<Reference> references) throws Exception {
@@ -2202,7 +2183,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	}
 
 	/**
-	 * @see org.ala.dao.TaxonConceptDao#getExtantStatus(java.lang.String)
+	 * @see org.ala.dao.TaxonConceptDao#getExtantStatuses(String)
 	 */
 	@Override
 	public List<ExtantStatus> getExtantStatuses(String guid) throws Exception {
@@ -2222,8 +2203,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	}
 
 	/**
-	 * @see org.ala.dao.TaxonConceptDao#addExtantStatus(java.lang.String,
-	 *      org.ala.model.ExtantStatus)
+	 * @see org.ala.dao.TaxonConceptDao#addExtantStatus(String, java.util.List)
 	 */
 	@Override
 	public boolean addExtantStatus(String guid,
@@ -2234,8 +2214,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	}
 
 	/**
-	 * @see org.ala.dao.TaxonConceptDao#addHabitat(java.lang.String,
-	 *      org.ala.model.Habitat)
+	 * @see org.ala.dao.TaxonConceptDao#addHabitat(String, java.util.List)
 	 */
 	@Override
 	public boolean addHabitat(String guid, List<Habitat> habitatList)
@@ -2361,7 +2340,22 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		return getExtendedTaxonConceptByGuid(guid, true);
 	}
 
-	/**
+    /**
+     * @param guids
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<ExtendedTaxonConceptDTO> getExtendedTaxonConceptByGuids(List<String> guids) throws Exception {
+		Map<String, Map<String, Object>> map = storeHelper.getPageOfSubColumns(TC_COL_FAMILY, TC_COL_FAMILY, guids);
+        List<ExtendedTaxonConceptDTO> edtos = new ArrayList<ExtendedTaxonConceptDTO>();
+        for(String guid: map.keySet()){
+		    edtos.add(createExtendedDTO(map.get(guid)));
+        }
+        return edtos;
+    }
+
+    /**
 	 * @see org.ala.dao.TaxonConceptDao#getExtendedTaxonConceptByGuid(java.lang.String, boolean)
 	 */
 	public ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid, boolean checkPreferred)
@@ -2377,8 +2371,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	}
 	
 	/**
-	 * 
-	 * @param etc
 	 * @param map
 	 */
 	private ExtendedTaxonConceptDTO createExtendedDTO(Map<String, Object> map) {
@@ -2616,9 +2608,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
      * Returns the LSID for the CB name usage for the supplied common name.
      *
      * When the common name returns more than 1 hit a result is only returned if all the scientific names match
-     * @see CBIndexSearch.getLSIDForUniqueCommonName
-     * 
-     * @param name
+     *
      * @return
      */	
 	public String findLSIDByCommonName(String commonName){
@@ -2702,7 +2692,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	}
 
 	/**
-	 * @see org.ala.dao.TaxonConceptDao#setVocabulary(org.ala.vocabulary.Vocabulary)
 	 */
 	public void setVocabulary(Vocabulary vocabulary) {
 		this.vocabulary = vocabulary;

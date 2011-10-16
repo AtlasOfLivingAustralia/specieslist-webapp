@@ -108,34 +108,34 @@ public class CassandraScanner implements Scanner {
 		}
 	}
 
-	/**
-	 * A bit of test code for scanning.
-	 * 
-	 * @param args
-	 * @throws Exception
-	 */
-	public static void main(String[] args) throws Exception {
-		CassandraHelper c = new CassandraHelper();
-		c.init();
-		CassandraScanner s = new CassandraScanner(c.getConnection(),"bie", "tc", "taxonConcept");
-		byte[] guid = null;
-		int i = 0;
-//		TreeSet<String> set = new TreeSet<String>();
-		
-		while((guid=s.getNextGuid())!=null){
-			i++;
-//			set.add(new String(guid));
-			if(i%100==0){
-				System.out.println("record: "+i+" guid:"+new String(guid));
-			}
-		}
-		
-//		System.out.println("first loaded: "+ set.first());
-//		System.out.println("last loaded: "+ set.last());
-		System.out.println("row count: "+i);
-//		System.out.println("set count: "+set.size());
-	}
-	
+//	/**
+//	 * A bit of test code for scanning.
+//	 *
+//	 * @param args
+//	 * @throws Exception
+//	 */
+//	public static void main(String[] args) throws Exception {
+//		CassandraHelper c = new CassandraHelper();
+//		c.init();
+//		CassandraScanner s = new CassandraScanner(c.getConnection(),"bie", "tc", "taxonConcept");
+//		byte[] guid = null;
+//		int i = 0;
+////		TreeSet<String> set = new TreeSet<String>();
+//
+//		while((guid=s.getNextGuid())!=null){
+//			i++;
+////			set.add(new String(guid));
+//			if(i%100==0){
+//				System.out.println("record: "+i+" guid:"+new String(guid));
+//			}
+//		}
+//
+////		System.out.println("first loaded: "+ set.first());
+////		System.out.println("last loaded: "+ set.last());
+//		System.out.println("row count: "+i);
+////		System.out.println("set count: "+set.size());
+//	}
+//
 
 	/**
 	 * @return the pageSize

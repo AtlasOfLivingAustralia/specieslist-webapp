@@ -13,6 +13,7 @@
  * rights and limitations under the License.
  ***************************************************************************/
 package org.ala.dao;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -437,27 +438,85 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		}
     }
 
+    /**
+     *
+     * @param columnFamily
+     * @param superColName
+     * @param startGuid the first object to return
+     * @param pageSize the number of objects to return
+     * @return
+     */
     public Map<String, Map<String,Object>> getPageOfSubColumns(String columnFamily, String superColName, String startGuid, int pageSize) {
     	return getPageOfSubColumns(columnFamily, superColName, null, startGuid, pageSize);
     }
-    
-	@Override
-	public Map<String, Map<String,Object>> getPageOfSubColumns(String columnFamily, String superColName, ColumnType[] columns, String startGuid, int pageSize) {
-    	
-		Map<String, Map<String,Object>> rowMap = new LinkedHashMap<String, Map<String,Object>>();
-    	
-        logger.debug("Pelops getting page with start guid: " + startGuid);
+
+    /**
+     *
+     * @param columnFamily
+     * @param superColName
+     * @param guids
+     * @return
+     */
+    public Map<String, Map<String,Object>> getPageOfSubColumns(String columnFamily, String superColName, List<String> guids) {
+        return getPageOfSubColumns(columnFamily, superColName, null, guids);
+    }
+
+    /**
+     * Retrieve a page of subcolumns using the supplied GUIDS.
+     *
+     * @param columnFamily
+     * @param superColName
+     * @param columns
+     * @param guids
+     * @return
+     */
+	public Map<String, Map<String,Object>> getPageOfSubColumns(String columnFamily, String superColName, ColumnType[] columns, List<String> guids) {
+
+        logger.debug("Pelops getting page with using a list of guids");
         Selector selector = Pelops.createSelector(pool, keySpace);
-        
+
         try{
             //initialise the object mapper
     		ObjectMapper mapper = new ObjectMapper();
     		mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
+    		//create the column slice
+            SlicePredicate slicePredicate = getSlicePredicateForAll(columns);
+
+    		//retrieve a list of columns for each of the rows
+    		Map<String, List<Column>> colListMap = selector.getSubColumnsFromRows(guids, columnFamily, superColName, slicePredicate, ConsistencyLevel.ONE);
+            return processColumnMap(colListMap);
+        } catch(Exception e){
+            //expected behaviour. current thrift API doesnt seem
+            //to support a retrieve null getter
+        	if(logger.isDebugEnabled()){
+        		logger.debug(e.getMessage(), e);
+        	}
+        }
+        return new LinkedHashMap<String, Map<String,Object>>();
+	}
+
+    private SlicePredicate getSlicePredicateForAll(ColumnType[] columns) {
+        if(columns==null || columns.length==0){
+            return Selector.newColumnsPredicateAll(true, 10000);
+        } else {
+            SlicePredicate slicePredicate = new SlicePredicate();
+            for(ColumnType ct: columns) {
+                slicePredicate.addToColumn_names(ct.getColumnName().getBytes());
+            }
+            return slicePredicate;
+        }
+    }
+
+    @Override
+	public Map<String, Map<String,Object>> getPageOfSubColumns(String columnFamily, String superColName, ColumnType[] columns, String startGuid, int pageSize) {
+    	
+        logger.debug("Pelops getting page with start guid: " + startGuid);
+        Selector selector = Pelops.createSelector(pool, keySpace);
+        
+        try{
     		KeyRange kr = new KeyRange();
     		if(StringUtils.isNotEmpty(startGuid)){
-//    			kr.start_key = startGuid;
-//    			kr.end_key = "";
     			kr.start_key = startGuid;
     			kr.end_key = "";
     		} else {
@@ -468,57 +527,14 @@ public class CassandraPelopsHelper implements StoreHelper  {
     		kr.setCount(pageSize);
     		
     		//create the column slice
-    		SlicePredicate slicePredicate = null;
-    		if(columns==null || columns.length==0){
-    			slicePredicate = Selector.newColumnsPredicateAll(true, 10000);
-    		} else {
-    			slicePredicate = new SlicePredicate();
-    			for(ColumnType ct: columns) {
-    				slicePredicate.addToColumn_names(ct.getColumnName().getBytes());
-    			}
-    		}
+            SlicePredicate slicePredicate = getSlicePredicateForAll(columns);
 
     		//retrieve a list of columns for each of the rows
     		Map<String, List<Column>> colListMap = selector.getSubColumnsFromRows(kr, columnFamily, superColName, slicePredicate, ConsistencyLevel.ONE);
     		//remove the matching key to enable paging without duplication
     		colListMap.remove(startGuid);
-            
-    		logger.debug("Returning rows: " + colListMap.size());
-    		
-            // convert json string to Java object and add into Map object.
-    		for(String guid: colListMap.keySet()){
-    		
-    			List<Column> cols = colListMap.get(guid);
-    			Map<String, Object> map = new HashMap<String,Object>();
-    			
-	            for(Column col : cols){
-	            	String name = new String(col.name, charsetEncoding);
-	            	String value = new String(col.value, charsetEncoding);
-	            	ColumnType type = ColumnType.getColumnType(name);
-	            	Object o = null;
-	            	try{
-	            		if(type != null){
-	            			// convertion is based on pre-define ColumnType.
-			            	if(!type.isList()){
-			            		o = mapper.readValue(value, type.getClazz());
-			            	} else{
-			            		o = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, type.getClazz()));
-			            	}
-	            		} else{
-	            			logger.info("ColumnType lookup failed. Invalid SubColumn Name: " + name);
-	            		}
-		            }
-	            	catch(Exception ex){
-	            		logger.error(ex);
-	            	}
-	            	
-	            	if(o != null){
-	            		map.put(name, o);
-	            	}
-	            	logger.trace("*** name: " + name + ", value: " + value);
-	            }
-	            rowMap.put(guid, map);
-    		}
+
+            return processColumnMap(colListMap);
         } catch(Exception e){
             //expected behaviour. current thrift API doesnt seem
             //to support a retrieve null getter
@@ -526,9 +542,56 @@ public class CassandraPelopsHelper implements StoreHelper  {
         		logger.debug(e.getMessage(), e);
         	}
         }
-        return rowMap;
+        return new LinkedHashMap<String, Map<String,Object>>();
 	}
-    
+
+
+    private Map<String, Map<String,Object>> processColumnMap(Map<String, List<Column>> colListMap) throws UnsupportedEncodingException {
+
+        logger.debug("Returning rows: " + colListMap.size());
+        Map<String, Map<String,Object>> rowMap = new LinkedHashMap<String, Map<String,Object>>();
+        //initialise the object mapper
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+
+        // convert json string to Java object and add into Map object.
+        for(String guid: colListMap.keySet()){
+
+            List<Column> cols = colListMap.get(guid);
+            Map<String, Object> map = new HashMap<String,Object>();
+
+            for(Column col : cols){
+                String name = new String(col.name, charsetEncoding);
+                String value = new String(col.value, charsetEncoding);
+                ColumnType type = ColumnType.getColumnType(name);
+                Object o = null;
+                try{
+                    if(type != null){
+                        // convertion is based on pre-define ColumnType.
+                        if(!type.isList()){
+                            o = mapper.readValue(value, type.getClazz());
+                        } else{
+                            o = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, type.getClazz()));
+                        }
+                    } else{
+                        logger.info("ColumnType lookup failed. Invalid SubColumn Name: " + name);
+                    }
+                }
+                catch(Exception ex){
+                    logger.error(ex);
+                }
+
+                if(o != null){
+                    map.put(name, o);
+                }
+                logger.trace("*** name: " + name + ", value: " + value);
+            }
+            rowMap.put(guid, map);
+        }
+        return rowMap;
+    }
+
     /**
      * @see org.ala.dao.StoreHelper#getScanner(java.lang.String, java.lang.String, java.lang.String)
      */
@@ -537,107 +600,6 @@ public class CassandraPelopsHelper implements StoreHelper  {
     	return new CassandraScanner(Pelops.getDbConnPool(pool).getConnection().getAPI(), keySpace, columnFamily, column);
     }
 
-    public static void main(String[] args) throws Exception {
-    	CassandraPelopsHelper helper = new CassandraPelopsHelper();
-    	helper.init();
-    	
-    	Map<String, Object> map = helper.getSubColumnsByGuid("tc","tc", "103067807");
-    	Set<String> keys = map.keySet();
-    	Iterator<String> it = keys.iterator();
-    	while(it.hasNext()){
-    		String key = it.next();
-    		ColumnType type = ColumnType.getColumnType(key);
-    		Object o = map.get(type.getColumnName());
-    		if(o instanceof List){
-    			List l = (List)o;
-    		}
-    		else{
-    			Comparable c = (Comparable)o;
-    		}
-    	}
-   	
-/*  
-		TaxonConcept t = null;	
-    	List<Comparable> l = new ArrayList<Comparable>();
-
-		for(int i=0; i< 10; i++){
-	        t =  new TaxonConcept();
-	        t.setId(i);
-	        t.setGuid("urn:lsid:"+i);
-	        t.setNameString("Aus bus");
-	        t.setAuthor("Smith");
-	        t.setAuthorYear("2008");
-	        t.setInfoSourceName("AFD");
-	        t.setInfoSourceURL("http://afd.org.au");
-	        helper.putSingle("taxonConcept", "tc", "taxonConcept", t.getGuid(), t);
-	        
-	        l.add(t);
-	        if(i % 1000==0){
-	        	System.out.println("id: "+i);
-	        }
-		}
-		helper.putList("taxonConcept", "tc", "taxonConcept", "128", l, true);
-		
-        CommonName c1 = new CommonName();
-        c1.setNameString("Dave");
-
-        CommonName c2 = new CommonName();
-        c2.setNameString("Frank");
-
-        helper.putSingle("taxonConcept", "tc", "taxonConcept", "123", t);
-        helper.put("taxonConcept", "tc", "commonName", "123", c1);
-        helper.put("taxonConcept", "tc", "commonName", "123", c2);
-        helper.putSingle("taxonConcept", "tc", "taxonConcept", "124", t);
-        
-        TaxonConcept tc = (TaxonConcept) helper.get("taxonConcept", "tc", "taxonConcept", "123", TaxonConcept.class);
-        System.out.println("Retrieved: "+tc.getNameString());
-        
-        List<CommonName> cns = (List) helper.getList("taxonConcept", "tc", "commonName", "123", CommonName.class);
-        System.out.println("Retrieved: "+cns);
-*/
-        //cassandra scanning
-    	Scanner scanner = helper.getScanner("taxonConcept", "tc", "taxonConcept");
-    	for(int i = 0; i < 10; i++){
-    		System.out.println(new String(scanner.getNextGuid()));
-    	}
-		System.exit(0);
-    }
-
-	/**
-	 * @param keySpace the keySpace to set
-	 */
-	public static void setKeySpace(String keySpace) {
-		CassandraPelopsHelper.keySpace = keySpace;
-	}
-
-	/**
-	 * @param host the host to set
-	 */
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	/**
-	 * @param pool the pool to set
-	 */
-	public void setPool(String pool) {
-		this.pool = pool;
-	}
-
-	/**
-	 * @param port the port to set
-	 */
-	public void setPort(int port) {
-		this.port = port;
-	}
-
-	/**
-	 * @param charsetEncoding the charsetEncoding to set
-	 */
-	public void setCharsetEncoding(String charsetEncoding) {
-		this.charsetEncoding = charsetEncoding;
-	}
-	
 	public Scanner getScanner(String table, String columnFamily) throws Exception {
     	return new CassandraScanner(Pelops.getDbConnPool(pool).getConnection().getAPI(), keySpace, columnFamily);
     }
@@ -684,5 +646,107 @@ public class CassandraPelopsHelper implements StoreHelper  {
 			}
 		}        
 		return al;
-    }	
+    }
+
+
+    public static void main(String[] args) throws Exception {
+    	CassandraPelopsHelper helper = new CassandraPelopsHelper();
+    	helper.init();
+
+    	Map<String, Object> map = helper.getSubColumnsByGuid("tc","tc", "103067807");
+    	Set<String> keys = map.keySet();
+    	Iterator<String> it = keys.iterator();
+    	while(it.hasNext()){
+    		String key = it.next();
+    		ColumnType type = ColumnType.getColumnType(key);
+    		Object o = map.get(type.getColumnName());
+    		if(o instanceof List){
+    			List l = (List)o;
+    		}
+    		else{
+    			Comparable c = (Comparable)o;
+    		}
+    	}
+
+/*
+		TaxonConcept t = null;
+    	List<Comparable> l = new ArrayList<Comparable>();
+
+		for(int i=0; i< 10; i++){
+	        t =  new TaxonConcept();
+	        t.setId(i);
+	        t.setGuid("urn:lsid:"+i);
+	        t.setNameString("Aus bus");
+	        t.setAuthor("Smith");
+	        t.setAuthorYear("2008");
+	        t.setInfoSourceName("AFD");
+	        t.setInfoSourceURL("http://afd.org.au");
+	        helper.putSingle("taxonConcept", "tc", "taxonConcept", t.getGuid(), t);
+
+	        l.add(t);
+	        if(i % 1000==0){
+	        	System.out.println("id: "+i);
+	        }
+		}
+		helper.putList("taxonConcept", "tc", "taxonConcept", "128", l, true);
+
+        CommonName c1 = new CommonName();
+        c1.setNameString("Dave");
+
+        CommonName c2 = new CommonName();
+        c2.setNameString("Frank");
+
+        helper.putSingle("taxonConcept", "tc", "taxonConcept", "123", t);
+        helper.put("taxonConcept", "tc", "commonName", "123", c1);
+        helper.put("taxonConcept", "tc", "commonName", "123", c2);
+        helper.putSingle("taxonConcept", "tc", "taxonConcept", "124", t);
+
+        TaxonConcept tc = (TaxonConcept) helper.get("taxonConcept", "tc", "taxonConcept", "123", TaxonConcept.class);
+        System.out.println("Retrieved: "+tc.getNameString());
+
+        List<CommonName> cns = (List) helper.getList("taxonConcept", "tc", "commonName", "123", CommonName.class);
+        System.out.println("Retrieved: "+cns);
+*/
+        //cassandra scanning
+    	Scanner scanner = helper.getScanner("taxonConcept", "tc", "taxonConcept");
+    	for(int i = 0; i < 10; i++){
+    		System.out.println(new String(scanner.getNextGuid()));
+    	}
+		System.exit(0);
+    }
+
+	/**
+	 * @param keySpace the keySpace to set
+	 */
+	public static void setKeySpace(String keySpace) {
+		CassandraPelopsHelper.keySpace = keySpace;
+	}
+
+	/**
+	 * @param host the host to set
+	 */
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	/**
+	 * @param pool the pool to set
+	 */
+	public void setPool(String pool) {
+		this.pool = pool;
+	}
+
+	/**
+	 * @param port the port to set
+	 */
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	/**
+	 * @param charsetEncoding the charsetEncoding to set
+	 */
+	public void setCharsetEncoding(String charsetEncoding) {
+		this.charsetEncoding = charsetEncoding;
+	}
 }
