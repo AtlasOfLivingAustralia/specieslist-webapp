@@ -107,8 +107,7 @@ import org.ala.util.RankingType;
  * datastore in use.
  * 
  * @see StoreHelper
- * @see CassandraHelper
- * 
+ *
  * @author Dave Martin
  */
 @Component("taxonConceptDao")
@@ -2345,7 +2344,6 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
      * @return
      * @throws Exception
      */
-    @Override
     public List<ExtendedTaxonConceptDTO> getExtendedTaxonConceptByGuids(List<String> guids) throws Exception {
 		Map<String, Map<String, Object>> map = storeHelper.getPageOfSubColumns(TC_COL_FAMILY, TC_COL_FAMILY, guids);
         List<ExtendedTaxonConceptDTO> edtos = new ArrayList<ExtendedTaxonConceptDTO>();

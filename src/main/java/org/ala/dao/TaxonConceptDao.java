@@ -407,7 +407,6 @@ public interface TaxonConceptDao {
 	 * Sets the child taxa for this concept.
 	 *
 	 * @param guid
-	 * @param childConcept
 	 * @throws Exception
 	 */
 	boolean setChildTaxa(String guid, List<TaxonConcept> childConcepts) throws Exception;
@@ -425,7 +424,6 @@ public interface TaxonConceptDao {
 	 * Add a text property to this concept.
 	 *
 	 * @param guid
-	 * @param parentConcept
 	 * @throws Exception
 	 */
 	boolean addTextProperty(String guid, SimpleProperty textProperty) throws Exception;
@@ -464,6 +462,15 @@ public interface TaxonConceptDao {
 	 * @throws Exception
 	 */
 	ExtendedTaxonConceptDTO getExtendedTaxonConceptByGuid(String guid, boolean checkedPreferred) throws Exception;
+
+    /**
+     * Retrieve the entire profile data for a taxon concept by guid.
+     *
+     * @param guids
+     * @return
+     * @throws Exception
+     */
+    List<ExtendedTaxonConceptDTO> getExtendedTaxonConceptByGuids(List<String> guids);
 
 	/**
 	 * Retrieve the Taxon Name for the supplied GUID.
