@@ -329,7 +329,7 @@ public interface TaxonConceptDao {
 	 * @param habitatList
 	 * @throws Exception
 	 */
-	boolean addHabitat(String guid, List<Habitat> habitatLSist) throws Exception;
+	boolean addHabitat(String guid, List<Habitat> habitatList) throws Exception;
 
 	/**
 	 * Add this list of regions to the Taxon Concept.
@@ -470,7 +470,7 @@ public interface TaxonConceptDao {
      * @return
      * @throws Exception
      */
-    List<ExtendedTaxonConceptDTO> getExtendedTaxonConceptByGuids(List<String> guids);
+    List<ExtendedTaxonConceptDTO> getExtendedTaxonConceptByGuids(List<String> guids) throws Exception;
 
 	/**
 	 * Retrieve the Taxon Name for the supplied GUID.
