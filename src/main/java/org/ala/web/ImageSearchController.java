@@ -67,13 +67,17 @@ public class ImageSearchController {
 		List<String> filterQueries = new ArrayList<String>();
 		filterQueries.add("idxtype:TAXON");
 		filterQueries.add("hasImage:true");
-        //filterQueries.add("rank:(species OR subspecies)");
         filterQueries.add("rank:species");
         filterQueries.add("australian_s:recorded");
 
 		if(fq!=null && fq.length>0){
 			for(String f: fq) { filterQueries.add(f); }
 		}
+
+        if("order".equals(taxonRank)){
+            taxonRank  = "bioOrder";
+        }
+
 		filterQueries.add(taxonRank+":"+scientificName);
 
         Integer noOfColumns = screenWidth / (maxWidthImages + 2);
@@ -87,43 +91,7 @@ public class ImageSearchController {
         model.addAttribute("pageSize", pageSize);
 		return "images/search";
 	}
-	
-	@RequestMapping(value={"/image-search/search/","/image-search/"}, method = RequestMethod.GET)
-	public String search(
-			@RequestParam(value="q", required=false) String query, 
-			@RequestParam(value="fq", required=false) String[] fq,
-			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
-			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
-			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
-			@RequestParam(value="state", required=false) String state,
-			@RequestParam(value="rank", required=false) String rank,
-			@RequestParam(value="speciesGroup", required=false) String speciesGroup,
-			@RequestParam(value="sw", required=false, defaultValue="1024") Integer screenWidth,
-			Model model) throws Exception {
-		
-		List<String> filterQueries = new ArrayList<String>();
-		filterQueries.add("idxtype:TAXON");
-		filterQueries.add("hasImage:true");
-		filterQueries.add("australian_s:recorded");
-        filterQueries.add("rank:species");
-		
-		if(fq!=null && fq.length>0){
-			for(String f: fq) { filterQueries.add(f); }
-		}
 
-        Integer columns = screenWidth / 172;
-        Integer pageSize = columns * 10;
-
-		//state?
-		if(state!=null) filterQueries.add("state:"+state);
-		if(rank!=null) filterQueries.add("rank:"+rank);
-		if(speciesGroup!=null) filterQueries.add("speciesGroup:"+speciesGroup);
-		
-		SearchResultsDTO<SearchDTO> results = searchDao.doFullTextSearch(query, (String[]) filterQueries.toArray(new String[0]), startIndex, pageSize, sortField, sortDirection);
-		model.addAttribute("results", repoUrlUtils.fixRepoUrls(results));
-		return "images/search";
-	}
-	
  	@RequestMapping("/image-search/infoBox")
 	public String getImageInfoBox(@RequestParam("q") String guid, Model model) throws Exception {
 		ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
