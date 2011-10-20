@@ -931,6 +931,7 @@ public class SpeciesController {
                 ImageIO.write(iu.getModifiedImage(), mt.name(), outputStream);
 
             } catch (Exception ex) {
+            	logger.error("Requested largeRaw image was not found" + ex);
                 thumbnailHandler(documentId, scale, square, outputStream, response);
             }
         } else {
