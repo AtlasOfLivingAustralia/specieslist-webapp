@@ -96,7 +96,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
  */
 @Controller(value="speciesController")
 public class SpeciesController {
-
+	
     /** Logger initialisation */
     private final static Logger logger = Logger.getLogger(SpeciesController.class);
     /** DAO bean for access to taxon concepts */
@@ -916,13 +916,13 @@ public class SpeciesController {
             OutputStream outputStream,
             HttpServletResponse response) throws IOException {
         logger.debug("Requested image " + documentId + ".jpg ");
+        ImageUtils iu = new ImageUtils();
         Document doc = documentDAO.getById(documentId);
         if (doc != null) {
             // augment data with title from reading dc file
             MimeType mt = MimeType.getForMimeType(doc.getMimeType());
             String fileName = doc.getFilePath()+"/largeRaw"+mt.getFileExtension();
-            logger.debug("filename = "+fileName);
-            ImageUtils iu = new ImageUtils();
+            logger.debug("filename = "+fileName);            
             try {
                 logger.debug("Loading with image utils...");
                 iu.load(fileName); // problem with Jetty 7.0.1
@@ -931,15 +931,15 @@ public class SpeciesController {
                 ImageIO.write(iu.getModifiedImage(), mt.name(), outputStream);
 
             } catch (Exception ex) {
-                logger.error("Problem loading image with JAI: " + ex.getMessage(), ex);
-                String url = repoUrlUtils.fixSingleUrl(fileName);
-                logger.warn("Redirecting to: "+url);
-                response.sendRedirect(repoUrlUtils.fixSingleUrl(url));
-                return;
+                thumbnailHandler(documentId, scale, square, outputStream, response);
             }
         } else {
             logger.error("Requested image " + documentId + ".jpg was not found");
-            response.sendError(response.SC_NOT_FOUND, "Requested image " + documentId + ".jpg was not found");
+            MimeType mt = MimeType.JPEG;
+            iu.load("/data/bie/images/noImage.jpg"); // problem with Jetty 7.0.1
+            logger.debug("Loaded");                
+            response.setContentType(mt.getMimeType());
+            ImageIO.write(iu.getModifiedImage(), mt.name(), outputStream);
         }
     }
     
