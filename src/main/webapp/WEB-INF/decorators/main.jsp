@@ -87,15 +87,26 @@ function pageloadingtime()
                             for(var i=0; i<data.length; i++){
                                 rows[i] = {
                                     data:data[i],
-                                    value: data[i].matchedNames[0],
-                                    result: data[i].matchedNames[0]
+                                    value: (data[i].matchedNames[0] == 'undefined' || data[i].matchedNames[0] == null)?'':data[i].matchedNames[0],
+                                    result:  (data[i].matchedNames[0] == 'undefined' || data[i].matchedNames[0] == null)?'':data[i].matchedNames[0]
                                 };
                             }
                             return rows;
                         },
                         matchSubset: false,
                         formatItem: function(row, i, n) {
-                            return row.matchedNames[0]; // + ' (' + row.rankString + ')';
+                        	if(row.matchedNames[0] != 'undefined' && row.matchedNames[0] != null){
+                            	return row.matchedNames[0] ; // + ' (' + row.rankString + ')';
+                        	}
+                        	return false;
+                        },
+                        //overwrite autocomplete.js function
+                        highlight: function(value, term) {
+                            if(value == 'undefined' || value == null){
+                            	return;
+                            }else{
+                            	return value.replace(new RegExp("(?![^&;]+;)(?!<[^<>]*)(" + term.replace(/([\^\$\(\)\[\]\{\}\*\.\+\?\|\\])/gi, "\\$1") + ")(?![^<>]*>)(?![^&;]+;)", "gi"), "<strong>$1</strong>");
+                            }
                         },
                         cacheLength: 10,
                         minChars: 3,
