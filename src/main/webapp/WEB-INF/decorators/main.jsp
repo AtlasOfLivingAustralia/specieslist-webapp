@@ -113,6 +113,10 @@ function pageloadingtime()
                         scroll: false,
                         max: 10,
                         selectFirst: false
+                }).result(function(event, item) {
+                	//try different options or events are failed (eg: autoFill, select, change...etc)
+                	// added result handler to fire up form submit.
+                	$("form#search-form").submit();
                 });
             }); // End docuemnt ready
 
