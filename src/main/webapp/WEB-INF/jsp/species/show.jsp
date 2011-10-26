@@ -526,7 +526,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                         <h3>Mapped occurrence records</h3>
                         <p>
                             <a href="${biocacheUrl}occurrences/taxa/${extendedTaxonConcept.taxonConcept.guid}">View occurrence records list</a>
-                            | <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="View interactive map">View interactive map</a>
+                            | <a href="${spatialPortalUrl}?q=lsid:${extendedTaxonConcept.taxonConcept.guid}" title="View interactive map">View interactive map</a>
                         </p>
                         <div class="left">
                             <img id="mapImage" src="../static/images/blank.gif" class="distroImg" width="360" alt="occurrence map"/>
