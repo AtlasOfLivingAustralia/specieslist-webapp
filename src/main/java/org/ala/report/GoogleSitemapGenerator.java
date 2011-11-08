@@ -76,9 +76,6 @@ public class GoogleSitemapGenerator {
 	public static final String ADF_TAXON = ":afd.taxon:";
 	enum NamePos {SCIENTIFIC_NAME, COMMON_NAME, KINGDOM}
 	
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
 
 	/**
 	 * Usage: outputFileName [option: cassandraAddress cassandraPort]
@@ -207,7 +204,7 @@ public class GoogleSitemapGenerator {
 				writeFileHeader();
 			}
 			fw.write("<url>\n");
-			fw.write("<loc>http://bie.ala.org.au/species/" + name + "</loc>\n");
+			fw.write("<loc>http://bie.ala.org.au/species/" + java.net.URLEncoder.encode(name.trim(), "UTF-8") + "</loc>\n");
 			fw.write("<changefreq>daily</changefreq>\n");
 			fw.write("<priority>0.5000</priority>\n");
 			fw.write("</url>\n");
@@ -334,5 +331,30 @@ public class GoogleSitemapGenerator {
 
 	public String getColumnFamily() {
 		return columnFamily;
+	}	
+	
+	// =========== setter ===========
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+
+	public void setKeyspace(String keyspace) {
+		this.keyspace = keyspace;
+	}
+
+
+	public void setColumnFamily(String columnFamily) {
+		this.columnFamily = columnFamily;
 	}	
 }
