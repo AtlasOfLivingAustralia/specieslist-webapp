@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import org.ala.dao.RankingDao;
+import org.ala.report.GoogleSitemapGenerator;
 import org.ala.util.ReadOnlyLock;
 import org.ala.web.admin.dao.CollectionDao;
 import org.springframework.stereotype.Controller;
@@ -28,7 +29,10 @@ public class CasSolrAdminController {
 	
 	@Inject
 	private CollectionDao collectionsDao;
-	    
+	   
+	@Inject
+	private GoogleSitemapGenerator googleSitemapGenerator;
+	
 	/**
 	 * Returns true when in service is in readonly mode.
 	 * 
@@ -241,5 +245,30 @@ public class CasSolrAdminController {
 			logger.error(ex);
 		}		
     }	
-    
+ 
+    @RequestMapping(value = "/admin/regenSitemap", method = RequestMethod.GET)
+    public void regenSitemap(HttpServletRequest request, 
+            HttpServletResponse response)throws Exception{
+    	String remoteuser = request.getRemoteUser();
+		boolean completed = false;
+		PrintWriter writer = null;
+		try{
+			writer = response.getWriter();
+			if (remoteuser != null && request.isUserInRole(ADMIN_ROLE)) {
+				googleSitemapGenerator.doFullScan();
+				completed = true;				
+				response.setStatus(HttpServletResponse.SC_OK);
+				writer.write("{task completed: " + completed + "}");
+			}
+			else{
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				writer.write("{You need to have the appropriate role (" + ADMIN_ROLE + ") to access this service. task completed:" + completed + "}");
+			}
+		}
+		catch(Exception ex){
+			response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+			writer.write("{error: " + ex.getMessage() + "}");
+			logger.error(ex);
+		}		
+    }	    
 }

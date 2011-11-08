@@ -72,7 +72,8 @@ function callAdminWs(wsName) {
                     <tr><td><a href="javascript:callAdminWs('reloadCollections')">Reload Collections</a></td></tr>
                     <tr><td><a href="javascript:callAdminWs('reloadInstitutions')">Reload Institutions</a></td></tr>
                     <tr><td><a href="javascript:callAdminWs('reloadDataProviders')">Reload Data Providers</a></td></tr>
-                    <tr><td><a href="javascript:callAdminWs('reloadDataResources')">Reload Data Resources</a></td></tr>                    
+                    <tr><td><a href="javascript:callAdminWs('reloadDataResources')">Reload Data Resources</a></td></tr> 
+                    <tr><td><a href="javascript:callAdminWs('regenSitemap')">Regenerate Sitemaps</a></td></tr>                   
             </table>
             <hr/>
             </c:if>
