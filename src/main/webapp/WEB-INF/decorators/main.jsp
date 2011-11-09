@@ -105,7 +105,10 @@ function pageloadingtime()
                             if(value == 'undefined' || value == null){
                             	return;
                             }else{
-                            	return value.replace(new RegExp("(?![^&;]+;)(?!<[^<>]*)(" + term.replace(/([\^\$\(\)\[\]\{\}\*\.\+\?\|\\])/gi, "\\$1") + ")(?![^<>]*>)(?![^&;]+;)", "gi"), "<strong>$1</strong>");
+                            	term = term.replace(/([\^\$\(\)\[\]\{\}\*\.\+\?\|\\])/gi, "\\$1");
+                            	var regex = new RegExp("(?![^&;]+;)(?!<[^<>]*)(" + term + ")(?![^<>]*>)(?![^&;]+;)", "gi");
+                            	var val = value.replace(regex, "<strong>$1</strong>");
+                            	return val;
                             }
                         },
                         cacheLength: 10,
