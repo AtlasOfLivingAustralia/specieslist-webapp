@@ -79,6 +79,8 @@
                             <tr>
                                 <td>Description:</td>
                                 <td><form:textarea path="description" /> <form:errors path="description" cssClass="error"/></td>
+                                <td>BlackList:</td>
+                                <td><form:checkbox path="blacklist" /> <form:errors path="blacklist" cssClass="error"/></td>
                             </tr>
                             <tr>
                                 <td>Attribution:</td>

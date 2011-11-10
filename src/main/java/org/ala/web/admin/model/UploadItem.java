@@ -52,13 +52,40 @@ public class UploadItem {
 
 	private String documentId;
 	private String guid;
+	private String imageUrl;
+	private String uri;
+	private boolean blacklist;
+		
+	public boolean isBlacklist() {
+		return blacklist;
+	}
 
-    public String getSource() {
+	public void setBlacklist(boolean blacklist) {
+		this.blacklist = blacklist;
+	}
+
+	public String getUri() {
+		return uri;
+	}
+
+	public void setUri(String uri) {
+		this.uri = uri;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
+	public String getSource() {
 		return source;
 	}
 
 	public void setSource(String source) {
-		this.source = source;
+		this.source = trimString(source);
 	}
 	
 	public String getGuid() {
@@ -66,7 +93,7 @@ public class UploadItem {
 	}
 
 	public void setGuid(String guid) {
-		this.guid = guid;
+		this.guid = trimString(guid);
 	}
 
 	public String getDocumentId() {
@@ -74,7 +101,7 @@ public class UploadItem {
 	}
 
 	public void setDocumentId(String documentId) {
-		this.documentId = documentId;
+		this.documentId = trimString(documentId);
 	}
 
 	public String getTitle() {
@@ -82,7 +109,7 @@ public class UploadItem {
 	}
 
 	public void setTitle(String title) {
-		this.title = title;
+		this.title = trimString(title);
 	}
 	
 	public List<FileItem> getFiles() {
@@ -98,7 +125,7 @@ public class UploadItem {
 	}
 
 	public void setLicence(String licence) {
-		this.licence = licence;
+		this.licence = trimString(licence);
 	}
 	
 	public String getAttribn() {
@@ -106,7 +133,7 @@ public class UploadItem {
 	}
 
 	public void setAttribn(String attribn) {
-		this.attribn = attribn;
+		this.attribn = trimString(attribn);
 	}
 
 	public String getDescription() {
@@ -114,7 +141,7 @@ public class UploadItem {
 	}
 
 	public void setDescription(String description) {
-		this.description = description;
+		this.description = trimString(description);
 	}
 	
 	public String getScientificName() {
@@ -122,7 +149,7 @@ public class UploadItem {
 	}
 
 	public void setScientificName(String scientificName) {
-		this.scientificName = scientificName;
+		this.scientificName = trimString(scientificName);
 	}
 
 	public String getEmail() {
@@ -130,7 +157,7 @@ public class UploadItem {
 	}
 
 	public void setEmail(String email) {
-		this.email = email;
+		this.email = trimString(email);
 	}
 
 	public String getCommonName() {
@@ -138,7 +165,7 @@ public class UploadItem {
 	}
 
 	public void setCommonName(String commonName) {
-		this.commonName = commonName;
+		this.commonName = trimString(commonName);
 	}
 
 	public String getUserName() {
@@ -146,7 +173,7 @@ public class UploadItem {
 	}
 
 	public void setUserName(String userName) {
-		this.userName = userName;
+		this.userName = trimString(userName);
 	}
 
 	public String getRank() {
@@ -154,7 +181,7 @@ public class UploadItem {
 	}
 
 	public void setRank(String rank) {
-		this.rank = rank;
+		this.rank = trimString(rank);
 	}
 
 	public MultipartFile getFileData() {
@@ -164,4 +191,11 @@ public class UploadItem {
 	public void setFileData(MultipartFile fileData) {
         this.fileData = fileData;
     }
+	
+	private String trimString(String str){
+		if(str != null){
+			return str.trim();
+		}
+		return null;
+	}	
 }

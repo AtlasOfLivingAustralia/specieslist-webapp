@@ -86,9 +86,16 @@ public class ImageUploadDaoImpl implements ImageUploadDao{
 			return doc;
 		}
 		ParsedDocument parsedDoc = new ParsedDocument();
-		//String guid = taxonConceptDao.findLsidByName(uploadItem.getScientificName().trim());
-        String guid = taxonConceptDao.findLsidByName(uploadItem.getScientificName().trim(), uploadItem.getRank().trim().toLowerCase());
-        String imageGuid = guid + System.currentTimeMillis(); // unique id for uploaded image
+		
+		String guid = null;
+		if(uploadItem.getGuid() != null && uploadItem.getGuid().length() > 0){
+			guid = uploadItem.getGuid();
+		}
+		else{
+			//String guid = taxonConceptDao.findLsidByName(uploadItem.getScientificName().trim());
+			guid = taxonConceptDao.findLsidByName(uploadItem.getScientificName().trim(), uploadItem.getRank().trim().toLowerCase());
+		}
+        String imageGuid = guid + "^:^" +System.currentTimeMillis(); // unique id for uploaded image
         
 		if(guid != null && !guid.isEmpty()){		
             logger.debug("GUID = " + guid);
