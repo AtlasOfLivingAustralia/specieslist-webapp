@@ -95,7 +95,7 @@ public class ImageUploadDaoImpl implements ImageUploadDao{
 			//String guid = taxonConceptDao.findLsidByName(uploadItem.getScientificName().trim());
 			guid = taxonConceptDao.findLsidByName(uploadItem.getScientificName().trim(), uploadItem.getRank().trim().toLowerCase());
 		}
-        String imageGuid = guid + "^:^" +System.currentTimeMillis(); // unique id for uploaded image
+        String imageGuid = BIE_URL + "/uploads/" + guid + "^:^" +System.currentTimeMillis(); // unique id for uploaded image
         
 		if(guid != null && !guid.isEmpty()){		
             logger.debug("GUID = " + guid);
@@ -118,8 +118,7 @@ public class ImageUploadDaoImpl implements ImageUploadDao{
 				//if same guid will write to same folder, added timestamp to alter file to different folder.
 				parsedDoc.setGuid(imageGuid);
 	            parsedDoc.getDublinCore().put(Predicates.DC_FORMAT.toString(), MimeType.getFileExtension(uploadItem.getFileData().getOriginalFilename()));
-	            parsedDoc.getDublinCore().put(Predicates.DC_IDENTIFIER.toString(), BIE_URL + "/uploads/" + 
-	                    imageGuid + MimeType.getFileExtension(uploadItem.getFileData().getOriginalFilename())); // made-up URI (TODO implement in bie-webapp) 
+	            parsedDoc.getDublinCore().put(Predicates.DC_IDENTIFIER.toString(), imageGuid); // made-up URI (TODO implement in bie-webapp) 
 	            parsedDoc.setContent(getUploadFileByte(uploadItem.getFileData().getInputStream()));
                 parsedDoc.setContentType(new MimetypesFileTypeMap().getContentType(uploadItem.getFileData().getOriginalFilename())); // gets mimetype from file extention
                 doc = repository.storeDocument(infoSourceId, parsedDoc);
@@ -137,11 +136,10 @@ public class ImageUploadDaoImpl implements ImageUploadDao{
 				logger.debug("uploadItem.getFileData() was null");
                 for(FileItem fi : uploadItem.getFiles()){
 					//if same guid will write to same folder, added timestamp to alter file to different folder.
-                	imageGuid = guid + System.currentTimeMillis();
+                	imageGuid = BIE_URL + "/uploads/" + guid + System.currentTimeMillis();
 					parsedDoc.setGuid(imageGuid);
 		            parsedDoc.getDublinCore().put(Predicates.DC_FORMAT.toString(), fi.getContentType());
-		            parsedDoc.getDublinCore().put(Predicates.DC_IDENTIFIER.toString(), BIE_URL + "/uploads/" + 
-		                    imageGuid + fi.getContentType()); // made-up URI (TODO implement in bie-webapp) 
+		            parsedDoc.getDublinCore().put(Predicates.DC_IDENTIFIER.toString(), imageGuid); // made-up URI (TODO implement in bie-webapp) 
 					parsedDoc.setContent(getUploadFileByte(fi.getInputStream()));
 					parsedDoc.setContentType(fi.getContentType()); // gets mimetype from file extention
 					doc = repository.storeDocument(infoSourceId, parsedDoc);

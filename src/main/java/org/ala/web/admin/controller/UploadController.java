@@ -141,12 +141,16 @@ public class UploadController {
 		        String guid = request.getParameter("guid");
 		        
 		        String uri = request.getParameter("uri");
-		        // mysql uri is not equal imageIdentifier..trim down begining part.
+		        Document doc = null;
+		        // 1st try for old format, mysql uri is not equal imageIdentifier..trim down begining part.
 		        if(uri != null && uri.trim().startsWith("http://bie.ala.org.au/uploads/")){
-		        	uri = uri.substring("http://bie.ala.org.au/uploads/".length(), uri.length());
+		        	String url = uri.substring("http://bie.ala.org.au/uploads/".length(), uri.length());
+		        	doc = documentDao.getByUri(url);
+		        }		       		       
+		        //2nd try for new format, mysql uri is equal imageIdentifier
+		        if(doc == null){
+		        	doc = documentDao.getByUri(uri);
 		        }
-		        
-		        Document doc = documentDao.getByUri(uri);
 		        if(doc == null){
 		        	return "admin/docError";
 		        }
@@ -200,7 +204,7 @@ public class UploadController {
         return view;
     }
  
-    private void setBacklist(HttpServletRequest request, String guid, String uri) throws Exception{
+    private void setBacklist(HttpServletRequest request, String guid, String uri, boolean blacklist) throws Exception{
 		BaseRanking baseRanking = new BaseRanking();
 		
 		Principal p = request.getUserPrincipal();
@@ -219,7 +223,7 @@ public class UploadController {
 		baseRanking.setUserIP(request.getRemoteHost());
 		baseRanking.setFullName(fullName);	
     	
-		baseRanking.setBlackListed(true);
+		baseRanking.setBlackListed(blacklist);
 		baseRanking.setPositive(false);
 //		baseRanking.setUri(uri);
 		
@@ -258,10 +262,7 @@ public class UploadController {
         		doc = documentDao.getById(Integer.valueOf(uploadItem.getDocumentId()));
         	}
         	try {
-        		if(uploadItem.isBlacklist()){
-        			setBacklist(request, uploadItem.getGuid(), uploadItem.getUri());
-        		}
-        		
+        		setBacklist(request, uploadItem.getGuid(), uploadItem.getUri(), uploadItem.isBlacklist());
 				boolean ok = imageUploadDao.updateDocument(doc, uploadItem);
 				if(ok){
 					mav = new ModelAndView("admin/updateResult", "fileName", uploadItem.getDocumentId());
@@ -432,7 +433,7 @@ public class UploadController {
     }
 
     @RequestMapping(value = {"/share/upload"}, method = RequestMethod.POST)
-    public ModelAndView handleShareFormUpload(@Valid UploadItem uploadItem, BindingResult result) {
+    public ModelAndView handleShareFormUpload(@Valid UploadItem uploadItem, BindingResult result, HttpServletRequest request) {
         if (result.hasErrors()) {
             // validation failed - reload form with error messages
             for (ObjectError error : result.getAllErrors()) {
@@ -457,7 +458,14 @@ public class UploadController {
                 } else {
                     logger.info("Image document created: " + doc.toString());
                     documentDao.changeInfosourceIdByDocumentId(doc.getId(), PENDING_INFOSOURCE_ID);
-                   
+                    
+                    String uri = doc.getUri();
+	        		int end = uri.indexOf("^:^");
+	        		if(end < 0){
+	        			end = uri.length() - 13;
+	        		}
+	        		String guid = uri.substring("http://bie.ala.org.au/uploads/".length(), end);
+                    setBacklist(request, guid, doc.getUri(), true);
                 }		
             } catch (Exception e) {
                 logger.warn("handleForm error: " + e.getMessage(), e);
