@@ -32,7 +32,7 @@ public class ScientificNameListBuilder {
             String[] subDirs = rootDir.list();
             
             for (String subDir : subDirs) {
-                System.out.println(rootDir + File.separator + subDir);
+//                System.out.println(rootDir + File.separator + subDir);
                 scanDirectory(writer, rootDir + File.separator + subDir);
             }
         } else if (rootDir.getName().equals(FileType.RDF.toString())) {
