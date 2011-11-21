@@ -336,6 +336,19 @@
         </analyzer>
     </fieldType>
 
+    <fieldType name="auto_name_exact" class="solr.TextField">
+        <analyzer type="index">
+            <tokenizer class="solr.KeywordTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory" />			
+			<filter class="solr.TrimFilterFactory" />			
+        </analyzer>
+		<analyzer type="query">
+            <tokenizer class="solr.KeywordTokenizerFactory"/>
+			<filter class="solr.LowerCaseFilterFactory" />			
+			<filter class="solr.TrimFilterFactory" />			
+        </analyzer>
+    </fieldType>
+
     <!-- BIE - A text field that uses WordDelimiterFilter to enable splitting and matching of
         words on case-change, alpha numeric boundaries, and non-alphanumeric chars,
         so that a query of "wifi" or "wi fi" could match a document containing "Wi-Fi".
@@ -579,14 +592,14 @@
    <field name="commonName" type="text" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="commonNameExact" type="lowercase" indexed="true" stored="false" multiValued="true" omitNorms="false"/>
    <field name="commonNameSort" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
-   <field name="commonNameDisplay" type="string" indexed="false" stored="true" multiValued="false" omitNorms="false" />
+   <field name="commonNameDisplay" type="string" indexed="false" stored="true" multiValued="false" omitNorms="true" />
    <field name="commonNameSingle" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="rank" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
    <field name="rankId" type="int" indexed="true" stored="true" multiValued="false" omitNorms="true" />
    <field name="hasChildren" type="string" indexed="false" stored="true" />
    <field name="simpleText" type="text_ws" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="scientificNameText" type="text_ws" indexed="true" stored="true" multiValued="true" omitNorms="false" />
-   <field name="nameComplete" type="string" indexed="false" stored="true" multiValued="false" omitNorms="false" />
+   <field name="nameComplete" type="string" indexed="false" stored="true" multiValued="false" omitNorms="true" />
    <field name="dataset" type="string" indexed="true" stored="true" required="false" omitNorms="true" multiValued="true" />
    <field name="uid" type="string" indexed="true" stored="true" required="false" omitNorms="true" multiValued="true" />
    <field name="occurrenceCount" type="int" indexed="true" stored="true" multiValued="false" omitNorms="true" />
@@ -601,7 +614,7 @@
    <field name="bioOrder" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="family" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
    <field name="genus" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
-   <field name="speciesGroup" type="string" indexed="false" stored="true" multiValued="true" omitNorms="false" />
+   <field name="speciesGroup" type="string" indexed="false" stored="true" multiValued="true" omitNorms="true" />
    <!-- Australian states, supports the region functionality -->
    <field name="state" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <field name="ibra" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
@@ -609,8 +622,8 @@
    <field name="lga" type="string" indexed="true" stored="true" multiValued="true" omitNorms="false" />
    <!-- Multimedia -->
    <field name="hasImage" type="boolean" indexed="true" stored="true" multiValued="true" omitNorms="false" />
-   <field name="image" type="string" indexed="false" stored="true" multiValued="false" omitNorms="false" />
-   <field name="thumbnail" type="string" indexed="false" stored="true" multiValued="false" omitNorms="false" />
+   <field name="image" type="string" indexed="false" stored="true" multiValued="false" omitNorms="true" />
+   <field name="thumbnail" type="string" indexed="false" stored="true" multiValued="false" omitNorms="true" />
    
    <!-- Collection / Institution -->
    <field name="url" type="string" indexed="true" stored="true" multiValued="false" omitNorms="false" />
@@ -645,6 +658,7 @@
    <field name="concat_name" type="concat_name" indexed="true" stored="false" multiValued="true" omitNorms="true" omitTermFreqAndPositions="true"/>
    <field name="stopped_common_name" type="stopped_common_name" indexed="true" stored="false" multiValued="true" omitNorms="true" omitTermFreqAndPositions="true"/>
    <field name="name_complete" type="name_complete" indexed="true" stored="false" multiValued="true" omitNorms="true" omitTermFreqAndPositions="true"/>
+   <field name="auto_name_exact" type="name_complete" indexed="true" stored="false" multiValued="true" omitNorms="true" omitTermFreqAndPositions="true"/>
    
    <!-- Fields used to rank exact matches higher -->
    <field name="exact_text" type="lowercase" indexed="true" stored="false" multiValued="true"/>
@@ -732,6 +746,8 @@
    <copyField source="commonName" dest="concat_name"/>
    <copyField source="commonName" dest="stopped_common_name"/>
    <copyField source="nameComplete" dest="name_complete"/>
+   <copyField source="commonName" dest="auto_name_exact"/>
+   <copyField source="scientificNameText" dest="auto_name_exact"/>
 
    <!-- Above, multiple source fields are copied to the [text] field.
 	  Another way to map multiple source fields to the same
