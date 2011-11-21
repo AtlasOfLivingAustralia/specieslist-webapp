@@ -574,7 +574,8 @@ public class SpeciesController {
 
         //load the hierarchy
         if(tc.getLeft()!=null){
-            SearchResultsDTO<SearchTaxonConceptDTO> taxonHierarchy = searchDao.getClassificationByLeftNS(tc.getLeft());
+            SearchResultsDTO<SearchTaxonConceptDTO> taxonHierarchy = searchDao.getClassificationByLeftNS(tc.getLeft(), tc.getRight());
+        	//SearchResultsDTO<SearchTaxonConceptDTO> taxonHierarchy = searchDao.getClassificationByLeftNS(tc.getLeft());
             model.addAttribute("taxonHierarchy", taxonHierarchy.getResults());
         }
         sb.append(", get hierarchy:" + (System.currentTimeMillis() - startTime));
