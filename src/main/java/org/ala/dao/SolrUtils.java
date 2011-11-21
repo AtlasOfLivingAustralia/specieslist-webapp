@@ -1,7 +1,13 @@
 package org.ala.dao;
 
+import java.io.File;
+
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.util.ClientUtils;
@@ -14,7 +20,8 @@ import org.springframework.stereotype.Component;
  */
 @Component("solrUtils")
 public class SolrUtils {
-
+	public static final Version BIE_LUCENE_VERSION = Version.LUCENE_34;
+	
 	private String solrHome = "/data/solr/bie";
 	
     /** SOLR server instance */
@@ -32,7 +39,10 @@ public class SolrUtils {
 		        coreContainer = initializer.initialize();
 	        } catch (Exception e) {
 	        	//FIXME this is a hack - there must be a better way of initialising SOLR here
-		        IndexWriter idxWriter = new IndexWriter(solrHome+"/index", new StandardAnalyzer());
+	        	IndexWriterConfig indexWriterConfig = new IndexWriterConfig(BIE_LUCENE_VERSION, new StandardAnalyzer(BIE_LUCENE_VERSION));
+	        	Directory dir = FSDirectory.open(new File(solrHome+"/index")); 
+	        	IndexWriter idxWriter = new IndexWriter(dir, indexWriterConfig);
+//	        	IndexWriter idxWriter = new IndexWriter(solrHome+"/index", new StandardAnalyzer());
 		        idxWriter.commit();
 		        idxWriter.close();
 		        CoreContainer.Initializer initializer = new CoreContainer.Initializer();

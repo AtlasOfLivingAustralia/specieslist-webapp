@@ -15,13 +15,16 @@
 package org.ala.lucene;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import org.ala.dao.SolrUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
@@ -29,6 +32,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 /**
  * Command line utility for testing the lucene indicies.
  * 
@@ -51,12 +56,13 @@ public class IndexTest {
 				System.out.println("---------------------------------------------");
 				input = StringUtils.trimToNull(input).toLowerCase();
 //				IndexSearcher is = new IndexSearcher("/data/lucene/taxonConcept");
-				IndexSearcher is = new IndexSearcher("/data/lucene/taxonConcept");
+				Directory dir = FSDirectory.open(new File("/data/lucene/taxonConcept")); 
+				IndexSearcher is = new IndexSearcher(dir);
 				
-				QueryParser qp  = new QueryParser("scientificName", new KeywordAnalyzer());
+				QueryParser qp  = new QueryParser(SolrUtils.BIE_LUCENE_VERSION, "scientificName", new KeywordAnalyzer());
 				Query scientificNameQuery = qp.parse("\""+input+"\"");
 				
-				qp  = new QueryParser("commonName", new KeywordAnalyzer());
+				qp  = new QueryParser(SolrUtils.BIE_LUCENE_VERSION, "commonName", new KeywordAnalyzer());
 				Query commonNameQuery = qp.parse("\""+input+"\"");
 				
 				Query guidQuery = new TermQuery(new Term("guid", input));
@@ -68,8 +74,8 @@ public class IndexTest {
 				for(ScoreDoc scoreDoc: topDocs.scoreDocs){
 					Document doc = is.doc(scoreDoc.doc);
 					
-					List<Field> fields = doc.getFields();
-					for(Field field: fields){
+					List<Fieldable> fields = doc.getFields();
+					for(Fieldable field: fields){
 						System.out.println(field.name()+": "+field.stringValue());
 					}
 					System.out.println("---------------------------------------------");

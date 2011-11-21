@@ -40,8 +40,8 @@ public interface FulltextSearchDao {
 	 * @return
 	 * @throws Exception
 	 */
-    SearchResultsDTO getClassificationByLeftNS(int leftNSValue) throws Exception;
-	
+    SearchResultsDTO getClassificationByLeftNS(int leftNSValue, int rightNSValue) throws Exception;	
+    SearchResultsDTO getAllRankItems(String rank) throws Exception;
     /**
      * Retrieve the child taxa using the parent ID. This is a numeric ID that is internal to
      * the system

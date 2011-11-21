@@ -28,6 +28,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.ala.util.ClassificationRank;
 import org.ala.dto.FacetResultDTO;
 import org.ala.dto.FieldResultDTO;
 import org.ala.dto.SearchCollectionDTO;
@@ -86,19 +87,45 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
     
     protected int maxDownloadForConcepts = 1000000;
 
-    /**
-     * @see org.ala.dao.FulltextSearchDao#getClassificationByLeftNS(int)
-     */
 	@Override
-	public SearchResultsDTO getClassificationByLeftNS(int leftNSValue)
-			throws Exception {
+	public SearchResultsDTO getClassificationByLeftNS(int leftNSValue, int rightNSValue) throws Exception {
+		long cur = System.currentTimeMillis();
+		try {
+        	SearchTaxonConceptDTO phylum = ClassificationRank.getInstance().getPhylum(leftNSValue, rightNSValue);
+
+            // set the query
+        	String[] fq = new String[]{"left:[* TO " + leftNSValue + "]", "right:["+rightNSValue+" TO *]"};;
+            StringBuffer queryString = new StringBuffer();
+            queryString.append("idxtype:"+IndexedTypes.TAXON);   
+            if(phylum != null){
+            	fq = new String[]{"left:[" + phylum.getLeft()  + " TO "+leftNSValue+"]", "right:["+rightNSValue+" TO " + phylum.getRight() + "]"};
+            }
+            logger.debug("search query: "+queryString.toString());
+            SearchResultsDTO results = doSolrSearch(queryString.toString(), fq, 100, 0, "rankId", "asc");
+            // add kingdom into first item of list
+            if(phylum != null){
+            	SearchTaxonConceptDTO kingdom = ClassificationRank.getInstance().getKingdom(leftNSValue, rightNSValue);
+            	results.getResults().add(0, kingdom);
+            }
+            logger.debug("****** getClassificationByLeftNS: " + (System.currentTimeMillis() - cur));
+            return results;
+        } catch (SolrServerException ex) {
+        	SearchResultsDTO searchResults = new SearchResultsDTO();
+            logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
+            searchResults.setStatus("ERROR"); // TODO also set a message field on this bean with the error message(?)
+            return searchResults;
+        }
+    }
+
+	@Override
+	public SearchResultsDTO getAllRankItems(String rank) throws Exception {
         try {
             // set the query
             StringBuffer queryString = new StringBuffer();
-            queryString.append("idxtype:"+IndexedTypes.TAXON);
-            String[] fq = new String[]{"left:[* TO "+leftNSValue+"]", "right:["+leftNSValue+" TO *]"};
+            queryString.append("idxtype:"+IndexedTypes.TAXON + " AND rank:" + rank);
+            String[] fq = new String[]{};
             logger.debug("search query: "+queryString.toString());
-            return doSolrSearch(queryString.toString(), fq, 100, 0, "rankId", "asc");
+            return doSolrSearch(queryString.toString(), fq, 200, 0, "left", "asc");
         } catch (SolrServerException ex) {
         	SearchResultsDTO searchResults = new SearchResultsDTO();
             logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
@@ -1129,10 +1156,68 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             if(!hlnames.isEmpty()){
             	lnames = new ArrayList<String>(hlnames);
             	Collections.sort(lnames);
-            }            	
+            }
+            else{
+            	lnames = new ArrayList<String>();
+            }
         }        
         return lnames;
     }
+     
+     /**
+      * if word highlight enabled then do the exact match, otherwise do the concat match
+      * 
+      * @param names
+      * @param term
+      * @param prefix
+      * @param suffix
+      * @return
+      */
+     private List<String> getHighlightedNames(List<String> names, String term, String prefix, String suffix){
+     	LinkedHashSet<String> hlnames =null;
+     	List<String> lnames = null;
+     	String value = null;
+        boolean isHighlight = false;
+        
+     	//have word highlight
+        if(prefix != null && suffix != null && prefix.trim().length() > 0 && suffix.trim().length() > 0 && term != null){
+        	value = SolrUtils.cleanName(term.trim());
+        	isHighlight = true;
+        }
+        else{
+        	value = SolrUtils.concatName(term);	
+        }
+        Pattern p = Pattern.compile(value, Pattern.CASE_INSENSITIVE);
+        java.util.regex.Matcher m = p.matcher(value);
+		 if(names != null){
+		     hlnames = new LinkedHashSet<String>();
+		     for(String name : names){
+		    	 String name1 = null;
+		    	 name = name.trim();
+		    	 if(isHighlight){
+		    		 name1 = name;
+		    	 }
+		    	 else{
+		    		 name1 = SolrUtils.concatName(name);
+		    	 }
+		         m.reset(name1);
+		         if(m.find()){
+		             //insert <b> and </b>at the start and end index
+		             name = name.substring(0, m.start()) + prefix + name.substring(m.start(), m.end()) + suffix + name.substring(m.end(), name.length());
+		             hlnames.add(name);
+		         }
+		     }
+		     if(!hlnames.isEmpty()){
+		     	lnames = new ArrayList<String>(hlnames);
+		     	Collections.sort(lnames);
+		     }
+		     else{
+		    	 lnames = new ArrayList<String>();
+		     }
+		 }        
+		 return lnames;
+     }
+     
     /**
      * Creates an auto complete DTO from the supplied result.
      * @param qr
@@ -1140,7 +1225,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
      * @param value
      * @return
      */
-    private AutoCompleteDTO createAutoCompleteFromIndex(QueryResponse qr, SolrDocument doc, String value1){    	
+    private AutoCompleteDTO createAutoCompleteFromIndex(QueryResponse qr, SolrDocument doc, String value){    	
         AutoCompleteDTO autoDto = new AutoCompleteDTO();
         autoDto.setGuid((String) doc.getFirstValue("guid"));
         autoDto.setName((String) doc.getFirstValue("scientificNameRaw"));
@@ -1153,26 +1238,24 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         autoDto.setLeft((Integer)doc.getFirstValue("left"));
         autoDto.setRight((Integer)doc.getFirstValue("right"));
         
-        String value = null;
-        if(value1 != null){
-        	value = SolrUtils.concatName(value1.trim());	
-        }
-        Pattern p = Pattern.compile(value, Pattern.CASE_INSENSITIVE);
-        java.util.regex.Matcher m = p.matcher(value);
         List<String> matchedNames = new ArrayList<String>(); // temp list to stored matched names
 
         if(autoDto.getCommonName() != null){
             List<String> commonNames = org.springframework.util.CollectionUtils.arrayToList(((String)doc.get("commonNameDisplay")).split(","));
-            autoDto.setCommonNameMatches(getHighlightedNames(commonNames, m, "<b>", "</b>"));
-            if (autoDto.getCommonNameMatches() != null) {
-                matchedNames.addAll(getHighlightedNames(commonNames, m, "", ""));
-            }
+            autoDto.setCommonNameMatches(getHighlightedNames(commonNames, value, "<b>", "</b>"));
+            matchedNames.addAll(getHighlightedNames(commonNames, value, "", ""));
         }
 //        List<String> scientificNames = org.springframework.util.CollectionUtils.arrayToList(((String)doc.get("scientificNameRaw")).split(","));
 //        List<String> scientificNames = org.springframework.util.CollectionUtils.arrayToList(((String)doc.get("nameComplete")).split(","));        
         String[] name1 = new String[0];
-        if((String)doc.get("scientificNameRaw") != null){
-        	name1 = ((String)doc.get("scientificNameRaw")).split(",");
+        Object o = doc.get("scientificNameRaw");
+        if(o != null){
+        	if(o instanceof String){
+        		name1 = ((String)o).split(",");
+        	}
+        	else if (o instanceof ArrayList){
+        		name1 = ((List<String>)o).toArray(name1);
+        	}
         }
         String[] name2 = new String[0];
         if((String)doc.get("nameComplete") != null){
@@ -1186,10 +1269,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
         	scientificNames.add(name);
         }
         
-        autoDto.setScientificNameMatches(getHighlightedNames(scientificNames, m, "<b>", "</b>"));
-        if (autoDto.getScientificNameMatches() != null) {
-            matchedNames.addAll(getHighlightedNames(scientificNames, m, "", ""));
-        }
+        autoDto.setScientificNameMatches(getHighlightedNames(scientificNames, value, "<b>", "</b>"));
+        matchedNames.addAll(getHighlightedNames(scientificNames, value, "", ""));
         
         autoDto.setMatchedNames(matchedNames);
         //get the highlighted values
@@ -1208,7 +1289,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
     /**
      * @see org.ala.dao.FulltextSearchDao#getAutoCompleteList(String, String[], int)
      */
-    public List<AutoCompleteDTO> getAutoCompleteList(String value, IndexedTypes indexType, boolean gsOnly, int maxTerms) {
+    @Deprecated
+    public List<AutoCompleteDTO> _getAutoCompleteList(String value, IndexedTypes indexType, boolean gsOnly, int maxTerms) {
         StringBuffer queryString = new StringBuffer();
 
 //        String cleanQuery = ClientUtils.escapeQueryChars(value);//.toLowerCase();
@@ -1229,8 +1311,10 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
                 }
             queryString.append("(");
             List<AutoCompleteDTO> items = new ArrayList<AutoCompleteDTO>();
-            SolrQuery solrQuery = new SolrQuery();
-            queryString.append(buildQuery(cleanQuery, true));
+            SolrQuery solrQuery = null;
+            
+            solrQuery = new SolrQuery();            
+            queryString.append(" scientificName:\""+cleanQuery+"\"");// boost classification ranking on top of list
             queryString.append(" OR ");
             queryString.append("auto_text:\"" + cleanQuery + "\"");
             queryString.append(" OR ");
@@ -1238,7 +1322,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             queryString.append(" OR ");
             queryString.append("concat_name:\"" + SolrUtils.concatName(cleanQuery) + "\"");
             queryString.append(" OR ");	            
-            queryString.append(replacePrefix("name_complete", cleanQuery)); //queryString.append(" name_complete:\""+cleanQuery+"\"");
+            queryString.append(replacePrefix("name_complete", cleanQuery)); // queryString.append("name_complete:\""+cleanQuery+"\"");
             queryString.append(" OR ");
             queryString.append(replacePrefix("stopped_common_name", cleanQuery));
             queryString.append(")");
@@ -1275,6 +1359,58 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 	            }
             } catch (Exception e) {
 				logger.error(e);
+			}
+            return items;
+        }
+        return new ArrayList<AutoCompleteDTO>();
+    }
+    
+    /**
+     * @see org.ala.dao.FulltextSearchDao#getAutoCompleteList(String, String[], int)
+     */
+    public List<AutoCompleteDTO> getAutoCompleteList(String value, IndexedTypes indexType, boolean gsOnly, int maxTerms) {      
+        if (StringUtils.trimToNull(value) != null && value.length() >= 3) {
+            List<AutoCompleteDTO> items = new ArrayList<AutoCompleteDTO>();
+            QueryResponse qr;
+            SolrQuery solrQuery = null;
+			try {
+				SolrDocumentList sdl = null;
+				// do exact search
+				solrQuery = buildAutoExactMatchQuery(value, indexType, gsOnly, maxTerms);
+				qr = solrUtils.getSolrServer().query(solrQuery);				
+	            sdl = qr.getResults();
+	            if (sdl != null && !sdl.isEmpty()) {
+	                for (SolrDocument doc : sdl) {
+	                    if (IndexedTypes.TAXON.toString().equalsIgnoreCase((String) doc.getFieldValue("idxtype"))) {
+	                    	AutoCompleteDTO dto = createAutoCompleteFromIndex(qr, doc, value);
+	                    	if(dto != null && !dto.getMatchedNames().isEmpty()){
+	                    		items.add(createAutoCompleteFromIndex(qr, doc, value));
+	                    	}
+	                    }
+	                }
+	            }
+	            // no exact match found
+	            else{
+	            	// do wildcard search
+	            	solrQuery = buildAutoConcatMatchQuery(value, indexType, gsOnly, maxTerms);
+					qr = solrUtils.getSolrServer().query(solrQuery);					
+		            sdl = qr.getResults();
+		            if (sdl != null && !sdl.isEmpty()) {
+		                for (SolrDocument doc : sdl) {
+		                    if (IndexedTypes.TAXON.toString().equalsIgnoreCase((String) doc.getFieldValue("idxtype"))) {
+		                    	AutoCompleteDTO dto = createAutoCompleteFromIndex(qr, doc, value);
+		                    	if(dto != null && !dto.getMatchedNames().isEmpty()){
+		                    		items.add(createAutoCompleteFromIndex(qr, doc, value));
+		                    	}		
+		                    }
+		                }
+		            }	            	
+	            }
+            } 
+			catch (Exception e) {
+				e.printStackTrace();
+				logger.error(e);
+				logger.error("***** " + e.toString() + " , queryString: " + solrQuery.getQuery());
 			}
             return items;
         }
@@ -1355,5 +1491,74 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 		    logger.error("Problem communicating with SOLR server. " + ex.getMessage(), ex);
 		    return new ArrayList();
 		}
-	}  	
+	}  
+	
+
+	private SolrQuery buildAutoExactMatchQuery(String value, IndexedTypes indexType, boolean gsOnly, int maxTerms) {
+        StringBuffer queryString = new StringBuffer();
+        SolrQuery solrQuery = new SolrQuery();  
+        String cleanQuery = value.toLowerCase();
+        cleanQuery = cleanQuery.trim().replaceAll("[()]", ""); //remove '(' and ')'
+        cleanQuery = cleanQuery.replaceAll("\\s+", " "); //replace multiple spaces to single space
+        
+        if(indexType != null){
+            queryString.append("idxtype:" + indexType);               
+            queryString.append(" AND ");
+        }
+        if(gsOnly){
+            queryString.append("georeferencedCount:[1 TO *]");
+            queryString.append(" AND ");
+        }
+        queryString.append("(");
+
+        queryString.append("scientificNameText:\"" + cleanQuery + "\""); // boost classification to top of list (eg: genus, species, subspecies)
+        queryString.append(" OR ");
+        queryString.append("exact_text:\""+ cleanQuery + "\"");
+        queryString.append(" OR ");
+        queryString.append(replacePrefix("stopped_common_name", cleanQuery));
+        
+        queryString.append(")");
+        solrQuery.setQuery(queryString.toString());
+        solrQuery.setQueryType("standard");
+        solrQuery.setFields("*", "score");
+        solrQuery.setRows(maxTerms);
+
+        return solrQuery;
+    }
+	
+	private SolrQuery buildAutoConcatMatchQuery(String value, IndexedTypes indexType, boolean gsOnly, int maxTerms) {
+        StringBuffer queryString = new StringBuffer();
+        SolrQuery solrQuery = new SolrQuery();  
+        String cleanQuery = value.toLowerCase();
+        cleanQuery = cleanQuery.trim().replaceAll("[()]", ""); //remove '(' and ')'
+        cleanQuery = cleanQuery.replaceAll("\\s+", " "); //replace multiple spaces to single space
+        
+		if(indexType != null){
+		    queryString.append("idxtype:" + indexType);			    
+		    queryString.append(" AND ");
+		}
+		if(gsOnly){
+			queryString.append("georeferencedCount:[1 TO *]");
+			queryString.append(" AND ");
+		}
+		queryString.append("(");
+		
+		queryString.append("concat_name:\"" + SolrUtils.concatName(cleanQuery) + "\"");
+		queryString.append(" OR ");	            
+		queryString.append("scientificNameText:\"" + cleanQuery + "\""); // boost classification to top of list (eg: genus, species, subspecies)
+		queryString.append(" OR ");
+		queryString.append(replacePrefix("stopped_common_name", cleanQuery));
+		queryString.append(" OR ");
+		queryString.append("auto_text:\"" + cleanQuery + "\"");
+		queryString.append(" OR ");
+		queryString.append("auto_text_edge:\"" + cleanQuery + "\""); //This field ensures that matches at the start of the term have a higher ranking
+		    
+		queryString.append(")");
+        solrQuery.setQuery(queryString.toString());
+        solrQuery.setQueryType("standard");
+        solrQuery.setFields("*", "score");
+        solrQuery.setRows(maxTerms);
+
+        return solrQuery;
+    }		
 }

@@ -15,13 +15,18 @@
 package org.ala.lucene;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.List;
 
+import org.ala.dao.SolrUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -64,7 +69,9 @@ public class SolrIndexTest {
 			        coreContainer = initializer.initialize();
 		        } catch (Exception e) {
 		        	//FIXME this is a hack - there must be a better way of initialising SOLR here
-			        IndexWriter idxWriter = new IndexWriter(solrHome+"/index", new StandardAnalyzer());
+		        	Directory dir = FSDirectory.open(new File(solrHome+"/index")); 
+		        	IndexWriterConfig indexWriterConfig = new IndexWriterConfig(SolrUtils.BIE_LUCENE_VERSION, new StandardAnalyzer(SolrUtils.BIE_LUCENE_VERSION));
+			        IndexWriter idxWriter = new IndexWriter(dir, indexWriterConfig);
 			        idxWriter.commit();
 			        idxWriter.close();
 			        CoreContainer.Initializer initializer = new CoreContainer.Initializer();

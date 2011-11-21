@@ -69,6 +69,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
@@ -78,8 +79,12 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -665,12 +670,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		input = input.toLowerCase();
 
 		// construct the query for scientific name
-		QueryParser qp = new QueryParser("scientificName",
-				new KeywordAnalyzer());
+		QueryParser qp = new QueryParser(SolrUtils.BIE_LUCENE_VERSION, "scientificName", new KeywordAnalyzer());
 		Query scientificNameQuery = qp.parse("\"" + input + "\"");
 
 		// construct the query for scientific name
-		qp = new QueryParser("commonName", new SimpleAnalyzer());
+		qp = new QueryParser(SolrUtils.BIE_LUCENE_VERSION, "commonName", new SimpleAnalyzer(SolrUtils.BIE_LUCENE_VERSION));
 		Query commonNameQuery = qp.parse("\"" + input + "\"");
 
 		// include a query against the GUIDs
@@ -736,9 +740,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 		Sort sort = new Sort();
 
-		if (sortField != null && !sortField.isEmpty()
-				&& !sortField.equalsIgnoreCase("score")) {
-			sort.setSort(sortField, direction);
+		if (sortField != null && !sortField.isEmpty() && !sortField.equalsIgnoreCase("score")) {
+			SortField sf = new SortField(sortField, SortField.STRING, direction);
+			sort.setSort(sf);
 		} else {
 			sort = Sort.RELEVANCE;
 		}
@@ -1034,10 +1038,12 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		if (this.tcIdxSearcher == null) {
 			File file = new File(TC_INDEX_DIR);
 			if (file.exists()) {
+				Directory dir = FSDirectory.open(file); 
 				try {
-					this.tcIdxSearcher = new IndexSearcher(TC_INDEX_DIR);
+					this.tcIdxSearcher = new IndexSearcher(dir);
 				} catch (Exception e) {
-					new IndexWriter(TC_INDEX_DIR, new StandardAnalyzer());
+		        	IndexWriterConfig indexWriterConfig = new IndexWriterConfig(SolrUtils.BIE_LUCENE_VERSION, new StandardAnalyzer(SolrUtils.BIE_LUCENE_VERSION));
+					new IndexWriter(dir, indexWriterConfig);
 				}
 			}
 		}
@@ -1580,7 +1586,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @see org.ala.dao.TaxonConceptDao#createIndex()
 	 */
 	public void createIndex() throws Exception {
-
+		int max_loop_count = 100000;
 		long start = System.currentTimeMillis();
 
 		// List<String> pestTerms =
@@ -1625,12 +1631,15 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	
 				if (i > 0 && i % 1000 == 0) {
 					// iw.commit();
-					logger.debug(i + " " + guid + ", adding " + docs.size());
+					logger.info(i + " " + guid + ", adding " + docs.size());
 					if (!docs.isEmpty()) {
-						solrServer.add(docs);
-						solrServer.commit();
+						solrServer.add(docs);						
 						docs.clear();
 					}
+				}
+				if (i > 0 && i % max_loop_count == 0) {
+					logger.info("commit records: " + i + ", current guid: " + guid);
+					solrServer.commit();
 				}
 			}
 			catch(Exception e){
@@ -1640,11 +1649,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 
 		if (!docs.isEmpty()) {
-			logger.debug(i + "  adding " + docs.size() + " documents to index");
-			solrServer.add(docs);
+			logger.info(i + "  adding " + docs.size() + " documents to index");
 			solrServer.commit();
-		}
-
+			solrServer.add(docs);			
+		}		
 		long finish = System.currentTimeMillis();
 		logger.info("Index created in: " + ((finish - start) / 1000)
 				+ " seconds with " + i + " taxon concepts processed.");
@@ -1803,6 +1811,13 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 							higherPriorityNames.add(cn.getNameString());
 						}
 						addToSetSafely(infoSourceIds, cn.getInfoSourceId());
+						
+						// push CAAB prefered common name up
+						if(cn.getRanking() != null && cn.getRanking() > 90000){
+							logger.info("\n**********: " + cn.getNameString() + " , " + cn.getRanking() + "\n");
+							doc.addField("commonName", cn.getNameString(), 100f);
+							doc.addField("commonNameExact", cn.getNameString(), 100f);
+						}
 					}
 				}
 
@@ -2720,6 +2735,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			rankable.setIsBlackListed(ir.isBlackListed());
 		}
 		else{
+			rankable.setIsBlackListed(ir.isBlackListed());
+			
 			Integer ranking = rankable.getRanking();
 			Integer noOfRankings = rankable.getNoOfRankings();
 

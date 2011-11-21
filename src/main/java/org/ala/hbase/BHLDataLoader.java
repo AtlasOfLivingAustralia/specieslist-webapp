@@ -17,6 +17,7 @@ package org.ala.hbase;
 
 import javax.inject.Inject;
 
+import org.ala.dao.SolrUtils;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.model.Reference;
 import org.ala.util.SpringUtils;
@@ -35,11 +36,13 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.KeywordAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -55,6 +58,8 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TermRangeFilter;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopFieldDocs;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 
 /**
  * Loads the references in BHL into the taxon concept 
@@ -182,7 +187,11 @@ public class BHLDataLoader {
 
         KeywordAnalyzer analyzer = new KeywordAnalyzer();
         //initialise lucene
-        IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
+        Directory dir = FSDirectory.open(file); 
+    	IndexWriterConfig indexWriterConfig = new IndexWriterConfig(SolrUtils.BIE_LUCENE_VERSION, analyzer);
+    	IndexWriter iw = new IndexWriter(dir, indexWriterConfig);
+    	iw.setMaxFieldLength(Integer.MAX_VALUE);
+//        IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
 
         int i = 0;
 
@@ -215,7 +224,7 @@ public class BHLDataLoader {
             i++;
 
             if (i % 10000 == 0) {
-                iw.flush();
+                iw.commit();
                 System.out.println(i + "\t" + cols[0] + "\t" + cols[2] + "\t" + cols[7]);
             }
         }
@@ -244,7 +253,11 @@ public class BHLDataLoader {
 
         KeywordAnalyzer analyzer = new KeywordAnalyzer();
         //initialise lucene
-        IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
+        Directory dir = FSDirectory.open(file); 
+    	IndexWriterConfig indexWriterConfig = new IndexWriterConfig(SolrUtils.BIE_LUCENE_VERSION, analyzer);
+    	IndexWriter iw = new IndexWriter(dir, indexWriterConfig); 
+    	iw.setMaxFieldLength(Integer.MAX_VALUE);
+//        IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
 
         int i = 0;
         TabReader tr = new TabReader("/data/bie-staging/bhl/anbg_publication_map.txt", true);
@@ -315,8 +328,8 @@ public class BHLDataLoader {
      * @throws Exception
      */
     public void initIndexes() throws Exception {
-        this.bhlIdxSearcher = new IndexSearcher(BHL_LOADING_IDX_DIR, true);
-        this.anbgIdxSearcher = new IndexSearcher(ANBG_BHL_LOADING_IDX_DIR, true);
+        this.bhlIdxSearcher = new IndexSearcher(FSDirectory.open(new File(BHL_LOADING_IDX_DIR)), true);
+        this.anbgIdxSearcher = new IndexSearcher(FSDirectory.open(new File(ANBG_BHL_LOADING_IDX_DIR)), true);
         //cache the non empty year filter for performance reasons
         yearFilter = new CachingWrapperFilter(TermRangeFilter.More("year", ""));
     }

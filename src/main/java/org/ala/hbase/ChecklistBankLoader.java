@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 
 import org.ala.dao.InfoSourceDAO;
+import org.ala.dao.SolrUtils;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.model.Classification;
 import org.ala.model.CommonName;
@@ -45,6 +46,7 @@ import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.search.IndexSearcher;
@@ -52,6 +54,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.gbif.dwc.text.UnsupportedArchiveException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -162,7 +166,11 @@ public class ChecklistBankLoader {
     	
     	KeywordAnalyzer analyzer = new KeywordAnalyzer();
         //initialise lucene
-    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
+        Directory dir = FSDirectory.open(file); 
+    	IndexWriterConfig indexWriterConfig = new IndexWriterConfig(SolrUtils.BIE_LUCENE_VERSION, analyzer);
+    	IndexWriter iw = new IndexWriter(dir, indexWriterConfig);
+    	iw.setMaxFieldLength(Integer.MAX_VALUE);
+//    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
     	
     	int i = 0;
     	
@@ -201,7 +209,7 @@ public class ChecklistBankLoader {
     		i++;
     		
 	    	if(i%100000==0) {
-	    		iw.flush();
+//	    		iw.flush();
 	    		iw.commit();
 	    		logger.info(i+"\t"+cols[0]+"\t"+cols[2]);
 	    	}
@@ -209,7 +217,7 @@ public class ChecklistBankLoader {
     	
     	//close taxonConcept stream
 		logger.info("Creating loading index - flushing...");
-    	iw.flush();
+//    	iw.flush();
     	logger.info("Creating loading index - commit...");
     	iw.commit();
     	logger.info("Creating loading index - close...");
@@ -239,7 +247,11 @@ public class ChecklistBankLoader {
     	
     	KeywordAnalyzer analyzer = new KeywordAnalyzer();
         //initialise lucene
-    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
+        Directory dir = FSDirectory.open(file); 
+    	IndexWriterConfig indexWriterConfig = new IndexWriterConfig(SolrUtils.BIE_LUCENE_VERSION, analyzer);
+    	IndexWriter iw = new IndexWriter(dir, indexWriterConfig);  
+    	iw.setMaxFieldLength(Integer.MAX_VALUE);
+//    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
     	
     	int i = 0;
     	
@@ -261,7 +273,7 @@ public class ChecklistBankLoader {
 		    	i++;
 		    	
 		    	if(i%10000==0) {
-		    		iw.flush();
+		    		iw.commit();
 		    		logger.info(i+"\t"+cols[0]+"\t"+cols[2]);
 		    	}
     		}
@@ -281,8 +293,8 @@ public class ChecklistBankLoader {
 	 * @throws Exception
 	 */
 	public void initIndexes() throws Exception {
-		this.tcIdxSearcher = new IndexSearcher(CB_LOADING_IDX_DIR, true);
-		this.identifierIdxSearcher = new IndexSearcher(CB_LOADING_ID_IDX_DIR, true);
+		this.tcIdxSearcher = new IndexSearcher(FSDirectory.open(new File(CB_LOADING_IDX_DIR)), true);
+		this.identifierIdxSearcher = new IndexSearcher(FSDirectory.open(new File(CB_LOADING_ID_IDX_DIR)), true);
 	}
 	
 	/**

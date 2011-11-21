@@ -19,11 +19,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.ala.dao.SolrUtils;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.util.SpringUtils;
 import org.apache.commons.io.FileUtils;
@@ -42,12 +45,14 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.spell.LuceneDictionary;
@@ -65,6 +70,14 @@ import org.springframework.context.ApplicationContext;
  * Returns more popular terms first.
  *
  * @author Mat Mannion, M.Mannion@warwick.ac.uk
+ */
+
+/**
+ * @since 1 Nov 2011
+ * @author mok011
+ * 
+ * updated code for lucene 3.4.0.
+ * 
  */
 public final class Autocompleter {
 
@@ -91,14 +104,17 @@ public final class Autocompleter {
     private IndexSearcher autoCompleteSearcher;
 
     public Autocompleter(String autoCompleteDir) throws IOException {
-        this.autoCompleteDirectory = FSDirectory.getDirectory(autoCompleteDir, null);
+        this.autoCompleteDirectory = FSDirectory.open(new File(autoCompleteDir), null);       
         File file = new File(autoCompleteDir);
 
         // Create a dummy index so that we don't get an exception further down
         if (!file.exists()) {
             FileUtils.forceMkdir(file);
-            Analyzer analyzer = new StandardAnalyzer();
-            IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
+            Analyzer analyzer = new StandardAnalyzer(SolrUtils.BIE_LUCENE_VERSION);
+        	IndexWriterConfig indexWriterConfig = new IndexWriterConfig(SolrUtils.BIE_LUCENE_VERSION, analyzer);
+        	Directory dir = FSDirectory.open(file);
+        	IndexWriter iw = new IndexWriter(dir, indexWriterConfig);
+//            IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
             iw.commit();
             iw.close();
         }
@@ -113,7 +129,8 @@ public final class Autocompleter {
     public List<String> suggestTermsFor(String term, Integer maxHits) throws IOException {
         // get the top 5 terms for query
         Query query = new TermQuery(new Term(GRAMMED_WORDS_FIELD, ClientUtils.escapeQueryChars(term)));
-        Sort sort = new Sort(COUNT_FIELD, true);
+        SortField sf = new SortField(COUNT_FIELD, SortField.INT, true);
+        Sort sort = new Sort(sf);
 
         TopDocs docs = autoCompleteSearcher.search(query, null, maxHits, sort);
         List<String> suggestions = new ArrayList<String>();
@@ -136,29 +153,31 @@ public final class Autocompleter {
         // code from
         // org.apache.lucene.search.spell.SpellChecker.indexDictionary(
         // Dictionary)
-        IndexReader.unlock(autoCompleteDirectory);
+        IndexWriter.unlock(autoCompleteDirectory);
 
         // use a custom analyzer so we can do EdgeNGramFiltering
-        IndexWriter writer = new IndexWriter(autoCompleteDirectory,
-        new Analyzer() {
-                public TokenStream tokenStream(String fieldName,
-                                Reader reader) {
-                        TokenStream result = new StandardTokenizer(reader);
-
-                        result = new StandardFilter(result);
-                        result = new LowerCaseFilter(result);
-                        result = new ISOLatin1AccentFilter(result);
-                        result = new StopFilter(result,
-                                ENGLISH_STOP_WORDS);
-                        result = new EdgeNGramTokenFilter(
-                                result, Side.FRONT,1, 20);
-
-                        return result;
-                }
-        }, createNewIndex);
-
-        writer.setMergeFactor(300);
-        writer.setMaxBufferedDocs(150);
+    	IndexWriterConfig indexWriterConfig = new IndexWriterConfig(SolrUtils.BIE_LUCENE_VERSION, new Analyzer() {
+            public TokenStream tokenStream(String fieldName, Reader reader) {
+				TokenStream result = new StandardTokenizer(SolrUtils.BIE_LUCENE_VERSION, reader);
+				
+				result = new StandardFilter(SolrUtils.BIE_LUCENE_VERSION, result);
+				result = new LowerCaseFilter(SolrUtils.BIE_LUCENE_VERSION, result);
+				result = new ISOLatin1AccentFilter(result);
+				result = new StopFilter(SolrUtils.BIE_LUCENE_VERSION, result, new HashSet<String>(Arrays.asList(ENGLISH_STOP_WORDS)));
+				result = new EdgeNGramTokenFilter(result, Side.FRONT,1, 20);
+				
+				return result;
+		    }
+    	});
+    	if(createNewIndex){
+    		indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+    	}
+    	else{
+    		indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+    	}
+    	indexWriterConfig.setMaxBufferedDocs(150);
+    	IndexWriter writer = new IndexWriter(autoCompleteDirectory, indexWriterConfig);
+//        writer.setMergeFactor(300);
 
         // go through every word, storing the original word (incl. n-grams)
         // and the number of times it occurs
@@ -187,13 +206,11 @@ public final class Autocompleter {
         for (String word : wordsMap.keySet()) {
                 // ok index the word
                 Document doc = new Document();
-                doc.add(new Field(SOURCE_WORD_FIELD, word, Field.Store.YES,
-                                Field.Index.UN_TOKENIZED)); // orig term
-                doc.add(new Field(GRAMMED_WORDS_FIELD, word, Field.Store.YES,
-                                Field.Index.TOKENIZED)); // grammed
+                doc.add(new Field(SOURCE_WORD_FIELD, word, Field.Store.YES, Field.Index.NOT_ANALYZED)); // orig term
+                doc.add(new Field(GRAMMED_WORDS_FIELD, word, Field.Store.YES, Field.Index.ANALYZED)); // grammed
                 doc.add(new Field(COUNT_FIELD,
                                 Integer.toString(wordsMap.get(word)), Field.Store.NO,
-                                Field.Index.UN_TOKENIZED)); // count
+                                Field.Index.NOT_ANALYZED)); // count
 
                 writer.addDocument(doc);
         }
@@ -229,10 +246,10 @@ public final class Autocompleter {
             TaxonConceptDao tcDao = (TaxonConceptDao) context.getBean(TaxonConceptDao.class);
             System.out.println("Starting re-indexing...");
             System.out.println("creating scientificName index");
-            autocomplete.reIndex(FSDirectory.getDirectory(INDEX_DIR_NAME, null), "scientificName", true);
+            autocomplete.reIndex(FSDirectory.open(new File(INDEX_DIR_NAME), null), "scientificName", true);
             Thread.sleep(2000);
             System.out.println("creating commonName index");
-            autocomplete.reIndex(FSDirectory.getDirectory(INDEX_DIR_NAME, null), "commonName", false);
+            autocomplete.reIndex(FSDirectory.open(new File(INDEX_DIR_NAME), null), "commonName", false);
             System.out.println("Finished re-indexing...");
         }
 

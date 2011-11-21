@@ -20,18 +20,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.ala.dao.SolrUtils;
 import org.ala.lucene.LuceneUtils;
 import org.ala.model.Publication;
 import org.ala.model.TaxonConcept;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.KeywordAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.search.BooleanQuery;
@@ -42,6 +45,8 @@ import org.apache.lucene.search.Searcher;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 /**
  * This class provides utilities for loading data from source files.
  * This includes creating temporary lucene indexes for loading
@@ -223,28 +228,44 @@ public class LoadUtils {
 	private Searcher getRelIdxSearcher() throws Exception {
 		//FIXME move to dependency injection
 		if(this.relIdxSearcher==null){
-			this.relIdxSearcher = new IndexSearcher(REL_INDEX_DIR);
+			File file = new File(REL_INDEX_DIR);
+			if (file.exists()) {
+				Directory dir = FSDirectory.open(file); 
+				this.relIdxSearcher = new IndexSearcher(dir);
+			}
 		}
 		return this.relIdxSearcher;
 	}
 	
 	private Searcher getAccIdxSearcher() throws Exception {
 		if(this.accIdxSearcher==null){
-			this.accIdxSearcher = new IndexSearcher(ACC_INDEX_DIR);
+			File file = new File(ACC_INDEX_DIR);
+			if (file.exists()) {
+				Directory dir = FSDirectory.open(file); 
+				this.accIdxSearcher = new IndexSearcher(dir);
+			}
 		}
 		return this.accIdxSearcher;
 	}	
 
 	private Searcher getTcIdxSearcher() throws Exception {
 		if(this.tcIdxSearcher==null){
-			this.tcIdxSearcher = new IndexSearcher(TC_INDEX_DIR);
+			File file = new File(TC_INDEX_DIR);
+			if (file.exists()) {
+				Directory dir = FSDirectory.open(file); 
+				this.tcIdxSearcher = new IndexSearcher(dir);
+			}
 		}
 		return this.tcIdxSearcher;
 	}
 	
 	private Searcher getPubIdxSearcher() throws Exception {
 		if(this.pubIdxSearcher==null){
-			this.pubIdxSearcher = new IndexSearcher(PUB_INDEX_DIR);
+			File file = new File(PUB_INDEX_DIR);
+			if (file.exists()) {
+				Directory dir = FSDirectory.open(file); 
+				this.pubIdxSearcher = new IndexSearcher(dir);
+			}			
 		}
 		return this.pubIdxSearcher;
 	}
@@ -320,7 +341,10 @@ public class LoadUtils {
     	FileUtils.forceMkdir(file);
     	int i=0;
 		KeywordAnalyzer analyzer = new KeywordAnalyzer();
-    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
+    	IndexWriterConfig indexWriterConfig = new IndexWriterConfig(SolrUtils.BIE_LUCENE_VERSION, analyzer);
+    	IndexWriter iw = new IndexWriter(FSDirectory.open(file), indexWriterConfig); 
+    	iw.setMaxFieldLength(Integer.MAX_VALUE);    	
+//    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
 		try {
 	    	long start = System.currentTimeMillis();
 	    	//add the relationships
@@ -358,7 +382,10 @@ public class LoadUtils {
     	FileUtils.forceMkdir(file);
     	int i=0;
 		KeywordAnalyzer analyzer = new KeywordAnalyzer();
-    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
+    	IndexWriterConfig indexWriterConfig = new IndexWriterConfig(SolrUtils.BIE_LUCENE_VERSION, analyzer);
+    	IndexWriter iw = new IndexWriter(FSDirectory.open(file), indexWriterConfig); 
+    	iw.setMaxFieldLength(Integer.MAX_VALUE);    			
+//    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
 		try {
 	    	long start = System.currentTimeMillis();
 	    	//add the relationships
@@ -401,7 +428,10 @@ public class LoadUtils {
     	//Analyzer analyzer = new KeywordAnalyzer(); - works for exact matches
     	KeywordAnalyzer analyzer = new KeywordAnalyzer();
         //initialise lucene
-    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
+    	IndexWriterConfig indexWriterConfig = new IndexWriterConfig(SolrUtils.BIE_LUCENE_VERSION, analyzer);
+    	IndexWriter iw = new IndexWriter(FSDirectory.open(file), indexWriterConfig); 
+    	iw.setMaxFieldLength(Integer.MAX_VALUE);    	    	
+//    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
 //    	IndexSearcher is = new IndexSearcher(REL_INDEX_DIR);
     	
     	int i = 0;
@@ -453,7 +483,10 @@ public class LoadUtils {
     	FileUtils.forceMkdir(file);
     	int i=0;
 		KeywordAnalyzer analyzer = new KeywordAnalyzer();
-    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
+    	IndexWriterConfig indexWriterConfig = new IndexWriterConfig(SolrUtils.BIE_LUCENE_VERSION, analyzer);
+    	IndexWriter iw = new IndexWriter(FSDirectory.open(file), indexWriterConfig); 
+    	iw.setMaxFieldLength(Integer.MAX_VALUE);    			
+//    	IndexWriter iw = new IndexWriter(file, analyzer, MaxFieldLength.UNLIMITED);
 		try {
 	    	long start = System.currentTimeMillis();
 	    	//add the relationships

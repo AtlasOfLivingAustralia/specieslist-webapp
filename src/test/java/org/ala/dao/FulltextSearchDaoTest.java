@@ -82,7 +82,7 @@ public class FulltextSearchDaoTest extends TestCase {
 			System.out.println(stc.getName()+", "+stc.getRank()+", left: "+stc.getLeft());
 			if(stc.getLeft()!=null){
 				
-				SearchResultsDTO<SearchTaxonConceptDTO> searchResults = searchDao.getClassificationByLeftNS(stc.getLeft());
+				SearchResultsDTO<SearchTaxonConceptDTO> searchResults = searchDao.getClassificationByLeftNS(stc.getLeft(), stc.getRight());
 				for(SearchTaxonConceptDTO t: searchResults.getResults()){
 					System.out.println(t.getName()+", "+t.getRank()+", left: "+t.getLeft()+", right: "+t.getRight());
 				}
