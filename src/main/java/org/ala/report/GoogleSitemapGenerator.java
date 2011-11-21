@@ -16,7 +16,9 @@ package org.ala.report;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.ala.model.Classification;
@@ -74,7 +76,7 @@ public class GoogleSitemapGenerator {
 	private String fileName = null;
 	public static final String APNI_TAXON = ":apni.taxon:";
 	public static final String ADF_TAXON = ":afd.taxon:";
-	enum NamePos {SCIENTIFIC_NAME, COMMON_NAME, KINGDOM}
+	enum NamePos {SCIENTIFIC_NAME, COMMON_NAME, KINGDOM, IS_AUSTRALIAN}
 	
 
 	/**
@@ -158,6 +160,10 @@ public class GoogleSitemapGenerator {
 		long start = System.currentTimeMillis();
 		KeySlice startKey = new KeySlice();
 		KeySlice lastKey = null;		
+
+		Date dateNow = new Date ();	
+		SimpleDateFormat dateformat = new SimpleDateFormat("yyMMddHHmm");
+		this.setFileName(fileName + dateformat.format( dateNow ));
 		
 		System.out.println("GoogleSitemapGenerator process is started.....");
 		ColumnParent columnParent = new ColumnParent(columnFamily);
@@ -220,7 +226,7 @@ public class GoogleSitemapGenerator {
 	private void writeFileHeader() throws IOException{
 		//init file write
 		System.out.println("**** file created: " + fileName + fileNameCtr + ".xml");
-		fw = new FileWriter(fileName + fileNameCtr + ".xml");
+		fw = new FileWriter(fileName + "_" + fileNameCtr + ".xml");
 		
 		fw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
 		fw.write("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
@@ -240,9 +246,10 @@ public class GoogleSitemapGenerator {
 				if (columns.isSetSuper_column()) {
 					SuperColumn scol = columns.getSuper_column();				
 					String[] names = getSciAndCmnName(scol, keySlice.getKey());
-					if(names != null){
-//						System.out.println("******** GUID: " + keySlice.getKey() + " urlCtr: " + urlCtr);
-						for(int i = 0; i < names.length; i++){
+					if(names != null && "true".equalsIgnoreCase(names[NamePos.IS_AUSTRALIAN.ordinal()])){
+						logger.debug("******** GUID: " + keySlice.getKey() + " urlCtr: " + urlCtr);
+						//ignore last column[isAustralian]
+						for(int i = 0; i < names.length - 1; i++){
 							try {							
 								if(names[i] != null && !names[i].isEmpty()){ 										
 									if(i == NamePos.KINGDOM.ordinal()){
@@ -253,11 +260,13 @@ public class GoogleSitemapGenerator {
 									}
 								}
 							} catch (IOException e) {
+								logger.error(e);
 								e.printStackTrace();
 								//close file
 								try {
 									writeFileFooter();
 								} catch (IOException e1) {
+									logger.error(e1);
 									e1.printStackTrace();
 								}
 								urlCtr = 0;
@@ -272,7 +281,7 @@ public class GoogleSitemapGenerator {
 	private String[] getSciAndCmnName(SuperColumn scol, String guid){
 		String value = null;
 		String colName = null;		
-		String[] names = new String[]{"", "", ""};
+		String[] names = new String[]{"", "", "", ""};
 				
 		if(guid == null || (!guid.trim().contains(APNI_TAXON) && !guid.trim().contains(ADF_TAXON))){
 			return null;
@@ -289,7 +298,7 @@ public class GoogleSitemapGenerator {
 						names[NamePos.KINGDOM.ordinal()] = classifications.get(0).getKingdom();
 					}
 				}
-				if("hasVernacularConcept".equalsIgnoreCase(colName)){
+				else if("hasVernacularConcept".equalsIgnoreCase(colName)){
 					List<CommonName> commonNames = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, CommonName.class));
 					if(commonNames != null ){
 						for(int i = 0; i < commonNames.size(); i++){
@@ -300,9 +309,12 @@ public class GoogleSitemapGenerator {
 						}
 					}
 				}
-				if("taxonConcept".equalsIgnoreCase(colName)){
+				else if("taxonConcept".equalsIgnoreCase(colName)){
 					TaxonConcept taxonConcept = mapper.readValue(value, TaxonConcept.class);
 					names[NamePos.SCIENTIFIC_NAME.ordinal()] = taxonConcept.getNameString();
+				}
+				else if("IsAustralian".equalsIgnoreCase(colName)){
+					names[NamePos.IS_AUSTRALIAN.ordinal()] = value;
 				}
 			} catch (Exception e) {
 				logger.error(e);
