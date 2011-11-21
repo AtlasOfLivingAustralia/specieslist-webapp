@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<decorators defaultdir="/WEB-INF/decorators">
+    <excludes>
+        <pattern>/styles/*</pattern>
+        <pattern>/scripts/*</pattern>
+        <pattern>/static/images/*</pattern>
+        <pattern>/ajax/*</pattern>
+        <pattern>/css/*</pattern>
+        <pattern>/static/*</pattern>
+        <pattern>/ajaxTree*</pattern>
+        <pattern>/query*</pattern>
+        <pattern>/taxon*</pattern>
+        <pattern>/index.jsp</pattern>
+        <pattern>/map/sld*</pattern>
+        <pattern>/regions/taxa*</pattern>
+        <pattern>/image-search/search/table/*</pattern>
+        <pattern>/image-search/infoBox*</pattern>
+        <pattern>/image-search/showSpecies</pattern>        
+    </excludes>
+    <decorator name="mainFluid" page="mainFluid.jsp">
+        <pattern>/image-search/showSpecies</pattern>
+        <pattern>/image-search/search/</pattern>
+        <pattern>/image-search/</pattern>
+        <pattern>/image-search/*/*</pattern>
+        <pattern>/image-search/*/*/</pattern>
+    </decorator>
+    <decorator name="main" page="main.jsp">
+        <pattern>/*</pattern>
+    </decorator>
+</decorators>

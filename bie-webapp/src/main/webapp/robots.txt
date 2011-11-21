@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /region/
+Allow: /species/
+Disallow: /repo/
+Allow: /
