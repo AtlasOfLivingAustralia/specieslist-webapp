@@ -1271,6 +1271,21 @@ Read Only Mode
                             </span></a>
                         </h3>
                     </div>
+                    
+<div id="alerts"></div>
+<script type="text/javascript">
+function alertsCallback(data){
+  if(data.alertExists){
+    $('#alerts').html('<div class="last"><h3><a href="'+data.link+'" class="'+data.name+'">Email alerts<span>You have an alert setup for <strong>'+data.name+'</strong>. Click here to manage your alerts</span></a></h3></div>');
+  } else {
+        $('#alerts').html('<div class="last"><h3><a href="'+data.link+'" class="'+data.name+'">Email alerts<span>Notify me when new records come online for <strong>'+data.name+'</strong></span></a></h3></div>');
+  }
+}
+</script>
+<script type="text/javascript" 
+src="http://alerts.ala.org.au/webservice/taxonAlerts?ts=<%= java.lang.System.currentTimeMillis() %>&userId=${pageContext.request.remoteUser}&guid=${extendedTaxonConcept.taxonConcept.guid}&taxonName=${pageName}&redirect=http://bie.ala.org.au/species/${extendedTaxonConcept.taxonConcept.guid}#Records">
+</script>                    
+                    
                 </div>
                 <div class="section">
                     <c:if test="${not empty spatialPortalMap && !fn:containsIgnoreCase(spatialPortalMap.mapUrl, 'mapaus1_white')}">
