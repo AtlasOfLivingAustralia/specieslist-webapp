@@ -360,6 +360,8 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             //Acacia farnesiana has many terms that match with "Acacia" thus the high level boost required.
             queryString.append(" OR ");
             queryString.append(" exact_text:\"" + cleanQuery + "\"^100000000000");
+            queryString.append(" OR ");
+            queryString.append(" caabName:\"" + cleanQuery + "\"^1000000000000");
             
             
     		String canonicalSciName = retrieveCanonicalForm(query);
