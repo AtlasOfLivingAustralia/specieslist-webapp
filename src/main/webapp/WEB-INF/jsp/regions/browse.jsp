@@ -1,5 +1,8 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ include file="/common/taglibs.jsp" %>
+<%
+    response.sendRedirect("http://regions.ala.org.au");
+%>
 <c:set var="googleKey" scope="request"><ala:propertyLoader bundle="bie-webapp" property="googleKey"/></c:set>
 <c:set var="flashDir" value="${pageContext.request.contextPath}/static/flash"/>
 <c:set var="assets" value="${flashDir}/Assets"/>
