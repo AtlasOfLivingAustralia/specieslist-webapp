@@ -1815,7 +1815,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						// push CAAB prefered common name up
 						if(cn.getRanking() != null && cn.getRanking() > 90000){
 							logger.info("\n**********: " + cn.getNameString() + " , " + cn.getRanking() + "\n");
-							doc.addField("caabName", cn.getNameString(), 100f);
+							doc.addField("caabName", cn.getNameString().trim().toLowerCase(), 100f);
 						}
 					}
 				}
