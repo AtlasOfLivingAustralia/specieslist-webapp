@@ -30,7 +30,7 @@ public class CasSolrAdminController {
 	@Inject
 	private CollectionDao collectionsDao;
 	   
-	@Inject
+	//@Inject
 	private GoogleSitemapGenerator googleSitemapGenerator;
 	
 	/**
