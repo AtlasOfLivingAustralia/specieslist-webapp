@@ -113,9 +113,11 @@ public class BannerMenuTag extends TagSupport {
                     "<li class='nav-explore'><a href='" + centralServer + "/explore/'><span>Explore</span></a>" +
                         "<ul>" +
                             "<li><a href='http://biocache.ala.org.au/explore/your-area'><span>Your Area</span></a></li>" +
-                            "<li><a href='http://bie.ala.org.au/regions/'><span>Regions</span></a></li>" +
+                            "<li><a href='http://regions.ala.org.au/'><span>Regions</span></a></li>" +
                             "<li><a href='" + centralServer + "/explore/species-maps/'><span>Species Maps</span></a></li>" +
+                            "<li><a href='http://biocache.ala.org.au/'><span>Occurrence search</span></a></li>" +                            
                             "<li><a href='http://collections.ala.org.au/public/map'><span>Natural History Collections</span></a></li>" +
+                            "<li><a href='http://collections.ala.org.au/datasets'><span>Datasets</span></a></li>" +                            
                             "<li><a href='" + centralServer + "/explore/themes/'><span>Themes &amp; Highlights </span></a></li>" +
                         "</ul>" +
                     "</li>" +
