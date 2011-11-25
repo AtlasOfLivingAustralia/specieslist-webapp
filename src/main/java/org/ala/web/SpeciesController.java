@@ -1393,15 +1393,11 @@ public class SpeciesController {
             // unix format file path
             if(paths != null && paths.length >= 2){
                 repoIdStr = paths[paths.length - 2]; // get path before filename
-            }
-            else{
+            } else {
                 // windows format file path
                 paths = StringUtils.split(img.getRepoLocation(), "\\");
                 if(paths != null && paths.length >= 2){
                     repoIdStr = paths[paths.length - 2]; // get path before filename
-                }
-                else{
-                    continue;
                 }
             }
 
