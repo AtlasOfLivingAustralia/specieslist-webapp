@@ -2448,9 +2448,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		for (Image image : (List<Image>) getColumnValue(map,ColumnType.IMAGE_COL)) {
             if (image.isPreferred()) {
                 preferredImage = image;
+                images.add(preferredImage);
+                break;
             }
         }
-		images.add(preferredImage);
+		
 		
         for (Image image : (List<Image>) getColumnValue(map,ColumnType.IMAGE_COL)) {
             if (!image.getRepoLocation().equals(preferredImage.getRepoLocation())) {
