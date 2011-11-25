@@ -56,6 +56,10 @@ public class Image extends AttributableObject implements Comparable<Image>, Rank
     protected Integer repoId;
     /** Indicates the image should be blacklisted, and hence removed from certain views */
     protected boolean isBlackListed = false;
+    /** Indicates the image is preferred */
+    protected boolean isPreferred = false;
+    
+
     /** The description */
     protected String description;
     
@@ -68,12 +72,22 @@ public class Image extends AttributableObject implements Comparable<Image>, Rank
     			identifier, creator, locality, isPartOf, licence, rights,
     			noOfRankings, ranking, false);
     }
+	
+	public Image(String guid, String contentType, String repoLocation,
+            String dcLocation, String thumbnail, String title,
+            String identifier, String creator, String locality,
+            String isPartOf, String licence, String rights,
+            Integer noOfRankings, Integer ranking, boolean isBlackListed) {
+	    this(guid, contentType, repoLocation, dcLocation, thumbnail, title,
+                identifier, creator, locality, isPartOf, licence, rights,
+                noOfRankings, ranking, isBlackListed, false);
+	}
     
 	public Image(String guid, String contentType, String repoLocation,
 			String dcLocation, String thumbnail, String title,
 			String identifier, String creator, String locality,
 			String isPartOf, String licence, String rights,
-			Integer noOfRankings, Integer ranking, boolean isBlackListed) {
+			Integer noOfRankings, Integer ranking, boolean isBlackListed, boolean isPreferred) {
 		this.guid = guid;
 		this.contentType = contentType;
 		this.repoLocation = repoLocation;
@@ -89,6 +103,7 @@ public class Image extends AttributableObject implements Comparable<Image>, Rank
 		this.noOfRankings = noOfRankings;
 		this.ranking = ranking;
 		this.isBlackListed = isBlackListed;
+		this.isPreferred = isPreferred;
 	}
 
     public Image(){}
@@ -348,5 +363,12 @@ public class Image extends AttributableObject implements Comparable<Image>, Rank
 		this.description = description;
 	}
 
+    public boolean isPreferred() {
+        return isPreferred;
+    }
+
+    public void setPreferred(boolean isPreferred) {
+        this.isPreferred = isPreferred;
+    }
 	
 }
