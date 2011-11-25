@@ -1161,6 +1161,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		String dcTitle = null;
 		
 		boolean isScreenshot = false;
+		boolean isPreferredImage = false;
 
 		if (document != null) {
 			dcPublisher = document.getInfoSourceName();
@@ -1211,6 +1212,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			if (predicate.endsWith("hasVideoPageUrl")) {
 			    isScreenshot = true;
 			}
+			if (predicate.endsWith("isPreferredImage")) {
+			    isPreferredImage = true;
+            }
 		}
 
 		if (scientificNames.isEmpty() && subspecies.isEmpty()
@@ -1439,6 +1443,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					    image.setRepoLocation(document.getFilePath()
 	                            + File.separator + FileType.SCREENSHOT.getFilename()
 	                            + MimeType.getFileExtension(document.getMimeType()));
+					}
+					if (isPreferredImage) {
+					    image.setPreferred(true);
+					} else {
+					    image.setPreferred(false);
 					}
 					image.setInfoSourceId(Integer.toString(document
 							.getInfoSourceId()));
@@ -2433,8 +2442,20 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		etc.setConservationStatuses(conservationStatuses);
 		
 		List<Image> images = new ArrayList<Image>();
+		
+		Image preferredImage = new Image();
+		
+		for (Image image : (List<Image>) getColumnValue(map,ColumnType.IMAGE_COL)) {
+            if (image.isPreferred()) {
+                preferredImage = image;
+            }
+        }
+		images.add(preferredImage);
+		
         for (Image image : (List<Image>) getColumnValue(map,ColumnType.IMAGE_COL)) {
-            images.add((Image)populateUid(image, infosourceIdUIDMap));
+            if (!image.getRepoLocation().equals(preferredImage.getRepoLocation())) {
+                images.add((Image)populateUid(image, infosourceIdUIDMap));
+            }
         }
 		etc.setImages(images);
 		
