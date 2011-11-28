@@ -124,7 +124,7 @@
 </table>
 
 <c:if test="${pageSize < results.totalRecords}">
-    <a id="loadMoreLink" href="javascript:loadNextPage();">SHOW MORE</a>
+<!--    <a id="loadMoreLink" href="javascript:loadNextPage();">SHOW MORE</a> -->
 </c:if>
 
 </div>
