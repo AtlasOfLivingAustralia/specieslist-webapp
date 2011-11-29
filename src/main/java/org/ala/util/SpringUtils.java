@@ -25,6 +25,11 @@ public class SpringUtils {
 
 	/**
 	 * Retrieve a context, loading configuration from the classpath.
+	 * 
+	 * WARNING:  Do not use this method in classes that will be used in a webapp context.
+	 * 
+	 * An appropriate use case is on the "Loader" classes.
+	 * 
 	 * @return ApplicationContext
 	 */
 	public static ApplicationContext getContext(){
