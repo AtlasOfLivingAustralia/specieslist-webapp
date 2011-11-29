@@ -36,6 +36,11 @@
       <property name="dataSource" ref="dataSource"/>
     </bean>
     
+    <bean id="classificationRank" class="org.ala.util.ClassificationRank" init-method="init" lazy-init="true">
+
+    </bean>
+    
+    
 <!--     <bean id="cassandraUtil" class="org.ala.util.CassandraUtil" lazy-init="true">
       <property name="taxonConceptDao" ref="taxonConceptDao"/>
       <property name="infoSourceDAO" ref="infoSourceDAO"/>

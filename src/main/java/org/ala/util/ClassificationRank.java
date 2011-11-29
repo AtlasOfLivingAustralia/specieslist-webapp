@@ -40,28 +40,17 @@ import org.springframework.stereotype.Component;
  * 
  * @see FulltextSearchDao.SearchResultsDTO getClassificationByLeftNS(int leftNSValue, int rightNSValue) throws Exception;
  */
-@Component("classificationRank")
+
 public class ClassificationRank {
-	private static ClassificationRank instance = null;
+//	private static ClassificationRank instance = null;
 	/** Logger initialisation */
     private final static Logger logger = Logger.getLogger(ClassificationRank.class);    
 	private static List<SearchTaxonConceptDTO> kingdomList = new ArrayList<SearchTaxonConceptDTO>();
 	private static List<SearchTaxonConceptDTO> pyhlumList = new ArrayList<SearchTaxonConceptDTO>();
 	@Inject
-	protected  FulltextSearchDao searchDao;
-    private ClassificationRank(){
-    	init();
-    }
- 
-    public static ClassificationRank getInstance(){
-		if(instance == null){
-			instance = new ClassificationRank();
-		}
-		return instance;
-	}  
+	protected  FulltextSearchDao searchDao;    
     
-    
-    private void init() {
+    public void init() {
     	SearchResultsDTO results;
 		try {
 			//NC: NEED to use DI to get the searchDao otherwise a complete scan is performed
@@ -88,9 +77,6 @@ public class ClassificationRank {
     			dto = pyhlumList.get(i);
     		}
     	}
-    	else{
-    		instance = null;
-    	}
     	return dto;
     }
     
@@ -104,9 +90,6 @@ public class ClassificationRank {
     		if(i >= 0){
     			dto = kingdomList.get(i);
     		}
-    	}
-    	else{
-    		instance = null;
     	}
     	return dto;
     }    
