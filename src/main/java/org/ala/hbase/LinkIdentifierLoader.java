@@ -14,7 +14,7 @@
  ***************************************************************************/
 package org.ala.hbase;
 
-import org.ala.dao.CassandraPelopsHelper;
+
 import org.ala.dao.Scanner;
 import org.ala.dao.StoreHelper;
 import org.ala.dao.TaxonConceptDao;

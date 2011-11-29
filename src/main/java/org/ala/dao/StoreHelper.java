@@ -28,6 +28,8 @@ import org.ala.util.ColumnType;
  * @author Dave Martin (David.Martin@csiro.au)
  */
 public interface StoreHelper {
+    
+    void shutdown();
 
 	/**
 	 * Initialise the store helper, establishing network connections etc.

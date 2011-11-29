@@ -83,15 +83,19 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
     @Inject
     protected SolrUtils solrUtils;
     
+    @Inject
+    protected ClassificationRank classRank;
+    
     protected int maxResultsForChildConcepts = 5000;
     
     protected int maxDownloadForConcepts = 1000000;
+    
 
 	@Override
 	public SearchResultsDTO getClassificationByLeftNS(int leftNSValue, int rightNSValue) throws Exception {
 		long cur = System.currentTimeMillis();
 		try {
-        	SearchTaxonConceptDTO phylum = ClassificationRank.getInstance().getPhylum(leftNSValue, rightNSValue);
+        	SearchTaxonConceptDTO phylum = classRank.getPhylum(leftNSValue, rightNSValue);
 
             // set the query
         	String[] fq = new String[]{"left:[* TO " + leftNSValue + "]", "right:["+rightNSValue+" TO *]"};;
@@ -104,7 +108,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             SearchResultsDTO results = doSolrSearch(queryString.toString(), fq, 100, 0, "rankId", "asc");
             // add kingdom into first item of list
             if(phylum != null){
-            	SearchTaxonConceptDTO kingdom = ClassificationRank.getInstance().getKingdom(leftNSValue, rightNSValue);
+            	SearchTaxonConceptDTO kingdom = classRank.getKingdom(leftNSValue, rightNSValue);
             	results.getResults().add(0, kingdom);
             }
             logger.debug("****** getClassificationByLeftNS: " + (System.currentTimeMillis() - cur));

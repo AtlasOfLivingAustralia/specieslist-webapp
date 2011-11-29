@@ -19,11 +19,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.ala.dao.FulltextSearchDao;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.util.SpringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 /**
  * 
@@ -37,12 +40,15 @@ import org.apache.log4j.Logger;
  * 
  * @see FulltextSearchDao.SearchResultsDTO getClassificationByLeftNS(int leftNSValue, int rightNSValue) throws Exception;
  */
+@Component("classificationRank")
 public class ClassificationRank {
 	private static ClassificationRank instance = null;
 	/** Logger initialisation */
     private final static Logger logger = Logger.getLogger(ClassificationRank.class);    
 	private static List<SearchTaxonConceptDTO> kingdomList = new ArrayList<SearchTaxonConceptDTO>();
 	private static List<SearchTaxonConceptDTO> pyhlumList = new ArrayList<SearchTaxonConceptDTO>();
+	@Inject
+	protected  FulltextSearchDao searchDao;
     private ClassificationRank(){
     	init();
     }
@@ -58,7 +64,8 @@ public class ClassificationRank {
     private void init() {
     	SearchResultsDTO results;
 		try {
-	    	FulltextSearchDao searchDao = SpringUtils.getContext().getBean(FulltextSearchDao.class);
+			//NC: NEED to use DI to get the searchDao otherwise a complete scan is performed
+	    	//FulltextSearchDao searchDao = SpringUtils.getContext().getBean(FulltextSearchDao.class);
 			results = searchDao.getAllRankItems("kingdom");
 			kingdomList = results.getResults();
 			Collections.sort(kingdomList, new SearchTaxonConceptComparator());

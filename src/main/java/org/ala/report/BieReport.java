@@ -18,28 +18,23 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
+import org.ala.dao.StoreHelper;
 import org.ala.model.Classification;
 import org.ala.model.Image;
 import org.ala.model.TaxonConcept;
+import org.ala.util.ColumnType;
+import org.ala.util.SpringUtils;
 import org.apache.log4j.Logger;
-import java.util.ArrayList;
-import org.apache.cassandra.thrift.Cassandra.Client;
-import org.apache.cassandra.thrift.Column;
-import org.apache.cassandra.thrift.ColumnOrSuperColumn;
-import org.apache.cassandra.thrift.ColumnParent;
 
-import org.apache.cassandra.thrift.ConsistencyLevel;
-import org.apache.cassandra.thrift.KeyRange;
-import org.apache.cassandra.thrift.KeySlice;
-import org.apache.cassandra.thrift.SlicePredicate;
-import org.apache.cassandra.thrift.SliceRange;
-import org.apache.cassandra.thrift.SuperColumn;
+import javax.inject.Inject;
+
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeFactory;
-import org.wyki.cassandra.pelops.Pelops;
-import org.wyki.cassandra.pelops.Policy;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 /**
  * BieReport.
@@ -52,15 +47,19 @@ import org.wyki.cassandra.pelops.Policy;
  * 
  * 
  */
+@Component("bieReport")
 public class BieReport {
+    @Inject
+    protected StoreHelper storeHelper;
+    
 	protected Logger logger = Logger.getLogger(this.getClass());
 
 	public static final int ROWS = 1000;
 	public static final String CHARSET_ENCODING = "UTF-8";
-	public static final String POOL_NAME = "ALA";
 	
-	private String host = "localhost";
-	private int port = 9160;
+	
+//	private String host = "localhost";
+//	private int port = 9160;
 	private String keyspace = "bie";
 	private String columnFamily = "tc";	
 	private ObjectMapper mapper;
@@ -90,22 +89,25 @@ public class BieReport {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		BieReport bieReport = null;
+		//BieReport bieReport = null;
 		
 		//check input arguments
 		if (args.length < 1) {
 			System.out.println("Output File Name Missing ....");
 			System.exit(0);
 		}
-		else if (args.length == 1){
-			bieReport = new BieReport();
-		}		
-		else if (args.length == 2){
-			bieReport = new BieReport(args[1], 9160);
-		}
-		else if (args.length == 3){
-			bieReport = new BieReport(args[1], Integer.parseInt(args[2]));
-		}
+		ApplicationContext context = SpringUtils.getContext();
+        BieReport bieReport = context.getBean(BieReport.class);
+        
+//		else if (args.length == 1){
+//			bieReport = new BieReport();
+//		}		
+//		else if (args.length == 2){
+//			bieReport = new BieReport(args[1], 9160);
+//		}
+//		else if (args.length == 3){
+//			bieReport = new BieReport(args[1], Integer.parseInt(args[2]));
+//		}
 		
 		// do report
 		try{
@@ -137,9 +139,9 @@ public class BieReport {
 	public BieReport(String keySpace, String columnFamily, String host, int port){
 		this.keyspace = keySpace;
 		this.columnFamily = columnFamily;
-		this.host = host;
-		this.port = port;
-		Pelops.addPool(POOL_NAME, new String[]{this.host}, this.port, false, this.keyspace, new Policy());
+		//this.host = host;
+		//this.port = port;
+		//Pelops.addPool(POOL_NAME, new String[]{this.host}, this.port, false, this.keyspace, new Policy());
 		mapper = new ObjectMapper();
 		mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}
@@ -148,7 +150,8 @@ public class BieReport {
 	 * close cassandra connection pool.
 	 */
 	public void closeConnectionPool(){
-		Pelops.shutdown();
+	    storeHelper.shutdown();
+	    //Pelops.shutdown();
 	}
 	
 	/**
@@ -162,47 +165,63 @@ public class BieReport {
 		long start = System.currentTimeMillis();
 		long ctr = 1;
 		int[] totalCtr = new int[NUMBER_OF_COUNTER];
-		KeySlice startKey = new KeySlice();
-		KeySlice lastKey = null;		
 		
+		ColumnType[] columns = new ColumnType[]{
+                ColumnType.TAXONCONCEPT_COL,
+                ColumnType.CLASSIFICATION_COL,
+                ColumnType.IMAGE_COL,
+                ColumnType.SYNONYM_COL,
+               
+        };
+		
+		Map<String, Map<String,Object>> rowMaps = storeHelper.getPageOfSubColumns(columnFamily, columnFamily,columns, "", ROWS);
+		
+		
+		
+//		KeySlice startKey = new KeySlice();
+//		KeySlice lastKey = null;		
+		String lastKey="";
+		String startKey="";
 		System.out.println("BieReport process is started.....");
 		
-		ColumnParent columnParent = new ColumnParent(columnFamily);
+//		ColumnParent columnParent = new ColumnParent(columnFamily);
+//
+//		KeyRange keyRange = new KeyRange(ROWS);
+//		keyRange.setStart_key("");
+//		keyRange.setEnd_key("");
+//
+//		SliceRange sliceRange = new SliceRange();
+//		sliceRange.setStart(new byte[0]);
+//		sliceRange.setFinish(new byte[0]);
+//
+//		SlicePredicate slicePredicate = new SlicePredicate();
+//		slicePredicate.setSlice_range(sliceRange);
+//
+//		Client client = Pelops.getDbConnPool(POOL_NAME).getConnection().getAPI();
+//		
+//		// Iterate over all the rows in a ColumnFamily......
+//		// start with the empty string, and after each call use the last key read as the start key 
+//		// in the next iteration.
+//		// when lastKey == startKey is finish.
+//		List<KeySlice> keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
+		totalCtr = getBieReportCount(rowMaps);
 
-		KeyRange keyRange = new KeyRange(ROWS);
-		keyRange.setStart_key("");
-		keyRange.setEnd_key("");
-
-		SliceRange sliceRange = new SliceRange();
-		sliceRange.setStart(new byte[0]);
-		sliceRange.setFinish(new byte[0]);
-
-		SlicePredicate slicePredicate = new SlicePredicate();
-		slicePredicate.setSlice_range(sliceRange);
-
-		Client client = Pelops.getDbConnPool(POOL_NAME).getConnection().getAPI();
-		
-		// Iterate over all the rows in a ColumnFamily......
-		// start with the empty string, and after each call use the last key read as the start key 
-		// in the next iteration.
-		// when lastKey == startKey is finish.
-		List<KeySlice> keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
-		totalCtr = getBieReportCount(keySlices);
-
-		while (keySlices.size() > 0){
-			lastKey = keySlices.get(keySlices.size()-1);
+		while (rowMaps.size() > 0){
+			lastKey = rowMaps.keySet().toArray()[rowMaps.size()-1].toString();
 			//end of scan ?
 			if(lastKey.equals(startKey)){
 				break;
 			}
 			startKey = lastKey;
-			keyRange.setStart_key(lastKey.getKey());			
-			keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
-			int[] counters = getBieReportCount(keySlices);
+			rowMaps = storeHelper.getPageOfSubColumns(columnFamily, columnFamily,columns, startKey, ROWS);
+			
+			//keyRange.setStart_key(lastKey.getKey());			
+			//keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
+			int[] counters = getBieReportCount(rowMaps);
 			for(int i = 0; i < counters.length; i++){
 				totalCtr[i] += counters[i]; 
 			}			
-			System.out.println("Row Count:" + (ROWS * ctr++) + " >>>> lastKey: " + lastKey.getKey());
+			System.out.println("Row Count:" + (ROWS * ctr++) + " >>>> lastKey: " + lastKey);
 			System.gc();
 		}
 		
@@ -273,20 +292,28 @@ public class BieReport {
 	 * @param infoSourceIds
 	 * @return
 	 */
-	private int[] getBieReportCount(List<KeySlice> keySlices){
+	private int[] getBieReportCount(Map<String, Map<String,Object>> rowMaps){
 		int[] ctrs = new int[NUMBER_OF_COUNTER] ;		
 		
-		for (KeySlice keySlice : keySlices) {
-			for (ColumnOrSuperColumn columns : keySlice.getColumns()) {
-				if (columns.isSetSuper_column()) {
-					SuperColumn scol = columns.getSuper_column();
-					int[] taxaCtr = getAusTaxaCount(scol, keySlice.getKey());
-					for(int i = 0; i < taxaCtr.length; i++){
-						ctrs[i] += taxaCtr[i];
-					}			
-				}
-			}
+		for(String guid : rowMaps.keySet()){
+		    //get the columns and object values
+		    int[] taxaCtr = getAusTaxaCount(rowMaps.get(guid), guid);
+		    for(int i = 0; i < taxaCtr.length; i++){
+              ctrs[i] += taxaCtr[i];
+          }
 		}
+		
+//		for (KeySlice keySlice : keySlices) {
+//			for (ColumnOrSuperColumn columns : keySlice.getColumns()) {
+//				if (columns.isSetSuper_column()) {
+//					SuperColumn scol = columns.getSuper_column();
+//					int[] taxaCtr = getAusTaxaCount(scol, keySlice.getKey());
+//					for(int i = 0; i < taxaCtr.length; i++){
+//						ctrs[i] += taxaCtr[i];
+//					}			
+//				}
+//			}
+//		}
 		return ctrs;
 	}
 		
@@ -296,7 +323,7 @@ public class BieReport {
 	 * @param scol
 	 * @return
 	 */
-	private int[] getAusTaxaCount(SuperColumn scol, String guid){
+	private int[] getAusTaxaCount(Map<String,Object> columnMap, String guid){
 		int[] ctr = new int[NUMBER_OF_COUNTER];
 		int imageCtr = 0;
 		int synonymCtr = 0;
@@ -309,41 +336,68 @@ public class BieReport {
 		
 		if(guid == null || !guid.trim().startsWith(AUSTRALIAN_GUID_PREFIX)){
 			return ctr;
-		}				
+		}
+		
+		
+		//check for classification
+		if(columnMap.containsKey(ColumnType.CLASSIFICATION_COL.getColumnName())){
+		    List<Classification> classifications = (List<Classification>)columnMap.get(ColumnType.CLASSIFICATION_COL.getColumnName());
+		    taxa = getClassification(classifications);
+		}
+		if(columnMap.containsKey(ColumnType.IMAGE_COL.getColumnName())){
+		    List<Image> images = (List<Image>)columnMap.get(ColumnType.IMAGE_COL.getColumnName());
+		    imageCtr = images.size();
+            if(imageCtr > 0){
+                hasImages = true;
+            }
+		}
+		if(columnMap.containsKey(ColumnType.SYNONYM_COL.getColumnName())){
+		    List<TaxonConcept> synonym = (List<TaxonConcept>)columnMap.get(ColumnType.SYNONYM_COL.getColumnName());
+		    synonymCtr = synonym.size();
+            if(synonymCtr > 0){
+                hasSynonym = true;
+            }
+		}
+		if(columnMap.containsKey(ColumnType.TAXONCONCEPT_COL.getColumnName())){
+		    TaxonConcept taxonConcept = (TaxonConcept)columnMap.get(ColumnType.TAXONCONCEPT_COL.getColumnName());
+		    if("species".equalsIgnoreCase(taxonConcept.getRankString().trim())){
+                isSpecies = true;
+            }
+		}
 		
 		//scan all columns
-		for (Column col : scol.getColumns()) {
-			try {
-				value = new String(col.getValue(), CHARSET_ENCODING);
-				colName = new String(col.getName(), CHARSET_ENCODING);
-				if("hasClassification".equalsIgnoreCase(colName)){
-					List<Classification> classifications = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, Classification.class));
-					taxa = getClassification(classifications);
-				}
-				if("hasImage".equalsIgnoreCase(colName)){
-					List<Image> images = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, Image.class));
-					imageCtr = images.size();
-					if(imageCtr > 0){
-						hasImages = true;
-					}
-				}
-				if("hasSynonym".equalsIgnoreCase(colName)){
-					List<TaxonConcept> synonym = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, TaxonConcept.class));
-					synonymCtr = synonym.size();
-					if(synonymCtr > 0){
-						hasSynonym = true;
-					}
-				}
-				if("taxonConcept".equalsIgnoreCase(colName)){
-					TaxonConcept taxonConcept = mapper.readValue(value, TaxonConcept.class);
-					if("species".equalsIgnoreCase(taxonConcept.getRankString().trim())){
-						isSpecies = true;
-					}
-				}
-			} catch (Exception e) {
-				logger.error(e);
-			} 	
-		}	
+//		for (Column col : scol.getColumns()) {
+//			try {
+//				value = new String(col.getValue(), CHARSET_ENCODING);
+//				colName = new String(col.getName(), CHARSET_ENCODING);
+//				if("hasClassification".equalsIgnoreCase(colName)){
+//					List<Classification> classifications = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, Classification.class));
+//					taxa = getClassification(classifications);
+//				}
+//				if("hasImage".equalsIgnoreCase(colName)){
+//					List<Image> images = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, Image.class));
+//					imageCtr = images.size();
+//					if(imageCtr > 0){
+//						hasImages = true;
+//					}
+//				}
+//				if("hasSynonym".equalsIgnoreCase(colName)){
+//					List<TaxonConcept> synonym = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, TaxonConcept.class));
+//					synonymCtr = synonym.size();
+//					if(synonymCtr > 0){
+//						hasSynonym = true;
+//					}
+//				}
+//				if("taxonConcept".equalsIgnoreCase(colName)){
+//					TaxonConcept taxonConcept = mapper.readValue(value, TaxonConcept.class);
+//					if("species".equalsIgnoreCase(taxonConcept.getRankString().trim())){
+//						isSpecies = true;
+//					}
+//				}
+//			} catch (Exception e) {
+//				logger.error(e);
+//			} 	
+//		}	
 
 		//populate counter
 		if(!Taxa.INVALID.equals(taxa) && isSpecies){
@@ -437,13 +491,13 @@ public class BieReport {
 		return ROWS;
 	}
 
-	public String getHost() {
-		return host;
-	}
-
-	public int getPort() {
-		return port;
-	}
+//	public String getHost() {
+//		return host;
+//	}
+//
+//	public int getPort() {
+//		return port;
+//	}
 
 	public String getKeyspace() {
 		return keyspace;

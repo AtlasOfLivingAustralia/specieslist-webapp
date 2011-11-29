@@ -17,11 +17,15 @@ package org.ala.util;
 import java.util.Iterator;
 import java.util.List;
 
+import org.ala.dao.StoreHelper;
+import org.ala.report.BieReport;
 import org.apache.log4j.Logger;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.inject.Inject;
 
 import org.apache.cassandra.thrift.Cassandra.Client;
 import org.apache.cassandra.thrift.Column;
@@ -35,10 +39,15 @@ import org.apache.cassandra.thrift.SliceRange;
 import org.apache.cassandra.thrift.SuperColumn;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 import org.wyki.cassandra.pelops.Mutator;
 import org.wyki.cassandra.pelops.Pelops;
 import org.wyki.cassandra.pelops.Policy;
 import org.wyki.cassandra.pelops.Selector;
+
+//TODO Still need to revise this class so it does not directly access Pelops.
+
 
 /**
  * Cassandra Batch Delete.
@@ -50,6 +59,7 @@ import org.wyki.cassandra.pelops.Selector;
  * 14 Sept 10 (MOK011): added remove column & remove infoSource from particular column functions 
  * 
  */
+@Component("cassandraBatchDelete")
 public class CassandraBatchDelete {
 	protected Logger logger = Logger.getLogger(this.getClass());
 
@@ -61,8 +71,12 @@ public class CassandraBatchDelete {
 	public static final String PORT_PREFIX = "-port=";
 	public static final String RK_PREFIX = "-rk";
 	
-	private String host = "localhost";
-	private int port = 9160;
+	
+	@Inject
+	protected StoreHelper storeHelper;
+	
+	//private String host = "localhost";
+	//private int port = 9160;
 	private String keyspace = "bie";
 	private String columnFamily = "tc";	
 		
@@ -84,8 +98,8 @@ public class CassandraBatchDelete {
 	public static void main(String[] args) throws Exception {
 		List<String> columnNameList = new ArrayList<String>();
 		List<String> infoSrcIdList = new ArrayList<String>();
-		String host = "localhost";
-		int port = 9160;
+//		String host = "localhost";
+//		int port = 9160;
 		boolean _rk = false;
 		
 		if (args.length < 1) {
@@ -99,12 +113,12 @@ public class CassandraBatchDelete {
 			if(tmp.startsWith(PREFIX)){
 				columnNameList.add(tmp.substring(PREFIX.length()));
 			}
-			else if(tmp.startsWith(HOST_PREFIX)){
-				host = tmp.substring(HOST_PREFIX.length());
-			}
-			else if(tmp.startsWith(PORT_PREFIX)){
-				port = Integer.parseInt(tmp.substring(PORT_PREFIX.length()));
-			}
+//			else if(tmp.startsWith(HOST_PREFIX)){
+//				host = tmp.substring(HOST_PREFIX.length());
+//			}
+//			else if(tmp.startsWith(PORT_PREFIX)){
+//				port = Integer.parseInt(tmp.substring(PORT_PREFIX.length()));
+//			}
 			else if(tmp.startsWith(RK_PREFIX)){
 				_rk = true;
 			}
@@ -113,15 +127,18 @@ public class CassandraBatchDelete {
 			}
 		}
 		
-		System.out.println("Connecting to: " + host + " port: " + port);
+		//System.out.println("Connecting to: " + host + " port: " + port);
 		String[] cast = new String[]{};
-		CassandraBatchDelete cassandraBatchDelete = null;
+		
+	    ApplicationContext context = SpringUtils.getContext();
+	    CassandraBatchDelete cassandraBatchDelete = context.getBean(CassandraBatchDelete.class);
+		
 		if(_rk){
-			cassandraBatchDelete = new CassandraBatchDelete("bie", "rk", host, port);
+			
 			cassandraBatchDelete.doRkDelete(columnNameList.toArray(cast));
 		}
 		else{
-			cassandraBatchDelete = new CassandraBatchDelete(host, port);
+			
 			cassandraBatchDelete.doFullScanAndDelete(infoSrcIdList.toArray(cast), columnNameList.toArray(cast));
 		}				
 		cassandraBatchDelete.closeConnectionPool();
@@ -129,23 +146,19 @@ public class CassandraBatchDelete {
 	}
 
 	public CassandraBatchDelete(){
-		this("bie", "tc", "localhost", 9160);
+		this("bie", "tc");
 	}
-	
-	public CassandraBatchDelete(String host, int port){
-		this("bie", "tc", host, port);
-	}
+
 		
-	public CassandraBatchDelete(String keySpace, String columnFamily, String host, int port){
+	public CassandraBatchDelete(String keySpace, String columnFamily){
 		this.keyspace = keySpace;
 		this.columnFamily = columnFamily;
-		this.host = host;
-		this.port = port;
-		Pelops.addPool(POOL_NAME, new String[]{this.host}, this.port, false, this.keyspace, new Policy());
+
+		
 	}
 	
 	public void closeConnectionPool(){
-		Pelops.shutdown();
+		storeHelper.shutdown();
 	}
 	
 	/**
@@ -409,13 +422,7 @@ public class CassandraBatchDelete {
 		return ROWS;
 	}
 
-	public String getHost() {
-		return host;
-	}
 
-	public int getPort() {
-		return port;
-	}
 
 	public String getKeyspace() {
 		return keyspace;

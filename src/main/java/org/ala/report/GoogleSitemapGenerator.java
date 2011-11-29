@@ -20,29 +20,27 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import org.ala.dao.StoreHelper;
 import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.TaxonConcept;
+import org.ala.util.ColumnType;
+import org.ala.util.SpringUtils;
 import org.apache.log4j.Logger;
 import java.util.ArrayList;
-import org.apache.cassandra.thrift.Cassandra.Client;
-import org.apache.cassandra.thrift.Column;
-import org.apache.cassandra.thrift.ColumnOrSuperColumn;
-import org.apache.cassandra.thrift.ColumnParent;
 
-import org.apache.cassandra.thrift.ConsistencyLevel;
-import org.apache.cassandra.thrift.KeyRange;
-import org.apache.cassandra.thrift.KeySlice;
-import org.apache.cassandra.thrift.SlicePredicate;
-import org.apache.cassandra.thrift.SliceRange;
-import org.apache.cassandra.thrift.SuperColumn;
+import javax.inject.Inject;
+
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
-import org.wyki.cassandra.pelops.Pelops;
-import org.wyki.cassandra.pelops.Policy;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+
 
 /**
  * GoogleSitemapGenerator.
@@ -55,15 +53,18 @@ import org.wyki.cassandra.pelops.Policy;
  * 
  * 
  */
+@Component("googleSitemapGenerator")
 public class GoogleSitemapGenerator {
+    @Inject
+    protected StoreHelper storeHelper;
 	protected Logger logger = Logger.getLogger(this.getClass());
 
 	public static final int ROWS = 1000;
 	public static final String CHARSET_ENCODING = "UTF-8";
-	public static final String POOL_NAME = "ALA";
+//	public static final String POOL_NAME = "ALA";
 	
-	private String host = "localhost";
-	private int port = 9160;
+//	private String host = "localhost";
+//	private int port = 9160;
 	private String keyspace = "bie";
 	private String columnFamily = "tc";	
 	private ObjectMapper mapper;
@@ -85,25 +86,25 @@ public class GoogleSitemapGenerator {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		GoogleSitemapGenerator googleSitemapGenerator = null;
+	    ApplicationContext context = SpringUtils.getContext();
+	    GoogleSitemapGenerator googleSitemapGenerator = context.getBean(GoogleSitemapGenerator.class);
+		
 				
 		//check input arguments
-		if (args.length == 0) {
-			googleSitemapGenerator = new GoogleSitemapGenerator();
+		if (args.length == 0) {			
 			googleSitemapGenerator.setFileName("Sitemap");
 		}
-		else if (args.length == 1){
-			googleSitemapGenerator = new GoogleSitemapGenerator();
+		else if (args.length == 1){			
 			googleSitemapGenerator.setFileName(args[0]);
 		}		
-		else if (args.length == 2){
-			googleSitemapGenerator = new GoogleSitemapGenerator(args[1], 9160);
-			googleSitemapGenerator.setFileName(args[0]);
-		}
-		else if (args.length == 3){
-			googleSitemapGenerator = new GoogleSitemapGenerator(args[1], Integer.parseInt(args[2]));
-			googleSitemapGenerator.setFileName(args[0]);
-		}
+//		else if (args.length == 2){
+//			googleSitemapGenerator = new GoogleSitemapGenerator(args[1], 9160);
+//			googleSitemapGenerator.setFileName(args[0]);
+//		}
+//		else if (args.length == 3){
+//			googleSitemapGenerator = new GoogleSitemapGenerator(args[1], Integer.parseInt(args[2]));
+//			googleSitemapGenerator.setFileName(args[0]);
+//		}
 		
 		// do sitemap
 		try{
@@ -125,19 +126,14 @@ public class GoogleSitemapGenerator {
 	}
 
 	public GoogleSitemapGenerator(){
-		this("bie", "tc", "localhost", 9160);
+		this("bie", "tc");
 	}
 	
-	public GoogleSitemapGenerator(String host, int port){
-		this("bie", "tc", host, port);
-	}
-	
-	public GoogleSitemapGenerator(String keySpace, String columnFamily, String host, int port){
+	public GoogleSitemapGenerator(String keySpace, String columnFamily){
 		this.keyspace = keySpace;
 		this.columnFamily = columnFamily;
-		this.host = host;
-		this.port = port;
-		Pelops.addPool(POOL_NAME, new String[]{this.host}, this.port, false, this.keyspace, new Policy());
+		
+		
 		mapper = new ObjectMapper();
 		mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}
@@ -146,7 +142,7 @@ public class GoogleSitemapGenerator {
 	 * close cassandra connection pool.
 	 */
 	public void closeConnectionPool(){
-		Pelops.shutdown();
+		storeHelper.shutdown();
 	}
 	
 	/**
@@ -158,49 +154,76 @@ public class GoogleSitemapGenerator {
 	 */
 	public void doFullScan() throws Exception {
 		long start = System.currentTimeMillis();
-		KeySlice startKey = new KeySlice();
-		KeySlice lastKey = null;		
+		//KeySlice startKey = new KeySlice();
+		//KeySlice lastKey = null;		
 
 		Date dateNow = new Date ();	
 		SimpleDateFormat dateformat = new SimpleDateFormat("yyMMddHHmm");
 		this.setFileName(fileName + dateformat.format( dateNow ));
 		
 		System.out.println("GoogleSitemapGenerator process is started.....");
-		ColumnParent columnParent = new ColumnParent(columnFamily);
+		
+		
+		ColumnType[] columns = new ColumnType[]{
+                ColumnType.TAXONCONCEPT_COL,
+                ColumnType.CLASSIFICATION_COL,
+                ColumnType.VERNACULAR_COL,
+                ColumnType.IS_AUSTRALIAN,
+               
+        };
+        String lastKey = "";
+        String startKey="";
+        Map<String, Map<String,Object>> rowMaps = storeHelper.getPageOfSubColumns(columnFamily, columnFamily,columns, "", ROWS);
+    
+		generateURL(rowMaps);
+		
+		while(rowMaps.size() >0){
+		    lastKey = rowMaps.keySet().toArray()[rowMaps.size()-1].toString();
+		    if(lastKey.equals(startKey)){
+                break;
+            }
+		    startKey = lastKey;
+            rowMaps = storeHelper.getPageOfSubColumns(columnFamily, columnFamily,columns, startKey, ROWS);
+            generateURL(rowMaps);
+		}
+        writeFileFooter();
+        urlCtr = 0;
+		
+//		ColumnParent columnParent = new ColumnParent(columnFamily);
+//
+//		KeyRange keyRange = new KeyRange(ROWS);
+//		keyRange.setStart_key("");
+//		keyRange.setEnd_key("");
+//
+//		SliceRange sliceRange = new SliceRange();
+//		sliceRange.setStart(new byte[0]);
+//		sliceRange.setFinish(new byte[0]);
+//
+//		SlicePredicate slicePredicate = new SlicePredicate();
+//		slicePredicate.setSlice_range(sliceRange);
 
-		KeyRange keyRange = new KeyRange(ROWS);
-		keyRange.setStart_key("");
-		keyRange.setEnd_key("");
-
-		SliceRange sliceRange = new SliceRange();
-		sliceRange.setStart(new byte[0]);
-		sliceRange.setFinish(new byte[0]);
-
-		SlicePredicate slicePredicate = new SlicePredicate();
-		slicePredicate.setSlice_range(sliceRange);
-
-		Client client = Pelops.getDbConnPool(POOL_NAME).getConnection().getAPI();
+		//Client client = Pelops.getDbConnPool(POOL_NAME).getConnection().getAPI();
 		
 		// Iterate over all the rows in a ColumnFamily......
 		// start with the empty string, and after each call use the last key read as the start key 
 		// in the next iteration.
 		// when lastKey == startKey is finish.
-		List<KeySlice> keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);		
-		generateURL(keySlices);
-		while (keySlices.size() > 0){
-			lastKey = keySlices.get(keySlices.size()-1);
-			//end of scan ?
-			if(lastKey.equals(startKey)){
-				writeFileFooter();
-				urlCtr = 0;
-				break;
-			}
-			startKey = lastKey;
-			keyRange.setStart_key(lastKey.getKey());			
-			keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
-			generateURL(keySlices);
-			System.gc();
-		}
+//		List<KeySlice> keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);		
+//		generateURL(keySlices);
+//		while (keySlices.size() > 0){
+//			lastKey = keySlices.get(keySlices.size()-1);
+//			//end of scan ?
+//			if(lastKey.equals(startKey)){
+//				writeFileFooter();
+//				urlCtr = 0;
+//				break;
+//			}
+//			startKey = lastKey;
+//			keyRange.setStart_key(lastKey.getKey());			
+//			keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
+//			generateURL(keySlices);
+//			System.gc();
+//		}
 		System.out.println("GoogleSitemapGenerator process is ended, total time takem: " + ((System.currentTimeMillis() - start)/1000));
 	}
 		
@@ -240,86 +263,145 @@ public class GoogleSitemapGenerator {
 		fw.close();	
 	}
 	
-	private void generateURL(List<KeySlice> keySlices){				
-		for (KeySlice keySlice : keySlices) {
-			for (ColumnOrSuperColumn columns : keySlice.getColumns()) {
-				if (columns.isSetSuper_column()) {
-					SuperColumn scol = columns.getSuper_column();				
-					String[] names = getSciAndCmnName(scol, keySlice.getKey());
-					if(names != null && "true".equalsIgnoreCase(names[NamePos.IS_AUSTRALIAN.ordinal()])){
-						logger.debug("******** GUID: " + keySlice.getKey() + " urlCtr: " + urlCtr);
-						//ignore last column[isAustralian]
-						for(int i = 0; i < names.length - 1; i++){
-							try {							
-								if(names[i] != null && !names[i].isEmpty()){ 										
-									if(i == NamePos.KINGDOM.ordinal()){
-										writeURL(StringEscapeUtils.escapeXml(names[NamePos.SCIENTIFIC_NAME.ordinal()] + " (" + names[NamePos.KINGDOM.ordinal()] + ")"));
-									}
-									else{
-										writeURL(StringEscapeUtils.escapeXml(names[i]));
-									}
-								}
-							} catch (IOException e) {
-								logger.error(e);
-								e.printStackTrace();
-								//close file
-								try {
-									writeFileFooter();
-								} catch (IOException e1) {
-									logger.error(e1);
-									e1.printStackTrace();
-								}
-								urlCtr = 0;
-							}
-						}
-					}
-				}
-			}
-		}
+	private void generateURL(Map<String, Map<String,Object>> rowMaps){	
+	    
+	    
+	    for(String guid : rowMaps.keySet()){
+	        String names[] = getSciAndCmnName(rowMaps.get(guid), guid);
+	        if(names != null && "true".equalsIgnoreCase(names[NamePos.IS_AUSTRALIAN.ordinal()])){
+	            logger.debug("******** GUID: " + guid + " urlCtr: " + urlCtr);
+                for(int i = 0; i < names.length - 1; i++){
+                    try {                           
+                        if(names[i] != null && !names[i].isEmpty()){                                        
+                            if(i == NamePos.KINGDOM.ordinal()){
+                                writeURL(StringEscapeUtils.escapeXml(names[NamePos.SCIENTIFIC_NAME.ordinal()] + " (" + names[NamePos.KINGDOM.ordinal()] + ")"));
+                            }
+                            else{
+                                writeURL(StringEscapeUtils.escapeXml(names[i]));
+                            }
+                        }
+                    } catch (IOException e) {
+                        logger.error(e);
+                        e.printStackTrace();
+                        //close file
+                        try {
+                            writeFileFooter();
+                        } catch (IOException e1) {
+                            logger.error(e1);
+                            e1.printStackTrace();
+                        }
+                        urlCtr = 0;
+                    }
+                }
+	        }
+	    }
+	    
+	    
+//		for (KeySlice keySlice : keySlices) {
+//			for (ColumnOrSuperColumn columns : keySlice.getColumns()) {
+//				if (columns.isSetSuper_column()) {
+//					SuperColumn scol = columns.getSuper_column();				
+//					String[] names = getSciAndCmnName(scol, keySlice.getKey());
+//					if(names != null && "true".equalsIgnoreCase(names[NamePos.IS_AUSTRALIAN.ordinal()])){
+//						logger.debug("******** GUID: " + keySlice.getKey() + " urlCtr: " + urlCtr);
+//						//ignore last column[isAustralian]
+//						for(int i = 0; i < names.length - 1; i++){
+//							try {							
+//								if(names[i] != null && !names[i].isEmpty()){ 										
+//									if(i == NamePos.KINGDOM.ordinal()){
+//										writeURL(StringEscapeUtils.escapeXml(names[NamePos.SCIENTIFIC_NAME.ordinal()] + " (" + names[NamePos.KINGDOM.ordinal()] + ")"));
+//									}
+//									else{
+//										writeURL(StringEscapeUtils.escapeXml(names[i]));
+//									}
+//								}
+//							} catch (IOException e) {
+//								logger.error(e);
+//								e.printStackTrace();
+//								//close file
+//								try {
+//									writeFileFooter();
+//								} catch (IOException e1) {
+//									logger.error(e1);
+//									e1.printStackTrace();
+//								}
+//								urlCtr = 0;
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
 	}
 
-	private String[] getSciAndCmnName(SuperColumn scol, String guid){
+	private String[] getSciAndCmnName(Map<String,Object> columnMap, String guid){
 		String value = null;
 		String colName = null;		
 		String[] names = new String[]{"", "", "", ""};
 				
 		if(guid == null || (!guid.trim().contains(APNI_TAXON) && !guid.trim().contains(ADF_TAXON))){
 			return null;
-		}				
+		}
+		
+		if(columnMap.containsKey(ColumnType.CLASSIFICATION_COL.getColumnName())){
+		    List<Classification> classifications = (List<Classification>)columnMap.get(ColumnType.CLASSIFICATION_COL.getColumnName());
+		    if(classifications != null && classifications.size() > 0){
+		        names[NamePos.KINGDOM.ordinal()] = classifications.get(0).getKingdom();
+		    }
+		}
+		if(columnMap.containsKey(ColumnType.VERNACULAR_COL.getColumnName())){
+		    List<CommonName> commonNames = (List<CommonName>)columnMap.get(ColumnType.VERNACULAR_COL.getColumnName());
+            if(commonNames != null ){
+              for(int i = 0; i < commonNames.size(); i++){
+                  if(commonNames.get(i).isPreferred()){
+                      names[NamePos.COMMON_NAME.ordinal()] = commonNames.get(i).getNameString();
+                      break;
+                  }
+              }
+          }
+		}
+		if(columnMap.containsKey(ColumnType.TAXONCONCEPT_COL.getColumnName())){
+		    TaxonConcept taxonConcept = (TaxonConcept)columnMap.get(ColumnType.TAXONCONCEPT_COL.getColumnName());
+		    names[NamePos.SCIENTIFIC_NAME.ordinal()] = taxonConcept.getNameString();
+		}
+		if(columnMap.containsKey(ColumnType.IS_AUSTRALIAN.getColumnName())){
+		    names[NamePos.IS_AUSTRALIAN.ordinal()] = columnMap.get(ColumnType.IS_AUSTRALIAN.getColumnName()).toString();
+		}
+		
 		
 		//scan all columns
-		for (Column col : scol.getColumns()) {
-			try {
-				value = new String(col.getValue(), CHARSET_ENCODING);
-				colName = new String(col.getName(), CHARSET_ENCODING);
-				if("hasClassification".equalsIgnoreCase(colName)){
-					List<Classification> classifications = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, Classification.class));
-					if(classifications != null && classifications.size() > 0){
-						names[NamePos.KINGDOM.ordinal()] = classifications.get(0).getKingdom();
-					}
-				}
-				else if("hasVernacularConcept".equalsIgnoreCase(colName)){
-					List<CommonName> commonNames = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, CommonName.class));
-					if(commonNames != null ){
-						for(int i = 0; i < commonNames.size(); i++){
-							if(commonNames.get(i).isPreferred()){
-								names[NamePos.COMMON_NAME.ordinal()] = commonNames.get(i).getNameString();
-								break;
-							}
-						}
-					}
-				}
-				else if("taxonConcept".equalsIgnoreCase(colName)){
-					TaxonConcept taxonConcept = mapper.readValue(value, TaxonConcept.class);
-					names[NamePos.SCIENTIFIC_NAME.ordinal()] = taxonConcept.getNameString();
-				}
-				else if("IsAustralian".equalsIgnoreCase(colName)){
-					names[NamePos.IS_AUSTRALIAN.ordinal()] = value;
-				}
-			} catch (Exception e) {
-				logger.error(e);
-			} 	
-		}	
+//		for (Column col : scol.getColumns()) {
+//			try {
+//				value = new String(col.getValue(), CHARSET_ENCODING);
+//				colName = new String(col.getName(), CHARSET_ENCODING);
+//				if("hasClassification".equalsIgnoreCase(colName)){
+//					List<Classification> classifications = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, Classification.class));
+//					if(classifications != null && classifications.size() > 0){
+//						names[NamePos.KINGDOM.ordinal()] = classifications.get(0).getKingdom();
+//					}
+//				}
+//				else if("hasVernacularConcept".equalsIgnoreCase(colName)){
+//					List<CommonName> commonNames = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, CommonName.class));
+//					if(commonNames != null ){
+//						for(int i = 0; i < commonNames.size(); i++){
+//							if(commonNames.get(i).isPreferred()){
+//								names[NamePos.COMMON_NAME.ordinal()] = commonNames.get(i).getNameString();
+//								break;
+//							}
+//						}
+//					}
+//				}
+//				else if("taxonConcept".equalsIgnoreCase(colName)){
+//					TaxonConcept taxonConcept = mapper.readValue(value, TaxonConcept.class);
+//					names[NamePos.SCIENTIFIC_NAME.ordinal()] = taxonConcept.getNameString();
+//				}
+//				else if("IsAustralian".equalsIgnoreCase(colName)){
+//					names[NamePos.IS_AUSTRALIAN.ordinal()] = value;
+//				}
+//			} catch (Exception e) {
+//				logger.error(e);
+//			} 	
+//		}	
 
 		return names;
 	}
@@ -327,14 +409,6 @@ public class GoogleSitemapGenerator {
 	//========= Getter =======
 	public static int getRows() {
 		return ROWS;
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public int getPort() {
-		return port;
 	}
 
 	public String getKeyspace() {
@@ -348,16 +422,6 @@ public class GoogleSitemapGenerator {
 	// =========== setter ===========
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
-	}
-
-	
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-
-	public void setPort(int port) {
-		this.port = port;
 	}
 
 

@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.ala.dao.CassandraPelopsHelper;
+
 import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.Scanner;
 import org.ala.dao.StoreHelper;
@@ -32,7 +32,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import au.org.ala.checklist.lucene.CBIndexSearch;
-import au.org.ala.checklist.lucene.HomonymException;
+
 
 /**
  * InfosourceUidLoader.

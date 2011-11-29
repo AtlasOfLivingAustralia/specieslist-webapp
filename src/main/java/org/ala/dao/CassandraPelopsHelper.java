@@ -61,14 +61,30 @@ public class CassandraPelopsHelper implements StoreHelper  {
 	protected String pool = "ALA";
 
 	protected int port = 9160;
+	
+	protected int minPool =10;
+	
+	protected int maxPool = 100;
+	
+	protected int targetConnections =30;
 
 	protected String charsetEncoding = "UTF-8";	
 
 	@Override
 	public void init() throws Exception {
 		//set up the connection pool
-	    logger.info(host);
-		Pelops.addPool(pool, new String[]{host}, port, false, keySpace, new Policy());
+	    logger.info("Initialising Pelops connection pool to " +host + " with min connections " + minPool + " target connections: " + targetConnections + " max connections " + maxPool);
+	    
+	    Policy policy = new Policy();
+	    policy.setMinCachedConnectionsPerNode(minPool);
+	    policy.setMaxConnectionsPerNode(maxPool);
+	    policy.setTargetConnectionsPerNode(targetConnections);
+	    
+		Pelops.addPool(pool, new String[]{host}, port, false, keySpace, policy);
+	}
+	
+	public void shutdown(){
+	    Pelops.shutdown();
 	}
 
 	/**
@@ -742,8 +758,31 @@ public class CassandraPelopsHelper implements StoreHelper  {
 	public void setPort(int port) {
 		this.port = port;
 	}
+	
+	
 
 	/**
+     * @param targetConnections the targetConnections to set
+     */
+    public void setTargetConnections(int targetConnections) {
+        this.targetConnections = targetConnections;
+    }
+
+    /**
+     * @param minPool the minPool to set
+     */
+    public void setMinPool(int minPool) {
+        this.minPool = minPool;
+    }
+
+    /**
+     * @param maxPool the maxPool to set
+     */
+    public void setMaxPool(int maxPool) {
+        this.maxPool = maxPool;
+    }
+
+    /**
 	 * @param charsetEncoding the charsetEncoding to set
 	 */
 	public void setCharsetEncoding(String charsetEncoding) {
