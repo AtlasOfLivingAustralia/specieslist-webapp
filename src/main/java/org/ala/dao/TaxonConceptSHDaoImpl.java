@@ -180,6 +180,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
     protected int otherMatched;
     protected int failedMatch;
     protected int homonyms;
+    
+    protected Map <String, String> infosourceIdUIDMap;
 
 	/**
 	 * Initialise the DAO, setting up the HTable instance.
@@ -195,6 +197,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	private void init() throws Exception {
 		storeHelper.init();
+		infosourceIdUIDMap = infoSourceDAO.getInfosourceIdUidMap();
 	}
 
 	/**
@@ -1983,7 +1986,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				Iterator it = infoSourceIds.iterator();
 				
 				while (it.hasNext()) {
-				    String uid = infoSourceDAO.getUidByInfosourceId((String) it.next());
+				    String uid = infosourceIdUIDMap.get((String) it.next());
 				    
 				    if (uid != null && !"".equals(uid)) {
 				        doc.addField("uid", uid);
@@ -2397,7 +2400,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	private ExtendedTaxonConceptDTO createExtendedDTO(Map<String, Object> map) {
 		// populate the dto
 		ExtendedTaxonConceptDTO etc = new ExtendedTaxonConceptDTO();
-		Map <String, String> infosourceIdUIDMap = infoSourceDAO.getInfosourceIdUidMap();
+//		Map <String, String> infosourceIdUIDMap = infoSourceDAO.getInfosourceIdUidMap();
 		
 		etc.setTaxonConcept((TaxonConcept)populateUid((TaxonConcept) getColumnValue(map,ColumnType.TAXONCONCEPT_COL), infosourceIdUIDMap));
 		logger.debug("!!!!!!" + ((etc.getTaxonConcept()!=null && etc.getTaxonConcept().getInfoSourceURL()!=null)?etc.getTaxonConcept().getInfoSourceURL():""));
