@@ -196,7 +196,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 * @throws Exception
 	 */
 	private void init() throws Exception {
-		storeHelper.init();
+//		storeHelper.init();
 		infosourceIdUIDMap = infoSourceDAO.getInfosourceIdUidMap();
 	}
 
