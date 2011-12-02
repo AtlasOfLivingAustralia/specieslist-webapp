@@ -52,6 +52,7 @@ public class InfoSourceDAOImpl extends JdbcDaoSupport implements InfoSourceDAO {
 	private static final Logger logger = Logger.getLogger(InfoSourceDAOImpl.class);
 	
     private static final String SELECT_ALL_IDS = "select id from infosource";
+    private static final String SELECT_ALL_IDS_UIDS = "select id, uid from infosource";
     private static final String SELECT_UID_BY_INFOSOURCE_ID = "select uid from infosource where id=?";
 	private static final String GET_BY_ID = "select inf.id, inf.name, uri, logo_url, description, connection_params, hv.class, " +
 	            "document_mapper from infosource inf " +
@@ -186,12 +187,18 @@ public class InfoSourceDAOImpl extends JdbcDaoSupport implements InfoSourceDAO {
     public Map<String, String> getInfosourceIdUidMap() {
         Map<String, String> uidInfosourceIDMap = new HashMap<String, String>();
         
-        List<Integer> infosourceIdList = getIdsforAll();
+        List<Map<String, Object>> mapList = (List<Map<String, Object>>) getJdbcTemplate().queryForList(SELECT_ALL_IDS_UIDS);
         
-        for (Integer infosourceId : infosourceIdList) {
-            String uid = getUidByInfosourceId(infosourceId.toString());
-            uidInfosourceIDMap.put(infosourceId.toString(), uid);
+        for (Map map : mapList) {
+            uidInfosourceIDMap.put(String.valueOf(map.get("id")), String.valueOf(map.get("uid")));
         }
+        
+//        List<Integer> infosourceIdList = getIdsforAll();
+//        
+//        for (Integer infosourceId : infosourceIdList) {
+//            String uid = getUidByInfosourceId(infosourceId.toString());
+//            uidInfosourceIDMap.put(infosourceId.toString(), uid);
+//        }
         
         return uidInfosourceIDMap;
     }
