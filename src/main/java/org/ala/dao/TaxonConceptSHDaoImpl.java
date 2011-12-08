@@ -1973,8 +1973,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 //					}
 //				}
 
-				List<Classification> classifications = scanner != null ? (List)scanner.getListValue(ColumnType.TAXONNAME_COL.getColumnName(),
-		                TaxonName.class):getClassifications(guid);
+				List<Classification> classifications = scanner != null ? (List)scanner.getListValue(ColumnType.CLASSIFICATION_COL.getColumnName(),
+		                Classification.class):getClassifications(guid);
 				for (Classification classification : classifications) {
 					addIfNotNull(doc, "kingdom", classification.getKingdom());
 					addIfNotNull(doc, "phylum", classification.getPhylum());
