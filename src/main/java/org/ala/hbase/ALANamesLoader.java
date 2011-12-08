@@ -615,11 +615,11 @@ private String getPreferredGuid(String taxonConceptGuid) throws Exception {
         int linenumber = 0;
         while ((values = tr.readNext()) != null) {
             linenumber++;
-            if (values.length >= 8) {
-                String guid = values[1];
+            if (values.length >= 6) {
+                String guid = values[0];
                 String commonNameString = values[2];
 //              String taxonConceptGuid = values[5];
-                String scientificName = values[7];
+                //String scientificName = values[7];
                 //retrieve the concept - this gets around the use of multiple guids for a single concept
                 //this is the case for APNI/APC concepts.
 //              taxonConceptGuid = getPreferredGuid(taxonConceptGuid);
@@ -635,7 +635,7 @@ private String getPreferredGuid(String taxonConceptGuid) throws Exception {
                 
                 //if null try and match using the supplied GUID
                 if(taxonConceptGuid==null){
-                    taxonConceptGuid = getPreferredGuid(values[5]);
+                    taxonConceptGuid = getPreferredGuid(values[3]);
                 }
                 
                 if(taxonConceptGuid!=null){
@@ -647,21 +647,21 @@ private String getPreferredGuid(String taxonConceptGuid) throws Exception {
                     commonName.setRanking(2);
                     commonName.setNoOfRankings(2);
                     //set the attribution
-                    if(values[5].contains(":apni.")){
+                    if(values[3].contains(":apni.")){
                         commonName.setInfoSourceId(Integer.toString(apni.getId()));
                         commonName.setInfoSourceName(apni.getName());
                         commonName.setInfoSourceURL(apni.getWebsiteUrl());
                         if(isLSID(guid)){
-                            String internalId = values[5].substring(values[5].lastIndexOf(":")+1);
+                            String internalId = values[3].substring(values[3].lastIndexOf(":")+1);
                             commonName.setInfoSourceURL("http://biodiversity.org.au/apni.taxon/"+internalId);
                             commonName.setIdentifier("http://biodiversity.org.au/apni.taxon/"+internalId);
                         }
-                    } else if(values[5].contains(":afd.")){
+                    } else if(values[3].contains(":afd.")){
                         commonName.setInfoSourceId(Integer.toString(afd.getId()));
                         commonName.setInfoSourceName(afd.getName());
                         commonName.setInfoSourceURL(afd.getWebsiteUrl());
                         if(isLSID(guid)){
-                            String internalId = values[5].substring(values[5].lastIndexOf(":")+1);
+                            String internalId = values[3].substring(values[3].lastIndexOf(":")+1);
                             commonName.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+internalId);
                             commonName.setIdentifier("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+internalId);
                         }
@@ -677,7 +677,7 @@ private String getPreferredGuid(String taxonConceptGuid) throws Exception {
                         }
                     }
                 } else {
-                    logger.error("Unable to add "+commonNameString+" to taxon: "+scientificName+" -  concept not found.");
+                    logger.error("Unable to add "+commonNameString+" to taxon: "+values[3]+" -  concept not found.");
                 }
             } else {
                 logger.error("Skipping line "+linenumber+", number of values: "+values.length);
