@@ -346,7 +346,7 @@ public class ANBGDataLoader {
 	    		        }
 	    		        else{
 	    		            //add a new sameAs taxonConcept
-	    		            System.out.println(guid + "is accepted and sameAs");
+	    		           // System.out.println(guid + "is accepted and sameAs");
 	    		            same++;
 	    		            TaxonConcept tc = new TaxonConcept();
 	    		            //get the taxon name because we don't want to use the "sensu" name
@@ -376,7 +376,7 @@ public class ANBGDataLoader {
 	    		        sameSyn++;
 	    		        //need to add the synonym information
 	    		        if(guid.equals(preferredGuid)){
-	    		            System.out.println(guid + "is synonym and preferred");
+	    		           // System.out.println(guid + "is synonym and preferred");
 	    		            syn++;
 	    		            if(publication != null || reference != null){
 	    		                List<SynonymConcept> synonyms =taxonConceptDao.getSynonymsFor(acceptedGuid);
@@ -397,7 +397,7 @@ public class ANBGDataLoader {
 	    		            }
 	    		        }
 	    		        else{
-	    		            System.out.println(guid + "is synonym NOT predferred");
+	    		            //System.out.println(guid + "is synonym NOT predferred");
 	    		            SynonymConcept synonym = new SynonymConcept();
 	    		            synonym.setGuid(guid);
 	    		            //get the taxon name because we don't want to use the "sensu" name

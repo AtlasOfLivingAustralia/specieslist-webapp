@@ -97,6 +97,8 @@ public class LoadUtils {
 	}
 	
 	public TaxonName getNameByGuid(String guid) throws Exception {
+	    if(guid == null || guid =="")
+	        return null;
 	    Query query = new TermQuery(new Term("guid", guid));
 	    TopDocs topDocs = getTnIdxSearcher().search(query, 1);
 	    if(topDocs.totalHits>0){
