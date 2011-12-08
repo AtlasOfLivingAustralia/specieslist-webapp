@@ -1794,8 +1794,18 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				addToSetSafely(infoSourceIds, taxonConcept.getInfoSourceId());
 //				addToSetSafely(infoSourceUids,taxonConcept.getInfoSourceUid());
 
-				TaxonName taxonName = scanner != null ? (TaxonName)scanner.getValue(ColumnType.TAXONNAME_COL.getColumnName(),
-				                    TaxonName.class) :getTaxonNameFor(guid);
+				
+				//TODO do we want to add all the associated TaxonNames???
+				TaxonName taxonName = null; 
+				if(scanner != null){ 
+				   List<TaxonName> tns =(List)scanner.getListValue(ColumnType.TAXONNAME_COL.getColumnName(),TaxonName.class);
+				   if(tns.size()>0){
+				      taxonName = tns.get(0);
+				   }
+				}
+				else{
+				    taxonName = getTaxonNameFor(guid);
+				}
 				if (taxonName != null && taxonName.getNameComplete() != null) {
 					doc.addField("nameComplete", taxonName.getNameComplete());
 				} else {
