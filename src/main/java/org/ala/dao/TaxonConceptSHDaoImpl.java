@@ -655,6 +655,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				ColumnType.TAXONNAME_COL.getColumnName(), guid,
 				TaxonName.class);
 	}
+	public List<TaxonConcept> getSameAsFor(String guid) throws Exception{
+	    return (List) storeHelper.getList(TC_TABLE, TC_COL_FAMILY,
+                ColumnType.SAME_AS_COL.getColumnName(), guid,
+                TaxonConcept.class);
+	}
 
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#findByScientificName(java.lang.String,
@@ -1735,8 +1740,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			Set<String> infoSourceUids = new TreeSet<String>();
 
 			// get alternative ids
-			List<String> identifiers = scanner != null? (List)scanner.getListValue(ColumnType.IDENTIFIER_COL.getColumnName(), 
-	                String.class):getIdentifiers(guid);
+//			List<String> identifiers = scanner != null? (List)scanner.getListValue(ColumnType.IDENTIFIER_COL.getColumnName(), 
+//	                String.class):getIdentifiers(guid);
+			
+			List<TaxonConcept> otherTaxonConcepts = scanner != null? (List)scanner.getListValue(ColumnType.SAME_AS_COL.getColumnName(),
+			        TaxonConcept.class):getSameAsFor(guid);
 
 			// TODO this index should also include nub ids
 			SolrInputDocument doc = new SolrInputDocument();
@@ -1772,10 +1780,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 				doc.addField("id", taxonConcept.getGuid());
 				doc.addField("guid", taxonConcept.getGuid());
-
-				for (String identifier : identifiers) {
-					doc.addField("otherGuid", identifier);
+				
+				for(TaxonConcept tc: otherTaxonConcepts){
+				    doc.addField("otherGuid", tc.getGuid());
 				}
+
+//				for (String identifier : identifiers) {
+//					doc.addField("otherGuid", identifier);
+//				}
 				// add the numeric checklistbank id
 				doc.addField("otherGuid", taxonConcept.getId());
 

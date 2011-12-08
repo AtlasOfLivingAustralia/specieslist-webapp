@@ -608,7 +608,7 @@ private String getPreferredGuid(String taxonConceptGuid) throws Exception {
         // add the taxon concept regions
         //NC A TabReader can not be used because quoted fields can contain a comma
         //TabReader tr = new TabReader(dataFile, true, ',');
-        CSVReader tr = new CSVReader(new FileReader(dataFile), ',', '"',1);
+        CSVReader tr = new CSVReader(new FileReader(dataFile), '\t', '"',1);
         String[] values = null;
         Pattern p = Pattern.compile(",");
         int namesAdded = 0;

@@ -288,6 +288,8 @@ public interface TaxonConceptDao {
 	boolean addTaxonName(String guid, TaxonName tn) throws Exception;
 	
 	boolean addSameAsTaxonConcept(String guid, TaxonConcept tc) throws Exception;
+	
+	List<TaxonConcept> getSameAsFor(String guid) throws Exception;
 
 	/**
 	 * Add this common name to the Taxon Concept.
