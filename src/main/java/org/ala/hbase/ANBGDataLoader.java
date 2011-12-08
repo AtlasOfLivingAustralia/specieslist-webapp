@@ -312,7 +312,7 @@ public class ANBGDataLoader {
 	    		    
 	    		    //get the acceptedConcept if this is a synonym
 	    		    String acceptedGuid = loadUtils.getAlaAcceptedConcept(preferredGuid);
-	    		    System.out.println(name+" : guid: "+ guid + " preferred: " + preferredGuid + " accepted: " + acceptedGuid);
+	    		    //System.out.println(name+" : guid: "+ guid + " preferred: " + preferredGuid + " accepted: " + acceptedGuid);
 	    		    boolean protologue = "Y".equals(record[7]);
 	    		    boolean draft ="Y".equals(record[10]);
 	    		    
@@ -323,7 +323,7 @@ public class ANBGDataLoader {
 	    		        
 	    		        //we are dealing with an accepted concept
 	    		        if(guid.equals(preferredGuid)){
-	    		            System.out.println(guid + "is accepted and preferred");
+	    		            //System.out.println(guid + "is accepted and preferred");
 	    		            acc++;
 	    		            //update the base taxon concept if necesary
 	    		            if(publication != null || reference != null || protologue || draft){
