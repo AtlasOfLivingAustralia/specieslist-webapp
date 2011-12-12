@@ -754,7 +754,7 @@ public class LoadUtils {
 	    			i++;
 			    	Document doc = new Document();
 			    	doc.add(new Field("guid", keyValue[0], Store.YES, Index.ANALYZED));
-			    	if(keyValue[2]!=null) doc.add(new Field("title", keyValue[1], Store.YES, Index.NO));
+			    	if(keyValue[2]!=null) doc.add(new Field("title", keyValue[2], Store.YES, Index.NO));
 			    	//missing in new dumps as of 20111205
 			    	//if(keyValue[2]!=null) doc.add(new Field("authorship", keyValue[2], Store.YES, Index.NO));
 			    	if(keyValue[3]!=null) doc.add(new Field("year", keyValue[3], Store.YES, Index.NO));
