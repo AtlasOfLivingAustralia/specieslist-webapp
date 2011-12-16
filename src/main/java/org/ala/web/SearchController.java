@@ -332,9 +332,21 @@ public class SearchController {
             sortDirection = "asc";
         }
         sortDirection = getSortDirection(sortField, sortDirection);
-        
-        SearchResultsDTO<SearchDTO> searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
-        
+
+        //shortcut for searches with an LSID
+        SearchResultsDTO<SearchDTO> searchResults = null;
+        if(query !=null && query.startsWith("urn:")){
+            //format the LSID
+            StringBuffer formattedQuery = new StringBuffer();
+            String[] bits = StringUtils.split(query, ":", 2);
+            formattedQuery.append(ClientUtils.escapeQueryChars(bits[0]));
+            formattedQuery.append("\\:");
+            formattedQuery.append(ClientUtils.escapeQueryChars(bits[1]));
+            searchResults = searchDao.doFullTextSearch(formattedQuery.toString(), filterQuery, startIndex, pageSize, sortField, sortDirection);
+        } else {
+            searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
+        }
+
         return new ModelAndView(SEARCH_LIST, "searchResults", searchResults);
 	}
     /**
