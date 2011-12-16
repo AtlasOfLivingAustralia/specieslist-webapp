@@ -40,6 +40,8 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.util.ClientUtils;
+import org.apache.xalan.xsltc.compiler.Pattern;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -71,7 +73,7 @@ public class SearchController {
     private final String AUTO_JSON = "search/autoJson";
     /** WordPress SOLR URI */
     private final String WP_SOLR_URL = "http://alaprodweb1-cbr.vm.csiro.au/solr/select/?wt=json&q=";
-	
+
 	/**
 	 * Performs a search across all objects, and selects to show the view for the closest match.
 	 * 
@@ -140,14 +142,29 @@ public class SearchController {
 		model.addAttribute("queryJsEscaped", queryJsEscaped.replaceAll("[ ]{2,}", " "));
 		model.addAttribute("title", StringEscapeUtils.escapeJavaScript(title));
 				
-		logger.debug("Initial query = "+query);
-        // if filterQuery is null only (empty is consequence search) 
-        // then it is init search, do extra process as below...        
+		logger.debug("Initial query = " + query);
+
         SearchResultsDTO<SearchDTO> searchResults = null;
+
+        //shortcut for searches with an LSID
+        if(query !=null && query.startsWith("urn:")){
+            //format the LSID
+            String formattedQuery = query.replaceAll(":", "\\:");
+            searchResults = searchDao.doFullTextSearch(formattedQuery, filterQuery, startIndex, pageSize, sortField, sortDirection);
+            model.addAttribute("searchResults", searchResults);
+            model.addAttribute("totalRecords", searchResults.getTotalRecords());
+            model.addAttribute("lastPage", calculateLastPage(searchResults.getTotalRecords(), pageSize));
+            logger.debug("Selected view: "+SEARCH_LIST);
+            return SEARCH_LIST;
+        }
+
+        // if filterQuery is null only (empty is consequence search)
+        // then it is init search, do extra process as below...        
+
         if (filterQuery == null) {
         	List<SearchDTO> result = null;
         	boolean foundExact = false;
-        	
+
         	// exact search for all records
         	filterQuery = new String[]{"australian_s:recorded"};
         	searchResults = searchDao.doExactTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
@@ -165,8 +182,7 @@ public class SearchController {
             		model.addAttribute("isAustralian", false);
             	}
     		}
-        	
-        	
+
         	if(foundExact){
         		searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
         	}
@@ -227,9 +243,8 @@ public class SearchController {
 	        		}        		
 	        	}
 	        }
-        }
-        catch(Exception ee){
-        	logger.error(ee);
+        } catch(Exception ee){
+        	logger.error(ee.getMessage(), ee);
         }
         model.addAttribute("collectionsMap", collectionsMap);
         model.addAttribute("facetMap", addFacetMap(filterQuery));
@@ -247,15 +262,13 @@ public class SearchController {
 			}
 		}
         
-		String view = SEARCH_LIST;
-
         model.addAttribute("searchResults", searchResults);
         model.addAttribute("totalRecords", searchResults.getTotalRecords());
         model.addAttribute("lastPage", calculateLastPage(searchResults.getTotalRecords(), pageSize));
 
-        logger.debug("Selected view: "+view);
+        logger.debug("Selected view: "+SEARCH_LIST);
         
-		return view;
+		return SEARCH_LIST;
 	}
 	
 	private List<SearchDTO> removedDuplicateCommonName(List<SearchDTO> results){
