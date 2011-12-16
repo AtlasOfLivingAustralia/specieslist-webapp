@@ -105,7 +105,7 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
             	fq = new String[]{"left:[" + phylum.getLeft()  + " TO "+leftNSValue+"]", "right:["+rightNSValue+" TO " + phylum.getRight() + "]"};
             }
             logger.debug("search query: "+queryString.toString());
-            SearchResultsDTO results = doSolrSearch(queryString.toString(), fq, 100, 0, "rankId", "asc");
+            SearchResultsDTO results = doSolrSearch(queryString.toString(), fq, 100, 0, "left", "asc");
             // add kingdom into first item of list
             if(phylum != null){
             	SearchTaxonConceptDTO kingdom = classRank.getKingdom(leftNSValue, rightNSValue);

@@ -172,7 +172,7 @@ public class CassandraScanner implements Scanner {
 	        
 	        //reset the counter
 	        countInSlice = 0;
-	        if(rowMap.isEmpty()){
+	        if(rowList.isEmpty()){
 	            //indicate that we are at the end
 	            return null;
 	        }
