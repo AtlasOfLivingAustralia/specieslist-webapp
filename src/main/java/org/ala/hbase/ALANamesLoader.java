@@ -182,6 +182,7 @@ public class ALANamesLoader {
                 String identifier = cols[0];
                 String parentNameUsageID = cols[1];
                 String guid = cols[2]; //TaxonID
+                String nameLsid = cols[5];
                 String nameString =  cols[6];
                 String author =  cols[11];
                 Integer rankID = null;
@@ -205,6 +206,7 @@ public class ALANamesLoader {
                     tc.setGuid(guid);
                     tc.setParentId(parentNameUsageID);
                     tc.setNameString(nameString);
+                    tc.setNameGuid(nameLsid);
                     tc.setAuthor(author);
                     tc.setRankString(rankString);
                     tc.setRankID(rankID);
@@ -330,6 +332,7 @@ public class ALANamesLoader {
                         tc.setLeft(left);
                         tc.setRight(right);
                         tc.setIsPreferred(true);
+                        tc.setNameGuid(nameLsid);
                         
                         //set the parent source  - indicates how the parent for the term was identified.
                         if(StringUtils.isNotEmpty(parentSrc)){
