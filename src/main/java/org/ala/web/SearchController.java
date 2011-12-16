@@ -152,7 +152,7 @@ public class SearchController {
             StringBuffer formattedQuery = new StringBuffer();
             String[] bits = StringUtils.split(query, ":", 2);
             formattedQuery.append(ClientUtils.escapeQueryChars(bits[0]));
-            formattedQuery.append(":");
+            formattedQuery.append("\\:");
             formattedQuery.append(ClientUtils.escapeQueryChars(bits[1]));
             searchResults = searchDao.doFullTextSearch(formattedQuery.toString(), filterQuery, startIndex, pageSize, sortField, sortDirection);
             model.addAttribute("searchResults", searchResults);
