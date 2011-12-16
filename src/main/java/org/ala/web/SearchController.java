@@ -149,8 +149,12 @@ public class SearchController {
         //shortcut for searches with an LSID
         if(query !=null && query.startsWith("urn:")){
             //format the LSID
-            String formattedQuery = query.replaceAll(":", "\\:");
-            searchResults = searchDao.doFullTextSearch(formattedQuery, filterQuery, startIndex, pageSize, sortField, sortDirection);
+            StringBuffer formattedQuery = new StringBuffer();
+            String[] bits = StringUtils.split(query, ":", 2);
+            formattedQuery.append(ClientUtils.escapeQueryChars(bits[0]));
+            formattedQuery.append(":");
+            formattedQuery.append(ClientUtils.escapeQueryChars(bits[1]));
+            searchResults = searchDao.doFullTextSearch(formattedQuery.toString(), filterQuery, startIndex, pageSize, sortField, sortDirection);
             model.addAttribute("searchResults", searchResults);
             model.addAttribute("totalRecords", searchResults.getTotalRecords());
             model.addAttribute("lastPage", calculateLastPage(searchResults.getTotalRecords(), pageSize));
