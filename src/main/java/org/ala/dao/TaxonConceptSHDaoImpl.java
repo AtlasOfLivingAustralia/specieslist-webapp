@@ -1933,9 +1933,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 							StringUtils.join(commonNameSet, ", "));
 					doc.addField("commonNameSingle", commonNames.get(0).getNameString().trim());
 				}
-
+				String lastNameLsid = null;
 				for (TaxonConcept synonym : synonyms) {
-					if (synonym.getNameString() != null) {
+					if (synonym.getNameString() != null &&(synonym.getNameGuid() != null && !synonym.getNameGuid().equals(lastNameLsid))) {
+					    lastNameLsid = synonym.getNameGuid();
 						logger.debug("adding synonym to index: "
 								+ synonym.getNameString());
 						// add a new document for each synonym
@@ -2485,6 +2486,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		etc.setTaxonName((TaxonName) getFirstItem((List) getColumnValue(map,ColumnType.TAXONNAME_COL)));
 		etc.setClassification((Classification)getFirstItem((List<Classification>) getColumnValue(map, ColumnType.CLASSIFICATION_COL)));
 		etc.setIdentifiers((List<String>) getColumnValue(map,ColumnType.IDENTIFIER_COL));
+		
+		//add the same as concepts 
+		etc.setSameAsConcepts((List<TaxonConcept>)getColumnValue(map,ColumnType.SAME_AS_COL));
 		
 		List<SynonymConcept> synonyms = new ArrayList<SynonymConcept>();
 		for (SynonymConcept synonym : (List<SynonymConcept>) getColumnValue(map,ColumnType.SYNONYM_COL)) {
