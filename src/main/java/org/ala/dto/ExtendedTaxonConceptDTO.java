@@ -46,6 +46,7 @@ public class ExtendedTaxonConceptDTO {
 	protected List<CommonName> commonNames;
 	protected List<TaxonConcept> childConcepts;
 	protected List<TaxonConcept> parentConcepts;
+	protected List<TaxonConcept> sameAsConcepts;
 	protected List<PestStatus> pestStatuses;
 	protected List<ConservationStatus> conservationStatuses;
     protected List<SimpleProperty> simpleProperties;
@@ -356,4 +357,16 @@ public class ExtendedTaxonConceptDTO {
 	public void setSpecimenHolding(List<SpecimenHolding> specimenHolding) {
 		this.specimenHolding = specimenHolding;
 	}
+    /**
+     * @return the sameAsConcepts
+     */
+    public List<TaxonConcept> getSameAsConcepts() {
+        return sameAsConcepts;
+    }
+    /**
+     * @param sameAsConcepts the sameAsConcepts to set
+     */
+    public void setSameAsConcepts(List<TaxonConcept> sameAsConcepts) {
+        this.sameAsConcepts = sameAsConcepts;
+    }
 }
