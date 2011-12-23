@@ -823,10 +823,24 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                             <cite>Source: <a href="${image.infoSourceURL}" target="_blank">${image.infoSourceName}</a></cite>
                                          </c:when>                                         
                                          <c:otherwise>
-                                            <cite>Source: <a href="${imageUri}" target="_blank">${image.infoSourceName}</a></cite>
+                                         <c:choose>
+                                         <c:when test="${not empty image.occurrenceUid}">
+                                            <cite>
+                                            	Source: <a href="${image.infoSourceURL}" target="_blank">${image.infoSourceName}</a>
+                                            </cite>
+                                         </c:when>                                         
+                                         <c:otherwise>
+                                         	<cite>Source: <a href="${imageUri}" target="_blank">${image.infoSourceName}</a></cite>
+                                         </c:otherwise>
+                                         </c:choose>
                                          </c:otherwise>
                                         </c:choose>
-
+                                        
+										<c:if test="${not empty image.occurrenceUid}">
+										    <cite>
+                                            	Biocache Occurrence UID: <a href="http://biocache.ala.org.au/occurrences/${image.occurrenceUid}" target="_blank">${image.occurrenceUid}</a>
+                                            </cite>										
+										</c:if>
                                         
 <p class="imageRank-${image.documentId}">
 									<cite>
