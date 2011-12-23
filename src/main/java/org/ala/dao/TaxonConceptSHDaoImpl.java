@@ -1166,6 +1166,8 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		boolean isScreenshot = false;
 		boolean isPreferredImage = false;
 
+		String occurrenceUid = null;
+
 		if (document != null) {
 			dcPublisher = document.getInfoSourceName();
 			dcSource = document.getInfoSourceUri();
@@ -1217,6 +1219,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			}
 			if (predicate.endsWith("isPreferredImage")) {
 			    isPreferredImage = true;
+            }
+			if (predicate.endsWith("hasOccurrenceUid")) {
+				occurrenceUid = triple.object.trim();
             }
 		}
 
@@ -1482,6 +1487,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 					} else if (hasPredicate(triples, Predicates.VIDEO_PAGE_URL)) {
                         addScreenshotImage(guid, image);
                     } else {
+                    	image.setOccurrenceUid(occurrenceUid);
 						addImage(guid, image);
 //						logger.info("ADDING IMAGE TO: " + guid);
 					}

@@ -63,6 +63,9 @@ public class Image extends AttributableObject implements Comparable<Image>, Rank
     /** The description */
     protected String description;
     
+    /** biocache occurrence id for link back to biocache occurrence page */
+	protected String occurrenceUid;
+	
 	public Image(String guid, String contentType, String repoLocation,
 			String dcLocation, String thumbnail, String title,
 			String identifier, String creator, String locality,
@@ -371,4 +374,11 @@ public class Image extends AttributableObject implements Comparable<Image>, Rank
         this.isPreferred = isPreferred;
     }
 	
+	public String getOccurrenceUid() {
+		return occurrenceUid;
+	}
+
+	public void setOccurrenceUid(String occurrenceUid) {
+		this.occurrenceUid = occurrenceUid;
+	}   
 }
