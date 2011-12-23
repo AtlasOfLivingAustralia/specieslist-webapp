@@ -1402,9 +1402,14 @@ public class SpeciesController {
             }
 
             if (repoIdStr != null && !repoIdStr.isEmpty()) {
-                Integer docId = Integer.parseInt(repoIdStr);
-                logger.debug("setting docId = "+docId);
-                img.setRepoId(docId);
+            	try{
+	                Integer docId = Integer.parseInt(repoIdStr);
+	                logger.debug("setting docId = "+docId);
+	                img.setRepoId(docId);
+            	}
+            	catch(Exception ex){
+            		logger.error("addImageDocIds(): " + ex);
+            	}
             }
         }
         return images;
