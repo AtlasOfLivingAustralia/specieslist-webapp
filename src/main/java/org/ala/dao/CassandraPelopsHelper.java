@@ -26,6 +26,7 @@ import java.util.Set;
 import org.ala.model.RankUtils;
 import org.ala.model.Rankable;
 import org.ala.util.ColumnType;
+import org.apache.cassandra.thrift.Cassandra.Client;
 import org.apache.cassandra.thrift.Column;
 import org.apache.cassandra.thrift.ConsistencyLevel;
 import org.apache.cassandra.thrift.KeyRange;
@@ -788,4 +789,8 @@ public class CassandraPelopsHelper implements StoreHelper  {
 	public void setCharsetEncoding(String charsetEncoding) {
 		this.charsetEncoding = charsetEncoding;
 	}
+	
+	public Client getThriftClient() throws Exception{
+		return Pelops.getDbConnPool(pool).getConnection().getAPI();
+	}	
 }
