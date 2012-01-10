@@ -1167,6 +1167,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		boolean isPreferredImage = false;
 
 		String occurrenceUid = null;
+		String occurrenceRowKey = null;
 
 		if (document != null) {
 			dcPublisher = document.getInfoSourceName();
@@ -1222,6 +1223,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
             }
 			if (predicate.endsWith("hasOccurrenceUid")) {
 				occurrenceUid = triple.object.trim();
+            }
+			if (predicate.endsWith("hasOccurrenceRowKey")) {
+				occurrenceRowKey = triple.object.trim();
             }
 		}
 
@@ -1488,6 +1492,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                         addScreenshotImage(guid, image);
                     } else {
                     	image.setOccurrenceUid(occurrenceUid);
+                    	image.setOccurrenceRowKey(occurrenceRowKey);
 						addImage(guid, image);
 //						logger.info("ADDING IMAGE TO: " + guid);
 					}
