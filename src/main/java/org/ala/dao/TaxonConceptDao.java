@@ -614,6 +614,21 @@ public interface TaxonConceptDao {
 	boolean syncTriples(org.ala.model.Document document, List<Triple> triples, Map<String,String> dublinCore, boolean statsOnly) throws Exception;
 
 	/**
+	 * Synchronises these triples to a taxon concept in hbase.
+	 *
+	 * @return Not null if we where able to add these properties to an existing
+	 * taxon. Null otherwise
+	 *
+	 * @param document the document supplying the triples
+	 * @param triples the triples to add
+     * @param statsOnly true when we only want to record statistics.
+     * false when we want to add it to the repository
+     * @param reindex true when we want to do reindex after update cassandra, otherwise no reindex
+	 * @throws Exception
+	 */	
+	public String syncTriples(org.ala.model.Document document, List<Triple> triples, Map<String, String> dublinCore, boolean statsOnly, boolean reindex) throws Exception;
+	
+	/**
 	 * Clear the associated properties from each taxon concept.
 	 *
 	 * Clear the triples in the "raw:" column family.

@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.ala.dao.InfoSourceDAO;
+import org.ala.dao.SolrUtils;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.model.Document;
 import org.ala.model.InfoSource;
@@ -40,6 +41,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.SolrServer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -62,14 +64,20 @@ public class RepoDataLoader {
     protected InfoSourceDAO infoSourceDAO;
     @Inject
     protected RepositoryFileUtils repoFileUtils;
+    @Inject
+	protected SolrUtils solrUtils;
     private boolean statsOnly = false;
-
+    private boolean reindex = false;
+    private boolean gList = false;
+	private FileOutputStream guidOut = null;
 
 	int totalFilesRead = 0;
 	int totalPropertiesSynced = 0;
 	
 	/**
 	 * This takes a list of infosource ids...
+	 * 
+	 * Usage: -stats or -reindex or -gList and list of infosourceId
 	 * 
 	 * @param args
 	 */
@@ -83,7 +91,17 @@ public class RepoDataLoader {
         if(args.length>0){
             if(args[0].equalsIgnoreCase("-stats")) {
                 loader.statsOnly = true;
-                args = (String[])ArrayUtils.subarray(args, 1, args.length-1);
+                args = (String[])ArrayUtils.subarray(args, 1, args.length);
+            }
+            if(args[0].equalsIgnoreCase("-reindex")) {
+                loader.reindex = true;
+                args = (String[])ArrayUtils.subarray(args, 1, args.length);
+                logger.info("**** -reindex: " + loader.reindex);
+            }
+            if(args[0].equalsIgnoreCase("-gList")) {
+                loader.gList = true;
+                args = (String[])ArrayUtils.subarray(args, 1, args.length);
+                logger.info("**** -gList: " + loader.gList);
             }
         }
 		int filesRead = loader.load(filePath, args); //FIX ME - move to config
@@ -131,7 +149,7 @@ public class RepoDataLoader {
 		 */
 		 public int load(String filePath, String[] repoDirs, boolean allowStats) throws Exception {
 			 FileOutputStream statsOut = null;
-			    
+			 
 			logger.info("Scanning directory: "+filePath);
 
 	                //open the statistics file
@@ -140,6 +158,10 @@ public class RepoDataLoader {
 	                statsOut.write("InfoSource ID, InfoSource Name, URL, ANBG matches, Other matches, Missing, Homonyms detected\n".getBytes());
 			}
 
+			if(gList){
+				guidOut = FileUtils.openOutputStream(new File("/data/bie/repoLoader_guid_"+System.currentTimeMillis() + ".csv"));
+			}
+			
 			// reset counts
 	        totalFilesRead = 0;
 	        totalPropertiesSynced = 0;
@@ -194,6 +216,13 @@ public class RepoDataLoader {
 	                statsOut.flush();
 	                statsOut.close();
 			}
+			if(reindex){
+				solrUtils.getSolrServer().commit();
+			}
+			if(gList){
+				guidOut.flush();
+                guidOut.close();
+			}
 			return totalFilesRead;
 		}
 	 
@@ -242,6 +271,7 @@ public class RepoDataLoader {
 	                    String currentSubject = null;
 	                    List<Triple> splitBySubject = new ArrayList<Triple>();
 	                    
+	                    String guid = null;
 	                    //iterate through triple, splitting the triples by subject
 	                    for(Triple triple: triples){
 	                    
@@ -251,8 +281,8 @@ public class RepoDataLoader {
 	                    		//sync these triples
 //								/data/bie/1036/23/235332/rdf
 								
-								boolean success = sync(currentFile, splitBySubject, infosourceId, infoSourceUid);
-								if (success) {
+								guid = sync(currentFile, splitBySubject, infosourceId, infoSourceUid);
+								if (guid != null && guid.trim().length() > 0) {
 									propertiesSynced++;
 								}
 	    	                    //clear list
@@ -264,10 +294,14 @@ public class RepoDataLoader {
 	
 	                    //sort out the buffer
 						if (!splitBySubject.isEmpty()) {
-							boolean success = sync(currentFile, splitBySubject, infosourceId, infoSourceUid);
-							if (success) {
+							guid = sync(currentFile, splitBySubject, infosourceId, infoSourceUid);
+							if (guid != null && guid.trim().length() > 0) {
 								propertiesSynced++;
 							}
+						}
+						
+						if(gList && guid != null){
+							guidOut.write((guid + "\n").getBytes());
 						}
 	                    
 	                } catch (Exception e) {
@@ -289,7 +323,7 @@ public class RepoDataLoader {
 	 * @param triples
 	 * @throws Exception
 	 */
-	private boolean sync(File currentFile, List<Triple> triples, String infosourceId, String infoSourceUid) throws Exception {
+	private String sync(File currentFile, List<Triple> triples, String infosourceId, String infoSourceUid) throws Exception {
 		
 		String documentId = currentFile.getParentFile().getName();
 		 
@@ -312,9 +346,10 @@ public class RepoDataLoader {
 		Map<String, String> dc = readDcFileAsMap(currentFile);
 		// Sync the triples and associated DC data
 		logger.info("Attempting to sync triple where Scientific Name = " + getScientificName(triples));
-		boolean success = taxonConceptDao.syncTriples(document, triples, dc, statsOnly);
-		logger.info("Processed file: "+currentFile.getAbsolutePath() + ", Scientific Name = " + getScientificName(triples) + ", success: "+success);
-		return success;
+		String guid = taxonConceptDao.syncTriples(document, triples, dc, statsOnly, reindex);
+//		boolean success = taxonConceptDao.syncTriples(document, triples, dc, statsOnly);
+		logger.info("Processed file: "+currentFile.getAbsolutePath() + ", Scientific Name = " + getScientificName(triples) + ", guid: "+guid);
+		return guid;
 	}
 
     /**

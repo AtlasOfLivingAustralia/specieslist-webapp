@@ -1145,7 +1145,20 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	public boolean syncTriples(org.ala.model.Document document,
 			List<Triple> triples, Map<String, String> dublinCore, boolean statsOnly)
 			throws Exception {
-
+		String guid = syncTriples(document, triples, dublinCore, statsOnly, false);
+		if(guid != null && guid.trim().length() > 0 ){
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * @see org.ala.dao.TaxonConceptDao#syncTriples(org.ala.model.Document,
+	 *      java.util.List)
+	 */
+	public String syncTriples(org.ala.model.Document document,
+			List<Triple> triples, Map<String, String> dublinCore, boolean statsOnly, boolean reindex)
+			throws Exception {
 		List<String> scientificNames = new ArrayList<String>();
 		String specificEpithet = null;
 		List<String> subspecies = new ArrayList<String>();
@@ -1235,7 +1248,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				&& order == null && klass == null && phylum == null) {
 			logger.info("No classification found for document at: "
 					+ document.getFilePath());
-			return false; // we have nothing to work with, so give up
+			return null; // we have nothing to work with, so give up
 		}
 		
 		// Lookup LSID in Checklist Bank data
@@ -1287,7 +1300,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			} else {
 				logger.info("Not enough search data for Checklist Bank found for document at: "
 						+ document.getFilePath());
-				return false;
+				return null;
 			}
 		}
 
@@ -1320,7 +1333,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 		//is statsOnly we can return whether or not the scientific name was found...
 		if(statsOnly) {
-		    return guid != null;
+		    return guid;
 		}
 		
 		if (guid != null) {
@@ -1508,11 +1521,23 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			// addLiteralValues(guid,
 			// infoSourceId,Integer.toString(document.getId()), properties);
 
-			return true;
+			if(reindex && guid != null){
+				List<SolrInputDocument> docList = indexTaxonConcept(guid);
+				SolrServer solrServer = solrUtils.getSolrServer();
+				if(solrServer != null){
+					solrServer.add(docList);
+//					solrServer.commit(true, true);
+				}
+				else{
+					logger.error("****** Can't connect to Solr server.....");
+				}
+			}
+//			return true;
 		} else {
 			logger.info("GUID null");
-			return false;
+//			return false;
 		}
+		return guid;
 	}
 
 	/**
@@ -1997,8 +2022,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 				Iterator it = infoSourceIds.iterator();
 				
 				while (it.hasNext()) {
-				    String uid = infosourceIdUIDMap.get((String) it.next());
-				    
+				    String uid = null;
+				    try{
+				    	uid = infosourceIdUIDMap.get((String) it.next());
+				    }
+				    catch(Exception e){
+				    	//do nothing
+				    	logger.error("infosourceIdUIDMap.get(): " + e);
+				    }
 				    if (uid != null && !"".equals(uid)) {
 				        doc.addField("uid", uid);
 				        logger.info("uid added: " + uid);
