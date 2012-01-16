@@ -20,12 +20,16 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.ala.client.util.RestfulClient;
 import org.ala.dao.InfoSourceDAO;
 import org.ala.dao.SolrUtils;
 import org.ala.dao.TaxonConceptDao;
@@ -37,11 +41,13 @@ import org.ala.util.FileType;
 import org.ala.util.RepositoryFileUtils;
 import org.ala.util.SpringUtils;
 import org.ala.util.TurtleUtils;
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
-import org.apache.solr.client.solrj.SolrServer;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -60,7 +66,9 @@ public class RepoDataLoader {
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
 	protected Map<Integer, InfoSource> infoSourceMap;
-    @Inject
+	protected HashMap<String, Integer> uidInfoSourceMap;
+
+	@Inject
     protected InfoSourceDAO infoSourceDAO;
     @Inject
     protected RepositoryFileUtils repoFileUtils;
@@ -103,6 +111,40 @@ public class RepoDataLoader {
                 args = (String[])ArrayUtils.subarray(args, 1, args.length);
                 logger.info("**** -gList: " + loader.gList);
             }
+            if(args[0].equalsIgnoreCase("-biocache")) {
+            	Hashtable<String, String> hashTable = new Hashtable<String, String>();
+        		hashTable.put("accept", "application/json");
+            	ObjectMapper mapper = new ObjectMapper();
+        		mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            	RestfulClient restfulClient = new RestfulClient(0);
+            	Object[] resp = restfulClient.restGet("http://biocache.ala.org.au/ws/occurrences/search?q=multimedia:Multimedia&facets=data_resource_uid&pageSize=0", hashTable);
+        		if((Integer)resp[0] == HttpStatus.SC_OK){
+        			String content = resp[1].toString();
+        			if(content != null && content.length() > "[]".length()){
+        				Map map = mapper.readValue(content, Map.class);
+        				try{
+        					List<java.util.LinkedHashMap<String,String>> list = ((List<java.util.LinkedHashMap<String,String>>)((java.util.LinkedHashMap)((java.util.ArrayList)map.get("facetResults")).get(0)).get("fieldResult"));
+        					Set<String> arg = new LinkedHashSet<String>();
+        					for(int i = 0; i < list.size(); i++){
+        						java.util.LinkedHashMap<String,String> value = list.get(i);
+        						String provider = (loader.getUidInfoSourceMap().get(value.get("label"))).toString();
+        						if(provider != null){
+        							arg.add(provider);
+        						}
+        					}
+        					args = new String[]{};
+        					args = arg.toArray(args);
+        				}
+        				catch(Exception e){
+        					// do nothing
+        					logger.debug("*** no action required: " + e);
+        				}
+        			}
+        		} 
+        		else {
+        			logger.warn("Unable to process url: ");
+        		}            	
+            }            
         }
 		int filesRead = loader.load(filePath, args); //FIX ME - move to config
     	long finish = System.currentTimeMillis();
@@ -359,11 +401,16 @@ public class RepoDataLoader {
      */
     public void loadInfoSources() {
         this.infoSourceMap = new HashMap<Integer, InfoSource>();
+        this.uidInfoSourceMap = new HashMap<String, Integer>();
         if (infoSourceDAO!=null) {
             List<Integer> allIds = infoSourceDAO.getIdsforAll();
-            for (Integer id : allIds) {
+            Map<String, String> allUids = infoSourceDAO.getInfosourceIdUidMap();
+            for (Integer id : allIds) {            	
                 infoSourceMap.put(id, infoSourceDAO.getById(id));
-            }
+                if(allUids.get(id.toString()) != null && !"".equals(allUids.get(id.toString()))){
+                	uidInfoSourceMap.put(allUids.get(id.toString()), id);
+                }
+            }            
         }
         logger.info("loaded infoSource map: "+infoSourceMap.size());
     }
@@ -429,4 +476,9 @@ public class RepoDataLoader {
     public static String getRepositoryDir() {
         return repositoryDir;
     }
+
+    public HashMap<String, Integer> getUidInfoSourceMap() {
+		return uidInfoSourceMap;
+	}
 }
+
