@@ -1,5 +1,19 @@
 #!/bin/sh
 
+#havester & repoLoader for biocache image
+ulimit -v unlimited
+cd /usr/local/src/havester
+export CLASSPATH=bie-repository-1.0-SNAPSHOT-assembly.jar:.
+java  -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.harvester.BiocacheHarvester
+
+cd /usr/local/src
+export CLASSPATH=bie-hbase-assembly.jar:.
+java -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.hbase.RepoDataLoader -reindex -biocache
+
+
+# solr index optimisation
+cd /usr/local/src
+ 
 # sample url
 login_reloadCollections=https://auth.ala.org.au/cas/login?service=http://bie.ala.org.au/admin/reloadCollections
 login_reloadInstitutions=https://auth.ala.org.au/cas/login?service=http://bie.ala.org.au/admin/reloadInstitutions
