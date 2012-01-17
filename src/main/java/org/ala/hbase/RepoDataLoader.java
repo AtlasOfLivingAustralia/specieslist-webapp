@@ -136,8 +136,8 @@ public class RepoDataLoader {
         					args = arg.toArray(args);
         				}
         				catch(Exception e){
-        					// do nothing
-        					logger.debug("*** no action required: " + e);
+        					logger.error("ERROR: exit process....." + e);
+        					System.exit(0);
         				}
         			}
         		} 
