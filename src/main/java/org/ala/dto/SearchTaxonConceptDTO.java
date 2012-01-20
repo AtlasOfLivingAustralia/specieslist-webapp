@@ -51,6 +51,7 @@ public class SearchTaxonConceptDTO extends SearchDTO implements Comparable<Searc
     protected String kingdom;
     protected String author;
     protected String linkIdentifier;
+    protected Integer occCount;
 
 	/**
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
@@ -446,4 +447,12 @@ public class SearchTaxonConceptDTO extends SearchDTO implements Comparable<Searc
 	public void setLinkIdentifier(String linkIdentifier) {
 		this.linkIdentifier = linkIdentifier;
 	}
+	
+	public Integer getOccCount() {
+		return occCount;
+	}
+
+	public void setOccCount(Integer occCount) {
+		this.occCount = occCount;
+	}	
 }
