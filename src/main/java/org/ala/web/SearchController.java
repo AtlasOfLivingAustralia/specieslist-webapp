@@ -36,12 +36,14 @@ import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.xalan.xsltc.compiler.Pattern;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -74,6 +76,12 @@ public class SearchController {
     /** WordPress SOLR URI */
     private final String WP_SOLR_URL = "http://alaprodweb1-cbr.vm.csiro.au/solr/select/?wt=json&q=";
 
+    protected ObjectMapper mapper = new ObjectMapper();
+    
+    public SearchController(){
+    	mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+	
 	/**
 	 * Performs a search across all objects, and selects to show the view for the closest match.
 	 * 
@@ -212,7 +220,10 @@ public class SearchController {
 		searchResults.setResults(removedDuplicateCommonName(searchResults.getResults()));
 		
         repoUrlUtils.fixRepoUrls(searchResults);
-        
+
+        //get occurrence count by biocache ws
+        searchResults.setResults(populateOccurrenceCount(searchResults.getResults()));
+         
         //if fq contains uid then translate uid to name
         Map<String, String>collectionsMap = new HashMap<String, String>();
         try{
@@ -273,6 +284,38 @@ public class SearchController {
         logger.debug("Selected view: "+SEARCH_LIST);
         
 		return SEARCH_LIST;
+	}
+
+	private List<SearchDTO> populateOccurrenceCount(List<SearchDTO> results){
+        List<String> guids = new ArrayList<String>();
+        for(SearchDTO o : results){
+        	if(o instanceof SearchTaxonConceptDTO){
+        		SearchTaxonConceptDTO dto = (SearchTaxonConceptDTO)o;
+        		guids.add(dto.getGuid());
+        	}
+        }
+        if(guids.size() > 0){
+        	try{
+		        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+		        nameValuePairs.add(new NameValuePair("separator", ","));
+		        nameValuePairs.add(new NameValuePair("guids", org.apache.commons.lang.StringUtils.join(guids, ',')));
+		        String json = PageUtils.getUrlContentAsJsonStringByPost("http://biocache.ala.org.au/ws/occurrences/taxaCount", nameValuePairs.toArray(new NameValuePair[]{}));
+	        
+	        	Map map = mapper.readValue(json, Map.class);	        
+		        for(SearchDTO o : results){
+		        	if(o instanceof SearchTaxonConceptDTO){
+		        		SearchTaxonConceptDTO dto = (SearchTaxonConceptDTO)o;
+		        		Integer ctr = (Integer) map.get(dto.getGuid());
+		        		dto.setOccCount(ctr);        		
+		        	}
+		        }
+	        }
+	        catch(Exception e){
+	        	//do nothing
+	        	logger.error("*** invalid json string: " + e);
+	        }
+        }
+		return results;
 	}
 	
 	private List<SearchDTO> removedDuplicateCommonName(List<SearchDTO> results){
@@ -346,6 +389,9 @@ public class SearchController {
         } else {
             searchResults = searchDao.doFullTextSearch(query, filterQuery, startIndex, pageSize, sortField, sortDirection);
         }
+
+        //get occurrence count by biocache ws
+        searchResults.setResults(populateOccurrenceCount(searchResults.getResults()));
 
         return new ModelAndView(SEARCH_LIST, "searchResults", searchResults);
 	}

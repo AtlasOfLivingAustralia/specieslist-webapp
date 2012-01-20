@@ -15,7 +15,9 @@ import java.util.Set;
 import org.ala.model.CommonName;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpVersion;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -174,6 +176,30 @@ public class PageUtils {
        gm.setFollowRedirects(true);
        httpClient.executeMethod(gm);
        String responseString =  gm.getResponseBodyAsString();
+       if(logger.isDebugEnabled()){
+           logger.debug("Response: " + responseString);
+       }
+       return responseString;
+    }
+
+    /**
+     * Retrieve content as String. With HTTP header accept: "application/json".
+     *
+     * @param url
+     * @return
+     * @throws Exception
+     */
+    public static String getUrlContentAsJsonStringByPost(String url, NameValuePair[] nameValuePairs) throws Exception {
+       HttpClient httpClient = new HttpClient();
+        // DM: set this to HTTP/1.0
+       httpClient.getParams().setParameter("http.protocol.version", HttpVersion.HTTP_1_0);
+       httpClient.getParams().setSoTimeout(10000);
+       logger.debug("Retrieving the following URL: " + url);
+       PostMethod pm = new PostMethod(url);
+       pm.setRequestHeader("Accept", "application/json"); // needed for spatial portal JSON web services
+       pm.setRequestBody(nameValuePairs);
+       httpClient.executeMethod(pm);
+       String responseString =  pm.getResponseBodyAsString();
        if(logger.isDebugEnabled()){
            logger.debug("Response: " + responseString);
        }
