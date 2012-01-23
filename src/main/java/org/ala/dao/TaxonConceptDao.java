@@ -537,6 +537,8 @@ public interface TaxonConceptDao {
 	 */
 	String findLsidByName(String scientificName, LinnaeanRankClassification classification, String taxonRank);
 	
+	String findLsidByName(String scientificName, LinnaeanRankClassification classification, String taxonRank, boolean useSoundEx);
+	
 	/**
 	 * Get LSID from Checklist Bank by scientific name.
 	 * 
@@ -553,6 +555,8 @@ public interface TaxonConceptDao {
 	 * @return
 	 */
 	String findLsidByName(String scientificName);
+	
+	String findLsidByName(String scientificName, boolean useSoundEx);
 	
 	/**
 	 * Get Checklist Bank entry by scientific name.

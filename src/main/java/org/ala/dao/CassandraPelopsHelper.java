@@ -74,18 +74,22 @@ public class CassandraPelopsHelper implements StoreHelper  {
 	protected int maxPool = 100;
 	
 	protected int targetConnections =30;
+	
+	protected int thriftTimeout = 4000;
 
 	protected String charsetEncoding = "UTF-8";	
 
 	@Override
 	public void init() throws Exception {
 	    CommonsBackedPool.Policy policy = new CommonsBackedPool.Policy();
-	    policy.setMaxActivePerNode(maxPool);	    
+	    policy.setMaxActivePerNode(maxPool);
+	    //According to Pelops : As a general rule the pools maxWaitForConnection should be three times larger than the thrift timeout value.
+	    policy.setMaxWaitForConnection(3*thriftTimeout);
 	    OperandPolicy operandPolicy = new OperandPolicy();
 		//set up the connection pool
 
 	    logger.info(host);
-		Pelops.addPool(pool, new Cluster(host,port), keySpace,policy, operandPolicy);
+		Pelops.addPool(pool, new Cluster(host,port,thriftTimeout,false), keySpace,policy, operandPolicy);
 
 	    logger.info("Initialising Pelops connection pool to " +host + " with min connections " + minPool + " target connections: " + targetConnections + " max connections " + maxPool);
 	    

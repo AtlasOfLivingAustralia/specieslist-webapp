@@ -168,6 +168,10 @@ public class ALANamesLoader {
      */
     public void loadSynonyms() throws IOException, UnsupportedArchiveException, Exception {
         
+        InfoSource afd = infoSourceDAO.getByUri(AFD_HOME);
+        InfoSource apc = infoSourceDAO.getByUri(APC_HOME);        
+        InfoSource col = infoSourceDAO.getByUri(COL_HOME);
+        
         //names files to index
         //TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_name_usages.txt", true);
         CSVReader tr = new CSVReader(new FileReader("/data/bie-staging/ala-names/ala_concepts_dump.txt"), '\t', '"', '\\');
@@ -189,6 +193,7 @@ public class ALANamesLoader {
                 if(StringUtils.isNotEmpty(cols[12])) rankID = NumberUtils.createInteger(cols[12]);
                 String rankString =  cols[13];
                 String acceptedGuid =  cols[4];
+                String dataset = cols[30];
                 Integer synonymType = null;
                 if(StringUtils.isNotEmpty(cols[32])) synonymType = NumberUtils.createInteger(cols[32]);
                 String synonymRelationship = cols[33];
@@ -214,6 +219,30 @@ public class ALANamesLoader {
                     tc.setRelationship(synonymRelationship);
                     tc.setDescription(synonymDescription);
                     tc.setIsPreferred(true);
+                    
+                    
+                    if("APNI".equalsIgnoreCase(dataset)){
+                        tc.setInfoSourceId(Integer.toString(apc.getId()));
+                        tc.setInfoSourceName(apc.getName());
+                        if(isLSID(guid)){
+                            String internalId = guid.substring(guid.lastIndexOf(":")+1);
+                            tc.setInfoSourceURL("http://biodiversity.org.au/apni.taxon/"+internalId);
+                        }                     
+                    } else if("COL".equalsIgnoreCase(dataset)){
+                        tc.setInfoSourceId(Integer.toString(col.getId()));
+                        tc.setInfoSourceName(col.getName());
+                        tc.setInfoSourceURL("http://www.catalogueoflife.org");// can't link to synonym as id's in CoL are not final/details/species/"+guid);
+                    } else if("AFD".equalsIgnoreCase(dataset)){
+                        tc.setInfoSourceId(Integer.toString(afd.getId()));
+                        tc.setInfoSourceName(afd.getName());
+                        
+                        String internalId = guid.substring(guid.lastIndexOf(":")+1);
+                        tc.setInfoSourceURL("http://biodiversity.org.au/afd.taxon/"+internalId);
+                        //tc.setInfoSourceURL("http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/"+sciFullName.replaceAll("\\+", "%20"));
+//                      }
+                    }
+                    
+                    
                     if (taxonConceptDao.addSynonym(acceptedGuid, tc)) {
                         numberAdded++;
                         if(numberAdded % 1000 == 0){

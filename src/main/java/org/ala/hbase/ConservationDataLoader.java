@@ -21,6 +21,7 @@ import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.gbif.ecat.model.ParsedName;
 import org.gbif.ecat.parser.NameParser;
+import org.gbif.ecat.parser.UnparsableException;
 import org.gbif.file.CSVReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -70,7 +71,7 @@ public class ConservationDataLoader {
     private static final String iucnFile = "/data/bie-staging/conservation/iucn/2008_REDLIST.csv";
     private static final String tasFile = "/data/bie-staging/conservation/tas/species_20101015_1503(1).csv";
     private static final String summaryFile ="/data/bie-staging/conservation/cons_name_matching_stats"+System.currentTimeMillis()+".csv";
-    private static final String matchesFile = "/data/bie-staging/conservation/matches.csv";
+    private static final String matchesFile = "/data/bie-staging/conservation/matches"+System.currentTimeMillis()+".csv";
     
     private static FileOutputStream summaryOut;
     private static FileOutputStream matchesOut;
@@ -147,8 +148,11 @@ public class ConservationDataLoader {
         //TODO Fix up how this is obtaining the region information
 
     }
-    private void writeMatch(String source, String name, String lsid) throws Exception{
-        matchesOut.write(("\"" + source + "\",\"" + name + "\",\"" + lsid + "\"\n").getBytes());
+    private void writeMatch(String source,String name, String lsid) throws Exception{
+        writeMatch(source, name,lsid, "");
+    }
+    private void writeMatch(String source, String name, String lsid, String kingdom) throws Exception{
+        matchesOut.write(("\"" + source + "\",\"" + name + "\",\"" + lsid+ "\",\"" + kingdom + "\"\n").getBytes());
     }
 
     private String[] getRegionInfo(String region) {
@@ -175,12 +179,18 @@ public class ConservationDataLoader {
             String values[] = reader.readNext();
             if (values != null && values.length > 10) {
                 String speciesName = values[0];
-                ParsedName pn = parser.parse(speciesName);
+                ParsedName pn = null;
+                try{        
+                pn = parser.parse(speciesName);
+                }
+                catch(UnparsableException e){
+                    logger.warn(e.getMessage());
+                }
                 String genus = pn == null ? null : pn.getGenusOrAbove();
                 LinnaeanRankClassification cl = new LinnaeanRankClassification(values[6], values[7], values[8], values[9], values[10], genus, speciesName);
-                String guid = taxonConceptDao.findLsidByName(values[0], cl, null);
+                String guid = taxonConceptDao.findLsidByName(values[0], cl, null, true);
                 if (guid != null) {
-                    writeMatch("EPBC", values[0], guid);
+                    writeMatch("EPBC", values[0], guid, values[6]);
                     processed++;
                     if(guid.startsWith("urn:lsid:biodiversity.org.au"))
                         anbg++;
@@ -226,7 +236,7 @@ public class ConservationDataLoader {
                     //System.out.println("The Conservation Status: " + cs);
                 } else {
                     failed++;
-                    logger.info("Unable to locate " + speciesName);
+                    logger.info("Unable to locate " + speciesName + ","+values[6]);
                 }
             }
         }
@@ -280,7 +290,7 @@ public class ConservationDataLoader {
                 //In this file the kingdom and class are common names thus
                 //initially we are only going to search by scientific name
                 //We may need to change this if there are homonyms...
-                String guid = taxonConceptDao.findLsidByName(sciName);
+                String guid = taxonConceptDao.findLsidByName(sciName, true);
                 if (guid != null) {
                     writeMatch("QLD", sciName, guid);
                     processed++;
@@ -333,13 +343,19 @@ public class ConservationDataLoader {
             String[] values = reader.readNext();
             if (values != null && values.length > 8) {
                 String sciName = values[3];
-                ParsedName pn = parser.parse(sciName);
+                ParsedName pn = null;
+                try{
+                pn = parser.parse(sciName);
+                }
+                catch(UnparsableException e){
+                    logger.warn(e.getMessage());
+                }
                 String genus = pn == null ? null : pn.getGenusOrAbove();
                 //fauna should be animalia
                 LinnaeanRankClassification cl = new LinnaeanRankClassification("Animalia", genus);
                 //family is the only non-vernacular name rank available
                 cl.setFamily(values[8]);
-                String guid = taxonConceptDao.findLsidByName(sciName, cl, null);
+                String guid = taxonConceptDao.findLsidByName(sciName, cl, null,true);
                 if (guid != null) {
                     writeMatch("WA Fauna", sciName, guid);
                     processed++;
@@ -394,7 +410,7 @@ public class ConservationDataLoader {
             String[] values = reader.readNext();
             if (values != null && values.length > 3) {
                 String sciName = values[0];
-                String guid = taxonConceptDao.findLsidByName(sciName);
+                String guid = taxonConceptDao.findLsidByName(sciName,true);
                 if (guid != null) {
                     writeMatch("WA Flora", sciName, guid);
                     processed++;
@@ -441,8 +457,8 @@ public class ConservationDataLoader {
             if (values != null && values.length > statusIdx) {
                 String sciName = values[sciIdx];
                 LinnaeanRankClassification cl = new LinnaeanRankClassification(null, null, null, null, values[familyIdx], values[genusId], sciName);
-
-                String guid = taxonConceptDao.findLsidByName(sciName, cl, null);
+                try{
+                String guid = taxonConceptDao.findLsidByName(sciName, cl, null, true);
                 if (guid != null) {
                     writeMatch("NSW " +type, sciName, guid);
                     processed++;
@@ -466,6 +482,11 @@ public class ConservationDataLoader {
                 } else {
                     failed++;
                     logger.info("Unable to locate scientific name " + sciName + " [" + (processed + failed) + "]");
+                }
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                    System.out.println("PROBLEM RECORD " + StringUtils.join(values, ","));
                 }
 
 
@@ -517,7 +538,7 @@ public class ConservationDataLoader {
                 if(fidx >= 0)
                     cl.setFamily(values[fidx]);
                 //get the guid for the species
-                String guid = taxonConceptDao.findLsidByName(sciName, cl, null);
+                String guid = taxonConceptDao.findLsidByName(sciName, cl, null,true);
                 if (guid != null) {
                     writeMatch(state + " " + type, sciName, guid);
                     processed++;
@@ -579,7 +600,7 @@ public class ConservationDataLoader {
             if (values != null && values.length > statusIdx) {
                 String sciName = values[sciIdx];
                 //get the guid for the species
-                String guid = taxonConceptDao.findLsidByName(sciName);
+                String guid = taxonConceptDao.findLsidByName(sciName,true);
                 if (guid != null) {
                     writeMatch(state + " "+ type, sciName, guid);
                     processed++;
@@ -638,7 +659,7 @@ public class ConservationDataLoader {
                     String f = StringUtils.capitalize(values[5].toLowerCase());
                     String g = values[6];
                     LinnaeanRankClassification cl = new LinnaeanRankClassification(k,p,c,o,f,g,sciName);
-                    String guid = taxonConceptDao.findLsidByName(sciName, cl, null);
+                    String guid = taxonConceptDao.findLsidByName(sciName, cl, null,true);
 
                     if(guid != null){
                         writeMatch("IUCN", sciName, guid);

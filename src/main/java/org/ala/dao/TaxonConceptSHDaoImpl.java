@@ -95,6 +95,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.gbif.ecat.model.ParsedName;
 import org.gbif.ecat.parser.NameParser;
+import org.gbif.ecat.parser.UnparsableException;
 import org.springframework.stereotype.Component;
 
 import au.org.ala.checklist.lucene.CBIndexSearch;
@@ -833,14 +834,14 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	 */
 	@Override
 	public String findLsidByName(String scientificName,
-			LinnaeanRankClassification classification, String taxonRank) {
+			LinnaeanRankClassification classification, String taxonRank, boolean useSoundEx) {
 		String lsid = null;
                 boolean homonym = false;
 		try {
 			// System.out.println("Get LSID for sci name: " + scientificName +
 			// ", and rank: " + taxonRank);
 			lsid = cbIdxSearcher.searchForLSID(scientificName, classification,
-					RankType.getForName(taxonRank));
+					RankType.getForName(taxonRank), useSoundEx);
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception (" + scientificName
 					+ ") - " + e.getMessage() + e.getResults());
@@ -848,6 +849,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
                 updateStats(lsid, homonym);
 		return lsid;
+	}
+	@Override
+    public String findLsidByName(String scientificName,
+            LinnaeanRankClassification classification, String taxonRank) {
+	    return findLsidByName(scientificName, classification, taxonRank, false);
 	}
 
 	/**
@@ -869,12 +875,16 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
                 updateStats(lsid, homonym);
 		return lsid;
 	}
-
+	
 	public String findLsidByName(String scientificName) {
+	    return findLsidByName(scientificName, false);
+	}
+
+	public String findLsidByName(String scientificName, boolean useSoundEx) {
 		String lsid = null;
                 boolean homonym = false;
 		try {
-			lsid = cbIdxSearcher.searchForLSID(scientificName);
+			lsid = cbIdxSearcher.searchForLSID(scientificName, useSoundEx);
 		} catch (SearchResultException e) {
 			logger.warn("Checklist Bank lookup exception - " + e.getMessage()
 					+ e.getResults());
@@ -2136,24 +2146,27 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		if (scientificName != null) {
 			normalized = scientificName.replaceFirst("\\([A-Za-z]{1,}\\) ", "");
 		}
-
-		ParsedName parsedName = nameParser.parseIgnoreAuthors(normalized);
+		ParsedName parsedName =null;
+		try{
+		parsedName = nameParser.parse(normalized);
+		}
+		catch(UnparsableException e){}
 		// store scientific name values in a set before adding to Lucene so we
 		// don't get duplicates
 		TreeSet<String> sciNames = new TreeSet<String>();
 
 		if (parsedName != null) {
-			if (parsedName.isBinomial() && !parsedName.hasProblem()) {
+			if (parsedName.isBinomial() && parsedName.authorsParsed  && !parsedName.isIndetermined()) {
 				// add multiple versions
-				sciNames.add(parsedName.buildAbbreviatedCanonicalName().toLowerCase());
-				sciNames.add(parsedName.buildAbbreviatedFullName().toLowerCase());
+				sciNames.add(parsedName.canonicalName().toLowerCase());
+				sciNames.add(parsedName.buildName(true, false, true, false, true, true, false, false, false, false).toLowerCase());
 			}
 
 			// add lowercased version
 			// NameParser not working correctly, solr exact_text/scientificName field are incorrect.
 			// added condition check (eg: olearia)
-			if((taxonRankId == null || !isIncorrectRank(parsedName, taxonRankId)) && !parsedName.hasProblem()){
-				sciNames.add(parsedName.buildCanonicalName().toLowerCase());
+			if((taxonRankId == null || !isIncorrectRank(parsedName, taxonRankId)) && parsedName.authorsParsed  && !parsedName.isIndetermined()){
+				sciNames.add(parsedName.canonicalName().toLowerCase());
 			}
 			else{
 				//add the supplied scientific name
@@ -2207,7 +2220,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	}
 
 	public boolean isIncorrectRank(ParsedName parsedName, int rankId) {
-		if (rankId>6000 && parsedName.rankMarker==null && (parsedName.infraSpecificEpithet==null && (parsedName.specificEpithet!=null || parsedName.infraGeneric==null))){ 
+		if (rankId>6000 && parsedName.rank==null && (parsedName.infraSpecificEpithet==null && (parsedName.specificEpithet!=null || parsedName.infraGeneric==null))){ 
 			return true;
 		}
         return false;

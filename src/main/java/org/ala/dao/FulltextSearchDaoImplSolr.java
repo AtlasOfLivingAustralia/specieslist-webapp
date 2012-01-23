@@ -56,6 +56,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.gbif.ecat.model.ParsedName;
 import org.gbif.ecat.parser.NameParser;
+import org.gbif.ecat.parser.UnparsableException;
 import org.springframework.stereotype.Component;
 
 import au.com.bytecode.opencsv.CSVWriter;
@@ -426,9 +427,15 @@ public class FulltextSearchDaoImplSolr implements FulltextSearchDao {
 	 */
 	private String retrieveCanonicalForm(String query) {
 		NameParser np = new NameParser();
+		try{
 		ParsedName pn = np.parse(query);
 		if(pn!=null){
 			return pn.canonicalName();
+		}
+		}
+		catch(UnparsableException e){
+		    //do nothing a null name will be returned
+		    logger.debug("Unable to parse name " + query +  ". " + e.getMessage());
 		}
 		return null;
 	}

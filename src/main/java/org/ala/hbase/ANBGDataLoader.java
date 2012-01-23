@@ -97,7 +97,7 @@ public class ANBGDataLoader {
 	 * @throws Exception
 	 */
 	private void loadPublications() throws Exception {
-		logger.info("Starting to load taxon names");
+		logger.info("Starting to load taxon publications");
 		
 		TabReader tr = new TabReader(PUBLICATIONS, false);
 		LoadUtils loadUtils = new LoadUtils();
