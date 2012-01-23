@@ -37,9 +37,23 @@ public class PageUtils {
      * @param commonNames
      * @return commonNames
      */
-    public static List<CommonName> fixCommonNames(List<CommonName> commonNames) {
+    public static List<CommonName> fixCommonNames(List<CommonName> commonNames) {    	    	
         List<CommonName> newNames = new ArrayList<CommonName>();
         if(commonNames!=null && commonNames.size()>0){
+        	Collections.sort(commonNames, new Comparator<CommonName>(){
+            	@Override
+                public int compare(CommonName o1, CommonName o2) {
+            		int i = -1;
+            		try{
+            			i = o1.getNameString().trim().compareToIgnoreCase(o2.getNameString().trim());
+            		}
+            		catch(Exception e){
+            			logger.error(e);
+            		}
+            		return i;
+            	}
+        	});
+
         	newNames.add(commonNames.get(0));
         }
         
@@ -83,7 +97,14 @@ public class PageUtils {
     	Collections.sort(newArrayList, new Comparator<CommonName>(){
         	@Override
             public int compare(CommonName o1, CommonName o2) {
-        		return o1.getNameString().compareToIgnoreCase(o2.getNameString());
+        		int i = -1;
+        		try{
+        			i = o1.getNameString().trim().compareToIgnoreCase(o2.getNameString().trim());
+        		}
+        		catch(Exception e){
+        			logger.error(e);
+        		}
+        		return i;
         	}
     	});
     	Iterator<CommonName> it = newArrayList.iterator();
@@ -95,12 +116,12 @@ public class PageUtils {
     	// group the name with infosource, compare the name with alphabet & number only.
     	while(it.hasNext()){
     		CommonName curName = it.next();
-    		if(prevName.getNameString().replaceAll(pattern, "").equalsIgnoreCase(
-    				curName.getNameString().replaceAll(pattern, ""))){
+    		if(prevName.getNameString().trim().replaceAll(pattern, "").equalsIgnoreCase(
+    				curName.getNameString().trim().replaceAll(pattern, ""))){
     			list.add(curName);
     		}
     		else{
-    			map.put(prevName.getNameString(), list);
+    			map.put(prevName.getNameString().trim(), list);
     			
     			list = new ArrayList<CommonName>();
     			list.add(curName);
@@ -108,7 +129,7 @@ public class PageUtils {
     		}
     	}
     	if(prevName != null){
-    		map.put(prevName.getNameString(), list);
+    		map.put(prevName.getNameString().trim(), list);
     	}
     	return map;
     }
