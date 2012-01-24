@@ -100,13 +100,15 @@ public class CassandraScanner implements Scanner {
 //		this.keySlices = clientConnection.get_range_slice(keySpace, columnParent, slicePredicate, "", "", pageSize, ConsistencyLevel.ONE);
 	}
 	
-	public CassandraScanner(String pool, String keySpace, String columnFamily, String... column) throws Exception {
+	public CassandraScanner(String pool, String keySpace, String columnFamily,String startKey, String... column) throws Exception {
 	    this.pool = pool;
 	    this.keySpace = keySpace;
 	    this.selector = Pelops.createSelector(pool);
 	    this.slicePredicate = Selector.newColumnsPredicate(column);
 	    this.columnFamily = columnFamily;
-	    KeyRange keyRange = Selector.newKeyRange("", "", pageSize+1);
+	    if(startKey == null)
+	        startKey ="";
+	    KeyRange keyRange = Selector.newKeyRange(startKey, "", pageSize+1);
 	    rowMap =selector.getColumnsFromRows(columnFamily, keyRange, slicePredicate, ConsistencyLevel.ONE);
 	    rowList = new ArrayList<Bytes>(rowMap.keySet());//rowMap.keySet();
 	    mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);

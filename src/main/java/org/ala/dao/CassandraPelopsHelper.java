@@ -640,8 +640,8 @@ public class CassandraPelopsHelper implements StoreHelper  {
      * @see org.ala.dao.StoreHelper#getScanner(java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public Scanner getScanner(String table, String columnFamily, String... column) throws Exception {
-        return new CassandraScanner(pool, table,columnFamily,column);
+    public Scanner getScanner(String table, String columnFamily, String startKey, String... column) throws Exception {
+        return new CassandraScanner(pool, table,columnFamily,startKey,column);
     	//return new CassandraScanner(Pelops.getDbConnPool(pool).getConnection().getAPI(), keySpace, columnFamily, column);
     }
 
@@ -692,6 +692,16 @@ public class CassandraPelopsHelper implements StoreHelper  {
 		}        
 		return al;
     }
+    
+    
+    public boolean deleteColumns(String columnFamily, String guid, String... columns) throws Exception{
+        Mutator mutator = Pelops.createMutator(pool);
+        
+        mutator.deleteColumns(columnFamily, guid, columns);
+        mutator.execute(ConsistencyLevel.ONE);
+        return true;
+    }
+    
 
 
     public static void main(String[] args) throws Exception {
@@ -759,6 +769,8 @@ public class CassandraPelopsHelper implements StoreHelper  {
     	}
 		System.exit(0);
     }
+    
+
 
 	/**
 	 * @param keySpace the keySpace to set

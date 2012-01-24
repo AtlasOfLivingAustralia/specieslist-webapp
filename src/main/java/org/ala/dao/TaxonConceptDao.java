@@ -636,7 +636,7 @@ public interface TaxonConceptDao {
 	 *
 	 * @throws Exception
 	 */
-	void createIndex() throws Exception;
+	void createIndex(String startKey) throws Exception;
 
 	/**
 	 * Add a classification to this taxon.

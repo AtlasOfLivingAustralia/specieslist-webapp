@@ -126,7 +126,7 @@ public interface StoreHelper {
 	 * @return an instance of Scanner, initialised and read to be used
 	 * @throws Exception
 	 */
-	Scanner getScanner(String table, String columnFamily, String... column) throws Exception;
+	Scanner getScanner(String table, String columnFamily, String startKey, String... column) throws Exception;
 	
 	/**
 	 * Retrieve a map of subcolumns for the row with the supplied GUID.
@@ -231,4 +231,10 @@ public interface StoreHelper {
      * @throws Exception
      */
     Map<String, List<Comparable>> getColumnList(String columnFamily,  String guid, Class theClass) throws Exception;
+    
+    /**
+     * Delete the supplied column(s)
+     */
+    
+    boolean deleteColumns(String columnFamily, String guid, String... columns) throws Exception;
 }

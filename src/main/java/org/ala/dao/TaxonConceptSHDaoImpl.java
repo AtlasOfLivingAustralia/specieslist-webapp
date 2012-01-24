@@ -1624,7 +1624,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#createIndex()
 	 */
-	public void createIndex() throws Exception {
+	public void createIndex(String startKey) throws Exception {
 		int max_loop_count = 100000;
 		long start = System.currentTimeMillis();
 
@@ -1645,7 +1645,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 
 		int i = 0;
 
-		Scanner scanner = storeHelper.getScanner(TC_TABLE, TC_COL_FAMILY,
+		Scanner scanner = storeHelper.getScanner(TC_TABLE, TC_COL_FAMILY, startKey,
 				ColumnType.columnsToIndex);
 
 		// load iconic species
