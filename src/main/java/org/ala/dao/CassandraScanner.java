@@ -137,6 +137,8 @@ public class CassandraScanner implements Scanner {
 	
 	public Comparable getValue(String column, Class theClass)throws Exception {
 	    if(currentValues.containsKey(column)){
+	        if(theClass == String.class)
+	            return currentValues.get(column);
 	        return (Comparable) mapper.readValue(currentValues.get(column), theClass);
 	    }
 	    return null;
