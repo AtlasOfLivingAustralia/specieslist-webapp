@@ -98,7 +98,7 @@ public class IrmngDataLoader {
 		    if(values.length>2){
     		    guid = null;
     		    String currentScientificName = values[1];
-    		    if (!currentScientificName.equalsIgnoreCase(previousScientificName)) {
+    		    if (currentScientificName != null&& !currentScientificName.equalsIgnoreCase(previousScientificName)) {
         		    if(values.length == 12 ){
         		        //dealing with a family 
         		        if(!values[1].contains("unallocated")){
