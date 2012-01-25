@@ -370,7 +370,8 @@ CREATE TABLE `MASTER_GENLIST` (
   IS_BRACKISH char(1),
   IS_FRESHWATER char(1),
   IS_TERRESTRIAL char(1),
-  PRIMARY KEY  (`GENUS_ID`)
+  PRIMARY KEY  (`GENUS_ID`),
+  index ix_genus(GENUS)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ;
 
 drop table if exists MASTER_SPLIST;
@@ -462,7 +463,9 @@ CREATE TABLE `MASTER_SPLIST` (
   IS_BRACKISH char(1),
   IS_FRESHWATER char(1),
   IS_TERRESTRIAL char(1),
-  PRIMARY KEY  (`SPECIES_ID`)
+  PRIMARY KEY  (`SPECIES_ID`),
+  index ix_sp_genus_id (`GENUS_ID`),
+  index ix_species(SPECIES)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ;
 
 

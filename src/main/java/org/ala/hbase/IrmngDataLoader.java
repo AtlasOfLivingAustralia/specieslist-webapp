@@ -16,6 +16,7 @@ package org.ala.hbase;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -26,9 +27,13 @@ import org.ala.model.Habitat;
 import org.ala.model.InfoSource;
 import org.ala.util.SpringUtils;
 import org.ala.util.TabReader;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+
+import au.org.ala.data.model.LinnaeanRankClassification;
+import au.org.ala.data.util.RankType;
 /**
  * This class loads data reports extracted from IRMNG into the BIE.
  *
@@ -46,6 +51,8 @@ public class IrmngDataLoader {
 	private static final String IRMNG_FAMILY_DATA = "/data/bie-staging/irmng/family_list.txt";
 	private static final String IRMNG_GENUS_DATA = "/data/bie-staging/irmng/genus_list.txt";
 	private static final String IRMNG_SPECIES_DATA = "/data/bie-staging/irmng/species_list.txt";
+	
+	private Pattern classSep = Pattern.compile("-");
 
 	protected String irmngURI = "http://www.cmar.csiro.au/datacentre/irmng/";
 	
@@ -85,50 +92,141 @@ public class IrmngDataLoader {
 		int i = 0;
 		String guid = null;
 		String previousScientificName = null;
+		String extantCode = "", habitatCode="", identifier="";
+		boolean isGenus = rank.equals("genus");
 		while ((values = tr.readNext()) != null) {
-    		if (values.length == 5) {
-    			String identifier = values[0];
-    			String currentScientificName = values[1];
-    			String extantCode = values[3];
-    			String habitatCode = values[4];
-    			
-    			if (!currentScientificName.equalsIgnoreCase(previousScientificName)) {
-					guid = taxonConceptDao.findLsidByName(currentScientificName, rank);
-        			if (guid == null) {
-        				logger.warn("Unable to find LSID for '" + currentScientificName + "'");
-        			} else {
-        				logger.debug("Found LSID for '" + currentScientificName + "' - " + guid);
-        			}
-    				previousScientificName = currentScientificName;
-    			}
-    			if (guid != null) {
-    				
-    				List<ExtantStatus> extantStatusList = new ArrayList<ExtantStatus>();
-    				ExtantStatus e = new ExtantStatus(extantCode);
-    				e.setInfoSourceId(Integer.toString(infosource.getId()));
-    				e.setInfoSourceName(infosource.getName());
-    				e.setInfoSourceURL(baseUrl+identifier);
-    				extantStatusList.add(e);
-    				
-    				List<Habitat> habitatList = new ArrayList<Habitat>();
-    				Habitat h = new Habitat(habitatCode);
-    				h.setInfoSourceId(Integer.toString(infosource.getId()));
-    				h.setInfoSourceName(infosource.getName());
-    				h.setInfoSourceURL(baseUrl+identifier);
-    				habitatList.add(h);
-    				
-    				logger.trace("Adding guid=" + guid + " SciName=" + currentScientificName + " Extant=" + extantCode + " Habitat=" + habitatCode);
-    				taxonConceptDao.addExtantStatus(guid, extantStatusList);
-    				taxonConceptDao.addHabitat(guid, habitatList);
-    				i++;
-    			}
-    		} else {
-    			logger.error("Incorrect number of fields in tab file - " + irmngDataFile);
-    		}
+		    if(values.length>2){
+    		    guid = null;
+    		    String currentScientificName = values[1];
+    		    if (!currentScientificName.equalsIgnoreCase(previousScientificName)) {
+        		    if(values.length == 12 ){
+        		        //dealing with a family 
+        		        if(!values[1].contains("unallocated")){
+            		        LinnaeanRankClassification cl = new LinnaeanRankClassification(values[2],null);
+            		        cl.setFamily(values[1]);
+            		        guid = taxonConceptDao.findLsidByName(values[1], cl, rank);
+            		        extantCode = values[3];
+            		        habitatCode = values[4];
+            		        identifier = values[0];
+        		        }
+        		    }
+        		    
+        		    else if(values.length == 13){
+        		        LinnaeanRankClassification cl = new LinnaeanRankClassification(null,null);
+        		        if(isGenus){
+        		            cl.setGenus(values[1]);
+        		            if(!values[2].contains("unallocated")){
+        		                cl.setFamily(values[2]);
+        		            }
+        		        }else{
+        		            cl.setScientificName(values[1]);
+        		            cl.setGenus(values[2]);
+        		        }
+        		        updateClassification(cl, values[3]);
+        		        guid = taxonConceptDao.findLsidByName(values[1], cl, rank);
+        		        extantCode = values[4];
+        		        habitatCode = values[5];
+        		        identifier = values[0];
+        		    }
+    		    }
+    		    previousScientificName = currentScientificName;
+    		    
+    		    if (guid != null) {
+                    if(StringUtils.isNotBlank(extantCode)){
+                        List<ExtantStatus> extantStatusList = new ArrayList<ExtantStatus>();
+                        ExtantStatus e = new ExtantStatus(extantCode);
+                        e.setInfoSourceId(Integer.toString(infosource.getId()));
+                        e.setInfoSourceName(infosource.getName());
+                        e.setInfoSourceURL(baseUrl+identifier);
+                        extantStatusList.add(e);
+                        taxonConceptDao.addExtantStatus(guid, extantStatusList);
+                    }
+                    if(StringUtils.isNotBlank(habitatCode)){
+                        List<Habitat> habitatList = new ArrayList<Habitat>();
+                        Habitat h = new Habitat(habitatCode);
+                        h.setInfoSourceId(Integer.toString(infosource.getId()));
+                        h.setInfoSourceName(infosource.getName());
+                        h.setInfoSourceURL(baseUrl+identifier);
+                        habitatList.add(h);
+                        taxonConceptDao.addHabitat(guid, habitatList);
+                    }
+                    
+                    logger.trace("Adding guid=" + guid + " SciName=" + currentScientificName + " Extant=" + extantCode + " Habitat=" + habitatCode);
+                    
+                    
+                    i++;
+    		    }
+            }
+		    
+		    
+//    		if (values.length == 5) {
+//    			String identifier = values[0];
+//    			String currentScientificName = values[1];
+////    			String extantCode = values[3];
+////    			String habitatCode = values[4];
+//    			
+//    			if (!currentScientificName.equalsIgnoreCase(previousScientificName)) {
+//					guid = taxonConceptDao.findLsidByName(currentScientificName, rank);
+//        			if (guid == null) {
+//        				logger.warn("Unable to find LSID for '" + currentScientificName + "'");
+//        			} else {
+//        				logger.debug("Found LSID for '" + currentScientificName + "' - " + guid);
+//        			}
+//    				previousScientificName = currentScientificName;
+//    			}
+//    			if (guid != null) {
+//    				
+//    				List<ExtantStatus> extantStatusList = new ArrayList<ExtantStatus>();
+//    				ExtantStatus e = new ExtantStatus(extantCode);
+//    				e.setInfoSourceId(Integer.toString(infosource.getId()));
+//    				e.setInfoSourceName(infosource.getName());
+//    				e.setInfoSourceURL(baseUrl+identifier);
+//    				extantStatusList.add(e);
+//    				
+//    				List<Habitat> habitatList = new ArrayList<Habitat>();
+//    				Habitat h = new Habitat(habitatCode);
+//    				h.setInfoSourceId(Integer.toString(infosource.getId()));
+//    				h.setInfoSourceName(infosource.getName());
+//    				h.setInfoSourceURL(baseUrl+identifier);
+//    				habitatList.add(h);
+//    				
+//    				logger.trace("Adding guid=" + guid + " SciName=" + currentScientificName + " Extant=" + extantCode + " Habitat=" + habitatCode);
+//    				taxonConceptDao.addExtantStatus(guid, extantStatusList);
+//    				taxonConceptDao.addHabitat(guid, habitatList);
+//    				i++;
+//    			}
+//    		} else {
+//    			logger.error("Incorrect number of fields in tab file - " + irmngDataFile);
+//    		}
 		}
     	tr.close();
 		long finish = System.currentTimeMillis();
 		logger.info(i+" IRMNG records loaded. Time taken "+(((finish-start)/1000)/60)+" minutes, "+(((finish-start)/1000) % 60)+" seconds.");
+	}
+	/**
+	 * 
+	 * @param cl
+	 * @param higherClass The higher level classification separated by '-'
+	 */
+	private void updateClassification(LinnaeanRankClassification cl, String higherClass){
+	    String values[] = classSep.split(higherClass,-1);
+	    if(values.length >=4){
+    	    //0 - kingdom
+    	    if(!values[0].contains("unallocated"))
+    	        cl.setKingdom(values[0]);
+    	    //1 - phylum
+    	    if(!values[1].contains("unallocated"))
+    	        cl.setPhylum(values[1]);
+    	    //2 - class
+    	    if(!values[2].contains("unallocated"))
+    	        cl.setKlass(values[2]);
+    	    //3 - order
+    	    if(!values[3].contains("unallocated"))
+    	        cl.setOrder(values[3]);
+    	    if(values.length>4 && !values[4].contains("unallocated"))
+    	        cl.setFamily(values[4]);
+	    }
+	    
 	}
 
 	/**
