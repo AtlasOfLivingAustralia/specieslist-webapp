@@ -28,6 +28,7 @@ import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.util.SpringUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.inject.Inject;
 import org.springframework.context.ApplicationContext;
@@ -52,6 +53,8 @@ public class RkColumnFamilyExporter {
 
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
+	
+	private ObjectMapper mapper = new ObjectMapper();
 	
 	/**
 	 * Usage: outputFileName [option: cassandraAddress cassandraPort]
@@ -108,8 +111,8 @@ public class RkColumnFamilyExporter {
 						while(itr.hasNext()){
 							String key = itr.next();	
 							List rankingList = columnList.get(key);
-							for(Object c : rankingList){	
-								csvOut.write((guid + "; " + sciName + "; "  + superColumnName + "; " + key + "; " + c.toString() + "\n").getBytes());
+							for(Object c : rankingList){								
+								csvOut.write((guid + "; " + sciName + "; "  + superColumnName + "; " + key + "; [" + mapper.writeValueAsString(c) + "]\n").getBytes());
 												            
 								j++;
 								if(j%1000==0){
