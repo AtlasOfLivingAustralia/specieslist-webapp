@@ -39,6 +39,7 @@ public interface RankingDao {
 	 * @return
 	 * @throws Exception
 	 */
+	@Deprecated
 	public boolean rankImageForTaxon(
 			String userIp,
 			String userId,
@@ -49,6 +50,7 @@ public interface RankingDao {
 			Integer imageInfoSourceId,
 			boolean positive) throws Exception;
 	
+	@Deprecated
 	public boolean rankImageForTaxon(
 			String userIp,
 			String userId,

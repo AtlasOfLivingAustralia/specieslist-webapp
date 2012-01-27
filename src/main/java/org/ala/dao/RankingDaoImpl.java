@@ -61,7 +61,8 @@ public class RankingDaoImpl implements RankingDao {
 	
 	@Inject
 	protected TaxonConceptDao taxonConceptDao;
-		
+	
+	@Deprecated
 	public boolean rankImageForTaxon(
 			String userIP,
 			String userId,
@@ -78,6 +79,7 @@ public class RankingDaoImpl implements RankingDao {
 	 * @see org.ala.dao.RankingDao#rankImageForTaxon(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Integer, boolean)
 	 */
 	@Override
+	@Deprecated
 	public boolean rankImageForTaxon(
 			String userIP,
 			String userId,
