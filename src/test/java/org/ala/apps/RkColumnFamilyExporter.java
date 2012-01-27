@@ -109,7 +109,7 @@ public class RkColumnFamilyExporter {
 							String key = itr.next();	
 							List rankingList = columnList.get(key);
 							for(Object c : rankingList){	
-								csvOut.write((guid + "; " + sciName + "; "  + superColumnName + "; " + c.toString() + "\n").getBytes());
+								csvOut.write((guid + "; " + sciName + "; "  + superColumnName + "; " + key + "; " + c.toString() + "\n").getBytes());
 												            
 								j++;
 								if(j%1000==0){
