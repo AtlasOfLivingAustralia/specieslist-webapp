@@ -109,16 +109,11 @@ public class RkColumnFamilyExporter {
 						Set<String> keys = columnList.keySet();
 						Iterator<String> itr = keys.iterator();
 						while(itr.hasNext()){
+							j++;
 							String key = itr.next();	
 							List rankingList = columnList.get(key);
-							for(Object c : rankingList){								
-								csvOut.write((guid + "; " + sciName + "; "  + superColumnName + "; " + key + "; [" + mapper.writeValueAsString(c) + "]\n").getBytes());
-												            
-								j++;
-								if(j%1000==0){
-									logger.info("Indexed records: "+j+", current guid: "+guid);
-								}
-							}
+							csvOut.write((guid + "; " + sciName + "; "  + superColumnName + "; " + key + "; " + mapper.writeValueAsString(rankingList) + "\n").getBytes());
+							logger.info("Indexed records: "+j+", current guid: "+guid);							
 						}
 					}
 					catch(Exception ex){
