@@ -56,6 +56,10 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
 	                });
             	}
             	
+            	
+            	/*
+            	// replaced by biocache ws call in image tag...
+            	// eg: <img id="mapImage" src='http://biocache.ala.org.au/ws/density/map?q=lsid:"${extendedTaxonConcept.taxonConcept.guid}"' class="distroImg" width="360" alt="occurrence map" onerror="this.style.display='none'"/>
             	var spitalUrl = "../map/map.json?guid=${extendedTaxonConcept.taxonConcept.guid}"; 
                 $.getJSON(spitalUrl, function(data) {
                      //alert(data.type)
@@ -75,7 +79,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                          $("#divMap").css("display","none");
                      }
                 });
- 
+ 				*/
+ 				
                 // LSID link to show popup with LSID info and links
                 $("a#lsid").fancybox({
                     'hideOnContentClick' : false,
@@ -529,10 +534,10 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                             | <a href="${spatialPortalUrl}?q=lsid:${extendedTaxonConcept.taxonConcept.guid}" title="View interactive map">View interactive map</a>
                         </p>
                         <div class="left">
-                            <img id="mapImage" src="../static/images/blank.gif" class="distroImg" width="360" alt="occurrence map"/>
+                            <img id="mapImage" src='http://biocache.ala.org.au/ws/density/map?q=lsid:"${extendedTaxonConcept.taxonConcept.guid}"' class="distroImg" width="360" alt="occurrence map" onerror="this.style.display='none'"/>
                         </div>
                         <div id="legendDiv" class="left" style="margin-top: 80px; margin-left: 20px;">
-                            <img id="mapLegend" src="../static/images/blank.gif" class="distroLegend" alt="map legend"/>
+                            <img id="mapLegend" src='http://biocache.ala.org.au/ws/density/legend?q=lsid:"${extendedTaxonConcept.taxonConcept.guid}"' class="distroLegend" alt="map legend" onerror="this.style.display='none'"/>
                         </div>
                         <p style="clear: both; margin-left: 50px;"><span class="asterisk-container"><a href="${wordPressUrl}/about/progress/map-ranges/">Learn more about Atlas maps</a>&nbsp;</span></p>
                     </div>
