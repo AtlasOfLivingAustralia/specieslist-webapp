@@ -1907,10 +1907,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						}
 						addToSetSafely(infoSourceIds, cn.getInfoSourceId());
 						
-						// push CAAB prefered common name up
+						// push CAAB preferred common name up
 						if(cn.getRanking() != null && cn.getRanking() > 90000){
 							logger.info("\n**********: " + cn.getNameString() + " , " + cn.getRanking() + "\n");
-							doc.addField("preferedName", cn.getNameString().trim().toLowerCase());
+							doc.addField("preferredName", cn.getNameString().trim().toLowerCase());
 						}
 					}
 				}

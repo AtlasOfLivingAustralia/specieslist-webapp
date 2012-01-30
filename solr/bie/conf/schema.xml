@@ -644,7 +644,7 @@
    <field name="linkIdentifier" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
 
    <!-- CAAB Common Name fields -->
-   <field name="caabName" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
+   <field name="preferredName" type="lowercase" indexed="true" stored="true" omitNorms="true" multiValued="true"/>
 
    <!-- Ranking fields -->
    <field name="userId" type="string" indexed="true" stored="true" multiValued="false" omitNorms="true" />
@@ -664,7 +664,7 @@
    <field name="auto_name_exact" type="name_complete" indexed="true" stored="false" multiValued="true" omitNorms="true" omitTermFreqAndPositions="true"/>
    
    <!-- Fields used to rank exact matches higher -->
-   <field name="exact_text" type="lowercase" indexed="true" stored="false" multiValued="true"/>
+   <field name="exact_text" type="lowercase" indexed="true" stored="false" omitNorms="true" multiValued="true"/>
    
    <!-- catchall text field that indexes tokens both normally and in reverse for efficient
         leading wildcard queries. -->
