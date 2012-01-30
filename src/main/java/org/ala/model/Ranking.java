@@ -3,7 +3,9 @@ package org.ala.model;
  * A simple ranking POJO
  *
  * @author Dave Martin (David.Martin@csiro.au)
+ * @Deprecated Use org.ala.model.BaseRanking
  */
+@Deprecated
 public class Ranking implements Comparable<Ranking> {
 
 	String userIP;

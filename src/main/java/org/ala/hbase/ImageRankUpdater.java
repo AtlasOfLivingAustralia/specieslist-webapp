@@ -11,9 +11,12 @@ import org.springframework.stereotype.Component;
 /**
  * Updates the Image ranks after a the keyspace tc has been reloaded.
  *
+ *@Deprecated Use the webservice to reload ranks.
+ *
  * @author Natasha Carter
  */
 @Component("imageRankUpdater")
+@Deprecated
 public class ImageRankUpdater {
     protected static Logger logger = Logger.getLogger(ImageRankUpdater.class);
     @Inject

@@ -25,6 +25,9 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 /**
  * Ranking VO
  * 
+ * 
+ * This model has replaced the Ranking class. The only difference between the compareFieldValue... 
+ * 
  * @author mok011
  */
 public class BaseRanking implements Comparable<BaseRanking> {
@@ -127,5 +130,18 @@ public class BaseRanking implements Comparable<BaseRanking> {
 	public void setPositive(boolean positive) {
 		this.positive = positive;
 	}
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "BaseRanking [userIP=" + userIP + ", userId=" + userId
+                + ", fullName=" + fullName + ", positive=" + positive
+                + ", isBlackListed=" + isBlackListed + ", uri=" + uri
+                + ", compareFieldValue=" + compareFieldValue + "]";
+    }
+	
+	
 
 }

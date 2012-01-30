@@ -645,9 +645,9 @@ public class CassandraPelopsHelper implements StoreHelper  {
     	//return new CassandraScanner(Pelops.getDbConnPool(pool).getConnection().getAPI(), keySpace, columnFamily, column);
     }
 
-	public Scanner getScanner(String table, String columnFamily) throws Exception {
-    	return new CassandraScanner(Pelops.getDbConnPool(pool).getConnection().getAPI(), keySpace, columnFamily);
-    }
+//	public Scanner getScanner(String table, String columnFamily, String startKey) throws Exception {
+//    	return new CassandraScanner(pool, keySpace, columnFamily);
+//    }
 	
     public List<String> getSuperColumnsByGuid(String guid, String columnFamily) throws Exception {
 		List<String> al = new ArrayList<String>();

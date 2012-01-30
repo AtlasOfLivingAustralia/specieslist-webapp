@@ -941,7 +941,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		}
 		return searchTaxonConceptIndexBy("parentGuid", parentGuid, limit);
 	}
-
+	/**
+	 * @deprecated Use {@link #setRanking(String, ColumnType, BaseRanking)}
+	 */
+	@Deprecated
 	public boolean setRankingOnImage(String guid, String imageUri,
 			boolean positive) throws Exception {
 		return setRankingOnImage(guid, imageUri, positive, false);
@@ -950,7 +953,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#setRankingOnImage(java.lang.String,
 	 *      java.lang.String, boolean)
+	 * @deprecated Use {@link #setRanking(String, ColumnType, BaseRanking, boolean)}
 	 */
+	@Deprecated
 	public boolean setRankingOnImage(String guid, String imageUri,
 			boolean positive, boolean blackList) throws Exception {
 		List<Image> images = getImages(guid);
@@ -1008,7 +1013,10 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 	/**
 	 * @see org.ala.dao.TaxonConceptDao#setRankingOnImages(java.lang.String,
 	 *      java.util.Map)
+	 * 
+	 * @deprecated New reload loads each rank individually
 	 */
+	@Deprecated
 	public boolean setRankingOnImages(String guid,
 			Map<String, Integer[]> rankings) throws Exception {
 		// get the list of available images for the guid

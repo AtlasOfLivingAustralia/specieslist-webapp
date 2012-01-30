@@ -39,7 +39,7 @@ public interface Scanner {
 	 * @return
 	 * @throws Exception
 	 */
-	//Map<String,String> getCurrentValues() throws Exception;
+	Map<String,String> getCurrentValues() throws Exception;
 	
 	/**
 	 * Retrieves the current value for the specified column.  Will return null if 

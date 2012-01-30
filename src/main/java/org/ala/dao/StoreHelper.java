@@ -208,7 +208,8 @@ public interface StoreHelper {
      * @return
      * @throws Exception
      */
-	Scanner getScanner(String table, String columnFamily) throws Exception;
+	//removed because the other method signature should handle this case...
+//	Scanner getScanner(String table, String columnFamily) throws Exception;
 
     /**
      * Get the

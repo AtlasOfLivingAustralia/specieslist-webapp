@@ -76,7 +76,7 @@ public class CassandraScanner implements Scanner {
 	 * @param column
 	 * @throws Exception
 	 */
-	public CassandraScanner(Cassandra.Client clientConnection, String keySpace, String columnFamily, String column) throws Exception {
+//	public CassandraScanner(Cassandra.Client clientConnection, String keySpace, String columnFamily, String column) throws Exception {
 		
 //		this.clientConnection = clientConnection;
 //		this.keySpace = keySpace;
@@ -98,13 +98,13 @@ public class CassandraScanner implements Scanner {
 //		
 //		//get the first page of data preloaded
 //		this.keySlices = clientConnection.get_range_slice(keySpace, columnParent, slicePredicate, "", "", pageSize, ConsistencyLevel.ONE);
-	}
+//	}
 	
 	public CassandraScanner(String pool, String keySpace, String columnFamily,String startKey, String... column) throws Exception {
 	    this.pool = pool;
 	    this.keySpace = keySpace;
 	    this.selector = Pelops.createSelector(pool);
-	    this.slicePredicate = Selector.newColumnsPredicate(column);
+	    this.slicePredicate = (column != null && column.length>0)?Selector.newColumnsPredicate(column):Selector.newColumnsPredicateAll(false);
 	    this.columnFamily = columnFamily;
 	    if(startKey == null)
 	        startKey ="";
@@ -135,6 +135,10 @@ public class CassandraScanner implements Scanner {
           String value = new String(column.getValue(),"UTF-8");
           currentValues.put(name, value);
       }
+	}
+	
+	public Map<String,String> getCurrentValues() throws Exception {
+	    return currentValues;
 	}
 	
 	public Comparable getValue(String column, Class theClass)throws Exception {
@@ -262,25 +266,20 @@ public class CassandraScanner implements Scanner {
 		this.pageSize = pageSize;
 	}
 	
-	public CassandraScanner(Cassandra.Client clientConnection, String keySpace, String columnFamily) throws Exception {
-		
-//		this.clientConnection = clientConnection;
-//		this.keySpace = keySpace;
-//		this.columnParent = new ColumnParent(columnFamily);
-//		this.slicePredicate = new SlicePredicate();
-//
-//		KeyRange keyRange = new KeyRange(pageSize);
-//		keyRange.setStart_key("");
-//		keyRange.setEnd_key("");
-//		
-//		SliceRange sliceRange = new SliceRange();
-//		sliceRange.setStart(new byte[0]);
-//		sliceRange.setFinish(new byte[0]);
-//		
-//		slicePredicate.setSlice_range(sliceRange);
-//				
-//		//get the first page of data preloaded
-//		this.keySlices = clientConnection.get_range_slices(keySpace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
-	}
+//	public CassandraScanner(String pool, String keySpace, String columnFamily,String startKey) throws Exception {
+//        this.pool = pool;
+//        this.keySpace = keySpace;
+//        this.selector = Pelops.createSelector(pool);
+//        this.slicePredicate = Selector.newColumnsPredicateAll(false);
+//        this.columnFamily = columnFamily;
+//        if(startKey == null)
+//            startKey ="";
+//        KeyRange keyRange = Selector.newKeyRange(startKey, "", pageSize+1);
+//        rowMap =selector.getColumnsFromRows(columnFamily, keyRange, slicePredicate, ConsistencyLevel.ONE);
+//        rowList = new ArrayList<Bytes>(rowMap.keySet());//rowMap.keySet();
+//        mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//    }
+	
+
 	
 }
