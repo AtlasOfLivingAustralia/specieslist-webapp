@@ -163,6 +163,10 @@ public class SearchController {
             formattedQuery.append("\\:");
             formattedQuery.append(ClientUtils.escapeQueryChars(bits[1]));
             searchResults = searchDao.doFullTextSearch(formattedQuery.toString(), filterQuery, startIndex, pageSize, sortField, sortDirection);
+            
+    		searchResults.setResults(removedDuplicateCommonName(searchResults.getResults()));    		
+            repoUrlUtils.fixRepoUrls(searchResults);
+
             model.addAttribute("searchResults", searchResults);
             model.addAttribute("totalRecords", searchResults.getTotalRecords());
             model.addAttribute("lastPage", calculateLastPage(searchResults.getTotalRecords(), pageSize));
