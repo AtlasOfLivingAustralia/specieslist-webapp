@@ -97,7 +97,7 @@ public class ALANamesLoader {
         if (args.length == 0 || "-sci".equals(args[0])) {
 
             logger.info("Loading concepts....");
-            l.loadConcepts();
+          //  l.loadConcepts();
 
             logger.info("Loading synonyms....");
             l.loadSynonyms();
@@ -117,7 +117,7 @@ public class ALANamesLoader {
 
         long finish = System.currentTimeMillis();
 
-        logger.info("Finished loading checklistbank data. Time taken: "
+        logger.info("Finished loading ala names. Time taken: "
                 + ((finish - start) / 60000) + " minutes");
 
         System.exit(0);
@@ -174,7 +174,7 @@ public class ALANamesLoader {
         
         //names files to index
         //TabReader tr = new TabReader("/data/bie-staging/checklistbank/cb_name_usages.txt", true);
-        CSVReader tr = new CSVReader(new FileReader("/data/bie-staging/ala-names/ala_concepts_dump.txt"), '\t', '"', '\\');
+        CSVReader tr = new CSVReader(new FileReader("/data/names/Version2011/ala_concepts_dump.txt"), '\t', '"', '\\');
 //      CSVReader tr = new CSVReader(new FileReader("/data/bie-staging/checklistbank/cb_name_usages.txt"), '\t', '"', '\\');
         String[] cols = tr.readNext(); //first line contains headers - ignore
         int numberRead = 0;
@@ -188,7 +188,9 @@ public class ALANamesLoader {
                 String guid = cols[2]; //TaxonID
                 String nameLsid = cols[5];
                 String nameString =  cols[6];
-                String author =  cols[11];
+                
+                String scientificNameAuthorship = StringUtils.trimToNull(cols[10]);
+                String authorYear = StringUtils.trimToNull(cols[11]);
                 Integer rankID = null;
                 if(StringUtils.isNotEmpty(cols[12])) rankID = NumberUtils.createInteger(cols[12]);
                 String rankString =  cols[13];
@@ -212,7 +214,8 @@ public class ALANamesLoader {
                     tc.setParentId(parentNameUsageID);
                     tc.setNameString(nameString);
                     tc.setNameGuid(nameLsid);
-                    tc.setAuthor(author);
+                    tc.setAuthor(scientificNameAuthorship);
+                    tc.setAuthorYear(authorYear);
                     tc.setRankString(rankString);
                     tc.setRankID(rankID);
                     tc.setType(synonymType);

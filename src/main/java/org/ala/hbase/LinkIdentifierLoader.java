@@ -19,6 +19,7 @@ import org.ala.dao.Scanner;
 import org.ala.dao.StoreHelper;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.dto.ExtendedTaxonConceptDTO;
+import org.ala.model.TaxonConcept;
 import org.ala.util.SpringUtils;
 import org.apache.log4j.Logger;
 import javax.inject.Inject;
@@ -80,15 +81,17 @@ public class LinkIdentifierLoader {
 		int ctr = 0;
 		int pctr = 0;
 //		storeHelper.init();
-		Scanner scanner = storeHelper.getScanner("bie", "tc", "taxonConcept");
+		Scanner scanner = storeHelper.getScanner("tc", "tc", "","taxonConcept");
 		byte[] guidAsBytes = null;
 
 		while ((guidAsBytes = scanner.getNextGuid()) != null) {
 			String guid = new String(guidAsBytes);
-			ExtendedTaxonConceptDTO taxonConcept = taxonConceptDao.getExtendedTaxonConceptByGuid(guid, false);
-			if(taxonConcept != null && taxonConcept.getTaxonConcept() != null){
-				String name = taxonConcept.getTaxonConcept().getNameString();
-				
+			TaxonConcept taxonConcept = (TaxonConcept)scanner.getValue("taxonConcept", TaxonConcept.class);
+			//ExtendedTaxonConceptDTO taxonConcept = taxonConceptDao.getExtendedTaxonConceptByGuid(guid, false);
+			if(taxonConcept != null ){
+				String name = taxonConcept.getNameString();
+				//Looking up the name again to determine whether or not it is a homonym
+				// We only want to add the scientific name as a link identifier if it is not a homonym
 				try {
 					String lsid = indexSearch.searchForLSID(name);
 					if(lsid == null){
@@ -102,7 +105,7 @@ public class LinkIdentifierLoader {
 				}
 				
 				ctr++;
-				if(pctr++ > 1000){
+				if(ctr%1000==0){
 					System.out.println("****** guid = " + guid + ", sciName = " + name + ", current count = " + ctr);
 					pctr = 0;
 				}		
