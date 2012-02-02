@@ -35,12 +35,8 @@ public class FooterMenuTag extends TagSupport {
 
     private static final long serialVersionUID = -6406031197753714478L;
     protected static Logger logger = Logger.getLogger(FooterMenuTag.class);
-    private static final String GOOGLE_ANALYTICS_KEY = "UA-4355440-1";
     protected String defaultCentralServer = "http://www.ala.org.au";
     private String returnUrlPath = "";
-    protected final String FOOTER_HTML_URL = "http://www2.ala.org.au/datasets/footer.xml";
-    protected String returnPathNullTag = "::returnPathNull::";
-    protected String centralServerTag = "::centralServer::";
 
     /**
      * @see javax.servlet.jsp.tagext.TagSupport#doStartTag()

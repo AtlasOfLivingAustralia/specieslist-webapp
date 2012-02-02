@@ -10,6 +10,8 @@ import au.org.ala.util.WebUtils;
 public class HeaderAndTailUtil {
     protected static final String BANNER_HTML_URL = "http://www2.ala.org.au/datasets/banner.xml";
     protected static final String FOOTER_HTML_URL = "http://www2.ala.org.au/datasets/footer.xml";
+    protected static final String GOOGLE_ANALYTICS_KEY = "UA-4355440-1";
+
     protected static String returnPathNullTag = "::returnPathNull::";
     protected static String centralServerTag = "::centralServer::";
     protected static String casServerTag = "::casServerR::";
@@ -17,6 +19,7 @@ public class HeaderAndTailUtil {
     protected static String searchServerTag = "::searchServer::";
     protected static String searchPathTag = "::searchPath::";
     protected static String queryTag = "::query::";
+    protected static String googleAnalyticsKeyTag = "::googleAnalyticsKey::";
     
     protected static String defaultCasServer = "https://auth.ala.org.au";
     protected static String defaultCentralServer = "http://www.ala.org.au";
@@ -86,6 +89,8 @@ public class HeaderAndTailUtil {
             output = output.replaceAll(returnPathNullTag,
                     "<li id='menu-item-10433' class='menu-item menu-item-type-post_type menu-item-10433'><a href='"+centralServer+"/my-profile/'>My Profile</a></li>" +
                     "<li id='menu-item-1052' class='last menu-item menu-item-type-custom menu-item-1052'>" + loginLogoutAnchor + "</li>");
+
+            output = output.replaceAll(googleAnalyticsKeyTag, GOOGLE_ANALYTICS_KEY);
         }
         
         return output;

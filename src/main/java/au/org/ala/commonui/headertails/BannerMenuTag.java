@@ -24,7 +24,6 @@ import javax.servlet.jsp.tagext.TagSupport;
 import org.apache.log4j.Logger;
 
 import au.org.ala.cas.util.AuthenticationCookieUtils;
-import au.org.ala.util.WebUtils;
 
 /**
  * Simple tag that writes out the banner menu list for an ALA web application.
@@ -42,13 +41,6 @@ public class BannerMenuTag extends TagSupport {
     protected String defaultCentralServer = "http://www.ala.org.au";
     protected String defaultSearchServer = "http://bie.ala.org.au";
     protected String searchPath = "/search";
-    protected final String BANNER_HTML_URL = "http://www2.ala.org.au/datasets/banner.xml";
-    protected String centralServerTag = "::centralServer::";
-    protected String casServerTag = "::casServerR::";
-    protected String loginLogoutListItemTag = "::loginLogoutListItem::";
-    protected String searchServerTag = "::searchServer::";
-    protected String searchPathTag = "::searchPath::";
-    protected String queryTag = "::query::";
     
     private boolean populateSearchBox = true;
     
@@ -103,14 +95,6 @@ public class BannerMenuTag extends TagSupport {
             }
 
             String html = HeaderAndTailUtil.getHeader(loggedIn, centralServer, casServer, searchServer, returnUrlPath, query);
-//                WebUtils.getUrlContentAsString(BANNER_HTML_URL);
-//            
-//            html = html.replaceAll(centralServerTag, centralServer);
-//            html = html.replaceAll(casServerTag, casServer);
-//            html = html.replaceAll(loginLogoutListItemTag, loginLogoutListItem);
-//            html = html.replaceAll(searchServerTag, searchServer);
-//            html = html.replaceAll(searchPathTag, searchPath);
-//            html = html.replaceAll(queryTag, query);
             
             pageContext.getOut().print(html);
         } catch (Exception e) {
