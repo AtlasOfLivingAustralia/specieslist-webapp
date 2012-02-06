@@ -2,13 +2,11 @@ package au.org.ala.commonui.headertails;
 
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 public class HeaderAndTailUtil {
-    protected static final String GOOGLE_ANALYTICS_KEY = "UA-4355440-1";
-
+    protected static String googleAnalyticsKey = "UA-4355440-1";
     protected static String headerHtmlUrl = "http://www2.ala.org.au/datasets/banner.xml";
     protected static String footerHtmlUrl = "http://www2.ala.org.au/datasets/footer.xml";
 
@@ -44,7 +42,10 @@ public class HeaderAndTailUtil {
             if (prop.getProperty("include.footerUrl") != null) {
                 footerHtmlUrl = prop.getProperty("include.footerUrl");
             }
-            //in.close();
+            if (prop.getProperty("googleAnalyticsKey") != null) {
+                googleAnalyticsKey = prop.getProperty("googleAnalyticsKey");
+            }
+            in.close();
         } catch (Exception e) {
             logger.debug("Error loading properties file: " + e, e);
         }
@@ -115,7 +116,7 @@ public class HeaderAndTailUtil {
                     "<li id='menu-item-10433' class='menu-item menu-item-type-post_type menu-item-10433'><a href='"+centralServer+"/my-profile/'>My Profile</a></li>" +
                     "<li id='menu-item-1052' class='last menu-item menu-item-type-custom menu-item-1052'>" + loginLogoutAnchor + "</li>");
 
-            output = output.replaceAll(googleAnalyticsKeyTag, GOOGLE_ANALYTICS_KEY);
+            output = output.replaceAll(googleAnalyticsKeyTag, googleAnalyticsKey);
         }
         
         return output;
