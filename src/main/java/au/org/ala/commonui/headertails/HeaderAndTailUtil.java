@@ -8,7 +8,7 @@ import java.util.Properties;
 /**
  * Util class to hold common code for both the banner/header and footer tag classes
  *
- * @author "Nick dos Remedios" <nick.dosremedios@csiro.au"
+ * @author Nick dos Remedios (nick.dosremedios@csiro.au)
  */
 public class HeaderAndTailUtil {
     // these fields can be overrided by a properties file (see below)
