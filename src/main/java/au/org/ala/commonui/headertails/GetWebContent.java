@@ -22,17 +22,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Implementation of GetWebContent (as singleton - can't wire up via DI/Spring due to Taglib)
+ * Utility class to retrieve web content via a URL and to cache results
+ * (as singleton - can't wire up via DI/Spring due to Taglib)
  *
- * User: dos009
- * Date: 2/02/12
- * Time: 5:08 PM
+ * @author Nick dos Remedios (nick.dosremedios@csiro.au)
  */
 public class GetWebContent {
     protected static Logger logger = Logger.getLogger(GetWebContent.class);
     protected Map<String, String> contentMap = new HashMap<String, String>();
-    protected Long cacheTimeoutInMilliseconds = 4 * 60 * 60 * 1000L; //  4 hours
     protected Map<String, Long> lastChecked = new HashMap<String, Long>();
+    protected Long cacheTimeoutInMilliseconds = 4 * 60 * 60 * 1000L; //  4 hours
 
     /**
      * Private constructor
@@ -61,7 +60,7 @@ public class GetWebContent {
     }
 
     /**
-     * Get the string content for the requested URL
+     * Get the content for the requested URL, lookup cache first
      *
      * @param url
      * @return
@@ -70,7 +69,7 @@ public class GetWebContent {
     protected String getContent(String url) throws Exception {
 
         if (url == null) {
-            return null; // otherwise will cause NPE in map lookup
+            return null; // otherwise will cause NPE in Map lookup
         }
 
         String content = contentMap.get(url);  // null if key not set
@@ -86,7 +85,7 @@ public class GetWebContent {
     }
 
     /**
-     * Return the (single) instance of this class
+     * Return the (singleton) instance of this class
      *
      * @return
      */

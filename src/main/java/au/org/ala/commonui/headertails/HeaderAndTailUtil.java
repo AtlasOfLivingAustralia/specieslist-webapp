@@ -1,12 +1,16 @@
 package au.org.ala.commonui.headertails;
 
-import au.org.ala.util.WebUtils;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 public class HeaderAndTailUtil {
-    protected static final String BANNER_HTML_URL = "http://www2.ala.org.au/datasets/banner.xml";
-    protected static final String FOOTER_HTML_URL = "http://www2.ala.org.au/datasets/footer.xml";
     protected static final String GOOGLE_ANALYTICS_KEY = "UA-4355440-1";
+
+    protected static String headerHtmlUrl = "http://www2.ala.org.au/datasets/banner.xml";
+    protected static String footerHtmlUrl = "http://www2.ala.org.au/datasets/footer.xml";
 
     protected static String returnPathNullTag = "::returnPathNull::";
     protected static String centralServerTag = "::centralServer::";
@@ -24,6 +28,27 @@ public class HeaderAndTailUtil {
     protected static String defaultQuery = "Search the Atlas";
 
     private final static Logger logger = Logger.getLogger(HeaderAndTailUtil.class);
+
+    /**
+     * Look for field overrides in properties file
+     */
+    static {
+        Properties prop = new Properties();
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("headerTails.properties");
+
+        try {
+            prop.load(in);
+            if (prop.getProperty("include.headerUrl") != null) {
+                headerHtmlUrl = prop.getProperty("include.headerUrl");
+            }
+            if (prop.getProperty("include.footerUrl") != null) {
+                footerHtmlUrl = prop.getProperty("include.footerUrl");
+            }
+            //in.close();
+        } catch (Exception e) {
+            logger.debug("Error loading properties file: " + e, e);
+        }
+    }
     
     public static String getHeader(boolean loggedIn, String returnUrlPath) throws Exception {
         String output = null;
@@ -43,8 +68,8 @@ public class HeaderAndTailUtil {
             loginLogoutListItem = "<li class='nav-login nav-right'><a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a></li>";
         }
         
-        //output = WebUtils.getUrlContentAsString(BANNER_HTML_URL);
-        output = GetWebContent.getInstance().getContent(BANNER_HTML_URL);
+        //output = WebUtils.getUrlContentAsString(headerHtmlUrl);
+        output = GetWebContent.getInstance().getContent(headerHtmlUrl);
         
         output = output.replaceAll(centralServerTag, centralServer);
         output = output.replaceAll(casServerTag, casServer);
@@ -68,8 +93,8 @@ public class HeaderAndTailUtil {
     public static String getFooter(boolean loggedIn, String centralServer, String casServer, String returnUrlPath) throws Exception {
         String output = null;
 
-        //output = WebUtils.getUrlContentAsString(FOOTER_HTML_URL);
-        output = GetWebContent.getInstance().getContent(FOOTER_HTML_URL);
+        //output = WebUtils.getUrlContentAsString(footerHtmlUrl);
+        output = GetWebContent.getInstance().getContent(footerHtmlUrl);
         
         output = output.replaceAll(centralServerTag, centralServer);
 
