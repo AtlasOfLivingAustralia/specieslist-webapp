@@ -20,16 +20,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.TagSupport;
-
 import org.apache.log4j.Logger;
 
 import au.org.ala.cas.util.AuthenticationCookieUtils;
-import au.org.ala.util.WebUtils;
 
 /**
  * Simple tag that writes out the footer menu list for an ALA web application.
  * 
  * @author Tommy Wang (tommy.wang@csiro.au)
+ * @author Nick dos Remedios (nick.dosremedios@csiro.au)
  */
 public class FooterMenuTag extends TagSupport {
 
@@ -42,9 +41,14 @@ public class FooterMenuTag extends TagSupport {
      * @see javax.servlet.jsp.tagext.TagSupport#doStartTag()
      */
     public int doStartTag() throws JspException {
+        // Tags are handled by Servlet container so to use Spring we need to grab the application context
+//        // via the RequestContextAwareTag class (in place of TagSupport)
+//        RequestContext context = super.getRequestContext();
+//        WebApplicationContext webAppContext = context.getWebApplicationContext();
+//        HeaderAndTailUtil headerAndTailUtil = webAppContext.getBean("headerAndTailUtil", HeaderAndTailUtil.class);
 
         String centralServer = pageContext.getServletContext().getInitParameter("centralServer");
-        if(centralServer==null){
+        if (centralServer==null){
             centralServer = defaultCentralServer;
         }
 
@@ -62,17 +66,18 @@ public class FooterMenuTag extends TagSupport {
 
 
 
-        String html = null;
+        String html = "<div>Footer placeholder</div>";
         try {
             html = HeaderAndTailUtil.getFooter(loggedIn, centralServer, casServer, centralServer);
         } catch (Exception e1) {
             // TODO Auto-generated catch block
-            e1.printStackTrace();
+            //e1.printStackTrace();
+            logger.error("FooterMenuTag: " + e1.getMessage(), e1);
         }
 
         try {
             pageContext.getOut().print(html);
-            logger.info(html.toString());
+            logger.debug(html.toString());
         } catch (Exception e) {
             logger.error("FooterMenuTag: " + e.getMessage(), e);
             throw new JspTagException("FooterMenuTag: " + e.getMessage());

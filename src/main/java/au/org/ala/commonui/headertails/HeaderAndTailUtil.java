@@ -1,11 +1,7 @@
 package au.org.ala.commonui.headertails;
 
-import java.security.Principal;
-
-import javax.servlet.http.HttpServletRequest;
-
-import au.org.ala.cas.util.AuthenticationCookieUtils;
 import au.org.ala.util.WebUtils;
+import org.apache.log4j.Logger;
 
 public class HeaderAndTailUtil {
     protected static final String BANNER_HTML_URL = "http://www2.ala.org.au/datasets/banner.xml";
@@ -26,6 +22,8 @@ public class HeaderAndTailUtil {
     protected static String defaultSearchServer = "http://bie.ala.org.au";
     protected static String searchPath = "/search";
     protected static String defaultQuery = "Search the Atlas";
+
+    private final static Logger logger = Logger.getLogger(HeaderAndTailUtil.class);
     
     public static String getHeader(boolean loggedIn, String returnUrlPath) throws Exception {
         String output = null;
@@ -45,7 +43,8 @@ public class HeaderAndTailUtil {
             loginLogoutListItem = "<li class='nav-login nav-right'><a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a></li>";
         }
         
-        output = WebUtils.getUrlContentAsString(BANNER_HTML_URL);
+        //output = WebUtils.getUrlContentAsString(BANNER_HTML_URL);
+        output = GetWebContent.getInstance().getContent(BANNER_HTML_URL);
         
         output = output.replaceAll(centralServerTag, centralServer);
         output = output.replaceAll(casServerTag, casServer);
@@ -68,8 +67,9 @@ public class HeaderAndTailUtil {
     
     public static String getFooter(boolean loggedIn, String centralServer, String casServer, String returnUrlPath) throws Exception {
         String output = null;
-        
-        output = WebUtils.getUrlContentAsString(FOOTER_HTML_URL);
+
+        //output = WebUtils.getUrlContentAsString(FOOTER_HTML_URL);
+        output = GetWebContent.getInstance().getContent(FOOTER_HTML_URL);
         
         output = output.replaceAll(centralServerTag, centralServer);
 

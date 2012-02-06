@@ -70,7 +70,7 @@ public class WebUtils {
 			HtmlElement idMetaTagElement = currentPage.createElement("meta");
 			idMetaTagElement.setAttribute("name", "ALA.Guid");
 			idMetaTagElement.setAttribute("scheme", "URL");
-			idMetaTagElement.setAttribute("content", url);
+			idMetaTagElement.setAttribute("contentMap", url);
 
 			// this.currentPage.appendChild(idMetaTagElement);
 			HtmlElement rootElement = currentPage.getDocumentElement();
@@ -87,7 +87,7 @@ public class WebUtils {
 	}
 
 	/**
-	 * Retrieve content as InputStream.
+	 * Retrieve contentMap as InputStream.
 	 * 
 	 * @param url
 	 * @return
@@ -102,7 +102,7 @@ public class WebUtils {
 
 
 	/**
-	 * Retrieve content as String.
+	 * Retrieve contentMap as String.
 	 * 
 	 * @param url
 	 * @return
@@ -115,7 +115,7 @@ public class WebUtils {
 		httpClient.executeMethod(gm);
 		// String requestCharset = gm.getRequestCharSet();
 		String content = gm.getResponseBodyAsString();
-		// content = new String(content.getBytes(requestCharset), "UTF-8");
+		// contentMap = new String(contentMap.getBytes(requestCharset), "UTF-8");
 		return content;
 	}
 }
