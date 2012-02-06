@@ -471,7 +471,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                         <div class="meta"> 
                             <h3>Rank</h3><p style="text-transform: capitalize;">${extendedTaxonConcept.taxonConcept.rankString}</p>
                             <c:if test="${not empty extendedTaxonConcept.taxonConcept.infoSourceName && not empty extendedTaxonConcept.taxonConcept.infoSourceURL}">
-                            <h3>Name source</h3><p><a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="_blank" class="external">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></p>
+                            <h3>Name source</h3><p><a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" onclick="window.open(this.href); return false;" class="external">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></p>
                             </c:if>
                             <h3>Data links</h3><p><a href="#lsidText" id="lsid" class="local" title="Life Science Identifier (pop-up)">LSID</a>
                                 | <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}.json" class="local" title="JSON web service">JSON</a>
@@ -479,8 +479,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                             </p>
                             <div style="display:none; text-align: left;">
                                 <div id="lsidText" style="text-align: left;">
-                                    <b><a href="http://lsids.sourceforge.net/" target="_blank">Life Science Identifier (LSID):</a></b>
-                                    <p style="margin: 10px 0;"><a href="http://lsid.tdwg.org/summary/${extendedTaxonConcept.taxonConcept.guid}" target="_blank">${extendedTaxonConcept.taxonConcept.guid}</a></p>
+                                    <b><a href="http://lsids.sourceforge.net/" onclick="window.open(this.href); return false;">Life Science Identifier (LSID):</a></b>
+                                    <p style="margin: 10px 0;"><a href="http://lsid.tdwg.org/summary/${extendedTaxonConcept.taxonConcept.guid}" onclick="window.open(this.href); return false;">${extendedTaxonConcept.taxonConcept.guid}</a></p>
                                     <p style="font-size: 12px;">LSIDs are persistent, location-independent,resource identifiers for uniquely naming biologically
                                         significant resources including species names, concepts, occurrences, genes or proteins,
                                         or data objects that encode information about them. To put it simply,
@@ -544,7 +544,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     <c:set var="descriptionBlock">
                         <c:forEach var="textProperty" items="${textProperties}" varStatus="status">
                             <c:if test="${fn:endsWith(textProperty.name, 'hasDescriptiveText') && status.count < 3 && textProperty.infoSourceId!=1051}">
-                                <p>${textProperty.value} <cite>source: <a href="${textProperty.identifier}" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></cite></p>
+                                <p>${textProperty.value} <cite>source: <a href="${textProperty.identifier}" onclick="window.open(this.href); return false;" title="${textProperty.title}">${textProperty.infoSourceName}</a></cite></p>
                             </c:if>
                         </c:forEach>
                     </c:set>
@@ -557,7 +557,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                         <ul>
                             <c:forEach var="idKey" items="${extendedTaxonConcept.identificationKeys}">
                                 <li>
-                                    <a href="${idKey.url}" target="_blank">${idKey.title}</a>
+                                    <a href="${idKey.url}" onclick="window.open(this.href); return false;">${idKey.title}</a>
                                     <c:if test="${not empty idKey.infoSourceURL}">(source: ${idKey.infoSourceName})</c:if>
                                 </li>
                             </c:forEach>
@@ -575,8 +575,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                     <td style="white-space: nowrap;">
                                         <c:choose>
                                         	<c:when test="${not empty infoSource.infoSourceURL && infoSource.infoSourceURL == 'http://www.ala.org.au'}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${infoSource.infoSourceName}</c:when>
-                                            <c:when test="${not empty infoSource.identifier}"><a href="${infoSource.identifier}" target="_blank" class="infosource">${infoSource.infoSourceName}</a></c:when>
-                                            <c:when test="${not empty infoSource.infoSourceURL}"><a href="${infoSource.infoSourceURL}" target="_blank" class="infosource">${infoSource.infoSourceName}</a></c:when>
+                                            <c:when test="${not empty infoSource.identifier}"><a href="${infoSource.identifier}" onclick="window.open(this.href); return false;" class="infosource">${infoSource.infoSourceName}</a></c:when>
+                                            <c:when test="${not empty infoSource.infoSourceURL}"><a href="${infoSource.infoSourceURL}" onclick="window.open(this.href); return false;" class="infosource">${infoSource.infoSourceName}</a></c:when>
                                             <c:otherwise>${infoSource.infoSourceName}</c:otherwise>
                                         </c:choose><!--${status.count}-->
                                     </td>
@@ -589,7 +589,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                 <c:if test="${fn:length(infoSource.text) > 100}">
                                     <tr>
                                         <td colspan="2"><p><span class="truncate">${infoSource.text}</span>
-                                        <c:if test="${not empty infoSource.identifier && fn:length(infoSource.text) > 100}"><a href="${infoSource.identifier}" target="_blank">more</a></p></td></c:if>
+                                        <c:if test="${not empty infoSource.identifier && fn:length(infoSource.text) > 100}"><a href="${infoSource.identifier}" onclick="window.open(this.href); return false;">more</a></p></td></c:if>
                                     </tr>
                                 </c:if>
                                 </c:if>
@@ -597,7 +597,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                 <tr class="border-top">
                                     <td style="white-space: nowrap;">
                                         <c:choose>
-                                            <c:when test="${not empty infoSource.infoSourceURL}"><a href="${infoSource.infoSourceURL}" target="_blank" class="infosource">${infoSource.infoSourceName}</a></c:when>
+                                            <c:when test="${not empty infoSource.infoSourceURL}"><a href="${infoSource.infoSourceURL}" onclick="window.open(this.href); return false;" class="infosource">${infoSource.infoSourceName}</a></c:when>
                                             <c:otherwise>${infoSource.infoSourceName}</c:otherwise>
                                         </c:choose><!--${status.count}-->
                                     </td>
@@ -610,7 +610,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                 <c:if test="${fn:length(infoSource.text) > 100}">
                                     <tr>
                                         <td colspan="2"><p><span class="truncate">${infoSource.text}</span>
-                                        <c:if test="${not empty infoSource.identifier && fn:length(infoSource.text) > 100}"><a href="${infoSource.identifier}" target="_blank">more</a></p></td></c:if>
+                                        <c:if test="${not empty infoSource.identifier && fn:length(infoSource.text) > 100}"><a href="${infoSource.identifier}" onclick="window.open(this.href); return false;">more</a></p></td></c:if>
                                     </tr>
                                 </c:if>
                                 </c:if>
@@ -669,7 +669,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                         <c:otherwise>IUCN</c:otherwise>
                                     </c:choose>
                                 </c:set>
-                                <div><a href="${threatenedSpeciesCodes}#${statusRegionMap[regionCode]}" title="Threatened Species Codes - details" target="_blank">
+                                <div><a href="${threatenedSpeciesCodes}#${statusRegionMap[regionCode]}" title="Threatened Species Codes - details" onclick="window.open(this.href); return false;">
                                     <c:choose>
                                         <c:when test="${fn:endsWith(status.status,'Extinct')}"><span class="iucn red"><fmt:message key="region.${regionCode}"/><!--EX--></span></c:when>
                                         <c:when test="${fn:containsIgnoreCase(status.status,'wild')}"><span class="iucn red"><fmt:message key="region.${regionCode}"/><!--EW--></span></c:when>
@@ -825,17 +825,17 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                             <cite>Source: ${image.infoSourceName}</cite>
                                          </c:when>
                                          <c:when test="${image.infoSourceURL == 'http://www.elfram.com/'}">
-                                            <cite>Source: <a href="${image.infoSourceURL}" target="_blank">${image.infoSourceName}</a></cite>
+                                            <cite>Source: <a href="${image.infoSourceURL}" onclick="window.open(this.href); return false;">${image.infoSourceName}</a></cite>
                                          </c:when>                                         
                                          <c:otherwise>
                                          <c:choose>
                                          <c:when test="${not empty image.occurrenceUid}">
                                             <cite>
-                                            	Source: <a href="${image.infoSourceURL}" target="_blank">${image.infoSourceName}</a>
+                                            	Source: <a href="${image.infoSourceURL}" onclick="window.open(this.href); return false;">${image.infoSourceName}</a>
                                             </cite>
                                          </c:when>                                         
                                          <c:otherwise>
-                                         	<cite>Source: <a href="${imageUri}" target="_blank">${image.infoSourceName}</a></cite>
+                                         	<cite>Source: <a href="${imageUri}" onclick="window.open(this.href); return false;">${image.infoSourceName}</a></cite>
                                          </c:otherwise>
                                          </c:choose>
                                          </c:otherwise>
@@ -843,7 +843,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                         
 										<c:if test="${not empty image.occurrenceUid}">
 										    <cite>
-                                            	Biocache Occurrence UID: <a href="http://biocache.ala.org.au/occurrences/${image.occurrenceUid}" target="_blank">${image.occurrenceUid}</a>
+                                            	Biocache Occurrence UID: <a href="http://biocache.ala.org.au/occurrences/${image.occurrenceUid}" onclick="window.open(this.href); return false;">${image.occurrenceUid}</a>
                                             </cite>										
 										</c:if>
                                         
@@ -928,7 +928,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                     <table>
                                     	<tr>
                                     		<td>	
-                                    			<a class="screenshotThumb" title="${screenshot.title}" href="${screenshotUri}" target="_blank"><img src="${thumbUri}" alt="${screenshot.infoSourceName}" title="${imageTitle}" width="120px" height="120px" style="width:120px;height:120px;padding-right:3px;"/></a>
+                                    			<a class="screenshotThumb" title="${screenshot.title}" href="${screenshotUri}" onclick="window.open(this.href); return false;"><img src="${thumbUri}" alt="${screenshot.infoSourceName}" title="${imageTitle}" width="120px" height="120px" style="width:120px;height:120px;padding-right:3px;"/></a>
                                     		</td>
                                     		<td>
                                       			<c:if test="${not empty screenshot.title}">
@@ -947,7 +947,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                             		Rights: ${screenshot.rights}<br/>
                                         		</c:if>
                                         
-                                            	Source: <a href="${screenshotUri}" target="_blank">${screenshot.infoSourceName}</a>
+                                            	Source: <a href="${screenshotUri}" onclick="window.open(this.href); return false;">${screenshot.infoSourceName}</a>
                                             </td>
                                        	</tr>
                                         
@@ -1309,9 +1309,9 @@ Read Only Mode
                         <div class="distroMap">
                             <h4>Map of Occurrence Records</h4>
                             <p>
-                                <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">
+                                <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" onclick="window.open(this.href); return false;">
                                     <img src="${spatialPortalMap.mapUrl}" class="distroImg" alt="" width="300" style="margin-bottom:-30px;"/></a><br/>
-                                <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" target="_blank">Interactive version of this map</a>
+                                <a href="${spatialPortalUrl}?species_lsid=${extendedTaxonConcept.taxonConcept.guid}" title="view in mapping tool" onclick="window.open(this.href); return false;">Interactive version of this map</a>
                             </p>
                         </div>
                     </c:if>
@@ -1323,7 +1323,7 @@ Read Only Mode
                                     <%--
                                     <li><a href="${specimenHolding.url}" target="_blank">${specimenHolding.institutionName}&nbsp;:&nbsp;${specimenHolding.siteName}</a> (specimens:&nbsp;${specimenHolding.count})</li>
                                      --%>
-                                    <li><a href="${specimenHolding.url}" target="_blank">
+                                    <li><a href="${specimenHolding.url}" onclick="window.open(this.href); return false;">
                                     	<c:if test="${not empty specimenHolding.siteName}">
                                     		${specimenHolding.institutionName} &nbsp;:&nbsp;${specimenHolding.siteName}
                                     	</c:if>
@@ -1406,7 +1406,7 @@ Read Only Mode
                                         <td>${extendedTaxonConcept.earliestReference.volume}</td>
                                         <td>${extendedTaxonConcept.earliestReference.authorship}</td>
                                         <td>${extendedTaxonConcept.earliestReference.year}</td>
-                                        <td><a href="http://bhl.ala.org.au/page/${extendedTaxonConcept.earliestReference.pageIdentifiers[0]}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
+                                        <td><a href="http://bhl.ala.org.au/page/${extendedTaxonConcept.earliestReference.pageIdentifiers[0]}" title="view original publication" onclick="window.open(this.href); return false;">Biodiversity Heritage Library</a></td>
                                     </tr>
                                 </c:if>
                                 <c:forEach items="${extendedTaxonConcept.references}" var="reference">
@@ -1424,7 +1424,7 @@ Read Only Mode
                                         <td>
                                             <span class="year">${reference.year}</span>
                                         </td>
-                                        <td><a href="http://bhl.ala.org.au/page/${reference.pageIdentifiers[0]}" title="view original publication" target="_blank">Biodiversity Heritage Library</a></td>
+                                        <td><a href="http://bhl.ala.org.au/page/${reference.pageIdentifiers[0]}" title="view original publication" onclick="window.open(this.href); return false;">Biodiversity Heritage Library</a></td>
                                     </tr>
                                 </c:forEach>
                             </table>
