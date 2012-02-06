@@ -5,11 +5,17 @@ import org.apache.log4j.Logger;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Util class to hold common code for both the banner/header and footer tag classes
+ *
+ * @author "Nick dos Remedios" <nick.dosremedios@csiro.au"
+ */
 public class HeaderAndTailUtil {
+    // these fields can be overrided by a properties file (see below)
     protected static String googleAnalyticsKey = "UA-4355440-1";
     protected static String headerHtmlUrl = "http://www2.ala.org.au/datasets/banner.xml";
     protected static String footerHtmlUrl = "http://www2.ala.org.au/datasets/footer.xml";
-
+    // template-style substitution variables
     protected static String returnPathNullTag = "::returnPathNull::";
     protected static String centralServerTag = "::centralServer::";
     protected static String casServerTag = "::casServerR::";
@@ -18,13 +24,13 @@ public class HeaderAndTailUtil {
     protected static String searchPathTag = "::searchPath::";
     protected static String queryTag = "::query::";
     protected static String googleAnalyticsKeyTag = "::googleAnalyticsKey::";
-    
+    // replacement variables
     protected static String defaultCasServer = "https://auth.ala.org.au";
     protected static String defaultCentralServer = "http://www.ala.org.au";
     protected static String defaultSearchServer = "http://bie.ala.org.au";
     protected static String searchPath = "/search";
     protected static String defaultQuery = "Search the Atlas";
-
+    // logging
     private final static Logger logger = Logger.getLogger(HeaderAndTailUtil.class);
 
     /**
