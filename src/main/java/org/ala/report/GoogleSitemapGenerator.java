@@ -18,7 +18,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.ala.dao.CassandraPelopsHelper;
 import org.ala.dao.StoreHelper;
@@ -83,6 +85,8 @@ public class GoogleSitemapGenerator {
 	private boolean storeHelperFlag = false;
 
     protected StoreHelper storeHelper;
+    //tracking what sci name been add into sitemap that prevent duplicate url.
+    private Set<Integer> track = new HashSet<Integer>();
 
 	/**
 	 * Usage: outputFileName [option: cassandraAddress cassandraPort]
@@ -218,6 +222,10 @@ public class GoogleSitemapGenerator {
 		
 	private void writeURL(String name) throws IOException{
 		if(name != null && name.trim().length() > 0){
+			if(track.contains(name.trim().hashCode())){
+				return;
+			}
+			
 			if(urlCtr == 0){
 				writeFileHeader();
 			}
@@ -227,6 +235,7 @@ public class GoogleSitemapGenerator {
 			fw.write("<priority>0.5000</priority>\n");
 			fw.write("</url>\n");
 			
+			track.add(name.trim().hashCode());
 			urlCtr++;
 			if(urlCtr >= MAX_NUMBER_URL){
 				writeFileFooter();
