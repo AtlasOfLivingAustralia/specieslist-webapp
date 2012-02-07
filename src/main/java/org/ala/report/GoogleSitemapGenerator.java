@@ -259,7 +259,7 @@ public class GoogleSitemapGenerator {
 					SuperColumn scol = columns.getSuper_column();				
 					String[] names = getSciAndCmnName(scol, keySlice.getKey());
 					if(names != null && "true".equalsIgnoreCase(names[NamePos.IS_AUSTRALIAN.ordinal()])){
-						logger.debug("******** GUID: " + keySlice.getKey() + " urlCtr: " + urlCtr);
+						logger.debug("******** GUID: " + keySlice.getKey() + ", SCIENTIFIC_NAME: " + names[NamePos.SCIENTIFIC_NAME.ordinal()] + " urlCtr: " + urlCtr);
 						//ignore last column[isAustralian]
 						for(int i = 0; i < names.length - 1; i++){
 							try {							
