@@ -228,6 +228,7 @@ public class GoogleSitemapGenerator {
 			
 			if(urlCtr == 0){
 				writeFileHeader();
+				track.clear();
 			}
 			fw.write("<url>\n");
 			fw.write("<loc>http://bie.ala.org.au/species/" + java.net.URLEncoder.encode(name.trim(), "UTF-8") + "</loc>\n");
