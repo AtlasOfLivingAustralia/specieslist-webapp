@@ -194,7 +194,7 @@ public class GoogleSitemapGenerator {
 			// in the next iteration.
 			// when lastKey == startKey is finish.
 			List<KeySlice> keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);		
-			generateURL(keySlices);
+			generateURL(keySlices, false);
 			while (keySlices.size() > 0){
 				lastKey = keySlices.get(keySlices.size()-1);
 				//end of scan ?
@@ -206,7 +206,7 @@ public class GoogleSitemapGenerator {
 				startKey = lastKey;
 				keyRange.setStart_key(lastKey.getKey());			
 				keySlices = client.get_range_slices(keyspace, columnParent, slicePredicate, keyRange, ConsistencyLevel.ONE);
-				generateURL(keySlices);
+				generateURL(keySlices, true);
 				System.gc();
 			}
 		}
@@ -252,8 +252,14 @@ public class GoogleSitemapGenerator {
 		fw.close();	
 	}
 	
-	private void generateURL(List<KeySlice> keySlices){				
-		for (KeySlice keySlice : keySlices) {
+	private void generateURL(List<KeySlice> keySlices, boolean ignoreFist){	
+		// ignore duplicated first key?
+		int k = 0;
+		if(ignoreFist){
+			k = 1;
+		}
+		for(; k < keySlices.size(); k++){
+			KeySlice keySlice = keySlices.get(k);
 			for (ColumnOrSuperColumn columns : keySlice.getColumns()) {
 				if (columns.isSetSuper_column()) {
 					SuperColumn scol = columns.getSuper_column();				
