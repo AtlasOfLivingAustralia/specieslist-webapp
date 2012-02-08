@@ -14,7 +14,7 @@
  ***************************************************************************/
 package au.org.ala.commonui.headertails;
 
-import au.org.ala.util.WebUtils;
+import au.org.ala.communui.util.util.WebUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -77,6 +77,9 @@ public class GetWebContent {
         if (StringUtils.isBlank(content) || !isCacheCurrent(url)) {
             logger.debug("Updating cache for " + url + " at: " + System.currentTimeMillis());
             content = WebUtils.getUrlContentAsString(url); // grab new copy of content
+            if (content == null) {
+                content = "[ERROR: Menu content not found]"; // fall back if request fails
+            }
             contentMap.put(url, content); // update cache
             lastChecked.put(url,System.currentTimeMillis()); // update timestamp
         }
