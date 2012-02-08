@@ -27,6 +27,7 @@ import org.ala.dao.StoreHelper;
 import org.ala.model.Classification;
 import org.ala.model.CommonName;
 import org.ala.model.TaxonConcept;
+import org.ala.model.TaxonName;
 import org.apache.log4j.Logger;
 import java.util.ArrayList;
 
@@ -80,7 +81,7 @@ public class GoogleSitemapGenerator {
 	private String fileName = null;
 	public static final String APNI_TAXON = ":apni.taxon:";
 	public static final String ADF_TAXON = ":afd.taxon:";
-	enum NamePos {SCIENTIFIC_NAME, COMMON_NAME, KINGDOM, IS_AUSTRALIAN}
+	enum NamePos {SCIENTIFIC_NAME, COMMON_NAME, KINGDOM, IS_AUSTRALIAN, NAME_COMPLETE}
 	
 	private boolean storeHelperFlag = false;
 
@@ -123,6 +124,7 @@ public class GoogleSitemapGenerator {
 			googleSitemapGenerator.closeConnectionPool();
 			System.exit(0);	
 		}
+		System.exit(0);	
 	}
 
 	// instantiate from bie-webapp with predefined cassandra connection. 
@@ -277,7 +279,7 @@ public class GoogleSitemapGenerator {
 					if(names != null && "true".equalsIgnoreCase(names[NamePos.IS_AUSTRALIAN.ordinal()])){
 						logger.debug("******** GUID: " + keySlice.getKey() + ", SCIENTIFIC_NAME: " + names[NamePos.SCIENTIFIC_NAME.ordinal()] + " urlCtr: " + urlCtr);
 						//ignore last column[isAustralian]
-						for(int i = 0; i < names.length - 1; i++){
+						for(int i = 0; i < names.length - 2; i++){
 							try {							
 								if(names[i] != null && !names[i].isEmpty()){ 										
 									if(i == NamePos.KINGDOM.ordinal()){
@@ -309,7 +311,7 @@ public class GoogleSitemapGenerator {
 	private String[] getSciAndCmnName(SuperColumn scol, String guid){
 		String value = null;
 		String colName = null;		
-		String[] names = new String[]{"", "", "", ""};
+		String[] names = new String[]{"", "", "", "", ""};
 				
 		if(guid == null || (!guid.trim().contains(APNI_TAXON) && !guid.trim().contains(ADF_TAXON))){
 			return null;
@@ -322,8 +324,8 @@ public class GoogleSitemapGenerator {
 				colName = new String(col.getName(), CHARSET_ENCODING);
 				if("hasClassification".equalsIgnoreCase(colName)){
 					List<Classification> classifications = mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, Classification.class));
-					if(classifications != null && classifications.size() > 0){
-						names[NamePos.KINGDOM.ordinal()] = classifications.get(0).getKingdom();
+					if(classifications != null && classifications.size() > 0 && classifications.get(0).getKingdom() != null){
+						names[NamePos.KINGDOM.ordinal()] = classifications.get(0).getKingdom().trim();
 					}
 				}
 				else if("hasVernacularConcept".equalsIgnoreCase(colName)){
@@ -331,7 +333,7 @@ public class GoogleSitemapGenerator {
 					if(commonNames != null ){
 						for(int i = 0; i < commonNames.size(); i++){
 							if(commonNames.get(i).isPreferred()){
-								names[NamePos.COMMON_NAME.ordinal()] = commonNames.get(i).getNameString();
+								names[NamePos.COMMON_NAME.ordinal()] = commonNames.get(i).getNameString().trim();
 								break;
 							}
 						}
@@ -339,16 +341,26 @@ public class GoogleSitemapGenerator {
 				}
 				else if("taxonConcept".equalsIgnoreCase(colName)){
 					TaxonConcept taxonConcept = mapper.readValue(value, TaxonConcept.class);
-					names[NamePos.SCIENTIFIC_NAME.ordinal()] = taxonConcept.getNameString();
+					names[NamePos.SCIENTIFIC_NAME.ordinal()] = taxonConcept.getNameString().trim();
 				}
 				else if("IsAustralian".equalsIgnoreCase(colName)){
-					names[NamePos.IS_AUSTRALIAN.ordinal()] = value;
+					names[NamePos.IS_AUSTRALIAN.ordinal()] = value.trim();
+				}
+				else if("hasTaxonName".equalsIgnoreCase(colName)){
+					List<TaxonName> taxonNames= mapper.readValue(value, TypeFactory.collectionType(ArrayList.class, TaxonName.class));
+					if(taxonNames != null && taxonNames.size() > 0 && taxonNames.get(0).getNameComplete() != null){
+						names[NamePos.NAME_COMPLETE.ordinal()] = taxonNames.get(0).getNameComplete().trim();
+					}
 				}
 			} catch (Exception e) {
 				logger.error(e);
 			} 	
 		}	
 
+		// replace scientic name with name complete.
+		if(names[NamePos.NAME_COMPLETE.ordinal()] != null && !"".equals(names[NamePos.NAME_COMPLETE.ordinal()])){
+			names[NamePos.SCIENTIFIC_NAME.ordinal()] = names[NamePos.NAME_COMPLETE.ordinal()];
+		}
 		return names;
 	}
 		
