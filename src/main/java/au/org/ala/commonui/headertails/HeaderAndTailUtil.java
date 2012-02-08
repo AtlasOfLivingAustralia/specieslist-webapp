@@ -15,7 +15,7 @@ public class HeaderAndTailUtil {
     protected static String bannerHtmlUrl = "http://www2.ala.org.au/datasets/banner.html";
     protected static String menuHtmlUrl = "http://www2.ala.org.au/datasets/menu.html";
     protected static String footerHtmlUrl = "http://www2.ala.org.au/datasets/footer.html";
-    protected static String googleAnalyticsHtmlUrl = "http://www2.ala.org.au/datasets/googleAnayltics.html";
+    protected static String googleAnalyticsHtmlUrl = "http://www2.ala.org.au/datasets/analytics.html";
     // template-style substitution variables
     protected static String returnPathNullTag = "::returnPathNull::";
     protected static String centralServerTag = "::centralServer::";

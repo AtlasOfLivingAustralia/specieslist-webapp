@@ -31,7 +31,7 @@ public class GetWebContent {
     protected static Logger logger = Logger.getLogger(GetWebContent.class);
     protected Map<String, String> contentMap = new HashMap<String, String>();
     protected Map<String, Long> lastChecked = new HashMap<String, Long>();
-    protected Long cacheTimeoutInMilliseconds = 4 * 60 * 60 * 1000L; //  4 hours
+    protected Long cacheTimeoutInMilliseconds = 30 * 60 * 1000L; //  30 min
 
     /**
      * Private constructor
