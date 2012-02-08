@@ -68,7 +68,7 @@ public class FooterMenuTag extends TagSupport {
 
         String html = "<div>Footer placeholder</div>";
         try {
-            html = HeaderAndTailUtil.getFooter(loggedIn, centralServer, casServer, centralServer);
+            html = HeaderAndTailUtil.getFooter(centralServer);
         } catch (Exception e1) {
             // TODO Auto-generated catch block
             //e1.printStackTrace();

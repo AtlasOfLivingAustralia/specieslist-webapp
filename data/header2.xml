@@ -1,0 +1,23 @@
+    <header id="site-header">
+        <div class="inner">
+            <h1 title="Atlas of Living Australia"><a href="::centralServer::" title="Atlas of Living Australia home"><img src="::centralServer::/wp-content/themes/ala2011/images/logo.png" width="315" height="33" alt="" /></a></h1>
+            <section id="nav-search">
+                <section id="header-search">
+                    <form id="search-form-2011" action="::searchServer::::searchPath::" method="get" name="search-form"><label for="search">Search</label>
+                        <input id="search-2011" class="filled" title="Search" type="text" name="q" placeholder="Search the Atlas" />
+                        <span class="search-button-wrapper"><button id="search-button" class="search-button" value="Search" type="submit"><img src="::centralServer::/wp-content/themes/ala2011/images/button_search-grey.png" alt="Search" width="12" height="12" /></button></span></form>
+                </section>
+                <nav>
+                    <ol>
+                        <li><a href="::centralServer::" title="Atlas of Living Australia home">Home</a></li>
+                        <li>::loginLogoutListItem::</li>
+                    </ol>
+                </nav>
+            </section>
+        </div>
+    </header>
+    <nav id="nav-site">
+        <!-- WP Menubar 4.10: start menu nav-site, template Superfish, CSS  -->
+        <ul class="sf sf-js-enabled"><li class="nav-species"><a href="::centralServer::/australias-species/">Species</a></li><li class="nav-locations"><a href="::centralServer::/species-by-location/">Locations</a></li><li class="nav-collections <cl:selected/>"><a href="http://collections.ala.org.au">Collections</a></li><li class="nav-mapping"><a href="http://spatial.ala.org.au">Mapping &amp; analysis</a></li><li class="nav-datasets"><a href="::centralServer::/data-sets/">Data sets</a></li><li class="nav-blogs"><a href="::centralServer::/blogs-news/">Blogs</a></li><li class="nav-getinvolved"><a href="::centralServer::/get-involved/">Get involved</a></li><li class="nav-about"><a href="::centralServer::/about-the-atlas/">About the Atlas</a><ul style="display: none; visibility: hidden; "><li><a href="::centralServer::/about-the-atlas/atlas-background/">Atlas background</a></li><li><a href="::centralServer::/about-the-atlas/atlas-data/">Atlas data</a></li><li><a href="::centralServer::/about-the-atlas/our-data-providers/">Our data providers</a></li><li><a href="::centralServer::/about-the-atlas/how-we-integrate-data/">How we integrate data</a></li><li><a href="::centralServer::/about-the-atlas/downloadable-tools/">Downloadable tools</a></li><li><a href="::centralServer::/about-the-atlas/digitisation-guidance/">Digitisation guidance</a></li><li><a href="::centralServer::/about-the-atlas/communications-centre/">Communications centre</a></li><li><a href="::centralServer::/about-the-atlas/terms-of-use/">Terms of Use</a></li><li><a href="::centralServer::/about-the-atlas/contact-us/">Contact us</a></li></ul></li></ul>
+        <!-- WP Menubar 4.10: end menu nav-site, template Superfish, CSS  -->
+    </nav>
