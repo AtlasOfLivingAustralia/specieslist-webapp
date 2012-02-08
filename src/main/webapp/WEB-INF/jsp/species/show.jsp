@@ -1039,7 +1039,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     	<tr>
                             <td>${sciNameFormatted} ${authorship}</td>
                             <td class="source">
-                                <cite>Source:&nbsp;<a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
+                                <cite>Source:&nbsp;<a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" onclick="window.open(this.href); return false;">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite>
                             </td>
                     	</tr>
                     	<tr class="cite">
@@ -1058,8 +1058,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                             <td><alatag:formatSciName name="${synonym.nameString}" rankId="${extendedTaxonConcept.taxonConcept.rankID}"/> ${synonym.author}</td>
                             <td class="source">
                                 <c:choose>
-                                    <c:when test="${empty synonym.infoSourceURL}"><cite>Source:&nbsp;<a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" target="blank">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite></c:when>
-                                    <c:otherwise><cite>Source:&nbsp;<a href="${synonym.infoSourceURL}" target="blank">${synonym.infoSourceName}</a></cite></c:otherwise>
+                                    <c:when test="${empty synonym.infoSourceURL}"><cite>Source:&nbsp;<a href="${extendedTaxonConcept.taxonConcept.infoSourceURL}" onclick="window.open(this.href); return false;">${extendedTaxonConcept.taxonConcept.infoSourceName}</a></cite></c:when>
+                                    <c:otherwise><cite>Source:&nbsp;<a href="${synonym.infoSourceURL}" onclick="window.open(this.href); return false;">${synonym.infoSourceName}</a></cite></c:otherwise>
                                 </c:choose>
                             </td>
                         </tr>
@@ -1142,8 +1142,8 @@ Read Only Mode
                             <td class="source">
                                 <c:forEach items="${sortCommonNameSources[nkey]}" var="commonName">
                                     <c:choose>
-                                        <c:when test="${not empty commonName.identifier && not empty commonName.infoSourceName}"><cite>Source: <a href="${commonName.identifier}" target="blank">${commonName.infoSourceName}</a></cite></c:when>
-                                        <c:otherwise><cite>Source:&nbsp;<a href="${commonName.infoSourceURL}" target="blank">${commonName.infoSourceName}</a></cite></c:otherwise>
+                                        <c:when test="${not empty commonName.identifier && not empty commonName.infoSourceName}"><cite>Source: <a href="${commonName.identifier}" onclick="window.open(this.href); return false;">${commonName.infoSourceName}</a></cite></c:when>
+                                        <c:otherwise><cite>Source:&nbsp;<a href="${commonName.infoSourceURL}" onclick="window.open(this.href); return false;">${commonName.infoSourceName}</a></cite></c:otherwise>
                                     </c:choose>
                                 </c:forEach>
                             </td>
@@ -1243,7 +1243,7 @@ Read Only Mode
                                 </a>
                                 <br/>
                                 <cite>Source:
-                                    <a href="${imageLink}" target="blank">${distribImage.infoSourceName}</a>
+                                    <a href="${imageLink}" onclick="window.open(this.href); return false;">${distribImage.infoSourceName}</a>
                                 </cite>
                             </div>
                         </c:forEach>
