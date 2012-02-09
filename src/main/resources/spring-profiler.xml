@@ -59,13 +59,10 @@
     <property name="maxWait" value="30000"/>
     <property name="poolPreparedStatements" value="true"/>
 </bean>
-<!--
-    <bean id="googleSitemapGenerator" class="org.ala.report.GoogleSitemapGenerator" lazy-init="true">
-      <property name="keyspace" value="bie"/>
-      <property name="columnFamily" value="tc"/>
-      <property name="host" value="localhost"/>
-      <property name="port" value="9160"/>
-      <property name="fileName" value="/data/sitemaps/Sitemap"/>
-    </bean>
--->    
+
+   <bean id="googleSitemapGenerator" class="org.ala.report.GoogleSitemapGenerator" lazy-init="true">
+     <property name="storeHelper" ref="cassandraHelper"/>
+     <property name="fileName" value="/data/sitemaps/sitemap"/>
+   </bean>
+    
 </beans>
