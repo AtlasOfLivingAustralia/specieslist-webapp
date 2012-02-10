@@ -12,16 +12,12 @@
  * implied. See the License for the specific language governing
  * rights and limitations under the License.
  ***************************************************************************/
-package au.org.ala.util;
+package au.org.ala.commonui.util;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
@@ -113,9 +109,14 @@ public class WebUtils {
 		GetMethod gm = new GetMethod(url);
 		gm.setFollowRedirects(true);
 		httpClient.executeMethod(gm);
-		// String requestCharset = gm.getRequestCharSet();
-		String content = gm.getResponseBodyAsString();
-		// contentMap = new String(contentMap.getBytes(requestCharset), "UTF-8");
-		return content;
+        String content = "[ERROR: external content request failed - see tomcat logs]";
+        logger.info("GET status code = " + gm.getStatusCode());
+        // String requestCharset = gm.getRequestCharSet();
+
+        if (gm.getStatusCode() == 200) {
+            content = gm.getResponseBodyAsString();
+        }
+
+        return content;
 	}
 }
