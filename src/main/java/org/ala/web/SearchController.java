@@ -166,7 +166,9 @@ public class SearchController {
             
     		searchResults.setResults(removedDuplicateCommonName(searchResults.getResults()));    		
             repoUrlUtils.fixRepoUrls(searchResults);
-
+            //get occurrence count by biocache ws
+            searchResults.setResults(populateOccurrenceCount(searchResults.getResults()));
+            
             model.addAttribute("searchResults", searchResults);
             model.addAttribute("totalRecords", searchResults.getTotalRecords());
             model.addAttribute("lastPage", calculateLastPage(searchResults.getTotalRecords(), pageSize));
@@ -176,7 +178,6 @@ public class SearchController {
 
         // if filterQuery is null only (empty is consequence search)
         // then it is init search, do extra process as below...        
-
         if (filterQuery == null) {
         	List<SearchDTO> result = null;
         	boolean foundExact = false;
