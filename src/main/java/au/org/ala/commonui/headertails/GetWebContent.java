@@ -14,7 +14,7 @@
  ***************************************************************************/
 package au.org.ala.commonui.headertails;
 
-import au.org.ala.communui.util.util.WebUtils;
+import au.org.ala.commonui.util.WebUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
