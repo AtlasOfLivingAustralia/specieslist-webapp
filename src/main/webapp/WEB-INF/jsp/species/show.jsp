@@ -457,7 +457,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
             <div id="breadcrumb">
                 <ul>
                     <li><a href="${wordPressUrl}">Home</a></li>
-                    <li><a href="${wordPressUrl}/explore">Explore</a></li>
+                    <li><a href="${wordPressUrl}/australias-species/">Australia&apos;s species</a></li>
                     <li>${sciNameFormatted} ${authorship} <c:if test="${not empty extendedTaxonConcept.commonNames}"> : ${extendedTaxonConcept.commonNames[0].nameString}</c:if></li>
                 </ul>
             </div>
@@ -1449,14 +1449,14 @@ Read Only Mode
                     </div>
                     <c:set var="wpParams">guid=${extendedTaxonConcept.taxonConcept.guid}&scientificName=${fn:replace(extendedTaxonConcept.taxonConcept.nameString,' ','+')}<c:if test="${not empty extendedTaxonConcept.commonNames}">&commonName=${fn:replace(extendedTaxonConcept.commonNames[0].nameString,' ','+')}</c:if></c:set>
                     <div class="photos">
-                        <h2><a href="${initParam.centralServer}/share-images/?${wpParams}">Photos <span>Share your images with the Atlas</span></a></h2>
+                        <h2><a href="${citizenSciUrl}${extendedTaxonConcept.taxonConcept.guid}">Photos <span>Share your images with the Atlas</span></a></h2>
                     </div>
-                    <div class="analogue-data">
+                    <!--<div class="analogue-data">
                         <h2><a href="${initParam.centralServer}/share/share-links/?${wpParams}">Links, ideas, information <span>Share
                                     links, species page comments &amp; ideas</span></a></h2>
-                    </div>
+                    </div>-->
                     <div class="digital-data last">
-                        <h2><a href="${initParam.centralServer}/share/share-data/">Datasets <span>Share your spreadsheets,
+                        <h2><a href="${initParam.centralServer}/get-involved/upload-data-sets/">Datasets <span>Share your spreadsheets,
                             databases &amp; more</span></a></h2>
                     </div>
                 </div><!--buttons-->

@@ -169,7 +169,7 @@
     <div id="header">
         <div id="breadcrumb">
             <a href="${initParam.centralServer}">Home</a>
-            <a href="${initParam.centralServer}/explore/">Explore</a>
+            <%--<a href="${initParam.centralServer}/explore/">Explore</a>--%>
             <span class="current">Search the Atlas</span>
         </div>
     </div><!--close header-->
@@ -187,7 +187,7 @@
     <div id="header">
         <div id="breadcrumb">
             <a href="${initParam.centralServer}">Home</a>
-            <a href="${initParam.centralServer}/explore/">Explore</a>
+            <%--<a href="${initParam.centralServer}/explore/">Explore</a>--%>
             <span class="current">Search the Atlas</span>
         </div>
         <div class="astrisk" style="display:none">

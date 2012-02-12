@@ -24,7 +24,7 @@
         <pattern>/image-search/*/*</pattern>
         <pattern>/image-search/*/*/</pattern>
     </decorator>
-    <decorator name="main" page="main.jsp">
+    <decorator name="main" page="ala2.jsp">
         <pattern>/*</pattern>
     </decorator>
 </decorators>
