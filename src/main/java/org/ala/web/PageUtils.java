@@ -40,20 +40,6 @@ public class PageUtils {
     public static List<CommonName> fixCommonNames(List<CommonName> commonNames) {    	    	
         List<CommonName> newNames = new ArrayList<CommonName>();
         if(commonNames!=null && commonNames.size()>0){
-        	Collections.sort(commonNames, new Comparator<CommonName>(){
-            	@Override
-                public int compare(CommonName o1, CommonName o2) {
-            		int i = -1;
-            		try{
-            			i = o1.getNameString().trim().compareToIgnoreCase(o2.getNameString().trim());
-            		}
-            		catch(Exception e){
-            			logger.error(e);
-            		}
-            		return i;
-            	}
-        	});
-
         	newNames.add(commonNames.get(0));
         }
         
@@ -139,8 +125,9 @@ public class PageUtils {
     	Iterator<CommonName> it = names.iterator();
     	while(it.hasNext()){
     		CommonName cName = it.next();
-    		if(keys.contains(cName.getNameString())){
-    			set.add(cName.getNameString());
+    		String nameString = (cName.getNameString() != null?cName.getNameString().trim():cName.getNameString());
+    		if(keys.contains(nameString)){
+    			set.add(nameString);
     		}
     	}
     	return set.toArray(new String[0]);
