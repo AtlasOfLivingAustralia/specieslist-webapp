@@ -8,7 +8,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
 <c:set var="biocacheWSUrl">http://biocache.ala.org.au/ws/</c:set>
 <c:set var="citizenSciUrl">http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid=</c:set>
 <c:set var="collectoryUrl">http://collections.ala.org.au</c:set>
-<c:set var="threatenedSpeciesCodes">${wordPressUrl}/about/program-of-projects/sds/threatened-species-codes/</c:set>
+<c:set var="threatenedSpeciesCodes">${collectoryUrl}/public/showDataResource</c:set>
 <!DOCTYPE html>
 <html dir="ltr" lang="en-US">
 	<% long start = System.currentTimeMillis(); %>
@@ -669,7 +669,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                         <c:otherwise>IUCN</c:otherwise>
                                     </c:choose>
                                 </c:set>
-                                <div><a href="${threatenedSpeciesCodes}#${statusRegionMap[regionCode]}" title="Threatened Species Codes - details" onclick="window.open(this.href); return false;">
+                                <div><a href="${threatenedSpeciesCodes}/${statusRegionMap[regionCode]}" title="Threatened Species Codes - details" onclick="window.open(this.href); return false;">
                                     <c:choose>
                                         <c:when test="${fn:endsWith(status.status,'Extinct')}"><span class="iucn red"><fmt:message key="region.${regionCode}"/><!--EX--></span></c:when>
                                         <c:when test="${fn:containsIgnoreCase(status.status,'wild')}"><span class="iucn red"><fmt:message key="region.${regionCode}"/><!--EW--></span></c:when>

@@ -1362,16 +1362,16 @@ public class SpeciesController {
      */
     private Map<String, String> statusRegionMap() {
         Map regions = new HashMap<String, String>();
-        regions.put("IUCN", "International");
-        regions.put("Australia", "Australia-Wide");
-        regions.put("Australian Capital Territory", "Australian-Capital-Territory");
-        regions.put("New South Wales", "New-South-Wales");
-        regions.put("Northern Territory", "Northern-Territory");
-        regions.put("Queensland", "Queensland");
-        regions.put("South Australia", "South-Australia");
-        regions.put("Tasmania", "Tasmania");
-        regions.put("Victoria", "Victoria");
-        regions.put("Western Australia", "Western-Australia");
+        regions.put("IUCN", "dr657");
+        regions.put("Australia", "dr656");
+        regions.put("Australian Capital Territory", "dr649");
+        regions.put("New South Wales", "dr650");
+        regions.put("Northern Territory", "dr651");
+        regions.put("Queensland", "dr652");
+        regions.put("South Australia", "dr653");
+        regions.put("Tasmania", "dr654");
+        regions.put("Victoria", "dr655");
+        regions.put("Western Australia", "dr467");
         return regions;
     }
 
