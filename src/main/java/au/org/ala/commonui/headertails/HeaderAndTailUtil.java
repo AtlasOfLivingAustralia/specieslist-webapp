@@ -12,10 +12,10 @@ import java.util.Properties;
  */
 public class HeaderAndTailUtil {
     // these fields can be overrided by a properties file (see below)
-    protected static String bannerHtmlUrl = "http://www2.ala.org.au/datasets/banner.html";
-    protected static String menuHtmlUrl = "http://www2.ala.org.au/datasets/menu.html";
-    protected static String footerHtmlUrl = "http://www2.ala.org.au/datasets/footer.html";
-    protected static String googleAnalyticsHtmlUrl = "http://www2.ala.org.au/datasets/analytics.html";
+    protected static String bannerHtmlUrl = "http://www2.ala.org.au/commonui/banner.html";
+    protected static String menuHtmlUrl = "http://www2.ala.org.au/commonui/menu.html";
+    protected static String footerHtmlUrl = "http://www2.ala.org.au/commonui/footer.html";
+    protected static String googleAnalyticsHtmlUrl = "http://www2.ala.org.au/commonui/analytics.html";
     // template-style substitution variables
     protected static String returnPathNullTag = "::returnPathNull::";
     protected static String centralServerTag = "::centralServer::";
