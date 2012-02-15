@@ -3,6 +3,7 @@
 <%@ page import = "org.springframework.context.ApplicationContext,  
 		org.springframework.web.context.support.WebApplicationContextUtils" %>
 <%@ include file="/common/taglibs.jsp" %>		
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -59,10 +60,33 @@ function callAdminWs(wsName) {
 });
 
 }
+
+function callXmlReport()
+{
+	var drid = document.getElementById('drid');
+	if(drid.value != ""){
+		window.open("${pageContext.request.contextPath}/admin/xmlReport/" + drid.value);
+	}	
+	else{
+		alert("Please enter Data Resource ID.....")	
+	}
+}
 </script>
 
 
+            <h2> Xml Report</h2>	
+            <table>
+                    <tr>
+                        <td>Data Resource Id: </td>
+                        <!-- autocomplete="off" attribute for firefox to clear field when refresh the page -->
+                        <td><input type="text" value="" id="drid" name="drid" autocomplete="off"/></td>
+                        <td><input type="button" value="Open Window" onclick="callXmlReport()" /></td>
+                       
+                    </tr>                 
+            </table>
+
             <hr/>
+
             <h2> Backend Data Process</h2>	
             <table>
             		<tr><td><a href="javascript:callAdminWs('isReadOnly')">isReadOnly</a></td></tr>

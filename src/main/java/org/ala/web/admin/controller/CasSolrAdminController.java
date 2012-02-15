@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.ala.dao.RankingDao;
 import org.ala.report.GoogleSitemapGenerator;
 import org.ala.util.ReadOnlyLock;
+import org.ala.util.XmlReportUtil;
 import org.ala.web.admin.dao.CollectionDao;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,9 +31,10 @@ public class CasSolrAdminController {
 	@Inject
 	private CollectionDao collectionsDao;
 	   
-	//@Inject
+	@Inject
 	private GoogleSitemapGenerator googleSitemapGenerator;
-	
+	@Inject
+	private XmlReportUtil xmlReportUtil;
 	/**
 	 * Returns true when in service is in readonly mode.
 	 * 
@@ -270,5 +272,29 @@ public class CasSolrAdminController {
 			writer.write("{error: " + ex.getMessage() + "}");
 			logger.error(ex);
 		}		
-    }	    
+    }	
+    
+	@RequestMapping(value = "/admin/xmlReport/{id}", method = RequestMethod.GET)
+	public void xmlReport(@PathVariable("id") String id, HttpServletRequest request, HttpServletResponse response) {
+		String remoteuser = request.getRemoteUser();
+		PrintWriter writer = null;
+		if (id != null && id.length() > 0) {				
+			try {
+				writer = response.getWriter();
+				if(xmlReportUtil != null){
+					response.setContentType("text/xml");
+					xmlReportUtil.generateReport(id, writer);
+				}
+				else{
+					response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+				}
+				
+			} catch (Exception e) {
+				logger.error(e);
+			}
+		}
+		else{
+			response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
+		}
+	}   
 }
