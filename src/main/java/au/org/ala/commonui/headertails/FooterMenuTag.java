@@ -26,10 +26,12 @@ import au.org.ala.cas.util.AuthenticationCookieUtils;
 
 /**
  * Simple tag that writes out the footer menu list for an ALA web application.
- * 
+ *
+ * @deprecated
  * @author Tommy Wang (tommy.wang@csiro.au)
  * @author Nick dos Remedios (nick.dosremedios@csiro.au)
  */
+@Deprecated
 public class FooterMenuTag extends TagSupport {
 
     private static final long serialVersionUID = -6406031197753714478L;

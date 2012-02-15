@@ -27,7 +27,8 @@ import au.org.ala.cas.util.AuthenticationCookieUtils;
 
 /**
  * Simple tag that writes out the banner menu list for an ALA web application.
- * 
+ *
+ * @deprecated
  * @author Tommy Wang (tommy.wang@csiro.au)
  */
 public class BannerMenuTag extends TagSupport {
@@ -47,6 +48,7 @@ public class BannerMenuTag extends TagSupport {
     /**
      * @see javax.servlet.jsp.tagext.TagSupport#doStartTag()
      */
+    @Deprecated
     public int doStartTag() throws JspException {
         try {
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();

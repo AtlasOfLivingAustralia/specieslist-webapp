@@ -110,7 +110,7 @@ public class WebUtils {
 		gm.setFollowRedirects(true);
 		httpClient.executeMethod(gm);
         String content = "[ERROR: external content request failed - see tomcat logs]";
-        logger.info("GET status code = " + gm.getStatusCode());
+        logger.debug("GET status code = " + gm.getStatusCode());
         // String requestCharset = gm.getRequestCharSet();
 
         if (gm.getStatusCode() == 200) {
