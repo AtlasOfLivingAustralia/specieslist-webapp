@@ -36,8 +36,7 @@ public class HeaderAndTailUtil {
     protected static String searchPathTag = "::searchPath::";
     protected static String queryTag = "::query::";
     protected static String googleAnalyticsKeyTag = "::googleAnalyticsKey::";
-    protected static String hideSearchFormStartTag = "::hideSearchFormStart::";
-    protected static String hideSearchFormEndTag = "::hideSearchFormEnd::";
+    protected static String hideSearchFormTag = "id=\"header-search\"";
     // replacement variables
     protected static String googleAnalyticsKey = "UA-4355440-1";
     protected static String defaultCasServer = "https://auth.ala.org.au";
@@ -45,8 +44,7 @@ public class HeaderAndTailUtil {
     protected static String defaultSearchServer = "http://bie.ala.org.au";
     protected static String searchPath = "/search";
     protected static String defaultQuery = "Search the Atlas";
-    protected static String hideFormStart = "<!--";
-    protected static String hideFormEnd = "-->";
+    protected static String hideSearchForm = "id=\"header-search\" style=\"display:none;\"";
     // logging
     private final static Logger logger = Logger.getLogger(HeaderAndTailUtil.class);
 
@@ -258,14 +256,9 @@ public class HeaderAndTailUtil {
         banner = banner.replaceAll(searchPathTag, searchPath);
         banner = banner.replaceAll(queryTag, query);
 
-        if (populateSearchBox) {
+        if (!populateSearchBox) {
             // hide search form
-            banner = banner.replaceAll(hideSearchFormStartTag, hideFormStart);
-            banner = banner.replaceAll(hideSearchFormEndTag, hideFormEnd);
-        } else {
-            // remove tag
-            banner = banner.replaceAll(hideSearchFormStartTag, "");
-            banner = banner.replaceAll(hideSearchFormEndTag, "");
+            banner = banner.replaceAll(hideSearchFormTag, hideSearchForm);
         }
 
         return banner;
