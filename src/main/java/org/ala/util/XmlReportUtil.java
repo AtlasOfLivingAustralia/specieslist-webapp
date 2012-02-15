@@ -3,14 +3,13 @@ package org.ala.util;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.IndexedTypes;
@@ -31,11 +30,15 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
+@Component
 public class XmlReportUtil {
-
+	@Inject
     private FulltextSearchDao searchDao;
+	@Inject
     private TaxonConceptDao taxonConceptDao;
+	@Inject
     private InfoSourceDAO infosourceDao;
 
     /** The path to the repository */
@@ -93,19 +96,24 @@ public class XmlReportUtil {
         }
         System.exit(0);
     }
-
+    
     public void generateReport(String uid) throws Exception {
         generateReport(uid, OUTPUT_DIR);
     }
 
     public void generateReport(String uid, String outputPath) throws Exception {
-        ApplicationContext context = SpringUtils.getContext();
+    	Writer writer = getWriter(uid, outputPath);
+    	generateReport(uid, writer);
+    }
+    
+    public void generateReport(String uid, Writer writer) throws Exception {        
         List <ExtendedTaxonConceptDTO> etcList = new ArrayList<ExtendedTaxonConceptDTO>();
-
-        searchDao = (FulltextSearchDao) context.getBean(FulltextSearchDao.class);
-        taxonConceptDao = (TaxonConceptDao) context.getBean(TaxonConceptDao.class);
-        infosourceDao = (InfoSourceDAO) context.getBean("infoSourceDAO");
-
+        if(searchDao == null || taxonConceptDao == null || infosourceDao == null){
+        	ApplicationContext context = SpringUtils.getContext();
+	        searchDao = (FulltextSearchDao) context.getBean(FulltextSearchDao.class);
+	        taxonConceptDao = (TaxonConceptDao) context.getBean(TaxonConceptDao.class);
+	        infosourceDao = (InfoSourceDAO) context.getBean("infoSourceDAO");
+        }
         uidInfosourceIdMap = infosourceDao.getInfosourceIdUidMap();
 
         SearchResultsDTO<SearchDTO> stcs = searchDao.findByUid(IndexedTypes.TAXON, uid, null, 0, 5000, "score", "asc");
@@ -124,7 +132,7 @@ public class XmlReportUtil {
                 //                System.out.println("SCI NAME:" + sciName);
             }
         }
-        Writer writer = getWriter(uid, outputPath);
+//        Writer writer = getWriter(uid, outputPath);
 
         //        String xmlStr = buildXmlReport(etcList, uid).toString();
 
