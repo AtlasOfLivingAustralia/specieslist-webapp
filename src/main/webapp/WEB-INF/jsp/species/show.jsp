@@ -764,20 +764,31 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     <h2>Images</h2>
                     <div id="imageGallery">
                     	<script type="text/javascript">
-                    		function rankThisImage(guid, encodedUri, infosourceId, documentId, blackList, positive, name){
-                    			//var encodedUri = escape(uri); 
+                    		<%--
+                    			handle special charater in identifier 'http://www.padil.gov.au/img.aspx?id=3411&s='.
+                    			'&s=' treated as separate empty parameter of 's'.
+                    			controller receive wrong uri parameter (no '&s=' at the end) = 'http://www.padil.gov.au/img.aspx?id=3411'.
+                    					
+                    			replaced '<string:encodeUrl>' tag to javascript escape(). encoded result are different.
+                    			eg: 
+                    			escape('http://www.padil.gov.au/img.aspx?id=3411&s=') = 'http%3A//www.padil.gov.au/img.aspx%3Fid%3D3411%26s%3D'
+                    			'<string:encodeUrl>http://www.padil.gov.au/img.aspx?id=3411&s=</string:encodeUrl>' = 'http%3A%2F%2Fwww.padil.gov.au%2Fimg.aspx%3Fid%3D3411%26s%3D'
+                    		--%>
+                    		function rankThisImage(guid, uri, infosourceId, documentId, blackList, positive, name){
+                    			var encodedUri = escape(uri);                     			
                     			var url = "${pageContext.request.contextPath}/rankTaxonImage${not empty pageContext.request.remoteUser ? 'WithUser' : ''}?guid="+guid+"&uri="+encodedUri+"&infosourceId="+infosourceId+"&blackList="+blackList+"&positive="+positive+"&name="+name;
-                       			 $('.imageRank-'+documentId).html('Sending your ranking....');
-				                 $.getJSON(url, function(data){ })
-			                	 $('.imageRank-'+documentId).each(function(index) {
+                    			$('.imageRank-'+documentId).html('Sending your ranking....');
+				                $.getJSON(url, function(data){ })
+			                	$('.imageRank-'+documentId).each(function(index) {
 								   $(this).html('Thanks for your help!');
-						         });
+						        });
 	                         }
                     		
                     		function editThisImage(guid, uri){
-                    			var url = "${pageContext.request.contextPath}/admin/edit?guid="+guid+"&uri="+uri;
+                    			var encodedUri = escape(uri); 
+                    			var url = "${pageContext.request.contextPath}/admin/edit?guid="+guid+"&uri="+encodedUri;
                     			window.open(url);
-                    			}
+                    		}
 
                     	</script>
                         <c:choose>
@@ -864,21 +875,21 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
         	                                </c:when>
             	                            <c:otherwise>
             	                            	Is this image representative of ${extendedTaxonConcept.taxonConcept.rankString} ?  
-   	            	                           <a class="isrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','<string:encodeUrl>${image.identifier}</string:encodeUrl>','${image.infoSourceId}','${image.documentId}',false,true,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
+   	            	                           <a class="isrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,true,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  YES
    	            	                           </a>
    	            	                           	 |
-   	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','<string:encodeUrl>${image.identifier}</string:encodeUrl>','${image.infoSourceId}','${image.documentId}',false,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
+   	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  NO
    	            	                           </a>
                                 	       </cite> 
    	            	                           <c:if test="${not empty isRoleAdmin && isRoleAdmin}"> 
          	                           
-   	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','<string:encodeUrl>${image.identifier}</string:encodeUrl>','${image.infoSourceId}','${image.documentId}',true,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
+   	            	                           <a class="isnotrepresent" href="javascript:rankThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,false,'${extendedTaxonConcept.taxonConcept.nameString}');"> 
    	            	                           	  BlackList
    	            	                           </a>
    	            	                           |
-												<a class="isnotrepresent" href="#" onClick="editThisImage('${extendedTaxonConcept.taxonConcept.guid}','<string:encodeUrl>${image.identifier}</string:encodeUrl>');return false;">
+												<a class="isnotrepresent" href="#" onClick="editThisImage('${extendedTaxonConcept.taxonConcept.guid}','${image.identifier}');return false;">
 													Edit
 												</a>
 
