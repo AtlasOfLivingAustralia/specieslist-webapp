@@ -433,7 +433,7 @@ public class SpeciesController {
                 return "redirect:" + st.getImage().replaceAll("raw", "smallRaw");
             }  else if ("large".equals(imageType) && st.getImage() != null && !"".equals(st.getImage())) {
                 return "redirect:" + st.getImage().replaceAll("raw", "largeRaw");
-            }  else {
+            }  else if(st.getImage() !=null) {
                 return "redirect:" + st.getImage();
             }
         }
