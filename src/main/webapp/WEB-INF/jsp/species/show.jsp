@@ -539,7 +539,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                         <div id="legendDiv" class="left" style="margin-top: 80px; margin-left: 20px;">
                             <img id="mapLegend" src='http://biocache.ala.org.au/ws/density/legend?q=lsid:"${extendedTaxonConcept.taxonConcept.guid}"' class="distroLegend" alt="map legend" onerror="this.style.display='none'"/>
                         </div>
-                        <p style="clear: both; margin-left: 50px;"><span class="asterisk-container"><a href="${wordPressUrl}/about/progress/map-ranges/">Learn more about Atlas maps</a>&nbsp;</span></p>
+                        <p style="clear: both; margin-left: 50px;"><span class="asterisk-container"><a href="${wordPressUrl}/faq/species-data/errors-in-maps/">Learn more about Atlas maps</a>&nbsp;</span></p>
                     </div>
                     <c:set var="descriptionBlock">
                         <c:forEach var="textProperty" items="${textProperties}" varStatus="status">
