@@ -370,7 +370,7 @@
 	                            	<span class="sharePhoto" style="display:inline;"><a href="${initParam.centralServer}/share-images/?guid=${result.guid}&scientificName=${not empty result.acceptedConceptName ? result.acceptedConceptName : result.name}&commonName=${result.commonNameSingle}">Share a photo</a></span>
 	                            	&nbsp;
                                     <c:if test="${result.occCount > 0}">
-                                    <span class="recordSighting" style="display:inline;"><a href="http://biocache.ala.org.au/occurrences/taxa/${result.guid}"'>Occurrences:
+                                    <span class="recordSighting" style="display:inline;"><a href="http://biocache.ala.org.au/occurrences/taxa/${result.guid}">Occurrences:
                                     <fmt:formatNumber value="${result.occCount}" pattern="#,###,###"/></a></span>
                                     </c:if>
 	                            </c:if>
