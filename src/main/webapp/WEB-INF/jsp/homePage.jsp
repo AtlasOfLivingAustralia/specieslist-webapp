@@ -12,18 +12,18 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
        <div class="section">
        	<h1>Biodiversity Information Explorer (BIE)</h1>
         <p>Welcome to the Atlas of Living Australia <strong>Biodiversity Information Explorer</strong>.</p>
-        <ul>
-	        <li><a href="regions/">Explore the states</a></li>
-	        <li><a href="image-search/">Search with images (Alpha)</a></li>
-	    </ul>
-        <h2>Free text occurrence search the BIE</h2>
-		<div id="inpage_search">
+        <p>For a listing of webservices for the BIE, <a href="ws"><strong>click here</strong></a>.
+        
+        <h2>Free text search for taxa</h2>
+         <div class="section">
+  		  <div id="inpage_search">
 			<form id="search-inpage" action="search" method="get" name="search-form">
 			<label for="search">Search</label>
 			<input type="text" class="filled ac_input" id="search" name="q" placeholder="Search the Atlas" autocomplete="off">
 			<span class="search-button-wrapper"><input type="submit" class="search-button" alt="Search" value="Search"></span>
 			</form>
-		</div>
+		  </div>
+         </div>
 	   </div>
     </body>
 </html>

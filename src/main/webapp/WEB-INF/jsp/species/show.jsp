@@ -539,7 +539,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                         <div id="legendDiv" class="left" style="margin-top: 80px; margin-left: 20px;">
                             <img id="mapLegend" src='http://biocache.ala.org.au/ws/density/legend?q=lsid:"${extendedTaxonConcept.taxonConcept.guid}"' class="distroLegend" alt="map legend" onerror="this.style.display='none'"/>
                         </div>
-                        <p style="clear: both; margin-left: 50px;"><span class="asterisk-container"><a href="${wordPressUrl}/faq/species-data/errors-in-maps/">Learn more about Atlas maps</a>&nbsp;</span></p>
+                        <p style="clear: both; margin-left: 50px;"><span class="asterisk-container"><a href="${wordPressUrl}/about/progress/map-ranges/">Learn more about Atlas maps</a>&nbsp;</span></p>
                     </div>
                     <c:set var="descriptionBlock">
                         <c:forEach var="textProperty" items="${textProperties}" varStatus="status">
@@ -563,15 +563,16 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                             </c:forEach>
                         </ul>
                     </c:if>
+                    <div style="width:600px !important;">
                     <h2>Online Resources</h2>
-                    <table cellpadding="0" cellspacing="0" id="onlineResources">
-                        <colgroup style="width:50%;"></colgroup> 
+                    <table cellpadding="0" cellspacing="0" id="onlineResourcesXXX" style="width:600px !important;">
+                        <colgroup style="width:50%;"></colgroup>
                         <colgroup></colgroup> 
                         <tbody> 
                             <c:forEach var="entry" items="${infoSources}" varStatus="status">
                                 <c:set var="infoSource" value="${entry.value}"/>
-                                <c:if test="${infoSource.infoSourceId!=1051 && infoSource.infoSourceId!=1061 && infoSource.infoSourceId!=1073}">
-                                <tr class="border-top">
+                                <c:if test="${infoSource.infoSourceId!=1051 && infoSource.infoSourceId!=1061 && infoSource.infoSourceId!=1073  && infoSource.infoSourceId!=1073}">
+                                <tr class="border-top" style="width:500px !important;">
                                     <td style="white-space: nowrap;">
                                         <c:choose>
                                         	<c:when test="${not empty infoSource.infoSourceURL && infoSource.infoSourceURL == 'http://www.ala.org.au'}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${infoSource.infoSourceName}</c:when>
@@ -586,12 +587,16 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                         </c:forEach>
                                     </td>
                                 </tr>
+
                                 <c:if test="${fn:length(infoSource.text) > 100}">
+                                    <!--
                                     <tr>
                                         <td colspan="2"><p><span class="truncate">${infoSource.text}</span>
                                         <c:if test="${not empty infoSource.identifier && fn:length(infoSource.text) > 100}"><a href="${infoSource.identifier}" onclick="window.open(this.href); return false;">more</a></p></td></c:if>
                                     </tr>
+                                    -->
                                 </c:if>
+
                                 </c:if>
                                 <c:if test="${infoSource.infoSourceId==1073}">
                                 <tr class="border-top">
@@ -617,8 +622,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                 
                             </c:forEach>
                         </tbody> 
-                    </table> 
-                    
+                    </table>
+                    </div>
                     <c:if test="${false && empty textProperties && empty extendedTaxonConcept.images}">
                         <div class="sorry sighting no-margin-top">
                             <div>
@@ -853,9 +858,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                         </c:choose>
                                         
 										<c:if test="${not empty image.occurrenceUid}">
-										    <cite>
-                                            	Biocache Occurrence UID: <a href="http://biocache.ala.org.au/occurrences/${image.occurrenceUid}" onclick="window.open(this.href); return false;">${image.occurrenceUid}</a>
-                                            </cite>										
+                                            	<a href="http://biocache.ala.org.au/occurrences/${image.occurrenceUid}" onclick="window.open(this.href); return false;">View more details for this image</a>
 										</c:if>
                                         
 <p class="imageRank-${image.documentId}">

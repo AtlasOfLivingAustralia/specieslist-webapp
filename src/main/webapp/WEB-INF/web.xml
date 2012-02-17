@@ -40,14 +40,14 @@
 
     <context-param>
         <param-name>searchServerName</param-name>
-        <param-value>http://localhost:8080</param-value>
+        <param-value>http://bie.ala.org.au</param-value>
     </context-param>
 
     <!-- CAS Authentication related properties -->
     <context-param>
         <!-- Parameter used by CAS filters -->
         <param-name>serverName</param-name>
-        <param-value>http://localhost:8080</param-value>
+        <param-value>http://bie.ala.org.au</param-value>
     </context-param>
 
     <!-- bie admin server url (NOT USED)-->

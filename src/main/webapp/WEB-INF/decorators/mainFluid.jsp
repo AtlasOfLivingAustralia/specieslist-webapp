@@ -3,120 +3,99 @@
     Created on : 18/09/2009, 13:57
     Author     : dos009
 --%><%@
-taglib prefix="decorator" uri="http://www.opensymphony.com/sitemesh/decorator" %><%@
-taglib prefix="page" uri="http://www.opensymphony.com/sitemesh/page" %><%@
-include file="/common/taglibs.jsp" %><!DOCTYPE html>
-<html dir="ltr" lang="en-US">
-    <head profile="http://gmpg.org/xfn/11">
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title><decorator:title default="Atlas of Living Australia" /></title>
-        <link rel="stylesheet" href="${initParam.centralServer}/wp-content/themes/ala/style.css" type="text/css" media="screen" />
-        <link rel="icon" type="image/x-icon" href="${initParam.centralServer}/wp-content/themes/ala/images/favicon.ico" />
-        <link rel="shortcut icon" type="image/x-icon" href="${initParam.centralServer}/wp-content/themes/ala/images/favicon.ico" />
+        taglib prefix="decorator" uri="http://www.opensymphony.com/sitemesh/decorator" %><%@
+        taglib prefix="page" uri="http://www.opensymphony.com/sitemesh/page" %><%@
+        include file="/common/taglibs.jsp" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title><decorator:title default="Atlas of Living Australia" /></title>
 
-        <link rel="stylesheet" type="text/css" media="screen" href="${initParam.centralServer}/wp-content/themes/ala/css/sf.css" />
-        <link rel="stylesheet" type="text/css" media="screen" href="${initParam.centralServer}/wp-content/themes/ala/css/superfish.css" />
-        <link rel="stylesheet" type="text/css" media="screen" href="${initParam.centralServer}/wp-content/themes/ala/css/skin.css" />
-        <link rel="stylesheet" type="text/css" media="screen" href="${initParam.centralServer}/wp-content/themes/ala/css/jquery.autocomplete.css" />
+    <SCRIPT LANGUAGE="JavaScript">
+        //calculate the time before calling the function in window.onload
+        beforeload = (new Date()).getTime();
+        function pageloadingtime() {
+            //calculate the current time in afterload
+            afterload = (new Date()).getTime();
+            // now use the beforeload and afterload to calculate the seconds
+            secondes = (afterload-beforeload)/1000;
+            // If necessary update in window.status
+            window.status='Page Load took  ' + secondes + ' second(s).';
+            // Place the seconds in the innerHTML to show the results
+            // document.getElementById("loadingtime").innerHTML = "Page Load took " + secondes + " seconds.";
+        }
+    </SCRIPT>
+    <%--<link rel="stylesheet" href="${initParam.centralServer}/wp-content/themes/ala2011/style.css" type="text/css" media="screen" />--%>
+    <link rel="stylesheet" href="${initParam.centralServer}/wp-content/themes/ala2011/style2010.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="${initParam.centralServer}/wp-content/themes/ala2011/style2011.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="${initParam.centralServer}/wp-content/themes/ala2011/css/wp-styles.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="${initParam.centralServer}/wp-content/themes/ala2011/css/buttons.css" type="text/css" media="screen" />
+    <link rel="icon" type="image/x-icon" href="${initParam.centralServer}/wp-content/themes/ala2011/images/favicon.ico" />
+    <link rel="shortcut icon" type="image/x-icon" href="${initParam.centralServer}/wp-content/themes/ala2011/images/favicon.ico" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${initParam.centralServer}/wp-content/themes/ala2011/css/jquery.autocomplete.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${initParam.centralServer}/wp-content/themes/ala2011/css/search.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${initParam.centralServer}/wp-content/themes/ala2011/css/skin.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${initParam.centralServer}/wp-content/themes/ala2011/css/sf.css" />
 
-        <script language="JavaScript" type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala/scripts/form.js"></script>
-        <script language="JavaScript" type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala/scripts/jquery-1.4.3.min.js"></script>
-        <script language="JavaScript" type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala/scripts/hoverintent-min.js"></script>
-        <script language="JavaScript" type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala/scripts/superfish/superfish.js"></script>
-        <script language="JavaScript" type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala/scripts/jquery.autocomplete.js"></script>
-        <script language="JavaScript" type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala/scripts/uservoice.js"></script>
-        <script type="text/javascript">
-            //add the indexOf method for IE7
-            if(!Array.indexOf){
-                Array.prototype.indexOf = function(obj){
-                    for(var i=0; i<this.length; i++){
-                        if(this[i]===obj){
-                            return i;
-                        }
-                    }
-                    return -1;
-                }
-            }
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 
-                    function stripHTML(string) {
-                        if (string) {
-                            string = string.replace(/<(.|\n)*?>/g, '');
-                        }
-                        return string;
-                    }
+    <decorator:head />
 
-            // initialise plugins
-            jQuery(function(){
-                    jQuery('ul.sf').superfish( {
-                            delay:500,
-                            autoArrows:false,
-                            dropShadows:false
-                    });
+    <script type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala2011/scripts/html5.js"></script>
+    <script language="JavaScript" type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala2011/scripts/superfish/superfish.js"></script>
+    <script language="JavaScript" type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala2011/scripts/jquery.autocomplete.js"></script>
+    <script language="JavaScript" type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala2011/scripts/uservoice.js"></script>
+    <script type="text/javascript">
+
+        // initialise plugins
+
+        jQuery(function(){
+            jQuery('ul.sf').superfish( {
+                delay:500,
+                autoArrows:false,
+                dropShadows:false
             });
 
-            jQuery(document).ready(function() {
-                // highlight explore menu tab
-                $("div#nav li.nav-explore").addClass("selected");
-                // autocomplete for search input
-                $("form#search-form input#search").autocomplete('${pageContext.request.contextPath}/search/auto.json', {
-                        extraParams: {limit:100},
-                        dataType: 'jsonp',
-                        parse: function(data) {
-                            var rows = new Array();
-                            data = data.autoCompleteList;
-                            for(var i=0; i<data.length; i++){
-                                rows[i] = {
-                                    data:data[i],
-                                    value: data[i].matchedNames[0],
-                                    result: data[i].matchedNames[0]
-                                };
-                            }
-                            return rows;
-                        },
-                        matchSubset: false,
-                        formatItem: function(row, i, n) {
-                            return row.matchedNames[0]; // + ' (' + row.rankString + ')';
-                        },
-                        cacheLength: 10,
-                        minChars: 3,
-                        scroll: false,
-                        max: 10,
-                        selectFirst: false
-                });
-            }); // End docuemnt ready
-
-        </script>
-
-        <style type="text/css">
-            #contentXX {
-margin: 5px auto 0 auto;
-background-color: white;
-border: 1px solid #C4C4C4;
--moz-border-radius: 7px 7px 0 0;
--webkit-border-radius: 7px 7px 0 0;
-border-radius: 7px 7px 0 0;
-            }
-
-#headingBar {
-min-height: 55px;
-/*border-bottom: 1px solid #CCC;*/
-margin-left: 30px;
-padding-top: 15px;
-height: 40px;
-padding-left: 30px;
-font-size: 13px;
-line-height: 1.5em;
-}
-
-        </style>
-        <meta name="robots" content="index,follow"/>
-        <META name="y_key" content="d5130872f549aec9" />
-        <decorator:head />
-    </head>
-    <body class="two-column-rightXXX">
-     <div id="wrapperXXX" >
-     <c:set var="returnUrlPath" value="${initParam.serverName}${pageContext.request.requestURI}${not empty pageContext.request.queryString ? '?' : ''}${pageContext.request.queryString}"/>
-         <ala:bannerMenu returnUrlPath="${returnUrlPath}"/>
+            jQuery("form#search-form-2011 input#search-2011").autocomplete('http://bie.ala.org.au/search/auto.jsonp', {
+                extraParams: {limit: 100},
+                dataType: 'jsonp',
+                parse: function(data) {
+                    var rows = new Array();
+                    data = data.autoCompleteList;
+                    for(var i=0; i<data.length; i++){
+                        rows[i] = {
+                            data:data[i],
+                            value: data[i].matchedNames[0],
+                            result: data[i].matchedNames[0]
+                        };
+                    }
+                    return rows;
+                },
+                matchSubset: false,
+                formatItem: function(row, i, n) {
+                    return row.matchedNames[0];
+                },
+                cacheLength: 10,
+                minChars: 3,
+                scroll: false,
+                max: 10,
+                selectFirst: false
+            });
+        });
+    </script>
+    <style type="text/css">
+        div.solrResults {
+            width: 762px;
+            float: left;
+        }
+    </style>
+</head>
+<body class="page species">
+<div id="wrapper">
+    <c:set var="returnUrlPath" value="${initParam.serverName}${pageContext.request.requestURI}${not empty pageContext.request.queryString ? '?' : ''}${pageContext.request.queryString}"/>
+    <ala:banner returnUrlPath="${returnUrlPath}" populateSearchBox="true"/>
+    <ala:menu />
 
          <div id="contentXX" style="background-color: #FFFFFF;">
 
@@ -144,7 +123,27 @@ line-height: 1.5em;
            -->
 
            <decorator:body />
-         </div><!--close content-->
-     </div><!--close wrapper-->
-    </body>
+             <ala:footer />
+             <ala:analytics />
+         </div>
+
+    <style type="text/css">
+        #contentXX {
+            margin: 5px auto 0 auto;
+        }
+
+        #headingBar {
+            min-height: 55px;
+            /*border-bottom: 1px solid #CCC;*/
+            margin-left: 30px;
+            padding-top: 15px;
+            height: 40px;
+            padding-left: 30px;
+            font-size: 13px;
+            line-height: 1.5em;
+        }
+
+        nav { width:100% !important; }
+
+    </style>
 </html>
