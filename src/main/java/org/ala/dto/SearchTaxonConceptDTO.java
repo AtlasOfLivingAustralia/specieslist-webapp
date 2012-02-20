@@ -110,50 +110,44 @@ public class SearchTaxonConceptDTO extends SearchDTO implements Comparable<Searc
         return imageUrl;
     }
 
-    public String getLargeImageUrl(){
-        if(largeImageUrl==null){
-            if(image != null && image.startsWith(bieRepoDir)){
-                String url =  image.replace(bieRepoDir, bieRepoUrl);
-                url = url.replace("/raw.", "/largeRaw.");
-                largeImageUrl =  url;
+    private String getImageUrl(String image, String imageFormatName){
+        if(image !=null){
+            if(image.startsWith(bieRepoDir)){
+                image = image.replace(bieRepoDir, bieRepoUrl);
             }
+            return image.replace("/raw.", imageFormatName);
+        } else {
+            return null;
         }
-        return largeImageUrl;
+    }
+    
+    
+    public String getLargeImageUrl(){
+        this.largeImageUrl = getImageUrl(image, "/largeRaw.");
+        return this.largeImageUrl;
     }
 
     public String getSmallImageUrl(){
-        if(smallImageUrl ==null){
-            if(image != null && image.startsWith(bieRepoDir)){
-                String url =  image.replace(bieRepoDir, bieRepoUrl);
-                url = url.replace("/raw.", "/smallRaw.");
-                smallImageUrl =  url;
-            }
-        }
+        this.smallImageUrl = getImageUrl(image, "/smallRaw.");
         return smallImageUrl;
     }
 
     public String getThumbnailUrl(){
-        if(thumbnailUrl ==null){
-            if(image != null && image.startsWith(bieRepoDir)){
-                String url =  image.replace(bieRepoDir, bieRepoUrl);
-                url = url.replace("/raw.", "/thumbnail.");
-                thumbnailUrl =  url;
-            }
-        }
+        this.thumbnailUrl = getImageUrl(image, "/thumbnail.");
         return thumbnailUrl;
     }
-
 
     public String getImageMetadataUrl(){
         if(imageMetadataUrl ==null){
             if(image != null && image.startsWith(bieRepoDir)){
-                String url =  image.replace(bieRepoDir, bieRepoUrl);
-                imageMetadataUrl =  url.substring(0, url.lastIndexOf('/') +1) + "dc";
+                image =  image.replace(bieRepoDir, bieRepoUrl);
+            }
+            if(image !=null){
+                this.imageMetadataUrl = image.substring(0, image.lastIndexOf('/') +1) + "dc";
             }
         }
-        return imageMetadataUrl;
+        return this.imageMetadataUrl;
     }
-
 
 	/**
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
