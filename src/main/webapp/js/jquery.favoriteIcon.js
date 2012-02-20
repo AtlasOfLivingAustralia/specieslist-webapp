@@ -17,15 +17,15 @@
 			var extImg = new Image();
 			extImg.src = faviconURL;
 			if (extImg.complete) {
-                            faviconIMG.attr('src', faviconURL);
-                        } else {
-                            extImg.onload = function() { faviconIMG.attr('src', faviconURL); };
-                        }
-                        // check for broken favicon URL and replace with plain icon
-                        $("img."+options.iconClass).error(function () {
-                                $(this).unbind("error").hide();
-                        });
-                        $("img."+options.iconClass).css('max-height','16px').css('max-width','16px');
+                faviconIMG.attr('src', faviconURL);
+            } else {
+                extImg.onload = function() { faviconIMG.attr('src', faviconURL); };
+            }
+            // check for broken favicon URL and replace with plain icon
+            $("img."+options.iconClass).error(function () {
+                    $(this).unbind("error").hide();
+            });
+            $("img."+options.iconClass).css('max-height','16px').css('max-width','16px');
 		});
 	}
 })(jQuery);
