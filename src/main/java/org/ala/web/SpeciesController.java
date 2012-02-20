@@ -1040,7 +1040,7 @@ public class SpeciesController {
      * @param guids
      * @return names
      */
-    @RequestMapping(value = "/species/namesFromGuids.json", method = RequestMethod.GET)
+    @RequestMapping(value = "/species/namesFromGuids.json")
     public @ResponseBody List<String> getNamesForGuids(@RequestParam(value="guid", required=true) String[] guids) {
         List<String> names = new ArrayList<String>();
         
