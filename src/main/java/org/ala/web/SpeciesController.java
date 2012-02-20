@@ -446,7 +446,6 @@ public class SpeciesController {
         }
     }
 
-
     /**
      * TODO Replace this with a more efficient query mechanism.
      * 
@@ -460,7 +459,8 @@ public class SpeciesController {
         String[] guids = om.readValue(request.getInputStream(), (new String[0]).getClass());
         List<SearchDTO> resultSet = new ArrayList<SearchDTO>();
         for(int i=0; i< guids.length; i++){
-            SearchResultsDTO<SearchDTO> results =  searchDao.findByName(IndexedTypes.TAXON, guids[0], null, 0, guids.length, "score", "asc");
+            SearchResultsDTO<SearchDTO> results =  searchDao.findByName(IndexedTypes.TAXON, guids[i], null, 0, guids.length, "score", "asc");
+            repoUrlUtils.fixRepoUrls(results);
             if(results.getTotalRecords() >0){
                 resultSet.addAll(results.getResults());
             }
