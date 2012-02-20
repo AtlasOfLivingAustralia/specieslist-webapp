@@ -47,7 +47,14 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
             	    <li>idxType - The index type to limit . Values include "TAXON", "REGION", "COLLECTION", "INSTITUTION", "DATASET</li>
             	    <li>limit - The maximum number of results to return</li>
                 </ul>
-            </li>            
+            </li>
+
+            <li><strong>Bulk lookup:</strong> /species/bulklookup.json<br/>
+                Used to provide a list of GUIDs.
+                <ul class="paramList">
+                    <li>HTTP POST a JSON body containing an array of GUIDs or names.</li>
+                </ul>
+            </li>
         </ul>
 
         <h3>Species</h3>
