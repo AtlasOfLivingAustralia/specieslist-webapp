@@ -11,7 +11,7 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
     </head>
     <body>
         <style type="text/css">
-            .code { font-family: courier new;}
+            .code { font-family: courier new; }
             .webserviceList { margin-left:30px; }
             .paramList { margin-left:60px; }
             .examples  { margin-left:90px; }
@@ -23,6 +23,9 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
 		<br/>
         <p>
             These webservices provide taxon search capabilities and taxon profile information.
+            <br/>
+            Please send any bug reports, suggestions for improvements or new services to:
+            <strong>developers 'AT' ala.org.au</strong>
         </p>
         <h3>Search</h3>
         <ul class="webserviceList">
@@ -34,7 +37,7 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
                     <li>start - start offset for the results</li>
                     <li>pageSize - number record on single page</li>
                     <li>sort - sort field</li>
-                    <li>dir - sort direction [asc/dec]</li>
+                    <li>dir - sort direction "asc" or "dec"</li>
                 </ul>
                 <p>Note: Image URLs can be resolved by replacing file paths /data/bie/ with http://bie.ala.org.au/repo/.</p>
             </li>
@@ -44,7 +47,7 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
                 <ul class="paramList">
             	    <li>q - The value to auto complete e.g. <a href="${initParam.serverName}/search/auto.json?q=Mac">q=Mac</a></li>
             	    <li>geoOnly - When "true" only include results that have some geospatial occurrence records</li>
-            	    <li>idxType - The index type to limit . Values include "TAXON", "REGION", "COLLECTION", "INSTITUTION", "DATASET</li>
+            	    <li>idxType - The index type to limit . Values include "TAXON", "REGION", "COLLECTION", "INSTITUTION", "DATASET"</li>
             	    <li>limit - The maximum number of results to return</li>
                 </ul>
             </li>
