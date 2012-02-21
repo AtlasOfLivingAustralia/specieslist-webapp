@@ -14,21 +14,38 @@
  ***************************************************************************/
 package org.ala.lucene;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.ala.dao.IndexedTypes;
 import org.ala.dao.SolrUtils;
+import org.ala.documentmapper.Mapping;
+import org.ala.repository.Predicates;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Component;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Load tool for loading external data into the indexes to provide a combined
@@ -65,24 +82,28 @@ public class ExternalIndexLoader {
 		ApplicationContext context = new ClassPathXmlApplicationContext(locations);
 		ExternalIndexLoader l = (ExternalIndexLoader) context.getBean(ExternalIndexLoader.class);
 		
-		//load collections
-		l.loadCollections();
-		
-		//load institutions
-		l.loadInstitutions();
-
-		//load data providers
-		l.loadDataProviders();
-		
-		//load datasets
-		l.loadDatasets();
-
-        // load WordPress pages
-        CreateWordPressIndex cwpi = (CreateWordPressIndex) context.getBean(CreateWordPressIndex.class);
-        logger.info("Start of crawling and indexing WP pages.");
-        cwpi.loadSitemap();
-        cwpi.indexPages();
-		
+		if(args.length>0 && args[0].equalsIgnoreCase("-region")){
+			l.loadRegions();
+		}
+		else{
+			//load collections
+			l.loadCollections();
+			
+			//load institutions
+			l.loadInstitutions();
+	
+			//load data providers
+			l.loadDataProviders();
+			
+			//load datasets
+			l.loadDatasets();
+	
+	        // load WordPress pages
+	        CreateWordPressIndex cwpi = (CreateWordPressIndex) context.getBean(CreateWordPressIndex.class);
+	        logger.info("Start of crawling and indexing WP pages.");
+	        cwpi.loadSitemap();
+	        cwpi.indexPages();
+		}
 		System.exit(0);
 	}
 
@@ -313,4 +334,68 @@ public class ExternalIndexLoader {
 	public void setBaseUrlForCollectory(String baseUrlForCollectory) {
 		this.baseUrlForCollectory = baseUrlForCollectory;
 	}
+	
+	// =======================
+	private String getTagValue(String sTag, Element eElement) {
+		NodeList nl = eElement.getElementsByTagName(sTag);
+		if(nl == null || nl.getLength() < 1){
+			return null;
+		}
+		
+		NodeList nlList = nl.item(0).getChildNodes();	 
+	    Node nValue = (Node) nlList.item(0);	 
+	    return nValue.getNodeValue();
+	}
+	
+	public void loadRegions() throws Exception {
+		int ctr = 0;
+		logger.info("Started syncing regions information....");
+		
+		// init....
+		HttpClient httpClient = new HttpClient();
+		GetMethod gm = new GetMethod("http://regions.ala.org.au/data/sitemap.xml");
+		logger.debug("Response code for get method: " +httpClient.executeMethod(gm));        
+		InputStream responseStream = gm.getResponseBodyAsStream();
+		
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		dbFactory.setNamespaceAware(false);
+
+		DocumentBuilder parser = dbFactory.newDocumentBuilder();
+		Document document = parser.parse(responseStream);
+		NodeList nList = document.getElementsByTagName("url");
+		
+		// start process....
+		if(nList.getLength() > 0){
+			SolrServer solrServer = solrUtils.getSolrServer();
+			solrServer.deleteByQuery("idxtype:"+IndexedTypes.REGION);
+			for (int temp = 0; temp < nList.getLength(); temp++) {	 
+				Node nNode = nList.item(temp);
+				if (nNode.getNodeType() == Node.ELEMENT_NODE) {	 
+					Element eElement = (Element) nNode;
+					String loc = getTagValue("loc", eElement);
+					if(loc != null){
+						String url = java.net.URLDecoder.decode(loc, "UTF-8");
+						String[] terms = url.split("/");
+						if(terms.length > 1){
+							String name = terms[terms.length -1];
+							String region = terms[terms.length - 2];
+							if(name != null && region != null){
+								SolrInputDocument doc = new SolrInputDocument();
+								doc.addField("idxtype", IndexedTypes.REGION);
+								doc.addField("guid", url);
+								doc.addField("id", url);
+								doc.addField("url", url);
+								doc.addField("regionType", region);
+								doc.addField("name", name);
+								solrServer.add(doc);
+								ctr++;
+							}						
+						}
+					}			      
+				}
+			}
+			solrServer.commit();
+		}
+		logger.info("Finished syncing regions information. Total count: " + ctr);
+	}	
 }
