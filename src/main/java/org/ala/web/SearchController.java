@@ -355,7 +355,7 @@ public class SearchController {
 		return results;
 	}
 	
-	@RequestMapping(value = {"/search.json","/search.xml"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/search.json","/search.xml","/ws/search.json","/ws/search.xml"}, method = RequestMethod.GET)
 	public ModelAndView  searchJsonXml(
 			@RequestParam(value="q", required=false) String query,
 			@RequestParam(value="fq", required=false) String[] filterQuery,
@@ -410,7 +410,7 @@ public class SearchController {
      * @param model
      * @throws Exception
      */
-    @RequestMapping(value="/search/auto.json*", method = RequestMethod.GET)
+    @RequestMapping(value={"/search/auto.json*","/ws/search/auto.json*"}, method = RequestMethod.GET)
     public String searchForAutocompleteValues(
             @RequestParam(value="q", required=true) String query,
             @RequestParam(value="geoOnly", required=false) boolean geoRefOnly,
@@ -441,7 +441,6 @@ public class SearchController {
                     direction = "asc";
             }
         return direction;
-
     }
 	
     /**

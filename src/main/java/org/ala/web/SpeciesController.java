@@ -453,15 +453,19 @@ public class SpeciesController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/species/bulklookup.json", method = RequestMethod.POST)
+    @RequestMapping(value = {"/species/bulklookup.json","/ws/species/bulklookup.json"}, method = RequestMethod.POST)
     public SearchDTO[] bulkImageLookup(HttpServletRequest request) throws Exception {
         ObjectMapper om = new ObjectMapper();
         String[] guids = om.readValue(request.getInputStream(), (new String[0]).getClass());
         List<SearchDTO> resultSet = new ArrayList<SearchDTO>();
         for(int i=0; i< guids.length; i++){
-            SearchResultsDTO<SearchDTO> results =  searchDao.findByName(IndexedTypes.TAXON, guids[i], null, 0, guids.length, "score", "asc");
-            repoUrlUtils.fixRepoUrls(results);
-            if(results.getTotalRecords() >0){
+
+            SearchResultsDTO<SearchDTO> results = searchDao.findByName(IndexedTypes.TAXON, guids[i], null, 0, 1, "score", "asc");
+            if(results.getResults().isEmpty()){
+                results = searchDao.doExactTextSearch(guids[i], null, 0, 1, "score", "asc");
+            }
+            if(results.getTotalRecords() > 0){
+                repoUrlUtils.fixRepoUrls(results);
                 resultSet.addAll(results.getResults());
             }
         }
@@ -1040,7 +1044,7 @@ public class SpeciesController {
      * @param guids
      * @return names
      */
-    @RequestMapping(value = "/species/namesFromGuids.json")
+    @RequestMapping(value = "/species/namesFromGuids.json", method = RequestMethod.GET)
     public @ResponseBody List<String> getNamesForGuids(@RequestParam(value="guid", required=true) String[] guids) {
         List<String> names = new ArrayList<String>();
         
