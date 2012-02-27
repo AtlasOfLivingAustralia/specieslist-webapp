@@ -6,6 +6,7 @@
     <meta name="pageName" content="species"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Image search | Atlas of Living Australia</title>
+    <link rel="stylesheet" href="${initParam.centralServer}/wp-content/themes/ala/css/bie.css" type="text/css" media="screen" charset="utf-8"/>    
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css"
           media="screen" charset="utf-8"/>
     <link type="text/css" media="screen" rel="stylesheet"
@@ -82,7 +83,6 @@
 
         #headingBar h1 a { text-decoration: none;}
 
-
     </style>
 </head>
 <body>
@@ -126,7 +126,22 @@
 <c:if test="${pageSize < results.totalRecords}">
 <!--    <a id="loadMoreLink" href="javascript:loadNextPage();">SHOW MORE</a> -->
 </c:if>
-
 </div>
+
+<table style="width:100%; cell-padding:0; border:0px;">
+	<tr>
+		<td>
+			<c:if test="${pageSize < results.totalRecords}">
+				<c:if test="${not empty results && results.totalRecords > pageSize}">
+					<div id="searchNavBar">
+					    <alatag:imageNavigationLinks totalRecords="${results.totalRecords}" startIndex="${results.startIndex}"
+					         lastPage="${results.totalRecords/pageSize}" pageSize="${pageSize}"/>
+					</div>
+				</c:if>
+			</c:if>  
+		</td>
+	</tr>
+</table>
+
 </body>
 </html>
