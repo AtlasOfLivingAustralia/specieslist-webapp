@@ -123,22 +123,17 @@
     </tr>
 </table>
 
-<c:if test="${pageSize < results.totalRecords}">
-<!--    <a id="loadMoreLink" href="javascript:loadNextPage();">SHOW MORE</a> -->
-</c:if>
 </div>
 
 <table style="width:100%; cell-padding:0; border:0px;">
 	<tr>
 		<td>
-			<c:if test="${pageSize < results.totalRecords}">
-				<c:if test="${not empty results && results.totalRecords > pageSize}">
-					<div id="searchNavBar">
-					    <alatag:imageNavigationLinks totalRecords="${results.totalRecords}" startIndex="${results.startIndex}"
-					         lastPage="${results.totalRecords/pageSize}" pageSize="${pageSize}"/>
-					</div>
-				</c:if>
-			</c:if>  
+			<c:if test="${not empty results && results.totalRecords > pageSize}">
+				<div id="searchNavBar">
+				    <alatag:imageNavigationLinks totalRecords="${results.totalRecords}" startIndex="${results.startIndex}"
+				         lastPage="${results.totalRecords/pageSize}" pageSize="${pageSize}"/>
+				</div>
+			</c:if> 
 		</td>
 	</tr>
 </table>
