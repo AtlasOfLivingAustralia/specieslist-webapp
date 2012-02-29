@@ -1178,6 +1178,7 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		
 		boolean isScreenshot = false;
 		boolean isPreferredImage = false;
+		boolean isPreferredCommonName = false;
 
 		String occurrenceUid = null;
 		String occurrenceRowKey = null;
@@ -1233,6 +1234,9 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 			}
 			if (predicate.endsWith("isPreferredImage")) {
 			    isPreferredImage = true;
+            }
+			if (predicate.endsWith("isPreferredCommonName")) {
+                isPreferredCommonName = true;
             }
 			if (predicate.endsWith("hasOccurrenceUid")) {
 				occurrenceUid = triple.object.trim();
@@ -1363,6 +1367,11 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 						commonName.setInfoSourceURL(dcSource);
 						commonName.setTitle(dcTitle);
 						commonName.setIdentifier(dcIdentifier);
+						if (isPreferredCommonName) {
+						    commonName.setPreferred(true);
+	                    } else {
+	                        commonName.setPreferred(false);
+	                    }
 						addCommonName(guid, commonName);
 
 					} else if (triple.predicate.endsWith("hasConservationStatus")) {
@@ -2457,8 +2466,21 @@ public class TaxonConceptSHDaoImpl implements TaxonConceptDao {
 		etc.setSynonyms(synonyms);
 		
 		List<CommonName> commonNames = new ArrayList<CommonName>();
+		
+		CommonName preferredCommonName = new CommonName();
+        
         for (CommonName commonName : (List<CommonName>) getColumnValue(map,ColumnType.VERNACULAR_COL)) {
-            commonNames.add((CommonName)populateUid(commonName, infosourceIdUIDMap));
+            if (commonName.isPreferred()) {
+                preferredCommonName = commonName;
+                commonNames.add((CommonName)populateUid(preferredCommonName, infosourceIdUIDMap));
+                break;
+            }
+        }
+        
+        for (CommonName commonName : (List<CommonName>) getColumnValue(map,ColumnType.VERNACULAR_COL)) {
+            if (!commonName.getNameString().equals(preferredCommonName.getNameString())) {
+                commonNames.add((CommonName)populateUid(commonName, infosourceIdUIDMap));
+            }
         }
 		etc.setCommonNames(commonNames);
 		
