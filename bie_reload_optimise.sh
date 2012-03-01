@@ -9,7 +9,7 @@
 
 # bie1 setting 
 cd /data/src/ala-bie/bie-repository/target
-export CLASSPATH=bie-repository-1.0-SNAPSHOT-assembly2.jar
+export CLASSPATH=bie-repository-1.0-SNAPSHOT-assembly.jar
 jar xf $CLASSPATH lib lib
 ulimit -v unlimited
 java  -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.harvester.BiocacheHarvester
