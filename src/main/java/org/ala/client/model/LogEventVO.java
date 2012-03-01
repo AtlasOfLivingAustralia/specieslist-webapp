@@ -44,18 +44,29 @@ public class LogEventVO implements Serializable {
 	
 	private String month = "";
 	
+	private int reasonTypeId = -1;
+	
 	public LogEventVO() {
     }
 
     public LogEventVO(LogEventType eventType, String userEmail, String comment, String userIP, Map<String, Integer> recordCounts) {
-    	this(eventType.getId(), userEmail, comment, userIP, null, recordCounts);
+    	this(eventType.getId(), -1, userEmail, comment, userIP, null, recordCounts);
     }
     
     public LogEventVO(LogEventType eventType, String userEmail, String comment, String userIP, String month, Map<String, Integer> recordCounts) {
-    	this(eventType.getId(), userEmail, comment, userIP, month, recordCounts);
+    	this(eventType.getId(), -1, userEmail, comment, userIP, month, recordCounts);
+    }
+
+    public LogEventVO(LogEventType eventType, LogReasonType logReasonType, String userEmail, String comment, String userIP, Map<String, Integer> recordCounts) {
+    	this(eventType.getId(), logReasonType.getId(), userEmail, comment, userIP, null, recordCounts);
     }
     
-    private LogEventVO(int eventTypeId, String userEmail, String comment, String userIP, String month, Map<String, Integer> recordCounts) {
+    public LogEventVO(LogEventType eventType, LogReasonType logReasonType, String userEmail, String comment, String userIP, String month, Map<String, Integer> recordCounts) {
+    	this(eventType.getId(), logReasonType.getId(), userEmail, comment, userIP, month, recordCounts);
+    }
+        
+    private LogEventVO(int eventTypeId, int reasonTypeId, String userEmail, String comment, String userIP, String month, Map<String, Integer> recordCounts) {
+    	this.reasonTypeId = reasonTypeId;
     	this.eventTypeId = eventTypeId;
     	if(userEmail != null){
     		this.userEmail = userEmail;
@@ -83,11 +94,19 @@ public class LogEventVO implements Serializable {
 	}
 
 	public int getEventTypeId() {
-		return this.eventTypeId;
+		return eventTypeId;
 	}
 
 	public void setEventTypeId(int eventTypeId) {
 		this.eventTypeId = eventTypeId;
+	}
+	
+	public LogEventType getEventType() {
+		return LogEventType.getLogEventType(eventTypeId);
+	}
+
+	public void setEventType(LogEventType logEventType) {
+		this.eventTypeId = logEventType.getId();
 	}
 
 	public Map<String, Integer> getRecordCounts() {
@@ -130,7 +149,23 @@ public class LogEventVO implements Serializable {
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
+
+	public int getReasonTypeId() {
+		return reasonTypeId;
+	}
+
+	public void setReasonTypeId(int reasonTypeId) {
+		this.reasonTypeId = reasonTypeId;
+	}
+
+	public LogReasonType getReasonType() {
+		return LogReasonType.getLogReasonType(reasonTypeId);
+	}
 	
+	public void setReasonType(LogReasonType logReasonType) {
+		this.reasonTypeId = logReasonType.getId();
+	}
+ 
 	/*
 	private String userId;
 

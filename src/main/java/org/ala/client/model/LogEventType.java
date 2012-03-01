@@ -51,5 +51,9 @@ public enum LogEventType {
     @Override
     public String toString() {
     	return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-    }		
+    }
+    
+	public String getInsertSql() {
+		return String.format("INSERT INTO log_event_type (id, rkey, name) VALUES (%d, %s)", this.id, this.name);
+	}    
 }
