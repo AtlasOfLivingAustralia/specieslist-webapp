@@ -12,7 +12,7 @@ cd /data/src/ala-bie/bie-repository/target
 export CLASSPATH=bie-repository-1.0-SNAPSHOT-assembly2.jar
 jar xf $CLASSPATH lib lib
 ulimit -v unlimited
-#java  -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.harvester.BiocacheHarvester
+java  -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.harvester.BiocacheHarvester
 
 # bie2 setting
 #cd /usr/local/src
@@ -24,7 +24,7 @@ cd /data/src/ala-bie/bie-profile/target
 export CLASSPATH=bie-profile-assembly.jar
 jar xf $CLASSPATH lib lib
 ulimit -v unlimited
-#java -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.hbase.RepoDataLoader -reindex -biocache
+java -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.hbase.RepoDataLoader -reindex -biocache
 
 # bie2 setting
 # solr index optimisation
