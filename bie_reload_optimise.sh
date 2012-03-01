@@ -1,18 +1,37 @@
 #!/bin/sh
 
+# bie2 setting
 #havester & repoLoader for biocache image
+#ulimit -v unlimited
+#cd /usr/local/src/havester
+#export CLASSPATH=bie-repository-1.0-SNAPSHOT-assembly.jar:.
+#java  -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.harvester.BiocacheHarvester
+
+# bie1 setting 
+cd /data/src/ala-bie/bie-repository/target
+export CLASSPATH=bie-repository-1.0-SNAPSHOT-assembly2.jar
+jar xf $CLASSPATH lib lib
 ulimit -v unlimited
-cd /usr/local/src/havester
-export CLASSPATH=bie-repository-1.0-SNAPSHOT-assembly.jar:.
-java  -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.harvester.BiocacheHarvester
+#java  -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.harvester.BiocacheHarvester
 
-cd /usr/local/src
-export CLASSPATH=bie-hbase-assembly.jar:.
-java -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.hbase.RepoDataLoader -reindex -biocache
+# bie2 setting
+#cd /usr/local/src
+#export CLASSPATH=bie-hbase-assembly.jar:.
+#java -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.hbase.RepoDataLoader -reindex -biocache
 
+# bie1 setting
+cd /data/src/ala-bie/bie-profile/target
+export CLASSPATH=bie-profile-assembly.jar
+jar xf $CLASSPATH lib lib
+ulimit -v unlimited
+#java -Xmx2g -Xms2g -classpath $CLASSPATH org.ala.hbase.RepoDataLoader -reindex -biocache
 
+# bie2 setting
 # solr index optimisation
-cd /usr/local/src
+#cd /usr/local/src
+
+# bie1 setting
+cd /data/src/ala-bie/bie-webapp
  
 # sample url
 login_reloadCollections=https://auth.ala.org.au/cas/login?service=http://bie.ala.org.au/admin/reloadCollections
