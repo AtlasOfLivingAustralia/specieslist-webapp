@@ -35,12 +35,14 @@ import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchTaxonConceptDTO;
+import org.ala.dto.SpeciesProfileDTO;
 import org.ala.model.CommonName;
 import org.ala.model.Document;
 import org.ala.model.Image;
 import org.ala.model.TaxonConcept;
 import org.ala.repository.Predicates;
 import org.ala.web.admin.dao.ImageUploadDao;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -251,8 +253,61 @@ public class TaxaDownloadController {
 		}
 		return resultsCount;
 	}
-	
-	
+	@RequestMapping(value = "/taxaProfileDownload", method = RequestMethod.GET)
+	public void downloadAllTaxaProfile(HttpServletResponse response) throws Exception{
+	    response.setHeader("Cache-Control", "must-revalidate");
+        response.setHeader("Pragma", "must-revalidate");
+        response.setHeader("Content-Disposition", "attachment;filename=taxon_profile.csv");
+        response.setContentType("text/csv");
+        
+        ServletOutputStream output = response.getOutputStream();
+
+        CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(output), '\t', '"');
+        try{
+            csvWriter.writeNext(new String[]{
+                    "GUID",
+                    "Scientific Name",
+                    "Left",
+                    "Right",
+                    "Rank",
+                    "Common Name",
+                    "Conservation Status",
+                    "Sensitive Status"
+            });
+            String startKey = "";
+            int pageSize = 100;
+            
+            List<SpeciesProfileDTO> profiles = taxonConceptDao.getProfilePage(startKey, pageSize);
+            while(profiles != null && profiles.size()>0){
+                for(SpeciesProfileDTO profile : profiles){
+                    String[] values = new String[]{
+                      profile.getGuid(),      
+                      profile.getScientificName(),
+                      profile.getLeft(),
+                      profile.getRight(),
+                      profile.getRank(),
+                      profile.getCommonName(),
+                      StringUtils.join(profile.getHabitats(),(",")),
+                      StringUtils.join(profile.getConservationStatus(),(",")),
+                      StringUtils.join(profile.getSensitiveStatus(),(","))
+                      
+                    };
+                    csvWriter.writeNext(values);
+                    startKey = profile.getGuid();
+                }
+                profiles = taxonConceptDao.getProfilePage(startKey, pageSize);
+            }
+        }
+        catch (Exception e) {
+            logger.error(e);
+        }
+        finally{
+            if(csvWriter != null){
+                csvWriter.flush();
+                csvWriter.close();
+            }
+        }
+	}
 	
 	/**
 	 * search for lower taxon and create csv file.

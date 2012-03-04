@@ -81,6 +81,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestOperations;
 
 import au.org.ala.data.model.LinnaeanRankClassification;
+import org.ala.model.SynonymConcept;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -459,10 +460,10 @@ public class SpeciesController {
         String[] guids = om.readValue(request.getInputStream(), (new String[0]).getClass());
         List<SearchDTO> resultSet = new ArrayList<SearchDTO>();
         for(int i=0; i< guids.length; i++){
-
-            SearchResultsDTO<SearchDTO> results = searchDao.findByName(IndexedTypes.TAXON, guids[i], null, 0, 1, "score", "asc");
+            //Need to sort the scores descended to get the highest score first
+            SearchResultsDTO<SearchDTO> results = searchDao.findByName(IndexedTypes.TAXON, guids[i], null, 0, 1, "score", "desc");
             if(results.getResults().isEmpty()){
-                results = searchDao.doExactTextSearch(guids[i], null, 0, 1, "score", "asc");
+                results = searchDao.doExactTextSearch(guids[i], null, 0, 1, "score", "desc");
             }
             if(results.getTotalRecords() > 0){
                 repoUrlUtils.fixRepoUrls(results);
@@ -668,7 +669,13 @@ public class SpeciesController {
     	}
     	return recordCounts;
     }
-    
+    /**
+     * This method does not take into account the possibility of a subgenus
+     * @param parameter
+     * @deprecated 
+     * @return
+     */
+    @Deprecated
     private String extractScientificName(String parameter){
         String name = null;
 
@@ -685,7 +692,13 @@ public class SpeciesController {
 
         return name;
     }
-
+    /**
+     * This method has been deprecated because it does not cater for subgenus
+     * @param parameter
+     * @deprectaed
+     * @return
+     */
+    @Deprecated
     private String extractKingdom(String parameter){
         String kingdom = null;
 
@@ -697,14 +710,58 @@ public class SpeciesController {
         }
         return kingdom;
     }
+    /**
+     * Checks to see if the supplied name is a kingdom
+     * @param name
+     * @return
+     */
+    private boolean isKingdom(String name){
+        String lsid = taxonConceptDao.findLsidByName(name, "kingdom");
+        return lsid != null;
+    }
+    /**
+     * Splits up a url into scientific name and kingdom
+     * http://bie.ala.org.au/species/Scatochresis episema (Animalia)
+     * 
+     * But will cater for URLs that contain a subgenus
+     * http://bie.ala.org.au/species/Pulex (Pulex)
+     * 
+     * http://bie.ala.org.au/species/Pulex (Pulex) (Animalia)
+     * 
+     * @param in
+     * @return
+     */
+    private String[] extractComponents(String in){
+        String[] retArray = new String[2];
+        int lastOpen =in.lastIndexOf("(");
+        int lastClose = in.lastIndexOf(")"); 
+        if(lastOpen < lastClose){
+            //check to see if the last brackets are a kingdom
+            String potentialKingdom = in.substring(lastOpen+1, lastClose);
+            if(isKingdom(potentialKingdom)){
+                retArray[0] = in.substring(0, lastOpen);
+                retArray[1] = potentialKingdom;
+            }
+            else{
+                retArray[0] = in;
+            }
+        }
+        else{
+            retArray[0] = in;
+            //kingdom is null
+        }
+        return retArray;
+        
+    }
 
     private String getLsidByNameAndKingdom(String parameter){
         String lsid = null;
         String name = null;
         String kingdom = null;
-
-        name = extractScientificName(parameter);
-        kingdom = extractKingdom(parameter);
+        
+        String[] parts = extractComponents(parameter);
+        name = parts[0];
+        kingdom = parts[1];
         if(kingdom != null){
             LinnaeanRankClassification cl = new LinnaeanRankClassification(kingdom, null);
             cl.setScientificName(name);
@@ -761,8 +818,8 @@ public class SpeciesController {
             @PathVariable("guid") String guid,
             @RequestParam(value="conceptName", defaultValue ="", required=false) String conceptName,
             Model model) throws Exception {
-
-        SearchResultsDTO<SearchDTO> stcs = searchDao.findByName(IndexedTypes.TAXON, guid, null, 0, 1, "score", "asc");
+        //sort by score needs to be desc.
+        SearchResultsDTO<SearchDTO> stcs = searchDao.findByName(IndexedTypes.TAXON, guid, null, 0, 1, "score", "desc");
         if(stcs.getTotalRecords()>0){
             SearchTaxonConceptDTO st = (SearchTaxonConceptDTO) stcs.getResults().get(0);
             model.addAttribute("taxonConcept", repoUrlUtils.fixRepoUrls(st));
@@ -1005,6 +1062,12 @@ public class SpeciesController {
         model.addAttribute("searchResults", searchResults);
         return STATUS_LIST;
     }
+    
+    public List<String> getAustralianSpecies(){
+        
+        return null;
+    }
+    
 
     /**
      * Pest / Conservation status JSON (for yui datatable)
@@ -1093,11 +1156,12 @@ public class SpeciesController {
         List<Map<String, String>> synonyms = new ArrayList<Map<String, String>>();
         
         try {
-            List<TaxonConcept> tcs = taxonConceptDao.getSynonymsFor(guid);
+            List tcs = taxonConceptDao.getSynonymsFor(guid);
             TaxonConcept accepted = taxonConceptDao.getByGuid(guid);
             tcs.add(0, accepted);
             
-            for (TaxonConcept tc : tcs) {
+            for (Object obj : tcs) {
+                TaxonConcept tc = (TaxonConcept)obj;
                 Map<String, String> syn = new HashMap<String, String>();
                 String name = tc.getNameString();
                 String author = (tc.getAuthor() != null) ? tc.getAuthor() : "";
@@ -1551,7 +1615,8 @@ public class SpeciesController {
 	        	Object isAustralian = map.get("isAustralian");
 	        	if(!isAussie.trim().equalsIgnoreCase(isAustralian.toString())){
 	        		try{
-	        			taxonConceptDao.setIsAustralian(guid, ((Boolean)isAustralian).booleanValue());
+	        		    //reindex the taxon concept too.
+	        			taxonConceptDao.setIsAustralian(guid, ((Boolean)isAustralian).booleanValue(), true);	        			        			
 	        		}
 	        		catch(Exception ex){
 	        			logger.error(ex);

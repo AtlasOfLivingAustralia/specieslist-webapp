@@ -64,9 +64,14 @@
     </context-param>
 
 	<!--  biocache server -->
-	<context-param>
+    <context-param>
         <param-name>biocacheUrl</param-name>
         <param-value>http://biocache.ala.org.au/</param-value>
+    </context-param>
+    <!-- biocache webservice server -->
+    <context-param>
+        <param-name>biocacheWSUrl</param-name>
+        <param-value>http://biocache.ala.org.au/ws/</param-value>
     </context-param>
 
     <!-- The Central Server hosting the CMS -->

@@ -68,6 +68,8 @@ public class SearchController {
 	
 	@Inject
 	protected RepoUrlUtils repoUrlUtils;
+
+    protected String biocacheServiceUrl="http://biocache.ala.org.au/ws";
 	
 	/** Name of view for list of taxa */
 	private final String SEARCH_LIST = "search/list"; // "species/list" || "search/species"
@@ -304,7 +306,7 @@ public class SearchController {
 		        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 		        nameValuePairs.add(new NameValuePair("separator", ","));
 		        nameValuePairs.add(new NameValuePair("guids", org.apache.commons.lang.StringUtils.join(guids, ',')));
-		        String json = PageUtils.getUrlContentAsJsonStringByPost("http://biocache.ala.org.au/ws/occurrences/taxaCount", nameValuePairs.toArray(new NameValuePair[]{}));
+		        String json = PageUtils.getUrlContentAsJsonStringByPost(biocacheServiceUrl +"/occurrences/taxaCount", nameValuePairs.toArray(new NameValuePair[]{}));
 	        
 	        	Map map = mapper.readValue(json, Map.class);	        
 		        for(SearchDTO o : results){
@@ -514,4 +516,20 @@ public class SearchController {
 		this.repoUrlUtils = repoUrlUtils;
 	}
 
+    /**
+     * @return the biocacheServiceUrl
+     */
+    public String getBiocacheServiceUrl() {
+        return biocacheServiceUrl;
+    }
+
+    /**
+     * @param biocacheServiceUrl the biocacheServiceUrl to set
+     */
+    public void setBiocacheServiceUrl(String biocacheServiceUrl) {
+        this.biocacheServiceUrl = biocacheServiceUrl;
+    }
+
+	
+	
 }

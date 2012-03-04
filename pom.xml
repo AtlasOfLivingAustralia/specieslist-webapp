@@ -18,11 +18,23 @@
         <netbeans.hint.deploy.server>Tomcat60</netbeans.hint.deploy.server>
     </properties>
     <dependencies>
-        <!-- BIE HBase -->
+    <!--  Remove the guava version conflict issue -->
+    	<dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>11.0.1</version>
+        </dependency>
+        <!-- BIE Profile (used to be bie-hbase)-->
         <dependency>
             <groupId>au.org.ala</groupId>
-            <artifactId>bie-hbase</artifactId>
+            <artifactId>bie-profile</artifactId>
             <version>1.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>guava</artifactId>
+                    <groupId>com.google.guava</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- BIE Repository -->
         <dependency>
@@ -34,6 +46,10 @@
                     <groupId>xerces</groupId>
                     <artifactId>xercesImpl</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>au.org.ala</groupId>
+                    <artifactId>ala-name-matching</artifactId>
+                </exclusion>                
             </exclusions>
         </dependency>
         <!-- ALA common UI -->
@@ -64,6 +80,12 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.15</version>
+            <exclusions>
+<exclusion>
+<groupId>com.sun.jmx</groupId>
+<artifactId>jmxri</artifactId>
+</exclusion>
+</exclusions> 
         </dependency>
         <!-- COMMONS -->
         <dependency>
