@@ -7,7 +7,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-
+@Deprecated
 public enum LogEventType {
 	OCCURRENCE_RECORDS_VIEWED(1000, "OCCURRENCE_RECORDS_VIEWED"),
 	OCCURRENCE_RECORDS_VIEWED_ON_MAP(1001, "OCCURRENCE_RECORDS_VIEWED_ON_MAP"),
