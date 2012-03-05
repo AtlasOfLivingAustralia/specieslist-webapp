@@ -79,11 +79,13 @@
     </distributionManagement>
     
 	<repositories>
+		<!-- 
 		<repository>
 			<id>ala-repository</id>
 			<name>ala-repository</name>
 			<url>http://maven.ala.org.au/repository</url>
 		</repository>
+		-->
 		<!-- Spring 3.0 -->
 		<repository>
 			<id>springsource maven repo</id>
