@@ -42,6 +42,7 @@ import org.ala.dao.DocumentDAO;
 import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.IndexedTypes;
 import org.ala.dao.InfoSourceDAO;
+import org.ala.dao.SolrUtils;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchDTO;
@@ -417,7 +418,7 @@ public class SpeciesController {
         String guid = guidParam;
         logger.debug("Displaying image for: " + guid +" .....");
 
-        SearchResultsDTO<SearchDTO> stcs = searchDao.findByName(IndexedTypes.TAXON, guid, null, 0, 1, "score", "asc");
+        SearchResultsDTO<SearchDTO> stcs = searchDao.findByName(IndexedTypes.TAXON, guid, null, 0, 1, "score", "desc");
         //search by name
         if(stcs.getTotalRecords() == 0){
             logger.debug("Searching with by name instead....");
@@ -472,6 +473,21 @@ public class SpeciesController {
         }
         return resultSet.toArray(new SearchDTO[0]);
     }
+    /**
+     * A more efficient ws for looking up a batch of guids.
+     *  
+     * 
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = {"/species/guids/bulklookup.json","/ws/species/guids/bulklookup.json"}, method = RequestMethod.POST)
+    public SearchDTO[] bulkImageLookupBasedOnGuids(HttpServletRequest request) throws Exception {
+        ObjectMapper om = new ObjectMapper();
+        String[] guids = om.readValue(request.getInputStream(), (new String[0]).getClass());
+        return searchDao.findByGuids(guids).getResults().toArray(new SearchDTO[]{});
+    }
+    
 
     /**
      * Map to a /{guid} URI.
@@ -761,6 +777,8 @@ public class SpeciesController {
         
         String[] parts = extractComponents(parameter);
         name = parts[0];
+        name = name.replaceAll("_", " ");
+        name = name.replaceAll("\\+", " ");
         kingdom = parts[1];
         if(kingdom != null){
             LinnaeanRankClassification cl = new LinnaeanRankClassification(kingdom, null);
@@ -1058,7 +1076,7 @@ public class SpeciesController {
         }
         model.addAttribute("statusType", statusType);
         model.addAttribute("filterQuery", filterQuery);
-        SearchResultsDTO searchResults = searchDao.findAllByStatus(statusType, filterQuery,  0, 10, "score", "asc");// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
+        SearchResultsDTO searchResults = searchDao.findAllByStatus(statusType, filterQuery,  0, 10, "score", "desc");// findByScientificName(query, startIndex, pageSize, sortField, sortDirection);
         model.addAttribute("searchResults", searchResults);
         return STATUS_LIST;
     }
@@ -1093,6 +1111,7 @@ public class SpeciesController {
 
         StatusType statusType = StatusType.getForStatusType(statusStr);
         SearchResultsDTO searchResults = null;
+        sortDirection = SolrUtils.getSortDirection(sortField, sortDirection);        
 
         if (statusType!=null) {
             searchResults = searchDao.findAllByStatus(statusType, filterQuery, startIndex, pageSize, sortField, sortDirection);

@@ -85,7 +85,7 @@
 <groupId>com.sun.jmx</groupId>
 <artifactId>jmxri</artifactId>
 </exclusion>
-</exclusions> 
+</exclusions>
         </dependency>
         <!-- COMMONS -->
         <dependency>
@@ -237,7 +237,7 @@
             <artifactId>json-taglib</artifactId>
             <version>0.4.1</version>
         </dependency>
-        
+
         <!-- bie-admin -->
         <!-- JSR 303 BEAN VALIDATION -->
         <dependency>
@@ -251,6 +251,11 @@
             <artifactId>hibernate-validator</artifactId>
             <version>4.0.0.GA</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>11.0.1</version>
         </dependency>
     </dependencies>
     <repositories>

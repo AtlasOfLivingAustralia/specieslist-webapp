@@ -1216,7 +1216,14 @@ Read Only Mode
                                                 <img src="${pageContext.request.contextPath}/static/images/au.gif" alt="Recorded in Australia" class="no-rounding" title="Recorded in Australia"/>
                                             </c:when>
                                             <c:otherwise>
-                                                <span class="inferredPlacement" title="Not recorded in Australia">[inferred placement]</span>
+                                            	<c:choose>
+                                            		<c:when test="${fn:startsWith(child.guid, 'urn:lsid:catalogueoflife.org:taxon')}">
+                                            			<span class="inferredPlacement" title="Not recorded in Australia">[inferred placement]</span>
+                                            		</c:when>
+                                            		<c:otherwise>
+                                            			<span class="inferredPlacement" title="Not recorded in Australia"></span>
+                                            		</c:otherwise>                                            		
+                                            	</c:choose>                                                
                                             </c:otherwise>
                                         </c:choose>
                                     </span>

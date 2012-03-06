@@ -58,6 +58,12 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
                     <li>HTTP POST a JSON body containing an array of GUIDs or names.</li>
                 </ul>
             </li>
+            <li><strong>Bulk lookup based on guids: </strong> /species/guids/bulklookup.json<br/>
+            	A more efficient bulk lookup based on GUIDs.
+            	<ul class="paramList">
+                    <li>HTTP POST a JSON body containing an array of GUIDs.</li>
+                </ul>
+            </li>
         </ul>
 
         <h3>Species</h3>
