@@ -447,6 +447,10 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                  background: none;
                  padding: 0;
             }
+            
+		    #names cite { line-height:1.2em; }
+		    #names cite span { font-size:12px; }            
+            
         </style>
     </head>
     <body id="taxon">
