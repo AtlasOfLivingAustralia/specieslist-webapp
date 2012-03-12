@@ -379,7 +379,7 @@
                         </c:when>
                         <c:when test="${result.class.name == 'org.ala.dto.SearchRegionDTO'}">
                             <h4><fmt:message key="idxType.${result.idxType}"/>:
-                                <a href="${pageContext.request.contextPath}/regions/${result.guid}">${result.name}</a></h4>
+                                <a href="${result.guid}">${result.name}</a></h4>
                             <p>
                                 <span>Region type: ${result.regionTypeName}</span>
                                 <!-- ${sectionText} -->
