@@ -24,6 +24,7 @@ import org.ala.dao.TaxonConceptDao;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
+import org.ala.model.TaxonConcept;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Controller for serving region pages and views around regions.
@@ -121,4 +123,42 @@ public class ImageSearchController {
 	public void setTaxonConceptDao(TaxonConceptDao taxonConceptDao) {
 		this.taxonConceptDao = taxonConceptDao;
 	}
-}
+	
+    /**
+     * JSON web service to return a list of img src
+     * 
+     */
+	@RequestMapping("/image-search/showSpecies.json")
+	public @ResponseBody SearchResultsDTO<SearchDTO> searchJson(
+			@RequestParam(value="taxonRank") String taxonRank,
+			@RequestParam(value="scientificName") String scientificName,
+			@RequestParam(value="fq", required=false) String[] fq,
+			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
+			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
+			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
+			@RequestParam(value="pageSize", required=false, defaultValue="1024") Integer pageSize) throws Exception {
+		List<String> filterQueries = new ArrayList<String>();
+		filterQueries.add("idxtype:TAXON");
+		filterQueries.add("hasImage:true");
+        filterQueries.add("rank:species");
+        filterQueries.add("australian_s:recorded");
+
+		if(fq!=null && fq.length>0){
+			for(String f: fq) { filterQueries.add(f); }
+		}
+
+        if("order".equals(taxonRank)){
+            taxonRank  = "bioOrder";
+        }
+
+		filterQueries.add(taxonRank+":"+scientificName);
+
+//        Integer noOfColumns = screenWidth / (maxWidthImages + 2);
+//        Integer pageSize = noOfColumns * 12;
+
+		SearchResultsDTO<SearchDTO> results = searchDao.doFullTextSearch(null, (String[]) filterQueries.toArray(new String[0]), startIndex, pageSize, sortField, sortDirection);
+		results = repoUrlUtils.fixRepoUrls(results);
+		
+		return results;
+	}		
+ }

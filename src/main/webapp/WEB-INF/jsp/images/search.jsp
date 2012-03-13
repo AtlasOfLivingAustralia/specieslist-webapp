@@ -6,18 +6,141 @@
     <meta name="pageName" content="species"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Image search | Atlas of Living Australia</title>
-    <link rel="stylesheet" href="${initParam.centralServer}/wp-content/themes/ala/css/bie.css" type="text/css" media="screen" charset="utf-8"/>
+    <link rel="stylesheet" href="${initParam.centralServer}/wp-content/themes/ala/css/bie.css" type="text/css" media="screen" charset="utf-8"/>    
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/screen.css" type="text/css"
           media="screen" charset="utf-8"/>
     <link type="text/css" media="screen" rel="stylesheet"
           href="${pageContext.request.contextPath}/static/css/colorbox.css"/>
     <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.colorbox-min.js"></script>
     <script type="text/javascript">
+	    var prevPage = 0;
+	    var currentPage = 1;
+    	var lastPage=${results.totalRecords/pageSize};
+
+        function imageLoad() {
+            $('#divPostsLoader').html('<img src="${pageContext.request.contextPath}/static/images/ajax-loader.gif">'); 
+
+            //send a query to server side to present new content 
+            $.ajax({ 
+                type: "POST", 
+                url: "./showSpecies.json?taxonRank=${param['taxonRank']}&scientificName=${param['scientificName']}&start=" + (currentPage * ${pageSize}) + "&pageSize=" + ${pageSize}, 
+                contentType: "application/json; charset=utf-8", 
+                dataType: "json", 
+                success: function (data) { 
+                    if (data != "") {                    	
+                    	//addRow(data);
+                    	addTable(data);
+                    	currentPage = currentPage + 1;
+                    } 
+                    $('#divPostsLoader').empty(); 
+                } 
+
+            }) 
+        }; 
+
+<%--        
+    	function addRow(data) {
+    		var td1 = '<td style="width:${maxWidthImages}px">';
+    		var td2 = '</td>';
+    		var tr = '';
+    		var href2 = '</a>';
+    		var images = ''
+    		var j = 0;
+    		for(i = 0; i < data.results.length; i++){  
+    			var href1 = '<a class="thumbImage" href="${pageContext.request.contextPath}/image-search/infoBox?q=' +  data.results[i].guid + '">';
+    			var imageUrl = data.results[i].thumbnail;
+    			if(imageUrl != null){
+    				imageUrl = imageUrl.replace('thumbnail', 'smallRaw');
+    			}
+    			
+    			var image = href1 + '<img src=' + imageUrl + ' class="searchImage" style="max-width:${maxWidthImages}px; max-height:150px;"/>' + href2 + '<br/>';
+    			var name = data.results[i].commonNameSingle;
+    			if(name != '' && name != null){
+    				image = image + name + '<br/>';
+    			}
+    			
+    			if(data.results[i].nameComplete != null && data.results[i].nameComplete != ''){
+    				image += '<i>' + data.results[i].nameComplete + '</i>';
+    			}
+    			images = images + td1 + image + td2;
+    			
+    			j = i + 1;
+				if((j % ${noOfColumns} == 0 && i > 0) || (j == data.results.length)){
+    				tr = '<tr>' + images + '</tr>';
+        			$('#imageTable0 tr:last').after(tr);
+        			images = '';
+    			}
+    		}
+    		// reload cbox handler
+    		loadCbox();
+    	}    
+--%>
+
+       	function addTable(data) {
+       		var tbl1 = '<table id="imageTable' + currentPage + '" style="width:100%; cell-padding:0; border:0px;">';
+       		var tbl2 = '</table>';
+    		var td1 = '<td style="width:${maxWidthImages}px">';
+    		var td2 = '</td>';
+    		var tr = '';
+    		var href2 = '</a>';
+    		var images = '';
+    		var tbl = '';
+    		var j = 0;
+    		for(i = 0; i < data.results.length; i++){  
+    			var href1 = '<a class="thumbImage" href="${pageContext.request.contextPath}/image-search/infoBox?q=' +  data.results[i].guid + '">';
+    			var imageUrl = data.results[i].thumbnail;
+    			if(imageUrl != null){
+    				imageUrl = imageUrl.replace('thumbnail', 'smallRaw');
+    			}
+    			
+    			var image = href1 + '<img src=' + imageUrl + ' class="searchImage" style="max-width:${maxWidthImages}px; max-height:150px;"/>' + href2 + '<br/>';
+    			var name = data.results[i].commonNameSingle;
+    			if(name != '' && name != null){
+    				image = image + name + '<br/>';
+    			}
+    			
+    			if(data.results[i].nameComplete != null && data.results[i].nameComplete != ''){
+    				image += '<i>' + data.results[i].nameComplete + '</i>';
+    			}
+    			images = images + td1 + image + td2;
+    			
+    			j = i + 1;
+				if((j % ${noOfColumns} == 0 && i > 0) || (j == data.results.length)){
+    				tr = '<tr>' + images + '</tr>';
+        			//$('#imageTable:last').after(tr);
+        			tbl = tbl + tr;
+        			images = '';
+    			}
+    		}
+    		$('#imageTable' + (currentPage - 1) + ':last').after(tbl1 + tbl + tbl2);
+    		// reload cbox handler
+    		loadCbox();
+    	}    
+    	
+    	function loadCbox() {
+    		// Gallery image popups using ColorBox
+            $("a.thumbImage").colorbox({
+                title: function() {
+                    return "";
+                },
+                opacity: 0.5,
+                height: "420px",
+                width: "700px",
+                preloading: false,
+                'easingIn'   : 'easeOutQuad',
+                'easingOut'  : 'easeInQuad',
+                onComplete: function() {
+                }
+            });
+    	}
+    	
         /**
          * OnLoad equavilent in JQuery
          */
         $(document).ready(function() {
-
+        	currentPage = 1;
+        	lastPage=${results.totalRecords/pageSize};
+        	
             //alert('Starting - checing screen res');
             //is there a screen res variable
             var screenWidth = $(window).width();
@@ -37,23 +160,27 @@
             }
 
             // Gallery image popups using ColorBox
-            $("a.thumbImage").colorbox({
-                title: function() {
-                    return "";
-                },
-                opacity: 0.5,
-                height: "420px",
-                width: "700px",
-                preloading: false,
-                'easingIn'   : 'easeOutQuad',
-                'easingOut'  : 'easeInQuad',
-                onComplete: function() {
-                }
-            });
+            // init loadup first page images handler.
+            loadCbox();              
         });
+               
+        //When scroll down, the scroller is at the bottom with the function below and fire the load function 
+        $(window).scroll(function () { 
+            if ($(window).scrollTop() == $(document).height() - $(window).height()) { 
+            	//console.log("**** currentPage !!!! " + currentPage + ', lastPage: ' + lastPage);
+            	if(lastPage > currentPage){            		
+            		// prevent double request
+            		if($('#divPostsLoader').html() == ''){
+            			//console.log("**** imageLoad !!!! " + currentPage);
+                    	imageLoad();
+            		}
+                }
+            } 
+        });             
 
-        var currentPage = 1;
-
+        $(window).unload(function() {
+        	scrollTo(0,0);
+        }); 
     </script>
     <style type="text/css">
         .searchImage {
@@ -98,7 +225,7 @@
 
 <div id="imageResults">
 
-<table style="width:100%; cell-padding:0; border:0px;">
+<table id="imageTable0" style="width:100%; cell-padding:0; border:0px;">
     <tr>
         <c:forEach items="${results.results}" var="searchTaxon" varStatus="status">
         <c:if test="${status.index % noOfColumns == 0 && status.index>0}"></tr>
@@ -124,19 +251,23 @@
 </table>
 
 </div>
-     
- 	<table style="width:100%; cell-padding:0; border:0px;">
-		<tr>
-			<td>
-				<c:if test="${not empty results && results.totalRecords > pageSize}">
-					<div id="searchNavBar">
-						<alatag:imageNavigationLinks totalRecords="${results.totalRecords}" startIndex="${results.startIndex}"
-						lastPage="${results.totalRecords/pageSize}" pageSize="${pageSize}"/>
-					</div>
-				</c:if>
-			</td>
-		</tr>
-	</table>
+
+<div style="margin-left:auto;margin-right:auto; width:120px;"  id="divPostsLoader"></div> 
+ 
+<!-- 
+<table style="width:100%; cell-padding:0; border:0px;">
+	<tr>
+		<td>
+			<c:if test="${not empty results && results.totalRecords > pageSize}">
+				<div id="searchNavBar">
+				    <alatag:imageNavigationLinks totalRecords="${results.totalRecords}" startIndex="${results.startIndex}"
+				         lastPage="${results.totalRecords/pageSize}" pageSize="${pageSize}"/>
+				</div>
+			</c:if> 
+		</td>
+	</tr>
+</table>
+-->
 
 </body>
 </html>
