@@ -87,6 +87,10 @@ public class LogEventVO implements Serializable {
     		this.recordCounts = recordCounts;
     	}    	
     }
+
+    public LogEventVO(int eventTypeId, Integer reasonTypeId, Integer sourceTypeId, String userEmail, String comment, String userIP, Map<String, Integer> recordCounts) {
+    	this(eventTypeId, reasonTypeId, sourceTypeId, userEmail, comment, userIP, null, recordCounts);
+    }
     
 	public String getComment() {
 		return this.comment;
