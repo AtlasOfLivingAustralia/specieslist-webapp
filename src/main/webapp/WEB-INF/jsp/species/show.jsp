@@ -543,7 +543,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                         <div id="legendDiv" class="left" style="margin-top: 80px; margin-left: 20px;">
                             <img id="mapLegend" src='http://biocache.ala.org.au/ws/density/legend?q=lsid:"${extendedTaxonConcept.taxonConcept.guid}"' class="distroLegend" alt="map legend" onerror="this.style.display='none'"/>
                         </div>
-                        <p style="clear: both; margin-left: 50px;"><span class="asterisk-container"><a href="${wordPressUrl}/about/progress/map-ranges/">Learn more about Atlas maps</a>&nbsp;</span></p>
+                        <p style="clear: both; margin-left: 50px;"><span class="asterisk-container"><a href="${wordPressUrl}/faq/species-data/errors-in-maps/">Learn more about Atlas maps</a>&nbsp;</span></p>
                     </div>
                     <c:set var="descriptionBlock">
                         <c:forEach var="textProperty" items="${textProperties}" varStatus="status">
@@ -580,14 +580,21 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                     <td style="white-space: nowrap;">
                                         <c:choose>
                                         	<c:when test="${not empty infoSource.infoSourceURL && infoSource.infoSourceURL == 'http://www.ala.org.au'}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${infoSource.infoSourceName}</c:when>
-                                            <c:when test="${not empty infoSource.identifier}"><a href="${infoSource.identifier}" onclick="window.open(this.href); return false;" class="infosource">${infoSource.infoSourceName}</a></c:when>
-                                            <c:when test="${not empty infoSource.infoSourceURL}"><a href="${infoSource.infoSourceURL}" onclick="window.open(this.href); return false;" class="infosource">${infoSource.infoSourceName}</a></c:when>
+                                            <%--
+                                            <!-- online resources link will point to data provider home page -->
+                                            <c:when test="${not empty infoSource.identifier}">${infoSource.infoSourceId}
+                                            	<a href="${infoSource.identifier}" onclick="window.open(this.href); return false;" class="infosource">${infoSource.infoSourceName}</a>
+                                            </c:when>
+                                            --%> 
+                                            <c:when test="${not empty infoSource.infoSourceURL}">
+                                            	<a href="${infoSource.infoSourceURL}" onclick="window.open(this.href); return false;" class="infosource">${infoSource.infoSourceName}</a>
+                                            </c:when>
                                             <c:otherwise>${infoSource.infoSourceName}</c:otherwise>
                                         </c:choose><!--${status.count}-->
                                     </td>
                                     <td class="small-font">
                                         <c:forEach items="${infoSource.sections}" var="section" varStatus="s">
-                                            <fmt:message key="${section}"/><c:if test="${!s.last}">,</c:if>
+                                            <fmt:message key="${section}" var="_msg"/>${_msg}<c:if test="${not empty _msg && !s.last}">,</c:if>
                                         </c:forEach>
                                     </td>
                                 </tr>
@@ -606,7 +613,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                 <tr class="border-top">
                                     <td style="white-space: nowrap;">
                                         <c:choose>
-                                            <c:when test="${not empty infoSource.infoSourceURL}"><a href="${infoSource.infoSourceURL}" onclick="window.open(this.href); return false;" class="infosource">${infoSource.infoSourceName}</a></c:when>
+                                            <c:when test="${not empty infoSource.infoSourceURL}">****${infoSource.infoSourceId}<a href="${infoSource.infoSourceURL}" onclick="window.open(this.href); return false;" class="infosource">${infoSource.infoSourceName}</a></c:when>
                                             <c:otherwise>${infoSource.infoSourceName}</c:otherwise>
                                         </c:choose><!--${status.count}-->
                                     </td>
@@ -829,7 +836,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                         </c:if>
                                         <c:set var="imageUri">
                                             <c:choose>
-                                                <c:when test="${not empty image.isPartOf}">
+                                                <c:when test="${not empty image.isPartOf && empty image.occurrenceUid}">
                                                     ${image.isPartOf}
                                                 </c:when>
                                                 <c:when test="${not empty image.identifier}">
@@ -848,6 +855,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                             <cite>Source: <a href="${image.infoSourceURL}" onclick="window.open(this.href); return false;">${image.infoSourceName}</a></cite>
                                          </c:when>                                         
                                          <c:otherwise>
+                                         <%--
+                                         <!-- issue 346: Gallery images from Flickr (biocache image) -->
                                          <c:choose>
                                          <c:when test="${not empty image.occurrenceUid}">
                                             <cite>
@@ -858,6 +867,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                          	<cite>Source: <a href="${imageUri}" onclick="window.open(this.href); return false;">${image.infoSourceName}</a></cite>
                                          </c:otherwise>
                                          </c:choose>
+                                          --%>
+                                          <cite>Source: <a href="${imageUri}" onclick="window.open(this.href); return false;">${image.infoSourceName}</a></cite>
                                          </c:otherwise>
                                         </c:choose>
                                         
@@ -1159,10 +1170,14 @@ Read Only Mode
                             </td>
                             <td class="source">
                                 <c:forEach items="${sortCommonNameSources[nkey]}" var="commonName">
+                                    <%--
+                                    <!-- fixed : issue 346 --> 
                                     <c:choose>
                                         <c:when test="${not empty commonName.identifier && not empty commonName.infoSourceName}"><cite>Source: <a href="${commonName.identifier}" onclick="window.open(this.href); return false;">${commonName.infoSourceName}</a></cite></c:when>
                                         <c:otherwise><cite>Source:&nbsp;<a href="${commonName.infoSourceURL}" onclick="window.open(this.href); return false;">${commonName.infoSourceName}</a></cite></c:otherwise>
                                     </c:choose>
+                                    --%>
+                                    <cite>Source:&nbsp;<a href="${commonName.infoSourceURL}" onclick="window.open(this.href); return false;">${commonName.infoSourceName}</a></cite>
                                 </c:forEach>
                             </td>
                     	</tr>

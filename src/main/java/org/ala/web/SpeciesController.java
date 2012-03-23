@@ -1366,11 +1366,15 @@ public class SpeciesController {
                 if (img.getCreator() != null) {
                     text.append("(by ").append(img.getCreator()).append(")");
                 }
+                /*
+                // issue 346: removed below section
                 if (img.getIsPartOf() != null) {
                     extractInfoSources(img, infoSourceMap, text.toString(), "Images", img.getIsPartOf());
                 } else {
                     extractInfoSources(img, infoSourceMap, text.toString(), "Images");
                 }
+                */
+                extractInfoSources(img, infoSourceMap, text.toString(), "Images");
             }
         }
         if (etc.getDistributionImages() != null) {
@@ -1379,11 +1383,15 @@ public class SpeciesController {
                 if (img.getCreator() != null) {
                     text.append("(by ").append(img.getCreator()).append(")");
                 }
+                /*
+                // issue 346: removed below section
                 if (img.getIsPartOf() != null) {
                     extractInfoSources(img, infoSourceMap, text.toString(), "Images", img.getIsPartOf());
                 } else {
                     extractInfoSources(img, infoSourceMap, text.toString(), "Images");
                 }
+                */
+                extractInfoSources(img, infoSourceMap, text.toString(), "Images");
             }
         }
         if (etc.getScreenshotImages() != null) {
@@ -1394,11 +1402,15 @@ public class SpeciesController {
                 if (img.getCreator() != null) {
                     text.append("(by ").append(img.getCreator()).append(")");
                 }
+                /*
+                // issue 346: removed below section
                 if (img.getIsPartOf() != null) {
                     extractInfoSources(img, infoSourceMap, text.toString(), "Images", img.getIsPartOf());
                 } else {
                     extractInfoSources(img, infoSourceMap, text.toString(), "Images");
                 }
+                */
+                extractInfoSources(img, infoSourceMap, text.toString(), "Images");
             }
         }        
         if (etc.getPublicationReference() != null) {
