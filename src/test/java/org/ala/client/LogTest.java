@@ -21,6 +21,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 
 
+
 public class LogTest {
 	private static Logger logger = Logger.getLogger(LogTest.class);
 	
