@@ -144,6 +144,8 @@
         }
 
         nav { width:100% !important; }
+        #nav-site { width:100% ;}
+        nav ol { display:none; }                
 
     </style>
 </html>
