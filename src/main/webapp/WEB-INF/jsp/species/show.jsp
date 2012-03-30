@@ -450,7 +450,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
             
 		    #names cite { line-height:1.2em; }
 		    #names cite span { font-size:12px; }            
-            
+    		
+    		#recordBreakdowns ul { margin-left:30px; }
         </style>
     </head>
     <body id="taxon">
