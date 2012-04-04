@@ -24,7 +24,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
         <script language="JavaScript" type="text/javascript" src="${wordPressUrl}/wp-content/themes/ala/scripts/ui.tabs.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.4.pack.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.colorbox-min.js"></script>
-        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.easing.1.3.js"></script>
+        <%-- <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.easing.1.3.js"></script> --%>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.favoriteIcon.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.qtip-1.0.0.min.js"></script>
         <script type="text/javascript" src="http://www.google.com/jsapi"></script>
@@ -119,15 +119,32 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     maxHeight: "80%",
                     preloading: false,
                     onComplete: function() {
-                        $("#cboxTitle").html(""); // Clear default title div
+                     	$("#cboxTitle").html(""); // Clear default title div
                         var index = $(this).attr('id').replace("thumb",""); // get the imdex of this image
                         var titleHtml = $("div#thumbDiv"+index).html(); // use index to load meta data
                         $("<div id='titleText'>"+titleHtml+"</div>").insertAfter("#cboxPhoto");
                         $("div#titleText").css("padding-top","8px");
-                        $.fn.colorbox.resize();
+                        var cbox = $.fn.colorbox;
+                        if( cbox != undefined){
+                        	cbox.resize();
+                        }
+                        else{
+                        	console.log("cboxis undefined 0: " + cbox);
+                        }                    	
                     }
                 });
 
+             	// image-search popups using ColorBox for high taxa
+                $("a.thumbImage1").colorbox({
+                    title: function() {
+                        return "";
+                    },
+                    opacity: 0.5,
+                    height: "500px",
+                    width: "700px",
+                    preloading: true,
+                });
+                
                 // images in overview tab should trigger lightbox
                 $("#images ul a").click(function(e) {
                     e.preventDefault(); //Cancel the link behavior
@@ -408,8 +425,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     $('#isAustralianSwitch').html(showTaxaHtml);
                     $('ul.childClassification li').hide();
                     $('ul.childClassification li.recorded').show();
-                });
-                
+                });                
             });  // end document ready function
 
             /**
@@ -422,7 +438,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
             }
 
             google.load("visualization", "1", {packages:["corechart"]});
-
+            
         </script>
         <link rel="stylesheet" type="text/css" href="${wordPressUrl}/wp-content/themes/ala/css/speciesPage.css" media="screen" />
         <style type="text/css">
@@ -711,28 +727,43 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                             <c:when test="${not empty extendedTaxonConcept.taxonConcept.rankID && extendedTaxonConcept.taxonConcept.rankID < 7000}">
                                 <c:set var="imageLimit" value="6"/>
                                 <c:set var="imageSize" value="150"/>
+		                        <c:forEach items="${extraImages}" var="searchTaxon" varStatus="status">
+		                            <c:set var="imageSrc" value="${searchTaxon.thumbnailUrl}"/>
+		                            <c:if test="${status.index < imageLimit}">
+		                                <li>
+											<a id="popUp${status.index}" class="thumbImage1" href="${pageContext.request.contextPath}/image-search/infoBox?q=${searchTaxon.guid}" >
+										   		<img src="${searchTaxon.thumbnailUrl}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/>
+											</a>		                                    
+		                                </li>
+		                            </c:if>
+		                        </c:forEach>
+		                        <li>
+			                        <a onclick='javascript:window.location.href="${pageContext.request.contextPath}/image-search/showSpecies?taxonRank=${extendedTaxonConcept.taxonConcept.rankString}&scientificName=${extendedTaxonConcept.taxonConcept.nameString}";'>
+			                        View images of species for ${sciNameFormatted}</a>
+                        		</li>
+		                        
                             </c:when>
                             <c:otherwise>
                                 <c:set var="imageLimit" value="1"/>
                                 <c:set var="imageSize" value="314"/>
+		                        <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
+		                            <c:set var="imageSrc" value="${fn:replace(image.repoLocation, '/raw.', '/smallRaw.')}"/>
+		                            <c:if test="${status.index < imageLimit}">
+		                                <li>
+		                                    <a href="${status.index}" title=""><img src="${imageSrc}" class="overviewImage" style="max-width: ${imageSize}px" alt="" /></a>
+		                                    <c:if test="${not empty image.creator}">
+		                                        <cite>Image by: ${image.creator}
+		                                            <c:if test="${not empty image.rights}">
+		                                            <br/>Rights: ${image.rights}
+		                                            </c:if>
+		                                            <br/><alatag:imageSourceURL image="${image}"/>
+		                                        </cite>
+		                                    </c:if>
+		                                </li>
+		                            </c:if>
+		                        </c:forEach>                                
                             </c:otherwise>
                         </c:choose>
-                        <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
-                            <c:set var="imageSrc" value="${fn:replace(image.repoLocation, '/raw.', '/smallRaw.')}"/>
-                            <c:if test="${status.index < imageLimit}">
-                                <li>
-                                    <a href="${status.index}" title=""><img src="${imageSrc}" class="overviewImage" style="max-width: ${imageSize}px" alt="" /></a>
-                                    <c:if test="${not empty image.creator}">
-                                        <cite>Image by: ${image.creator}
-                                            <c:if test="${not empty image.rights}">
-                                            <br/>Rights: ${image.rights}
-                                            </c:if>
-                                            <br/><alatag:imageSourceURL image="${image}"/>
-                                        </cite>
-                                    </c:if>
-                                </li>
-                            </c:if>
-                        </c:forEach>
                     </ul>
                 </div>
                 <c:choose>

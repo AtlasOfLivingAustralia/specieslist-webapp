@@ -663,10 +663,42 @@ public class SpeciesController {
 		        logger.log(RestLevel.REMOTE, vo);
 	        }
         }
+        
+        // if highTaxa then get more image from image-search
+        if(etc.getTaxonConcept().getRankID() < 7000 ){
+        	List<SearchDTO> extraImages = imageSearch(etc.getTaxonConcept().getRankString(), etc.getTaxonConcept().getNameString());
+        	model.addAttribute("extraImages", extraImages);
+        }
         logger.debug("Returning page view for: " + guid +" .....");
         return SPECIES_SHOW;
     }
 
+    private List<SearchDTO> imageSearch(String taxonRank, String scientificName){
+		List<String> filterQueries = new ArrayList<String>();
+		filterQueries.add("idxtype:TAXON");
+		filterQueries.add("hasImage:true");
+        filterQueries.add("rank:species");
+        filterQueries.add("australian_s:recorded");
+
+
+        if("order".equals(taxonRank)){
+            taxonRank  = "bioOrder";
+        }
+
+		filterQueries.add(taxonRank+":"+scientificName);
+
+		List<SearchDTO> images = null;
+		try {
+			SearchResultsDTO<SearchDTO> results = searchDao.doFullTextSearch(null, (String[]) filterQueries.toArray(new String[0]), 0, 10, "score", "asc");
+			results = repoUrlUtils.fixRepoUrls(results);
+			images = results.getResults();
+		} catch (Exception e) {
+			images = new ArrayList<SearchDTO>();
+			logger.error("imageSearch: " + e);
+		}		
+		return images;    	
+    }
+    
     private Map<String, Integer> createImageSourceMap(ExtendedTaxonConceptDTO etc){
     	Map<String, Integer> recordCounts = new Hashtable<String, Integer>();
     	if(etc != null && etc.getImages() != null){

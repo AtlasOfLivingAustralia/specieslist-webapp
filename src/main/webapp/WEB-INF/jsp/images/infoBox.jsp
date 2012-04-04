@@ -7,7 +7,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<script language="JavaScript" type="text/javascript" src="${initParam.centralServer}/wp-content/themes/ala/scripts/jquery-1.4.3.min.js"></script>
+
 </head>
 <body>
 
@@ -19,12 +19,37 @@
 var imageIndex = 0;
 var noOfImages = ${fn:length(extendedTaxonConcept.images)};
 
-var imageArray = Array(<c:forEach items="${extendedTaxonConcept.images}" var="image" varStatus="status"><c:if test="${status.index>0}">,</c:if>'${fn:replace(image.repoLocation,"raw","smallRaw")}'</c:forEach>)
+//var imageArray = Array(<c:forEach items="${extendedTaxonConcept.images}" var="image" varStatus="status"><c:if test="${status.index>0}">,</c:if>'${fn:replace(image.repoLocation,"raw","smallRaw")}'</c:forEach>)
+var imageArray = Array();
+
+<c:forEach items="${extendedTaxonConcept.images}" var="image" varStatus="status">
+	var imageObj = new Object();
+	var info = '';
+	<c:if test="${not empty image.title}">
+        info += 'Title: ${image.title}<br/>';
+    </c:if>
+    <c:if test="${not empty image.creator}">
+        info += 'Image by: ${image.creator}<br/>';
+    </c:if>
+    <c:if test="${not empty image.locality}">
+        info += 'Locality: ${image.locality}<br/>';
+    </c:if>
+    <c:if test="${not empty image.licence}">
+        info += 'Licence: ${image.licence}<br/>';
+    </c:if>
+    <c:if test="${not empty image.rights}">
+        info += 'Rights: ${image.rights}<br/>';
+    </c:if>
+	imageObj.url = '${fn:replace(image.repoLocation,"raw","smallRaw")}';			
+	imageObj.info = info;
+	imageArray.push(imageObj);
+</c:forEach>
 
 function nextImage(){
     if(imageIndex + 1 < noOfImages){
         imageIndex = imageIndex +1;
-        $('#selectedImage').attr('src',imageArray[imageIndex]);
+        $('#selectedImage').attr('src',imageArray[imageIndex].url);
+        $('#imageInfo').html(imageArray[imageIndex].info);
         $('#imageCounter').html(imageIndex+1)
     }
 }
@@ -32,23 +57,27 @@ function nextImage(){
 function nextImageWithRoll(){
     if(imageIndex + 1 < noOfImages){
         imageIndex = imageIndex +1;
-        $('#selectedImage').attr('src',imageArray[imageIndex]);
-        $('#imageCounter').html(imageIndex+1)
+        $('#selectedImage').attr('src',imageArray[imageIndex].url);
+        $('#imageInfo').html(imageArray[imageIndex].info);
+        $('#imageCounter').html(imageIndex+1)         
     } else {
         imageIndex = 0
-        $('#selectedImage').attr('src',imageArray[imageIndex]);
-        $('#imageCounter').html(imageIndex+1)
-    }
+        $('#selectedImage').attr('src',imageArray[imageIndex].url);
+        $('#imageInfo').html(imageArray[imageIndex].info);
+        $('#imageCounter').html(imageIndex+1)        
+    } 
 }
 
 function previousImage(){
 	if(imageIndex>0){
 	    imageIndex = imageIndex - 1;
-	    $('#selectedImage').attr('src',imageArray[imageIndex]);
+	    $('#selectedImage').attr('src',imageArray[imageIndex].url);
+	    $('#imageInfo').html(imageArray[imageIndex].info);
 	    $('#imageCounter').html(imageIndex+1)
 	}
 }
 
+$('#imageInfo').html(imageArray[0].info);
 </script>
 
 <h1 style="text-align: left; margin-bottom:10px; margin-left:15px; margin-top:5px;">
@@ -67,6 +96,8 @@ ${commonNames[0]}
 <img id="selectedImage"
      class="<c:if test="${fn:length(extendedTaxonConcept.images) > 1}">multiImages</c:if>"
      src="${fn:replace(extendedTaxonConcept.images[0].repoLocation,'raw','smallRaw')}" style="max-width: 400px; max-height: 245px;" onclick="javascript:nextImageWithRoll();"/>
+<br/>
+<div style="margin-left:auto;margin-right:auto;" id="imageInfo"></div> 
 <br/>
 <c:if test="${fn:length(extendedTaxonConcept.images) >1}">
     No. <span id="imageCounter">1</span> of ${fn:length(extendedTaxonConcept.images)} images
