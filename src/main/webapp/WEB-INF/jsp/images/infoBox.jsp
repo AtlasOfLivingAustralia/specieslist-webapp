@@ -82,7 +82,7 @@ $('#imageInfo').html(imageArray[0].info);
 
 <h1 style="text-align: left; margin-bottom:10px; margin-left:15px; margin-top:5px;">
 <a href="${pageContext.request.contextPath}/species/${extendedTaxonConcept.taxonConcept.guid}" style="text-decoration: none;">
-<span ><i>${extendedTaxonConcept.taxonConcept.nameString}</i></span>
+<span><i>${extendedTaxonConcept.taxonConcept.nameString}</i></span>
 <c:if test="${not empty commonNames}"> |
 ${commonNames[0]}
     </c:if>
@@ -91,7 +91,7 @@ ${commonNames[0]}
 
 <table style="border:0px;">
 <tr>
-<td style="vertical-align: top; width: 400px;">
+<td style="vertical-align: top; width: 400px; text-align:left;">
 
 <img id="selectedImage"
      class="<c:if test="${fn:length(extendedTaxonConcept.images) > 1}">multiImages</c:if>"
@@ -104,6 +104,13 @@ ${commonNames[0]}
     <a href="javascript:previousImage();">Previous image</a> |
     <a href="javascript:nextImage();">Next image</a>
 </c:if>
+<ul>
+	<li><a href="http://bie.ala.org.au/species/${extendedTaxonConcept.taxonConcept.nameString}">View species page</a></li>
+	<li><a href="http://biocache.ala.org.au/occurrences/taxa/${extendedTaxonConcept.taxonConcept.guid}">View records for ${extendedTaxonConcept.taxonConcept.nameString}</a></li>
+	<li><a href='http://spatial.ala.org.au/?q=lsid:"${extendedTaxonConcept.taxonConcept.guid}"'>View records on large map for ${extendedTaxonConcept.taxonConcept.nameString}</a></li>	
+</ul>
+
+
 </td>
 <td style="vertical-align: top; width: 300px;">
 <img src="${spatialPortalMap.mapUrl}" alt="" style="max-width: 300px; max-height: 265px;"/>

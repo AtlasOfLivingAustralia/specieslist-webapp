@@ -124,7 +124,7 @@
                     return "";
                 },
                 opacity: 0.5,
-                height: "500px",
+                height: "700px",
                 width: "700px",
                 preloading: false,
                 'easingIn'   : 'easeOutQuad',

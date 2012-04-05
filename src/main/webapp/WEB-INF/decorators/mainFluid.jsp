@@ -85,48 +85,19 @@
         });
     </script>
     <style type="text/css">
-        div.solrResults {
-            width: 762px;
-            float: left;
-        }
+        div.solrResults { width: 762px; float: left; }
     </style>
 </head>
-<body class="page species">
+<body class="fluid page species">
 <div id="wrapper">
     <c:set var="returnUrlPath" value="${initParam.serverName}${pageContext.request.requestURI}${not empty pageContext.request.queryString ? '?' : ''}${pageContext.request.queryString}"/>
     <ala:banner returnUrlPath="${returnUrlPath}" populateSearchBox="true"/>
     <ala:menu />
-
          <div id="contentXX" style="background-color: #FFFFFF;">
-
-           <!--
-           <div style="position:absolute; top:90px; right: 10px;">
-           <h3>
-           <a href="${pageContext.request.contextPath}/search?q=${param['q']}">ALA</a> 
-           |
-           Images
-           <c:choose>
-           <c:when test="${not empty param['q']}"> 
-           | <a href="http://biocache.ala.org.au/occurrences/search?q=${param['q']}">Specimens & Observations</a>
-           </c:when>
-           <c:otherwise>
-           | <a href="http://biocache.ala.org.au/">Specimens & Observations</a>
-           </c:otherwise>
-           </c:choose>
-           </h3>
-           
-           <c:if test="${!empty pageContext.request.remoteUser}">
-               <div id="loginId">You are logged in as: ${pageContext.request.remoteUser}</div>
-           </c:if>
-           
-           </div>
-           -->
-
            <decorator:body />
              <ala:footer />
              <ala:analytics />
          </div>
-
     <style type="text/css">
         #contentXX {
             margin: 5px auto 0 auto;
@@ -148,6 +119,5 @@
         nav ol { display:none; }        
         
         #headingBar { margin-left:10px; padding-left:0px; }
-
     </style>
 </html>
