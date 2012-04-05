@@ -739,7 +739,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
 		                        </c:forEach>
 		                        <c:if test="${not empty extraImages}">
 			                        <li>
-				                        <a onclick='javascript:window.location.href="${pageContext.request.contextPath}/image-search/showSpecies?taxonRank=${extendedTaxonConcept.taxonConcept.rankString}&scientificName=${extendedTaxonConcept.taxonConcept.nameString}";'>
+				                        <a href="#" onclick='javascript:window.location.href="${pageContext.request.contextPath}/image-search/showSpecies?taxonRank=${extendedTaxonConcept.taxonConcept.rankString}&scientificName=${extendedTaxonConcept.taxonConcept.nameString}";'>
 				                        View images of species for ${sciNameFormatted}</a>
 	                        		</li>
 		                        </c:if>

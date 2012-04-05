@@ -145,7 +145,9 @@
 
         nav { width:100% !important; }
         #nav-site { width:100% ;}
-        nav ol { display:none; }                
+        nav ol { display:none; }        
+        
+        #headingBar { margin-left:10px; padding-left:0px; }
 
     </style>
 </html>
