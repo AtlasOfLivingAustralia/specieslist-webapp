@@ -113,7 +113,7 @@ ${commonNames[0]}
 
 </td>
 <td style="vertical-align: top; width: 300px;">
-<img src="${spatialPortalMap.mapUrl}" alt="" style="max-width: 300px; max-height: 265px;"/>
+<img src="http://biocache.ala.org.au/ws/density/map?q=lsid:%22${extendedTaxonConcept.taxonConcept.guid}%22" alt="" style="max-width: 300px; max-height: 265px;"/>
 </td>
 </tr>
 </table>
