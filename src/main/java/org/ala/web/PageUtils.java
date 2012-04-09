@@ -27,6 +27,7 @@ public class PageUtils {
 	protected static Logger logger = Logger.getLogger(PageUtils.class);
 	
     /** The URI for JSON data for static occurrence map */
+	@Deprecated
     public static final String SPATIAL_JSON_URL = "http://spatial.ala.org.au/alaspatial/ws/density/map?species_lsid=";
 	
 
@@ -140,6 +141,7 @@ public class PageUtils {
      * @param guid
      * @return
      */
+    @Deprecated
     public static Map<String, String> getSpatialPortalMap(String guid) {
         Map<String, String> mapData = new HashMap<String, String>();
         try {

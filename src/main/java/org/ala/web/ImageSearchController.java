@@ -98,7 +98,7 @@ public class ImageSearchController {
 	public String getImageInfoBox(@RequestParam("q") String guid, Model model) throws Exception {
 		ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
 		model.addAttribute("extendedTaxonConcept",repoUrlUtils.fixRepoUrls(etc));
-		model.addAttribute("spatialPortalMap", PageUtils.getSpatialPortalMap(etc.getTaxonConcept().getGuid()));
+//		model.addAttribute("spatialPortalMap", PageUtils.getSpatialPortalMap(etc.getTaxonConcept().getGuid()));
 		model.addAttribute("commonNames", PageUtils.dedup(etc.getCommonNames()));
 		return "images/infoBox";
 	}
