@@ -81,7 +81,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestOperations;
 
+import au.org.ala.checklist.lucene.model.NameSearchResult;
 import au.org.ala.data.model.LinnaeanRankClassification;
+import au.org.ala.data.util.RankType;
+
 import org.ala.model.SynonymConcept;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -764,8 +767,14 @@ public class SpeciesController {
      * @return
      */
     private boolean isKingdom(String name){
-        String lsid = taxonConceptDao.findLsidByName(name, "kingdom");
-        return lsid != null;
+        //String lsid = taxonConceptDao.findLsidByName(name, "kingdom");
+        try{
+            NameSearchResult nsr = taxonConceptDao.findCBDataByName(name,null, "kingdom");
+            return nsr != null && nsr.getRank() == RankType.KINGDOM;
+        }
+        catch(Exception e){
+            return false;
+        }
     }
     /**
      * Splits up a url into scientific name and kingdom
