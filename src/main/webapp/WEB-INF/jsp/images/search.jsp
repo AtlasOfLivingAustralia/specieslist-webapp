@@ -175,12 +175,27 @@
                     	imageLoad();
             		}
                 }
-            } 
+             } 
         });             
 
         $(window).unload(function() {
         	scrollTo(0,0);
         }); 
+
+<c:if test="${(fn:contains(header['User-Agent'],'iPad') || fn:contains(header['User-Agent'],'Android')) && results.totalRecords/pageSize > 1}">        
+        function geNext(){
+        	if(lastPage > currentPage){            		
+        		// prevent double request
+        		if($('#divPostsLoader').html() == ''){
+        			//console.log("**** imageLoad !!!! " + currentPage);
+                	imageLoad();
+        		}
+            }
+           	if(lastPage < currentPage + 1){
+        		$('#moreButton').hide(); 
+        	}        	      	
+        }
+</c:if>          
     </script>
     <style type="text/css">
         .searchImage {
@@ -253,7 +268,20 @@
 </div>
 
 <div style="margin-left:auto;margin-right:auto; width:120px;"  id="divPostsLoader"></div> 
- 
+
+<c:if test="${(fn:contains(header['User-Agent'],'iPad') || fn:contains(header['User-Agent'],'Android')) && results.totalRecords/pageSize > 1}">
+
+<div style="margin-left:auto;margin-right:auto; width:120px;"  id="moreLink"> 
+<table style="margin-left:auto;margin-right:auto;width:100%; cell-padding:0; border:0px;">
+	<tr>
+		<td>
+			<input id="moreButton" style="height: 40px; width: 100px" type="button" value="More" onClick="javascript:geNext();return false;">
+		</td>
+	</tr>
+</table> 
+</div>
+</c:if>
+
 <!-- 
 <table style="width:100%; cell-padding:0; border:0px;">
 	<tr>
