@@ -20,11 +20,14 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.ala.dao.FulltextSearchDao;
+import org.ala.dao.IndexedTypes;
 import org.ala.dao.TaxonConceptDao;
 import org.ala.dto.ExtendedTaxonConceptDTO;
 import org.ala.dto.SearchDTO;
 import org.ala.dto.SearchResultsDTO;
+import org.ala.dto.SearchTaxonConceptDTO;
 import org.ala.model.TaxonConcept;
+import org.ala.util.ClassificationRank;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -54,8 +57,42 @@ public class ImageSearchController {
 	
 	@Inject
 	TaxonConceptDao taxonConceptDao;
+
+    @Inject
+    protected ClassificationRank classRank;
 	
 	@RequestMapping("/image-search/showSpecies")
+	public String search(
+			@RequestParam(value="leftNSValue") Integer leftNSValue,
+			@RequestParam(value="rightNSValue") Integer rightNSValue,
+			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
+			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
+			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
+			@RequestParam(value="sw", required=false, defaultValue="1024") Integer screenWidth,
+			Model model) throws Exception {
+        // set the query
+		List<String> filterQueries = new ArrayList<String>();
+		filterQueries.add("idxtype:TAXON");
+		filterQueries.add("hasImage:true");
+        filterQueries.add("australian_s:recorded");
+        // get all species below this ranking (left & right)
+        filterQueries.add("left:["+leftNSValue+" TO "+rightNSValue+"]");
+        filterQueries.add("rankId:[" + 7000 +" TO * ]");
+        
+        Integer noOfColumns = screenWidth / (maxWidthImages + 2);
+        Integer pageSize = noOfColumns * 12;
+
+		SearchResultsDTO<SearchDTO> results = searchDao.doFullTextSearch(null, (String[]) filterQueries.toArray(new String[0]), startIndex, pageSize, sortField, sortDirection);
+		model.addAttribute("results", repoUrlUtils.fixRepoUrls(results));
+
+		model.addAttribute("noOfColumns", noOfColumns);		
+		model.addAttribute("maxWidthImages", maxWidthImages);
+        model.addAttribute("pageSize", pageSize);
+		return "images/search";
+	}
+
+	
+	@RequestMapping("/image-search/_showSpecies")
 	public String search(
 			@RequestParam(value="taxonRank") String taxonRank,
 			@RequestParam(value="scientificName") String scientificName,
@@ -94,6 +131,7 @@ public class ImageSearchController {
 		return "images/search";
 	}
 
+	
  	@RequestMapping("/image-search/infoBox")
 	public String getImageInfoBox(@RequestParam("q") String guid, Model model) throws Exception {
 		ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
@@ -130,6 +168,33 @@ public class ImageSearchController {
      */
 	@RequestMapping("/image-search/showSpecies.json")
 	public @ResponseBody SearchResultsDTO<SearchDTO> searchJson(
+			@RequestParam(value="leftNSValue") Integer leftNSValue,
+			@RequestParam(value="rightNSValue") Integer rightNSValue,
+			@RequestParam(value="start", required=false, defaultValue="0") Integer startIndex,
+			@RequestParam(value="sort", required=false, defaultValue="score") String sortField,
+			@RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
+			@RequestParam(value="pageSize", required=false, defaultValue="1024") Integer pageSize) throws Exception {
+		List<String> filterQueries = new ArrayList<String>();
+		filterQueries.add("idxtype:TAXON");
+		filterQueries.add("hasImage:true");
+        filterQueries.add("rank:species");
+        filterQueries.add("australian_s:recorded");
+        // get all species below this ranking (left & right)
+        filterQueries.add("left:["+leftNSValue+" TO "+rightNSValue+"]");
+        filterQueries.add("rankId:[" + 7000 +" TO * ]");
+
+		SearchResultsDTO<SearchDTO> results = searchDao.doFullTextSearch(null, (String[]) filterQueries.toArray(new String[0]), startIndex, pageSize, sortField, sortDirection);
+		results = repoUrlUtils.fixRepoUrls(results);
+		
+		return results;
+	}
+	
+    /**
+     * JSON web service to return a list of img src
+     * 
+     */
+	@RequestMapping("/image-search/_showSpecies.json")
+	public @ResponseBody SearchResultsDTO<SearchDTO> searchJson(
 			@RequestParam(value="taxonRank") String taxonRank,
 			@RequestParam(value="scientificName") String scientificName,
 			@RequestParam(value="fq", required=false) String[] fq,
@@ -160,5 +225,5 @@ public class ImageSearchController {
 		results = repoUrlUtils.fixRepoUrls(results);
 		
 		return results;
-	}		
+	}			
  }

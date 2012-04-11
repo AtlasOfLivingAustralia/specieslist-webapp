@@ -739,8 +739,16 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
 		                        </c:forEach>
 		                        <c:if test="${not empty extraImages}">
 			                        <li>
-				                        <a href="#" onclick='javascript:window.location.href="${pageContext.request.contextPath}/image-search/showSpecies?taxonRank=${extendedTaxonConcept.taxonConcept.rankString}&scientificName=${extendedTaxonConcept.taxonConcept.nameString}";'>
-				                        View images of species for ${sciNameFormatted}</a>
+			                        	<c:choose>
+			                        		<c:when test="${extendedTaxonConcept.taxonConcept.left > 0 && extendedTaxonConcept.taxonConcept.right > 0}">
+						                        <a href="#" onclick='javascript:window.location.href="${pageContext.request.contextPath}/image-search/showSpecies?leftNSValue=${extendedTaxonConcept.taxonConcept.left}&rightNSValue=${extendedTaxonConcept.taxonConcept.right}";'>
+						                        View images of species for ${sciNameFormatted}</a>
+				                        	</c:when>
+				                        	<c:otherwise>
+				                        		<a href="#" onclick='javascript:window.location.href="${pageContext.request.contextPath}/image-search/_showSpecies?taxonRank=${extendedTaxonConcept.taxonConcept.rankString}&scientificName=${extendedTaxonConcept.taxonConcept.nameString}";'>
+				                        		View images of species for ${sciNameFormatted}</a>
+				                        	</c:otherwise>
+				                        </c:choose>
 	                        		</li>
 		                        </c:if>
                             </c:when>
@@ -1043,14 +1051,21 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                         </h3>
                     </div>
                 </div>
-                <c:if test="${not empty extendedTaxonConcept.taxonConcept.rankID && extendedTaxonConcept.taxonConcept.rankID < 7000}">
+                <!-- c:if test="${not empty extendedTaxonConcept.taxonConcept.rankID && extendedTaxonConcept.taxonConcept.rankID < 7000}" -->
+                <c:if test="${not empty extraImages}">
                 <div class="section">
                     <ul>
-                    <li>
-                    <a href="${pageContext.request.contextPath}/image-search/showSpecies?taxonRank=${extendedTaxonConcept.taxonConcept.rankString}&scientificName=${extendedTaxonConcept.taxonConcept.nameString}">
-                        View images of species for ${sciNameFormatted}
-
-                    </a>
+                    <li>                    
+						<c:choose>
+                       		<c:when test="${extendedTaxonConcept.taxonConcept.left > 0 && extendedTaxonConcept.taxonConcept.right > 0}">
+		                        <a href="#" onclick='javascript:window.location.href="${pageContext.request.contextPath}/image-search/showSpecies?leftNSValue=${extendedTaxonConcept.taxonConcept.left}&rightNSValue=${extendedTaxonConcept.taxonConcept.right}";'>
+		                        View images of species for ${sciNameFormatted}</a>
+                        	</c:when>
+                        	<c:otherwise>
+                        		<a href="#" onclick='javascript:window.location.href="${pageContext.request.contextPath}/image-search/_showSpecies?taxonRank=${extendedTaxonConcept.taxonConcept.rankString}&scientificName=${extendedTaxonConcept.taxonConcept.nameString}";'>
+                        		View images of species for ${sciNameFormatted}</a>
+                        	</c:otherwise>
+                        </c:choose>                    
                     </li>
                     </ul>
                 </div><!--close-->

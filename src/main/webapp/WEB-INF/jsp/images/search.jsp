@@ -23,7 +23,29 @@
             //send a query to server side to present new content 
             $.ajax({ 
                 type: "POST", 
-                url: "./showSpecies.json?taxonRank=${param['taxonRank']}&scientificName=${param['scientificName']}&start=" + (currentPage * ${pageSize}) + "&pageSize=" + ${pageSize}, 
+                url: "./showSpecies.json?leftNSValue=${param['leftNSValue']}&rightNSValue=${param['rightNSValue']}&start=" + (currentPage * ${pageSize}) + "&pageSize=" + ${pageSize}, 
+                contentType: "application/json; charset=utf-8", 
+                dataType: "json", 
+                success: function (data) { 
+                    if (data != "") {                    	
+                    	//addRow(data);
+                    	addTable(data);
+                    	currentPage = currentPage + 1;
+                    } 
+                    $('#divPostsLoader').empty(); 
+                } 
+
+            }) 
+        };
+        
+    	
+        function _imageLoad() {
+            $('#divPostsLoader').html('<img src="${pageContext.request.contextPath}/static/images/ajax-loader.gif">'); 
+
+            //send a query to server side to present new content 
+            $.ajax({ 
+                type: "POST", 
+                url: "./_showSpecies.json?taxonRank=${param['taxonRank']}&scientificName=${param['scientificName']}&start=" + (currentPage * ${pageSize}) + "&pageSize=" + ${pageSize}, 
                 contentType: "application/json; charset=utf-8", 
                 dataType: "json", 
                 success: function (data) { 
@@ -163,7 +185,9 @@
             // init loadup first page images handler.
             loadCbox();              
         });
-               
+
+        <c:choose>
+   		<c:when test="${param['leftNSValue'] > 0 && param['rightNSValue'] > 0}">
         //When scroll down, the scroller is at the bottom with the function below and fire the load function 
         $(window).scroll(function () { 
             if ($(window).scrollTop() == $(document).height() - $(window).height()) { 
@@ -181,7 +205,28 @@
         $(window).unload(function() {
         	scrollTo(0,0);
         }); 
+   		</c:when>
+    	<c:otherwise>
+        //When scroll down, the scroller is at the bottom with the function below and fire the load function 
+        $(window).scroll(function () { 
+            if ($(window).scrollTop() == $(document).height() - $(window).height()) { 
+            	//console.log("**** currentPage !!!! " + currentPage + ', lastPage: ' + lastPage);
+            	if(lastPage > currentPage){            		
+            		// prevent double request
+            		if($('#divPostsLoader').html() == ''){
+            			//console.log("**** imageLoad !!!! " + currentPage);
+                    	_imageLoad();
+            		}
+                }
+             } 
+        });             
 
+        $(window).unload(function() {
+        	scrollTo(0,0);
+        }); 
+    	</c:otherwise>
+    </c:choose>                    
+        
 <c:if test="${(fn:contains(header['User-Agent'],'iPad') || fn:contains(header['User-Agent'],'Android')) && results.totalRecords/pageSize > 1}">        
         function geNext(){
         	if(lastPage > currentPage){            		
