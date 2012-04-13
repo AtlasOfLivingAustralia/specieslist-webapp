@@ -15,66 +15,30 @@
     <script type="text/javascript">
 	    var prevPage = 0;
 	    var currentPage = 1;
-    	var lastPage=${results.totalRecords/pageSize};
-
+		var ended = false;
+		
         function imageLoad() {
             $('#divPostsLoader').html('<img src="${pageContext.request.contextPath}/static/images/ajax-loader.gif">'); 
 
             //send a query to server side to present new content 
             $.ajax({ 
                 type: "POST", 
-                url: "./showSpecies.json?taxonRank=${param['taxonRank']}&scientificName=${param['scientificName']}&start=" + (currentPage * ${pageSize}) + "&pageSize=" + ${pageSize}, 
+                url: "./showBiocacheSpecies.json?latitude=${param['latitude']}&longitude=${param['longitude']}&radius=${param['radius']}&start=" + (currentPage * ${pageSize}) + "&pageSize=${pageSize}", 
                 contentType: "application/json; charset=utf-8", 
                 dataType: "json", 
                 success: function (data) { 
-                    if (data != "") {                    	
+                    if (data != null && data != "") {                    	
                     	//addRow(data);
                     	addTable(data);
                     	currentPage = currentPage + 1;
                     } 
+                    else{
+                    	ended = true;
+                    }
                     $('#divPostsLoader').empty(); 
-                } 
-
+                }
             }) 
         }; 
-
-<%--        
-    	function addRow(data) {
-    		var td1 = '<td style="width:${maxWidthImages}px">';
-    		var td2 = '</td>';
-    		var tr = '';
-    		var href2 = '</a>';
-    		var images = ''
-    		var j = 0;
-    		for(i = 0; i < data.results.length; i++){  
-    			var href1 = '<a class="thumbImage" href="${pageContext.request.contextPath}/image-search/infoBox?q=' +  data.results[i].guid + '">';
-    			var imageUrl = data.results[i].thumbnail;
-    			if(imageUrl != null){
-    				imageUrl = imageUrl.replace('thumbnail', 'smallRaw');
-    			}
-    			
-    			var image = href1 + '<img src=' + imageUrl + ' class="searchImage" style="max-width:${maxWidthImages}px; max-height:150px;"/>' + href2 + '<br/>';
-    			var name = data.results[i].commonNameSingle;
-    			if(name != '' && name != null){
-    				image = image + name + '<br/>';
-    			}
-    			
-    			if(data.results[i].nameComplete != null && data.results[i].nameComplete != ''){
-    				image += '<i>' + data.results[i].nameComplete + '</i>';
-    			}
-    			images = images + td1 + image + td2;
-    			
-    			j = i + 1;
-				if((j % ${noOfColumns} == 0 && i > 0) || (j == data.results.length)){
-    				tr = '<tr>' + images + '</tr>';
-        			$('#imageTable0 tr:last').after(tr);
-        			images = '';
-    			}
-    		}
-    		// reload cbox handler
-    		loadCbox();
-    	}    
---%>
 
        	function addTable(data) {
        		var tbl1 = '<table id="imageTable' + currentPage + '" style="width:100%; cell-padding:0; border:0px;">';
@@ -168,7 +132,7 @@
         $(window).scroll(function () { 
             if ($(window).scrollTop() == $(document).height() - $(window).height()) { 
             	//console.log("**** currentPage !!!! " + currentPage + ', lastPage: ' + lastPage);
-            	if(lastPage > currentPage){            		
+            	if(!ended){            		
             		// prevent double request
             		if($('#divPostsLoader').html() == ''){
             			//console.log("**** imageLoad !!!! " + currentPage);
@@ -232,9 +196,7 @@
 
 <div id="headingBar">
     <h1>
-        Images of ${results.totalRecords} species from ${param['taxonRank']}
-        <a href="${pageContext.request.contextPath}/species/${param['scientificName']}">
-        ${param['scientificName']}</a>
+        Images of species from latitude=${param['latitude']} longitude=${param['longitude']} radius=${param['radius']}        
      </h1>
 </div>
 

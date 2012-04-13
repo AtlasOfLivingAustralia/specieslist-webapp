@@ -739,16 +739,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
 		                        </c:forEach>
 		                        <c:if test="${not empty extraImages}">
 			                        <li>
-			                        	<c:choose>
-			                        		<c:when test="${extendedTaxonConcept.taxonConcept.left > 0 && extendedTaxonConcept.taxonConcept.right > 0}">
-						                        <a href="#" onclick='javascript:window.location.href="${pageContext.request.contextPath}/image-search/showSpecies?leftNSValue=${extendedTaxonConcept.taxonConcept.left}&rightNSValue=${extendedTaxonConcept.taxonConcept.right}";'>
-						                        View images of species for ${sciNameFormatted}</a>
-				                        	</c:when>
-				                        	<c:otherwise>
-				                        		<a href="#" onclick='javascript:window.location.href="${pageContext.request.contextPath}/image-search/_showSpecies?taxonRank=${extendedTaxonConcept.taxonConcept.rankString}&scientificName=${extendedTaxonConcept.taxonConcept.nameString}";'>
-				                        		View images of species for ${sciNameFormatted}</a>
-				                        	</c:otherwise>
-				                        </c:choose>
+		                        		<a href="#" onclick='javascript:window.location.href="${pageContext.request.contextPath}/image-search/showSpecies?taxonRank=${extendedTaxonConcept.taxonConcept.rankString}&scientificName=${extendedTaxonConcept.taxonConcept.nameString}";'>
+		                        		View images of species for ${sciNameFormatted}</a>
 	                        		</li>
 		                        </c:if>
                             </c:when>
@@ -1056,16 +1048,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                 <div class="section">
                     <ul>
                     <li>                    
-						<c:choose>
-                       		<c:when test="${extendedTaxonConcept.taxonConcept.left > 0 && extendedTaxonConcept.taxonConcept.right > 0}">
-		                        <a href="#" onclick='javascript:window.location.href="${pageContext.request.contextPath}/image-search/showSpecies?leftNSValue=${extendedTaxonConcept.taxonConcept.left}&rightNSValue=${extendedTaxonConcept.taxonConcept.right}";'>
-		                        View images of species for ${sciNameFormatted}</a>
-                        	</c:when>
-                        	<c:otherwise>
-                        		<a href="#" onclick='javascript:window.location.href="${pageContext.request.contextPath}/image-search/_showSpecies?taxonRank=${extendedTaxonConcept.taxonConcept.rankString}&scientificName=${extendedTaxonConcept.taxonConcept.nameString}";'>
-                        		View images of species for ${sciNameFormatted}</a>
-                        	</c:otherwise>
-                        </c:choose>                    
+                   		<a href="#" onclick='javascript:window.location.href="${pageContext.request.contextPath}/image-search/showSpecies?taxonRank=${extendedTaxonConcept.taxonConcept.rankString}&scientificName=${extendedTaxonConcept.taxonConcept.nameString}";'>
+                   		View images of species for ${sciNameFormatted}</a>
                     </li>
                     </ul>
                 </div><!--close-->

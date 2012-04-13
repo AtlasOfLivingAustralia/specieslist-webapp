@@ -19,6 +19,7 @@
     </excludes>
     <decorator name="mainFluid" page="mainFluid.jsp">
         <pattern>/image-search/showSpecies</pattern>
+        <pattern>/image-search/showBiocacheSpecies</pattern>
         <pattern>/image-search/search/</pattern>
         <pattern>/image-search/</pattern>
         <pattern>/image-search/*/*</pattern>
