@@ -81,6 +81,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestOperations;
 
+import au.org.ala.checklist.lucene.HomonymException;
 import au.org.ala.checklist.lucene.model.NameSearchResult;
 import au.org.ala.data.model.LinnaeanRankClassification;
 import au.org.ala.data.util.RankType;
@@ -824,7 +825,29 @@ public class SpeciesController {
         if(kingdom != null){
             LinnaeanRankClassification cl = new LinnaeanRankClassification(kingdom, null);
             cl.setScientificName(name);
-            lsid = taxonConceptDao.findLsidByName(cl.getScientificName(), cl, null);
+            
+            try{
+                NameSearchResult nsr = taxonConceptDao.findCBDataByName(name, null, null);
+                if(nsr != null)
+                    lsid =  nsr.getLsid();
+            }
+            catch(Exception e){
+                if(e instanceof HomonymException){
+                    //ignore the homonym exception if there is only one result
+                    //homonyms should only be ignore during searches - not matches...
+                    HomonymException he = (HomonymException)e;
+                    if(he.getResults().size()==1)
+                        lsid = he.getResults().get(0).getLsid();
+                }
+            }
+            
+//            lsid = taxonConceptDao.findLsidByName(cl.getScientificName(), cl, null);
+        }
+        //check for a scientific name first - this will lookup in the name matching index.  This will produce the correct result in a majority of scientific name cases.
+        if(lsid == null || lsid.length() < 1){
+            //          if(name != null && !name.toLowerCase().startsWith("australia")){
+            lsid = taxonConceptDao.findLsidByName(name);
+            //          }
         }
 
         if(lsid == null || lsid.length() < 1){
@@ -835,11 +858,7 @@ public class SpeciesController {
             lsid = taxonConceptDao.findLSIDByConcatName(name);
         }
 
-        if(lsid == null || lsid.length() < 1){
-            //			if(name != null && !name.toLowerCase().startsWith("australia")){
-            lsid = taxonConceptDao.findLsidByName(name);
-            //			}
-        }
+        
         return lsid;
     }
 
