@@ -824,30 +824,12 @@ public class SpeciesController {
         kingdom = parts[1];
         if(kingdom != null){
             LinnaeanRankClassification cl = new LinnaeanRankClassification(kingdom, null);
-            cl.setScientificName(name);
-            
-            try{
-                NameSearchResult nsr = taxonConceptDao.findCBDataByName(name, null, null);
-                if(nsr != null)
-                    lsid =  nsr.getLsid();
-            }
-            catch(Exception e){
-                if(e instanceof HomonymException){
-                    //ignore the homonym exception if there is only one result
-                    //homonyms should only be ignore during searches - not matches...
-                    HomonymException he = (HomonymException)e;
-                    if(he.getResults().size()==1)
-                        lsid = he.getResults().get(0).getLsid();
-                }
-            }
-            
-//            lsid = taxonConceptDao.findLsidByName(cl.getScientificName(), cl, null);
+            cl.setScientificName(name);             
+            lsid = taxonConceptDao.findLsidByName(cl.getScientificName(), cl, null);
         }
         //check for a scientific name first - this will lookup in the name matching index.  This will produce the correct result in a majority of scientific name cases.
-        if(lsid == null || lsid.length() < 1){
-            //          if(name != null && !name.toLowerCase().startsWith("australia")){
-            lsid = taxonConceptDao.findLsidByName(name);
-            //          }
+        if(lsid == null || lsid.length() < 1){            
+            lsid = taxonConceptDao.findLsidForSearch(name);
         }
 
         if(lsid == null || lsid.length() < 1){
