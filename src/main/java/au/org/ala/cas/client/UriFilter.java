@@ -35,11 +35,20 @@ import au.org.ala.cas.util.PatternMatchingUtils;
 /**
  * Meta filter that provides filtering based on URI patterns that require authentication (and thus redirection) to the CAS server.
  * <p>
- * The list of URI patterns is specified as a comma delimited list of regular expressions in a &lt;context-param&gt;, <code>uriFilterPattern</code>.
+ * There are 3 possible filter configurations and these filtering criteria are applied in the following order,
+ * <p>
+ * <table border="1">
+ * <tr><th>Criterion</th><th>context-param</th><th>Required</th><th>Description</th></tr>
+ * <tr><td>URI exclusion</td><td>uriExclusionFilterPattern</td><td>No</td><td>URIs that should not be subject to CAS authentication</td></tr>
+ * <tr><td>URI inclusion</td><td>uriFilterPattern</td><td>No</td><td>URIs that are to be subject to CAS authentication</td></tr>
+ * <tr><td>Only if logged in</td><td>authenticateOnlyIfLoggedInFilterPattern</td><td>No</td><td>URIs that should be subject to CAS authentication only if logged in (indicated by the presence of the ALA-Auth cookie)</td></tr>
+ * </table>
+ * <p>
+ * The list of URI patterns is specified as a comma delimited list of regular expressions in a &lt;context-param&gt;</code>.
  * <p>
  * So if a request's path matches one of the URI patterns then the filter specified by the <code>filterClass</code> &lt;init-param&gt; is invoked.
  * <p>
- * The <code>contextPath</code> parameter value (if present) is prefixed to each URI pattern defined in the <code>uriFilterPattern</code> list.
+ * The <code>contextPath</code> parameter value (if present) is prefixed to each URI pattern defined for each filter.
  * <p>
  * An example of usage is shown in the following web.xml fragment,
  * <p><pre>
