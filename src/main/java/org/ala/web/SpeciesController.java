@@ -669,7 +669,9 @@ public class SpeciesController {
         }
         
         // if highTaxa then get more image from image-search
-        if(etc.getTaxonConcept().getRankID() < 7000 ){
+        //Temporarily restrict to major ranks
+        //TODO fix to use left right values...
+        if(etc.getTaxonConcept().getRankID() < 7000  && etc.getTaxonConcept().getRankID()%1000 ==0){
         	List<SearchDTO> extraImages = imageSearch(etc.getTaxonConcept().getRankString(), etc.getTaxonConcept().getNameString());
         	model.addAttribute("extraImages", extraImages);
         }
@@ -1177,7 +1179,10 @@ public class SpeciesController {
             String name = null;
             try {
                 TaxonConcept tc = taxonConceptDao.getByGuid(guid);
-                name = tc.getNameString();
+                if(tc != null)
+                    name = tc.getNameString();
+                else
+                    logger.info("No TN found for guid " + guid);
             } catch (Exception ex) {
                 logger.warn("No TN found for guid: " + guid, ex);
             }
