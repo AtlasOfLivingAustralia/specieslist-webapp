@@ -415,6 +415,7 @@ public class SearchController {
     @RequestMapping(value={"/search/auto.json*","/ws/search/auto.json*"}, method = RequestMethod.GET)
     public String searchForAutocompleteValues(
             @RequestParam(value="q", required=true) String query,
+            @RequestParam(value="fq", required=false) String[] filterQuery,
             @RequestParam(value="geoOnly", required=false) boolean geoRefOnly,
             @RequestParam(value="idxType", required=false) String idxType,
             @RequestParam(value="limit", required=false, defaultValue ="10") int maxTerms,
@@ -422,7 +423,7 @@ public class SearchController {
 
         
         IndexedTypes it = idxType != null ? IndexedTypes.valueOf(idxType.toUpperCase()):null;
-        List<AutoCompleteDTO> autoCompleteList = searchDao.getAutoCompleteList(query,it, geoRefOnly , maxTerms);
+        List<AutoCompleteDTO> autoCompleteList = searchDao.getAutoCompleteList(query,filterQuery,it, geoRefOnly , maxTerms);
         model.addAttribute("autoCompleteList", autoCompleteList);
         logger.debug("Autocomplete on " + query + " geoOnly: " + geoRefOnly + ", return size: " + autoCompleteList.size() );
         return AUTO_JSON;
