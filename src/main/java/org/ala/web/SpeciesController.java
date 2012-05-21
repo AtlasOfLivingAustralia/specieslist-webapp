@@ -711,7 +711,21 @@ public class SpeciesController {
         }
         logger.debug("Returning page view for: " + guid +" .....");
         return SPECIES_SHOW;
-    } 
+    }
+
+    /**
+     * WS - return JSON list of images for a given higher taxa name string and rank
+     *
+     * @param taxonRank
+     * @param scientificName
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/ws/higherTaxa/images", method = RequestMethod.GET)
+    public @ResponseBody List<SearchDTO> imageSearch(@PathVariable("taxonRank") String taxonRank,
+                 @PathVariable("scientificName") String scientificName, HttpServletRequest request) {
+        return imageSearch(taxonRank, scientificName);
+    }
 
     private List<SearchDTO> imageSearch(String taxonRank, String scientificName){
 		List<String> filterQueries = new ArrayList<String>();
