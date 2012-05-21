@@ -355,6 +355,39 @@ public class SpeciesController {
     public @ResponseBody List<GuidLookupDTO> getGuidForName(@PathVariable("scientificName") String scientificName) throws Exception {
         return findGuids(scientificName);
     }
+    
+    private void logTime(long start, String message){
+        long numMs = System.currentTimeMillis() - start;
+        logger.debug(message + " took " + numMs + "ms. " + numMs/1000 + " sec. " + numMs/60000 + " mins" );
+    }
+    
+    @RequestMapping(value ="/ws/classification/{value:.+}*", method = RequestMethod.GET)
+    public @ResponseBody List<Map<String,String>> getClassification(@PathVariable("value") String value) throws Exception{
+        //determine whether the value is a scientific name or lsid that needs to be resolved.
+        long start = System.currentTimeMillis();
+        ExtendedTaxonConceptDTO etc =findConceptByNameOrGuid(value);
+        logTime(start, "Retreive ETC");
+        if(etc != null && etc.getTaxonConcept() != null){
+            TaxonConcept tc = etc.getTaxonConcept();
+            SearchResultsDTO<SearchTaxonConceptDTO> taxonHierarchy = searchDao.getClassificationByLeftNS(tc.getLeft(), tc.getRight());
+            logTime(start, "Obtain Classification");
+            List<Map<String,String>> list = new java.util.LinkedList<Map<String,String>>();
+            for(SearchTaxonConceptDTO stc :taxonHierarchy.getResults()){
+                Map<String, String> map = new java.util.LinkedHashMap<String,String>();
+                String name = StringUtils.isEmpty(stc.getNameComplete())? stc.getName() : stc.getNameComplete();
+                map.put("scientificName", name);
+                map.put("guid", stc.getGuid());
+                map.put("rank", stc.getRank());
+                if(stc.getRawRank() != null)
+                    map.put("rawRank",stc.getRawRank());
+                list.add(map);
+            }
+            logTime(start,"Process Classification");
+            return list;
+            //return taxonHierarchy.getResults();
+        }
+        return Collections.EMPTY_LIST;
+    }
 
     private List<GuidLookupDTO> findGuids(String scientificName) throws Exception {
         String lsid = getLsidByNameAndKingdom(scientificName);
@@ -520,7 +553,7 @@ public class SpeciesController {
             return "redirect:/search?q=" + extractScientificName(guid);
         }
         
-        if (guid.matches("(urn\\:lsid[a-zA-Z\\-0-9\\:\\.]*)") || guid.matches("([0-9]*)")) {   
+        if (guid.matches("(urn\\:lsid[a-zA-Z\\-0-9\\:\\.]*)") || guid.matches("([0-9]*)") || guid.startsWith("ALA_")) {   
 //        	if(guid.matches("([0-9]*)") && guid.length() < 8){
 //        		//no match for the parameter, redirect to search page.
 //                return "redirect:/search?q=" + extractScientificName(guid);
@@ -671,13 +704,14 @@ public class SpeciesController {
         // if highTaxa then get more image from image-search
         //Temporarily restrict to major ranks
         //TODO fix to use left right values...
-        if(etc.getTaxonConcept().getRankID() < 7000  && etc.getTaxonConcept().getRankID()%1000 ==0){
+        //RANK IDs will be NULL in ALA added scientific names...
+        if(etc.getTaxonConcept().getRankID() != null &&etc.getTaxonConcept().getRankID() < 7000  && etc.getTaxonConcept().getRankID()%1000 ==0){
         	List<SearchDTO> extraImages = imageSearch(etc.getTaxonConcept().getRankString(), etc.getTaxonConcept().getNameString());
         	model.addAttribute("extraImages", extraImages);
         }
         logger.debug("Returning page view for: " + guid +" .....");
         return SPECIES_SHOW;
-    }
+    } 
 
     private List<SearchDTO> imageSearch(String taxonRank, String scientificName){
 		List<String> filterQueries = new ArrayList<String>();
