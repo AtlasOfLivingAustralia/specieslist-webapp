@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+    version="2.0">
+
+    <description>ALA core library</description>
+    <display-name>ALA core</display-name>
+    <tlib-version>1.0</tlib-version>
+    <short-name>ala</short-name>
+    <uri>http://www.ala.org.au/jsp/core</uri>    
+
+    <tag>
+        <description>Banner Tag</description>
+        <name>banner</name>
+        <tag-class>au.org.ala.commonui.headertails.BannerTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <description>The return url path for the login/logout anchor</description>
+            <name>returnUrlPath</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>The return url path for the logout anchor</description>
+            <name>returnLogoutUrlPath</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>A logout controller url path for the logout anchor</description>
+            <name>logoutControllerUrlPath</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>The search path to use</description>
+            <name>searchPath</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>Boolean indicating whether to populate the Search Box</description>
+            <name>populateSearchBox</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>boolean</type>
+        </attribute>
+    </tag>
+
+    <tag>
+        <description>Footer Tag</description>
+        <name>footer</name>
+        <tag-class>au.org.ala.commonui.headertails.FooterTag</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
+        <!-- Deprecated -->
+        <description>Banner Menu Tag</description>
+        <name>bannerMenu</name>
+        <tag-class>au.org.ala.commonui.headertails.BannerMenuTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <description>The return url path for the login/logout anchor</description>
+            <name>returnUrlPath</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>The search path to use</description>
+            <name>searchPath</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    
+    <tag>
+        <!-- Deprecated -->
+        <description>Footer Menu Tag</description>
+        <name>footerMenu</name>
+        <tag-class>au.org.ala.commonui.headertails.FooterMenuTag</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+</taglib>
