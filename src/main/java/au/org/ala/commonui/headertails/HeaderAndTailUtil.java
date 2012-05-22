@@ -16,7 +16,7 @@ import java.util.Properties;
  * @author Nick dos Remedios (nick.dosremedios@csiro.au)
  */
 public class HeaderAndTailUtil {
-    // these fields can be overrided by a properties file (see below)
+    // these fields can be overridden by a properties file (see below)
     protected static String bannerHtmlUrl = "http://www2.ala.org.au/commonui/banner.html";
     protected static String menuHtmlUrl = "http://www2.ala.org.au/commonui/menu.html";
     protected static String footerHtmlUrl = "http://www2.ala.org.au/commonui/footer.html";
@@ -26,6 +26,7 @@ public class HeaderAndTailUtil {
     protected Boolean populateSearchBox = true;
     protected String returnUrlPath = "";
     protected String returnLogoutUrlPath = "";
+    protected String logoutControllerUrlPath = "";
     protected Boolean loggedIn = false;
     // template-style substitution variables
     protected static String returnPathNullTag = "::returnPathNull::";
@@ -82,10 +83,11 @@ public class HeaderAndTailUtil {
      * @param returnUrlPath
      * @param returnLogoutUrlPath
      */
-    public HeaderAndTailUtil(PageContext pageContext, String returnUrlPath, String returnLogoutUrlPath, Boolean populateSearchBox) {
+    public HeaderAndTailUtil(PageContext pageContext, String returnUrlPath, String returnLogoutUrlPath, String logoutControllerUrlPath, Boolean populateSearchBox) {
         this.pageContext = pageContext;
         this.returnUrlPath = returnUrlPath;
         this.returnLogoutUrlPath = returnLogoutUrlPath;
+        this.logoutControllerUrlPath = logoutControllerUrlPath;
         this.populateSearchBox = populateSearchBox;
         this.readPropsFromContext();
     }
@@ -101,7 +103,7 @@ public class HeaderAndTailUtil {
     }
 
     /**
-     * Init method to ovveride some fields via init params in web.xml
+     * Init method to override some fields via init params in web.xml
      */
     public void readPropsFromContext() {
         // Read some properties from the web.xml file via servlet context
@@ -178,7 +180,12 @@ public class HeaderAndTailUtil {
      * @throws Exception
      */
     public String getBanner() throws Exception {
-        return getBanner(loggedIn, defaultCentralServer, defaultCasServer, defaultSearchServer, returnUrlPath, returnLogoutUrlPath, defaultQuery, populateSearchBox);
+        String context = "";
+        if (StringUtils.isNotEmpty(logoutControllerUrlPath)) {
+            HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+            context = request.getContextPath();
+        }
+        return getBanner(loggedIn, defaultCentralServer, defaultCasServer, defaultSearchServer, returnUrlPath, returnLogoutUrlPath, context + logoutControllerUrlPath, defaultQuery, populateSearchBox);
     }
 
     /**
@@ -213,7 +220,7 @@ public class HeaderAndTailUtil {
      * @throws Exception
      */
     public static String getHeader(boolean loggedIn, String centralServer, String casServer, String searchServer, String returnUrlPath, String returnLogoutUrlPath, String query) throws Exception {
-        String banner = getBanner(loggedIn, centralServer, casServer, searchServer, returnUrlPath, returnLogoutUrlPath, query, true);
+        String banner = getBanner(loggedIn, centralServer, casServer, searchServer, returnUrlPath, returnLogoutUrlPath, "", query, true);
         String menu = getMenu(centralServer);
         
         return banner + menu;
@@ -228,19 +235,27 @@ public class HeaderAndTailUtil {
      * @param searchServer
      * @param returnUrlPath
      * @param returnLogoutUrlPath
+     * @param logoutControllerUrlPath
      * @param query
      * @return
      * @throws Exception
      */
     public static String getBanner(boolean loggedIn, String centralServer, String casServer, String searchServer,
-            String returnUrlPath, String returnLogoutUrlPath, String query, Boolean populateSearchBox) throws Exception {
+            String returnUrlPath, String returnLogoutUrlPath, String logoutControllerUrlPath, String query, Boolean populateSearchBox) throws Exception {
+
+        logger.debug("getBanner params: loggedIn=" + loggedIn + ", centralServer=" + centralServer + ", casServer=" + casServer + ", searchServer=" + searchServer + ", returnUrlPath=" + returnUrlPath + ", returnLogoutUrlPath=" + returnLogoutUrlPath + ", logoutControllerUrlPath=" + logoutControllerUrlPath + ", query=" + query + ", populateSearchBox" + populateSearchBox);
+
         if (StringUtils.isEmpty(returnLogoutUrlPath)) {
             returnLogoutUrlPath = returnUrlPath;
         }
 
         String loginLogoutListItem;
         if (loggedIn) {
-            loginLogoutListItem = "<a href='" + casServer + "/cas/logout?url=" + returnLogoutUrlPath + "'>Log out</a>";
+            if (StringUtils.isEmpty(logoutControllerUrlPath)) {
+                loginLogoutListItem = "<a href='" + casServer + "/cas/logout?url=" + returnLogoutUrlPath + "'>Log out</a>";
+            } else {
+                loginLogoutListItem = "<a href='" + logoutControllerUrlPath + "?casUrl=" + casServer + "/cas/logout&appUrl=" + returnLogoutUrlPath + "'>Log out</a>";
+            }
         } else {
             loginLogoutListItem = "<a href='" + casServer + "/cas/login?service=" + returnUrlPath + "'>Log in</a>";
         }
