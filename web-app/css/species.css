@@ -1,0 +1,8 @@
+ul.overviewImages {
+    margin: 0;
+}
+
+ul.overviewImages li {
+    list-style:none;
+    margin: 0;
+}
