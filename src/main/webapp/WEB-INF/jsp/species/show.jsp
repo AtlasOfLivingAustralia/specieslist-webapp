@@ -37,7 +37,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
              */
             $(document).ready(function() {
                 
-            	if(${extendedTaxonConcept.taxonConcept.rankID} >= 7000){
+            	if (${(not empty extendedTaxonConcept.taxonConcept.rankID) ? extendedTaxonConcept.taxonConcept.rankID : 7000} >= 7000) {
             		var isAussieTxt = "${extendedTaxonConcept.isAustralian}";
             		var isAussie = false;
 	            	var isAustralianUrl = "../species/isAustralian.json?guid=${extendedTaxonConcept.taxonConcept.guid}&isAussie=${extendedTaxonConcept.isAustralian}"; 
