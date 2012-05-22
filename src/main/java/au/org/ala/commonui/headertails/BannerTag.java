@@ -33,6 +33,7 @@ public class BannerTag extends TagSupport {
     
     private String returnUrlPath = "";
     private String returnLogoutUrlPath = "";
+    private String logoutControllerUrlPath = "";
     private String searchPath = "";
     private Boolean populateSearchBox = true;
     
@@ -46,7 +47,7 @@ public class BannerTag extends TagSupport {
             //CommonTagBean ctb = new CommonTagBean(pageContext, this.returnUrlPath, this.returnLogoutUrlPath);
             //String html = HeaderAndTailUtil.getBanner(ctb);
             logger.info("populateSearchBox = " + populateSearchBox);
-            HeaderAndTailUtil htu = new HeaderAndTailUtil(pageContext, this.returnUrlPath, this.returnLogoutUrlPath, this.populateSearchBox);
+            HeaderAndTailUtil htu = new HeaderAndTailUtil(pageContext, this.returnUrlPath, this.returnLogoutUrlPath, this.logoutControllerUrlPath, this.populateSearchBox);
             String html = htu.getBanner();
             
             pageContext.getOut().print(html);
@@ -89,6 +90,14 @@ public class BannerTag extends TagSupport {
      */
     public void setReturnLogoutUrlPath(String returnLogoutUrlPath) {
         this.returnLogoutUrlPath = returnLogoutUrlPath;
+    }
+
+    public String getLogoutControllerUrlPath() {
+        return logoutControllerUrlPath;
+    }
+
+    public void setLogoutControllerUrlPath(String logoutControllerUrlPath) {
+        this.logoutControllerUrlPath = logoutControllerUrlPath;
     }
 
     public String getSearchPath() {
