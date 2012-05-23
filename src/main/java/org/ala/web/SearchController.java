@@ -23,9 +23,11 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.ala.dao.FulltextSearchDao;
 import org.ala.dao.IndexedTypes;
@@ -40,6 +42,7 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.xalan.xsltc.compiler.Pattern;
@@ -77,11 +80,76 @@ public class SearchController {
     private final String AUTO_JSON = "search/autoJson";
     /** WordPress SOLR URI */
     private final String WP_SOLR_URL = "http://alaprodweb1-cbr.vm.csiro.au/solr/select/?wt=json&q=";
+    
+    private String defaultDownloadFields="";
+    private Properties properties;
 
     protected ObjectMapper mapper = new ObjectMapper();
     
     public SearchController(){
     	mapper.getDeserializationConfig().set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    	//get the i18n map to use for downalod fields
+//    	String path = "localization/stat_codes.properties";    	
+    	properties = new Properties();
+    	try{
+    	    properties.load(getClass().getResourceAsStream("/messages.properties"));
+    	}
+    	catch(Exception e){
+    	    e.printStackTrace();
+    	}
+//    	InputStream foo = loader.getResourceAsStream(path);
+    	
+
+    }
+    /**
+     * Downloads the supplied fields to the SOLR query. NB this adds an extra fq for idxtype:TAXON
+     * @param query
+     * @param filterQuery
+     * @param filename
+     * @param sortField
+     * @param sortDirection
+     * @param fields
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping(value="/download", method = RequestMethod.GET)
+    public void downloadResults(
+            @RequestParam(value="q", required=false) String query,
+            @RequestParam(value="fq", required=false) String[] filterQuery,
+            @RequestParam(value="file", required=false, defaultValue ="species_data.csv") String filename,
+            @RequestParam(value="sort", required=false, defaultValue="score") String sortField,
+            @RequestParam(value="dir", required=false, defaultValue ="asc") String sortDirection,
+            @RequestParam(value="fields", required=false) String fields,
+            HttpServletResponse response
+            )throws Exception{
+        
+        response.setHeader("Cache-Control", "must-revalidate");
+        response.setHeader("Pragma", "must-revalidate");
+        response.setHeader("Content-Disposition", "attachment;filename=" + filename +".csv");
+        response.setContentType("text/csv");
+        
+        //add the extra fq for idxtype=TAXON
+        filterQuery = ArrayUtils.add(filterQuery, "idxtype:TAXON");
+        
+        if(StringUtils.isBlank(fields))
+            fields = defaultDownloadFields;
+      //reverse the sort direction for the "score" field a normal sort should be descending while a reverse sort should be ascending
+        sortDirection = getSortDirection(sortField, sortDirection);
+        java.io.OutputStream output = response.getOutputStream();
+        String[] afields = fields.split(",");
+        boolean first = true;
+        byte[] tab = ",".getBytes();        
+        for(String field:afields){
+            String value = properties.getProperty(field, field);
+            if(!first)
+                output.write(tab);
+            first = false;
+            output.write(value.getBytes());
+        }
+        output.write("\n".getBytes());
+        searchDao.writeResults(query, filterQuery, sortField, sortDirection, afields, output);
+        output.flush();
+        output.close();        
     }
 	
 	/**
@@ -531,6 +599,18 @@ public class SearchController {
         this.biocacheServiceUrl = biocacheServiceUrl;
     }
 
-	
+    /**
+     * @return the defaultDownloadFields
+     */
+    public String getDefaultDownloadFields() {
+        return defaultDownloadFields;
+    }
+
+    /**
+     * @param defaultDownloadFields the defaultDownloadFields to set
+     */
+    public void setDefaultDownloadFields(String defaultDownloadFields) {
+        this.defaultDownloadFields = defaultDownloadFields;
+    }
 	
 }

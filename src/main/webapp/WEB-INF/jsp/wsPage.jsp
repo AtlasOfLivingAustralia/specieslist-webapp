@@ -51,6 +51,19 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
             	    <li>limit - The maximum number of results to return</li>
                 </ul>
             </li>
+            
+            <li><strong>Download Taxa Search Results:</strong> /download -needs request param definition<br/>
+            Downloads all the idxtype:TAXON results to file.
+            	<ul class="paramList">
+                    <li>q - the initial query e.g. <a href="${initParam.serverName}/search.json?q=Macropus">q=Macropus</a></li>
+                    <li>fq - filters to be applied to the original query. e.g. &fq=idxType=TAXON will limit results to taxa only.</li>                                     
+                    <li>sort - sort field</li>
+                    <li>dir - sort direction "asc" or "dec"</li>
+                    <li>fields - a comma separated list of SOLR fields to include in the download.  
+                    Fields can be included in the download if they have been stored. See <a href="${initParam.serverName}/admin/indexFields">index fields</a> for more information</li>
+                    <li>file - the name of file to create</li>
+                </ul>
+            </li>
 
             <li><strong>Bulk lookup:</strong> /species/bulklookup.json<br/>
                 Used to provide a list of GUIDs.
@@ -154,6 +167,8 @@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"
 
             <ul class="webserviceList">
         		<li><strong>Check for Read Only Mode:</strong><a href="javascript:callAdminWs('isReadOnly')">&nbsp;${pageContext.request.contextPath}/admin/isReadOnly;&nbsp;</a></li>
+        		<li><strong>Reopen SOLR index:</strong> <a href="${initParam.serverName}/admin/reopenIndex">/admin/reopenIndex</a></li> </li>
+        		<li><strong>View list of SOLR index fields:</strong> <a href="${initParam.serverName}/admin/indexFields">/admin/indexFields</a></li>
         	</ul>
         	
         	The remaining services in the section is support GET method and protected by CAS security framework. To consume these services must logon into CAS server.<br/>

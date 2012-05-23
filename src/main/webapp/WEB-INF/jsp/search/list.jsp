@@ -86,8 +86,8 @@
 
             };
         })(jQuery);
-
-        function removeFacet(facet) {
+	            
+        function removeFacet(facet) {        	
             var q = $.getQueryParam('q'); //$.query.get('q')[0];
             var fqList = $.getQueryParam('fq'); //$.query.get('fq');
             var paramList = [];
@@ -132,7 +132,7 @@
         /**
          * Catch sort drop-down and build GET URL manually
          */
-        function reloadWithParam(paramName, paramValue) {
+        function reloadWithParam(paramName, paramValue) {        	
             var paramList = [];
             var q = $.getQueryParam('q'); //$.query.get('q')[0];
             var fqList = $.getQueryParam('fq'); //$.query.get('fq');
@@ -163,6 +163,7 @@
     </script>
     <title>${query} | Search | Atlas of Living Australia</title>
     <link rel="stylesheet" href="${initParam.centralServer}/wp-content/themes/ala/css/bie.css" type="text/css" media="screen" charset="utf-8"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/search.css" type="text/css" media="screen" />
 </head>
 <body>
 <c:if test="${empty searchResults.results}">
@@ -215,6 +216,9 @@
                 <c:if test="${not empty query}">
                     <c:set var="queryParam">q=<c:out value="${query}" escapeXml="true"/><c:if test="${not empty param.fq}">&fq=${fn:join(paramValues.fq, "&fq=")}</c:if></c:set>                    
                 </c:if>
+                <c:if test="${not empty searchResults.query }">
+                	<c:set var="downloadParams">q=${fn:escapeXml(searchResults.query)}<c:if test="${not empty param.fq}">&fq=${fn:join(paramValues.fq, "&fq=")}</c:if></c:set>
+                </c:if>                                
                 <%-- is this init search? then add fq parameter in href --%>
                 <c:choose>
 	                <c:when test="${not empty isAustralian}">
@@ -295,9 +299,15 @@
                     </c:if>
                 </c:forEach>
             </div>
-        </div><!--facets-->
-        <div class="solrResults">
+        </div>
+        <!--facets-->
+        <div class="solrResults">        	
             <div id="dropdowns">
+            	<c:if test="${not empty TAXON}">
+        			<div id="downloads" class="buttonDiv">        		
+        				<a href="${pageContext.request.contextPath}/download/?${downloadParams}${appendQueryParam}&sort=${searchResults.sort}&dir=${searchResults.dir}" id="downloadLink" title="Download taxa results for your search">Download</a>
+            		</div>
+            	</c:if>
                 <div id="resultsStats">
                     <label for="per-page">Results per page</label>
                     <select id="per-page" name="per-page">

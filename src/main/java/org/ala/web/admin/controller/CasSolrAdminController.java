@@ -1,6 +1,7 @@
 package org.ala.web.admin.controller;
 
 import java.io.PrintWriter;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -8,6 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import org.ala.dao.RankingDao;
+import org.ala.dao.SolrUtils;
+import org.ala.dao.SolrUtils.IndexFieldDTO;
 import org.ala.report.GoogleSitemapGenerator;
 import org.ala.util.ReadOnlyLock;
 import org.ala.util.XmlReportUtil;
@@ -35,6 +38,9 @@ public class CasSolrAdminController {
 	private GoogleSitemapGenerator googleSitemapGenerator;
 	@Inject
 	private XmlReportUtil xmlReportUtil;
+	
+	@Inject
+    protected SolrUtils solrUtils;
 	/**
 	 * Returns true when in service is in readonly mode.
 	 * 
@@ -171,7 +177,19 @@ public class CasSolrAdminController {
 			writer.write("{error: " + ex.getMessage() + "}");
 			logger.error(ex);
 		}		
-    }	
+    }
+    
+    @RequestMapping(value="/admin/reopenIndex", method =RequestMethod.GET)
+    public @ResponseBody String reopenIndex() throws Exception{
+        //reopen the SOLR index to take advantage of terms that have been indexed external to the webapp.
+        solrUtils.reopenSolr();
+        return "SOLR Server reopened";
+    }
+    
+    @RequestMapping(value="/admin/indexFields", method=RequestMethod.GET)
+    public @ResponseBody Set<IndexFieldDTO> getIndexFields() throws Exception{
+        return solrUtils.getIndexFieldDetails(null);
+    }
 
     @RequestMapping(value = "/admin/reloadInstitutions", method = RequestMethod.GET)
     public void reloadInstitutions(HttpServletRequest request, 
