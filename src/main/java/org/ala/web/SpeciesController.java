@@ -1408,6 +1408,28 @@ public class SpeciesController {
     }
 
     /**
+     * Return a JSON object (map) for the infosources for a given TC guid
+     *
+     * @param guid
+     * @param response
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/ws/infosources/{guid:.+}*", method = RequestMethod.GET)
+    public @ResponseBody Map<String, InfoSourceDTO> imageSearch(@PathVariable("guid") String guid, HttpServletResponse response) throws Exception {
+        ExtendedTaxonConceptDTO etc = taxonConceptDao.getExtendedTaxonConceptByGuid(guid);
+
+        if (etc != null || !etc.getSimpleProperties().isEmpty()) {
+            logger.debug("ExtendedTaxonConceptDTO = " + etc.getTaxonConcept());
+            return getInfoSource(etc);
+        } else {
+            logger.warn("GUID not found: " + guid);
+            response.sendError(response.SC_NOT_FOUND, "Requested taxon concept guid " + guid + " was not found");
+            return null;
+        }
+    }
+
+    /**
      * Create a list of unique infoSources to display on Overview page.
      * 
      * @param etc
