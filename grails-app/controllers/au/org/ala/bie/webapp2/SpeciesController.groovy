@@ -2,7 +2,7 @@ package au.org.ala.bie.webapp2
 
 class SpeciesController {
     def bieService
-    def lookupService
+    def utilityService
 
     def index = {
 
@@ -19,8 +19,10 @@ class SpeciesController {
         } else {
             render(view: 'show', model: [
                     tc: tc,
-                    statusRegionMap: lookupService.getStatusRegionCodes(),
-                    extraImages: bieService.getExtraImages(tc)
+                    statusRegionMap: utilityService.getStatusRegionCodes(),
+                    infoSources: bieService.getInfoSourcesForGuid(guid),
+                    extraImages: bieService.getExtraImages(tc),
+                    textProperties: utilityService.filterSimpleProperties(tc)
                 ]
             )
         }

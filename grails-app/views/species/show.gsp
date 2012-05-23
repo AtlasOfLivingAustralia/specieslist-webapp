@@ -166,81 +166,119 @@
                             <a href="" class="button orange">Record a sighting</a>
                         </section>
                     </div>
-                    <section class="clearfix">
-                        <h2>Description</h2>
-                        <p>The Laughing Kookaburra is a stocky bird of about 45 cm (18 in) in length, with a large head, a prominent brown eye, and a very large bill. The sexes are very similar, although the female averages larger and has less blue to the rump than the male. They have a white or cream-colored body and head with a dark brown stripe through each eye and more faintly over the top of the head. ... <cite>source: <a href="http://en.wikipedia.org/wiki/Laughing_Kookaburra" target="_blank" title="Laughing Kookaburra" class="external">Wikipedia</a></cite></p>
-                        <p>The Laughing Kookaburra is a stocky bird with large head and a short neck and blunt tail. Beak is fairly long and sturdy. The wings are brown with blue mottling, the back is brown and the tail reddish. The males have a patch of blue-green feathers in the center of the rump - this less noticeable on the females.... <cite>source: <a href="http://www.ozanimals.com/Bird/Laughing-Kookaburra/Dacelo/novaeguineae.html" target="_blank" class="external" title="Laughing Kookaburra (Dacelo novaeguineae)">OZ Animals</a></cite></p>
-                    </section>
+                    <g:set var="descriptionBlock">
+                        <g:set var="counter" value="${0}"/>
+                        <g:each var="textProperty" in="${textProperties}" status="status">
+                            <g:if test="${textProperty.name?.endsWith("hasDescriptiveText") && counter < 3 && textProperty.infoSourceId != 1051}">
+                                <p>${textProperty.value} <cite>source:
+                                    <a href="${textProperty.identifier}" class="external" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></cite>
+                                </p>
+                                <g:set var="counter" value="${counter + 1}"/>
+                            </g:if>
+                        </g:each>
+                    </g:set>
+                    <g:if test="${descriptionBlock}">
+                        <section class="clearfix">
+                            <h2>Description</h2>
+                            ${descriptionBlock}
+                        </section>
+                    </g:if>
+                    <g:if test="${tc.identificationKeys}">
+                        <h3>Identification Keys</h3>
+                        <ul>
+                            <g:each var="idKey" in="${tc.identificationKeys}">
+                                <li>
+                                    <a href="${idKey?.url}" target="_blank" class="external">${idKey?.title}</a>
+                                    <g:if test="${idKey?.infoSourceURL}">(source: ${idKey?.infoSourceName})</g:if>
+                                </li>
+                            </g:each>
+                        </ul>
+                    </g:if>
                     <section id="resources">
                         <h2>Online resources</h2>
                         <ul>
-                            <li><a href="http://www.auswildlife.com/birds/#206" target="_blank" class="infosource">Aus Wild Life</a>
-                                <ul>
-                                    <li>Names, Images, Images</li>
-                                </ul>
-                            </li>
-                            <li><a href="http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/Dacelo%20%28Dacelo%29%20novaeguineae" target="_blank" class="infosource">Australian Faunal Directory</a>
-                                <ul>
-                                    <li>Names</li>
-                                </ul>
-                            </li>
-                            <li><a href="http://www.birdsinbackyards.net/species/Dacelo-novaeguineae" target="_blank" class="infosource">Birds in Backyards</a>
-                                <ul>
-                                    <li>Distribution, Habitat, Diet, Reproduction, Distribution Map, Similar Species, Images</li>
-                                    <li><span class="truncate">Laughing Kookaburras are found throughout eastern Australia. They have been introduced to Tasmania, the extreme south-west of Western Australia, and New Zealand. Replaced by the Blue-winged Kookaburra ...</span><a href="http://www.birdsinbackyards.net/species/Dacelo-novaeguineae" target="_blank">more</a></li>
-                                </ul>
-                            </li>
-                            <li><a href="http://www.catalogueoflife.org/commonNames" target="_blank" class="infosource">Catalogue of Life: 2010 Annual Checklist</a>
-                                <ul>
-                                    <li>Names</li>
-                                </ul>
-                            </li>
-                            <li><a href="http://www.environment.sa.gov.au" target="_blank" class="infosource">Department of Environment and Natural Resources</a>
-                                <ul>
-                                    <li>Names</li>
-                                </ul>
-                            </li>
-                            <li><a href="http://www.environment.nsw.gov.au" target="_blank" class="infosource">Department of Environment, Climate Change and Water</a>
-                                <ul>
-                                    <li>Names</li>
-                                </ul>
-                            </li>
-                            <li><a href="http://www.flickr.com/photos/arthur_chapman/4884180726/" target="_blank" class="infosource">Flickr EOL</a>
-                                <ul>
-                                    <li>Video Page Url, Images</li>
-                                </ul>
-                            </li>
-                            <li><a href="http://www.marine.csiro.au/mirrorsearch/ir_search.list_species?sp_id=ave10004370" target="_blank" class="infosource">Interim Register of Marine and Non-marine Genera</a>
-                                <ul>
-                                    <li>Status</li>
-                                </ul>
-                            </li>
-                            <li><a href="http://www.iucn.org/" target="_blank" class="infosource">International Union for Conservation of Nature</a>
-                                <ul>
-                                    <li>Names, Status</li>
-                                </ul>
-                            </li>
-                            <li><a href="http://ibc.lynxeds.com/species/laughing-kookaburra-dacelo-novaeguineae" target="_blank" class="infosource">Internet Bird Collection</a>
-                                <ul>
-                                    <li>Family Common Name, Video Page Url, Images</li>
-                                </ul>
-                            </li>
-                            <li><a href="http://natureshare.org.au/species/368_dacelo_novaeguineae/" target="_blank" class="infosource">Nature Share</a>
-                                <ul>
-                                    <li>Images, Images</li>
-                                </ul>
-                            </li>
-                            <li><a href="http://www.ozanimals.com/Bird/Laughing-Kookaburra/Dacelo/novaeguineae.html" target="_blank" class="infosource">OZ Animals</a>
-                                <ul>
-                                    <li>Names, Description, Distribution, Morphology, Habitat, Diet, Reproduction, Image License</li>
-                                </ul>
-                            </li>
-                            <li><a href="http://en.wikipedia.org/wiki/Laughing_Kookaburra" target="_blank" class="infosource">Wikipedia</a>
-                                <ul>
-                                    <li>Description, Distribution, Reference, Images, Images</li>
-                                    <li><span class="truncate">The Laughing Kookaburra is a stocky bird of about 45 cm (18 in) in length, with a large head, a prominent brown eye, and a very large bill. The sexes are very similar, although the female averages larger...</span> <a href="http://en.wikipedia.org/wiki/Laughing_Kookaburra" target="_blank">more</a></li>
-                                </ul>
-                            </li>
+                            <g:each var="is" in="${infoSources}" status="status">
+                                %{--<g:set var="infoSource" value="${entry.value}"/>--}%<!--code>${is}</code-->
+                                <li><a href="${is.value?.infoSourceURL}" target="_blank" class="infosource">${is.value?.infoSourceName}</a>
+                                    <ul>
+                                        <li>
+                                            <g:each in="${is.value?.sections}" var="s" status="i">
+                                                <g:set var="section"><g:message code="${s}"/></g:set>
+                                                ${section}${section && i < is.value?.sections.size() - 1?', ':''}
+                                            </g:each>
+                                            %{--${is.value?.sections.join(",")}--}%
+                                        </li>
+                                    </ul>
+                                </li>
+                            </g:each>
+
+                            %{--<li><a href="http://www.auswildlife.com/birds/#206" target="_blank" class="infosource">Aus Wild Life</a>--}%
+                                %{--<ul>--}%
+                                    %{--<li>Names, Images, Images</li>--}%
+                                %{--</ul>--}%
+                            %{--</li>--}%
+                            %{--<li><a href="http://www.environment.gov.au/biodiversity/abrs/online-resources/fauna/afd/taxa/Dacelo%20%28Dacelo%29%20novaeguineae" target="_blank" class="infosource">Australian Faunal Directory</a>--}%
+                                %{--<ul>--}%
+                                    %{--<li>Names</li>--}%
+                                %{--</ul>--}%
+                            %{--</li>--}%
+                            %{--<li><a href="http://www.birdsinbackyards.net/species/Dacelo-novaeguineae" target="_blank" class="infosource">Birds in Backyards</a>--}%
+                                %{--<ul>--}%
+                                    %{--<li>Distribution, Habitat, Diet, Reproduction, Distribution Map, Similar Species, Images</li>--}%
+                                    %{--<li><span class="truncate">Laughing Kookaburras are found throughout eastern Australia. They have been introduced to Tasmania, the extreme south-west of Western Australia, and New Zealand. Replaced by the Blue-winged Kookaburra ...</span><a href="http://www.birdsinbackyards.net/species/Dacelo-novaeguineae" target="_blank">more</a></li>--}%
+                                %{--</ul>--}%
+                            %{--</li>--}%
+                            %{--<li><a href="http://www.catalogueoflife.org/commonNames" target="_blank" class="infosource">Catalogue of Life: 2010 Annual Checklist</a>--}%
+                                %{--<ul>--}%
+                                    %{--<li>Names</li>--}%
+                                %{--</ul>--}%
+                            %{--</li>--}%
+                            %{--<li><a href="http://www.environment.sa.gov.au" target="_blank" class="infosource">Department of Environment and Natural Resources</a>--}%
+                                %{--<ul>--}%
+                                    %{--<li>Names</li>--}%
+                                %{--</ul>--}%
+                            %{--</li>--}%
+                            %{--<li><a href="http://www.environment.nsw.gov.au" target="_blank" class="infosource">Department of Environment, Climate Change and Water</a>--}%
+                                %{--<ul>--}%
+                                    %{--<li>Names</li>--}%
+                                %{--</ul>--}%
+                            %{--</li>--}%
+                            %{--<li><a href="http://www.flickr.com/photos/arthur_chapman/4884180726/" target="_blank" class="infosource">Flickr EOL</a>--}%
+                                %{--<ul>--}%
+                                    %{--<li>Video Page Url, Images</li>--}%
+                                %{--</ul>--}%
+                            %{--</li>--}%
+                            %{--<li><a href="http://www.marine.csiro.au/mirrorsearch/ir_search.list_species?sp_id=ave10004370" target="_blank" class="infosource">Interim Register of Marine and Non-marine Genera</a>--}%
+                                %{--<ul>--}%
+                                    %{--<li>Status</li>--}%
+                                %{--</ul>--}%
+                            %{--</li>--}%
+                            %{--<li><a href="http://www.iucn.org/" target="_blank" class="infosource">International Union for Conservation of Nature</a>--}%
+                                %{--<ul>--}%
+                                    %{--<li>Names, Status</li>--}%
+                                %{--</ul>--}%
+                            %{--</li>--}%
+                            %{--<li><a href="http://ibc.lynxeds.com/species/laughing-kookaburra-dacelo-novaeguineae" target="_blank" class="infosource">Internet Bird Collection</a>--}%
+                                %{--<ul>--}%
+                                    %{--<li>Family Common Name, Video Page Url, Images</li>--}%
+                                %{--</ul>--}%
+                            %{--</li>--}%
+                            %{--<li><a href="http://natureshare.org.au/species/368_dacelo_novaeguineae/" target="_blank" class="infosource">Nature Share</a>--}%
+                                %{--<ul>--}%
+                                    %{--<li>Images, Images</li>--}%
+                                %{--</ul>--}%
+                            %{--</li>--}%
+                            %{--<li><a href="http://www.ozanimals.com/Bird/Laughing-Kookaburra/Dacelo/novaeguineae.html" target="_blank" class="infosource">OZ Animals</a>--}%
+                                %{--<ul>--}%
+                                    %{--<li>Names, Description, Distribution, Morphology, Habitat, Diet, Reproduction, Image License</li>--}%
+                                %{--</ul>--}%
+                            %{--</li>--}%
+                            %{--<li><a href="http://en.wikipedia.org/wiki/Laughing_Kookaburra" target="_blank" class="infosource">Wikipedia</a>--}%
+                                %{--<ul>--}%
+                                    %{--<li>Description, Distribution, Reference, Images, Images</li>--}%
+                                    %{--<li><span class="truncate">The Laughing Kookaburra is a stocky bird of about 45 cm (18 in) in length, with a large head, a prominent brown eye, and a very large bill. The sexes are very similar, although the female averages larger...</span> <a href="http://en.wikipedia.org/wiki/Laughing_Kookaburra" target="_blank">more</a></li>--}%
+                                %{--</ul>--}%
+                            %{--</li>--}%
                         </ul>
                     </section>
                 </section><!--#overview-->

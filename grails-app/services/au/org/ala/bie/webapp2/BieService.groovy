@@ -127,6 +127,16 @@ class BieService {
         return images
     }
 
+    def getInfoSourcesForGuid(guid) {
+        def infoSources = webService.getJson(ConfigurationHolder.config.bie.baseURL + "/ws/infosources/" + guid)
+
+        if (infoSources.error) {
+            return [:]
+        } else {
+            return infoSources
+        }
+    }
+
     def getPreferredImage(name) {
         def resp = getJson(ConfigurationHolder.config.bie.baseUrl + "/species/${name}.json")
         return extractPreferredImage(resp.images)
