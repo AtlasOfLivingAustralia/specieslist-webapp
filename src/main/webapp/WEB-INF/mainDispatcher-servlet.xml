@@ -42,7 +42,7 @@
 
     <!-- Application Message Bundle -->
     <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
-        <property name="basename" value="/WEB-INF/messages"/>
+        <property name="basename" value="/WEB-INF/classes/messages"/>
         <property name="cacheSeconds" value="10"/><!-- loads changes without restarting container -->
         <property name="useCodeAsDefaultMessage" value="true"/>
     </bean>
