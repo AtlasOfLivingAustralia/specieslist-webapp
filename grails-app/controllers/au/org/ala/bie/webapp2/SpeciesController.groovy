@@ -21,6 +21,7 @@ class SpeciesController {
                     tc: tc,
                     statusRegionMap: utilityService.getStatusRegionCodes(),
                     infoSources: bieService.getInfoSourcesForGuid(guid),
+                    infoSourceMap: utilityService.getInfoSourcesForTc(tc), // fallback for bieService.getInfoSourcesForGuid(guid)
                     extraImages: bieService.getExtraImages(tc),
                     textProperties: utilityService.filterSimpleProperties(tc)
                 ]

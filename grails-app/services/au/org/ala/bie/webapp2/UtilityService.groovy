@@ -83,4 +83,33 @@ class UtilityService {
         }
         return text;
     }
+
+    def getInfoSourcesForTc(tc) {
+        def infoSourceMap = new TreeMap() // so it keeps its sorted order
+        def selectedSections = []
+        selectedSections.addAll(tc.simpleProperties)
+
+        selectedSections.each {
+            def identifier = it.infoSourceURL
+            def name = it.infoSourceName
+            def property = (it.name?.startsWith("http://ala.org.au/ontology/ALA")) ? it.name?.replaceFirst(/^.*#/, "") : null
+
+            if (identifier && name && property) {
+                if (infoSourceMap.containsKey(identifier)) {
+                    def mapValue = infoSourceMap.get(identifier)
+                    def newValues = mapValue.sections as Set
+                    newValues.add(property)
+                    infoSourceMap.put(identifier, [name: name, sections: newValues])
+                } else {
+                    infoSourceMap.put(identifier, [name: name, sections: [property]])
+                }
+            }
+        }
+
+        log.debug "1. infoSourceMap = " + infoSourceMap
+        infoSourceMap = infoSourceMap.sort {a, b -> a.value.name <=> b.value.name}
+        log.debug "2. infoSourceMap = " + infoSourceMap
+
+        return infoSourceMap
+    }
 }
