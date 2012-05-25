@@ -15,11 +15,37 @@
     <meta name="layout" content="main" />
     <title>${tc?.taxonConcept?.nameString} : ${tc?.commonNames?.get(0)?.nameString} | Atlas of Living Australia</title>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'species.css')}" type="text/css" media="screen" />
+    <link rel="stylesheet" href="${resource(dir: 'css', file: 'colorbox.css')}" type="text/css" media="screen" />
     <script src="http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js"></script><!-- tabs, etc. -->
+    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.colorbox-min.js')}"></script>
     <script type="text/javascript">
         $(document).ready(function(){
             // setup tabs
             $("ul.tabs").tabs("div.tabs-panes-noborder > section", { history: true, effect: 'fade' });
+            // Gallery image popups using ColorBox
+            $("a.thumbImage").colorbox({
+                title: function() {
+                    var titleBits = this.title.split("|");
+                    return "<a href='"+titleBits[1]+"'>"+titleBits[0]+"</a>"; },
+                opacity: 0.5,
+                maxWidth: "80%",
+                maxHeight: "80%",
+                preloading: false,
+                onComplete: function() {
+                    $("#cboxTitle").html(""); // Clear default title div
+                    var index = $(this).attr('id').replace("thumb",""); // get the imdex of this image
+                    var titleHtml = $("div#thumbDiv"+index).html(); // use index to load meta data
+                    //console.log("index", index, "titleHtml", titleHtml);
+                    $("<div id='titleText'>"+titleHtml+"</div>").insertAfter("img.cboxPhoto");
+                    $("div#titleText").css("padding-top","8px");
+                    var cbox = $.fn.colorbox;
+                    if ( cbox != undefined){
+                        cbox.resize();
+                    } else{
+                        console.log("cboxis undefined 0: " + cbox);
+                    }
+                }
+            });
         });
     </script>
 </head>
@@ -238,7 +264,137 @@
                     </g:elseif>
                 </section><!--#overview-->
                 <section id="gallery">
-                    <h2>Images</h2>
+                    <g:if test="${tc.images}">
+                        <h2>Images</h2>
+                        <div id="imageGallery">
+                            <g:each var="image" in="${tc.images}" status="status">
+                                <g:set var="imageUri">
+                                    <g:if test="${image.repoId}">images/${image.repoId}.jpg</g:if>
+                                    <g:elseif test="${false && image.documentId}">images/${image.documentId}.jpg</g:elseif>
+                                    <g:else>${image.repoLocation}</g:else>
+                                </g:set>
+                                <a class="thumbImage" rel="thumbs" title="${image.title?:''}" href="${imageUri}"
+                                   id="thumb${status}"><img src="${image.thumbnail}" alt="${image.infoSourceName}"
+                                                                  alt="${image.title}" width="100px" height="100px"
+                                                                  style="width:100px;height:100px;padding-right:3px;"/></a>
+                                <div id="thumbDiv${status}" style="display:none;">
+                                    <g:if test="${image.title}">
+                                        ${image.title}<br/>
+                                    </g:if>
+                                    <g:if test="${image.creator}">
+                                        Image by: ${image.creator}<br/>
+                                    </g:if>
+                                    <g:if test="${image.locality}">
+                                        Locality: ${image.locality}<br/>
+                                    </g:if>
+                                    <g:if test="${image.licence}">
+                                        Licence: ${image.licence}<br/>
+                                    </g:if>
+                                    <g:if test="${image.rights}">
+                                        Rights: ${image.rights}<br/>
+                                    </g:if>
+                                    <g:set var="imageUri">
+                                        <g:if test="${image.isPartOf && !image.occurrenceUid}">
+                                            ${image.isPartOf}
+                                        </g:if>
+                                        <g:elseif test="${image.identifier}">
+                                            ${image.identifier}
+                                        </g:elseif>
+                                        <g:else>
+                                            ${image.infoSourceURL}
+                                        </g:else>
+                                    </g:set>
+                                    <g:if test="${image.infoSourceURL == 'http://www.ala.org.au'}">
+                                        <cite>Source: ${image.infoSourceName}</cite>
+                                    </g:if>
+                                    <g:elseif test="${image.infoSourceURL == 'http://www.elfram.com/'}">
+                                        <cite>Source: <a href="${image.infoSourceURL}" target="_blank" class="external">${image.infoSourceName}</a></cite>
+                                    </g:elseif>
+                                    <g:else>
+                                        <cite>Source: <a href="${imageUri}" target="_blank" class="external">${image.infoSourceName}</a></cite>
+                                    </g:else>
+                                    <g:if test="${image.occurrenceUid}">
+                                        <a href="http://biocache.ala.org.au/occurrences/${image.occurrenceUid}" target="_blank">View more details for this image</a>
+                                    </g:if>
+                                    <g:if test="${!isReadOnly}">
+                                        <p class="imageRank-${image.documentId}">
+                                            %{--<cite>--}%
+                                                <g:if test="${rankedImageUris?.contains(image.identifier)}">
+                                                    You have ranked this image as
+                                                    <g:if test="${!rankedImageUriMap[image.identifier]}">
+                                                        NOT
+                                                    </g:if>
+                                                    representative of ${tc.taxonConcept.nameString}
+                                                </g:if>
+                                                <g:else>
+                                                        Is this image representative of ${tc.taxonConcept.rankString}?
+                                                        <a class="isrepresent"
+                                                           href="javascript:rankThisImage('${tc.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,true,'${tc.taxonConcept.nameString}');">
+                                                            YES
+                                                        </a> |
+                                                        <a class="isnotrepresent"
+                                                           href="javascript:rankThisImage('${tc.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,false,'${tc.taxonConcept.nameString}');">
+                                                            NO
+                                                        </a>
+                                                        <g:if test="${isRoleAdmin}">
+                                                            <a class="isnotrepresent"
+                                                               href="javascript:rankThisImage('${tc.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,false,'${tc.taxonConcept.nameString}');">
+                                                                BlackList</a> |
+                                                            <a class="isnotrepresent" href="#"
+                                                               onClick="editThisImage('${tc.taxonConcept.guid}', '${image.identifier}');
+                                                               return false;">Edit</a>
+                                                        </g:if>
+                                                </g:else>
+                                            %{--</cite>--}%
+                                        </p>
+                                    </g:if>
+                                    <g:else>
+                                        <p class="imageRank-${image.documentId}">
+                                            <b>Read Only Mode</b>
+                                        </p>
+                                    </g:else>
+                                </div>
+                            </g:each>
+                        </div>
+                    </g:if>
+                    <g:if test="${tc.screenshotImages}">
+                        <h2 style="margin-top:20px;">Videos</h2>
+                        <div id="videosGallery">
+                            <g:each var="screenshot" in="${tc.screenshotImages}" status="status">
+                                <g:set var="thumbUri">${screenshot.repoLocation}</g:set>
+                                <g:set var="screenshotUri"><g:if
+                                        test="${screenshot.identifier}">${screenshot.identifier}</g:if><g:elseif
+                                        test="${screenshot.isPartOf}">${screenshot.isPartOf}</g:elseif><g:else>${screenshot.infoSourceURL}</g:else></g:set>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <a class="screenshotThumb" title="${screenshot.title}" href="${screenshotUri}" target="_blank"
+                                               class="external"><img src="${thumbUri}" alt="${screenshot.infoSourceName}" title="${imageTitle}"
+                                                                     width="120px" height="120px" style="width:120px;height:120px;padding-right:3px;"/></a>
+                                        </td>
+                                        <td>
+                                            <g:if test="${screenshot.title}">
+                                                ${screenshot.title}<br/>
+                                            </g:if>
+                                            <g:if test="${screenshot.creator}">
+                                                Video by: ${screenshot.creator}<br/>
+                                            </g:if>
+                                            <g:if test="${screenshot.locality}">
+                                                Locality: ${screenshot.locality}<br/>
+                                            </g:if>
+                                            <g:if test="${screenshot.licence}">
+                                                Licence: ${screenshot.licence}<br/>
+                                            </g:if>
+                                            <g:if test="${screenshot.rights}">
+                                                Rights: ${screenshot.rights}<br/>
+                                            </g:if>
+                                            Source: <a href="${screenshotUri}" target="_blank" class="external">${screenshot.infoSourceName}</a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </g:each>
+                        </div>
+                    </g:if>
                 </section><!--#gallery-->
                 <section id="names">
                     <h2>Names and sources</h2>

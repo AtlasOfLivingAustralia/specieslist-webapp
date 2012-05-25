@@ -23,7 +23,8 @@ class SpeciesController {
                     infoSources: bieService.getInfoSourcesForGuid(guid),
                     infoSourceMap: utilityService.getInfoSourcesForTc(tc), // fallback for bieService.getInfoSourcesForGuid(guid)
                     extraImages: bieService.getExtraImages(tc),
-                    textProperties: utilityService.filterSimpleProperties(tc)
+                    textProperties: utilityService.filterSimpleProperties(tc),
+                    isRoleAdmin: utilityService.getIsRoleAdmin(request)
                 ]
             )
         }

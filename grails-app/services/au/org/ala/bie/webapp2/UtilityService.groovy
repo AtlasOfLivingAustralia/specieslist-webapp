@@ -112,4 +112,14 @@ class UtilityService {
 
         return infoSourceMap
     }
+
+    def getIsRoleAdmin(request) {
+        def isAdmin = false
+
+        if (request.getRemoteUser() != null && request.isUserInRole("ROLE_ADMIN")) {
+            isAdmin = true
+        }
+
+        return isAdmin
+    }
 }
