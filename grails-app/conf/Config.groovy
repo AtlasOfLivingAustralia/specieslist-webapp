@@ -34,7 +34,38 @@ if (!collectory.baseURL) {
 
 collectory.threatenedSpeciesCodesUrl = collectory.baseURL + "/public/showDataResource"
 
+/******************************************************************************\
+ *  SECURITY
+ \******************************************************************************/
+if (!security.cas.urlPattern) {
+    security.cas.urlPattern = "/admin, /admin/.*"
+}
+if (!security.cas.urlExclusionPattern) {
+    security.cas.urlExclusionPattern = "/images.*,/css.*,/js.*,.*json"
+}
+if (!security.cas.authenticateOnlyIfLoggedInPattern) {
+    security.cas.authenticateOnlyIfLoggedInPattern = "/species/.*"
+}
+if (!security.cas.casServerName) {
+    security.cas.casServerName = "https://auth.ala.org.au"
+}
+if (!security.cas.loginUrl) {
+    security.cas.loginUrl = "${security.cas.casServerName}/cas/login"
+}
+if (!security.cas.logoutUrl) {
+    security.cas.logoutUrl = "${security.cas.casServerName}/cas/logout"
+}
+if (!security.cas.contextPath) {
+    //security.cas.contextPath = "/workforce" //"""${appName}"
+}
+if (!security.cas.bypass) {
+    security.cas.bypass = false
+}
+
+
 nonTruncatedSources = ["http://www.environment.gov.au/biodiversity/abrs/online-resources/flora/main/index.html"]
+
+auth.admin_role = "ROLE_ADMIN"
 
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
@@ -91,15 +122,23 @@ environments {
         grails.host = "http://nickdos.ala.org.au"
         //grails.host = "http://localhost"
         grails.serverURL = "${grails.host}:8080/${appName}"
+        security.cas.appServerName = "http://nickdos.ala.org.au:8080"
+        security.cas.contextPath = "/${appName}"
     }
     test {
         grails.logging.jul.usebridge = false
         grails.host = "ala-testweb1.vm.csiro.au"
         grails.serverURL = "http://${grails.host}:8080/${appName}"
+        security.cas.appServerName = "http://bdrs-test.ala.org.au:8080"
+        security.cas.contextPath = "/${appName}"
+        log4j.appender.'errors.File'="/var/log/tomcat/biewebapp2-stacktrace.log"
     }
     production {
         grails.logging.jul.usebridge = false
         grails.serverURL = "http://bie.ala.org.au"
+        security.cas.appServerName = server.url
+        security.cas.contextPath = ""
+        log4j.appender.'errors.File'="/var/log/tomcat/biewebapp2-stacktrace.log"
     }
 }
 
@@ -109,12 +148,12 @@ log4j = {
     // appender:
     //
     appenders {
-        environments {
-            production {
-                rollingFile name: "stacktrace", maxFileSize: 1024, file: "/var/log/tomcat6/biewebapp2-stacktrace.log"
-            }
-        }
+        console name:'stdout', layout:pattern(conversionPattern: '%-5p [%c{2}] %m%n')
     }
+
+    //root {
+        //debug: stdout
+    //}
 
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
            'org.codehaus.groovy.grails.web.pages', //  GSP
@@ -128,7 +167,8 @@ log4j = {
            'org.hibernate',
            'net.sf.ehcache.hibernate'
     warn   'org.mortbay.log',
-            'grails.app'
+           'grails.app'
     info   'grails.app'
-    debug  'grails.app'
+    debug  'grails.app',
+           'au.org.ala.cas.client'
 }

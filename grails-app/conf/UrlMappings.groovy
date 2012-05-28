@@ -12,7 +12,7 @@ class UrlMappings {
 //            action = "show"
 //        }
         "/species/$guid"(controller: "species", action: "show")
-
+        "/logout"(controller: "species", action: "logout")
 		"/"(view:"/index")
 		"500"(view:'/error')
 	}

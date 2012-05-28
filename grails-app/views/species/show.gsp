@@ -46,6 +46,8 @@
                     }
                 }
             });
+
+            console.log("isRoleAdmin", "${isRoleAdmin}", "userName", "${userName}")
         });
     </script>
 </head>
@@ -337,7 +339,7 @@
                                                             NO
                                                         </a>
                                                         <g:if test="${isRoleAdmin}">
-                                                            <a class="isnotrepresent"
+                                                            <br/><a class="isnotrepresent"
                                                                href="javascript:rankThisImage('${tc.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,false,'${tc.taxonConcept.nameString}');">
                                                                 BlackList</a> |
                                                             <a class="isnotrepresent" href="#"

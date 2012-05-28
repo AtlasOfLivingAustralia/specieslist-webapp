@@ -66,7 +66,7 @@
 </head>
 <body class="${pageProperty(name:'body.class')}" id="${pageProperty(name:'body.id')}" onload="${pageProperty(name:'body.onload')}">
 
-<hf:banner logoutUrl="${ConfigurationHolder.config.grails.serverURL}/dashboard/logout"/>
+<hf:banner logoutUrl="${ConfigurationHolder.config.grails.serverURL}/logout"/>
 
 <hf:menu/>
 
