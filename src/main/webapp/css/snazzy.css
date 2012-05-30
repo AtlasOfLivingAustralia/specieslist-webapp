@@ -1,0 +1,83 @@
+
+.result-box {
+    background: none repeat scroll 0 0 #FBF8F5;
+    border: 1px solid #C5CED3;
+    border-radius: 5px 5px 5px 5px;
+    margin: 15px 0;
+    padding: 8px 10px;
+    max-width: 632px;
+}
+
+#search-status {
+    max-width: 632px;
+    background: none repeat scroll 0 0 #FBF8F5;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px 5px 5px 5px;
+    margin: 15px 0;
+    padding: 8px 10px;
+    text-align: center;
+}
+
+.highlight-context {
+    display: none;
+    background: none repeat scroll 0 0 #fafad2;
+    border: 1px solid #C5CED3;
+    border-radius: 5px 5px 5px 5px;
+    margin: 15px 0;
+    padding: 8px 10px;
+}
+
+.highlight-context em {
+    font-weight: bold;
+}
+
+#synonyms {
+    background: none repeat scroll 0 0 #eee8aa;
+    border: 1px solid #C5CED3;
+    border-radius: 5px 5px 5px 5px;
+    margin: 15px 0;
+    padding: 8px 10px;
+    max-width: 632px;
+}
+
+.thumbnail-container {
+    padding: 5px;
+    height: 120px;
+}
+
+.page-thumbnail {
+    float: left;
+    padding: 5px;
+    margin: 5px;
+    background: none repeat scroll 0 0 #f5f1ee;
+    width: 60px;
+    height: 100px;
+    border: 1px solid #C5CED3;
+    border-radius: 5px 5px 5px 5px;
+}
+
+.result-box a div  {
+    display: none;
+}
+.result-box a:hover {
+    position: relative;
+}
+.result-box a:hover div {
+    background: none repeat scroll 0 0 #FFFF99;
+    display: block;
+    position: absolute;
+    border: 1px solid #C5CED3;
+    border-radius: 5px 5px 5px 5px;
+}
+.result-box a:hover div {
+    top: 10px; left: 0;
+    width: 400px;
+}
+
+#solr-results {
+    margin-top: 10px;
+}
+
+.matchingPagesInfo {
+    clear: both;
+}

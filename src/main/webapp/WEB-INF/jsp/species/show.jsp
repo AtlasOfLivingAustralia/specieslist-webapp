@@ -20,6 +20,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
         <title>${extendedTaxonConcept.taxonConcept.nameString} <c:if test="${not empty extendedTaxonConcept.commonNames}"> : ${extendedTaxonConcept.commonNames[0].nameString}</c:if> | Atlas of Living Australia</title>
         <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.4.css" media="screen" />
         <link type="text/css" media="screen" rel="stylesheet" href="${pageContext.request.contextPath}/static/css/colorbox.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/snazzy.css" />
         <script language="JavaScript" type="text/javascript" src="${wordPressUrl}/wp-content/themes/ala/scripts/ui.core.js"></script>
         <script language="JavaScript" type="text/javascript" src="${wordPressUrl}/wp-content/themes/ala/scripts/ui.tabs.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-fancybox/jquery.fancybox-1.3.4.pack.js"></script>
@@ -27,6 +28,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
         <%-- <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.easing.1.3.js"></script> --%>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.favoriteIcon.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.qtip-1.0.0.min.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.htmlClean.js"></script>
         <script type="text/javascript" src="http://www.google.com/jsapi"></script>
         <script type="text/javascript">
  
@@ -99,7 +101,15 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                 });
 
                 // Dena's tabs implementation
+                var bhlInit = false;
                 $('#nav-tabs > ul').tabs();
+                $('#nav-tabs > ul').bind('tabsshow', function(event1, event2, ui) {
+                    //console.log('tabsshow', ui);
+                    if (ui.panel && ui.panel.id == "bhl" && !bhlInit) {
+                        doSearch(0, 10);
+                        bhlInit = true
+                    }
+                });
                 //$('#nav-tabs > ul').bind("tabsshow", function(event, ui) {
                 //    window.location.hash = ui.tab.hash;
                 //})
@@ -129,8 +139,8 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                         	cbox.resize();
                         }
                         else{
-                        	console.log("cboxis undefined 0: " + cbox);
-                        }                    	
+                        	//console.log("cboxis undefined 0: " + cbox);
+                        }
                     }
                 });
 
@@ -142,9 +152,9 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     opacity: 0.5,
                     height: "500px",
                     width: "700px",
-                    preloading: true,
+                    preloading: true
                 });
-                
+
                 // images in overview tab should trigger lightbox
                 $("#images ul a").click(function(e) {
                     e.preventDefault(); //Cancel the link behavior
@@ -194,12 +204,12 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                         $(this).attr('src', src);
                     }
                 });
-                
+
                 // mapping for facet names to display labels
                 var facetLabels = {
                     state: "State &amp; Territory",
                     data_resource: "Dataset",
-                    month: "Date (by month)", 
+                    month: "Date (by month)",
                     occurrence_year: "Date (by decade)"
                 };
                 var months = {
@@ -216,10 +226,10 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     "11": "November",
                     "12": "December"
                 };
-                
+
                 // load the collections that contain specimens
-                //var colSpecUrl = "${pageContext.request.contextPath}/species/source/${extendedTaxonConcept.taxonConcept.guid}"; 
-                var colSpecUrl = "${biocacheWSUrl}occurrences/taxon/source/${extendedTaxonConcept.taxonConcept.guid}.json?fq=basis_of_record:PreservedSpecimen&callback=?"; 
+                //var colSpecUrl = "${pageContext.request.contextPath}/species/source/${extendedTaxonConcept.taxonConcept.guid}";
+                var colSpecUrl = "${biocacheWSUrl}occurrences/taxon/source/${extendedTaxonConcept.taxonConcept.guid}.json?fq=basis_of_record:PreservedSpecimen&callback=?";
                 $.getJSON(colSpecUrl, function(data) {
                     if (data != null &&data != null && data.length >0){
                         var content = '<h4>Collections that hold specimens: </h4>';
@@ -243,7 +253,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                 var biocachUrl = "${biocacheWSUrl}occurrences/taxon/${extendedTaxonConcept.taxonConcept.guid}.json?callback=?";
                 //var biocachUrl = "${biocacheWSUrl}occurrences/search.json?q=lsid:${extendedTaxonConcept.taxonConcept.guid}&facets=state&facets=month&facets=data_resource&facets=year&callback=?";
                 $.getJSON(biocachUrl, function(data) {
-                	
+
                     if (data.totalRecords != null && data.totalRecords > 0) {
                         //alert("hi "+data.totalRecords);
                         var count = data.totalRecords + ""; // concat of emtyp string forces var to a String
@@ -259,7 +269,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                 var chart;
                                 data.addColumn('string', facetLabels[facet.fieldName]);
                                 data.addColumn('number', 'Records');
-                                // HTML content 
+                                // HTML content
                                 var isoDateSuffix = '-01-01T12:00:00Z';
                                 var content = '<h4>By '+ facetLabels[facet.fieldName] +'</h4>';
                                 content = content +'<ul>';
@@ -275,7 +285,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                         var toValue;
                                         var displayCount = (li.count + "").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
                                         var link = '<a href="${biocacheUrl}occurrences/taxa/${extendedTaxonConcept.taxonConcept.guid}?fq='
-                                        
+
                                         if (facet.fieldName == 'occurrence_year') {
                                             if (label == 'before') { // label.indexOf(searchValue, fromIndex)
                                                 label = label + ' 1850';
@@ -298,7 +308,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                         // add values to chart
                                         //data.addRow([label, li.count]);
                                         if (label == 'before 1850') {
-                                            // add to start of array 
+                                            // add to start of array
                                             rows.unshift([label, li.count]);
                                             listItems.unshift('<li>'+label+': ' + link + displayCount + ' records</a></li>');
                                         } else {
@@ -385,25 +395,25 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                         $(this).html(html).append('...');
                     }
                 });
-                
+
                 // help popup for classification icon: recorded in australia
                 $('#recordedIn img, #recordedIn span').qtip({ style: { name: 'light', tip: true } });
                 var isAustralian = "${extendedTaxonConcept.isAustralian}";
                 var showTaxaHtml = 'Only listing child taxa recorded in Australia. <a href="#" id="showAllChildren">Show all child taxa</a>.';
                 var hideTaxaHtml = 'Listing all child taxa. <a href="#" id="showAustChildren">Show only child taxa recorded in Australia</a>.';
                 var numberOfInferredPlacement = $('span.inferredPlacement').length;
-                
+
                 if (isAustralian == 'true' && numberOfInferredPlacement > 0) {
                     $('ul.childClassification li').hide();
                     $('ul.childClassification li.recorded').show();
                     $('#isAustralianSwitch').html(showTaxaHtml);
-                    
+
                     //var offset = $('ul.childClassification').position();
                     //console.log("offset", offset);
                     var top = "138px"; // (offset.top - 45) + "px";
                     var left = "405px"; // (offset.left + 300) + "px";
-                    
-                    
+
+
                     $('#isAustralianSwitch').css({
                         'position': 'absolute',
                         'width': '440px',
@@ -413,19 +423,19 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                         'background-color': '#D9D9D9'
                     });
                 }
-                
+
                 $('#showAllChildren').live("click", function(e) {
                     e.preventDefault();
                     $('#isAustralianSwitch').html(hideTaxaHtml);
                     $('ul.childClassification li').show();
                 });
-                
+
                 $('#showAustChildren').live("click", function(e) {
                     e.preventDefault();
                     $('#isAustralianSwitch').html(showTaxaHtml);
                     $('ul.childClassification li').hide();
                     $('ul.childClassification li.recorded').show();
-                });                
+                });
             });  // end document ready function
 
             /**
@@ -538,6 +548,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     <li><a href="#records">Records</a></li>
                     <%--<li><a href="#biology">Biology</a></li>
                     <li><a href="#molecular">Molecular</a></li>--%>
+                    <li><a href="#bhl">Literature</a></li>
                     <c:if test="${not empty extendedTaxonConcept.references}"><li><a href="#literature">Literature</a></li></c:if>
                 </ul>
             </div>
@@ -909,7 +920,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                                             	<a href="http://biocache.ala.org.au/occurrences/${image.occurrenceUid}" onclick="window.open(this.href); return false;">View more details for this image</a>
 										</c:if>
                                         
-<p class="imageRank-${image.documentId}">
+                                <p class="imageRank-${image.documentId}">
 									<cite>
                                      	<c:choose>
                                      		<c:when test="${not isReadOnly}">
@@ -1453,12 +1464,155 @@ Read Only Mode
             </div><!--close -->
         </div><!--close molecular-->
 --%>
+        <div id="bhl">
+            <div id="column-one" class="full-width">
+                <div class="section">
+                    <h2>Biodiversity Heritage Library</h2>
+                    <script type="text/javascript">
+                        //<![CDATA[
+                        function doSearch(start, rows, scroll) {
+                            if (!start) {
+                                start = 0;
+                            }
+                            if (!rows) {
+                                rows = 10;
+                            }
+                            // var url = "http://localhost:8080/bhl-ftindex-demo/search/ajaxSearch?q=" + $("#tbSearchTerm").val();
+                            <c:set var="synonymsQuery"><c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym" varStatus="vs">\"${synonym.nameString}\"<c:if test="${!vs.last}"> OR </c:if></c:forEach></c:set>
+                            var taxonName = "${scientificName}";
+                            var synonyms = "${synonymsQuery}";
+                            var query = ""; // = taxonName.split(/\s+/).join(" AND ") + synonyms;
+                            if (taxonName) {
+                                var terms = taxonName.split(/\s+/).length;
+                                if (terms > 2) {
+                                    query += taxonName.split(/\s+/).join(" AND ");
+                                } else if (terms == 2) {
+                                    query += '"' + taxonName + '"';
+                                } else {
+                                    query += taxonName;
+                                }
+                            }
+                            if (synonyms) {
+                                //synonyms = "  " + ((synonyms.indexOf("OR") != -1) ? "(" + synonyms + ")" : synonyms);
+                                query += (taxonName) ? ' OR ' + synonyms : synonyms;
+                            }
+
+                            var url = "http://bhlidx.ala.org.au/select?q=" + query + '&start=' + start + "&rows=" + rows +
+                                      "&wt=json&fl=name%2CpageId%2CitemId%2Cscore&hl=on&hl.fl=text&hl.fragsize=200&" +
+                                      "group=true&group.field=itemId&group.limit=6&group.ngroups=true&taxa=false";
+                            var buf = "";
+                            $("#status-box").css("display", "block");
+                            $("#synonyms").html("").css("display", "none")
+                            $("#results").html("");
+
+                            $.ajax({
+                                url: url,
+                                dataType: 'jsonp',
+                                data: null,
+                                jsonp: "json.wrf",
+                                success:  function(data) {
+                                    var itemNumber = parseInt(data.responseHeader.params.start, 10) + 1;
+                                    var maxItems = parseInt(data.grouped.itemId.ngroups, 10);
+                                    if (maxItems == 0) {
+                                        $("#status-box").css("display", "none");
+                                        $("#solr-results").html("No references were found for <code>" + query + "</code>");
+                                        return true;
+                                    }
+                                    var startItem = parseInt(start, 10);
+                                    var pageSize = parseInt(rows, 10);
+                                    var showingFrom = startItem + 1;
+                                    var showingTo = (startItem + pageSize <= maxItems) ? startItem + pageSize : maxItems ;
+                                    //console.log(startItem, pageSize, showingTo);
+                                    var pageSize = parseInt(rows, 10);
+                                    buf += '<div class="results-summary">Showing ' + showingFrom + " to " + showingTo + " of " + maxItems +
+                                            ' results for the query <code>' + query + '</code>.</div>'
+                                    // grab highlight text and store in map/hash
+                                    var highlights = {};
+                                    $.each(data.highlighting, function(idx, hl) {
+
+                                        highlights[idx] = hl.text[0];
+                                        //console.log("highlighting", idx, hl);
+                                    });
+                                    //console.log("highlighting", highlights, itemNumber);
+                                    $.each(data.grouped.itemId.groups, function(idx, obj) {
+                                        buf += '<div class="result-box">';
+                                        buf += '<b>' + itemNumber++;
+                                        buf += '.</b> <a target="item" href="http://bhl.ala.org.au/item/' + obj.groupValue + '">' + obj.doclist.docs[0].name + '</a> ';
+                                        buf += '<div class="thumbnail-container">';
+
+                                        $.each(obj.doclist.docs, function(idx, page) {
+                                            var highlightText = $('<div>'+highlights[page.pageId]+'</div>').htmlClean({allowedTags: ["em"]}).html();
+                                            buf += '<div class="page-thumbnail"><a target="page image" href="http://bhl.ala.org.au/page/' +
+                                                    page.pageId + '"><img src="http://bhl.ala.org.au/pagethumb/' + page.pageId +
+                                                    '" alt="Page Id ' + page.pageId + '"  width="60px" height="100px"/><div class="highlight-context">' +
+                                                    highlightText + '</div></a></div>';
+                                        })
+                                        buf += "</div><!--end .thumbnail-container -->";
+                                        var suffix = '';
+                                        if (obj.pageCount > 1) {
+                                            suffix = 's';
+                                        }
+                                        buf += '<div class="matchingPagesInfo"><b>' + obj.doclist.numFound + '</b> matching page' + suffix + ' in item ' + obj.groupValue + ', Score ' + obj.doclist.maxScore + "</div>";
+                                        buf += "</div>";
+                                    })
+
+                                    var prevStart = start - rows;
+                                    var nextStart = start + rows;
+                                    //console.log("nav buttons", prevStart, nextStart);
+
+                                    buf += '<div id="button-bar">';
+                                    if (prevStart >= 0) buf += '<input type="button" value="Previous page" onclick="doSearch(' + prevStart + ',' + rows + ', true)">';
+                                    buf += '&nbsp;&nbsp;&nbsp;';
+                                    if (nextStart <= maxItems) buf += '<input type="button" value="Next page" onclick="doSearch(' + nextStart + ',' + rows + ', true)">';
+                                    buf += '</div>';
+
+                                    $("#solr-results").html(buf);
+                                    if (data.synonyms) {
+                                        buf = "<b>Synonyms used:</b>&nbsp;";
+                                        buf += data.synonyms.join(", ");
+                                        $("#synonyms").html(buf).css("display", "block");
+                                    } else {
+                                        $("#synonyms").html("").css("display", "none");
+                                    }
+                                    $("#status-box").css("display", "none");
+
+                                    if (scroll) {
+                                        $('html, body').animate({scrollTop: '300px'}, 300);
+                                    }
+                                },
+                                error: function(jqXHR, textStatus, errorThrown) {
+                                    $("#status-box").css("display", "none");
+                                    $("#solr-results").html('An error has occurred, probably due to invalid query syntax');
+                                }
+                            });
+
+                        }
+                        //]]>
+                    </script>
+                    <div id="status-box" class="column-wrap" style="display: none;">
+                        <div id="search-status" class="column-wrap" >
+                            <span style="vertical-align: middle; ">
+                                Searching, please wait...
+                            <img src="${pageContext.request.contextPath}/static/css/images/indicator.gif" alt="Searching" style="vertical-align: middle;"/>
+                            </span>
+                        </div>
+                    </div>
+                    <div id="results-home" class="column-wrap">
+                        <div id="synonyms" style="display: none">
+                        </div>
+                        <div class="column-wrap" id="solr-results">
+                        </div>
+                    </div>
+                </div>
+            </div><!---->
+        </div><!--close references-->
+
         <c:if test="${not empty extendedTaxonConcept.references}">
         <div id="literature">
             <div id="column-one" class="full-width">
                 <div class="section">
                     <h2>Literature</h2>
-                    <div id="literature">
+                    <div id="literatureBody">
                         <c:if test="${not empty extendedTaxonConcept.earliestReference || not empty extendedTaxonConcept.references}">
                             <table class="propertyTable" >
                                 <tr>
