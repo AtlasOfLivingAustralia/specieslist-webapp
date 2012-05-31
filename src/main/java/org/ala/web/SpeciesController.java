@@ -718,12 +718,11 @@ public class SpeciesController {
      *
      * @param taxonRank
      * @param scientificName
-     * @param request
      * @return
      */
-    @RequestMapping(value = "/ws/higherTaxa/images", method = RequestMethod.GET)
-    public @ResponseBody List<SearchDTO> imageSearch(@PathVariable("taxonRank") String taxonRank,
-                 @PathVariable("scientificName") String scientificName, HttpServletRequest request) {
+    @RequestMapping(value = "/ws/higherTaxa/images.json", method = RequestMethod.GET)
+    public List<SearchDTO> taxaImageSearch(@RequestParam(value="taxonRank", required=true) String taxonRank,
+                @RequestParam(value="scientificName", required=true) String scientificName) {
         return imageSearch(taxonRank, scientificName);
     }
 
