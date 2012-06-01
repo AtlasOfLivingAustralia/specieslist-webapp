@@ -9,6 +9,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
 <c:set var="citizenSciUrl">http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid=</c:set>
 <c:set var="collectoryUrl">http://collections.ala.org.au</c:set>
 <c:set var="threatenedSpeciesCodes">${collectoryUrl}/public/showDataResource</c:set>
+<c:set var="synonymsQuery"><c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym" varStatus="vs">\"${synonym.nameString}\"<c:if test="${!vs.last}"> OR </c:if></c:forEach></c:set>
 <!DOCTYPE html>
 <html dir="ltr" lang="en-US">
 	<% long start = System.currentTimeMillis(); %>
@@ -106,10 +107,12 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                 $('#nav-tabs > ul').bind('tabsshow', function(event1, event2, ui) {
                     //console.log('tabsshow', ui);
                     if (ui.panel && ui.panel.id == "bhl" && !bhlInit) {
-                        doSearch(0, 10);
-                        bhlInit = true
+                        //doSearch(0, 10);
+                        bhlInit = true;
                     }
                 });
+                // trigger BHL search
+                doSearch(0, 10);
                 //$('#nav-tabs > ul').bind("tabsshow", function(event, ui) {
                 //    window.location.hash = ui.tab.hash;
                 //})
@@ -447,6 +450,126 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                 return data;
             }
 
+            function doSearch(start, rows, scroll) {
+                if (!start) {
+                    start = 0;
+                }
+                if (!rows) {
+                    rows = 10;
+                }
+
+                var taxonName = "${scientificName}";
+                var synonyms = "${synonymsQuery}";
+                var query = ""; // = taxonName.split(/\s+/).join(" AND ") + synonyms;
+                if (taxonName) {
+                    var terms = taxonName.split(/\s+/).length;
+                    if (terms > 2) {
+                        query += taxonName.split(/\s+/).join(" AND ");
+                    } else if (terms == 2) {
+                        query += '"' + taxonName + '"';
+                    } else {
+                        query += taxonName;
+                    }
+                }
+                if (synonyms) {
+                    //synonyms = "  " + ((synonyms.indexOf("OR") != -1) ? "(" + synonyms + ")" : synonyms);
+                    query += (taxonName) ? ' OR ' + synonyms : synonyms;
+                }
+
+                var url = "http://bhlidx.ala.org.au/select?q=" + query + '&start=' + start + "&rows=" + rows +
+                        "&wt=json&fl=name%2CpageId%2CitemId%2Cscore&hl=on&hl.fl=text&hl.fragsize=200&" +
+                        "group=true&group.field=itemId&group.limit=7&group.ngroups=true&taxa=false";
+                var buf = "";
+                $("#status-box").css("display", "block");
+                $("#synonyms").html("").css("display", "none")
+                $("#results").html("");
+
+                $.ajax({
+                    url: url,
+                    dataType: 'jsonp',
+                    data: null,
+                    jsonp: "json.wrf",
+                    success:  function(data) {
+                        var itemNumber = parseInt(data.responseHeader.params.start, 10) + 1;
+                        var maxItems = parseInt(data.grouped.itemId.ngroups, 10);
+                        if (maxItems == 0) {
+                            $("#status-box").css("display", "none");
+                            $("#solr-results").html("No references were found for <code>" + query + "</code>");
+                            return true;
+                        }
+                        var startItem = parseInt(start, 10);
+                        var pageSize = parseInt(rows, 10);
+                        var showingFrom = startItem + 1;
+                        var showingTo = (startItem + pageSize <= maxItems) ? startItem + pageSize : maxItems ;
+                        //console.log(startItem, pageSize, showingTo);
+                        var pageSize = parseInt(rows, 10);
+                        buf += '<div class="results-summary">Showing ' + showingFrom + " to " + showingTo + " of " + maxItems +
+                                ' results for the query <code>' + query + '</code>.</div>'
+                        // grab highlight text and store in map/hash
+                        var highlights = {};
+                        $.each(data.highlighting, function(idx, hl) {
+
+                            highlights[idx] = hl.text[0];
+                            //console.log("highlighting", idx, hl);
+                        });
+                        //console.log("highlighting", highlights, itemNumber);
+                        $.each(data.grouped.itemId.groups, function(idx, obj) {
+                            buf += '<div class="result-box">';
+                            buf += '<b>' + itemNumber++;
+                            buf += '.</b> <a target="item" href="http://bhl.ala.org.au/item/' + obj.groupValue + '" title="View item in BHL">' + obj.doclist.docs[0].name.trim() + '</a> ';
+                            var suffix = '';
+                            if (obj.doclist.numFound > 1) {
+                                suffix = 's';
+                            }
+                            buf += ' (' + obj.doclist.numFound + '</b> matching page' + suffix + ')<div class="thumbnail-container">';
+
+                            $.each(obj.doclist.docs, function(idx, page) {
+                                var highlightText = $('<div>'+highlights[page.pageId]+'</div>').htmlClean({allowedTags: ["em"]}).html();
+                                buf += '<div class="page-thumbnail"><a target="page image" href="http://bhl.ala.org.au/page/' +
+                                        page.pageId + '"><img src="http://bhl.ala.org.au/pagethumb/' + page.pageId +
+                                        '" alt="Page Id ' + page.pageId + '"  width="60px" height="100px"/><div class="highlight-context">' +
+                                        highlightText + '</div></a></div>';
+                            })
+                            buf += "</div><!--end .thumbnail-container -->";
+                            var suffix = '';
+                            if (obj.pageCount > 1) {
+                                suffix = 's';
+                            }
+                            //buf += '<div class="matchingPagesInfo"><b>' + obj.doclist.numFound + '</b> matching page' + suffix + ' in item ' + obj.groupValue + ', Score ' + obj.doclist.maxScore + "</div>";
+                            buf += "</div>";
+                        })
+
+                        var prevStart = start - rows;
+                        var nextStart = start + rows;
+                        //console.log("nav buttons", prevStart, nextStart);
+
+                        buf += '<div id="button-bar">';
+                        if (prevStart >= 0) buf += '<input type="button" value="Previous page" onclick="doSearch(' + prevStart + ',' + rows + ', true)">';
+                        buf += '&nbsp;&nbsp;&nbsp;';
+                        if (nextStart <= maxItems) buf += '<input type="button" value="Next page" onclick="doSearch(' + nextStart + ',' + rows + ', true)">';
+                        buf += '</div>';
+
+                        $("#solr-results").html(buf);
+                        if (data.synonyms) {
+                            buf = "<b>Synonyms used:</b>&nbsp;";
+                            buf += data.synonyms.join(", ");
+                            $("#synonyms").html(buf).css("display", "block");
+                        } else {
+                            $("#synonyms").html("").css("display", "none");
+                        }
+                        $("#status-box").css("display", "none");
+
+                        if (scroll) {
+                            $('html, body').animate({scrollTop: '300px'}, 300);
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        $("#status-box").css("display", "none");
+                        $("#solr-results").html('An error has occurred, probably due to invalid query syntax');
+                    }
+                });
+            } // end doSearch
+
             google.load("visualization", "1", {packages:["corechart"]});
             
         </script>
@@ -488,7 +611,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
             <div id="breadcrumb">
                 <ul>
                     <li><a href="${wordPressUrl}">Home</a></li>
-                    <li><a href="${wordPressUrl}/australias-species/">Australia&apos;s species</a></li>
+                    <li><a href="${wordPressUrl}/australias-species/">Australia&#39;s species</a></li>
                     <li>${sciNameFormatted} ${authorship} <c:if test="${not empty extendedTaxonConcept.commonNames}"> : ${extendedTaxonConcept.commonNames[0].nameString}</c:if></li>
                 </ul>
             </div>
@@ -548,8 +671,7 @@ include file="/common/taglibs.jsp" %><%@ taglib uri="/tld/taglibs-string.tld" pr
                     <li><a href="#records">Records</a></li>
                     <%--<li><a href="#biology">Biology</a></li>
                     <li><a href="#molecular">Molecular</a></li>--%>
-                    <li><a href="#bhl">Literature</a></li>
-                    <c:if test="${not empty extendedTaxonConcept.references}"><li><a href="#literature">Literature</a></li></c:if>
+                    <li><a href="#literature">Literature</a></li>
                 </ul>
             </div>
         </div><!--close section_page-->
@@ -1464,129 +1586,13 @@ Read Only Mode
             </div><!--close -->
         </div><!--close molecular-->
 --%>
-        <div id="bhl">
+        <div id="literature">
             <div id="column-one" class="full-width">
                 <div class="section">
-                    <h2>Biodiversity Heritage Library</h2>
+                    <h2>Name references found in the Biodiversity Heritage Library</h2>
                     <script type="text/javascript">
                         //<![CDATA[
-                        function doSearch(start, rows, scroll) {
-                            if (!start) {
-                                start = 0;
-                            }
-                            if (!rows) {
-                                rows = 10;
-                            }
-                            // var url = "http://localhost:8080/bhl-ftindex-demo/search/ajaxSearch?q=" + $("#tbSearchTerm").val();
-                            <c:set var="synonymsQuery"><c:forEach items="${extendedTaxonConcept.synonyms}" var="synonym" varStatus="vs">\"${synonym.nameString}\"<c:if test="${!vs.last}"> OR </c:if></c:forEach></c:set>
-                            var taxonName = "${scientificName}";
-                            var synonyms = "${synonymsQuery}";
-                            var query = ""; // = taxonName.split(/\s+/).join(" AND ") + synonyms;
-                            if (taxonName) {
-                                var terms = taxonName.split(/\s+/).length;
-                                if (terms > 2) {
-                                    query += taxonName.split(/\s+/).join(" AND ");
-                                } else if (terms == 2) {
-                                    query += '"' + taxonName + '"';
-                                } else {
-                                    query += taxonName;
-                                }
-                            }
-                            if (synonyms) {
-                                //synonyms = "  " + ((synonyms.indexOf("OR") != -1) ? "(" + synonyms + ")" : synonyms);
-                                query += (taxonName) ? ' OR ' + synonyms : synonyms;
-                            }
 
-                            var url = "http://bhlidx.ala.org.au/select?q=" + query + '&start=' + start + "&rows=" + rows +
-                                      "&wt=json&fl=name%2CpageId%2CitemId%2Cscore&hl=on&hl.fl=text&hl.fragsize=200&" +
-                                      "group=true&group.field=itemId&group.limit=6&group.ngroups=true&taxa=false";
-                            var buf = "";
-                            $("#status-box").css("display", "block");
-                            $("#synonyms").html("").css("display", "none")
-                            $("#results").html("");
-
-                            $.ajax({
-                                url: url,
-                                dataType: 'jsonp',
-                                data: null,
-                                jsonp: "json.wrf",
-                                success:  function(data) {
-                                    var itemNumber = parseInt(data.responseHeader.params.start, 10) + 1;
-                                    var maxItems = parseInt(data.grouped.itemId.ngroups, 10);
-                                    if (maxItems == 0) {
-                                        $("#status-box").css("display", "none");
-                                        $("#solr-results").html("No references were found for <code>" + query + "</code>");
-                                        return true;
-                                    }
-                                    var startItem = parseInt(start, 10);
-                                    var pageSize = parseInt(rows, 10);
-                                    var showingFrom = startItem + 1;
-                                    var showingTo = (startItem + pageSize <= maxItems) ? startItem + pageSize : maxItems ;
-                                    //console.log(startItem, pageSize, showingTo);
-                                    var pageSize = parseInt(rows, 10);
-                                    buf += '<div class="results-summary">Showing ' + showingFrom + " to " + showingTo + " of " + maxItems +
-                                            ' results for the query <code>' + query + '</code>.</div>'
-                                    // grab highlight text and store in map/hash
-                                    var highlights = {};
-                                    $.each(data.highlighting, function(idx, hl) {
-
-                                        highlights[idx] = hl.text[0];
-                                        //console.log("highlighting", idx, hl);
-                                    });
-                                    //console.log("highlighting", highlights, itemNumber);
-                                    $.each(data.grouped.itemId.groups, function(idx, obj) {
-                                        buf += '<div class="result-box">';
-                                        buf += '<b>' + itemNumber++;
-                                        buf += '.</b> <a target="item" href="http://bhl.ala.org.au/item/' + obj.groupValue + '">' + obj.doclist.docs[0].name + '</a> ';
-                                        buf += '<div class="thumbnail-container">';
-
-                                        $.each(obj.doclist.docs, function(idx, page) {
-                                            var highlightText = $('<div>'+highlights[page.pageId]+'</div>').htmlClean({allowedTags: ["em"]}).html();
-                                            buf += '<div class="page-thumbnail"><a target="page image" href="http://bhl.ala.org.au/page/' +
-                                                    page.pageId + '"><img src="http://bhl.ala.org.au/pagethumb/' + page.pageId +
-                                                    '" alt="Page Id ' + page.pageId + '"  width="60px" height="100px"/><div class="highlight-context">' +
-                                                    highlightText + '</div></a></div>';
-                                        })
-                                        buf += "</div><!--end .thumbnail-container -->";
-                                        var suffix = '';
-                                        if (obj.pageCount > 1) {
-                                            suffix = 's';
-                                        }
-                                        buf += '<div class="matchingPagesInfo"><b>' + obj.doclist.numFound + '</b> matching page' + suffix + ' in item ' + obj.groupValue + ', Score ' + obj.doclist.maxScore + "</div>";
-                                        buf += "</div>";
-                                    })
-
-                                    var prevStart = start - rows;
-                                    var nextStart = start + rows;
-                                    //console.log("nav buttons", prevStart, nextStart);
-
-                                    buf += '<div id="button-bar">';
-                                    if (prevStart >= 0) buf += '<input type="button" value="Previous page" onclick="doSearch(' + prevStart + ',' + rows + ', true)">';
-                                    buf += '&nbsp;&nbsp;&nbsp;';
-                                    if (nextStart <= maxItems) buf += '<input type="button" value="Next page" onclick="doSearch(' + nextStart + ',' + rows + ', true)">';
-                                    buf += '</div>';
-
-                                    $("#solr-results").html(buf);
-                                    if (data.synonyms) {
-                                        buf = "<b>Synonyms used:</b>&nbsp;";
-                                        buf += data.synonyms.join(", ");
-                                        $("#synonyms").html(buf).css("display", "block");
-                                    } else {
-                                        $("#synonyms").html("").css("display", "none");
-                                    }
-                                    $("#status-box").css("display", "none");
-
-                                    if (scroll) {
-                                        $('html, body').animate({scrollTop: '300px'}, 300);
-                                    }
-                                },
-                                error: function(jqXHR, textStatus, errorThrown) {
-                                    $("#status-box").css("display", "none");
-                                    $("#solr-results").html('An error has occurred, probably due to invalid query syntax');
-                                }
-                            });
-
-                        }
                         //]]>
                     </script>
                     <div id="status-box" class="column-wrap" style="display: none;">
@@ -1607,59 +1613,6 @@ Read Only Mode
             </div><!---->
         </div><!--close references-->
 
-        <c:if test="${not empty extendedTaxonConcept.references}">
-        <div id="literature">
-            <div id="column-one" class="full-width">
-                <div class="section">
-                    <h2>Literature</h2>
-                    <div id="literatureBody">
-                        <c:if test="${not empty extendedTaxonConcept.earliestReference || not empty extendedTaxonConcept.references}">
-                            <table class="propertyTable" >
-                                <tr>
-                                    <th>Scientific&nbsp;Name</th>
-                                    <th>Reference</th>
-                                    <th>Volume</th>
-                                    <th>Author</th>
-                                    <th>Year</th>
-                                    <th>Source</th>
-                                </tr>
-                                <c:if test="${not empty extendedTaxonConcept.earliestReference}">
-                                    <tr class="earliestReference">
-                                        <td>${extendedTaxonConcept.earliestReference.scientificName}</td>
-                                        <td>${extendedTaxonConcept.earliestReference.title}
-                                            <br/><span class="earliestReferenceLabel">(Earliest reference within BHL)</span>
-                                        </td>
-                                        <td>${extendedTaxonConcept.earliestReference.volume}</td>
-                                        <td>${extendedTaxonConcept.earliestReference.authorship}</td>
-                                        <td>${extendedTaxonConcept.earliestReference.year}</td>
-                                        <td><a href="http://bhl.ala.org.au/page/${extendedTaxonConcept.earliestReference.pageIdentifiers[0]}" title="view original publication" onclick="window.open(this.href); return false;">Biodiversity Heritage Library</a></td>
-                                    </tr>
-                                </c:if>
-                                <c:forEach items="${extendedTaxonConcept.references}" var="reference">
-                                    <tr>
-                                        <td>${reference.scientificName}</td>
-                                        <td>
-                                            <span class="title">${reference.title}</span>
-                                        </td>
-                                        <td>
-                                            <span class="volume"><c:if test="${not empty reference.volume && reference.volume!='NULL'}">${reference.volume}</c:if></span><br/>
-                                        </td>
-                                        <td>
-                                            <span class="authorship">${reference.authorship}</span>
-                                        </td>
-                                        <td>
-                                            <span class="year">${reference.year}</span>
-                                        </td>
-                                        <td><a href="http://bhl.ala.org.au/page/${reference.pageIdentifiers[0]}" title="view original publication" onclick="window.open(this.href); return false;">Biodiversity Heritage Library</a></td>
-                                    </tr>
-                                </c:forEach>
-                            </table>
-                        </c:if>
-                    </div>
-                </div>
-            </div><!---->
-        </div><!--close references-->
-        </c:if>
         <div style="display: none;"><!-- hidden div for fancybox pop-up share links -->
             <div id="contributeOverlay">
                 <div class="section buttons no-borders no-margin-bottom" style="text-align: left !important">
