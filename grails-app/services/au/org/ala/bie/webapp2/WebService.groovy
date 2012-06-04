@@ -33,6 +33,7 @@ class WebService implements InitializingBean {
     }
 
     def getJson(String url) {
+        log.debug "getJson URL = " + url
         def conn = new URL(url).openConnection()
         //JSONObject.NULL.metaClass.asBoolean = {-> false}
 

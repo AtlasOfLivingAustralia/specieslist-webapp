@@ -151,9 +151,9 @@ log4j = {
         console name:'stdout', layout:pattern(conversionPattern: '%-5p [%c{2}] %m%n')
     }
 
-    //root {
-        //debug: stdout
-    //}
+    root {
+        debug: stdout
+    }
 
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
            'org.codehaus.groovy.grails.web.pages', //  GSP
@@ -169,6 +169,5 @@ log4j = {
     warn   'org.mortbay.log',
            'grails.app'
     info   'grails.app'
-    debug  'grails.app',
-           'au.org.ala.cas.client'
+    debug  'grails.app'
 }

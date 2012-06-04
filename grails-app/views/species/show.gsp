@@ -10,18 +10,31 @@
 <g:set var="biocacheUrl" value="${ConfigurationHolder.config.biocache.baseURL}"/>
 <g:set var="spatialPortalUrl" value="${ConfigurationHolder.config.spatial.baseURL}"/>
 <g:set var="sciNameFormatted"><bie:formatSciName name="${tc?.taxonConcept?.nameString}" rankId="${tc?.taxonConcept?.rankID?:0}"/></g:set>
+<g:set var="synonymsQuery"><g:each in="${tc?.synonyms}" var="synonym" status="i">\"${synonym.nameString}\"<g:if test="${i < tc.synonyms.size() - 1}"> OR </g:if></g:each></g:set>
 <html>
 <head>
     <meta name="layout" content="main" />
     <title>${tc?.taxonConcept?.nameString} : ${tc?.commonNames?.get(0)?.nameString} | Atlas of Living Australia</title>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'species.css')}" type="text/css" media="screen" />
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'colorbox.css')}" type="text/css" media="screen" />
-    <script src="http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js"></script><!-- tabs, etc. -->
+    <link rel="stylesheet" href="${resource(dir: 'css', file: 'snazzy.css')}" type="text/css" media="screen" />
+    <script src="${resource(dir: 'js', file: 'jquery.tools.min.js')}"></script><!-- tabs, etc. -->
+    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.htmlClean.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.colorbox-min.js')}"></script>
     <script type="text/javascript">
-        $(document).ready(function(){
-            // setup tabs
-            $("ul.tabs").tabs("div.tabs-panes-noborder > section", { history: true, effect: 'fade' });
+        $(document).ready(function() {
+            //setup tabs
+            var bhlInit = false;
+            $("ul.tabs").tabs("div.tabs-panes-noborder > section", {
+                history: true,
+                effect: 'fade',
+                onClick: function(event, index) {
+                    if (index == 5 && !bhlInit) {
+                        doSearch(0, 10, false);
+                        bhlInit = true;
+                    }
+                }
+            });
             // Gallery image popups using ColorBox
             $("a.thumbImage").colorbox({
                 title: function() {
@@ -47,8 +60,137 @@
                 }
             });
 
-            console.log("isRoleAdmin", "${isRoleAdmin}", "userName", "${userName}")
-        });
+            //console.log("isRoleAdmin", "${isRoleAdmin}", "userName", "${userName}")
+        }); // end document.ready
+
+        /**
+         * BHL search to populate literature tab
+         *
+         * @param start
+         * @param rows
+         * @param scroll
+         */
+        function doSearch(start, rows, scroll) {
+            if (!start) {
+                start = 0;
+            }
+            if (!rows) {
+                rows = 10;
+            }
+            // var url = "http://localhost:8080/bhl-ftindex-demo/search/ajaxSearch?q=" + $("#tbSearchTerm").val();
+            var taxonName = "${tc?.taxonConcept?.nameString}";
+            var synonyms = "${synonymsQuery}";
+            var query = ""; // = taxonName.split(/\s+/).join(" AND ") + synonyms;
+            if (taxonName) {
+                var terms = taxonName.split(/\s+/).length;
+                if (terms > 2) {
+                    query += taxonName.split(/\s+/).join(" AND ");
+                } else if (terms == 2) {
+                    query += '"' + taxonName + '"';
+                } else {
+                    query += taxonName;
+                }
+            }
+            if (synonyms) {
+                //synonyms = "  " + ((synonyms.indexOf("OR") != -1) ? "(" + synonyms + ")" : synonyms);
+                query += (taxonName) ? ' OR ' + synonyms : synonyms;
+            }
+
+            if (!query) {
+                return cancelSearch("No names were found to search BHL");
+            }
+
+            var url = "http://bhlidx.ala.org.au/select?q=" + query + '&start=' + start + "&rows=" + rows +
+                    "&wt=json&fl=name%2CpageId%2CitemId%2Cscore&hl=on&hl.fl=text&hl.fragsize=200&" +
+                    "group=true&group.field=itemId&group.limit=7&group.ngroups=true&taxa=false";
+            var buf = "";
+            $("#status-box").css("display", "block");
+            $("#synonyms").html("").css("display", "none")
+            $("#results").html("");
+
+            $.ajax({
+                url: url,
+                dataType: 'jsonp',
+                //data: null,
+                jsonp: "json.wrf",
+                success:  function(data) {
+                    var itemNumber = parseInt(data.responseHeader.params.start, 10) + 1;
+                    var maxItems = parseInt(data.grouped.itemId.ngroups, 10);
+                    if (maxItems == 0) {
+                        return cancelSearch("No references were found for <code>" + query + "</code>");
+                    }
+                    var startItem = parseInt(start, 10);
+                    var pageSize = parseInt(rows, 10);
+                    var showingFrom = startItem + 1;
+                    var showingTo = (startItem + pageSize <= maxItems) ? startItem + pageSize : maxItems ;
+                    //console.log(startItem, pageSize, showingTo);
+                    var pageSize = parseInt(rows, 10);
+                    buf += '<div class="results-summary">Showing ' + showingFrom + " to " + showingTo + " of " + maxItems +
+                            ' results for the query <code>' + query + '</code>.</div>'
+                    // grab highlight text and store in map/hash
+                    var highlights = {};
+                    $.each(data.highlighting, function(idx, hl) {
+                        highlights[idx] = hl.text[0];
+                        //console.log("highlighting", idx, hl);
+                    });
+                    //console.log("highlighting", highlights, itemNumber);
+                    $.each(data.grouped.itemId.groups, function(idx, obj) {
+                        buf += '<div class="result-box">';
+                        buf += '<b>' + itemNumber++;
+                        buf += '.</b> <a target="item" href="http://bhl.ala.org.au/item/' + obj.groupValue + '">' + obj.doclist.docs[0].name + '</a> ';
+                        var suffix = '';
+                        if (obj.doclist.numFound > 1) {
+                            suffix = 's';
+                        }
+                        buf += '(' + obj.doclist.numFound + '</b> matching page' + suffix + ')<div class="thumbnail-container">';
+
+                        $.each(obj.doclist.docs, function(idx, page) {
+                            var highlightText = $('<div>'+highlights[page.pageId]+'</div>').htmlClean({allowedTags: ["em"]}).html();
+                            buf += '<div class="page-thumbnail"><a target="page image" href="http://bhl.ala.org.au/page/' +
+                                    page.pageId + '"><img src="http://bhl.ala.org.au/pagethumb/' + page.pageId +
+                                    '" alt="Page Id ' + page.pageId + '"  width="60px" height="100px"/><div class="highlight-context">' +
+                                    highlightText + '</div></a></div>';
+                        })
+                        buf += "</div><!--end .thumbnail-container -->";
+                        buf += "</div>";
+                    })
+
+                    var prevStart = start - rows;
+                    var nextStart = start + rows;
+                    //console.log("nav buttons", prevStart, nextStart);
+
+                    buf += '<div id="button-bar">';
+                    if (prevStart >= 0) buf += '<input type="button" value="Previous page" onclick="doSearch(' + prevStart + ',' + rows + ', true)">';
+                    buf += '&nbsp;&nbsp;&nbsp;';
+                    if (nextStart <= maxItems) buf += '<input type="button" value="Next page" onclick="doSearch(' + nextStart + ',' + rows + ', true)">';
+                    buf += '</div>';
+
+                    $("#solr-results").html(buf);
+                    if (data.synonyms) {
+                        buf = "<b>Synonyms used:</b>&nbsp;";
+                        buf += data.synonyms.join(", ");
+                        $("#synonyms").html(buf).css("display", "block");
+                    } else {
+                        $("#synonyms").html("").css("display", "none");
+                    }
+                    $("#status-box").css("display", "none");
+
+                    if (scroll) {
+                        $('html, body').animate({scrollTop: '300px'}, 300);
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    $("#status-box").css("display", "none");
+                    $("#solr-results").html('An error has occurred, probably due to invalid query syntax');
+                }
+            });
+        } // end doSearch
+
+        function cancelSearch(msg) {
+            $("#status-box").css("display", "none");
+            $("#solr-results").html(msg);
+            return true;
+        }
     </script>
 </head>
 <body class="species">
@@ -57,7 +199,7 @@
             <nav id="breadcrumb">
                 <ol>
                     <li><a href="${alaUrl}">Home</a></li>
-                    <li><a href="${alaUrl}/australias-species/">Australia&#8217;s species</a></li>
+                    <li><a href="${alaUrl}/australias-species/">Australia&#39;s species</a></li>
                     <li class="last"><bie:formatSciName name="${tc?.taxonConcept?.nameString}" rankId="${tc?.taxonConcept?.rankID?:0}"/></li>
                 </ol>
             </nav>
@@ -133,7 +275,7 @@
                 <li><a id="t3" href="#names">Names</a></li>
                 <li><a id="t4" href="#classification">Classification</a></li>
                 <li><a id="t5" href="#records">Records</a></li>
-                <li><a id="t6" href="#literature">Literature</a></li>
+                <li id="bhl"><a id="t6" href="#literature">Literature</a></li>
             </ul>
             <div class="tabs-panes-noborder">
                 <section id="overview">
@@ -153,11 +295,11 @@
                                     <g:set var="imageLimit" value="6"/>
                                     <g:set var="imageSize" value="150"/>
                                     <g:each in="${extraImages}" var="searchTaxon" status="status">
-                                        <g:set var="imageSrc" value="${searchTaxon.thumbnailUrl}"/>
+                                        <g:set var="imageSrc" value="${searchTaxon?.thumbnailUrl}"/>
                                         <g:if test="${status < imageLimit}">
                                             <li>
                                                 <a id="popUp${status}" class="thumbImage1" href="${createLink(controller:'image-search', action: 'infoBox', params:[q: searchTaxon.guid])}" >
-                                                    <img src="${searchTaxon.thumbnailUrl}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/>
+                                                    <img src="${searchTaxon?.thumbnailUrl}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/>
                                                 </a>
                                             </li>
                                         </g:if>
@@ -331,16 +473,16 @@
                                                 <g:else>
                                                         Is this image representative of ${tc.taxonConcept.rankString}?
                                                         <a class="isrepresent"
-                                                           href="javascript:rankThisImage('${tc.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,true,'${tc.taxonConcept.nameString}');">
+                                                           href="#" onclick="rankThisImage('${tc.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,true,'${tc.taxonConcept.nameString}');">
                                                             YES
                                                         </a> |
-                                                        <a class="isnotrepresent"
-                                                           href="javascript:rankThisImage('${tc.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,false,'${tc.taxonConcept.nameString}');">
+                                                        <a class="isnotrepresent" href="#"
+                                                                onclick="rankThisImage('${tc.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,false,'${tc.taxonConcept.nameString}');">
                                                             NO
                                                         </a>
                                                         <g:if test="${isRoleAdmin}">
-                                                            <br/><a class="isnotrepresent"
-                                                               href="javascript:rankThisImage('${tc.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,false,'${tc.taxonConcept.nameString}');">
+                                                            <br/><a class="isnotrepresent" href="#"
+                                                                    onclick="rankThisImage('${tc.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,false,'${tc.taxonConcept.nameString}');">
                                                                 BlackList</a> |
                                                             <a class="isnotrepresent" href="#"
                                                                onClick="editThisImage('${tc.taxonConcept.guid}', '${image.identifier}');
@@ -400,6 +542,109 @@
                 </section><!--#gallery-->
                 <section id="names">
                     <h2>Names and sources</h2>
+                    <table class="border">
+                        <thead>
+                            <tr>
+                                <th>Accepted name</th>
+                                <th>Source</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>${sciNameFormatted} ${authorship}</td>
+                                <td class="source">
+                                    <cite><a href="${tc.taxonConcept.infoSourceURL}" target="_blank" class="external">${tc.taxonConcept.infoSourceName}</a></cite>
+                                </td>
+                            </tr>
+                            <tr class="cite">
+                                <td colspan="2">
+                                    <g:if test="${tc.taxonName.publishedIn}"><cite>Published in: <a href="#" target="_blank" class="external">${tc.taxonName.publishedIn}</a></cite></g:if>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+    
+                    <g:if test="${tc.synonyms}">
+                        <h2>Synonyms</h2>
+                        <table class="border">
+                    </g:if>
+                    <g:each in="${tc.synonyms}" var="synonym">
+                        <tr>
+                            <td><bie:formatSciName name="${synonym.nameString}" rankId="${tc.taxonConcept.rankID}"/>${synonym.author}</td>
+                            <td class="source">
+                                <g:if test="${!synonym.infoSourceURL}"><cite>Source:&nbsp;<a href="${tc.taxonConcept.infoSourceURL}" target="_blank" class="external">${tc.taxonConcept.infoSourceName}</a></cite></g:if>
+                                <g:else><cite>Source:&nbsp;<a href="${synonym.infoSourceURL}" target="_blank" class="external">${synonym.infoSourceName}</a></cite></g:else>
+                            </td>
+                        </tr>
+                        <tr class="cite">
+                            <td colspan="2">
+                                <g:if test="${synonym.publishedIn}"><cite>Published in: <span class="publishedIn">${synonym.publishedIn}</span></cite></g:if>
+                            </td>
+                        </tr>
+                    </g:each>
+                    <g:if test="${tc.synonyms}">
+                        </table>
+                    </g:if>
+                    <g:if test="${tc.commonNames}">
+                        <h2>Common Names</h2>
+                        <table>
+                    </g:if>
+                    <g:each in="${sortCommonNameKeys}" var="nkey">
+                        <g:set var="cNames" value="${sortCommonNameSources.get(nkey)}" />
+                        <%-- special treatment for <div> id and cookie name/value. matchup with Ranking Controller.rankTaxonCommonNameByUser --%>
+                        <g:set var="fName" value='' />
+    
+                        <%-- javascript treatment: manual translate special charater, because string:encodeURL cannot handle non-english character --%>
+                        <g:set var="enKey" value='' />
+    
+                        <tr>
+                            <td>
+                                ${nkey}
+                                <g:if test="${!isReadOnly}">
+    
+
+                                            <g:if test="${rankedImageUris =~ fName}">
+                                                <p>
+                                                    <%--                          
+                                                You have ranked this Common Name as 
+                                                    <g:if test="${!rankedImageUriMap[fName]}">
+                                                        NOT
+                                                    </g:if>
+                                                      representative of ${tc.taxonConcept.nameString}
+                                                       --%>
+                                                </p>
+                                            </g:if>
+                                            <g:else>
+                                                <g:if test="${cNames}">
+                                                    <div id='cnRank-${fName}' class="rankCommonName">
+                                                        Is this a preferred common name for this ${tc.taxonConcept.rankString}?
+                                                        <a class="isrepresent" href="#" onclick="rankThisCommonName('${tc.taxonConcept.guid}','${fName}',false,true,'${enKey.trim()}');return false;">YES</a>
+                                                        |
+                                                        <a class="isnotrepresent" href="#" onclick="rankThisCommonName('${tc.taxonConcept.guid}','${fName}',false,false,'${enKey.trim()}');return false;">NO</a>
+                                                    </div>
+                                                </g:if>
+                                            </g:else>
+
+    
+                                    </g:if>
+                                    <g:else>
+                                        <div id='cnRank-${fName}' class="rankCommonName">
+                                            Read Only Mode
+                                        </div>
+                                    </g:else>
+
+    
+                            </td>
+                            <td class="source">
+                                <g:each in="${sortCommonNameSources?.get(nkey)}" var="commonName">
+                                    <cite>Source:&nbsp;<a href="${commonName.infoSourceURL}" onclick="window.open(this.href); return false;">${commonName.infoSourceName}</a></cite>
+                                </g:each>
+                            </td>
+                        </tr>
+                    </g:each>
+                    <g:if test="${tc.commonNames}">
+                        </table>
+                    </g:if>
                 </section><!--#names-->
                 <section id="classification">
                     <h2>Scientific classification</h2>
@@ -408,7 +653,21 @@
                     <h2>Occurrence records</h2>
                 </section><!--#records-->
                 <section id="literature">
-                    <h2>Name references in literature</h2>
+                    <h2>Name references found in the Biodiversity Heritage Library</h2>
+                    <div id="status-box" class="column-wrap" style="display: none;">
+                        <div id="search-status" class="column-wrap" >
+                            <span style="vertical-align: middle; ">
+                                Searching, please wait...
+                                <img src="${resource(dir: 'css/images', file: 'indicator.gif')}" alt="Searching" style="vertical-align: middle;"/>
+                            </span>
+                        </div>
+                    </div>
+                    <div id="results-home" class="column-wrap">
+                        <div id="synonyms" style="display: none">
+                        </div>
+                        <div class="column-wrap" id="solr-results">
+                        </div>
+                    </div>
                 </section><!--#literature-->
             </div><!--tabs-panes-noborder-->
         </div><!--col-wide last-->

@@ -18,25 +18,25 @@
     <link rel="stylesheet" type="text/css" media="screen" href="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/css/skin.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/css/sf.css" />
     %{--<r:require module="jquery"/>--}%
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-    <r:layoutResources/>
     <script type="text/javascript" src="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/scripts/html5.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <g:layoutHead />
+    <r:layoutResources/>
     <script language="JavaScript" type="text/javascript" src="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/scripts/superfish/superfish.js"></script>
     <script language="JavaScript" type="text/javascript" src="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/scripts/jquery.autocomplete.js"></script>
     <script language="JavaScript" type="text/javascript" src="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/scripts/uservoice.js"></script>
-    <g:layoutHead />
     <script type="text/javascript">
 
         // initialise plugins
 
-        $(document).ready(function(){
-//            $('ul.sf').superfish( {
-//                delay:500,
-//                autoArrows:false,
-//                dropShadows:false
-//            });
+        jQuery(function(){
+            jQuery('ul.sf').superfish( {
+                delay:500,
+                autoArrows:false,
+                dropShadows:false
+            });
 
-            $("form#search-form-2011 input#search-2011").autocomplete('http://bie.ala.org.au/search/auto.jsonp', {
+            jQuery("form#search-form-2011 input#search-2011").autocomplete('http://bie.ala.org.au/search/auto.jsonp', {
                 extraParams: {limit: 100},
                 dataType: 'jsonp',
                 parse: function(data) {

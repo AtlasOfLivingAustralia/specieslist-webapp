@@ -118,11 +118,17 @@ class BieService {
     def getExtraImages(tc) {
         def images = []
 
+        // TODO: remove false when WS is fixed
         if (tc?.taxonConcept?.rankID < 7000 && tc?.taxonConcept?.rankID % 1000 == 0) {
             // only lookup for higher taxa of major ranks
             // /ws/higherTaxa/images
-            images = webService.getJson(ConfigurationHolder.config.bie.baseURL + "/ws/higherTaxa/images?scientificName=" + tc?.taxonConcept?.nameString + "&taxonRank=" + tc?.taxonConcept?.rankString)
+            images = webService.getJson(ConfigurationHolder.config.bie.baseURL + "/ws/higherTaxa/images.json?scientificName=" + tc?.taxonConcept?.nameString + "&taxonRank=" + tc?.taxonConcept?.rankString)
         }
+
+        if (images.error) {
+            images = []
+        }
+        log.debug "images = " + images
 
         return images
     }
