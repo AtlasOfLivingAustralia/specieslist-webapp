@@ -405,7 +405,7 @@ public class SpeciesController {
         if (etc != null && etc.getTaxonConcept() != null){
             TaxonConcept tc = etc.getTaxonConcept();
             childConcepts = searchDao.getChildConceptsParentId(Integer.toString(tc.getId()));
-            logger.info("childConcepts for " + tc.getId() + " = " + childConcepts);
+            logger.debug("childConcepts for " + tc.getId() + " = " + childConcepts);
         }
 
         return childConcepts;
