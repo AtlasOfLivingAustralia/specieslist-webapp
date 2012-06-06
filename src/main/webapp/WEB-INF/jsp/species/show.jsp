@@ -1620,7 +1620,7 @@ google.load("visualization", "1", {packages:["corechart"]});
             <input type="button" id="nextTrove" value="Next page"/>
         </div>
         <script type="text/javascript">
-        setupTrove('Macropus rufus','trove-results-home','previousTrove','nextTrove');
+        setupTrove('${extendedTaxonConcept.taxonConcept.guid}','trove-results-home','previousTrove','nextTrove');
         </script>
         <style type="text/css">
             .trove-results-home .titleInfo { height:15px; }
