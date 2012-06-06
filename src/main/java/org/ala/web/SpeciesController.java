@@ -347,7 +347,7 @@ public class SpeciesController {
      * Map to a /{guid} URI.
      * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
      * 
-     * @param model
+     * @param scientificName
      * @return view name
      * @throws Exception
      */ 
@@ -387,6 +387,27 @@ public class SpeciesController {
             //return taxonHierarchy.getResults();
         }
         return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Webservice to find child concepts for a given taxon concept
+     *
+     * @param value
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value ="/ws/childConcepts/{value:.+}*", method = RequestMethod.GET)
+    public @ResponseBody List<SearchTaxonConceptDTO> getChildConceptsForTaxa(@PathVariable("value") String value) throws Exception {
+        List<SearchTaxonConceptDTO> childConcepts = new ArrayList<SearchTaxonConceptDTO>();
+        ExtendedTaxonConceptDTO etc = findConceptByNameOrGuid(value);
+
+        if (etc != null && etc.getTaxonConcept() != null){
+            TaxonConcept tc = etc.getTaxonConcept();
+            childConcepts = searchDao.getChildConceptsParentId(Integer.toString(tc.getId()));
+            logger.info("childConcepts for " + tc.getId() + " = " + childConcepts);
+        }
+
+        return childConcepts;
     }
 
     private List<GuidLookupDTO> findGuids(String scientificName) throws Exception {
