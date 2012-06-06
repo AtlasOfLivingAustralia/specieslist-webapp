@@ -15,6 +15,7 @@
 package org.ala.web;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.ala.dto.ExtendedTaxonConceptDTO;
@@ -108,27 +109,32 @@ public class RepoUrlUtils {
 	/**
 	 * Fix the repository URLs
 	 * 
-	 * @param searchConceptDTO
 	 * @return
 	 */
 	public ExtendedTaxonConceptDTO fixRepoUrls(ExtendedTaxonConceptDTO taxonConceptDTO){
 		List<Image> images = taxonConceptDTO.getImages();
-		if(images!=null){
+		if(images != null){
+            List<Image> webImages = new ArrayList<Image>();
 			for(Image image: images){
-				fixRepoUrls(image);
+                webImages.add(fixRepoUrls(image));
 			}
+            taxonConceptDTO.setImages(webImages);
 		}
 		images = taxonConceptDTO.getDistributionImages();
 		if(images!=null){
+            List<Image> webImages = new ArrayList<Image>();
 			for(Image image: images){
-				fixRepoUrls(image);
+                webImages.add(fixRepoUrls(image));
 			}
+            taxonConceptDTO.setDistributionImages(webImages);
 		}
 		images = taxonConceptDTO.getScreenshotImages();
         if(images!=null){
+            List<Image> webImages = new ArrayList<Image>();
             for(Image image: images){
-                fixRepoUrls(image);
+                webImages.add(fixRepoUrls(image));
             }
+            taxonConceptDTO.setScreenshotImages(webImages);
         }
 		return taxonConceptDTO;
 	}
@@ -136,9 +142,10 @@ public class RepoUrlUtils {
 	/**
 	 * Fix URLS for images.
 	 * 
-	 * @param image
+	 * @param imageToFix
 	 */
-	public Image fixRepoUrls(Image image) {
+	public WebImage fixRepoUrls(final Image imageToFix) {
+        WebImage image = new WebImage(imageToFix);
 		String imageLocation = image.getRepoLocation();
 		
 		if(imageLocation!=null && imageLocation.contains(repositoryPath)){
@@ -158,6 +165,8 @@ public class RepoUrlUtils {
 		//set the thumbnail location and DC path
 		image.setDcLocation(baseUrl + FileType.DC.getFilename());
 		image.setThumbnail(thumbnail);
+        image.setLargeImageUrl(baseUrl + "largeRaw"+ "." + extension);
+        image.setSmallImageUrl(baseUrl + "smallRaw" + "." + extension);
 		return image;
 	}
 

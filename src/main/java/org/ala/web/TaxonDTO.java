@@ -23,6 +23,7 @@ public class TaxonDTO {
     protected String imageRights;
     //additional image fields to be populated
     protected String smallImageURL;
+    protected String largeImageURL;
     protected String imageCreator;
     protected String imageInfosourceName;
     protected String imageInfosourceURL;
@@ -161,6 +162,14 @@ public class TaxonDTO {
 
     public void setImageURL(String imageURL) {
         this.imageURL = imageURL;
+    }
+
+    public String getLargeImageURL() {
+        return largeImageURL;
+    }
+
+    public void setLargeImageURL(String largeImageURL) {
+        this.largeImageURL = largeImageURL;
     }
 
     public String getThumbnail() {

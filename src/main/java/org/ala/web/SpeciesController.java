@@ -94,6 +94,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
  * Main controller for the BIE site
  *
  * TODO: If this class gets too big or complex then split into multiple Controllers.
+ * Note to TODO: We are already there!
  *
  * @author "Nick dos Remedios <Nick.dosRemedios@csiro.au>"
  */
@@ -366,7 +367,7 @@ public class SpeciesController {
         //determine whether the value is a scientific name or lsid that needs to be resolved.
         long start = System.currentTimeMillis();
         ExtendedTaxonConceptDTO etc =findConceptByNameOrGuid(value);
-        logTime(start, "Retreive ETC");
+        logTime(start, "Retrieve ETC");
         if(etc != null && etc.getTaxonConcept() != null){
             TaxonConcept tc = etc.getTaxonConcept();
             SearchResultsDTO<SearchTaxonConceptDTO> taxonHierarchy = searchDao.getClassificationByLeftNS(tc.getLeft(), tc.getRight());
@@ -546,7 +547,6 @@ public class SpeciesController {
         return searchDao.findByGuids(guids).getResults().toArray(new SearchDTO[]{});
     }
     
-
     /**
      * Map to a /{guid} URI.
      * E.g. /species/urn:lsid:biodiversity.org.au:afd.taxon:a402d4c8-db51-4ad9-a72a-0e912ae7bc9a
@@ -814,24 +814,24 @@ public class SpeciesController {
 
         return name;
     }
-    /**
-     * This method has been deprecated because it does not cater for subgenus
-     * @param parameter
-     * @deprectaed
-     * @return
-     */
-    @Deprecated
-    private String extractKingdom(String parameter){
-        String kingdom = null;
-
-        int i = parameter.indexOf('(');
-        int j = parameter.indexOf(')');
-        if(i >= 0 && j >= 0 && j > i){
-            kingdom = parameter.substring(i + 1, j);
-            kingdom = kingdom.trim();
-        }
-        return kingdom;
-    }
+//    /**
+//     * This method has been deprecated because it does not cater for subgenus
+//     * @param parameter
+//     * @deprectaed
+//     * @return
+//     */
+//    @Deprecated
+//    private String extractKingdom(String parameter){
+//        String kingdom = null;
+//
+//        int i = parameter.indexOf('(');
+//        int j = parameter.indexOf(')');
+//        if(i >= 0 && j >= 0 && j > i){
+//            kingdom = parameter.substring(i + 1, j);
+//            kingdom = kingdom.trim();
+//        }
+//        return kingdom;
+//    }
     /**
      * Checks to see if the supplied name is a kingdom
      * @param name
@@ -1192,12 +1192,6 @@ public class SpeciesController {
         model.addAttribute("searchResults", searchResults);
         return STATUS_LIST;
     }
-    
-    public List<String> getAustralianSpecies(){
-        
-        return null;
-    }
-    
 
     /**
      * Pest / Conservation status JSON (for yui datatable)
