@@ -1,6 +1,11 @@
 package au.org.ala.bie.webapp2
 
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import org.ala.model.CommonName
+import org.ala.dto.ExtendedTaxonConceptDTO
+import org.ala.dto.SearchTaxonConceptDTO
+import org.ala.dto.SearchResultsDTO
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 class SpeciesController {
     def bieService
@@ -13,26 +18,50 @@ class SpeciesController {
 
     def show = {
         def guid = params.guid
-        def tc = bieService.getTaxonConcept(guid)
-        log.debug("guid = " + guid + " + tc.name = " + tc?.taxonConcept?.nameString)
+        def etc
 
-        if (tc.error) {
-            log.error "Error requesting taxon concept object: " + tc.error
-            render(view: '../error', model: [message: tc.error])
+        if (!(guid.matches("(urn\\:lsid[a-zA-Z\\-0-9\\:\\.]*)") || guid.matches("([0-9]*)") || guid.startsWith("ALA_"))) {
+            // doesn't look like a guid so assume a name sstring
+            guid = bieService.findLsidByName(guid);
+        }
+
+        etc = bieService.getTaxonConcept(guid)
+
+        if (etc instanceof JSONObject && etc.has("error")) {
+            log.error "Error requesting taxon concept object: " + etc.error
+            render(view: '../error', model: [message: etc.error])
         } else {
             render(view: 'show', model: [
-                    tc: tc,
+                    tc: etc,
                     statusRegionMap: utilityService.getStatusRegionCodes(),
                     infoSources: bieService.getInfoSourcesForGuid(guid),
-                    infoSourceMap: utilityService.getInfoSourcesForTc(tc), // fallback for bieService.getInfoSourcesForGuid(guid)
-                    extraImages: bieService.getExtraImages(tc),
-                    textProperties: utilityService.filterSimpleProperties(tc),
+                    infoSourceMap: utilityService.getInfoSourcesForTc(etc), // fallback for bieService.getInfoSourcesForGuid(guid)
+                    extraImages: bieService.getExtraImages(etc),
+                    textProperties: utilityService.filterSimpleProperties(etc),
                     isRoleAdmin: authService.userInRole(ConfigurationHolder.config.auth.admin_role),
-                    userName: authService.username()
+                    userName: authService.username(),
+                    sortCommonNameSources: utilityService.getNamesAsSortedMap(etc.commonNames),
+                    taxonHierarchy: bieService.getClassificationForGuid(guid),
+                    childConcepts: bieService.getChildConceptsForGuid(guid)
                 ]
             )
         }
     }
+
+    def getClassification = { tc ->
+        def classification
+
+        if (tc.getLeft()) {
+            SearchResultsDTO<SearchTaxonConceptDTO> taxonHierarchy = searchDao.getClassificationByLeftNS(tc.getLeft(), tc.getRight())
+            //SearchResultsDTO<SearchTaxonConceptDTO> taxonHierarchy = searchDao.getClassificationByLeftNS(tc.getLeft());
+            //model.addAttribute("taxonHierarchy", taxonHierarchy.getResults());
+            classification = taxonHierarchy.getResults()
+        }
+
+        return classification
+    }
+
+
 
     /**
      * Do logouts through this app so we can invalidate the session.

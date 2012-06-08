@@ -5,6 +5,9 @@ grails.project.test.reports.dir = "target/test-reports"
 grails.project.target.level = 1.6
 grails.project.source.level = 1.6
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
+grails.project.dependency.resolution = {
+    checksums true
+}
 
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
@@ -21,6 +24,8 @@ grails.project.dependency.resolution = {
         grailsHome()
         grailsCentral()
         mavenCentral()
+        mavenLocal()
+        mavenRepo "http://maven.ala.org.au/repository"
 
         // uncomment these to enable remote dependency resolution from public Maven repositories
         //mavenCentral()
@@ -32,7 +37,15 @@ grails.project.dependency.resolution = {
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-
+        // "au.org.ala:bie-profile:1.0-SNAPSHOT"
+        compile group:'au.org.ala',
+                name:'bie-profile',
+                version:'1.0-SNAPSHOT',
+                transitive:false
+        compile "commons-httpclient:commons-httpclient:3.1",
+                "atg:json-taglib:0.4.1",
+                "org.codehaus.jackson:jackson-core-asl:1.8.6",
+                "org.codehaus.jackson:jackson-mapper-asl:1.8.6"
         // runtime 'mysql:mysql-connector-java:5.1.16'
     }
 

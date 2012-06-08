@@ -5,16 +5,15 @@
   Time: 11:10 AM
 --%>
 <%@ page contentType="text/html;charset=UTF-8" %>
-<%@ page import="org.codehaus.groovy.grails.commons.ConfigurationHolder" %>
-<g:set var="alaUrl" value="${ConfigurationHolder.config.ala.baseURL}"/>
-<g:set var="biocacheUrl" value="${ConfigurationHolder.config.biocache.baseURL}"/>
-<g:set var="spatialPortalUrl" value="${ConfigurationHolder.config.spatial.baseURL}"/>
+<g:set var="alaUrl" value="${grailsApplication.config.ala.baseURL}"/>
+<g:set var="biocacheUrl" value="${grailsApplication.config.biocache.baseURL}"/>
+<g:set var="spatialPortalUrl" value="${grailsApplication.config.spatial.baseURL}"/>
 <g:set var="sciNameFormatted"><bie:formatSciName name="${tc?.taxonConcept?.nameString}" rankId="${tc?.taxonConcept?.rankID?:0}"/></g:set>
 <g:set var="synonymsQuery"><g:each in="${tc?.synonyms}" var="synonym" status="i">\"${synonym.nameString}\"<g:if test="${i < tc.synonyms.size() - 1}"> OR </g:if></g:each></g:set>
 <html>
 <head>
     <meta name="layout" content="main" />
-    <title>${tc?.taxonConcept?.nameString} : ${tc?.commonNames?.get(0)?.nameString} | Atlas of Living Australia</title>
+    <title>${tc?.taxonConcept?.nameString} ${(tc?.commonNames) ? ' : ' + tc?.commonNames?.get(0)?.nameString : ''} | Atlas of Living Australia</title>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'species.css')}" type="text/css" media="screen" />
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'colorbox.css')}" type="text/css" media="screen" />
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'snazzy.css')}" type="text/css" media="screen" />
@@ -205,7 +204,7 @@
             </nav>
             <hgroup>
                 <h1><bie:formatSciName name="${tc?.taxonConcept?.nameString}" rankId="${tc?.taxonConcept?.rankID?:0}"/> <span>${tc?.taxonConcept?.author}</span></h1>
-                <h2>${tc?.commonNames?.get(0)?.nameString}</h2>
+                <h2>${(tc?.commonNames) ? tc?.commonNames?.get(0)?.nameString : ''}</h2>
             </hgroup>
         </div>
     </header>
@@ -220,7 +219,7 @@
                         <dd style="text-transform: capitalize;">${tc?.taxonConcept?.rankString}</dd>
                         <dt>Data links</dt>
                         <dd><a href="#lsidText" id="lsid" class="button" title="Life Science Identifier (pop-up)">LSID</a></dd>
-                        <dd><a href="/species/${tc?.taxonConcept?.guid}.json" class="button" title="JSON web service">JSON</a></dd>
+                        <dd><a href="${grailsApplication.config.bie.baseURL}/species/${tc?.taxonConcept?.guid}.json" class="button" title="JSON web service">JSON</a></dd>
                     </dl>
                     <div style="display:none;">
                         <div id="lsidText">
@@ -257,7 +256,7 @@
                     <g:each var="status" in="${tc.conservationStatuses}">
                         <g:set var="regionCode" value="${status.region ?: "IUCN"}"/>
                         <div>
-                            <a href="${ConfigurationHolder.config.collectory.threatenedSpeciesCodesUrl}/${statusRegionMap.get(regionCode)}" title="Threatened Species Codes - details"
+                            <a href="${grailsApplication.config.collectory.threatenedSpeciesCodesUrl}/${statusRegionMap.get(regionCode)}" title="Threatened Species Codes - details"
                                 onclick="window.open(this.href); return false;"><span class="iucn <bie:colourForStatus status="${status.status}"/>"><g:message
                                 code="region.${regionCode}"/></span>${status.rawStatus}</a>
                         </div>
@@ -294,19 +293,20 @@
                                 <g:if test="${tc.taxonConcept?.rankID && tc.taxonConcept?.rankID < 7000}">%{-- higher taxa show mulitple images --}%
                                     <g:set var="imageLimit" value="6"/>
                                     <g:set var="imageSize" value="150"/>
-                                    <g:each in="${extraImages}" var="searchTaxon" status="status">
-                                        <g:set var="imageSrc" value="${searchTaxon?.thumbnailUrl}"/>
+                                    <g:each in="${extraImages?.searchDTOList}" var="searchTaxon" status="status">
+                                        <!-- searchTaxon = ${searchTaxon} -->
+                                        <g:set var="imageSrc" value="${searchTaxon.thumbnailUrl}"/>
                                         <g:if test="${status < imageLimit}">
                                             <li>
-                                                <a id="popUp${status}" class="thumbImage1" href="${createLink(controller:'image-search', action: 'infoBox', params:[q: searchTaxon.guid])}" >
-                                                    <img src="${searchTaxon?.thumbnailUrl}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/>
+                                                <a id="popUp${status}" class="thumbImage1" href="${createLink(controller:'image-search', action: 'infoBox', params:[q: searchTaxon])}" >
+                                                    <img src="${searchTaxon.thumbnailUrl}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/>
                                                 </a>
                                             </li>
                                         </g:if>
                                     </g:each>
                                     <g:if test="${extraImages}">
                                         <li>
-                                            <a href="#" onclick='javascript:window.location.href="${createLink(controller:'image-search', action: 'showSpecies', params:[taxonRank: tc?.taxonConcept?.rankString, scientificName: tc?.taxonConcept?.nameString])}${pageContext.request.contextPath}";'>
+                                            <a href="#" onclick='javascript:window.location.href="${createLink(controller:'image-search', action: 'showSpecies', params:[taxonRank: tc?.taxonConcept?.rankString, scientificName: tc?.taxonConcept?.nameString])}${request?.contextPath}";'>
                                                 View images of species for ${sciNameFormatted}</a>
                                         </li>
                                     </g:if>
@@ -418,9 +418,9 @@
                                     <g:else>${image.repoLocation}</g:else>
                                 </g:set>
                                 <a class="thumbImage" rel="thumbs" title="${image.title?:''}" href="${imageUri}"
-                                   id="thumb${status}"><img src="${image.thumbnail}" alt="${image.infoSourceName}"
-                                                                  alt="${image.title}" width="100px" height="100px"
-                                                                  style="width:100px;height:100px;padding-right:3px;"/></a>
+                                   id="thumb${status}"><img src="${image.smallImageUrl}" alt="${image.infoSourceName}"
+                                                                  alt="${image.title}" height="100px"
+                                                                  style="height:100px;padding-right:3px;"/></a>
                                 <div id="thumbDiv${status}" style="display:none;">
                                     <g:if test="${image.title}">
                                         ${image.title}<br/>
@@ -542,7 +542,7 @@
                 </section><!--#gallery-->
                 <section id="names">
                     <h2>Names and sources</h2>
-                    <table class="border">
+                    <table class="borders">
                         <thead>
                             <tr>
                                 <th>Accepted name</th>
@@ -553,56 +553,73 @@
                             <tr>
                                 <td>${sciNameFormatted} ${authorship}</td>
                                 <td class="source">
-                                    <cite><a href="${tc.taxonConcept.infoSourceURL}" target="_blank" class="external">${tc.taxonConcept.infoSourceName}</a></cite>
+                                    <ul><li><a href="${tc.taxonConcept.infoSourceURL}" target="_blank" class="external">${tc.taxonConcept.infoSourceName}</a></li></ul>
                                 </td>
                             </tr>
-                            <tr class="cite">
-                                <td colspan="2">
-                                    <g:if test="${tc.taxonName.publishedIn}"><cite>Published in: <a href="#" target="_blank" class="external">${tc.taxonName.publishedIn}</a></cite></g:if>
-                                </td>
-                            </tr>
+                            <g:if test="${tc.taxonName.publishedIn}">
+                                <tr class="cite">
+                                    <td colspan="2">
+                                        <cite>Published in: <a href="#" target="_blank" class="external">${tc.taxonName.publishedIn}</a></cite>
+                                    </td>
+                                </tr>
+                            </g:if>
                         </tbody>
                     </table>
-    
                     <g:if test="${tc.synonyms}">
                         <h2>Synonyms</h2>
-                        <table class="border">
+                        <table class="borders">
+                            <thead>
+                                <tr>
+                                    <th>Synonyms</th>
+                                    <th>Source</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                     </g:if>
                     <g:each in="${tc.synonyms}" var="synonym">
                         <tr>
                             <td><bie:formatSciName name="${synonym.nameString}" rankId="${tc.taxonConcept.rankID}"/>${synonym.author}</td>
                             <td class="source">
-                                <g:if test="${!synonym.infoSourceURL}"><cite>Source:&nbsp;<a href="${tc.taxonConcept.infoSourceURL}" target="_blank" class="external">${tc.taxonConcept.infoSourceName}</a></cite></g:if>
-                                <g:else><cite>Source:&nbsp;<a href="${synonym.infoSourceURL}" target="_blank" class="external">${synonym.infoSourceName}</a></cite></g:else>
+                                <ul>
+                                    <g:if test="${!synonym.infoSourceURL}"><li><a href="${tc.taxonConcept.infoSourceURL}" target="_blank" class="external">${tc.taxonConcept.infoSourceName}</a></li></g:if>
+                                    <g:else><li><a href="${synonym.infoSourceURL}" target="_blank" class="external">${synonym.infoSourceName}</a></li></g:else>
+                                </ul>
                             </td>
                         </tr>
-                        <tr class="cite">
-                            <td colspan="2">
-                                <g:if test="${synonym.publishedIn}"><cite>Published in: <span class="publishedIn">${synonym.publishedIn}</span></cite></g:if>
-                            </td>
-                        </tr>
+                        <g:if test="${synonym.publishedIn}">
+                            <tr class="cite">
+                                <td colspan="2">
+                                    <cite>Published in: <span class="publishedIn">${synonym.publishedIn}</span></cite>
+                                </td>
+                            </tr>
+                        </g:if>
                     </g:each>
                     <g:if test="${tc.synonyms}">
-                        </table>
+                        </tbody></table>
                     </g:if>
                     <g:if test="${tc.commonNames}">
                         <h2>Common Names</h2>
-                        <table>
+                        <table class="borders">
+                            <thead>
+                                <tr>
+                                    <th>Common name</th>
+                                    <th>Source</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                     </g:if>
-                    <g:each in="${sortCommonNameKeys}" var="nkey">
-                        <g:set var="cNames" value="${sortCommonNameSources.get(nkey)}" />
+                    <g:each in="${sortCommonNameSources}" var="cn">
+
+                        <g:set var="cNames" value="${cn.value}" />
                         <%-- special treatment for <div> id and cookie name/value. matchup with Ranking Controller.rankTaxonCommonNameByUser --%>
-                        <g:set var="fName" value='' />
-    
+                        <g:set var="fName" value="" />
+                        <g:set var="nkey" value="${cn.key}" />
                         <%-- javascript treatment: manual translate special charater, because string:encodeURL cannot handle non-english character --%>
                         <g:set var="enKey" value='' />
-    
                         <tr>
                             <td>
                                 ${nkey}
                                 <g:if test="${!isReadOnly}">
-    
-
                                             <g:if test="${rankedImageUris =~ fName}">
                                                 <p>
                                                     <%--                          
@@ -636,21 +653,100 @@
     
                             </td>
                             <td class="source">
+                                <ul>
                                 <g:each in="${sortCommonNameSources?.get(nkey)}" var="commonName">
-                                    <cite>Source:&nbsp;<a href="${commonName.infoSourceURL}" onclick="window.open(this.href); return false;">${commonName.infoSourceName}</a></cite>
+                                    <li><a href="${commonName.infoSourceURL}" onclick="window.open(this.href); return false;">${commonName.infoSourceName}</a></li>
                                 </g:each>
+                                </ul>
                             </td>
                         </tr>
                     </g:each>
                     <g:if test="${tc.commonNames}">
-                        </table>
+                        </tbody></table>
                     </g:if>
                 </section><!--#names-->
                 <section id="classification">
                     <h2>Scientific classification</h2>
+                    <div id="isAustralianSwitch"></div>
+
+                        <g:each in="${taxonHierarchy}" var="taxon">
+                            <%-- Note: check for rankId is here due to some taxonHierarchy including taxa at higher rank than requested taxon (bug)--%>
+                            <g:if test="${taxon.rankId <= tc.taxonConcept.rankID && taxon.guid != tc.taxonConcept.guid}">
+                                <dl><dt>${taxon.rank}</dt>
+                                    <dd><a href="${request?.contextPath}/species/${taxon.guid}#classification" title="${taxon.rank}">
+                                        <bie:formatSciName name="${taxon.scientificName}" rankId="${taxon.rankId}"/>
+                                        <g:if test="${taxon.commonNameSingle && taxon.guid == tc.taxonConcept.guid}">: ${taxon.commonNameSingle}</g:if></a>
+                                    </dd>
+                            </g:if>
+                            <g:elseif test="${taxon.guid == tc.taxonConcept.guid}">
+                                <dl><dt id="currentTaxonConcept">${taxon.rank}</dt>
+                                    <dd><span><bie:formatSciName name="${taxon.scientificName}" rankId="${taxon.rankId}"/>
+                                        <g:if test="${taxon.commonNameSingle && taxon.guid == tc.taxonConcept.guid}">
+                                            : ${taxon.commonNameSingle}
+                                        </g:if></span>
+                                        <g:if test="${taxon.isAustralian || tc.isAustralian}">
+                                            &nbsp;<span><img src="${grailsApplication.config.ala.baseURL}/wp-content/themes/ala2011/images/status_native-sm.png" alt="Recorded in Australia" title="Recorded in Australia" width="21" height="21"></span>
+                                        </g:if>
+                                    </dd>
+                            </g:elseif>
+                            <g:else><!-- Taxa ${taxon.guid} - ${taxon.name} (${taxon.rank}) should not be here! --></g:else>
+                        </g:each>
+                        <dl class="childClassification">
+                            <g:set var="currentRank" value=""/>
+                            <g:each in="${childConcepts}" var="child" status="i">
+                                <g:if test="${child.rank != currentRank}">
+                                    <g:set var="currentRank" value="${child.rank}"/>
+                                    <dt class="${child.isAustralian}">${child.rank}</dt>
+                                </g:if>
+                                <g:set var="taxonLabel"><bie:formatSciName name="${child.nameComplete ? child.nameComplete : child.name}"
+                                           rankId="${child.rankId}"/><g:if test="${child.commonNameSingle}">: ${child.commonNameSingle}</g:if></g:set>
+                                <dd><a href="${request?.contextPath}/species/${child.guid}#classification'/>">${taxonLabel.trim()}</a>&nbsp;
+                                    <span>
+                                        <g:if test="${child.isAustralian}">
+                                            <img src="${grailsApplication.config.ala.baseURL}/wp-content/themes/ala2011/images/status_native-sm.png" alt="Recorded in Australia" title="Recorded in Australia" width="21" height="21">
+                                        </g:if>
+                                        <g:else>
+                                            <g:if test="${child.guid?.startsWith('urn:lsid:catalogueoflife.org:taxon')}">
+                                                <span class="inferredPlacement" title="Not recorded in Australia">[inferred placement]</span>
+                                            </g:if>
+                                            <g:else>
+                                                <span class="inferredPlacement" title="Not recorded in Australia"></span>
+                                            </g:else>
+                                        </g:else>
+                                    </span>
+                                </dd>
+                            </g:each>
+                        </dl>
+                        <g:each in="${taxonHierarchy}" var="taxon">
+                            </dl>
+                        </g:each>
+
                 </section><!--classificatio-->
                 <section id="records">
                     <h2>Occurrence records</h2>
+                    <div id="occurrenceRecords">
+                        <p><a href="${biocacheUrl}/occurrences/taxa/${tc.taxonConcept?.guid}">View
+                        list of all <span id="occurenceCount"></span> occurrence records for this taxon</a></p>
+                        <div id="recordBreakdowns" style="display: block">
+                        </div>
+                    </div>
+
+                    <%-- Distribution map images --%>
+                    <g:if test="${tc.distributionImages}">
+                        <h2>Record maps from other sources</h2>
+                        <g:each in="${tc.distributionImages}" var="distribImage">
+                            <div class="recordMapOtherSource" style="display: block">
+                                <g:set var="imageLink">${distribImage.isPartOf ? distribImage.isPartOf : distribImage.infoSourceURL}</g:set>
+                                <a href="${imageLink}">
+                                    <img src="${distribImage.repoLocation}" alt="3rd party distribution map"/>
+                                </a>
+                                <br/>
+                                <cite>Source:
+                                    <a href="${imageLink}" onclick="window.open(this.href); return false;">${distribImage.infoSourceName}</a>
+                                </cite>
+                            </div>
+                        </g:each>
+                    </g:if>
                 </section><!--#records-->
                 <section id="literature">
                     <h2>Name references found in the Biodiversity Heritage Library</h2>

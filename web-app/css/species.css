@@ -14,3 +14,18 @@ section.clearfix {
 body p, body ul {
     padding-bottom: 10px;
 }
+
+.species ul.tabs a {
+    /*background-color: #333A3F;*/
+    background-color: #3D464C;
+    color: #D1D1D1;
+    /*font-size: 13px;*/
+}
+
+ul.tabs a.current {
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #FFFEF7;
+    color: #333A3F;
+    color: #DF4A21;
+    cursor: default;
+}

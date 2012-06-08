@@ -84,10 +84,11 @@ class UtilityService {
         return text;
     }
 
-    def getInfoSourcesForTc(tc) {
+    def getInfoSourcesForTc(etc) {
         def infoSourceMap = new TreeMap() // so it keeps its sorted order
         def selectedSections = []
-        selectedSections.addAll(tc.simpleProperties)
+        //log.debug "etc = " + etc.simpleProperties
+        selectedSections.addAll(etc.simpleProperties)
 
         selectedSections.each {
             def identifier = it.infoSourceURL
@@ -113,4 +114,59 @@ class UtilityService {
         return infoSourceMap
     }
 
+    def unDuplicateNames(names) {
+        def namesSet = []
+
+        names.eachWithIndex { it, i ->
+            if (normaliseString(it.nameString) != normaliseString(names[i - 1]?.nameString)
+                    || it.infoSourceName != names[i - 1]?.infoSourceName) {
+                namesSet.add(it)
+            } else {
+                log.debug i + " dupe not added: "  + normaliseString(it.nameString) + "=" + it.infoSourceName + " | " +
+                        normaliseString(names[i - 1]?.nameString) + "=" + names[i - 1]?.infoSourceName
+            }
+        }
+//        log.debug "unDuplicateNames: names = " + names
+//        log.debug "unDuplicateNames: namesSet = " + namesSet
+        return namesSet
+    }
+
+    /**
+     * Group names which are equivalent into a map with a list of their name objects
+     *
+     * @param names
+     * @return
+     */
+    def getNamesAsSortedMap(commonNames) {
+        def sortedNames = unDuplicateNames(commonNames)
+        def names2 = new ArrayList(sortedNames) // take a copy
+        names2.sort {it.nameString?.trim().toLowerCase()}
+        def namesMap = [:] as LinkedHashMap // Map of String, List<CommonNames>
+
+        names2.eachWithIndex { name, i ->
+            def nameKey = name.nameString.trim()
+            def tempGroupedNames = [name]
+
+            if (name.nameString?.replaceAll(/[^a-zA-Z0-9]/, "").trim().toLowerCase() ==  names2[i - 1]?.nameString?.replaceAll(/[^a-zA-Z0-9]/, "").trim().toLowerCase()) {
+                // existing name (allowing for slight differences in ws & punctuation, etc
+                nameKey = names2[i - 1].nameString.trim()
+
+                if (namesMap.containsKey(nameKey)) {
+                    tempGroupedNames.addAll(namesMap[nameKey])
+                }
+            }
+
+            namesMap.put(nameKey, tempGroupedNames)
+            //log.debug i + ". " + name.nameString?.replaceAll(/[^a-zA-Z0-9]/, "").trim().toLowerCase() + "=" + names2[i - 1]?.nameString?.replaceAll(/[^a-zA-Z0-9]/, "").trim().toLowerCase()
+            //log.debug "namesMap = " + namesMap
+        }
+        //log.debug "getNamesAsSortedMap: names = " + names
+        //log.debug "getNamesAsSortedMap: namesMap = " + namesMap
+        // sort by having names with most number of infoSources listed higher
+        return namesMap.sort() { a, b -> b.value.size <=> a.value.size }
+    }
+
+    def normaliseString(input) {
+        input.replaceAll(/([.,-]*)?([\\s]*)?/, "").trim().toLowerCase()
+    }
 }
