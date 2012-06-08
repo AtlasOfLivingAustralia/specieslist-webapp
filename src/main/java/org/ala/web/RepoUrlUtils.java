@@ -63,15 +63,14 @@ public class RepoUrlUtils {
 	/**
 	 * Fix the repository URLs
 	 * 
-	 * @param searchConceptDTO
 	 * @return
 	 */
 	public List<Image> fixRepoUrls(List<Image> images){
+        List<Image> fixed = new ArrayList<Image>();
 		for(Image image : images){
-			image = fixRepoUrls(image);
-			logger.debug(image);
+            fixed.add(fixRepoUrls(image));
 		}
-		return images;
+		return fixed;
 	}
 	
 	/**
@@ -90,6 +89,7 @@ public class RepoUrlUtils {
 		if(image!=null && image.contains(repositoryPath)){
 			searchConceptDTO.setImage(fixSingleUrl(image));
 		}
+
 		return searchConceptDTO;
 	}
 
@@ -102,7 +102,7 @@ public class RepoUrlUtils {
 	public String fixSingleUrl(String thumbnail) {
 		logger.debug("Converting filepath to URL");
 		String url = thumbnail.replace(repositoryPath, repositoryUrl);
-		logger.debug("Returning URL: "+url);
+		logger.debug("Returning URL: " + url);
 		return url;
 	}
 	
