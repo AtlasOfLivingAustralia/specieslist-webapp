@@ -1,3 +1,17 @@
+%{--
+  - Copyright (C) 2012 Atlas of Living Australia
+  - All Rights Reserved.
+  -
+  - The contents of this file are subject to the Mozilla Public
+  - License Version 1.1 (the "License"); you may not use this file
+  - except in compliance with the License. You may obtain a copy of
+  - the License at http://www.mozilla.org/MPL/
+  -
+  - Software distributed under the License is distributed on an "AS
+  - IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+  - implied. See the License for the specific language governing
+  - rights and limitations under the License.
+  --}%
 <%--
   Species "show" view
   User: nick
@@ -8,6 +22,9 @@
 <g:set var="alaUrl" value="${grailsApplication.config.ala.baseURL}"/>
 <g:set var="biocacheUrl" value="${grailsApplication.config.biocache.baseURL}"/>
 <g:set var="spatialPortalUrl" value="${grailsApplication.config.spatial.baseURL}"/>
+<g:set var="collectoryUrl" value="${grailsApplication.config.collectory.baseURL}"/>
+<g:set var="citizenSciUrl" value="${grailsApplication.config.brds.guidUrl}"/>
+<g:set var="guid" value="${tc?.taxonConcept?.guid?:''}"/>
 <g:set var="sciNameFormatted"><bie:formatSciName name="${tc?.taxonConcept?.nameString}" rankId="${tc?.taxonConcept?.rankID?:0}"/></g:set>
 <g:set var="synonymsQuery"><g:each in="${tc?.synonyms}" var="synonym" status="i">\"${synonym.nameString}\"<g:if test="${i < tc.synonyms.size() - 1}"> OR </g:if></g:each></g:set>
 <html>
@@ -17,180 +34,29 @@
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'species.css')}" type="text/css" media="screen" />
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'colorbox.css')}" type="text/css" media="screen" />
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'snazzy.css')}" type="text/css" media="screen" />
+    <link rel="stylesheet" href="${resource(dir: 'css', file: 'jquery.fancybox.css')}" type="text/css" media="screen" />
     <script src="${resource(dir: 'js', file: 'jquery.tools.min.js')}"></script><!-- tabs, etc. -->
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.htmlClean.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.colorbox-min.js')}"></script>
+    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.fancybox.pack.js')}"></script>
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript">
-        $(document).ready(function() {
-            //setup tabs
-            var bhlInit = false;
-            $("ul.tabs").tabs("div.tabs-panes-noborder > section", {
-                history: true,
-                effect: 'fade',
-                onClick: function(event, index) {
-                    if (index == 5 && !bhlInit) {
-                        doSearch(0, 10, false);
-                        bhlInit = true;
-                    }
-                }
-            });
-            // Gallery image popups using ColorBox
-            $("a.thumbImage").colorbox({
-                title: function() {
-                    var titleBits = this.title.split("|");
-                    return "<a href='"+titleBits[1]+"'>"+titleBits[0]+"</a>"; },
-                opacity: 0.5,
-                maxWidth: "80%",
-                maxHeight: "80%",
-                preloading: false,
-                onComplete: function() {
-                    $("#cboxTitle").html(""); // Clear default title div
-                    var index = $(this).attr('id').replace("thumb",""); // get the imdex of this image
-                    var titleHtml = $("div#thumbDiv"+index).html(); // use index to load meta data
-                    //console.log("index", index, "titleHtml", titleHtml);
-                    $("<div id='titleText'>"+titleHtml+"</div>").insertAfter("img.cboxPhoto");
-                    $("div#titleText").css("padding-top","8px");
-                    var cbox = $.fn.colorbox;
-                    if ( cbox != undefined){
-                        cbox.resize();
-                    } else{
-                        console.log("cboxis undefined 0: " + cbox);
-                    }
-                }
-            });
+        // load google charts api
+        google.load("visualization", "1", {packages:["corechart"]});
 
-            //console.log("isRoleAdmin", "${isRoleAdmin}", "userName", "${userName}")
-        }); // end document.ready
-
-        /**
-         * BHL search to populate literature tab
-         *
-         * @param start
-         * @param rows
-         * @param scroll
-         */
-        function doSearch(start, rows, scroll) {
-            if (!start) {
-                start = 0;
-            }
-            if (!rows) {
-                rows = 10;
-            }
-            // var url = "http://localhost:8080/bhl-ftindex-demo/search/ajaxSearch?q=" + $("#tbSearchTerm").val();
-            var taxonName = "${tc?.taxonConcept?.nameString}";
-            var synonyms = "${synonymsQuery}";
-            var query = ""; // = taxonName.split(/\s+/).join(" AND ") + synonyms;
-            if (taxonName) {
-                var terms = taxonName.split(/\s+/).length;
-                if (terms > 2) {
-                    query += taxonName.split(/\s+/).join(" AND ");
-                } else if (terms == 2) {
-                    query += '"' + taxonName + '"';
-                } else {
-                    query += taxonName;
-                }
-            }
-            if (synonyms) {
-                //synonyms = "  " + ((synonyms.indexOf("OR") != -1) ? "(" + synonyms + ")" : synonyms);
-                query += (taxonName) ? ' OR ' + synonyms : synonyms;
-            }
-
-            if (!query) {
-                return cancelSearch("No names were found to search BHL");
-            }
-
-            var url = "http://bhlidx.ala.org.au/select?q=" + query + '&start=' + start + "&rows=" + rows +
-                    "&wt=json&fl=name%2CpageId%2CitemId%2Cscore&hl=on&hl.fl=text&hl.fragsize=200&" +
-                    "group=true&group.field=itemId&group.limit=7&group.ngroups=true&taxa=false";
-            var buf = "";
-            $("#status-box").css("display", "block");
-            $("#synonyms").html("").css("display", "none")
-            $("#results").html("");
-
-            $.ajax({
-                url: url,
-                dataType: 'jsonp',
-                //data: null,
-                jsonp: "json.wrf",
-                success:  function(data) {
-                    var itemNumber = parseInt(data.responseHeader.params.start, 10) + 1;
-                    var maxItems = parseInt(data.grouped.itemId.ngroups, 10);
-                    if (maxItems == 0) {
-                        return cancelSearch("No references were found for <code>" + query + "</code>");
-                    }
-                    var startItem = parseInt(start, 10);
-                    var pageSize = parseInt(rows, 10);
-                    var showingFrom = startItem + 1;
-                    var showingTo = (startItem + pageSize <= maxItems) ? startItem + pageSize : maxItems ;
-                    //console.log(startItem, pageSize, showingTo);
-                    var pageSize = parseInt(rows, 10);
-                    buf += '<div class="results-summary">Showing ' + showingFrom + " to " + showingTo + " of " + maxItems +
-                            ' results for the query <code>' + query + '</code>.</div>'
-                    // grab highlight text and store in map/hash
-                    var highlights = {};
-                    $.each(data.highlighting, function(idx, hl) {
-                        highlights[idx] = hl.text[0];
-                        //console.log("highlighting", idx, hl);
-                    });
-                    //console.log("highlighting", highlights, itemNumber);
-                    $.each(data.grouped.itemId.groups, function(idx, obj) {
-                        buf += '<div class="result-box">';
-                        buf += '<b>' + itemNumber++;
-                        buf += '.</b> <a target="item" href="http://bhl.ala.org.au/item/' + obj.groupValue + '">' + obj.doclist.docs[0].name + '</a> ';
-                        var suffix = '';
-                        if (obj.doclist.numFound > 1) {
-                            suffix = 's';
-                        }
-                        buf += '(' + obj.doclist.numFound + '</b> matching page' + suffix + ')<div class="thumbnail-container">';
-
-                        $.each(obj.doclist.docs, function(idx, page) {
-                            var highlightText = $('<div>'+highlights[page.pageId]+'</div>').htmlClean({allowedTags: ["em"]}).html();
-                            buf += '<div class="page-thumbnail"><a target="page image" href="http://bhl.ala.org.au/page/' +
-                                    page.pageId + '"><img src="http://bhl.ala.org.au/pagethumb/' + page.pageId +
-                                    '" alt="Page Id ' + page.pageId + '"  width="60px" height="100px"/><div class="highlight-context">' +
-                                    highlightText + '</div></a></div>';
-                        })
-                        buf += "</div><!--end .thumbnail-container -->";
-                        buf += "</div>";
-                    })
-
-                    var prevStart = start - rows;
-                    var nextStart = start + rows;
-                    //console.log("nav buttons", prevStart, nextStart);
-
-                    buf += '<div id="button-bar">';
-                    if (prevStart >= 0) buf += '<input type="button" value="Previous page" onclick="doSearch(' + prevStart + ',' + rows + ', true)">';
-                    buf += '&nbsp;&nbsp;&nbsp;';
-                    if (nextStart <= maxItems) buf += '<input type="button" value="Next page" onclick="doSearch(' + nextStart + ',' + rows + ', true)">';
-                    buf += '</div>';
-
-                    $("#solr-results").html(buf);
-                    if (data.synonyms) {
-                        buf = "<b>Synonyms used:</b>&nbsp;";
-                        buf += data.synonyms.join(", ");
-                        $("#synonyms").html(buf).css("display", "block");
-                    } else {
-                        $("#synonyms").html("").css("display", "none");
-                    }
-                    $("#status-box").css("display", "none");
-
-                    if (scroll) {
-                        $('html, body').animate({scrollTop: '300px'}, 300);
-                    }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    $("#status-box").css("display", "none");
-                    $("#solr-results").html('An error has occurred, probably due to invalid query syntax');
-                }
-            });
-        } // end doSearch
-
-        function cancelSearch(msg) {
-            $("#status-box").css("display", "none");
-            $("#solr-results").html(msg);
-            return true;
+        // global var to pass GSP vars into JS file
+        SHOW_CONF = {
+            biocacheUrl:    "${biocacheUrl}",
+            collectoryUrl:  "${collectoryUrl}",
+            guid:           "${guid}",
+            scientificName: "${tc?.taxonConcept?.nameString}",
+            synonymsQuery:  "${synonymsQuery}",
+            citizenSciUrl:  "${citizenSciUrl}",
+            serverName:     "${grailsApplication.config.grails.serverURL}",
+            alertsUrl:      "${grailsApplication.config.alerts.baseUrl}"
         }
     </script>
+    <script type="text/javascript" src="${resource(dir: 'js', file: 'species.show.js')}"></script>
 </head>
 <body class="species">
     <header id="page-header">
@@ -202,10 +68,14 @@
                     <li class="last"><bie:formatSciName name="${tc?.taxonConcept?.nameString}" rankId="${tc?.taxonConcept?.rankID?:0}"/></li>
                 </ol>
             </nav>
-            <hgroup>
+            <hgroup class="leftfloat">
                 <h1><bie:formatSciName name="${tc?.taxonConcept?.nameString}" rankId="${tc?.taxonConcept?.rankID?:0}"/> <span>${tc?.taxonConcept?.author}</span></h1>
                 <h2>${(tc?.commonNames) ? tc?.commonNames?.get(0)?.nameString : ''}</h2>
             </hgroup>
+            <div class="rightfloat">
+                <a href="${citizenSciUrl}${guid}" class="button orange" title="">Record a sighting</a>
+                <a id="alertsButton" class="button orange" href="#">Alerts <img width="18" height="18" src="http://test.ala.org.au/wp-content/themes/ala2011/images/alerts-button.png"></a>
+            </div>
         </div>
     </header>
     <div class="inner">
@@ -219,12 +89,12 @@
                         <dd style="text-transform: capitalize;">${tc?.taxonConcept?.rankString}</dd>
                         <dt>Data links</dt>
                         <dd><a href="#lsidText" id="lsid" class="button" title="Life Science Identifier (pop-up)">LSID</a></dd>
-                        <dd><a href="${grailsApplication.config.bie.baseURL}/species/${tc?.taxonConcept?.guid}.json" class="button" title="JSON web service">JSON</a></dd>
+                        <dd><a href="${grailsApplication.config.bie.baseURL}/species/${guid}.json" class="button" title="JSON web service">JSON</a></dd>
                     </dl>
                     <div style="display:none;">
                         <div id="lsidText">
-                            <h2><a href="http://lsids.sourceforge.net/" target="_blank">Life Science Identifier (LSID):</a></h2>
-                            <p><a href="http://lsid.tdwg.org/summary/${tc?.taxonConcept?.guid}" target="_blank">${tc?.taxonConcept?.guid}</a></p>
+                            <h2><a href="http://lsids.sourceforge.net/" target="_blank" title="More information on LSIDs">Life Science Identifier (LSID):</a></h2>
+                            <p><a href="http://lsid.tdwg.org/summary/${guid}" target="_blank" title="Original source for this LSID">${guid}</a></p>
                             <p>LSIDs are persistent, location-independent,resource identifiers for uniquely naming biologically significant resources including species names, concepts, occurrences, genes or proteins, or data objects that encode information about them. To put it simply, LSIDs are a way to identify and locate pieces of biological information on the web.</p>
                         </div>
                     </div>
@@ -282,16 +152,16 @@
                         <section class="double" id="divMap">
                             <h2>Mapped occurrence records</h2>
                             <div class="bg-white">
-                                <img id="mapImage" src='http://biocache.ala.org.au/ws/density/map?q=lsid:"${tc.taxonConcept.guid}"' class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>
-                                <img id="mapLegend" src='http://biocache.ala.org.au/ws/density/legend?q=lsid:"${tc.taxonConcept.guid}"' class="distroLegend" alt="map legend" onerror="this.style.display='none'"/>
+                                <img id="mapImage" src='http://biocache.ala.org.au/ws/density/map?q=lsid:"${guid}"' class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>
+                                <img id="mapLegend" src='http://biocache.ala.org.au/ws/density/legend?q=lsid:"${guid}"' class="distroLegend" alt="map legend" onerror="this.style.display='none'"/>
                             </div>
-                            <p><a class="button" href="${biocacheUrl}/occurrences/taxa/${tc.taxonConcept.guid}" title="View records list">View records list</a>
-                                <a class="button" href="${spatialPortalUrl}/?q=lsid:${tc.taxonConcept.guid}" title="Map & analyse records">Map &amp; analyse records</a></p>
+                            <p><a class="button" href="${biocacheUrl}/occurrences/taxa/${guid}" title="View records list">View records list</a>
+                                <a class="button" href="${spatialPortalUrl}/?q=lsid:${guid}" title="Map & analyse records">Map &amp; analyse records</a></p>
                         </section>
                         <section class="last">
                             <ul class="overviewImages">
                                 <g:if test="${tc.taxonConcept?.rankID && tc.taxonConcept?.rankID < 7000}">%{-- higher taxa show mulitple images --}%
-                                    <g:set var="imageLimit" value="6"/>
+                                    <g:set var="imageLimit" value="${4}"/>
                                     <g:set var="imageSize" value="150"/>
                                     <g:each in="${extraImages?.searchDTOList}" var="searchTaxon" status="status">
                                         <!-- searchTaxon = ${searchTaxon} -->
@@ -316,7 +186,7 @@
                                     <g:set var="image" value="${tc.images?.get(0)}"/>
                                     <g:set var="imageSrc" value="${image.repoLocation.replace('/raw.', '/smallRaw.')}"/>
                                     <li>
-                                        <a href="0" title="Species representative photo"><img src="${imageSrc}" class="overviewImage" style="max-width: ${imageSize}px" alt="" /></a>
+                                        <a href="${image.repoLocation}" id="thumb0" class="thumbImage" title="Species representative photo"><img src="${imageSrc}" class="overviewImage" style="max-width: ${imageSize}px" alt="" /></a>
                                         <g:if test="${image.creator}">
                                             <cite>Image by: ${image.creator}
                                                 <g:if test="${image.rights}">
@@ -333,17 +203,17 @@
                                 %{--<br/>Rights: Attribution-NonCommercial License<br/>Source: --}%
                                 %{--<a href="http://www.flickr.com/photos/iansand/3096843303/" target="_blank" onclick="javascript:window.location.href='http://www.flickr.com/photos/iansand/3096843303/';">Flickr EOL</a>--}%
                             %{--</cite>--}%
-                            <a href="" class="button orange">Record a sighting</a>
+                            %{--<a href="" class="button orange">Record a sighting</a>--}%
                         </section>
                     </div>
                     <g:set var="descriptionBlock">
                         <g:set var="counter" value="${0}"/>
                         <g:each var="textProperty" in="${textProperties}" status="status">
-                            <g:if test="${textProperty.name?.endsWith("hasDescriptiveText") && counter < 3 && textProperty.infoSourceId != 1051}">
+                            <g:if test="${textProperty.name?.endsWith("hasDescriptiveText") && counter < 3 && textProperty.infoSourceId != '1051'}">
+                                <g:set var="counter" value="${counter + 1}"/>
                                 <p>${textProperty.value} <cite>source:
                                     <a href="${textProperty.identifier}" class="external" target="_blank" title="${textProperty.title}">${textProperty.infoSourceName}</a></cite>
                                 </p>
-                                <g:set var="counter" value="${counter + 1}"/>
                             </g:if>
                         </g:each>
                     </g:set>
@@ -473,19 +343,19 @@
                                                 <g:else>
                                                         Is this image representative of ${tc.taxonConcept.rankString}?
                                                         <a class="isrepresent"
-                                                           href="#" onclick="rankThisImage('${tc.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,true,'${tc.taxonConcept.nameString}');">
+                                                           href="#" onclick="rankThisImage('${guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,true,'${tc.taxonConcept.nameString}');">
                                                             YES
                                                         </a> |
                                                         <a class="isnotrepresent" href="#"
-                                                                onclick="rankThisImage('${tc.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,false,'${tc.taxonConcept.nameString}');">
+                                                                onclick="rankThisImage('${guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,false,'${tc.taxonConcept.nameString}');">
                                                             NO
                                                         </a>
                                                         <g:if test="${isRoleAdmin}">
                                                             <br/><a class="isnotrepresent" href="#"
-                                                                    onclick="rankThisImage('${tc.taxonConcept.guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,false,'${tc.taxonConcept.nameString}');">
+                                                                    onclick="rankThisImage('${guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,false,'${tc.taxonConcept.nameString}');">
                                                                 BlackList</a> |
                                                             <a class="isnotrepresent" href="#"
-                                                               onClick="editThisImage('${tc.taxonConcept.guid}', '${image.identifier}');
+                                                               onClick="editThisImage('${guid}', '${image.identifier}');
                                                                return false;">Edit</a>
                                                         </g:if>
                                                 </g:else>
@@ -542,7 +412,7 @@
                 </section><!--#gallery-->
                 <section id="names">
                     <h2>Names and sources</h2>
-                    <table class="borders">
+                    <table class="outline">
                         <thead>
                             <tr>
                                 <th>Accepted name</th>
@@ -567,7 +437,7 @@
                     </table>
                     <g:if test="${tc.synonyms}">
                         <h2>Synonyms</h2>
-                        <table class="borders">
+                        <table class="outline">
                             <thead>
                                 <tr>
                                     <th>Synonyms</th>
@@ -635,9 +505,9 @@
                                                 <g:if test="${cNames}">
                                                     <div id='cnRank-${fName}' class="rankCommonName">
                                                         Is this a preferred common name for this ${tc.taxonConcept.rankString}?
-                                                        <a class="isrepresent" href="#" onclick="rankThisCommonName('${tc.taxonConcept.guid}','${fName}',false,true,'${enKey.trim()}');return false;">YES</a>
+                                                        <a class="isrepresent" href="#" onclick="rankThisCommonName('${guid}','${fName}',false,true,'${enKey.trim()}');return false;">YES</a>
                                                         |
-                                                        <a class="isnotrepresent" href="#" onclick="rankThisCommonName('${tc.taxonConcept.guid}','${fName}',false,false,'${enKey.trim()}');return false;">NO</a>
+                                                        <a class="isnotrepresent" href="#" onclick="rankThisCommonName('${guid}','${fName}',false,false,'${enKey.trim()}');return false;">NO</a>
                                                     </div>
                                                 </g:if>
                                             </g:else>
@@ -666,7 +536,7 @@
                     </g:if>
                 </section><!--#names-->
                 <section id="classification">
-                    <h2>Scientific classification</h2>
+                    <h2>Working scientific classification</h2>
                     <div id="isAustralianSwitch"></div>
 
                         <g:each in="${taxonHierarchy}" var="taxon">
@@ -675,13 +545,13 @@
                                 <dl><dt>${taxon.rank}</dt>
                                     <dd><a href="${request?.contextPath}/species/${taxon.guid}#classification" title="${taxon.rank}">
                                         <bie:formatSciName name="${taxon.scientificName}" rankId="${taxon.rankId}"/>
-                                        <g:if test="${taxon.commonNameSingle && taxon.guid == tc.taxonConcept.guid}">: ${taxon.commonNameSingle}</g:if></a>
+                                        <g:if test="${taxon.commonNameSingle && taxon.guid == guid}">: ${taxon.commonNameSingle}</g:if></a>
                                     </dd>
                             </g:if>
                             <g:elseif test="${taxon.guid == tc.taxonConcept.guid}">
                                 <dl><dt id="currentTaxonConcept">${taxon.rank}</dt>
                                     <dd><span><bie:formatSciName name="${taxon.scientificName}" rankId="${taxon.rankId}"/>
-                                        <g:if test="${taxon.commonNameSingle && taxon.guid == tc.taxonConcept.guid}">
+                                        <g:if test="${taxon.commonNameSingle && taxon.guid == guid}">
                                             : ${taxon.commonNameSingle}
                                         </g:if></span>
                                         <g:if test="${taxon.isAustralian || tc.isAustralian}">
@@ -725,7 +595,7 @@
                 <section id="records">
                     <h2>Occurrence records</h2>
                     <div id="occurrenceRecords">
-                        <p><a href="${biocacheUrl}/occurrences/taxa/${tc.taxonConcept?.guid}">View
+                        <p><a href="${biocacheUrl}/occurrences/taxa/${guid}">View
                         list of all <span id="occurenceCount"></span> occurrence records for this taxon</a></p>
                         <div id="recordBreakdowns" style="display: block">
                         </div>

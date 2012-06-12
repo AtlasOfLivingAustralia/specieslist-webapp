@@ -29,3 +29,7 @@ ul.tabs a.current {
     color: #DF4A21;
     cursor: default;
 }
+
+td[colspan="2"] {
+    border-bottom: 1px solid #D1D1D1;
+}
