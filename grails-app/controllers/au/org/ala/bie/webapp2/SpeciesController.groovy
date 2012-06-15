@@ -22,15 +22,19 @@ import org.ala.dto.SearchTaxonConceptDTO
 import org.ala.dto.SearchResultsDTO
 import org.codehaus.groovy.grails.web.json.JSONObject
 
+/**
+ * Species Controller
+ *
+ * @author "Nick dos Remedios <Nick.dosRemedios@csiro.au>"
+ */
 class SpeciesController {
     def bieService
     def utilityService
     def authService
 
-    def index = {
-
-    }
-
+    /**
+     * Species page - display information about the requested taxa
+     */
     def show = {
         def guid = params.guid
         def etc
@@ -63,20 +67,15 @@ class SpeciesController {
         }
     }
 
-    def getClassification = { tc ->
-        def classification
-
-        if (tc.getLeft()) {
-            SearchResultsDTO<SearchTaxonConceptDTO> taxonHierarchy = searchDao.getClassificationByLeftNS(tc.getLeft(), tc.getRight())
-            //SearchResultsDTO<SearchTaxonConceptDTO> taxonHierarchy = searchDao.getClassificationByLeftNS(tc.getLeft());
-            //model.addAttribute("taxonHierarchy", taxonHierarchy.getResults());
-            classification = taxonHierarchy.getResults()
-        }
-
-        return classification
+    /**
+     * Display images of species for a given higher taxa
+     */
+    def imageSearch = {
+        def taxonRank = params.taxonRank
+        def scientificName = params.scientificName
+        def msg =  taxonRank + ": " + scientificName
+        render (view: 'imageSearch', model: [ msg: msg])
     }
-
-
 
     /**
      * Do logouts through this app so we can invalidate the session.

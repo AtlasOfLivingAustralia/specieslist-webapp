@@ -176,7 +176,7 @@
                                     </g:each>
                                     <g:if test="${extraImages}">
                                         <li>
-                                            <a href="#" onclick='javascript:window.location.href="${createLink(controller:'image-search', action: 'showSpecies', params:[taxonRank: tc?.taxonConcept?.rankString, scientificName: tc?.taxonConcept?.nameString])}${request?.contextPath}";'>
+                                            <a href="${createLink(controller:'image-search', action: 'showSpecies', params:[taxonRank: tc?.taxonConcept?.rankString, scientificName: tc?.taxonConcept?.nameString])}">
                                                 View images of species for ${sciNameFormatted}</a>
                                         </li>
                                     </g:if>
