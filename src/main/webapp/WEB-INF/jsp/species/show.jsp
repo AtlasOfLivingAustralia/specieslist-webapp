@@ -571,7 +571,6 @@ function doSearch(start, rows, scroll) {
     });
 } // end doSearch
 
-setupTrove('${extendedTaxonConcept.taxonConcept.nameString}','trove-results-home','previousTrove','nextTrove');
 google.load("visualization", "1", {packages:["corechart"]});
 
 </script>
@@ -860,14 +859,14 @@ google.load("visualization", "1", {packages:["corechart"]});
         <ul>
             <c:choose>
                 <c:when test="${not empty extendedTaxonConcept.taxonConcept.rankID && extendedTaxonConcept.taxonConcept.rankID < 7000}">
-                    <c:set var="imageLimit" value="6"/>
+                    <c:set var="imageLimit" value="1"/>
                     <c:set var="imageSize" value="150"/>
                     <c:forEach items="${extraImages}" var="searchTaxon" varStatus="status">
-                        <c:set var="imageSrc" value="${searchTaxon.thumbnailUrl}"/>
+                        <c:set var="imageSrc" value="${searchTaxon.smallImageUrl}"/>
                         <c:if test="${status.index < imageLimit}">
                             <li>
                                 <a id="popUp${status.index}" class="thumbImage1" href="${pageContext.request.contextPath}/image-search/infoBox?q=${searchTaxon.guid}" >
-                                    <img src="${searchTaxon.thumbnailUrl}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/>
+                                    <img src="${searchTaxon.smallImageUrl}" style="max-width:300px;padding-right:3px;"/>
                                 </a>
                             </li>
                         </c:if>
@@ -978,14 +977,14 @@ google.load("visualization", "1", {packages:["corechart"]});
     <c:choose>
         <c:when test="${not empty extendedTaxonConcept.images}">
             <c:forEach var="image" items="${extendedTaxonConcept.images}" varStatus="status">
-                <c:set var="thumbUri">${image.thumbnail}</c:set>
+                <c:set var="thumbUri">${image.smallImageUrl}</c:set>
                 <c:set var="imageUri">
                     <c:choose>
                         <c:when test="${not empty image.repoId}">images/${image.repoId}.jpg</c:when>
                         <c:otherwise>${image.repoLocation}</c:otherwise>
                     </c:choose>
                 </c:set>
-                <a class="thumbImage" rel="thumbs" title="${image.title}" href="${imageUri}" id="thumb${status.index}"><img src="${thumbUri}" alt="${image.infoSourceName}" title="${imageTitle}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/></a>
+                <a class="thumbImage" rel="thumbs" title="${image.title}" href="${imageUri}" id="thumb${status.index}"><img src="${thumbUri}" alt="${image.infoSourceName}" title="${imageTitle}" style="max-width:150px;padding-right:3px;"/></a>
                 <div id="thumbDiv${status.index}" style="display:none;">
                     <c:if test="${not empty image.title}">
                         ${image.title}<br/>
@@ -1106,7 +1105,7 @@ google.load("visualization", "1", {packages:["corechart"]});
         <c:when test="${not empty extendedTaxonConcept.screenshotImages}">
             <c:forEach var="screenshot" items="${extendedTaxonConcept.screenshotImages}" varStatus="status">
                 <!--                                    ${screenshot.repoLocation}-->
-                <!--                                    ${screenshot.thumbnail}-->
+                <!--                                    ${screenshot.smallImageUrl}-->
                 <c:set var="thumbUri">${screenshot.repoLocation}</c:set>
                 <c:set var="screenshotUri">
                     <c:choose>
@@ -1613,14 +1612,15 @@ google.load("visualization", "1", {packages:["corechart"]});
             </div>
         </div>
 
-        <div class="section">
+        <div class="section" id="trove-container">
             <h2>Name references found in the TROVE - NLA </h2>
-            <div id="trove-results-home" class="column-wrap"> </div>
+            <div id="trove-results-home" class="column-wrap">
+            </div>
             <input type="button" id="previousTrove" value="Previous page"/>
             <input type="button" id="nextTrove" value="Next page"/>
         </div>
         <script type="text/javascript">
-        setupTrove('${extendedTaxonConcept.taxonConcept.guid}','trove-results-home','previousTrove','nextTrove');
+        setupTrove('${extendedTaxonConcept.taxonConcept.nameString}','trove-container','trove-results-home','previousTrove','nextTrove');
         </script>
         <style type="text/css">
             .trove-results-home .titleInfo { height:15px; }
