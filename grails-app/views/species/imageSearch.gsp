@@ -104,6 +104,10 @@
         margin-right: 8px;
     }
 
+    #imageResults {
+        margin-bottom: 30px;
+    }
+
     .tooltip {
         display:none;
         background-color:#ffa;

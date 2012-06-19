@@ -9,70 +9,6 @@ class BieService {
     def webService
     def grailsApplication
 
-    def injectGenusMetadata(list) {
-
-        // build a list of genus guids to lookup
-        def guids = []
-        list.each { fam ->
-            fam.genera.each { gen ->
-                if (gen.guid) {
-                    guids << gen.guid
-                }
-            }
-        }
-
-        // look up the metadata
-        def md = betterBulkLookup(guids)
-
-        // inject the metadata
-        list.each { fam ->
-            fam.genera.each { gen ->
-                def data = md[gen.guid]
-                if (data) {
-                    gen.common = data.common
-                    if (data.image && data.image.largeImageUrl?.toString() != "null") {
-                        gen.image = data.image
-                    }
-                }
-                else {
-                    println "No metadata found for genus ${gen.name} (guid = ${gen.guid})"
-                }
-            }
-        }
-
-        return list
-    }
-
-    def injectSpeciesMetadata(list) {
-
-        // build a list of guids to lookup
-        def guids = []
-        list.each { sp ->
-            if (sp.guid) {
-                guids << sp.guid
-            }
-        }
-
-        // look up the metadata
-        def md = betterBulkLookup(guids)
-
-        // inject the metadata
-        list.each { sp ->
-            def data = md[sp.guid]
-            if (data) {
-                //sp.common = data.common  // don't override common name with name from bie as CMAR is more authoritative
-                if (data.image && data.image.largeImageUrl?.toString() != "null") {
-                    sp.image = data.image
-                }
-            }
-            else {
-                println "No metadata found for species ${sp.name} (guid = ${sp.guid})"
-            }
-        }
-
-        return list
-    }
-
     def betterBulkLookup(list) {
         def url = grailsApplication.config.bie.baseURL + "/species/guids/bulklookup.json"
         def data = webService.doPost(url, "", (list as JSON).toString())
@@ -142,6 +78,11 @@ class BieService {
             log.error("Error unmarshalling json " + e.message, e)
             return JSON.parse(json)
         }
+    }
+
+    def searchBie(SearchRequestParamsDTO requestObj) {
+        def json = webService.get(grailsApplication.config.bie.baseURL + "/ws/search.json?" + requestObj.getQueryString())
+        return JSON.parse(json)
     }
 
     def getTaxonConcept(guid) {

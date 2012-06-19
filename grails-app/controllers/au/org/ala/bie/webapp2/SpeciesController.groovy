@@ -33,6 +33,27 @@ class SpeciesController {
     def authService
 
     /**
+     * Search page - display search results fro the BIE (includes results for non-species pages too)
+     */
+    def search = {
+        def query = params.q
+        def filterQuery = params.fq
+        def startIndex = params.start?:0
+        def pageSize = params.pageSize?:20
+        def sortField = params.sort?:"score"
+        def sortDirection = params.dir?:"asc"
+        def requestObj = new SearchRequestParamsDTO(query, filterQuery, startIndex, pageSize, sortField, sortDirection)
+        def searchResults = bieService.searchBie(requestObj)
+        log.debug "SearchRequestParamsDTO = " + requestObj
+        //log.debug "searchResults = " + searchResults
+        render(view: 'search', model: [
+                searchResults: searchResults?.searchResults,
+                facetMap: [:],
+                isAustralian: true
+        ])
+    }
+
+    /**
      * Species page - display information about the requested taxa
      */
     def show = {

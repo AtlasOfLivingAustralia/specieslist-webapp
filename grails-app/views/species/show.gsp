@@ -69,8 +69,8 @@
                 </ol>
             </nav>
             <hgroup class="leftfloat">
-                <h1><bie:formatSciName name="${tc?.taxonConcept?.nameString}" rankId="${tc?.taxonConcept?.rankID?:0}"/> <span>${tc?.taxonConcept?.author}</span></h1>
-                <h2>${(tc?.commonNames) ? tc?.commonNames?.get(0)?.nameString : ''}</h2>
+                <h1><bie:formatSciName name="${tc?.taxonConcept?.nameString}" rankId="${tc?.taxonConcept?.rankID?:0}"/> <span>${tc?.taxonConcept?.author?:""}</span></h1>
+                <h2>${(tc?.commonNames) ? tc?.commonNames?.opt(0)?.nameString : '<br/>'}</h2>
             </hgroup>
             <div class="rightfloat">
                 <a href="${citizenSciUrl}${guid}" class="button orange" title="">Record a sighting</a>
@@ -183,19 +183,21 @@
                                 </g:if>
                                 <g:else>
                                     <g:set var="imageSize" value="314"/>
-                                    <g:set var="image" value="${tc.images?.get(0)}"/>
-                                    <g:set var="imageSrc" value="${image.repoLocation.replace('/raw.', '/smallRaw.')}"/>
-                                    <li>
-                                        <a href="${image.repoLocation}" id="thumb0" class="thumbImage" title="Species representative photo"><img src="${imageSrc}" class="overviewImage" style="max-width: ${imageSize}px" alt="" /></a>
-                                        <g:if test="${image.creator}">
-                                            <cite>Image by: ${image.creator}
-                                                <g:if test="${image.rights}">
-                                                    <br/>Rights: ${image.rights}
-                                                </g:if>
-                                            %{--<br/><alatag:imageSourceURL image="${image}"/>--}%
-                                            </cite>
-                                        </g:if>
-                                    </li>
+                                    <g:set var="image" value="${tc.images?.opt(0)}"/>
+                                    <g:if test="${image}">
+                                        <g:set var="imageSrc" value="${image.repoLocation?.replace('/raw.', '/smallRaw.')}"/>
+                                        <li>
+                                            <a href="${image.repoLocation}" id="thumb0" class="thumbImage" title="Species representative photo"><img src="${imageSrc}" class="overviewImage" style="max-width: ${imageSize}px" alt="" /></a>
+                                            <g:if test="${image.creator}">
+                                                <cite>Image by: ${image.creator}
+                                                    <g:if test="${image.rights}">
+                                                        <br/>Rights: ${image.rights}
+                                                    </g:if>
+                                                %{--<br/><alatag:imageSourceURL image="${image}"/>--}%
+                                                </cite>
+                                            </g:if>
+                                        </li>
+                                    </g:if>
                                 </g:else>
                             </ul>
                             %{--<a href="0" title=""><img src="http://bie.ala.org.au/repo/1013/128/1284064/smallRaw.jpg" class="overviewImage" alt="" /></a>--}%
@@ -217,7 +219,7 @@
                             </g:if>
                         </g:each>
                     </g:set>
-                    <g:if test="${descriptionBlock}">
+                    <g:if test="${descriptionBlock?.trim().length() > 0}">
                         <section class="clearfix">
                             <h2>Description</h2>
                             ${descriptionBlock}
@@ -409,6 +411,9 @@
                             </g:each>
                         </div>
                     </g:if>
+                <g:else>
+                    <p>There are no images for this taxon</p>
+                </g:else>
                 </section><!--#gallery-->
                 <section id="names">
                     <h2>Names and sources</h2>

@@ -1,0 +1,17 @@
+div.results p {
+    border-bottom:1px solid #d9d9d9;
+    padding-bottom:.8em!important;
+    height:100%;
+    padding-bottom: 1.6em;
+}
+div.results p::after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+div.results h4 {
+    font-size:1.2em;
+    padding-top:.8em;
+}
