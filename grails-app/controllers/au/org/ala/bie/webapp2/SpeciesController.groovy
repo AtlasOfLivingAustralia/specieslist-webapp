@@ -16,10 +16,6 @@
 package au.org.ala.bie.webapp2
 
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
-import org.ala.model.CommonName
-import org.ala.dto.ExtendedTaxonConceptDTO
-import org.ala.dto.SearchTaxonConceptDTO
-import org.ala.dto.SearchResultsDTO
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 /**
@@ -37,9 +33,9 @@ class SpeciesController {
      */
     def search = {
         def query = params.q
-        def filterQuery = params.fq
+        def filterQuery = params.list('fq') // will be a list even with only one value
         def startIndex = params.start?:0
-        def pageSize = params.pageSize?:20
+        def pageSize = params.pageSize?:10
         def sortField = params.sort?:"score"
         def sortDirection = params.dir?:"asc"
         def requestObj = new SearchRequestParamsDTO(query, filterQuery, startIndex, pageSize, sortField, sortDirection)
@@ -48,8 +44,11 @@ class SpeciesController {
         //log.debug "searchResults = " + searchResults
         render(view: 'search', model: [
                 searchResults: searchResults?.searchResults,
-                facetMap: [:],
-                isAustralian: true
+                facetMap: utilityService.addFacetMap(filterQuery),
+                query: query.trim(),
+                filterQuery: filterQuery,
+                idxTypes: utilityService.getIdxtypes(searchResults?.searchResults?.facetResults),
+                isAustralian: false
         ])
     }
 

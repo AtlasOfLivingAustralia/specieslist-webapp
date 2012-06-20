@@ -1,6 +1,7 @@
 package au.org.ala.bie.webapp2
 
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import org.apache.commons.lang.StringUtils
 
 class UtilityService {
     /**
@@ -169,4 +170,30 @@ class UtilityService {
     def normaliseString(input) {
         input.replaceAll(/([.,-]*)?([\\s]*)?/, "").trim().toLowerCase()
     }
+
+    def addFacetMap(List list) {
+        def facetMap = [:]
+        list.each {
+            if (it.contains(":")) {
+                String[] fqBits = StringUtils.split(it, ":", 2);
+                facetMap.put(fqBits[0], fqBits[-1]?:"");
+            }
+        }
+        return facetMap
+    }
+
+    def getIdxtypes(facetResults) {
+        def idxtypes = [] as Set
+
+        facetResults.each { facet ->
+            if (facet.fieldName == "idxtype") {
+                facet.fieldResult.each { field ->
+                    idxtypes.add(field.label)
+                }
+            }
+        }
+
+        return idxtypes
+    }
+
 }

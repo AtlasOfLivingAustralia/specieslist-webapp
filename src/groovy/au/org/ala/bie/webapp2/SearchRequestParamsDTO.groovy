@@ -40,8 +40,12 @@ class SearchRequestParamsDTO {
     def getQueryString() {
         def queryStr = new StringBuilder()
         queryStr.append("q=" + q)
-        if (fq) {
-            queryStr.append("&fq=" + fq?.join("&fq="))
+        def fqIsList = fq.getClass().metaClass.getMetaMethod("join", String)
+        if (fq && fqIsList) {
+            def newFq = fq.collect { it.replaceAll(/\s+/, "+") }
+            queryStr.append("&fq=" + newFq?.join("&fq="))
+        } else if (fq) {
+            queryStr.append("&fq=" + fq.replaceAll(" ", "+"))
         }
         queryStr.append("&start=" + start)
         queryStr.append("&pageSize=" + pageSize)

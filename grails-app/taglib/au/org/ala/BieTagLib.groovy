@@ -75,7 +75,8 @@ class BieTagLib {
         def title = attr.title?:""
         def pageNumber = (attr.startIndex / attr.pageSize) + 1
         def trimText = params.q?.trim()
-        def coreParams = "?q=${trimText}"
+        def fqList = params.list("fq")
+        def coreParams = (fqList) ? "?q=${trimText}&fq=${fqList.join('&fq=')}" : "?q=${trimText}"
         def startPageLink = 0
         if (pageNumber < 6 || attr.lastPage < 10) {
             startPageLink = 1
@@ -96,7 +97,7 @@ class BieTagLib {
                 if (startIndex > 0) {
                     mkp.yieldUnescaped("<a href=\"${coreParams}&start=${startIndex - pageSize}&title=${title}\">&laquo; Previous</a>")
                 } else {
-                    mkp.yieldUnescaped("&laquo; Previous")
+                    mkp.yieldUnescaped("<span>&laquo; Previous</span>")
                 }
             }
             (startPageLink..endPageLink).each { pageLink ->
@@ -107,10 +108,10 @@ class BieTagLib {
                 }
             }
             li(id:"nextPage") {
-                if (!(pageNumber == lastPage)) {
+                if (!(pageNumber == endPageLink)) {
                     mkp.yieldUnescaped("<a href=\"${coreParams}&start=${startIndex + pageSize}&title=${title}\">Next &raquo;</a>")
                 } else {
-                    mkp.yieldUnescaped("Next &raquo;")
+                    mkp.yieldUnescaped("<span>Next &raquo;</span>")
                 }
             }
         }

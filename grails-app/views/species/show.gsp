@@ -431,10 +431,10 @@
                                     <ul><li><a href="${tc.taxonConcept.infoSourceURL}" target="_blank" class="external">${tc.taxonConcept.infoSourceName}</a></li></ul>
                                 </td>
                             </tr>
-                            <g:if test="${tc.taxonName.publishedIn}">
+                            <g:if test="${(tc.taxonName && tc.taxonName.publishedIn) || tc.taxonConcept.publishedIn}">
                                 <tr class="cite">
                                     <td colspan="2">
-                                        <cite>Published in: <a href="#" target="_blank" class="external">${tc.taxonName.publishedIn}</a></cite>
+                                        <cite>Published in: <a href="#" target="_blank" class="external">${tc.taxonName?.publishedIn?:tc.taxonConcept.publishedIn}</a></cite>
                                     </td>
                                 </tr>
                             </g:if>

@@ -27,7 +27,129 @@
             if (query) {
                 $(":input#search-2011").val(query);
             }
+
+            // listeners for sort widgets
+            $("select#sort").change(function() {
+                var val = $("option:selected", this).val();
+                reloadWithParam('sort',val);
+            });
+            $("select#dir").change(function() {
+                var val = $("option:selected", this).val();
+                reloadWithParam('dir',val);
+            });
+            $("select#per-page").change(function() {
+                var val = $("option:selected", this).val();
+                reloadWithParam('pageSize',val);
+            });
         });
+
+        /**
+         * Build URL params to remove selected fq
+         *
+         * @param facet
+         */
+        function removeFacet(facet) {
+            var q = $.getQueryParam('q'); //$.query.get('q')[0];
+            var fqList = $.getQueryParam('fq'); //$.query.get('fq');
+            var paramList = [];
+
+            //is this a init search?
+            if(fqList == null || fqList == 'undefined'){
+                if('australian_s:recorded' == facet){
+                    fqList = ['australian_s:recorded'];
+                }
+                else{
+                    fqList = [''];
+                }
+            }
+            if (q != null) {
+                paramList.push("q=" + q);
+            }
+
+            //alert("this.facet = "+facet+"; fqList = "+fqList.join('|'));
+
+            if (fqList instanceof Array) {
+                //alert("fqList is an array");
+                for (var i in fqList) {
+                    //alert("i == "+i+"| fq = "+fqList[i]);
+                    if (decodeURI(fqList[i]) == facet) {
+                        //alert("removing fq: "+fqList[i]);
+                        fqList.splice(fqList.indexOf(fqList[i]),1);
+                    }
+                }
+            } else {
+                //alert("fqList is NOT an array");
+                if (decodeURI(fqList) == facet) {
+                    fqList = null;
+                }
+            }
+            //alert("(post) fqList = "+fqList.join('|'));
+            if (fqList != null && fqList.length > 0) {
+                paramList.push("fq=" + fqList.join("&fq="));
+            }
+
+            window.location.replace(window.location.pathname + '?' + paramList.join('&'));
+        }
+
+        /**
+         * Catch sort drop-down and build GET URL manually
+         */
+        function reloadWithParam(paramName, paramValue) {
+            var paramList = [];
+            var q = $.getQueryParam('q'); //$.query.get('q')[0];
+            var fqList = $.getQueryParam('fq'); //$.query.get('fq');
+            var sort = $.getQueryParam('sort');
+            var dir = $.getQueryParam('dir');
+            // add query param
+            if (q != null) {
+                paramList.push("q=" + q);
+            }
+            // add filter query param
+            if (fqList != null) {
+                paramList.push("fq=" + fqList.join("&fq="));
+            }
+            // add sort param if already set
+            if (paramName != 'sort' && sort != null) {
+                paramList.push('sort' + "=" + sort);
+            }
+
+            if (paramName != null && paramValue != null) {
+                paramList.push(paramName + "=" +paramValue);
+            }
+
+            //alert("params = "+paramList.join("&"));
+            //alert("url = "+window.location.pathname);
+            window.location.replace(window.location.pathname + '?' + paramList.join('&'));
+        }
+
+        // jQuery getQueryParam Plugin 1.0.0 (20100429)
+        // By John Terenzio | http://plugins.jquery.com/project/getqueryparam | MIT License
+        // Adapted by Nick dos Remedios to handle multiple params with same name - return a list
+        (function ($) {
+            // jQuery method, this will work like PHP's $_GET[]
+            $.getQueryParam = function (param) {
+                // get the pairs of params fist
+                var pairs = location.search.substring(1).split('&');
+                var values = [];
+                // now iterate each pair
+                for (var i = 0; i < pairs.length; i++) {
+                    var params = pairs[i].split('=');
+                    if (params[0] == param) {
+                        // if the param doesn't have a value, like ?photos&videos, then return an empty srting
+                        //return params[1] || '';
+                        values.push(params[1]);
+                    }
+                }
+
+                if (values.length > 0) {
+                    return values;
+                } else {
+                    //otherwise return undefined to signify that the param does not exist
+                    return undefined;
+                }
+
+            };
+        })(jQuery);
 
        /**
         * Taken from http://stackoverflow.com/a/8764051/249327
@@ -50,21 +172,21 @@
             </nav>
             <hgroup>
                 <g:if test="${searchResults.totalRecords}">
-                    <h1>Search for <b>${params.q}</b> returned ${searchResults.totalRecords} results</h1><br/>
+                    <h1>Search for <b>${params.q}</b> returned ${searchResults.totalRecords} results</h1>
                 </g:if>
                 <g:else>
-                    <h3>Search for <span style="font-weight: bold">${params.q}</span> did not match any documents</h3>
+                    <h1 style="font-size: 1.8em;">Search for <b>${params.q}</b> did not match any documents</h1><br/>
                 </g:else>
             </hgroup>
         </div>
     </header>
     <g:if test="${searchResults.totalRecords}">
-        <g:set var="paramsValues" value="${searchResults.facetResults}"/>
+        <g:set var="paramsValues" value="${[:]}"/>
         <div class="inner">
             <div class="col-narrow">
                 <div class="boxed attached">
-                    <div class="inner">
-                        <h3>Refine results</h3>
+                    <div class="facetLinks">
+                        <h2>Refine results</h2>
                         <g:if test="${TAXON || REGION || INSTITUTION || COLLECTION || DATAPROVIDER || DATASET}">
                         %{-- TODO: refactor this stuff --}%
                             <g:set var="taxon" value="${TAXON}"/>
@@ -76,41 +198,35 @@
                             <g:set var="wordpress" value="${WORDPRESS}"/>
                         </g:if>
                         <div id="accordion">
-                            <g:if test="${query}">
-                                <g:set var="queryParam">q=${query.encodeAsHTML()}<g:if test="${params.fq}">&fq=${paramsValues?.fq?.join("&fq=")}</g:if></g:set>
+                            <g:if test="${query && filterQuery}">
+                                <g:set var="queryParam">q=${query.encodeAsHTML()}<g:if test="${!filterQuery.isEmpty()}">&fq=${filterQuery?.join("&fq=")}</g:if></g:set>
                             </g:if>
                             <g:else>
-                                <g:set var="queryParam">q=${params.q?.encodeAsHTML()}<g:if test="${params.fq}">&fq=${paramsValues?.fq?.join("&fq=")}</g:if></g:set>
+                                <g:set var="queryParam">q=${params.q?.encodeAsHTML()}<g:if test="${params.fq}">&fq=${fqList?.join("&fq=")}</g:if></g:set>
                             </g:else>
                             <g:if test="${searchResults.query}">
-                                <g:set var="downloadParams">q=${searchResults.query?.encodeAsHTML()}<g:if test="${params.fq}">&fq=${paramValues?.fq?.join("&fq=")}</g:if></g:set>
+                                <g:set var="downloadParams">q=${searchResults.query?.encodeAsHTML()}<g:if test="${params.fq}">&fq=${params.list("fq")?.join("&fq=")?.trim()}</g:if></g:set>
                             </g:if>
                             <%-- is this init search? then add fq parameter in href --%>
                             <g:if test="${isAustralian}">
                                 <g:set var="appendQueryParam" value="&fq=australian_s:recorded" />
                             </g:if>
                             <g:else>
-                                <g:set var="appendQueryParam" value="&fq=" />
+                                <g:set var="appendQueryParam" value="" />
                             </g:else>
                             <g:if test="${facetMap}">
                                 <h3><span class="FieldName">Current Filters</span></h3>
                                 <div class="subnavlist">
-                                    <ul style="padding-left: 24px;">
+                                    <ul>
                                         <g:each var="item" in="${facetMap}">
-                                            <li style="text-indent: -12px; text-transform: none;">
+                                            <li>
                                                 <g:set var="closeLink">&nbsp;[<b><a href="#" onClick="javascript:removeFacet('${item.key}:${item.value}'); return true;" style="text-decoration: none" title="remove">X</a></b>]</g:set>
                                                 <g:if test="${item.key?.contains("uid")}">
                                                     <g:set var="resourceType">${item.value}_resourceType</g:set>
                                                     ${collectionsMap?.get(resourceType)}:<b>&nbsp;${collectionsMap?.get(item.value)}</b>${closeLink}
                                                 </g:if>
                                                 <g:else>
-                                                    <g:message code="facet.${item.key}"/>:
-                                                    <g:if test="${item.key?.contains('australian_s')}">
-                                                        <b><g:message code="recorded.${item.value}"/></b>${closeLink}
-                                                    </g:if>
-                                                    <g:else>
-                                                        <b><g:message code="${item.value}"/></b>${closeLink}
-                                                    </g:else>
+                                                    <g:message code="facet.${item.key}"/>: <b><g:message code="${item.key}.${item.value}" default="${item.value}"/></b>${closeLink}
                                                 </g:else>
                                             </li>
                                         </g:each>
@@ -118,7 +234,7 @@
                                 </div>
                             </g:if>
                             <g:each var="facetResult" in="${searchResults.facetResults?:[]}">
-                                <g:if test="${!facetMap?.get(facetResult.fieldName) && !facetQuery?.contains(facetResult.fieldResult?.opt(0)?.label) && !facetResult.fieldName?.contains('idxtype1')}">
+                                <g:if test="${!facetMap?.get(facetResult.fieldName) && !filterQuery?.contains(facetResult.fieldResult?.opt(0)?.label) && !facetResult.fieldName?.contains('idxtype1')}">
                                     <h3><span class="FieldName"><g:message code="facet.${facetResult.fieldName}"/></span></h3>
                                     <div class="subnavlist">
                                         <ul>
@@ -138,7 +254,7 @@
                                                 </g:if>
                                                 <g:elseif test="${fieldResult.label?.endsWith("before")}"><%-- skip --%></g:elseif>
                                                 <g:else>
-                                                    <li><a href="?${queryParam}${appendQueryParam}&fq=${facetResult.fieldName}:${fieldResult.label}"><g:message code="${facetResult.fieldName}.${fieldResult.label}" default="${fieldResult.label}"/></a>
+                                                    <li><a href="?${queryParam}${appendQueryParam}&fq=${facetResult.fieldName}:${fieldResult.label}"><g:message code="${facetResult.fieldName}.${fieldResult.label}" default="${fieldResult.label?:"[unknown]"}"/></a>
                                                         (<g:formatNumber number="${fieldResult.count}" format="#,###,###"/>)
                                                     </li>
                                                 </g:else>
@@ -154,12 +270,12 @@
             <div class="col-wide last">
                 <div class="solrResults">
                     <div id="dropdowns">
-                        <g:if test="${TAXON}">
+                        <g:if test="${idxTypes.contains("TAXON")}">
                             <div id="downloads" class="buttonDiv">
-                                <a href="${request.contextPath}/download/?${downloadParams}${appendQueryParam}&sort=${searchResults.sort}&dir=${searchResults.dir}" id="downloadLink" title="Download taxa results for your search">Download</a>
+                                <a href="${grailsApplication.config.bie.baseURL}/download/?${downloadParams}${appendQueryParam}&sort=${searchResults.sort}&dir=${searchResults.dir}" id="downloadLink" title="Download taxa results for your search">Download</a>
                             </div>
                         </g:if>
-                        <div id="resultsStats">
+                        <div id="sortWidget">
                             <label for="per-page">Results per page</label>
                             <select id="per-page" name="per-page">
                                 <option value="10" ${(params.pageSize == '10') ? "selected=\"selected\"" : ""}>10</option>
@@ -167,8 +283,6 @@
                                 <option value="50" ${(params.pageSize == '50') ? "selected=\"selected\"" : ""}>50</option>
                                 <option value="100" ${(params.pageSize == '100') ? "selected=\"selected\"" : ""} >100</option>
                             </select>
-                        </div>
-                        <div id="sortWidget">
                             Sort by
                             <select id="sort" name="sort">
                                 <option value="score" ${(params.sort == 'score') ? "selected=\"selected\"" : ""}>best match</option>
@@ -180,9 +294,7 @@
                                 <option value="asc" ${(params.dir == 'asc') ? "selected=\"selected\"" : ""}>normal</option>
                                 <option value="desc" ${(params.dir == 'desc') ? "selected=\"selected\"" : ""}>reverse</option>
                             </select>
-
                             <input type="hidden" value="${pageTitle}" name="title"/>
-
                         </div><!--sortWidget-->
                     </div><!--drop downs-->
                     <div class="results">
@@ -222,10 +334,14 @@
                                                     <g:formatNumber number="${result.occCount}" format="#,###,###"/></a></span>
                                             </g:if>
                                         </g:if>
+                                        <g:if test="${result.rankId && result.rankId < 7000}">
+                                            &nbsp;<span style="display:inline;"><a href="${createLink(controller:'image-search', action: 'showSpecies', params:[taxonRank: result.rank, scientificName: (result.nameComplete) ? result.nameComplete : result.name])}">
+                                                View images of species</a></span>
+                                        </g:if>
                                     <!-- ${sectionText} -->
                                     </p>
                                 </g:if>
-                                <g:elseif test="${result.has("regionTypeName")}">
+                                <g:elseif test="${result.has("regionTypeName") && result.get("regionTypeName")}">
                                     <h4><g:message code="idxType.${result.idxType}"/>:
                                         <a href="${result.guid}">${result.name}</a></h4>
                                     <p>
@@ -233,7 +349,7 @@
                                         <!-- ${sectionText} -->
                                     </p>
                                 </g:elseif>
-                                <g:elseif test="${result.has("institutionName")}">
+                                <g:elseif test="${result.has("institutionName") && result.get("institutionName")}">
                                     <h4><g:message code="idxType.${result.idxType}"/>:
                                         <a href="${result.guid}">${result.name}</a></h4>
                                     <p>
@@ -241,7 +357,7 @@
                                         <!-- ${sectionText} -->
                                     </p>
                                 </g:elseif>
-                                <g:elseif test="${result.has("acronym")}">
+                                <g:elseif test="${result.has("acronym") && result.get("acronym")}">
                                     <h4><g:message code="idxType.${result.idxType}"/>:
                                         <a href="${result.guid}">${result.name}</a></h4>
                                     <p>
@@ -249,7 +365,7 @@
                                         <!-- ${sectionText} -->
                                     </p>
                                 </g:elseif>
-                                <g:elseif test="${result.has("description")}">
+                                <g:elseif test="${result.has("description") && result.get("description")}">
                                     <h4><g:message code="idxType.${result.idxType}"/>:
                                         <a href="${result.guid}">${result.name}</a></h4>
                                     <p>
@@ -257,7 +373,7 @@
                                         <!-- ${sectionText} -->
                                     </p>
                                 </g:elseif>
-                                <g:elseif test="${result.has("highlight")}">
+                                <g:elseif test="${result.has("highlight") && result.get("highlight")}">
                                     <h4><g:message code="idxType.${result.idxType}"/>:
                                         <a href="${result.guid}">${result.name}</a></h4>
                                     <p>
