@@ -35,6 +35,7 @@ if (!collectory.baseURL) {
 alerts.baseUrl = "http://alerts.ala.org.au/ws/"
 brds.guidUrl = "http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid="
 collectory.threatenedSpeciesCodesUrl = collectory.baseURL + "/public/showDataResource"
+ranking.readonly = false
 
 /******************************************************************************\
  *  SECURITY

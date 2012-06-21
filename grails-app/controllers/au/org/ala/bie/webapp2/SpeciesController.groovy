@@ -79,6 +79,7 @@ class SpeciesController {
                     textProperties: utilityService.filterSimpleProperties(etc),
                     isRoleAdmin: authService.userInRole(ConfigurationHolder.config.auth.admin_role),
                     userName: authService.username(),
+                    isReadOnly: grailsApplication.config.ranking.readonly, // TODO: implement this properly based on BIE version
                     sortCommonNameSources: utilityService.getNamesAsSortedMap(etc.commonNames),
                     taxonHierarchy: bieService.getClassificationForGuid(guid),
                     childConcepts: bieService.getChildConceptsForGuid(guid)

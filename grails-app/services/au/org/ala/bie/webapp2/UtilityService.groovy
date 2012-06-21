@@ -119,7 +119,7 @@ class UtilityService {
         def namesSet = []
 
         names.eachWithIndex { it, i ->
-            if (normaliseString(it.nameString) != normaliseString(names[i - 1]?.nameString)
+            if (names.length() == 1 || normaliseString(it.nameString) != normaliseString(names[i - 1]?.nameString)
                     || it.infoSourceName != names[i - 1]?.infoSourceName) {
                 namesSet.add(it)
             } else {
@@ -161,7 +161,7 @@ class UtilityService {
             //log.debug i + ". " + name.nameString?.replaceAll(/[^a-zA-Z0-9]/, "").trim().toLowerCase() + "=" + names2[i - 1]?.nameString?.replaceAll(/[^a-zA-Z0-9]/, "").trim().toLowerCase()
             //log.debug "namesMap = " + namesMap
         }
-        //log.debug "getNamesAsSortedMap: names = " + names
+        //log.debug "getNamesAsSortedMap: names = " + sortedNames
         //log.debug "getNamesAsSortedMap: namesMap = " + namesMap
         // sort by having names with most number of infoSources listed higher
         return namesMap.sort() { a, b -> b.value.size <=> a.value.size }

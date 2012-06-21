@@ -15,22 +15,27 @@ body p, body ul {
     padding-bottom: 10px;
 }
 
-/*.species ul.tabs a {*/
-    /*background-color: #333A3F;*/
-    /*background-color: #3D464C;*/
-    /*color: #D1D1D1;*/
-    /*font-size: 13px;*/
-/*}*/
-
-/*ul.tabs a.current {*/
-    /*background-color: #FFFFFF;*/
-    /*border-bottom: 1px solid #FFFEF7;*/
-    /*color: #333A3F;*/
-    /*color: #DF4A21;*/
-    /*cursor: default;*/
-/*}*/
-
 td[colspan="2"] {
     border-bottom: 1px solid #D1D1D1;
 }
 
+div.rankCommonName {
+    position: relative;
+    width: 170px;
+    font-size: 11px;
+    line-height: 1.3em;
+    background-color: #FFF;
+    padding: 5px;
+    margin-left: 10px;
+    border: 1px solid gray;
+    -webkit-border-radius: 0 8px 8px 8px;
+    -moz-border-radius: 0 8px 8px 8px;
+    border-radius: 0 8px 8px 8px;
+    -webkit-box-shadow: 4px 4px 4px #ccc;
+    -moz-box-shadow: 4px 4px 4px #ccc;
+    box-shadow: 4px 4px 4px #ccc;
+}
+#names table div.rankCommonName a {
+    background: none;
+    padding: 0;
+}

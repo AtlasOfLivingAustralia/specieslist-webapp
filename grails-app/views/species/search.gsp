@@ -271,9 +271,11 @@
                 <div class="solrResults">
                     <div id="dropdowns">
                         <g:if test="${idxTypes.contains("TAXON")}">
-                            <div id="downloads" class="buttonDiv">
-                                <a href="${grailsApplication.config.bie.baseURL}/download/?${downloadParams}${appendQueryParam}&sort=${searchResults.sort}&dir=${searchResults.dir}" id="downloadLink" title="Download taxa results for your search">Download</a>
-                            </div>
+                            <g:set var="downloadUrl" value="${grailsApplication.config.bie.baseURL}/download/?${downloadParams}${appendQueryParam}&sort=${searchResults.sort}&dir=${searchResults.dir}"/>
+                            <input type="button" onclick="window.location='${downloadUrl}'" value="Download" title="Download a list of taxa for your search" style="float:left;"/>
+                            %{--<div id="downloads" class="buttonDiv" style="">--}%
+                                %{--<a href="${grailsApplication.config.bie.baseURL}/download/?${downloadParams}${appendQueryParam}&sort=${searchResults.sort}&dir=${searchResults.dir}" id="downloadLink" title="Download taxa results for your search">Download</a>--}%
+                            %{--</div>--}%
                         </g:if>
                         <div id="sortWidget">
                             <label for="per-page">Results per page</label>

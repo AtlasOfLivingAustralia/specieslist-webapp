@@ -133,8 +133,8 @@ $(document).ready(function() {
                     data.addColumn('string', facetLabels[facet.fieldName]);
                     data.addColumn('number', 'Records');
                     // HTML content
-                    var isoDateSuffix = '-01-01T12:00:00Z';
-                    var content = '<h4>By '+ facetLabels[facet.fieldName] +'</h4>';
+                    var isoDateSuffix = '-01-01T00:00:00Z';
+                    var content = '<h4 style="margin-top:10px;">By '+ facetLabels[facet.fieldName] +'</h4>';
                     content = content +'<ul>';
                     // intermediate arrays to store facet values in - needed to handle the
                     // irregular date facet "before 1850" which comes at end of facet list
@@ -357,4 +357,51 @@ function cancelSearch(msg) {
     $("#status-box").css("display", "none");
     $("#solr-results").html(msg);
     return true;
+}
+
+/**
+ * Taken from bie-webapp (by Wai)
+ * TODO needs to be improved to handle failed json GET (controller needs to return status code if failed?)
+ *
+ * @param guid
+ * @param uri
+ * @param infosourceId
+ * @param documentId
+ * @param blackList
+ * @param positive
+ * @param name
+ */
+function rankThisImage(guid, uri, infosourceId, documentId, blackList, positive, name){
+    var encodedUri = escape(uri);
+    var controllerSuffix = (SHOW_CONF.remoteUser) ? "WithUser" : "";
+    var url = SHOW_CONF.bieUrl + "/rankTaxonImage" + controllerSuffix + ".json?guid="+guid+"&uri="+encodedUri+"&infosourceId="+infosourceId+"&blackList="+blackList+"&positive="+positive+"&name="+name+"&callback=?";
+    $('.imageRank-'+documentId).html('Sending your ranking....');
+    $.getJSON(url, function(data){ })
+    $('.imageRank-'+documentId).each(function(index) {
+        $(this).html('Thanks for your help!');
+    }).error(function(jqXHR, textStatus, errorThrown) {
+        // catch ajax errors (requires JQuery 1.5+) - usually 500 error
+        $(this).html('An error occurred: ' + errorThrown + " (" + jqXHR.status + ")");
+    });
+}
+
+function editThisImage(guid, uri){
+    var encodedUri = escape(uri);
+    var url = SHOW_CONF.bieUrl + "/admin/edit?guid="+guid+"&uri="+encodedUri;
+    window.open(url);
+}
+
+function rankThisCommonName(guid, documentId, blackList, positive, name) {
+    var controllerSuffix = (SHOW_CONF.remoteUser) ? "WithUser" : "";
+    var url = SHOW_CONF.bieUrl + "/rankTaxonCommonName" + controllerSuffix + ".json?guid="+guid+"&blackList="+blackList+"&positive="+positive+"&name="+name+"&callback=?";
+    var linkId = 'cnRank-'+documentId;
+    $('#cnRank-'+documentId).html('Sending your ranking....');
+    var jqxhr = $.getJSON(url, function(data){
+        $('#cnRank-'+documentId).each(function(index) {
+            $(this).html('Thanks for your help!');
+        });
+    }).error(function(jqXHR, textStatus, errorThrown) {
+        // catch ajax errors (requires JQuery 1.5+) - usually 500 error
+        $('#cnRank-'+documentId).html('An error occurred: ' + errorThrown + " (" + jqXHR.status + ")");
+    });
 }

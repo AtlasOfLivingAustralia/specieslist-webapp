@@ -53,7 +53,9 @@
             synonymsQuery:  "${synonymsQuery}",
             citizenSciUrl:  "${citizenSciUrl}",
             serverName:     "${grailsApplication.config.grails.serverURL}",
-            alertsUrl:      "${grailsApplication.config.alerts.baseUrl}"
+            bieUrl:         "${grailsApplication.config.bie.baseURL}",
+            alertsUrl:      "${grailsApplication.config.alerts.baseUrl}",
+            remoteUser:     "${request.remoteUser?:''}"
         }
     </script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'species.show.js')}"></script>
@@ -345,20 +347,18 @@
                                                 <g:else>
                                                         Is this image representative of ${tc.taxonConcept.rankString}?
                                                         <a class="isrepresent"
-                                                           href="#" onclick="rankThisImage('${guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,true,'${tc.taxonConcept.nameString}');">
+                                                           href="#" onclick="rankThisImage('${guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,true,'${tc.taxonConcept.nameString}');return false;">
                                                             YES
                                                         </a> |
                                                         <a class="isnotrepresent" href="#"
-                                                                onclick="rankThisImage('${guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,false,'${tc.taxonConcept.nameString}');">
+                                                                onclick="rankThisImage('${guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',false,false,'${tc.taxonConcept.nameString}');return false;">
                                                             NO
                                                         </a>
                                                         <g:if test="${isRoleAdmin}">
                                                             <br/><a class="isnotrepresent" href="#"
-                                                                    onclick="rankThisImage('${guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,false,'${tc.taxonConcept.nameString}');">
+                                                                    onclick="rankThisImage('${guid}','${image.identifier}','${image.infoSourceId}','${image.documentId}',true,false,'${tc.taxonConcept.nameString}');return false;">
                                                                 BlackList</a> |
-                                                            <a class="isnotrepresent" href="#"
-                                                               onClick="editThisImage('${guid}', '${image.identifier}');
-                                                               return false;">Edit</a>
+                                                            <a class="isnotrepresent" href="#" onClick="editThisImage('${guid}', '${image.identifier}');return false;">Edit</a>
                                                         </g:if>
                                                 </g:else>
                                             %{--</cite>--}%
@@ -373,7 +373,7 @@
                             </g:each>
                         </div>
                     </g:if>
-                    <g:if test="${tc.screenshotImages}">
+                    <g:elseif test="${tc.screenshotImages}">
                         <h2 style="margin-top:20px;">Videos</h2>
                         <div id="videosGallery">
                             <g:each var="screenshot" in="${tc.screenshotImages}" status="status">
@@ -410,10 +410,10 @@
                                 </table>
                             </g:each>
                         </div>
-                    </g:if>
-                <g:else>
-                    <p>There are no images for this taxon</p>
-                </g:else>
+                    </g:elseif>
+                    <g:else>
+                        <p>There are no images for this taxon</p>
+                    </g:else>
                 </section><!--#gallery-->
                 <section id="names">
                     <h2>Names and sources</h2>
@@ -484,48 +484,42 @@
                             <tbody>
                     </g:if>
                     <g:each in="${sortCommonNameSources}" var="cn">
-
                         <g:set var="cNames" value="${cn.value}" />
                         <%-- special treatment for <div> id and cookie name/value. matchup with Ranking Controller.rankTaxonCommonNameByUser --%>
-                        <g:set var="fName" value="" />
                         <g:set var="nkey" value="${cn.key}" />
+                        <g:set var="fName" value="${nkey?.trim()?.hashCode()}" />
                         <%-- javascript treatment: manual translate special charater, because string:encodeURL cannot handle non-english character --%>
-                        <g:set var="enKey" value='' />
+                        <g:set var="enKey" value="${nkey?.encodeAsJavaScript()}" />
                         <tr>
                             <td>
                                 ${nkey}
                                 <g:if test="${!isReadOnly}">
-                                            <g:if test="${rankedImageUris =~ fName}">
-                                                <p>
-                                                    <%--                          
-                                                You have ranked this Common Name as 
-                                                    <g:if test="${!rankedImageUriMap[fName]}">
-                                                        NOT
-                                                    </g:if>
-                                                      representative of ${tc.taxonConcept.nameString}
-                                                       --%>
-                                                </p>
+                                    <g:if test="${rankedImageUris?.contains(fName)}">
+                                        <p><%--
+                                        You have ranked this Common Name as
+                                            <g:if test="${!rankedImageUriMap[fName]}">
+                                                NOT
                                             </g:if>
-                                            <g:else>
-                                                <g:if test="${cNames}">
-                                                    <div id='cnRank-${fName}' class="rankCommonName">
-                                                        Is this a preferred common name for this ${tc.taxonConcept.rankString}?
-                                                        <a class="isrepresent" href="#" onclick="rankThisCommonName('${guid}','${fName}',false,true,'${enKey.trim()}');return false;">YES</a>
-                                                        |
-                                                        <a class="isnotrepresent" href="#" onclick="rankThisCommonName('${guid}','${fName}',false,false,'${enKey.trim()}');return false;">NO</a>
-                                                    </div>
-                                                </g:if>
-                                            </g:else>
-
-    
+                                              representative of ${tc.taxonConcept.nameString}
+                                               --%>
+                                        </p>
                                     </g:if>
                                     <g:else>
-                                        <div id='cnRank-${fName}' class="rankCommonName">
-                                            Read Only Mode
-                                        </div>
+                                        <g:if test="${cNames}">
+                                            <div id='cnRank-${fName}' class="rankCommonName">
+                                                Is this a preferred common name for this ${tc.taxonConcept.rankString}?
+                                                <a class="isrepresent" href="#" onclick="rankThisCommonName('${guid}','${fName}',false,true,'${enKey.trim()}');return false;">YES</a>
+                                                |
+                                                <a class="isnotrepresent" href="#" onclick="rankThisCommonName('${guid}','${fName}',false,false,'${enKey.trim()}');return false;">NO</a>
+                                            </div>
+                                        </g:if>
                                     </g:else>
-
-    
+                                </g:if>
+                                <g:else>
+                                    <div id='cnRank-${fName}' class="rankCommonName">
+                                        Read Only Mode
+                                    </div>
+                                </g:else>
                             </td>
                             <td class="source">
                                 <ul>
@@ -575,7 +569,7 @@
                                 </g:if>
                                 <g:set var="taxonLabel"><bie:formatSciName name="${child.nameComplete ? child.nameComplete : child.name}"
                                            rankId="${child.rankId}"/><g:if test="${child.commonNameSingle}">: ${child.commonNameSingle}</g:if></g:set>
-                                <dd><a href="${request?.contextPath}/species/${child.guid}#classification'/>">${taxonLabel.trim()}</a>&nbsp;
+                                <dd><a href="${request?.contextPath}/species/${child.guid}#classification">${taxonLabel.trim()}</a>&nbsp;
                                     <span>
                                         <g:if test="${child.isAustralian}">
                                             <img src="${grailsApplication.config.ala.baseURL}/wp-content/themes/ala2011/images/status_native-sm.png" alt="Recorded in Australia" title="Recorded in Australia" width="21" height="21">
