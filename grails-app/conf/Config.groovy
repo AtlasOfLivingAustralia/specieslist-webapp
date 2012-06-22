@@ -130,9 +130,9 @@ environments {
     }
     test {
         grails.logging.jul.usebridge = false
-        grails.host = "ala-testweb1.vm.csiro.au"
+        grails.host = "diasbtest1-cbr.vm.csiro.au"
         grails.serverURL = "http://${grails.host}:8080/${appName}"
-        security.cas.appServerName = "http://bdrs-test.ala.org.au:8080"
+        security.cas.appServerName = "http://diasbtest1-cbr.vm.csiro.au/:8080"
         security.cas.contextPath = "/${appName}"
         log4j.appender.'errors.File'="/var/log/tomcat/biewebapp2-stacktrace.log"
     }

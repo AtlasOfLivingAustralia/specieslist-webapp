@@ -15,6 +15,7 @@ class HeaderFooterTagLib {
 
     static alaBaseURL = ConfigurationHolder.config.ala.baseURL ?: "http://www.ala.org.au"
     static bieBaseURL = ConfigurationHolder.config.bie.baseURL ?: "http://bie.ala.org.au"
+    static grailServerURL = ConfigurationHolder.config.grails.serverURL ?: "http://bie.ala.org.au"
     static bieSearchPath = ConfigurationHolder.config.bie.searchPath ?: "/search"
     static headerAndFooterBaseURL = ConfigurationHolder.config.headerAndFooter.baseURL ?: "http://www2.ala.org.au/commonui"
     // the next two can also be overridden by tag attributes
@@ -126,7 +127,7 @@ class HeaderFooterTagLib {
      */
     String transform(content, attrs) {
         content = content.replaceAll(/::centralServer::/, alaBaseURL)
-        content = content.replaceAll(/::searchServer::/, bieBaseURL)
+        content = content.replaceAll(/::searchServer::/, grailServerURL)
         content = content.replaceAll(/::searchPath::/, bieSearchPath)
         if (content =~ "::loginLogoutListItem::") {
             // only do the work if it is needed

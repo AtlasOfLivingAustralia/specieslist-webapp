@@ -156,7 +156,7 @@ $(document).ready(function() {
                                     link = link + facet.fieldName+':[* TO '+toValue+']">';
                                 } else {
                                     label = label.replace(isoDateSuffix, '');
-                                    toValue = parseInt(label) + 10;
+                                    toValue = parseInt(label) + 9;
                                     label = label + '-' + toValue;
                                     toValue = toValue + isoDateSuffix;
                                     link = link + facet.fieldName+':['+li.label+' TO '+toValue+']">';

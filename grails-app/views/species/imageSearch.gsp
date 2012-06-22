@@ -29,6 +29,7 @@
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.colorbox-min.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.tools.min.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.inview.min.js')}"></script>
+    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.livequery.min.js')}"></script>
     <script type="text/javascript">
         /**
          * OnLoad equavilent in JQuery
@@ -45,6 +46,16 @@
                     imageLoad();
                 }
 
+            });
+
+            // tooltips for images using livequery
+            $("a.thumbImage").livequery(function() {
+                $(this).tooltip({
+                    effect: "slide",
+                    offset: [-15, 0],
+                    direction: "down",
+                    position: "bottom center"
+                });
             });
         });
 
@@ -66,7 +77,7 @@
                     if (data) {
                         //addTable(data);
                         $("#totalImageCount").text(data.totalRecords);
-                        addImages(data)
+                        addImages(data);
                         currentPage = currentPage + 1;
                         $('#divPostsLoader').empty();
                     }
@@ -87,13 +98,7 @@
                 content += '<img src="' + imageUrl + '" class="searchImage" style="max-height:150px;"/></a>';
                 $("#imageResults").append(content);
             });
-
-            $(".thumbImage").tooltip({
-                effect: "slide",
-                offset: [-15, 0],
-                direction: "down",
-                position: "bottom center"
-            });
+            // add delay for trigger div
             $("#loadMoreTrigger").delay(500).show();
         }
 

@@ -101,42 +101,46 @@
                         </div>
                     </div>
                 </section>
-                <section class="status">
-                    <h2>Species presence</h2>
-                    <g:if test="${tc?.taxonConcept?.rankID >= 7000}">
-                        <g:if test="${tc.isAustralian}">
-                            <div><span class="native">&nbsp;</span>Recorded In Australia</div>
+                <g:if test="${tc.habitats || tc?.taxonConcept?.rankID >= 7000 && tc.isAustralian}">
+                    <section class="status">
+                        <h2>Species presence</h2>
+                        <g:if test="${tc?.taxonConcept?.rankID >= 7000}">
+                            <g:if test="${tc.isAustralian}">
+                                <div><span class="native">&nbsp;</span>Recorded In Australia</div>
+                            </g:if>
+                            <g:else>
+                                <div><span class="nonnative">&nbsp;</span>Not recorded In Australia</div>
+                            </g:else>
                         </g:if>
-                        <g:else>
-                            <div><span class="nonnative">&nbsp;</span>Not recorded In Australia</div>
-                        </g:else>
-                    </g:if>
-                    <g:each var="habitat" in="${tc.habitats}">
-                        <g:set var="divMarine">
-                            <div><span class="marine">&nbsp;</span>Marine Habitats</div>
-                        </g:set>
-                        <g:set var="divTerrestrial">
-                            <div><span class="terrestrial">&nbsp;</span>Terrestrial Habitats</div>
-                        </g:set>
-                        <g:if test="${habitat.status == 'M'}">${divMarine}</g:if>
-                        <g:elseif test="${habitat.status == 'N'}">${divTerrestrial}</g:elseif>
-                        <g:else>${divMarine} ${divTerrestrial}</g:else>
-                    </g:each>
-                </section>
-                <section class="status">
-                    <h2>Conservation status</h2>
-                    <g:each var="status" in="${tc.conservationStatuses}">
-                        <g:set var="regionCode" value="${status.region ?: "IUCN"}"/>
-                        <div>
-                            <a href="${grailsApplication.config.collectory.threatenedSpeciesCodesUrl}/${statusRegionMap.get(regionCode)}" title="Threatened Species Codes - details"
-                                onclick="window.open(this.href); return false;"><span class="iucn <bie:colourForStatus status="${status.status}"/>"><g:message
-                                code="region.${regionCode}"/></span>${status.rawStatus}</a>
-                        </div>
-                    </g:each>
-                    %{--<div><a href="http://www.ala.org.au/about/program-of-projects/sds/threatened-species-codes/#International" title="Threatened Species Codes - details" target="_blank"><span class="green">IUCN<!--LC--></span>Least Concern</a></div>--}%
-                    %{--<div class="hide"><a href="http://www.ala.org.au/about/program-of-projects/sds/threatened-species-codes/#International" title="Threatened Species Codes - details" target="_blank"><span class="yellow">NT<!--LC--></span>Vulnerable</a></div>--}%
-                    %{--<div class="hide"><a href="http://www.ala.org.au/about/program-of-projects/sds/threatened-species-codes/#International" title="Threatened Species Codes - details" target="_blank"><span class="red">WA<!--LC--></span>Extinct in the wild</a></div>--}%
-                </section>
+                        <g:each var="habitat" in="${tc.habitats}">
+                            <g:set var="divMarine">
+                                <div><span class="marine">&nbsp;</span>Marine Habitats</div>
+                            </g:set>
+                            <g:set var="divTerrestrial">
+                                <div><span class="terrestrial">&nbsp;</span>Terrestrial Habitats</div>
+                            </g:set>
+                            <g:if test="${habitat.status == 'M'}">${divMarine}</g:if>
+                            <g:elseif test="${habitat.status == 'N'}">${divTerrestrial}</g:elseif>
+                            <g:else>${divMarine} ${divTerrestrial}</g:else>
+                        </g:each>
+                    </section>
+                </g:if>
+                <g:if test="${tc.conservationStatuses}">
+                    <section class="status">
+                        <h2>Conservation status</h2>
+                        <g:each var="status" in="${tc.conservationStatuses}">
+                            <g:set var="regionCode" value="${status.region ?: "IUCN"}"/>
+                            <div>
+                                <a href="${grailsApplication.config.collectory.threatenedSpeciesCodesUrl}/${statusRegionMap.get(regionCode)}" title="Threatened Species Codes - details"
+                                    onclick="window.open(this.href); return false;"><span class="iucn <bie:colourForStatus status="${status.status}"/>"><g:message
+                                    code="region.${regionCode}"/></span>${status.rawStatus}</a>
+                            </div>
+                        </g:each>
+                        %{--<div><a href="http://www.ala.org.au/about/program-of-projects/sds/threatened-species-codes/#International" title="Threatened Species Codes - details" target="_blank"><span class="green">IUCN<!--LC--></span>Least Concern</a></div>--}%
+                        %{--<div class="hide"><a href="http://www.ala.org.au/about/program-of-projects/sds/threatened-species-codes/#International" title="Threatened Species Codes - details" target="_blank"><span class="yellow">NT<!--LC--></span>Vulnerable</a></div>--}%
+                        %{--<div class="hide"><a href="http://www.ala.org.au/about/program-of-projects/sds/threatened-species-codes/#International" title="Threatened Species Codes - details" target="_blank"><span class="red">WA<!--LC--></span>Extinct in the wild</a></div>--}%
+                    </section>
+                </g:if>
             </div>
         </div><!--col-narrow-->
         <div class="col-wide last">
@@ -162,26 +166,26 @@
                         </section>
                         <section class="last">
                             <ul class="overviewImages">
+                                <g:if test="${extraImages}">
+                                    <li>
+                                        <a href="${createLink(controller:'image-search', action: 'showSpecies', params:[taxonRank: tc?.taxonConcept?.rankString, scientificName: tc?.taxonConcept?.nameString])}">
+                                            View images of species for ${sciNameFormatted}</a>
+                                    </li>
+                                </g:if>
                                 <g:if test="${tc.taxonConcept?.rankID && tc.taxonConcept?.rankID < 7000}">%{-- higher taxa show mulitple images --}%
-                                    <g:set var="imageLimit" value="${4}"/>
+                                    <g:set var="imageLimit" value="${3}"/>
                                     <g:set var="imageSize" value="150"/>
                                     <g:each in="${extraImages?.searchDTOList}" var="searchTaxon" status="status">
                                         <!-- searchTaxon = ${searchTaxon} -->
-                                        <g:set var="imageSrc" value="${searchTaxon.thumbnailUrl}"/>
+                                        <g:set var="imageSrc" value="${searchTaxon.smallImageUrl}"/>
                                         <g:if test="${status < imageLimit}">
                                             <li>
                                                 <a id="popUp${status}" class="thumbImage1" href="${createLink(controller:'image-search', action: 'infoBox', params:[q: searchTaxon])}" >
-                                                    <img src="${searchTaxon.thumbnailUrl}" width="100px" height="100px" style="width:100px;height:100px;padding-right:3px;"/>
+                                                    <img src="${searchTaxon.smallImageUrl?:searchTaxon.thumbnail}" class="overviewImage"  style="width:314px;"/>
                                                 </a>
                                             </li>
                                         </g:if>
                                     </g:each>
-                                    <g:if test="${extraImages}">
-                                        <li>
-                                            <a href="${createLink(controller:'image-search', action: 'showSpecies', params:[taxonRank: tc?.taxonConcept?.rankString, scientificName: tc?.taxonConcept?.nameString])}">
-                                                View images of species for ${sciNameFormatted}</a>
-                                        </li>
-                                    </g:if>
                                 </g:if>
                                 <g:else>
                                     <g:set var="imageSize" value="314"/>
@@ -239,7 +243,7 @@
                         </ul>
                     </g:if>
                     <g:if test="${infoSources}">
-                        <section id="resources">
+                        <section id="resources" class="clearfix">
                             <h2>Online resources</h2>
                             <ul>
                                 <g:each var="is" in="${infoSources}" status="status">
@@ -260,7 +264,7 @@
                         </section>
                     </g:if>
                     <g:elseif test="${infoSourceMap}">
-                        <section id="resources">
+                        <section id="resources" class="clearfix">
                             <h2>Online resources</h2>
                             <ul>
                                 <g:each var="ism" in="${infoSourceMap}" status="status">
@@ -453,7 +457,7 @@
                     </g:if>
                     <g:each in="${tc.synonyms}" var="synonym">
                         <tr>
-                            <td><bie:formatSciName name="${synonym.nameString}" rankId="${tc.taxonConcept.rankID}"/>${synonym.author}</td>
+                            <td><bie:formatSciName name="${synonym.nameString}" rankId="${tc.taxonConcept.rankID}"/> ${synonym.author}</td>
                             <td class="source">
                                 <ul>
                                     <g:if test="${!synonym.infoSourceURL}"><li><a href="${tc.taxonConcept.infoSourceURL}" target="_blank" class="external">${tc.taxonConcept.infoSourceName}</a></li></g:if>
@@ -461,10 +465,10 @@
                                 </ul>
                             </td>
                         </tr>
-                        <g:if test="${synonym.publishedIn}">
+                        <g:if test="${synonym.publishedIn || synonym.referencedIn}">
                             <tr class="cite">
                                 <td colspan="2">
-                                    <cite>Published in: <span class="publishedIn">${synonym.publishedIn}</span></cite>
+                                    <cite>Published in: <span class="publishedIn">${synonym.publishedIn?:synonym.referencedIn}</span></cite>
                                 </td>
                             </tr>
                         </g:if>

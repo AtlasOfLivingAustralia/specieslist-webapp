@@ -39,3 +39,6 @@ div.rankCommonName {
     background: none;
     padding: 0;
 }
+.source ul {
+    padding-bottom: 0;
+}
