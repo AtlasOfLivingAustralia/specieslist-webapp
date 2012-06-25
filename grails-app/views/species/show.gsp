@@ -39,6 +39,7 @@
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.htmlClean.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.colorbox-min.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.fancybox.pack.js')}"></script>
+    <script type="text/javascript" src="${resource(dir: 'js', file: 'trove.js')}"></script>
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript">
         // load google charts api
@@ -637,7 +638,22 @@
                         <div class="column-wrap" id="solr-results">
                         </div>
                     </div>
-                </section><!--#literature-->
+
+                    <div class="section" id="trove-container">
+                        <h2>Name references found in the TROVE - NLA </h2>
+                        <div id="trove-results-home" class="column-wrap">
+                        </div>
+                        <input type="button" id="previousTrove" value="Previous page"/>
+                        <input type="button" id="nextTrove" value="Next page"/>
+                    </div>
+                    <script type="text/javascript">
+                        setupTrove('${tc?.taxonConcept?.nameString}','trove-container','trove-results-home','previousTrove','nextTrove');
+                    </script>
+                    <style type="text/css">
+                    .trove-results-home .titleInfo { height:15px; }
+                    </style>
+
+            </section><!--#literature-->
             </div><!--tabs-panes-noborder-->
         </div><!--col-wide last-->
     </div><!--inner-->
