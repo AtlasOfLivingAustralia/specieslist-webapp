@@ -39,7 +39,7 @@ class SearchRequestParamsDTO {
 
     def getQueryString() {
         def queryStr = new StringBuilder()
-        queryStr.append("q=" + q)
+        queryStr.append("q=" + q.encodeAsURL())
         def fqIsList = fq.getClass().metaClass.getMetaMethod("join", String)
         if (fq && fqIsList) {
             def newFq = fq.collect { it.replaceAll(/\s+/, "+") }

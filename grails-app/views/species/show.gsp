@@ -39,7 +39,6 @@
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.htmlClean.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.colorbox-min.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.fancybox.pack.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'trove.js')}"></script>
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript">
         // load google charts api
@@ -60,6 +59,7 @@
         }
     </script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'species.show.js')}"></script>
+    <script type="text/javascript" src="${resource(dir: 'js', file: 'trove.js')}"></script>
 </head>
 <body class="species">
     <header id="page-header">
