@@ -176,6 +176,7 @@ var baseFacetChart = {
     },
     asyncTransforms: {
         institution_uid: {method: lookupEntityNameFromUids, param: 'institution'},
+        collection_uid: {method: lookupEntityNameFromUids, param: 'collection'},
         data_resource_uid: {method: lookupEntityNameFromUids, param: 'dataResource'}
     },
     setType: function (type) {
@@ -272,7 +273,7 @@ var baseFacetChart = {
 
                 // show the records
                 document.location = urlConcat(biocacheWebappUrl,"/occurrences/search?q=") + that.query +
-                        "&fq=" + facetQuery;
+                    "&fq=" + facetQuery;
             });
         }
     },
@@ -290,7 +291,7 @@ var baseFacetChart = {
 
         // create the data table
         var dataTable = new google.visualization.DataTable(),
-                dataOptions = this.getChartTypeOptions(name);
+            dataOptions = this.getChartTypeOptions(name);
         if (dataOptions && dataOptions.facets) {
             // add a y-value column for each facet
             dataTable.addColumn(this.column1DataType, this.chartLabel());
@@ -309,9 +310,9 @@ var baseFacetChart = {
         if (dataOptions && dataOptions.facets && dataOptions.facets.length > 1) {
             // munge data from 2 facets TODO: only handles 2 facets here
             var facet1 = data[dataOptions.facets[0]],
-                    facet2 = data[dataOptions.facets[1]],
-                    xValue,
-                    rowIndexes;
+                facet2 = data[dataOptions.facets[1]],
+                xValue,
+                rowIndexes;
 
             $.each(facet1, function (i,obj) {
                 dataTable.addRow([parseFloat(obj.label), obj.count, null]);
@@ -401,6 +402,7 @@ var defaultChartTypes = {
     occurrence_year: 'column',
     decade: 'column',
     year: 'column',
+    month: 'column',
     biogeographic_region: 'pie',
     state_conservation: 'column',
     el895: 'scatter',
@@ -420,8 +422,8 @@ var facetChartGroup = {
     createChart: function (name, options, data) {
         // choose a chart type to instantiate
         var baseChart = (options[name] && options[name].chartType) ?
-                options[name].chartType :
-                (defaultChartTypes[name] || 'pie');
+            options[name].chartType :
+            (defaultChartTypes[name] || 'pie');
 
         var that = facetChartTypes[baseChart]();
 
@@ -450,13 +452,13 @@ var facetChartGroup = {
         // the base url for getting the facet data
         var url = (options.biocacheServicesUrl == undefined) ? baseFacetChart.biocacheServicesUrl : options.biocacheServicesUrl,
 
-                facets = "",
+            facets = "",
 
-            // calc the target div
-                chartsDiv = $('#' + (options.chartsDiv ? options.chartsDiv : baseFacetChart.chartsDiv)),
+        // calc the target div
+            chartsDiv = $('#' + (options.chartsDiv ? options.chartsDiv : baseFacetChart.chartsDiv)),
 
-            // reference to this that we can use in callbacks
-                that = this;
+        // reference to this that we can use in callbacks
+            that = this;
 
         // build facets list
         $.each(options.charts, function(i,name) {
@@ -504,8 +506,8 @@ var facetChartGroup = {
 
         // draw the charts
         var chartsDiv = $('#' + (options.targetDivId ? options.targetDivId : 'charts')),
-                query = options.query,
-                that = this;
+            query = options.query,
+            that = this;
         $.each(options.charts, function(index, name) {
             that.createChart(name, options, facetMap);
         });
@@ -517,11 +519,11 @@ var loadAndDrawFacetCharts = function (options) {
     // the base url for getting the facet data
     var url = (options.biocacheServicesUrl == undefined) ? baseFacetChart.biocacheServicesUrl : options.biocacheServicesUrl,
 
-        // build the required facet set
-            facets = options.charts.join('&facets='),
+    // build the required facet set
+        facets = options.charts.join('&facets='),
 
-        // calc the target div
-            chartsDiv = $('#' + (options.chartsDiv ? options.chartsDiv : baseFacetChart.chartsDiv));
+    // calc the target div
+        chartsDiv = $('#' + (options.chartsDiv ? options.chartsDiv : baseFacetChart.chartsDiv));
 
     // show a message while requesting data
     chartsDiv.append($("<span>Loading charts...</span>"));
@@ -603,6 +605,7 @@ var chartLabels = {
 // then redrawn when the ajax call for transform data returns
 var asyncTransforms = {
     institution_uid: {method: 'lookupEntityName', param: 'institution'},
+    collection_uid: {method: 'lookupEntityName', param: 'collection'},
     data_resource_uid: {method: 'lookupEntityName', param: 'dataResource'}
 }
 // synchronous transforms are applied to the json data before the data table is built
@@ -767,7 +770,7 @@ function buildGenericFacetChart(name, data, query, chartsDiv, chartOptions) {
 
             // show the records
             document.location = urlConcat(biocacheWebappUrl,"/occurrences/search?q=") + query +
-                    "&fq=" + facetQuery;
+                "&fq=" + facetQuery;
         });
     }
 }
@@ -983,7 +986,7 @@ var taxonomyChart = {
 
                 // show spinner while loading
                 $container.append($('<img class="loading" style="position:absolute;left:130px;top:220px;z-index:2000" ' +
-                        'alt="loading..." src="' + collectionsUrl + '/images/ala/ajax-loader.gif"/>'));
+                    'alt="loading..." src="' + collectionsUrl + '/images/ala/ajax-loader.gif"/>'));
 
                 // get state from history
                 var previous = thisChart.popState();
@@ -1036,7 +1039,7 @@ var taxonomyChart = {
                 if (drillDown && data.rank != "species") {
                     // show spinner while loading
                     $container.append($('<img class="loading" style="position:absolute;left:130px;top:220px;z-index:2000" ' +
-                            'alt="loading..." src="' + collectionsUrl + '/images/ala/ajax-loader.gif"/>'));
+                        'alt="loading..." src="' + collectionsUrl + '/images/ala/ajax-loader.gif"/>'));
 
                     // save current state as history - for back-tracking
                     thisChart.pushState();
@@ -1053,7 +1056,7 @@ var taxonomyChart = {
                 else if (clickThru) {
                     // show occurrence records
                     document.location = urlConcat(biocacheWebappUrl, "/occurrences/search?q=") + query +
-                            "&fq=" + data.rank + ":" + name;
+                        "&fq=" + data.rank + ":" + name;
                 }
             });
         }
@@ -1065,7 +1068,7 @@ var taxonomyChart = {
             fq = "&fq=" + this.rank + ":" + this.name;
         }
         document.location = urlConcat(biocacheWebappUrl, "/occurrences/search?q=") +
-                this.query + fq;
+            this.query + fq;
     },
     reset: function () {
         if (this.hasState()) {
@@ -1108,80 +1111,80 @@ function initTaxonTree(treeOptions) {
     });
     var $tree = $('<div id="taxaTree"></div>').appendTo($treeContainer);
     $tree
-            .bind("after_open.jstree", function(event, data) {
-        var children = $.jstree._reference(data.rslt.obj)._get_children(data.rslt.obj);
-        // automatically open if only one child node
-        if (children.length == 1) {
-            $tree.jstree("open_node",children[0]);
-        }
-        // adjust container size
-        var fullHeight = $tree[0].scrollHeight;
-        if (fullHeight > $tree.height()) {
-            fullHeight = Math.min(fullHeight, 700);
-            $treeContainer.animate({height:fullHeight});
-        }
-    })
-            .bind("select_node.jstree", function (event, data) {
-                // click will show the context menu
-                $tree.jstree("show_contextmenu", data.rslt.obj);
-            })
-            .bind("loaded.jstree", function (event, data) {
-                // get rid of the anchor click handler because it hides the context menu (which we are 'binding' to click)
-                //$tree.undelegate("a", "click.jstree");
-                $tree.jstree("open_node","#top");
-            })
-            .jstree({
-                json_data: {
-                    data: {"data":"Kingdoms", "state":"closed", "attr":{"rank":"kingdoms", "id":"top"}},
-                    ajax: {
-                        url: function(node) {
-                            var rank = $(node).attr("rank");
-                            var u = urlConcat(biocacheServicesUrl, "/breakdown.json?q=") + query + "&rank=";
-                            if (rank == 'kingdoms') {
-                                u += 'kingdom';  // starting node
+        .bind("after_open.jstree", function(event, data) {
+            var children = $.jstree._reference(data.rslt.obj)._get_children(data.rslt.obj);
+            // automatically open if only one child node
+            if (children.length == 1) {
+                $tree.jstree("open_node",children[0]);
+            }
+            // adjust container size
+            var fullHeight = $tree[0].scrollHeight;
+            if (fullHeight > $tree.height()) {
+                fullHeight = Math.min(fullHeight, 700);
+                $treeContainer.animate({height:fullHeight});
+            }
+        })
+        .bind("select_node.jstree", function (event, data) {
+            // click will show the context menu
+            $tree.jstree("show_contextmenu", data.rslt.obj);
+        })
+        .bind("loaded.jstree", function (event, data) {
+            // get rid of the anchor click handler because it hides the context menu (which we are 'binding' to click)
+            //$tree.undelegate("a", "click.jstree");
+            $tree.jstree("open_node","#top");
+        })
+        .jstree({
+            json_data: {
+                data: {"data":"Kingdoms", "state":"closed", "attr":{"rank":"kingdoms", "id":"top"}},
+                ajax: {
+                    url: function(node) {
+                        var rank = $(node).attr("rank");
+                        var u = urlConcat(biocacheServicesUrl, "/breakdown.json?q=") + query + "&rank=";
+                        if (rank == 'kingdoms') {
+                            u += 'kingdom';  // starting node
+                        }
+                        else {
+                            u += rank + "&name=" + $(node).attr('id');
+                        }
+                        return u;
+                    },
+                    dataType: 'jsonp',
+                    success: function(data) {
+                        var nodes = [];
+                        var rank = data.rank;
+                        $.each(data.taxa, function(i, obj) {
+                            var label = obj.label + " - " + obj.count;
+                            if (rank == 'species') {
+                                nodes.push({"data":label, "attr":{"rank":rank, "id":obj.label}});
                             }
                             else {
-                                u += rank + "&name=" + $(node).attr('id');
+                                nodes.push({"data":label, "state":"closed", "attr":{"rank":rank, "id":obj.label}});
                             }
-                            return u;
-                        },
-                        dataType: 'jsonp',
-                        success: function(data) {
-                            var nodes = [];
-                            var rank = data.rank;
-                            $.each(data.taxa, function(i, obj) {
-                                var label = obj.label + " - " + obj.count;
-                                if (rank == 'species') {
-                                    nodes.push({"data":label, "attr":{"rank":rank, "id":obj.label}});
-                                }
-                                else {
-                                    nodes.push({"data":label, "state":"closed", "attr":{"rank":rank, "id":obj.label}});
-                                }
-                            });
-                            return nodes;
-                        },
-                        error: function(xhr, text_status) {
-                            //alert(text_status);
-                        }
+                        });
+                        return nodes;
+                    },
+                    error: function(xhr, text_status) {
+                        //alert(text_status);
                     }
-                },
-                core: { animation: 200, open_parents: true },
-                themes:{
-                    theme: treeOptions.theme || 'default',
-                    icons: treeOptions.icons || false,
-                    url: treeOptions.serverUrl + "/js/themes/" + (treeOptions.theme || 'default') + "/style.css"
-                },
-                checkbox: {override_ui:true},
-                contextmenu: {select_node: false, show_at_node: false, items: {
-                    records: {label: "Show records", action: function(obj) {showRecords(obj, query);}},
-                    bie: {label: "Show information", action: function(obj) {showBie(obj);}},
-                    create: false,
-                    rename: false,
-                    remove: false,
-                    ccp: false }
-                },
-                plugins: ['json_data','themes','ui','contextmenu']
-            });
+                }
+            },
+            core: { animation: 200, open_parents: true },
+            themes:{
+                theme: treeOptions.theme || 'default',
+                icons: treeOptions.icons || false,
+                url: treeOptions.serverUrl + "/js/themes/" + (treeOptions.theme || 'default') + "/style.css"
+            },
+            checkbox: {override_ui:true},
+            contextmenu: {select_node: false, show_at_node: false, items: {
+                records: {label: "Show records", action: function(obj) {showRecords(obj, query);}},
+                bie: {label: "Show information", action: function(obj) {showBie(obj);}},
+                create: false,
+                rename: false,
+                remove: false,
+                ccp: false }
+            },
+            plugins: ['json_data','themes','ui','contextmenu']
+        });
 }
 /************************************************************\
  * Go to occurrence records for selected node
@@ -1192,7 +1195,7 @@ function showRecords(node, query) {
     var name = node.attr('id');
     // url for records list
     var recordsUrl = urlConcat(biocacheWebappUrl, "/occurrences/search?q=") + query +
-            "&fq=" + rank + ":" + name;
+        "&fq=" + rank + ":" + name;
     document.location.href = recordsUrl;
 }
 /************************************************************\
@@ -1275,4 +1278,3 @@ function addCommas(nStr)
     }
     return x1 + x2;
 }
-
