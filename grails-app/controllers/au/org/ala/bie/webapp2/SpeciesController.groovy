@@ -45,7 +45,7 @@ class SpeciesController {
         render(view: 'search', model: [
                 searchResults: searchResults?.searchResults,
                 facetMap: utilityService.addFacetMap(filterQuery),
-                query: query.trim(),
+                query: query?.trim(),
                 filterQuery: filterQuery,
                 idxTypes: utilityService.getIdxtypes(searchResults?.searchResults?.facetResults),
                 isAustralian: false

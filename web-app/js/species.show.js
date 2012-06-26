@@ -15,13 +15,16 @@
 
 /**
  *
- * Javascript for species show page.
+ * Javascript for species "show" page.
  *
  * User: nick
  * Date: 12/06/12
  * Time: 2:15 PM
  */
 
+/**
+ * jQuery page onload callback
+ */
 $(document).ready(function() {
     //setup tabs
     var bhlInit = false;
@@ -30,11 +33,12 @@ $(document).ready(function() {
         effect: 'fade',
         onClick: function(event, index) {
             if (index == 5 && !bhlInit) {
-                doSearch(0, 10, false);
+                doBhlSearch(0, 10, false);
                 bhlInit = true;
             }
         }
     });
+
     // Gallery image popups using ColorBox
     $("a.thumbImage").colorbox({
         title: function() {
@@ -72,145 +76,19 @@ $(document).ready(function() {
         fitToView: false
     });
 
-    // mapping for facet names to display labels
-    var facetLabels = {
-        state: "State &amp; Territory",
-        data_resource: "Dataset",
-        month: "Date (by month)",
-        occurrence_year: "Date (by decade)"
-    };
-    var months = {
-        "01": "January",
-        "02": "February",
-        "03": "March",
-        "04": "April",
-        "05": "May",
-        "06": "June",
-        "07": "July",
-        "08": "August",
-        "09": "September",
-        "10": "October",
-        "11": "November",
-        "12": "December"
-    };
+    // Charts via collectory charts.js
+    var chartOptions = {
+        query: "lsid:" + SHOW_CONF.guid,
+        totalRecordsSelector: "span#occurenceCount",
+        targetDivId: "recordBreakdowns",
+        charts: ['collection_uid','state','month','occurrence_year'],
+        collection_uid: {title: 'By collection'},
+        state: {title: 'By state & territory'},
+        month: {chartType: "column"},
+        occurrence_year: {chartType: "column"}
+    }
 
-    // load the collections that contain specimens
-    var colSpecUrl = SHOW_CONF.biocacheUrl + "/ws/occurrences/taxon/source/" + SHOW_CONF.guid + ".json?fq=basis_of_record:PreservedSpecimen&callback=?";
-    $.getJSON(colSpecUrl, function(data) {
-        if (data != null &&data != null && data.length >0){
-            var content = '<h4>Collections that hold specimens: </h4>';
-            content = content +'<ul>';
-            $.each(data, function(i, li) {
-                if(li.uid.match("^co")=="co"){
-                    var link1 = '<a href="'+ SHOW_CONF.collectoryUrl + '/public/show/' + li.uid +'">' + li.name + '</a>';
-                    var link2 = '(<a href="' + SHOW_CONF.biocacheUrl + '/occurrences/taxa/' + SHOW_CONF.guid + '?fq=collection_uid:'
-                    link2 = link2 + li.uid +'&fq=basis_of_record:PreservedSpecimen">' + li.count + ' records</a>)';
-                    content = content+'<li>' + link1 + ' ' + link2+'</li>';
-
-                }
-            });
-            content = content + '</ul>';
-            $('#recordBreakdowns').append(content);
-        }
-    });
-
-    // load occurrence breakdowns for states
-    var biocachUrl = SHOW_CONF.biocacheUrl + "/ws/occurrences/taxon/" + SHOW_CONF.guid + ".json?callback=?";
-    $.getJSON(biocachUrl, function(data) {
-        if (data.totalRecords != null && data.totalRecords > 0) {
-            //alert("hi "+data.totalRecords);
-            var count = data.totalRecords + ""; // concat of emtyp string forces var to a String
-            $('#occurenceCount').html(count.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,")); // update link text at top with count (formatted)
-            //console.log('facets: ', data.facetResults);
-            var facets = data.facetResults;
-            $.each(facets, function(index, facet) {
-                //console.log(node.fieldName, node.fieldResult);
-                //if (node.fieldName == 'state' || node.fieldName == 'state' ||node.fieldName == 'state') {
-                if (facet.fieldName in facetLabels) {
-                    // dataTable for chart
-                    var data = new google.visualization.DataTable();
-                    var chart;
-                    data.addColumn('string', facetLabels[facet.fieldName]);
-                    data.addColumn('number', 'Records');
-                    // HTML content
-                    var isoDateSuffix = '-01-01T00:00:00Z';
-                    var content = '<h4 style="margin-top:10px;">By '+ facetLabels[facet.fieldName] +'</h4>';
-                    content = content +'<ul>';
-                    // intermediate arrays to store facet values in - needed to handle the
-                    // irregular date facet "before 1850" which comes at end of facet list
-                    var rows = [];
-                    var listItems = [];
-                    var totalCount = 0;
-                    $.each(facet.fieldResult, function(i, li) {
-                        if (li.count > 0) {
-                            totalCount += li.count; // keep a tally of total counts
-                            var label = li.label;
-                            var toValue;
-                            var displayCount = (li.count + "").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
-                            var link = '<a href="' + SHOW_CONF.biocacheUrl + '/occurrences/taxa/' + SHOW_CONF.guid + '?fq='
-
-                            if (facet.fieldName == 'occurrence_year') {
-                                if (label == 'before') { // label.indexOf(searchValue, fromIndex)
-                                    label = label + ' 1850';
-                                    toValue = '1850' + isoDateSuffix;
-                                    link = link + facet.fieldName+':[* TO '+toValue+']">';
-                                } else {
-                                    label = label.replace(isoDateSuffix, '');
-                                    toValue = parseInt(label) + 9;
-                                    label = label + '-' + toValue;
-                                    toValue = toValue + isoDateSuffix;
-                                    link = link + facet.fieldName+':['+li.label+' TO '+toValue+']">';
-                                }
-                            } else if (facet.fieldName == 'month') {
-                                link = link + facet.fieldName+':'+li.label+'">';
-                                label = months[label]; // substitiute month name for int value
-                            } else {
-                                link = link + facet.fieldName+':'+li.label+'">';
-                            }
-                            //content = content +'<li>'+label+': ' + link + displayCount + ' records</a></li>';
-                            // add values to chart
-                            //data.addRow([label, li.count]);
-                            if (label == 'before 1850') {
-                                // add to start of array
-                                rows.unshift([label, li.count]);
-                                listItems.unshift('<li>'+label+': ' + link + displayCount + ' records</a></li>');
-                            } else {
-                                // add to end of array
-                                rows.push([label, li.count]);
-                                listItems.push('<li>'+label+': ' + link + displayCount + ' records</a></li>');
-                            }
-                        }
-                    });
-
-                    // some date facets are all empty and this causes a JS error message, so recordCount checks for this
-                    if (totalCount > 0) {
-                        $.each(rows, function(i, row) {
-                            // add to Google data table
-                            data.addRow([ row[0], row[1] ]);
-                        });
-                        $.each(listItems, function(i, li) {
-                            // build content string
-                            content = content + li;
-                        });
-                        content = content + '</ul><div id="'+facet.fieldName+'_chart_div" style="margin: -10px;"></div>';
-                        $('#recordBreakdowns').append(content);
-
-                        if (facet.fieldName == 'occurrence_date' || facet.fieldName == 'month') {
-                            var dateLabel = (facet.fieldName == 'occurrence_date') ? 'Decade' : 'Month';
-                            chart = new google.visualization.BarChart(document.getElementById(facet.fieldName+'_chart_div'));
-                            chart.draw(data, {width: 630, height: 300, legend: 'none', vAxis: {title: dateLabel}, hAxis: {title: 'Count'}});
-                        } else {
-                            chart = new google.visualization.PieChart(document.getElementById(facet.fieldName+'_chart_div'));
-                            chart.draw(data, {width: 630, height: 300, legend: 'left'});
-                        }
-                    }
-                }
-            });
-        } else {
-            // hide the occurrence record section if no data or biocache is offline
-            $('#occurrenceRecords').html("No records found");
-        }
-    });
+    loadFacetCharts(chartOptions);
 
     // alerts button
     $("#alertsButton").click(function(e) {
@@ -228,6 +106,8 @@ $(document).ready(function() {
         window.location.href = url;
     });
 
+    $(".thumbImageBrowse").tooltip();
+
 }); // end document.ready
 
 /**
@@ -237,7 +117,7 @@ $(document).ready(function() {
  * @param rows
  * @param scroll
  */
-function doSearch(start, rows, scroll) {
+function doBhlSearch(start, rows, scroll) {
     if (!start) {
         start = 0;
     }
@@ -327,9 +207,9 @@ function doSearch(start, rows, scroll) {
             //console.log("nav buttons", prevStart, nextStart);
 
             buf += '<div id="button-bar">';
-            if (prevStart >= 0) buf += '<input type="button" value="Previous page" onclick="doSearch(' + prevStart + ',' + rows + ', true)">';
+            if (prevStart >= 0) buf += '<input type="button" value="Previous page" onclick="doBhlSearch(' + prevStart + ',' + rows + ', true)">';
             buf += '&nbsp;&nbsp;&nbsp;';
-            if (nextStart <= maxItems) buf += '<input type="button" value="Next page" onclick="doSearch(' + nextStart + ',' + rows + ', true)">';
+            if (nextStart <= maxItems) buf += '<input type="button" value="Next page" onclick="doBhlSearch(' + nextStart + ',' + rows + ', true)">';
             buf += '</div>';
 
             $("#solr-results").html(buf);

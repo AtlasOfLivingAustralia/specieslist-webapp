@@ -42,3 +42,14 @@ div.rankCommonName {
 .source ul {
     padding-bottom: 0;
 }
+
+.tooltip {
+    display:none;
+    background-color:#ffa;
+    border:1px solid #cc9;
+    padding:3px 6px;
+    font-size:13px;
+    text-align: center;
+    -moz-box-shadow: 2px 2px 11px #666;
+    -webkit-box-shadow: 2px 2px 11px #666;
+}

@@ -39,7 +39,9 @@
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.htmlClean.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.colorbox-min.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.fancybox.pack.js')}"></script>
-    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" language="javascript" src="http://ajax.googleapis.com/jsapi"></script>
+    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.jsonp-2.3.1.min.js')}"></script>
+    <script type="text/javascript" src="http://collections.ala.org.au/js/charts2.js"></script>
     <script type="text/javascript">
         // load google charts api
         google.load("visualization", "1", {packages:["corechart"]});
@@ -168,8 +170,9 @@
                         <section class="last">
                             <ul class="overviewImages">
                                 <g:if test="${extraImages}">
+                                    <g:set var="imageSearchUrl" value="${createLink(controller:'image-search', action: 'showSpecies', params:[taxonRank: tc?.taxonConcept?.rankString, scientificName: tc?.taxonConcept?.nameString])}" />
                                     <li>
-                                        <a href="${createLink(controller:'image-search', action: 'showSpecies', params:[taxonRank: tc?.taxonConcept?.rankString, scientificName: tc?.taxonConcept?.nameString])}">
+                                        <a href="${imageSearchUrl}" class="button">
                                             View images of species for ${sciNameFormatted}</a>
                                     </li>
                                 </g:if>
@@ -181,7 +184,8 @@
                                         <g:set var="imageSrc" value="${searchTaxon.smallImageUrl}"/>
                                         <g:if test="${status < imageLimit}">
                                             <li>
-                                                <a id="popUp${status}" class="thumbImage1" href="${createLink(controller:'image-search', action: 'infoBox', params:[q: searchTaxon])}" >
+                                                %{--<a id="popUp${status}" class="thumbImage1" href="${createLink(controller:'image-search', action: 'infoBox', params:[q: searchTaxon])}" >--}%
+                                                <a href="${imageSearchUrl}" class="thumbImageBrowse" title="Browse images of species for ${sciNameFormatted}">
                                                     <img src="${searchTaxon.smallImageUrl?:searchTaxon.thumbnail}" class="overviewImage"  style="width:314px;"/>
                                                 </a>
                                             </li>
@@ -601,8 +605,7 @@
                     <div id="occurrenceRecords">
                         <p><a href="${biocacheUrl}/occurrences/taxa/${guid}">View
                         list of all <span id="occurenceCount"></span> occurrence records for this taxon</a></p>
-                        <div id="recordBreakdowns" style="display: block">
-                        </div>
+                        <div id="recordBreakdowns" style="display: block;"></div>
                     </div>
 
                     <%-- Distribution map images --%>

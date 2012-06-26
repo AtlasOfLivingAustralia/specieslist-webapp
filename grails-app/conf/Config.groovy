@@ -93,7 +93,7 @@ grails.mime.types = [ html: ['text/html','application/xhtml+xml'],
 // What URL patterns should be processed by the resources plugin
 grails.resources.adhoc.patterns = ['/images/*', '/css/*', '/js/*', '/plugins/*']
 
-
+grails.project.war.file = "bie-webapp2.war"
 // The default codec used to encode data with ${}
 grails.views.default.codec = "none" // none, html, base64
 grails.views.gsp.encoding = "UTF-8"
@@ -132,14 +132,14 @@ environments {
         grails.logging.jul.usebridge = false
         grails.host = "diasbtest1-cbr.vm.csiro.au"
         grails.serverURL = "http://${grails.host}:8080/${appName}"
-        security.cas.appServerName = "http://diasbtest1-cbr.vm.csiro.au/:8080"
+        security.cas.appServerName = "http://diasbtest1-cbr.vm.csiro.au:8080"
         security.cas.contextPath = "/${appName}"
-        log4j.appender.'errors.File'="/var/log/tomcat/biewebapp2-stacktrace.log"
+        //log4j.appender.'errors.File'="/var/log/tomcat/biewebapp2-stacktrace.log"
     }
     production {
         grails.logging.jul.usebridge = false
         grails.serverURL = "http://bie.ala.org.au"
-        security.cas.appServerName = server.url
+        security.cas.appServerName = grails.serverURL
         security.cas.contextPath = ""
         log4j.appender.'errors.File'="/var/log/tomcat/biewebapp2-stacktrace.log"
     }
