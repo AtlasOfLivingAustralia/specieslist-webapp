@@ -158,22 +158,29 @@ var baseFacetChart = {
                 transformedData.push({label: "" + y, count: dataMap["" + y] || 0});
             }
             return transformedData;
-        },
+        }
+    },
+    formatLabel: function (data) {
+        if (this.labelFormatters[this.name]) {
+            return this.labelFormatters[this.name].apply(null, [data]);
+        }
+        return data;
+    },
+    labelFormatters: {
         month: function (data) {
             var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-                transformedData = [],
                 monthIdx;
             $.each(data, function(i,obj) {
                 monthIdx = obj.label;
-                transformedData.push({label: months[monthIdx - 1], count: obj.count});
+                obj.formattedLabel = months[monthIdx - 1];
             });
-            return transformedData;
+            return data;
         }
     },
-    transformDataAfter: function (dataTable) {
+    transformDataAfter: function (dataTable, opts) {
         var ts = this.asyncTransforms[this.name];
         if (ts) {
-            ts.method.apply(null, [this.chart, dataTable, this.googleChartOptions(), ts.param]);
+            ts.method.apply(null, [this.chart, dataTable, opts, ts.param]);
         }
     },
     asyncTransforms: {
@@ -248,8 +255,8 @@ var baseFacetChart = {
         // show the chart state
         this.chart.draw(dataTable, this.googleChartOptions());
 
-        // kick off post-draw asynch actions
-        this.transformDataAfter(dataTable);
+        // kick off post-draw asynch actions (clone the opts as these objects are not as independent as they are meant to be)
+        this.transformDataAfter(dataTable, $.extend(true, {}, this.googleChartOptions()));
 
         // setup a click handler - if requested
         if (this.clickThru != false) {  // defaults to true
@@ -264,12 +271,13 @@ var baseFacetChart = {
                 // the facet query can be overridden for date ranges
                 if (name == 'occurrence_year' || name == 'decade') {
                     if (id.match("^before") == 'before') { // startWith
-                        facetQuery = "occurrence_year:[*%20TO%20" + "1850" + "-01-01T00:00:00Z]";
+                        facetQuery = "occurrence_year:[*%20TO%20" + "1849-12-31T23:59:59Z]";
                     }
                     else {
                         var decade = id.substr(0,4);
-                        var dateTo = parseInt(decade) + 10;
-                        facetQuery = "occurrence_year:[" + decade + "-01-01T00:00:00Z%20TO%20" + dateTo + "-01-01T00:00:00Z]";
+                        var dateTo = parseInt(decade) + 9;
+                        facetQuery = "occurrence_year:[" + decade + "-01-01T00:00:00Z%20TO%20" +
+                            dateTo + "-12-31T23:59:59Z]";
                     }
                 }
 
@@ -291,9 +299,11 @@ var baseFacetChart = {
         // optionally transform the data
         var xformedData = this.transformData(data[fieldName]);
 
+        // optionally format the labels
+        xformedData = this.formatLabel(xformedData);
+
         // create the data table
-        var dataTable = new google.visualization.DataTable(),
-            dataOptions = this.getChartTypeOptions(name);
+        var dataTable = new google.visualization.DataTable(), dataOptions = this.getChartTypeOptions(name);
         if (dataOptions && dataOptions.facets) {
             // add a y-value column for each facet
             dataTable.addColumn(this.column1DataType, this.chartLabel());
@@ -335,16 +345,33 @@ var baseFacetChart = {
         } else {
             // handle each data item
             $.each(xformedData, function(i,obj) {
+                var labelObj, label, formattedLabel, value;
                 // filter any crap
                 if (that.ignore == undefined || $.inArray(obj.label, that.ignore) == -1) {
-                    if (detectCamelCase(obj.label)) {
-                        dataTable.addRow([{v: obj.label, f: capitalise(expandCamelCase(obj.label))}, obj.count]);
+                    // set std values
+                    label = obj.label;
+                    formattedLabel = obj.formattedLabel;
+                    value = obj.count;
+
+                    // handle camelCase labels
+                    if (detectCamelCase(label)) {
+                        formattedLabel = capitalise(expandCamelCase(label));
                     }
-                    else if (that.column1DataType === 'number') {
-                        dataTable.addRow([parseFloat(obj.label), obj.count])
+
+                    // handle numeric labels
+                    if (that.column1DataType === 'number') {
+                        label = parseFloat(label);
+                    }
+
+                    // inject formatted labels if available
+                    if (formattedLabel !== undefined) {
+                        labelObj = {v: label, f: formattedLabel};
                     } else {
-                        dataTable.addRow([obj.label, obj.count]);
+                        labelObj = label;
                     }
+
+                    // add the row
+                    dataTable.addRow([labelObj, value]);
                 }
             });
         }
