@@ -80,15 +80,18 @@ $(document).ready(function() {
     var chartOptions = {
         query: "lsid:" + SHOW_CONF.guid,
         totalRecordsSelector: "span#occurenceCount",
-        targetDivId: "recordBreakdowns",
-        charts: ['collection_uid','state','month','occurrence_year'],
+        chartsDiv: "recordBreakdowns",
+        error: chartsError,
+        width: 540,
+        charts: ['collection_uid','state','month','decade'],
         collection_uid: {title: 'By collection'},
         state: {title: 'By state & territory'},
         month: {chartType: "column"},
-        occurrence_year: {chartType: "column"}
+        decade: {chartType: "column"}
     }
 
-    loadFacetCharts(chartOptions);
+    //loadFacetCharts(chartOptions);
+    facetChartGroup.loadAndDrawFacetCharts(chartOptions);
 
     // alerts button
     $("#alertsButton").click(function(e) {
@@ -110,6 +113,10 @@ $(document).ready(function() {
 
 }); // end document.ready
 
+
+function chartsError() {
+    $("#chartsError").html("An error occurred and charts cannot be displayed at this time.");
+}
 /**
  * BHL search to populate literature tab
  *

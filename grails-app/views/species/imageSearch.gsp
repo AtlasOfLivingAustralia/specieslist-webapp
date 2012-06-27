@@ -19,9 +19,9 @@
   Time: 4:50 PM
   To change this template use File | Settings | File Templates.
 --%>
-
 <%@ page contentType="text/html;charset=UTF-8" %>
-<html xmlns="http://www.w3.org/1999/html">
+<!doctype html>
+<html>
 <head>
     <title>Image browser</title>
     <meta name="layout" content="main" />
@@ -159,5 +159,6 @@
         <div id="divPostsLoader" style="margin-left:auto;margin-right:auto; width:120px;"></div>
 
         <div id="loadMoreTrigger" style="display: none;"></div>
+    </div>
 </body>
 </html>

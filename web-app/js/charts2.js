@@ -39,7 +39,9 @@ var baseFacetChart = {
         occurrence_year: {chartArea: {left:60, height: "55%"}, requestFacetName: 'decade'},
         decade: {chartArea: {left:60, height: "55%"}, responseFacetName: 'occurrence_year'},
         year: {width: 600},
+        month: {width: 600},
         institution_uid: {chartArea: {left: 0, width: "100%"}},
+        collection_uid: {chartArea: {left: 0, width: "100%"}},
         species_group: {title: 'By higher-level group', ignore: ['Animals'], chartType: 'column',
             width: 450, chartArea: {left:60, height:"58%"},
             vAxis: {minValue: 0, textPosition:'in', gridlines:{color: '#ddd', count: 4}},
@@ -175,8 +177,8 @@ var baseFacetChart = {
         }
     },
     asyncTransforms: {
-        institution_uid: {method: lookupEntityNameFromUids, param: 'institution'},
         collection_uid: {method: lookupEntityNameFromUids, param: 'collection'},
+        institution_uid: {method: lookupEntityNameFromUids, param: 'institution'},
         data_resource_uid: {method: lookupEntityNameFromUids, param: 'dataResource'}
     },
     setType: function (type) {
@@ -605,7 +607,6 @@ var chartLabels = {
 // then redrawn when the ajax call for transform data returns
 var asyncTransforms = {
     institution_uid: {method: 'lookupEntityName', param: 'institution'},
-    collection_uid: {method: 'lookupEntityName', param: 'collection'},
     data_resource_uid: {method: 'lookupEntityName', param: 'dataResource'}
 }
 // synchronous transforms are applied to the json data before the data table is built
