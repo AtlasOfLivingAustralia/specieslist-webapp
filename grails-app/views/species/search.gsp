@@ -173,7 +173,7 @@
             </nav>
             <hgroup>
                 <g:if test="${searchResults.totalRecords}">
-                    <h1>Search for <b>${params.q}</b> returned ${searchResults.totalRecords} results</h1>
+                    <h1>Search for <b>${params.q}</b> returned <g:formatNumber number="${searchResults.totalRecords}" type="number"/> results</h1>
                 </g:if>
                 <g:else>
                     <h1 style="font-size: 1.8em;">Search for <b>${params.q}</b> did not match any documents</h1><br/>
@@ -243,7 +243,7 @@
                                             <g:if test="${lastElement.label == 'before'}">
                                                 <li><g:set var="firstYear" value="${facetResult.fieldResult?.opt(0)?.label.substring(0, 4)}"/>
                                                     <a href="?${queryParam}${appendQueryParam}&fq=${facetResult.fieldName}:[* TO ${facetResult.fieldResult.opt(0)?.label}]">Before ${firstYear}</a>
-                                                    (<g:formatNumber number="${lastElement.count}" format="#,###,###"/>)
+                                                    (<g:formatNumber number="${lastElement.count}" type="number"/>)
                                                 </li>
                                             </g:if>
                                             <g:each var="fieldResult" in="${facetResult.fieldResult}" status="vs">
@@ -251,17 +251,17 @@
                                                 <g:if test="${facetResult.fieldName?.contains("occurrence_date") && fieldResult.label?.endsWith("Z")}">
                                                     <li><g:set var="startYear" value="${fieldResult.label?.substring(0, 4)}"/>
                                                         <a href="?${queryParam}${appendQueryParam}&fq=${facetResult.fieldName}:[${fieldResult.label} TO ${dateRangeTo}]">${startYear} - ${startYear + 10}</a>
-                                                        (<g:formatNumber number="${fieldResult.count}" format="#,###,###"/>)</li>
+                                                        (<g:formatNumber number="${fieldResult.count}" type="number"/>)</li>
                                                 </g:if>
                                                 <g:elseif test="${fieldResult.label?.endsWith("before")}"><%-- skip --%></g:elseif>
                                                 <g:elseif test="${fieldResult.label?.isEmpty()}">
                                                     %{--<li><a href="?${queryParam}${appendQueryParam}&fq=-${facetResult.fieldName}:[* TO *]"><g:message code="${facetResult.fieldName}.${fieldResult.label}" default="${fieldResult.label?:"[empty]"}"/></a>--}%
-                                                        %{--(<g:formatNumber number="${fieldResult.count}" format="#,###,###"/>)--}%
+                                                        %{--(<g:formatNumber number="${fieldResult.count}" type="number"/>)--}%
                                                     %{--</li>--}%
                                                 </g:elseif>
                                                 <g:else>
                                                     <li><a href="?${queryParam}${appendQueryParam}&fq=${facetResult.fieldName}:${fieldResult.label}"><g:message code="${facetResult.fieldName}.${fieldResult.label}" default="${fieldResult.label?:"[unknown]"}"/></a>
-                                                        (<g:formatNumber number="${fieldResult.count}" format="#,###,###"/>)
+                                                        (<g:formatNumber number="${fieldResult.count}" type="number"/>)
                                                     </li>
                                                 </g:else>
                                             </g:each>
@@ -339,7 +339,7 @@
                                             <span class="recordSighting" style="display:inline;"><a href="http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid=${result.guid}">Record a sighting/share a photo</a></span>                                        &nbsp;
                                             <g:if test="${result?.occCount?:0 > 0}">
                                                 <span class="recordSighting" style="display:inline;"><a href="http://biocache.ala.org.au/occurrences/taxa/${result.guid}">Occurrences:
-                                                    <g:formatNumber number="${result.occCount}" format="#,###,###"/></a></span>
+                                                    <g:formatNumber number="${result.occCount}" type="number"/></a></span>
                                             </g:if>
                                         </g:if>
                                         <g:if test="${result.rankId && result.rankId < 7000}">
