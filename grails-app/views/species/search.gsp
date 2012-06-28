@@ -255,7 +255,7 @@
                                                 </g:if>
                                                 <g:elseif test="${fieldResult.label?.endsWith("before")}"><%-- skip --%></g:elseif>
                                                 <g:elseif test="${fieldResult.label?.isEmpty()}">
-                                                    %{--<li><a href="?${queryParam}${appendQueryParam}&fq=-${facetResult.fieldName}:[* TO *]"><g:message code="${facetResult.fieldName}.${fieldResult.label}" default="${fieldResult.label?:"[empty]"}"/></a>--}%
+                                                    %{--<li><a href="?${queryParam}${appendQueryParam}&fq=${facetResult.fieldName}:[* TO %22%22]"><g:message code="${facetResult.fieldName}.${fieldResult.label}" default="${fieldResult.label?:"[empty]"}"/></a>--}%
                                                         %{--(<g:formatNumber number="${fieldResult.count}" type="number"/>)--}%
                                                     %{--</li>--}%
                                                 </g:elseif>
@@ -316,7 +316,7 @@
                                             <a href="${speciesPageLink}" class="occurrenceLink"><img class="alignright" src="${result.smallImageUrl}" style="max-height: 150px; max-width: 300px;" alt="species image thumbnail"/></a>
                                         </g:if>
                                         <g:else><div class="alignright" style="width:85px; height:40px;"></div></g:else>
-                                        <span style="text-transform: capitalize; display: inline;">${result.rank}</span>:
+                                        <g:if test="${result.rank}"><span style="text-transform: capitalize; display: inline;">${result.rank}</span>:</g:if>
                                         <g:if test="${result.linkIdentifier}">
                                             <a href="${request.contextPath}/species/${result.linkIdentifier}" class="occurrenceLink"><bie:formatSciName rankId="${result.rankId}" name="${(result.nameComplete) ? result.nameComplete : result.name}" acceptedName="${result.acceptedConceptName}"/> ${result.author?:''}</a>
                                         </g:if>
