@@ -76,7 +76,7 @@
                 success: function (data) {
                     if (data) {
                         //addTable(data);
-                        $("#totalImageCount").text(data.totalRecords);
+                        $("#totalImageCount").text(numberWithCommas(data.totalRecords));
                         addImages(data);
                         currentPage = currentPage + 1;
                         $('#divPostsLoader').empty();
@@ -100,6 +100,10 @@
             });
             // add delay for trigger div
             $("#loadMoreTrigger").delay(500).show();
+        }
+
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
     </script>
