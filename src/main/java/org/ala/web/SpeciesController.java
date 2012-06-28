@@ -986,7 +986,7 @@ public class SpeciesController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = {"/species/{guid}.json","/species/{guid}.jsonp"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/ws/species/{guid}.json","/species/{guid}.json","/species/{guid}.jsonp"}, method = RequestMethod.GET)
     public @ResponseBody ExtendedTaxonConceptDTO showSpeciesJson(@PathVariable("guid") String guid) throws Exception {
         logger.info("Retrieving concept JSON with guid: "+guid);
         return findConceptByNameOrGuid(guid);
