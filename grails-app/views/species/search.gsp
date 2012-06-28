@@ -343,8 +343,7 @@
                                             </g:if>
                                         </g:if>
                                         <g:if test="${result.rankId && result.rankId < 7000}">
-                                            &nbsp;<span style="display:inline;"><a href="${createLink(controller:'image-search', action: 'showSpecies', params:[taxonRank: result.rank, scientificName: (result.nameComplete) ? result.nameComplete : result.name])}">
-                                                View images of species</a></span>
+                                            &nbsp;<span style="display:inline;"><a href="${createLink(controller:'image-search', action: 'showSpecies', params:[taxonRank: result.rank, scientificName: (result.nameComplete) ? result.nameComplete : result.name])}">View images of species</a></span>
                                         </g:if>
                                     <!-- ${sectionText} -->
                                     </p>
