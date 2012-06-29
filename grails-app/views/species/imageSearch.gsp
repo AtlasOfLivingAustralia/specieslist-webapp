@@ -49,14 +49,14 @@
             });
 
             // tooltips for images using livequery
-            $("a.thumbImage").livequery(function() {
-                $(this).tooltip({
-                    effect: "slide",
-                    offset: [-15, 0],
-                    direction: "down",
-                    position: "bottom center"
-                });
-            });
+//            $("a.thumbImage").livequery(function() {
+//                $(this).tooltip({
+//                    effect: "slide",
+//                    offset: [-15, 0],
+//                    direction: "down",
+//                    position: "bottom center"
+//                });
+//            });
         });
 
         var prevPage = 0;
@@ -87,15 +87,17 @@
 
         function addImages(data) {
             $.each(data.results, function(i, el) {
-                var scientificName = (el.nameComplete) ? "&lt;i&gt;" + el.nameComplete + "&lt;/i&gt;" : "";
-                var commonName = (el.commonNameSingle) ? el.commonNameSingle + "&lt;br/&gt;" : "";
+                var scientificName = (el.nameComplete) ? "<i>" + el.nameComplete + "</i>" : "";
+                var commonName = (el.commonNameSingle) ? el.commonNameSingle + "<br/> " : "";
                 var imageUrl = el.thumbnail;
+                var titleText = $("<div/>" + commonName.replace("<br/>"," - ") + scientificName).text();
                 if (imageUrl) {
                     imageUrl = imageUrl.replace('thumbnail', 'smallRaw');
                 }
-                var content = '<a href="${grailsApplication.config.grails.serverURL}/species/' + el.guid;
-                content +=  '" class="thumbImage" title="' + commonName + scientificName + '">';
-                content += '<img src="' + imageUrl + '" class="searchImage" style="max-height:150px;"/></a>';
+                var content = '<div class="imgContainer"><a href="${grailsApplication.config.grails.serverURL}/species/' + el.guid;
+                content +=  '" class="thumbImage" title="' + titleText + '">';
+                content += '<img src="' + imageUrl + '" class="searchImage" style="max-height:150px;"/><br/>';
+                content += commonName + scientificName + '</a></div>';
                 $("#imageResults").append(content);
             });
             // add delay for trigger div
@@ -106,11 +108,16 @@
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
+        function htmlDecode(input){
+            var e = document.createElement('div');
+            e.innerHTML = input;
+            return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+        }
+
     </script>
     <style type="text/css">
     .thumbImage {
-        display: inline-block;
-        margin-right: 8px;
+
     }
 
     #imageResults {
@@ -135,6 +142,21 @@
 
     hgroup h1 a {
         text-decoration: none;
+    }
+
+    .imgContainer {
+        display: inline-block;
+        margin-right: 8px;
+        text-align: center;
+        line-height: 1.3em;
+        background-color: #DDD;
+        /*color: #DDD;*/
+        padding: 5px;
+        margin-bottom: 8px;
+    }
+    .imgContainer a:link {
+        text-decoration: none;
+        /*color: #DDD;*/
     }
 
     </style>

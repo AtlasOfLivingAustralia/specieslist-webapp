@@ -32,7 +32,7 @@ class SpeciesController {
      * Search page - display search results fro the BIE (includes results for non-species pages too)
      */
     def search = {
-        def query = params.q?:""
+        def query = params.q?:"".trim()
         def filterQuery = params.list('fq') // will be a list even with only one value
         def startIndex = params.start?:0
         def pageSize = params.pageSize?:10
@@ -41,10 +41,19 @@ class SpeciesController {
         def requestObj = new SearchRequestParamsDTO(query, filterQuery, startIndex, pageSize, sortField, sortDirection)
         def searchResults = bieService.searchBie(requestObj)
         log.debug "SearchRequestParamsDTO = " + requestObj
-        //log.debug "searchResults = " + searchResults
+
+        // empty search -> search for all records
         if (query.isEmpty()) {
-            render(view: '../error', model: [message: "No search term specified"])
-        } else if (searchResults instanceof JSONObject && searchResults.has("error")) {
+            //render(view: '../error', model: [message: "No search term specified"])
+            query = "*";
+        }
+
+        // no fq -> default to australian records fq via redriect
+        if (filterQuery.isEmpty()) {
+            redirect(action: "search", params: [q: query, fq: 'australian_s:recorded'])
+        }
+
+        if (searchResults instanceof JSONObject && searchResults.has("error")) {
             log.error "Error requesting taxon concept object: " + searchResults.error
             render(view: '../error', model: [message: etc.error])
         } else {
@@ -96,7 +105,8 @@ class SpeciesController {
     }
 
     /**
-     * Display images of species for a given higher taxa
+     * Display images of species for a given higher taxa.
+     * Note: page is AJAX driven so very little is done here.
      */
     def imageSearch = {
         def taxonRank = params.taxonRank

@@ -19,12 +19,12 @@
 <html>
 <head>
     <meta name="layout" content="main" />
-    <title>${params.q} | Search | <g:message code="site.title"/></title>
+    <title>${query} | Search | <g:message code="site.title"/></title>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'bie.search.css')}" type="text/css" media="screen" />
     <script type="text/javascript">
         $(document).ready(function() {
             // set the search input to the current q param value
-            var query = getURLParameter("q");
+            var query = "${query}";
             if (query) {
                 $(":input#search-2011").val(query);
             }
@@ -50,7 +50,7 @@
          * @param facet
          */
         function removeFacet(facet) {
-            var q = $.getQueryParam('q'); //$.query.get('q')[0];
+            var q = $.getQueryParam('q') ? $.getQueryParam('q') : "${query}" ; //$.query.get('q')[0];
             var fqList = $.getQueryParam('fq'); //$.query.get('fq');
             var paramList = [];
 
@@ -69,27 +69,35 @@
 
             //alert("this.facet = "+facet+"; fqList = "+fqList.join('|'));
 
-            if (fqList instanceof Array) {
+            if (fqList instanceof Array && fqList.length > 1) {
                 //alert("fqList is an array");
                 for (var i in fqList) {
-                    //alert("i == "+i+"| fq = "+fqList[i]);
-                    if (decodeURI(fqList[i]) == facet) {
+                    //alert("i == "+i+" | fq = "+ decodeURIComponent(fqList[i]));
+                    var decodedFq = decodeURIComponent(fqList[i]);
+                    if (decodedFq == facet) {
                         //alert("removing fq: "+fqList[i]);
                         fqList.splice(fqList.indexOf(fqList[i]),1);
+
                     }
                 }
             } else {
-                //alert("fqList is NOT an array");
-                if (decodeURI(fqList) == facet) {
+                var decodedFq = decodeURIComponent(fqList);
+                //alert("fqList is NOT an array: '" + decodedFq + "' vs '" + facet + "'");
+                if (decodedFq == facet) {
+                    //alert("match");
                     fqList = null;
                 }
             }
             //alert("(post) fqList = "+fqList.join('|'));
             if (fqList != null && fqList.length > 0) {
                 paramList.push("fq=" + fqList.join("&fq="));
+                //alert("pushing fq back on: "+fqList);
+            } else {
+                // empty fq so redirect doesn't happen
+                paramList.push("fq=");
             }
-
-            window.location.replace(window.location.pathname + '?' + paramList.join('&'));
+            //alert("new URL: " + window.location.pathname + '?' + paramList.join('&'));
+            window.location.href = window.location.pathname + '?' + paramList.join('&');
         }
 
         /**
@@ -97,7 +105,7 @@
          */
         function reloadWithParam(paramName, paramValue) {
             var paramList = [];
-            var q = $.getQueryParam('q'); //$.query.get('q')[0];
+            var q = $.getQueryParam('q') ? $.getQueryParam('q') : "${query}" ;
             var fqList = $.getQueryParam('fq'); //$.query.get('fq');
             var sort = $.getQueryParam('sort');
             var dir = $.getQueryParam('dir');
@@ -120,7 +128,7 @@
 
             //alert("params = "+paramList.join("&"));
             //alert("url = "+window.location.pathname);
-            window.location.replace(window.location.pathname + '?' + paramList.join('&'));
+            window.location.href = window.location.pathname + '?' + paramList.join('&');
         }
 
         // jQuery getQueryParam Plugin 1.0.0 (20100429)
@@ -173,10 +181,10 @@
             </nav>
             <hgroup>
                 <g:if test="${searchResults.totalRecords}">
-                    <h1>Search for <b>${params.q}</b> returned <g:formatNumber number="${searchResults.totalRecords}" type="number"/> results</h1>
+                    <h1>Search for <b>${query.replaceFirst(/^\*$/, "[all records]")}</b> returned <g:formatNumber number="${searchResults.totalRecords}" type="number"/> results</h1>
                 </g:if>
                 <g:else>
-                    <h1 style="font-size: 1.8em;">Search for <b>${params.q}</b> did not match any documents</h1><br/>
+                    <h1 style="font-size: 1.8em;">Search for <b>${query}</b> did not match any documents</h1><br/>
                 </g:else>
             </hgroup>
         </div>
@@ -203,7 +211,7 @@
                                 <g:set var="queryParam">q=${query.encodeAsHTML()}<g:if test="${!filterQuery.isEmpty()}">&fq=${filterQuery?.join("&fq=")}</g:if></g:set>
                             </g:if>
                             <g:else>
-                                <g:set var="queryParam">q=${params.q?.encodeAsHTML()}<g:if test="${params.fq}">&fq=${fqList?.join("&fq=")}</g:if></g:set>
+                                <g:set var="queryParam">q=${query.encodeAsHTML()}<g:if test="${params.fq}">&fq=${fqList?.join("&fq=")}</g:if></g:set>
                             </g:else>
                             <g:if test="${searchResults.query}">
                                 <g:set var="downloadParams">q=${searchResults.query?.encodeAsHTML()}<g:if test="${params.fq}">&fq=${params.list("fq")?.join("&fq=")?.trim()}</g:if></g:set>
