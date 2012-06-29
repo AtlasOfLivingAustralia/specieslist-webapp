@@ -122,7 +122,7 @@ grails.hibernate.cache.queries = true
 environments {
     development {
         grails.logging.jul.usebridge = true
-        grails.host = "http://nickdos.ala.org.au"
+        grails.host = "http://moyesyside.ala.org.au"
         //grails.host = "http://localhost"
         grails.serverURL = "${grails.host}:8080/${appName}"
         security.cas.appServerName = "http://nickdos.ala.org.au:8080"
@@ -138,10 +138,11 @@ environments {
     }
     production {
         grails.logging.jul.usebridge = false
-        grails.serverURL = "http://bie.ala.org.au"
+        grails.host = "bie-test.ala.org.au"        
+        grails.serverURL = "http://bie-test.ala.org.au"
         security.cas.appServerName = grails.serverURL
         security.cas.contextPath = ""
-        log4j.appender.'errors.File'="/var/log/tomcat/biewebapp2-stacktrace.log"
+        log4j.appender.'errors.File'="/var/log/tomcat6/biewebapp2-stacktrace.log"
     }
 }
 
