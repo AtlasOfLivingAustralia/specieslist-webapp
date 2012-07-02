@@ -21,6 +21,7 @@
     <meta name="layout" content="main" />
     <title>${query} | Search | <g:message code="site.title"/></title>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'bie.search.css')}" type="text/css" media="screen" />
+    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.sortElemets.js')}"></script>
     <script type="text/javascript">
         // global var to pass GSP vars into JS file
         SEARCH_CONF = {
