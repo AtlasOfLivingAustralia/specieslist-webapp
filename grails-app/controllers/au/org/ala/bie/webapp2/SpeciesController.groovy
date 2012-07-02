@@ -51,6 +51,10 @@ class SpeciesController {
         // no fq -> default to australian records fq via redriect
         if (filterQuery.isEmpty()) {
             redirect(action: "search", params: [q: query, fq: 'australian_s:recorded'])
+        } else if (filterQuery.size() > 1 && filterQuery.findAll { it.size() == 0 }) {
+            // remove empty fq= params IF more than 1 fq param present
+            def fq2 = filterQuery.findAll { it } // excludes empty or null elements
+            redirect(action: "search", params: [q: query, fq: fq2, start: startIndex, pageSize: pageSize, score: sortField, dir: sortDirection])
         }
 
         if (searchResults instanceof JSONObject && searchResults.has("error")) {
@@ -113,6 +117,10 @@ class SpeciesController {
         def scientificName = params.scientificName
         def msg =  taxonRank + ": " + scientificName
         render (view: 'imageSearch', model: [ msg: msg])
+    }
+
+    def bhlSearch = {
+        render (view: 'bhlSearch')
     }
 
     /**

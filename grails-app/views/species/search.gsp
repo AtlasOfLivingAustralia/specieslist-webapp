@@ -22,153 +22,16 @@
     <title>${query} | Search | <g:message code="site.title"/></title>
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'bie.search.css')}" type="text/css" media="screen" />
     <script type="text/javascript">
-        $(document).ready(function() {
-            // set the search input to the current q param value
-            var query = "${query}";
-            if (query) {
-                $(":input#search-2011").val(query);
-            }
-
-            // listeners for sort widgets
-            $("select#sort").change(function() {
-                var val = $("option:selected", this).val();
-                reloadWithParam('sort',val);
-            });
-            $("select#dir").change(function() {
-                var val = $("option:selected", this).val();
-                reloadWithParam('dir',val);
-            });
-            $("select#per-page").change(function() {
-                var val = $("option:selected", this).val();
-                reloadWithParam('pageSize',val);
-            });
-        });
-
-        /**
-         * Build URL params to remove selected fq
-         *
-         * @param facet
-         */
-        function removeFacet(facet) {
-            var q = $.getQueryParam('q') ? $.getQueryParam('q') : "${query}" ; //$.query.get('q')[0];
-            var fqList = $.getQueryParam('fq'); //$.query.get('fq');
-            var paramList = [];
-
-            //is this a init search?
-            if(fqList == null || fqList == 'undefined'){
-                if('australian_s:recorded' == facet){
-                    fqList = ['australian_s:recorded'];
-                }
-                else{
-                    fqList = [''];
-                }
-            }
-            if (q != null) {
-                paramList.push("q=" + q);
-            }
-
-            //alert("this.facet = "+facet+"; fqList = "+fqList.join('|'));
-
-            if (fqList instanceof Array && fqList.length > 1) {
-                //alert("fqList is an array");
-                for (var i in fqList) {
-                    //alert("i == "+i+" | fq = "+ decodeURIComponent(fqList[i]));
-                    var decodedFq = decodeURIComponent(fqList[i]);
-                    if (decodedFq == facet) {
-                        //alert("removing fq: "+fqList[i]);
-                        fqList.splice(fqList.indexOf(fqList[i]),1);
-
-                    }
-                }
-            } else {
-                var decodedFq = decodeURIComponent(fqList);
-                //alert("fqList is NOT an array: '" + decodedFq + "' vs '" + facet + "'");
-                if (decodedFq == facet) {
-                    //alert("match");
-                    fqList = null;
-                }
-            }
-            //alert("(post) fqList = "+fqList.join('|'));
-            if (fqList != null && fqList.length > 0) {
-                paramList.push("fq=" + fqList.join("&fq="));
-                //alert("pushing fq back on: "+fqList);
-            } else {
-                // empty fq so redirect doesn't happen
-                paramList.push("fq=");
-            }
-            //alert("new URL: " + window.location.pathname + '?' + paramList.join('&'));
-            window.location.href = window.location.pathname + '?' + paramList.join('&');
-        }
-
-        /**
-         * Catch sort drop-down and build GET URL manually
-         */
-        function reloadWithParam(paramName, paramValue) {
-            var paramList = [];
-            var q = $.getQueryParam('q') ? $.getQueryParam('q') : "${query}" ;
-            var fqList = $.getQueryParam('fq'); //$.query.get('fq');
-            var sort = $.getQueryParam('sort');
-            var dir = $.getQueryParam('dir');
-            // add query param
-            if (q != null) {
-                paramList.push("q=" + q);
-            }
-            // add filter query param
-            if (fqList != null) {
-                paramList.push("fq=" + fqList.join("&fq="));
-            }
-            // add sort param if already set
-            if (paramName != 'sort' && sort != null) {
-                paramList.push('sort' + "=" + sort);
-            }
-
-            if (paramName != null && paramValue != null) {
-                paramList.push(paramName + "=" +paramValue);
-            }
-
-            //alert("params = "+paramList.join("&"));
-            //alert("url = "+window.location.pathname);
-            window.location.href = window.location.pathname + '?' + paramList.join('&');
-        }
-
-        // jQuery getQueryParam Plugin 1.0.0 (20100429)
-        // By John Terenzio | http://plugins.jquery.com/project/getqueryparam | MIT License
-        // Adapted by Nick dos Remedios to handle multiple params with same name - return a list
-        (function ($) {
-            // jQuery method, this will work like PHP's $_GET[]
-            $.getQueryParam = function (param) {
-                // get the pairs of params fist
-                var pairs = location.search.substring(1).split('&');
-                var values = [];
-                // now iterate each pair
-                for (var i = 0; i < pairs.length; i++) {
-                    var params = pairs[i].split('=');
-                    if (params[0] == param) {
-                        // if the param doesn't have a value, like ?photos&videos, then return an empty srting
-                        //return params[1] || '';
-                        values.push(params[1]);
-                    }
-                }
-
-                if (values.length > 0) {
-                    return values;
-                } else {
-                    //otherwise return undefined to signify that the param does not exist
-                    return undefined;
-                }
-
-            };
-        })(jQuery);
-
-       /**
-        * Taken from http://stackoverflow.com/a/8764051/249327
-        * @param name
-        * @return {String}
-        */
-        function getURLParameter(name) {
-            return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+        // global var to pass GSP vars into JS file
+        SEARCH_CONF = {
+            query: "${query}",
+            serverName: "${grailsApplication.config.grails.serverURL}",
+            bieUrl: "${grailsApplication.config.bie.baseURL}",
+            biocacheUrl: "${grailsApplication.config.biocache.baseURL}",
+            bhlUrl: "${grailsApplication.config.bhl.baseURL}"
         }
     </script>
+    <script type="text/javascript" src="${resource(dir: 'js', file: 'search.js')}"></script>
 </head>
 <body class="species">
     <header id="page-header">
@@ -196,16 +59,6 @@
                 <div class="boxed attached">
                     <div class="facetLinks">
                         <h2>Refine results</h2>
-                        <g:if test="${TAXON || REGION || INSTITUTION || COLLECTION || DATAPROVIDER || DATASET}">
-                        %{-- TODO: refactor this stuff --}%
-                            <g:set var="taxon" value="${TAXON}"/>
-                            <g:set var="region" value="${REGION}"/>
-                            <g:set var="institution" value="${INSTITUTION}"/>
-                            <g:set var="collection" value="${COLLECTION}"/>
-                            <g:set var="dataprovider" value="${DATAPROVIDER}"/>
-                            <g:set var="dataset" value="${DATASET}"/>
-                            <g:set var="wordpress" value="${WORDPRESS}"/>
-                        </g:if>
                         <div id="accordion">
                             <g:if test="${query && filterQuery}">
                                 <g:set var="queryParam">q=${query.encodeAsHTML()}<g:if test="${!filterQuery.isEmpty()}">&fq=${filterQuery?.join("&fq=")}</g:if></g:set>
@@ -225,7 +78,7 @@
                             </g:else>
                             <g:if test="${facetMap}">
                                 <h3><span class="FieldName">Current Filters</span></h3>
-                                <div class="subnavlist">
+                                <div class="subnavlist" id="currentFilters">
                                     <ul>
                                         <g:each var="item" in="${facetMap}">
                                             <li>
@@ -245,7 +98,7 @@
                             <g:each var="facetResult" in="${searchResults.facetResults?:[]}">
                                 <g:if test="${!facetMap?.get(facetResult.fieldName) && !filterQuery?.contains(facetResult.fieldResult?.opt(0)?.label) && !facetResult.fieldName?.contains('idxtype1')}">
                                     <h3><span class="FieldName"><g:message code="facet.${facetResult.fieldName}"/></span></h3>
-                                    <div class="subnavlist">
+                                    <div class="subnavlist" id="facet-${facetResult.fieldName}">
                                         <ul>
                                             <g:set var="lastElement" value="${facetResult.fieldResult?.get(facetResult.fieldResult.length()-1)}"/>
                                             <g:if test="${lastElement.label == 'before'}">

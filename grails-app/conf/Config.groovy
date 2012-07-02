@@ -31,7 +31,9 @@ if (!ala.baseURL) {
 if (!collectory.baseURL) {
     collectory.baseURL = "http://collections.ala.org.au"
 }
-
+if (!bhl.baseURL) {
+    bhl.baseURL = "http://bhlidx.ala.org.au"
+}
 alerts.baseUrl = "http://alerts.ala.org.au/ws/"
 brds.guidUrl = "http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid="
 collectory.threatenedSpeciesCodesUrl = collectory.baseURL + "/public/showDataResource"
@@ -122,7 +124,7 @@ grails.hibernate.cache.queries = true
 environments {
     development {
         grails.logging.jul.usebridge = true
-        grails.host = "http://moyesyside.ala.org.au"
+        grails.host = "http://nickdos.ala.org.au"
         //grails.host = "http://localhost"
         grails.serverURL = "${grails.host}:8080/${appName}"
         security.cas.appServerName = "http://nickdos.ala.org.au:8080"

@@ -10,6 +10,7 @@ class UrlMappings {
         "/search"(controller: "species", action: "search")
         "/image-search/showSpecies"(controller: "species", action: "imageSearch")
         "/image-search/infoBox"(controller: "species", action: "infoBox")
+        "/bhl-search"(controller: "species", action: "bhlSearch")
         "/logout"(controller: "species", action: "logout")
 		"/"(view:"/home")
 		"500"(view:'/error')
