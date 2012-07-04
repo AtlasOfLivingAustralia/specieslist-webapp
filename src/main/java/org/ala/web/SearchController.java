@@ -125,7 +125,7 @@ public class SearchController {
         
         response.setHeader("Cache-Control", "must-revalidate");
         response.setHeader("Pragma", "must-revalidate");
-        response.setHeader("Content-Disposition", "attachment;filename=" + filename +".csv");
+        response.setHeader("Content-Disposition", "attachment;filename=" + filename);
         response.setContentType("text/csv");
         
         //add the extra fq for idxtype=TAXON

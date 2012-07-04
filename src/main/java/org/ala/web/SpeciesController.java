@@ -332,7 +332,7 @@ public class SpeciesController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/ws/guid/batch", method = RequestMethod.GET)
+    @RequestMapping(value = {"/ws/guid/batch", "/guid/batch"}, method = RequestMethod.GET)
     public @ResponseBody Map<String,List<GuidLookupDTO>> getGuidForNames(
             @RequestParam("q") List<String> scientificNames,
             HttpServletRequest request,
@@ -352,7 +352,7 @@ public class SpeciesController {
      * @return view name
      * @throws Exception
      */ 
-    @RequestMapping(value = "/ws/guid/{scientificName}", method = RequestMethod.GET)
+    @RequestMapping(value = {"/ws/guid/{scientificName}","/guid/{scientificName}"}, method = RequestMethod.GET)
     public @ResponseBody List<GuidLookupDTO> getGuidForName(@PathVariable("scientificName") String scientificName) throws Exception {
         return findGuids(scientificName);
     }
@@ -362,7 +362,7 @@ public class SpeciesController {
         logger.debug(message + " took " + numMs + "ms. " + numMs/1000 + " sec. " + numMs/60000 + " mins" );
     }
     
-    @RequestMapping(value ="/ws/classification/{value:.+}*", method = RequestMethod.GET)
+    @RequestMapping(value ={"/ws/classification/{value:.+}*","/classification/{value:.+}*"}, method = RequestMethod.GET)
     public @ResponseBody List<Map<String,String>> getClassification(@PathVariable("value") String value) throws Exception{
         //determine whether the value is a scientific name or lsid that needs to be resolved.
         long start = System.currentTimeMillis();
