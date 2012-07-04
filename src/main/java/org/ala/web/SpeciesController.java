@@ -1329,7 +1329,7 @@ public class SpeciesController {
         for (CommonName cn : etc.getCommonNames()) {
             String lcName = cn.getNameString().toLowerCase().trim();
 
-            if (!cnMap.containsKey(lcName)) {
+            if (!cnMap.containsKey(lcName) && !cn.getIsBlackListed()) {
                 cnMap.put(lcName, cn.getNameString());
             }
         }

@@ -40,7 +40,7 @@ public class PageUtils {
      */
     public static List<CommonName> fixCommonNames(List<CommonName> commonNames) {    	    	
         List<CommonName> newNames = new ArrayList<CommonName>();
-        if(commonNames!=null && commonNames.size()>0){
+        if(commonNames!=null && commonNames.size()>0 && !commonNames.get(0).getIsBlackListed()){
         	newNames.add(commonNames.get(0));
         }
         
