@@ -76,8 +76,7 @@ function removeFacet(facet) {
             var decodedFq = decodeURIComponent(fqList[i]);
             if (decodedFq == facet) {
                 //alert("removing fq: "+fqList[i]);
-                fqList.splice(fqList.indexOf(fqList[i]),1);
-
+                fqList.splice($.inArray(fqList[i],fqList),1);
             }
         }
     } else {
