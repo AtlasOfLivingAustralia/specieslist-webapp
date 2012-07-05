@@ -20,6 +20,7 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" %>
+<g:set var="alaUrl" value="${grailsApplication.config.ala.baseURL}"/>
 <!doctype html>
 <html>
 <head>
@@ -35,8 +36,7 @@
          * OnLoad equavilent in JQuery
          */
         $(document).ready(function() {
-            //currentPage = 1;
-            //lastPage = 0;
+            // initial load images
             imageLoad();
 
             // trigger more images to load when bottom of page comes "in view"
@@ -48,15 +48,12 @@
 
             });
 
-            // tooltips for images using livequery
-//            $("a.thumbImage").livequery(function() {
-//                $(this).tooltip({
-//                    effect: "slide",
-//                    offset: [-15, 0],
-//                    direction: "down",
-//                    position: "bottom center"
-//                });
-//            });
+            // trigger button - when inview doesn't work, e.g. iPad
+            $("#loadMoreButton").click(function(e) {
+                e.preventDefault();
+                imageLoad();
+            });
+
         });
 
         var prevPage = 0;
@@ -159,6 +156,11 @@
         /*color: #DDD;*/
     }
 
+    div#loadMoreTrigger {
+        margin-bottom: 24px;
+        text-align: center;
+    }
+
     </style>
 </head>
 <body class="fluid">
@@ -184,7 +186,7 @@
 
         <div id="divPostsLoader" style="margin-left:auto;margin-right:auto; width:120px;"></div>
 
-        <div id="loadMoreTrigger" style="display: none;"></div>
+        <div id="loadMoreTrigger" style="display: block;"><input type="button" id="loadMoreButton"  value="Load more images"/></div>
     </div>
 </body>
 </html>
