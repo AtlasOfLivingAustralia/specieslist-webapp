@@ -397,7 +397,7 @@ public class SpeciesController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value ="/ws/childConcepts/{value:.+}*", method = RequestMethod.GET)
+    @RequestMapping(value ={"/ws/childConcepts/{value:.+}*", "/childConcepts/{value:.+}*"}, method = RequestMethod.GET)
     public @ResponseBody List<SearchTaxonConceptDTO> getChildConceptsForTaxa(@PathVariable("value") String value) throws Exception {
         List<SearchTaxonConceptDTO> childConcepts = new ArrayList<SearchTaxonConceptDTO>();
         ExtendedTaxonConceptDTO etc = findConceptByNameOrGuid(value);
@@ -741,7 +741,7 @@ public class SpeciesController {
      * @param scientificName
      * @return
      */
-    @RequestMapping(value = "/ws/higherTaxa/images.json", method = RequestMethod.GET)
+    @RequestMapping(value = {"/ws/higherTaxa/images.json", "/higherTaxa/images.json"}, method = RequestMethod.GET)
     public List<SearchDTO> taxaImageSearch(@RequestParam(value="taxonRank", required=true) String taxonRank,
                 @RequestParam(value="scientificName", required=true) String scientificName) {
         return imageSearch(taxonRank, scientificName);
