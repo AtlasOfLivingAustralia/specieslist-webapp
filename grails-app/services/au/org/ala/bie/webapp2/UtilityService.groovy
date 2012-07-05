@@ -196,4 +196,7 @@ class UtilityService {
         return idxtypes
     }
 
+    def getJsonMimeType(params) {
+        (params.callback) ? "text/javascript" : "application/json"
+    }
 }

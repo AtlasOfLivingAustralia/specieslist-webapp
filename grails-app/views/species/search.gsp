@@ -139,7 +139,7 @@
                 <div class="solrResults">
                     <div id="dropdowns">
                         <g:if test="${idxTypes.contains("TAXON")}">
-                            <g:set var="downloadUrl" value="${grailsApplication.config.bie.baseURL}/download/?${downloadParams}${appendQueryParam}&sort=${searchResults.sort}&dir=${searchResults.dir}"/>
+                            <g:set var="downloadUrl" value="${grailsApplication.config.bie.baseURL}/ws/download/?${downloadParams}${appendQueryParam}&sort=${searchResults.sort}&dir=${searchResults.dir}"/>
                             <input type="button" onclick="window.location='${downloadUrl}'" value="Download" title="Download a list of taxa for your search" style="float:left;"/>
                             %{--<div id="downloads" class="buttonDiv" style="">--}%
                                 %{--<a href="${grailsApplication.config.bie.baseURL}/download/?${downloadParams}${appendQueryParam}&sort=${searchResults.sort}&dir=${searchResults.dir}" id="downloadLink" title="Download taxa results for your search">Download</a>--}%
@@ -209,6 +209,7 @@
                                         </g:if>
                                     <!-- ${sectionText} -->
                                     </p>
+                                    <div class="resultSeparator">&nbsp;</div>
                                 </g:if>
                                 <g:elseif test="${result.has("regionTypeName") && result.get("regionTypeName")}">
                                     <h4><g:message code="idxType.${result.idxType}"/>:

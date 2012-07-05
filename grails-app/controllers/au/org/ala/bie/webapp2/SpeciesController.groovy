@@ -80,13 +80,17 @@ class SpeciesController {
         def etc
 
         if (!(guid.matches("(urn\\:lsid[a-zA-Z\\-0-9\\:\\.]*)") || guid.matches("([0-9]*)") || guid.startsWith("ALA_"))) {
-            // doesn't look like a guid so assume a name sstring
-            guid = bieService.findLsidByName(guid);
+            // doesn't look like a guid so assume a name string
+            guid = bieService.findLsidByName(guid?.trim());
         }
 
         etc = bieService.getTaxonConcept(guid)
 
-        if (etc instanceof JSONObject && etc.has("error")) {
+        if (!etc) {
+            log.error "Error requesting taxon concept object: " + params.guid
+            response.status = 404
+            render(view: '../error', model: [message: "Requested taxon <b>" + params.guid + "</b> was not found"])
+        } else if (etc instanceof JSONObject && etc.has("error")) {
             log.error "Error requesting taxon concept object: " + etc.error
             render(view: '../error', model: [message: etc.error])
         } else {

@@ -5,17 +5,15 @@ hgroup h2 {
     font-size: 1.6em;
 }
 div.results p {
-    border-bottom:1px solid #d9d9d9;
-    padding-bottom:.8em!important;
+    /*border-bottom:1px solid #d9d9d9;
+    padding-bottom:.8em!important;*/
+    padding-bottom: 0;
     height:100%;
-    padding-bottom: 1.6em;
 }
-div.results p::after {
-    content: ".";
-    display: block;
-    height: 0;
+div.resultSeparator {
+    border-bottom:1px solid #d9d9d9;
+    height: 4px;
     clear: both;
-    visibility: hidden;
 }
 div.results h4 {
     font-size:1.2em;

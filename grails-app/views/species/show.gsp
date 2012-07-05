@@ -187,7 +187,7 @@
                                             <li>
                                                 %{--<a id="popUp${status}" class="thumbImage1" href="${createLink(controller:'image-search', action: 'infoBox', params:[q: searchTaxon])}" >--}%
                                                 <a href="${imageSearchUrl}" class="thumbImageBrowse" title="Browse images of species for ${sciNameFormatted}">
-                                                    <img src="${searchTaxon.smallImageUrl?:searchTaxon.thumbnail}" class="overviewImage"  style="width:314px;"/>
+                                                    <img src="${searchTaxon.smallImageUrl?:searchTaxon.thumbnail}" class="overviewImage"  style="width:100%;max-width:314px;"/>
                                                 </a>
                                             </li>
                                         </g:if>
@@ -202,7 +202,7 @@
                                             <g:set var="gotOne" value="${true}"/>
                                             <g:set var="imageSrc" value="${image.smallImageUrl?:image.repoLocation?.replace('/raw.', '/smallRaw.')}"/>
                                             <li>
-                                                <a href="${image.repoLocation}" id="thumb0" class="thumbImage" title="Species representative photo"><img src="${imageSrc}" class="overviewImage" style="max-width: ${imageSize}px" alt="representative image of taxa" /></a>
+                                                <a href="${image.repoLocation}" id="thumb0" class="thumbImage" title="Species representative photo"><img src="${imageSrc}" class="overviewImage" style="width:100%;max-width:${imageSize}px" alt="representative image of taxa" /></a>
                                                 <g:if test="${image.creator}">
                                                     <cite>Image by: ${image.creator}
                                                         <g:if test="${image.rights}">

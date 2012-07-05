@@ -46,7 +46,7 @@ if (!security.cas.urlPattern) {
     security.cas.urlPattern = "/admin, /admin/.*"
 }
 if (!security.cas.urlExclusionPattern) {
-    security.cas.urlExclusionPattern = "/images.*,/css.*,/js.*,.*json"
+    security.cas.urlExclusionPattern = "/images.*,/css.*,/js.*,.*json,.*xml"
 }
 if (!security.cas.authenticateOnlyIfLoggedInPattern) {
     security.cas.authenticateOnlyIfLoggedInPattern = "/species/.*"
@@ -76,7 +76,7 @@ grails.project.groupId = appName // change this to alter the default package nam
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.use.accept.header = false
 grails.mime.types = [ html: ['text/html','application/xhtml+xml'],
-                      xml: ['text/xml', 'application/xml'],
+                      //xml: ['text/xml', 'application/xml'],
                       text: 'text/plain',
                       js: 'text/javascript',
                       rss: 'application/rss+xml',
@@ -84,7 +84,7 @@ grails.mime.types = [ html: ['text/html','application/xhtml+xml'],
                       css: 'text/css',
                       csv: 'text/csv',
                       all: '*/*',
-                      json: ['application/json','text/json'],
+                      //json: ['application/json','text/json'],
                       form: 'application/x-www-form-urlencoded',
                       multipartForm: 'multipart/form-data'
                     ]
@@ -120,6 +120,7 @@ grails.exceptionresolver.params.exclude = ['password']
 // enable query caching by default
 grails.hibernate.cache.queries = true
 
+
 // set per-environment serverURL stem for creating absolute links
 environments {
     development {
@@ -132,16 +133,16 @@ environments {
     }
     test {
         grails.logging.jul.usebridge = false
-        grails.host = "diasbtest1-cbr.vm.csiro.au"
-        grails.serverURL = "http://${grails.host}:8080/${appName}"
-        security.cas.appServerName = "http://diasbtest1-cbr.vm.csiro.au:8080"
-        security.cas.contextPath = "/${appName}"
+        grails.host = "bie-test.ala.org.au"
+        grails.serverURL = "http://bie-test.ala.org.au"
+        security.cas.appServerName = grails.serverURL
+        security.cas.contextPath = ""
         //log4j.appender.'errors.File'="/var/log/tomcat/biewebapp2-stacktrace.log"
     }
     production {
         grails.logging.jul.usebridge = false
-        grails.host = "bie-test.ala.org.au"        
-        grails.serverURL = "http://bie-test.ala.org.au"
+        grails.host = "bie.ala.org.au"
+        grails.serverURL = "http://bie.ala.org.au"
         security.cas.appServerName = grails.serverURL
         security.cas.contextPath = ""
         log4j.appender.'errors.File'="/var/log/tomcat6/biewebapp2-stacktrace.log"

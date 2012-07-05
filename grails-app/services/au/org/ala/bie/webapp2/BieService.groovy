@@ -10,7 +10,7 @@ class BieService {
     def grailsApplication
 
     def betterBulkLookup(list) {
-        def url = grailsApplication.config.bie.baseURL + "/species/guids/bulklookup.json"
+        def url = grailsApplication.config.bie.baseURL + "/ws/species/guids/bulklookup.json"
         def data = webService.doPost(url, "", (list as JSON).toString())
         Map results = [:]
         data.resp.searchDTOList.each {item ->
@@ -49,7 +49,7 @@ class BieService {
         if (bieNameGuidCache[name]) {
             return bieNameGuidCache[name]
         }
-        def resp = getJson(grailsApplication.config.bie.baseURL + "/species/" + key + ".json")
+        def resp = getJson(grailsApplication.config.bie.baseURL + "/ws/species/" + key + ".json")
         if (!resp || resp.error) {
             return [name: name, guid: guid]
         }
@@ -65,8 +65,8 @@ class BieService {
             return null
         }
 
-        log.debug "url = " + grailsApplication.config.bie.baseURL + "/species/" + guid + ".json"
-        def json = webService.get(grailsApplication.config.bie.baseURL + "/species/" + guid + ".json")
+        log.debug "url = " + grailsApplication.config.bie.baseURL + "/ws/species/" + guid + ".json"
+        def json = webService.get(grailsApplication.config.bie.baseURL + "/ws/species/" + guid + ".json")
         //log.debug "ETC json: " + json
         ObjectMapper mapper = new ObjectMapper()
         mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -90,8 +90,8 @@ class BieService {
             return null
         }
 
-        log.debug "url = " + grailsApplication.config.bie.baseURL + "/species/" + guid + ".json"
-        def json = webService.get(grailsApplication.config.bie.baseURL + "/species/" + guid + ".json")
+        log.debug "url = " + grailsApplication.config.bie.baseURL + "/ws/species/" + guid + ".json"
+        def json = webService.get(grailsApplication.config.bie.baseURL + "/ws/species/" + guid + ".json")
         //log.debug "ETC json: " + json
         return JSON.parse(json)
     }
@@ -151,7 +151,7 @@ class BieService {
     }
 
     def getPreferredImage(name) {
-        def resp = getJson(grailsApplication.config.bie.baseUrl + "/species/${name}.json")
+        def resp = getJson(grailsApplication.config.bie.baseUrl + "/ws/species/${name}.json")
         return extractPreferredImage(resp.images)
     }
 
