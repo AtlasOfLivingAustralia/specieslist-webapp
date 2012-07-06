@@ -898,8 +898,16 @@ public class SpeciesController {
             lsid = taxonConceptDao.findLsidByName(cl.getScientificName(), cl, null);
         }
         //check for a scientific name first - this will lookup in the name matching index.  This will produce the correct result in a majority of scientific name cases.
-        if(lsid == null || lsid.length() < 1){            
-            lsid = taxonConceptDao.findLsidForSearch(name);
+        if(lsid == null || lsid.length() < 1){
+            try{
+                NameSearchResult nsr = taxonConceptDao.findCBDataByName(name, null, null);
+                //use the acceptedLsid if a synonym is returned
+                if(nsr != null)
+                    lsid =  nsr.isSynonym() ? nsr.getAcceptedLsid() : nsr.getLsid();
+            }
+            catch(Exception e){
+               //just let the other searches work
+            }
         }
 
         if(lsid == null || lsid.length() < 1){
