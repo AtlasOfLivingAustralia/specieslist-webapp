@@ -80,7 +80,7 @@
             </hgroup>
             <div class="rightfloat">
                 <a href="${citizenSciUrl}${guid}" class="button orange" title="">Record a sighting</a>
-                <a id="alertsButton" class="button orange" href="#">Alerts <img width="18" height="18" src="http://test.ala.org.au/wp-content/themes/ala2011/images/alerts-button.png"></a>
+                <a id="alertsButton" class="button orange" href="#">Alerts <img width="18" height="18" src="${resource(dir: 'images', file: 'alerts-button.png')}"></a>
             </div>
         </div>
     </header>
