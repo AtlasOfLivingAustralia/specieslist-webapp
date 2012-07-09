@@ -73,7 +73,7 @@
 
             var url = "http://bhlidx.ala.org.au/select?q=" + query + '&start=' + start + "&rows=" + rows +
                     "&wt=json&fl=name%2CpageId%2CitemId%2Cscore&hl=on&hl.fl=text&hl.fragsize=200&" +
-                    "group=true&group.field=itemId&group.limit=7&group.ngroups=true&taxa=false";
+                    "group=true&group.field=itemId&group.limit=11&group.ngroups=true&taxa=false";
             var buf = "";
             $("#status-box").css("display", "block");
             $("#synonyms").html("").css("display", "none")
@@ -183,6 +183,29 @@
         </div>
     </header>
     <div class="inner">
+        <!--
+        <form action="" class="search-form-2011">
+            <input type="search" name="q" value="${params.q?:''}" class="filled ac_input"/>
+            <span class="search-button-wrapper">
+                <button id="search-button" class="search-button" value="Search" type="submit">
+                    <img src="http://www.ala.org.au/wp-content/themes/ala2011/images/button_search-grey.png" alt="Search" width="12" height="12" />
+                </button>
+            </span>
+        </form>
+        -->
+
+        <section id="content-search">
+            <form id="search-form" action="" method="get" name="search-form">
+            <label for="search">Search</label>
+            <input id="search" title="Search" type="text" name="q" placeholder="${params.q?:''}" />
+            <span class="search-button-wrapper">
+                <button id="search-button" class="search-button" value="Search" type="submit">
+                    <img src="http://www.ala.org.au/wp-content/themes/ala2011/images/button_search.png" alt="Search" width="27" height="27" />
+                </button>
+            </span>
+            </form>
+        </section>
+
         <div id="status-box" class="column-wrap" style="display: none;">
             <div id="search-status" class="column-wrap" >
                 <span style="vertical-align: middle; ">

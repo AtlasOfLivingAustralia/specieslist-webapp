@@ -77,14 +77,13 @@ class SpeciesController {
      */
     def show = {
         def guid = params.guid
-        def etc
 
         if (!(guid.matches("(urn\\:lsid[a-zA-Z\\-0-9\\:\\.]*)") || guid.matches("([0-9]*)") || guid.startsWith("ALA_"))) {
             // doesn't look like a guid so assume a name string
             guid = bieService.findLsidByName(guid?.trim());
         }
 
-        etc = bieService.getTaxonConcept(guid)
+        def etc = bieService.getTaxonConcept(guid)
 
         if (!etc) {
             log.error "Error requesting taxon concept object: " + params.guid

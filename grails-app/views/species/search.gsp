@@ -170,8 +170,7 @@
                     <div class="results">
                         <g:each var="result" in="${searchResults.results}">
                             <g:set var="sectionText"><g:if test="${!facetMap.idxtype}"><span><b>Section:</b> <g:message code="idxType.${result.idxType}"/></span></g:if></g:set>
-
-                                <g:if test="${result.has("commonNameSingle")}">
+                                <g:if test="${result.has("idxType") && result.idxType == 'TAXON'}">
                                     <h4>
                                         <g:set var="speciesPageLink">${request.contextPath}/species/${result.linkIdentifier?:result.guid}</g:set>
                                         <g:if test="${result.smallImageUrl}">
@@ -184,6 +183,9 @@
                                         </g:if>
                                         <g:if test="${!result.linkIdentifier}">
                                             <a href="${request.contextPath}/species/${result.guid}" class="occurrenceLink"><bie:formatSciName rankId="${result.rankId}" name="${(result.nameComplete) ? result.nameComplete : result.name}" acceptedName="${result.acceptedConceptName}"/> ${result.author?:''}</a>
+                                        </g:if>
+                                        <g:if test="${result.acceptedConceptName}">
+                                            accepted name: ${result.acceptedConceptName}
                                         </g:if>
                                         <g:if test="${result.commonNameSingle}"><span class="commonNameSummary">&nbsp;&ndash;&nbsp; ${result.commonNameSingle}</span></g:if>
                                     </h4>
@@ -198,7 +200,9 @@
                                             <span><strong class="resultsLabel">Kingdom</strong>: ${result.kingdom}</span>
                                         </g:if>
                                         <g:if test="${result.rankId && result.rankId > 5000}">
-                                            <span class="recordSighting" style="display:inline;"><a href="http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid=${result.guid}">Record a sighting/share a photo</a></span>                                        &nbsp;
+                                            <span class="recordSighting" style="display:inline;">
+                                                <a href="http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid=${result.guid}">Record a sighting/share a photo</a>
+                                            </span>&nbsp;
                                             <g:if test="${result?.occCount?:0 > 0}">
                                                 <span class="recordSighting" style="display:inline;"><a href="http://biocache.ala.org.au/occurrences/taxa/${result.guid}">Occurrences:
                                                     <g:formatNumber number="${result.occCount}" type="number"/></a></span>

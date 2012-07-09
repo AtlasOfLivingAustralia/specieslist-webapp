@@ -5,11 +5,11 @@
     border-radius: 5px 5px 5px 5px;
     margin: 15px 0;
     padding: 8px 10px;
-    max-width: 632px;
+   /* max-width: 632px;*/
 }
 
 #search-status {
-    max-width: 632px;
+    /*max-width: 632px;*/
     background: none repeat scroll 0 0 #FBF8F5;
     border: 1px solid #d3d3d3;
     border-radius: 5px 5px 5px 5px;
@@ -37,7 +37,7 @@
     border-radius: 5px 5px 5px 5px;
     margin: 15px 0;
     padding: 8px 10px;
-    max-width: 632px;
+   /* max-width: 632px; */
 }
 
 .thumbnail-container {
