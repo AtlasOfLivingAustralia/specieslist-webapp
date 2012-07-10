@@ -33,6 +33,7 @@ class SpeciesController {
      */
     def search = {
         def query = params.q?:"".trim()
+        if(query == "*") query = ""
         def filterQuery = params.list('fq') // will be a list even with only one value
         def startIndex = params.start?:0
         def pageSize = params.pageSize?:10

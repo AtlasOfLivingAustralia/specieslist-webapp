@@ -253,6 +253,15 @@
                                     <p>
                                         <span>${result.highlight}</span>
                                         <!-- ${sectionText} -->
+                                        <br/>
+                                    </p>
+                                </g:elseif>
+                                <g:elseif test="${result.has("idxType") && result.idxType == 'LAYERS'}">
+                                    <h4><g:message code="idxType.${result.idxType}"/>:
+                                        <a href="${result.guid}">${result.name}</a></h4>
+                                    <p>
+                                        <span>${result.highlight}</span>
+                                        <strong>Source: ${result.source}</strong>
                                     </p>
                                 </g:elseif>
                                 <g:else>
