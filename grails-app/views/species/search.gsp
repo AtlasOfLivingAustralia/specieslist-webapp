@@ -261,7 +261,7 @@
                                         <a href="${result.guid}">${result.name}</a></h4>
                                     <p>
                                         <span>${result.highlight}</span>
-                                        <strong>Source: ${result.source}</strong>
+                                        <g:if test="${result.dataProviderName}"><strong>Source: ${result.dataProviderName}</strong></g:if>
                                     </p>
                                 </g:elseif>
                                 <g:else>
