@@ -26,7 +26,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>BHL Search | ${params.q} | Atlas of Living Australia</title>
+    <title>${params.q} | BHL Search | Atlas of Living Australia</title>
     <meta name="layout" content="main" />
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'snazzy.css')}" type="text/css" media="screen" />
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.htmlClean.js')}"></script>
