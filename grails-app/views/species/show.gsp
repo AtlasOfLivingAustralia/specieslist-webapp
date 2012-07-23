@@ -123,8 +123,12 @@
                             <g:set var="divTerrestrial">
                                 <div><span class="terrestrial">&nbsp;</span>Terrestrial Habitats</div>
                             </g:set>
+                            <g:set var="divLimnetic">
+                                <div><span class="terrestrial-aquatic">&nbsp;</span>Terrestrial Aquatic Habitats</div>
+                            </g:set>
                             <g:if test="${habitat.status == 'M'}">${divMarine}</g:if>
                             <g:elseif test="${habitat.status == 'N'}">${divTerrestrial}</g:elseif>
+                            <g:elseif test="${habitat.status == 'Limnetic'}">${divLimnetic}</g:elseif>
                             <g:else>${divMarine} ${divTerrestrial}</g:else>
                         </g:each>
                     </section>
@@ -472,7 +476,7 @@
                     </g:if>
                     <g:each in="${tc.synonyms}" var="synonym">
                         <tr>
-                            <td><bie:formatSciName name="${synonym.nameString}" rankId="${tc.taxonConcept.rankID}"/> ${synonym.author}</td>
+                            <td><bie:formatSciName name="${synonym.nameString}" rankId="${tc.taxonConcept?.rankID}"/> ${synonym.author}</td>
                             <td class="source">
                                 <ul>
                                     <g:if test="${!synonym.infoSourceURL}"><li><a href="${tc.taxonConcept.infoSourceURL}" target="_blank" class="external">${tc.taxonConcept.infoSourceName}</a></li></g:if>
@@ -558,6 +562,7 @@
                     <div id="isAustralianSwitch"></div>
 
                         <g:each in="${taxonHierarchy}" var="taxon">
+                            <!-- taxon = ${taxon} -->
                             <%-- Note: check for rankId is here due to some taxonHierarchy including taxa at higher rank than requested taxon (bug)--%>
                             <g:if test="${taxon.rankId <= tc.taxonConcept.rankID && taxon.guid != tc.taxonConcept.guid}">
                                 <dl><dt>${taxon.rank}</dt>
@@ -577,7 +582,7 @@
                                         </g:if>
                                     </dd>
                             </g:elseif>
-                            <g:else><!-- Taxa ${taxon.guid} - ${taxon.name} (${taxon.rank}) should not be here! --></g:else>
+                            <g:else><!-- Taxa ${taxon}) should not be here! --></g:else>
                         </g:each>
                         <dl class="childClassification">
                             <g:set var="currentRank" value=""/>

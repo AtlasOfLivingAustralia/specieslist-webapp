@@ -43,17 +43,17 @@ class WebService implements InitializingBean {
             def json = conn.content.text
             return JSON.parse(json)
         } catch (ConverterException e) {
-            def error = ['error': "Failed to parse json. ${e.getClass()} ${e.getMessage()} URL= ${url}.", 'exception': e]
+            def error = "{'error': 'Failed to parse json. ${e.getClass()} ${e.getMessage()} URL= ${url}.', 'exception': '${e}' }"
             log.error error
-            return error
+            return JSON.parse(error)
         } catch (SocketTimeoutException e) {
-            def error = ['error': "Timed out getting json. URL= \${url}.", 'exception': e]
-            log.error  error
-            return error
+            def error = "{'error': 'Timed out getting json. URL= ${url}.', 'exception': '${e}'}"
+            log.error error
+            return JSON.parse(error)
         } catch (Exception e) {
-            def error = ['error': "Failed to get json from web service. ${e.getClass()} ${e.getMessage()} URL= ${url}.", 'exception': e]
-            log.error  error
-            return error
+            def error = "{'error': 'Failed to get json from web service. ${e.getClass()} ${e.getMessage()} URL= ${url}.', 'exception': '${e}'}"
+            log.error error
+            return JSON.parse(error)
         }
     }
 

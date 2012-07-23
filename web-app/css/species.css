@@ -57,3 +57,14 @@ div.rankCommonName {
 #chartsHint {
     margin-bottom:15px;
 }
+
+#page-header hgroup h1 {
+    padding-top: 6px;
+    padding-bottom: 4px;
+}
+
+#page-header hgroup h2, table.bvp-expeditions div.button-nav h2 {
+    font-size: 2.0em;
+    padding-bottom: 0;
+    max-width: 250px;
+}

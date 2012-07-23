@@ -1,6 +1,8 @@
 package au.org.ala.bie.webapp2
+
 import grails.converters.JSON
 import org.ala.dto.ExtendedTaxonConceptDTO
+import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.jackson.map.ObjectMapper
 import org.codehaus.jackson.map.DeserializationConfig
 
@@ -99,13 +101,13 @@ class BieService {
     def getExtraImages(tc) {
         def images = []
 
-        if (tc?.taxonConcept?.rankID < 7000 && tc?.taxonConcept?.rankID % 1000 == 0) {
+        if (tc?.taxonConcept?.rankID && tc?.taxonConcept?.rankID < 7000 && tc?.taxonConcept?.rankID % 1000 == 0) {
             // only lookup for higher taxa of major ranks
             // /ws/higherTaxa/images
             images = webService.getJson(grailsApplication.config.bie.baseURL + "/ws/higherTaxa/images.json?scientificName=" + tc?.taxonConcept?.nameString + "&taxonRank=" + tc?.taxonConcept?.rankString)
         }
 
-        if (images.error) {
+        if (images.hasProperty("error")) {
             images = []
         }
         log.debug "images = " + images
@@ -116,7 +118,7 @@ class BieService {
     def getInfoSourcesForGuid(guid) {
         def infoSources = webService.getJson(grailsApplication.config.bie.baseURL + "/ws/infosources/" + guid)
 
-        if (infoSources.error) {
+        if (infoSources instanceof JSONObject && infoSources.has("error")) {
             return [:]
         } else {
             return infoSources
@@ -126,8 +128,8 @@ class BieService {
     def getClassificationForGuid(guid) {
         String url = grailsApplication.config.bie?.baseURL + "/ws/classification/" + guid
         def json = webService.getJson(url)
-
-        if (json.hasProperty("error")) {
+        log.debug "json type = " + json.class
+        if (json instanceof JSONObject && json.has("error")) {
             log.warn "classification request error: " + json.error
             return [:]
         } else {
@@ -141,11 +143,11 @@ class BieService {
         def json = webService.getJson(url).sort() { a, b -> a.rankId <=> b.rankId } // sort into ranks
         //log.debug "getChildConceptsForGuid json = " + json
 
-        if (json.hasProperty("error")) {
-            log.warn "classification request error: " + json.error
+        if (json instanceof JSONObject && json.has("error")) {
+            log.warn "child concepts request error: " + json.error
             return [:]
         } else {
-            log.debug "classification json: " + json
+            log.debug "child concepts json: " + json
             return json
         }
     }
