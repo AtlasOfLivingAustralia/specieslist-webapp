@@ -32,6 +32,12 @@
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.inview.min.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.livequery.min.js')}"></script>
     <script type="text/javascript">
+        var prevPage = 0;
+        var currentPage = 0;
+        var lastPage, noOfColumns;
+        var pageSize = 50; // was: no of columns * 12 in bie code
+        var processing = false;
+
         /**
          * OnLoad equavilent in JQuery
          */
@@ -41,7 +47,7 @@
 
             // trigger more images to load when bottom of page comes "in view"
             $("#loadMoreTrigger").live("inview", function(event, visible, visiblePartX, visiblePartY) {
-                if (visible) {
+                if (visible && !processing) {
                     //console.log("currentPage", currentPage);
                     imageLoad();
                 }
@@ -56,12 +62,8 @@
 
         });
 
-        var prevPage = 0;
-        var currentPage = 0;
-        var lastPage, noOfColumns;
-        var pageSize = 20; // was: no of columns * 12 in bie code
-
         function imageLoad() {
+            processing = true;
             $('#divPostsLoader').html('<img src="${resource(dir: "images", file:"spinner.gif")}">');
 
             //send a query to server side to present new content
@@ -79,26 +81,35 @@
                         $('#divPostsLoader').empty();
                     }
                 }
-            })
+            }).done(function() {
+                processing = false;
+            });
         };
 
         function addImages(data) {
-            $.each(data.results, function(i, el) {
-                var scientificName = (el.nameComplete) ? "<i>" + el.nameComplete + "</i>" : "";
-                var commonName = (el.commonNameSingle) ? el.commonNameSingle + "<br/> " : "";
-                var imageUrl = el.thumbnail;
-                var titleText = $("<div/>" + commonName.replace("<br/>"," - ") + scientificName).text();
-                if (imageUrl) {
-                    imageUrl = imageUrl.replace('thumbnail', 'smallRaw');
-                }
-                var content = '<div class="imgContainer"><a href="${grailsApplication.config.grails.serverURL}/species/' + el.guid;
-                content +=  '" class="thumbImage" title="' + titleText + '">';
-                content += '<img src="' + imageUrl + '" class="searchImage" style="max-height:150px;"/><br/>';
-                content += commonName + scientificName + '</a></div>';
-                $("#imageResults").append(content);
-            });
-            // add delay for trigger div
-            $("#loadMoreTrigger").delay(500).show();
+            //console.log("addImages", data.results);
+
+            if (data.results.length > 0) {
+                $.each(data.results, function(i, el) {
+                    var scientificName = (el.nameComplete) ? "<i>" + el.nameComplete + "</i>" : "";
+                    var commonName = (el.commonNameSingle) ? el.commonNameSingle + "<br/> " : "";
+                    var imageUrl = el.thumbnail;
+                    var titleText = $("<div/>" + commonName.replace("<br/>"," - ") + scientificName).text();
+                    if (imageUrl) {
+                        imageUrl = imageUrl.replace('thumbnail', 'smallRaw');
+                    }
+                    var content = '<div class="imgContainer"><a href="${grailsApplication.config.grails.serverURL}/species/' + el.guid;
+                    content +=  '" class="thumbImage" title="' + titleText + '">';
+                    content += '<img src="' + imageUrl + '" class="searchImage" style="max-height:150px;"/><br/>';
+                    content += commonName + scientificName + '</a></div>';
+                    $("#imageResults").append(content);
+                });
+                // add delay for trigger div
+                $("#loadMoreTrigger").delay(500).show();
+            } else {
+                $("#loadMoreTrigger").hide();
+            }
+
         }
 
         function numberWithCommas(x) {
