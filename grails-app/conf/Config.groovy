@@ -120,7 +120,6 @@ grails.exceptionresolver.params.exclude = ['password']
 // enable query caching by default
 grails.hibernate.cache.queries = true
 
-
 // set per-environment serverURL stem for creating absolute links
 environments {
     development {
@@ -130,6 +129,8 @@ environments {
         grails.serverURL = "${grails.host}:8080/${appName}"
         security.cas.appServerName = "http://nickdos.ala.org.au:8080"
         security.cas.contextPath = "/${appName}"
+        // cached-resources plugin - keeps original filenames but adds cache-busting params
+        grails.resources.debug = true
     }
     test {
         grails.logging.jul.usebridge = false
@@ -176,5 +177,11 @@ log4j = {
     warn   'org.mortbay.log',
            'grails.app'
     info   'grails.app'
-    debug  'grails.app'
+
+    environments {
+        development {
+            // Override previous setting for 'grails.app'
+            debug  'grails.app'
+        }
+    }
 }
