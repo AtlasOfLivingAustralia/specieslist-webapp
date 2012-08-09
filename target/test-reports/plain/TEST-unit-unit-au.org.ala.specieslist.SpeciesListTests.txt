@@ -1,0 +1,7 @@
+Testsuite: au.org.ala.specieslist.SpeciesListTests
+Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 1.937 sec
+------------- Standard Error -----------------
+--Output from testCreate--
+------------- ---------------- ---------------
+
+Testcase: testCreate took 1.858 sec

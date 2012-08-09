@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="web" name="GrailsWeb">
+      <configuration>
+        <webroots>
+          <root url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/jquery-1.7.1/web-app" relative="/" />
+          <root url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/bubbling-2.1.4/web-app" relative="/" />
+          <root url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/grails-ui-1.2.3/web-app" relative="/" />
+          <root url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/yui-2.8.2/web-app" relative="/" />
+          <root url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/modalbox-0.4/web-app" relative="/" />
+        </webroots>
+        <sourceRoots />
+      </configuration>
+    </facet>
+    <facet type="hibernate" name="Hibernate">
+      <configuration>
+        <datasource-map />
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/bubbling-2.1.4">
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/bubbling-2.1.4/src/groovy" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/bubbling-2.1.4/grails-app/taglib" isTestSource="false" />
+    </content>
+    <content url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/grails-ui-1.2.3">
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/grails-ui-1.2.3/src/groovy" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/grails-ui-1.2.3/grails-app/services" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/grails-ui-1.2.3/grails-app/taglib" isTestSource="false" />
+    </content>
+    <content url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/hibernate-2.1.0">
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/hibernate-2.1.0/grails-app/i18n" isTestSource="false" />
+    </content>
+    <content url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/jquery-1.7.1">
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/jquery-1.7.1/src/groovy" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/jquery-1.7.1/grails-app/i18n" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/jquery-1.7.1/grails-app/services" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/jquery-1.7.1/grails-app/taglib" isTestSource="false" />
+    </content>
+    <content url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/modalbox-0.4">
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/modalbox-0.4/grails-app/taglib" isTestSource="false" />
+    </content>
+    <content url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/resources-1.1.6">
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/resources-1.1.6/src/java" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/resources-1.1.6/src/groovy" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/resources-1.1.6/grails-app/i18n" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/resources-1.1.6/grails-app/taglib" isTestSource="false" />
+    </content>
+    <content url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/springcache-1.3.1">
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/springcache-1.3.1/src/groovy" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/springcache-1.3.1/grails-app/services" isTestSource="false" />
+    </content>
+    <content url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/svn-1.0.0.M1">
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/svn-1.0.0.M1/src/groovy" isTestSource="false" />
+    </content>
+    <content url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/tomcat-2.1.0" />
+    <content url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/webxml-1.4.1">
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/webxml-1.4.1/src/groovy" isTestSource="false" />
+    </content>
+    <content url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/yui-2.8.2">
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/yui-2.8.2/src/groovy" isTestSource="false" />
+      <sourceFolder url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/yui-2.8.2/grails-app/taglib" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="PROVIDED" name="grails-2.1.0" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="opencsv-2.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="mysql-connector-java-5.1.21" level="project" />
+    <orderEntry type="module-library" exported="">
+      <library name="Grails User Library (Specieslist_webapp-grailsPlugins)">
+        <CLASSES>
+          <root url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/svn-1.0.0.M1/lib" />
+          <root url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/grails-ui-1.2.3/lib" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/au.com.bytecode/opencsv/jars/opencsv-2.2.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/com.google.code.findbugs/jsr305/jars/jsr305-1.3.9.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/com.google.guava/guava/jars/guava-10.0.1.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/gnu.trove/trove/jars/trove-2.1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.apache.lucene/lucene-analyzers/jars/lucene-analyzers-3.4.0.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/jakarta-regexp/jakarta-regexp/jars/jakarta-regexp-1.4.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.apache.lucene/lucene-queries/jars/lucene-queries-3.4.0.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.apache.lucene/lucene-core/jars/lucene-core-3.4.0.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.slf4j/slf4j-api/jars/slf4j-api-1.6.4.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.freemarker/freemarker/jars/freemarker-2.3.18.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/commons-logging/commons-logging/jars/commons-logging-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/commons-digester/commons-digester/jars/commons-digester-2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.tukaani/xz/jars/xz-1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.apache.commons/commons-compress/jars/commons-compress-1.4.1.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.apache.commons/commons-lang3/jars/commons-lang3-3.1.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.gbif/gbif-common/jars/gbif-common-0.5-SNAPSHOT.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.gbif/dwca-reader/jars/dwca-reader-1.9.1-SNAPSHOT.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.gbif/ecat-common/jars/ecat-common-1.5.1-SNAPSHOT.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/au.org.ala/ala-name-matching/jars/ala-name-matching-1.1-SNAPSHOT.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.jasig.cas/cas-client-core/jars/cas-client-core-3.1.10.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/au.org.ala/ala-cas-client/jars/ala-cas-client-1.0-SNAPSHOT.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/xml-resolver/xml-resolver/jars/xml-resolver-1.2.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/xerces/xercesImpl/jars/xercesImpl-2.8.1.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/net.sourceforge.nekohtml/nekohtml/jars/nekohtml-1.9.9.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/asm/asm-analysis/jars/asm-analysis-3.2.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/asm/asm-util/jars/asm-util-3.2.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/asm/asm-tree/jars/asm-tree-3.2.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/asm/asm-commons/jars/asm-commons-3.2.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/asm/asm/jars/asm-3.2.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.codehaus.groovy/groovy/jars/groovy-1.7.11.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/net.sf.ezmorph/ezmorph/jars/ezmorph-1.0.6.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/net.sf.json-lib/json-lib/jars/json-lib-2.3-jdk15.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.apache.httpcomponents/httpcore/jars/httpcore-4.0.1.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.apache.httpcomponents/httpclient/jars/httpclient-4.0.3.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/org.codehaus.groovy.modules.http-builder/http-builder/jars/http-builder-0.5.2.jar!/" />
+          <root url="jar://$USER_HOME$/.grails/ivy-cache/net.sf.ehcache/ehcache-web/jars/ehcache-web-2.0.3.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+        <jarDirectory url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/grails-ui-1.2.3/lib" recursive="false" />
+        <jarDirectory url="file://$USER_HOME$/.grails/2.1.0/projects/specieslist-webapp/plugins/svn-1.0.0.M1/lib" recursive="false" />
+      </library>
+    </orderEntry>
+  </component>
+</module>
+

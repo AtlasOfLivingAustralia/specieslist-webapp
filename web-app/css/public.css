@@ -1,0 +1,109 @@
+/* ALA specific items */
+.odd {
+    background: #f7f7f7;
+}
+.even {
+    background: #fff;
+}
+
+.unmatched {
+    background: #DC2929
+}
+
+.button-group button, .buttonDiv {
+    display: inline-block;
+    float: left;
+    text-align: left;
+    font-weight: bold;
+    padding: 2px 5px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    margin-right: 5px;
+    background-color: #FFFFFF;
+    border: 1px solid #BBBBBB;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
+    border-style: none;
+}
+
+#manualMapping{
+    visibility:hidden;
+}
+
+/* PAGINATION - copied from main css as we don't need all the items in there */
+
+.pagination {
+    border-top: 0;
+    margin: 0;
+    padding: 0.3em 0.2em;
+    text-align: center;
+    -moz-box-shadow: 0 0 3px 1px #AAAAAA;
+    -webkit-box-shadow: 0 0 3px 1px #AAAAAA;
+    box-shadow: 0 0 3px 1px #AAAAAA;
+    background-color: #EFEFEF;
+}
+
+.pagination a,
+.pagination .currentStep {
+    color: #666666;
+    display: inline-block;
+    margin: 0 0.1em;
+    padding: 0.25em 0.7em;
+    text-decoration: none;
+    -moz-border-radius: 0.3em;
+    -webkit-border-radius: 0.3em;
+    border-radius: 0.3em;
+}
+
+.pagination a:hover, .pagination a:focus,
+.pagination .currentStep {
+    background-color: #999999;
+    color: #ffffff;
+    outline: none;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+}
+
+.yui-skin-sam .yui-dialog .ft span.default button {
+    color: #000000;
+    font-weight: bold;
+}
+
+/*div#download {*/
+    /*    display: none;*/
+    /*font-size: 13px;*/
+/*}*/
+#downloadDialog_c {
+    text-align: left;
+}
+#downloadDialog_c label {
+    width: 35%;
+    display: inline-block;
+    text-align: right;
+    padding-right: 10px;
+    color: #444;
+}
+
+/*#download {*/
+    /*line-height: 1.4em;*/
+/*}*/
+#downloadDialog_c input {
+    float: none;
+}
+#termsOfUseDownload {
+    text-align:left; padding-bottom:15px;
+}
+#downloadDialog_c p {
+    margin-bottom:10px;
+}
+/* Styling for GrailsUI components. */
+.button-group.span{
+    border-style: none;
+    background: none;
+}
+
+#downloadDialog_c.bd {
+    background-color: #FFFFFF;
+}
+
