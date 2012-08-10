@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="mysql-connector-java-5.1.21">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../grails/example_app/lib/mysql-connector-java-5.1.21.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

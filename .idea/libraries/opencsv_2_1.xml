@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="opencsv-2.1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../grails/dc-refactor/lib/opencsv-2.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
