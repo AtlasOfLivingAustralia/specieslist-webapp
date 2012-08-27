@@ -40,12 +40,20 @@
     </header>
     <div class="inner">
         <div id="section" class="col-wide">
+            <p>
+                This tool allows you to upload a list of species, and work with that list within the Atlas.
+                <br/>
+                Click "Add Species List" to upload your own list of taxa.
+            </p>
 
             %{--<a class="button orange" title="Add Species List" href="${request.contextPath}/speciesList/upload">Add Species List</a>--}%
             %{--<a class="button orange" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>--}%
 
         <g:if test="${lists && total>0}">
-            <p>Below is a listing of user provided species lists.  You can use these lists to work with parts of the Atlas. </p>
+            <p>
+                Below is a listing of user provided species lists. You can use these lists to work
+                with parts of the Atlas.
+            </p>
             <g:render template="/speciesList"/>
             %{--<table>--}%
                 %{--<thead>--}%

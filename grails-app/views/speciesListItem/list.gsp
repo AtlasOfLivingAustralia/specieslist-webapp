@@ -141,25 +141,25 @@
                 %{--</div>--}%
                 <section class="meta">
                     <div class="matchStats">
-                   <dl>
-                       <h2>
+
+                       <h3>
                            <span class="count">${totalCount}</span>
                            Number of Taxa
-                       </h2>
+                       </h3>
                        <br/>
-                       <h2>
+                       <h3>
                            <span class="count">${distinctCount}</span>
                            Distinct Species
-                       </h2>
+                       </h3>
 
                        <g:if test="${noMatchCount>0}">
                            <br/>
-                           <h2>
+                           <h3>
                                <span class="count">${noMatchCount}</span>
                             Unrecognised Taxa
-                           </h2>
+                           </h3>
                        </g:if>
-                   </dl>
+
                    </div>
                 </section>
             </div><!-- boxed attached -->
