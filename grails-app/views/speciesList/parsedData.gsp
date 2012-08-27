@@ -18,15 +18,15 @@
     <div id="tabulatedData">
     <style type="text/css">
       table { border-collapse: collapse; }
-      th { font-size: 12px; border-collapse: collapse; border: 1px solid #000000; padding:2px; background-color: #000000; color: #ffffff;}
-      td { font-size: 11px; border-collapse: collapse; border: 1px solid #000000; padding: 2px;}
+      /*th { font-size: 12px; border-collapse: collapse; border: 1px solid #000000; padding:2px; background-color: #000000; color: #ffffff;}*/
+      /*td { font-size: 11px; border-collapse: collapse; border: 1px solid #000000; padding: 2px;}*/
     </style>
     <h1> </h1>
     <table id="initialParse">
        <thead>
        <g:if test="${columnHeaders}">
            <g:each in="${columnHeaders}" var="hdr">
-               <th>
+               <th class="parse">
                    <input id="Head_${hdr}"class="columnHeaderInput" type="text" value="${hdr}" style="${hdr.startsWith("UNKNOWN")? 'background-color: #E9AB17;':''}" onkeyup="javascript:window.setTimeout('updateH3(this.id)', 500, true);"/>
                </th>
            </g:each>
@@ -36,7 +36,7 @@
         <g:each in="${dataRows}" var="row">
             <tr>
                 <g:each in="${row}" var="value">
-                    <td>${value}</td>
+                    <td class="parse">${value}</td>
                 </g:each>
             </tr>
         </g:each>
@@ -44,25 +44,30 @@
     </table>
     </div><!-- tabulatedData -->
     <g:if test="${listProperties}">
-        We have detected species properties within the list. Please add a vocabulary if applicable.
+        <p>
+        We have detected species properties within the list. It is possible to map your properties to a controlled vocabulary.
+        <input id="viewVocabButton" class="datasetName" type="button" value="Click here to map..." onclick="javascript:viewVocab();"/>
+        </p>
+        <div class="allVocabs" id="listvocab">
         <g:each in="${listProperties.keySet()}" var="key">
             <div class="vocabDiv">
             <h3 class="vocabHeader" for="Head_${key}">${key}</h3>
             <table class="vocabularyTable" id="Voc_${key}" for="Head_${key}">
                 <thead>
-                    <th>Value</th>
-                    <th>Maps To</th>
+                    <th class="parse">Value</th>
+                    <th class="parse">Maps To</th>
                 </thead>
                 <tbody class="vocabBody">
                     <g:each in="${listProperties.get(key)}" var="rawKeyVal">
                         <tr>
-                        <td>${rawKeyVal}</td>
-                        <td><input class="vocabHeader_${key}" type="text" value=""/></td>
+                        <td class="parse">${rawKeyVal}</td>
+                        <td class="parse"><input class="vocabHeader_${key}" type="text" value=""/></td>
                         </tr>
                     </g:each>
                 </tbody>
             </table>
             </div>
         </g:each>
+        </div>
     </g:if>
 </div>

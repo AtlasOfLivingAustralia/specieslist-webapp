@@ -22,6 +22,9 @@ eventWebXmlEnd = {   String filename ->
   content = content.replace("@security.cas.loginUrl@", ConfigurationHolder.config.security.cas.loginUrl)
   println "Injecting CAS login URL = ${ConfigurationHolder.config.security.cas.loginUrl}"
 
+  content = content.replace("@security.cas.authenticateOnlyIfLoggedInPattern@", ConfigurationHolder.config.security.cas.authenticateOnlyIfLoggedInPattern)
+  println "Injecting CAS Authenticate if logged in = ${ConfigurationHolder.config.security.cas.authenticateOnlyIfLoggedInPattern}"
+
   content = content.replace("@security.cas.casServerUrlPrefix@", ConfigurationHolder.config.security.cas.casServerUrlPrefix)
   println "Injecting CAS URL prefix = ${ConfigurationHolder.config.security.cas.casServerUrlPrefix}"
 

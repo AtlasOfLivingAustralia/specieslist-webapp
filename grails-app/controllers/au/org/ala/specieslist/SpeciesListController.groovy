@@ -51,7 +51,7 @@ class SpeciesListController {
     def deleteList(){
         //delete all the items that belong to the specified list
         //SpeciesListItem.where {dataResourceUid == params.id}.deleteAll()
-        println(params)
+        log.debug(params)
         //performs the cascade delete that is required.
         SpeciesListItem.findAllByDataResourceUid(params.id)*.delete()
         SpeciesListKVP.findAllByDataResourceUid(params.id)*.delete()
@@ -67,7 +67,8 @@ class SpeciesListController {
         org.codehaus.groovy.grails.web.json.JSONObject formParams = JSON.parse(request.getReader())
         log.debug(formParams.toString() + " class : " + formParams.getClass())
         if(formParams.speciesListName && formParams.headers && formParams.rawData){
-            def drURL = helperService.addDataResourceForList(formParams.speciesListName)
+            def drURL = helperService.addDataResourceForList(formParams.speciesListName, formParams.description, formParams.listUrl)
+            log.debug(drURL)
             if(drURL){
                 def druid = drURL.toString().substring(drURL.lastIndexOf('/') +1)
                 log.debug("Loading species list " + formParams.speciesListName)
@@ -76,7 +77,7 @@ class SpeciesListController {
                 CSVReader reader = helperService.getCSVReaderForText(formParams.rawData)
                 def header = formParams.headers
                 log.debug("Heder: " +header)
-                helperService.loadSpeciesList(reader,druid,formParams.speciesListName,header.split(","),vocabs)
+                helperService.loadSpeciesList(reader,druid,formParams.speciesListName, formParams.description, formParams.listUrl, header.split(","),vocabs)
                 def url =createLink(controller:'speciesListItem', action:'list', id: druid) +"?max=15"
                 def map = [url:url]
 //                println("THE URKL: "+url)
@@ -163,7 +164,7 @@ class SpeciesListController {
         def distinctCount = SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid='"+params.id+"'").head()
         def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid='"+params.id+"'")
         def speciesListItems =  SpeciesListItem.findAllByDataResourceUid(params.id,params)
-        println("KEYS: " + keys)
+        log.debug("KEYS: " + keys)
         render(view:'/speciesListItem/list', model:[results: speciesListItems,
                     totalCount:SpeciesListItem.countByDataResourceUid(params.id),
                     noMatchCount:SpeciesListItem.countByDataResourceUidAndGuidIsNull(params.id),
@@ -178,11 +179,11 @@ class SpeciesListController {
             def isdr = params.id.startsWith("dr")
 //            def where = isdr? "dataResourceUid='"+params.id+"'":"id = " + params.id
 //            def guids = SpeciesListItem.executeQuery("select guid from SpeciesListItem where guid is not null and " + where)
-            def guids = getGuidsForList(params.id)
+            def guids = getGuidsForList(params.id,grailsApplication.config.downloadLimit)
             def speciesList = isdr?SpeciesList.findByDataResourceUid(params.id):SpeciesList.get(params.id)
             if(speciesList){
                 def url = bieService.generateFieldGuide(speciesList.getDataResourceUid(), guids)
-                println("THE URL:: " + url)
+                log.debug("THE URL:: " + url)
                 if(url)
                     redirect(url:url)
                 else
@@ -193,10 +194,10 @@ class SpeciesListController {
         }
     }
 
-    def getGuidsForList(id){
+    def getGuidsForList(id, limit){
         def isdr =id.startsWith("dr")
-        def where = isdr? "dataResourceUid='"+params.id+"'":"id = " + params.id
-        def guids = SpeciesListItem.executeQuery("select guid from SpeciesListItem where guid is not null and " + where)
+        def where = isdr? "dataResourceUid=?":"id = ?"
+        def guids = SpeciesListItem.executeQuery("select guid from SpeciesListItem where guid is not null and " + where, [params.id] ,[max: limit])
 
         return guids
     }
@@ -206,11 +207,17 @@ class SpeciesListController {
      */
     def occurrences(){
         if (params.id && params.type){
-            def guids = getGuidsForList(params.id)
-            def url =biocacheService.performBatchSearchOrDownload(guids,params.type)
+            def guids = getGuidsForList(params.id, grailsApplication.config.downloadLimit)
+
+            def splist = SpeciesList.findByDataResourceUid(params.id)
+            def title = "Species List: <a href=\""+grailsApplication.config.grails.serverURL+"/speciesListItem/list/"+params.id+"\">" +splist.listName
+
+            def url =biocacheService.performBatchSearchOrDownload(guids,params.type, title)
+
+
 
             if(url)
-                redirect(url:url+params.toQueryString())
+                redirect(url:url)
             else
                 redirect(controller: "speciesListItem", action: "list", id:params.id)
         }
@@ -220,7 +227,7 @@ class SpeciesListController {
      * users to supply vocabs etc.
      */
     def parseData(){
-        println("Parsing for header")
+        log.debug("Parsing for header")
         def rawData = request.getReader().readLines().join("\n").trim()
 
         CSVReader csvReader =helperService.getCSVReaderForText(rawData)
@@ -237,7 +244,7 @@ class SpeciesListController {
         if (processedHeader.find{it == "scientific name" || it == "vernacular name" || it == "ambiguous name"} && processedHeader.size()>0){
             //grab all the unique values for the none scientific name fields to supply for potential vocabularies
             def listProperties = helperService.parseValues(processedHeader as String[],helperService.getCSVReaderForText(rawData))
-            println(listProperties)
+            log.debug(listProperties)
             render(view: 'parsedData', model: [columnHeaders:processedHeader, dataRows:dataRows, listProperties:listProperties])
 
         }

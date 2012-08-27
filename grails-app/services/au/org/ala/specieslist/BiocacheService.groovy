@@ -7,11 +7,11 @@ class BiocacheService {
 
     def grailsApplication
 
-    def performBatchSearchOrDownload(guids,action) {
+    def performBatchSearchOrDownload(guids,action, title) {
         def http = new HTTPBuilder(grailsApplication.config.biocacheService.baseURL +"/occurrences/batchSearch")
         def postBody = [field:'lsid',queries: guids.join(","),
                 separator:',',redirectBase:grailsApplication.config.biocache.baseURL+"/occurrences/search",
-                action:action]
+                action:action, title:title]
         try{
         http.post(body: postBody, requestContentType:groovyx.net.http.ContentType.URLENC){resp->
             //return the location in the header

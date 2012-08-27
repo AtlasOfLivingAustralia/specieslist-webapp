@@ -28,17 +28,24 @@
                     <li class="last">Species Lists</li>
                 </ol>
             </nav>
-            <h1>Species Lists</h1>
+            <hgroup class="leftfloat">
+                <h1>Species Lists</h1>
+            </hgroup>
+            <div class="rightfloat">
+                <a class="button orange" title="Add Species List" href="${request.contextPath}/speciesList/upload">Add Species List</a>
+                <a class="button orange" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
+            </div>
         </div><!--inner-->
+
     </header>
     <div class="inner">
         <div id="section" class="col-wide">
 
-            <a class="button orange" title="Add Species List" href="${request.contextPath}/speciesList/upload">Add Species List</a>
-            <a class="button orange" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
+            %{--<a class="button orange" title="Add Species List" href="${request.contextPath}/speciesList/upload">Add Species List</a>--}%
+            %{--<a class="button orange" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>--}%
 
         <g:if test="${lists && total>0}">
-            <p>All Available Species Lists:</p>
+            <p>Below is a listing of user provided species lists.  You can use these lists to work with parts of the Atlas. </p>
             <g:render template="/speciesList"/>
             %{--<table>--}%
                 %{--<thead>--}%

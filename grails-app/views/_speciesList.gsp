@@ -2,10 +2,10 @@
 <div id="speciesList" class="speciesList">
     <script type="text/javascript">
         function deleteAction(){
-            console.log(this)
-            var listId = this.id.replace("dialog_","")
+            //console.log(this)
+            var listId = this.id.replace("dialog_","");
             var url = "${createLink(controller:'speciesList', action:'delete')}" + "/"+listId;
-            console.log("DELETE ITEMS",listId, url)
+            //console.log("DELETE ITEMS",listId, url)
             $.post(url,
                     function(data){
                         //alert('Value returned from service: '  + data.uid);
@@ -15,20 +15,29 @@
 
         }
     </script>
-    <table>
+    <table class="tableList">
+        <colgroup>
+            <col width="25%">
+            <col width="22%">
+            <col width="22%">
+            <col width="16%">
+            <col width="5%">
+        </colgroup>
     <thead>
     <tr>
         <td>List Name</td>
         <td>Owner</td>
-        <td>Number of Items</td>
+        <td>Date Submitted</td>
+        <td>Item Count</td>
         <td/>
     </tr>
     </thead>
     <tbody>
     <g:each in="${lists}" var="list" status="i">
         <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-            <td><a href="${request.contextPath}/speciesListItem/list/${list.dataResourceUid}">${fieldValue(bean: list, field: "listName")}</td>
+            <td><a href="${request.contextPath}/speciesListItem/list/${list.dataResourceUid}">${fieldValue(bean: list, field: "listName")}</a></td>
             <td>${fieldValue(bean: list, field: "firstName")} ${fieldValue(bean: list, field: "surname")}</td>
+            <td><g:formatDate format="yyyy-MM-dd" date="${list.dateCreated}"/></td>
             <td>${list.items.size()}</td>
             <g:if test="${list.username = request.getUserPrincipal()?.attributes?.email}">
                 %{--<td id="delete${list.id}">--}%

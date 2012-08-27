@@ -20,6 +20,9 @@ class SpeciesListItem {
     String rawScientificName
     String dataResourceUid
     String guid
+    String matchedName
+    String kingdom
+    String family
     Boolean isPublished //stores whether or not the species list for this item has been published to the BIE
     Date dateCreated
     Date lastUpdated
@@ -31,6 +34,9 @@ class SpeciesListItem {
         //guid unique:  'name' //AK for the table
         isPublished(nullable:true)
         guid(nullable:true)
+        matchedName(nullable: true)
+        kingdom(nullable:  true)
+        family(nullable:  true)
         //kvpValues(nullable: true)
     }
 

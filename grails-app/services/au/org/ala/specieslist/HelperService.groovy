@@ -61,9 +61,9 @@ class HelperService {
      * @param description
      * @return
      */
-    def addDataResourceForList(name) {
+    def addDataResourceForList(name,description,url) {
         def http = new HTTPBuilder(grailsApplication.config.colletory.baseURL +"/ws/dataResource")
-        def jsonBody = createJsonForNewDataResource(name)
+        def jsonBody = createJsonForNewDataResource(name, description, url)
         log.debug(jsonBody)
         try{
          http.post(body: jsonBody, requestContentType:JSON){ resp ->
@@ -78,7 +78,7 @@ class HelperService {
 
     }
 
-    def createJsonForNewDataResource(listname){
+    def createJsonForNewDataResource(listname,description,URL){
         def builder = new JSONBuilder()
 
         def result = builder.build{
@@ -88,6 +88,8 @@ class HelperService {
             email = authService.email()
             firstName = ""
             lastName = ""
+            websiteUrl=URL?:""
+            pubDescription=description?:""
             resourceType = "uploads"
 
         }
@@ -213,7 +215,8 @@ class HelperService {
         }
     }
 
-    def loadSpeciesList(CSVReader reader,druid,listname, String[] header, Map vocabs){
+    def loadSpeciesList(CSVReader reader,druid,listname,description, listUrl, String[] header, Map vocabs){
+        log.debug("Loading species list " + druid + " " + listname + " " + description + " " + listUrl + " " + header + " " + vocabs)
         def kvpmap = [:]
         addVocab(druid,vocabs,kvpmap)
         SpeciesList sl = new SpeciesList()
@@ -222,6 +225,8 @@ class HelperService {
         sl.username = authService.email()
         sl.firstName = authService.firstname()
         sl.surname = authService.surname()
+        sl.description = description
+        sl.url = listUrl
         String [] nextLine
         boolean checkedHeader = false
         int speciesValueIdx = getSpeciesIndex(header)
@@ -241,6 +246,9 @@ class HelperService {
 //                session.clear()
 //                propertyInstanceMap.get().clear()
 //            }
+        }
+        if(!sl.validate()){
+            println(sl.errors.allErrors)
         }
         if(sl.items.size()>0)
             sl.save()

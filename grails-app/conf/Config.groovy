@@ -6,17 +6,20 @@ if (!collectory.baseURL) {
 }
 /******* Change this stuff for your project *******/
 appName = 'specieslist-webapp'
-serverName='http://audax.ala.org.au:8080'
+serverName='http://natasha.ala.org.au:8080'
 contextPath='/specieslist-webapp'
 security.cas.uriFilterPattern = '/speciesList, /speciesList/.*'
 /******* End of change this stuff for your project *******/
 if (!security.cas.contextPath) {
     security.cas.contextPath = "/specieslist-webapp"
 }
+if (!security.cas.authenticateOnlyIfLoggedInPattern) {
+    security.cas.authenticateOnlyIfLoggedInPattern = "/speciesListItem/list,/speciesListItem/list/.*"
+}
 /******* ALA standard config ************/
 headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
 security.cas.casServerName = 'https://auth.ala.org.au'
-security.cas.uriExclusionFilterPattern = '/images.*,/css.*,/js.*'
+security.cas.uriExclusionFilterPattern = '/images.*,/css.*,/js.*,/speciesList/occurrences/.*,/speciesList/fieldGuide/.*'
 security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
 security.cas.logoutUrl = 'https://auth.ala.org.au/cas/logout'
 security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
@@ -34,6 +37,7 @@ grails.project.groupId = au.org.ala // change this to alter the default package 
 /*** Config specific for species list ***/
 bie.download = "/data/bie-staging/species-list"
 bie.nameIndexLocation = "/data/lucene/namematchingv1_1"
+downloadLimit="200" //the number of species to limit downloads to
 /*** End config specific for species list ***/
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.use.accept.header = false
@@ -166,6 +170,7 @@ log4j = {
             'grails.app.tagLib.ala.postie',
             'au.org.ala.species',
             'grails.plugin.springcache'
+
 }
 
 //springcache configuration

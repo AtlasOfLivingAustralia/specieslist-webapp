@@ -5,7 +5,7 @@ import au.com.bytecode.opencsv.CSVWriter
 class SpeciesListItemController {
     def bieService
     def loggerService
-
+    def authService
     def index() { }
     /**
      *

@@ -47,7 +47,7 @@
                         $('#recognisedDataDiv').show();
                         $('#recognisedData').html(data)
                         $('#uploadDiv').show()
-
+                        $('#listvocab').hide()
                     }
                 });
             }
@@ -74,10 +74,18 @@
             obj1.style.visibility = 'visible';
         }
 
+        function viewVocab(){
+            $('#listvocab').show();
+            $('#viewVocabButton').hide();
+        }
+
         function uploadSpeciesList(){
+            if($('#listTitle').val().length > 0){
             var map =getVocabularies();
             map['headers'] = getColumnHeaders();
-            map['speciesListName'] = $('#speciesListName').val();
+            map['speciesListName'] = $('#listTitle').val();
+            map['description'] = $('#listDesc').val();
+            map['listUrl'] = $('#listURL').val()
             map['rawData']  =$('#copyPasteData').val()
             //console.log($.param(map))
             //console.log("The map: ",map)
@@ -100,6 +108,11 @@
                 }
 
         });
+            }
+            else{
+                $('#listTitle').focus()
+                alert("You must supply a species list title")
+            }
             //dataType: "json",
 
 //            $.post(url, $.param(map),
@@ -218,10 +231,43 @@
             </div>
             <div id="uploadDiv">
                 <h2>3. Upload Species List</h2>
+                Please supply a title for your list.  You can optionally supply a description and external URL as a reference to the list.
                 <div id="processSampleUpload">
                     <p style="padding-bottom:0px;">
-                        <label for="speciesListName" class="datasetName"><strong>Your species list name</strong></label>
-                        <input id="speciesListName" class="datasetName" name="datasetName" type="text" value="My test species list" style="width:350px; margin-bottom:5px;"/>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <label for="listTitle"><g:message code="upload.listname.label" default="Title*" /></label>
+                                    </td>
+                                    <td>
+                                        <g:textField name="listTitle" style="width:99%"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="listDesc"><g:message code="upload.listdesc.label" default="Description" /></label>
+                                    </td>
+                                    <td>
+                                        <g:textArea cols="100" rows="5" name="listDesc" />
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="listURL"><g:message code="upload.listlink.label" default="URL" /></label>
+                                    </td>
+                                    <td>
+                                        <g:textField name="listURL" style="width:99%" />
+                                    </td>
+
+                                </tr>
+
+
+                            </tbody>
+                        </table>
+                        %{--<label for="speciesListName" class="datasetName"><strong>Your species list name</strong></label>--}%
+                        %{--<input id="speciesListName" class="datasetName" name="datasetName" type="text" value="My test species list" style="width:350px; margin-bottom:5px;"/>--}%
                         <input id="uploadButton" class="datasetName" type="button" value="Upload" onclick="javascript:uploadSpeciesList();"/>
                     <div id="uploadFeedback" style="clear:right;">
                     </div>

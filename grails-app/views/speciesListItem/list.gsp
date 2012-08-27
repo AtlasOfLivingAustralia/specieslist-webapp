@@ -15,6 +15,7 @@
 <!doctype html>
 <g:set var="bieUrl" value="${grailsApplication.config.bie.baseURL}"/>
 <g:set var="collectoryUrl" value="${grailsApplication.config.collectory.baseURL}" />
+<g:set var="maxDownload" value="${grailsApplication.config.downloadLimit}" />
 <html>
 <head>
     <gui:resources components="['dialog']"/>
@@ -78,17 +79,14 @@
                     <li class="last">Species List Items</li>
                 </ol>
             </nav>
-            <h1>Species List <a href="${collectoryURL}/public/show/${params.id}">${speciesList.listName}</a></h1>
-        </div><!--inner-->
-    </header>
-
-    <div class="inner">
-        <div class="four-column">
-            <section class="double">
-                <div id="buttonDiv" class="buttonDiv">
-                <a class="button orange" id="download">Download</a>
-                <a class="button orange" title="View Occurrence for this list"
-                   href="${request.contextPath}/speciesList/occurrences/${params.id}?type=Search">View Occurrences</a>
+            <hgroup class="leftfloat">
+                <h1>Species List <a href="${collectoryURL}/public/show/${params.id}">${speciesList?.listName}</a></h1>
+            </hgroup>
+            <div class="rightfloat" id="buttonDiv">
+                %{--<div id="buttonDiv" class="buttonDiv">--}%
+                    <a class="button orange" title="View the download options for this species list." id="download">Download</a>
+                    <a class="button orange" title="View occurrences for up to ${maxDownload} species on the list"
+                       href="${request.contextPath}/speciesList/occurrences/${params.id}?type=Search">View Occurrences</a>
 
                     <gui:dialog
                             title="Download"
@@ -111,7 +109,7 @@
                         </p>
                         <fieldset>
                             <p><label for="email">Email</label>
-                                <input type="text" name="email" id="email" value="natasha" size="30"  />
+                                <input type="text" name="email" id="email" value="${request.remoteUser}" size="30"  />
                             </p>
                             <p><label for="filename">File Name</label>
                                 <input type="text" name="filename" id="filename" value="data" size="30"  />
@@ -125,10 +123,42 @@
                                 </select>
                             </p>
                         </fieldset>
-                        Note: The field guide may take several minutes to prepare and download.
+                        Note: The field guide may take several minutes to prepare and download.<br/>
+                        A maximum of ${maxDownload} species will be considered for each download.
                     </gui:dialog>
-                </div>
-            <table>
+                %{--</div> <!-- button div -->--}%
+            </div>  <!-- rightfloat -->
+        </div><!--inner-->
+    </header>
+
+    <div class="inner">
+
+        <div class="col-narrow">
+            <div class="boxed attached">
+                %{--<div id="customiseList" >--}%
+
+                    %{--<a id="customiseListButton" class="buttonDiv">Customise</a>--}%
+                %{--</div>--}%
+                <section class="meta">
+                   <dl>
+                       <dt>List Item Count</dt>
+                       <dd>${totalCount}</dd>
+                       <dt>Distinct Species</dt>
+                       <dd>${distinctCount}</dd>
+                       <g:if test="${noMatchCount>0}">
+                            <dt>Unknown Species</dt>
+                            <dd>${noMatchCount}</dd>
+                       </g:if>
+                   </dl>
+                </section>
+            </div><!-- boxed attached -->
+        </div> <!-- col narrow -->
+
+        <div class="col-wide last">
+           <div class="tabs-panes-noborder">
+            <section class="double">
+
+            <table class="tableList">
                 <thead>
                 <tr>
                       <td>Scientific Name</td>
@@ -170,13 +200,8 @@
             </div>
         </g:if>
         </section>
-        <section class="last">
-            <h3>Statistics</h3>
-            Number of records in list: ${totalCount}<br>
-            Number of distinct species: ${distinctCount}<br>
-            Number of unknown species: ${noMatchCount} <br>
-        </section>
-            </div> <!-- four-column -->
+            </div> <!-- tabs-panes-noborder -->
+            </div> <!-- "col-wide last" -->
         %{--</div> <!-- results -->--}%
     </div>
 </div> <!-- content div -->
