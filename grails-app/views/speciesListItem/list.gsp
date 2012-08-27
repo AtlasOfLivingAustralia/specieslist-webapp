@@ -80,7 +80,7 @@
                 </ol>
             </nav>
             <hgroup class="leftfloat">
-                <h1>Species List <a href="${collectoryURL}/public/show/${params.id}">${speciesList?.listName}</a></h1>
+                <h1>Species List <a href="${collectoryUrl}/public/show/${params.id}">${speciesList?.listName}</a></h1>
             </hgroup>
             <div class="rightfloat" id="buttonDiv">
                 %{--<div id="buttonDiv" class="buttonDiv">--}%
@@ -140,16 +140,27 @@
                     %{--<a id="customiseListButton" class="buttonDiv">Customise</a>--}%
                 %{--</div>--}%
                 <section class="meta">
+                    <div class="matchStats">
                    <dl>
-                       <dt>List Item Count</dt>
-                       <dd>${totalCount}</dd>
-                       <dt>Distinct Species</dt>
-                       <dd>${distinctCount}</dd>
+                       <h2>
+                           <span class="count">${totalCount}</span>
+                           Number of Taxa
+                       </h2>
+                       <br/>
+                       <h2>
+                           <span class="count">${distinctCount}</span>
+                           Distinct Species
+                       </h2>
+
                        <g:if test="${noMatchCount>0}">
-                            <dt>Unknown Species</dt>
-                            <dd>${noMatchCount}</dd>
+                           <br/>
+                           <h2>
+                               <span class="count">${noMatchCount}</span>
+                            Unrecognised Taxa
+                           </h2>
                        </g:if>
                    </dl>
+                   </div>
                 </section>
             </div><!-- boxed attached -->
         </div> <!-- col narrow -->
@@ -162,17 +173,18 @@
                 <thead>
                 <tr>
                       <td>Scientific Name</td>
-                      <td>Vernacular Name</td>
+                      <td>Common Name</td>
+                    <g:each in="${keys}" var="key">
+                        <td>${key}</td>
+                    </g:each>
                       <td>Image</td>
-                      <g:each in="${keys}" var="key">
-                          <td>${key}</td>
-                      </g:each>
+
                 </tr>
                 </thead>
             <tbody>
                 <g:each var="result" in="${results}" status="i">
                     <g:set var="bieSpecies" value="${bieItems?.get(result.guid)}"/>
-                    <tr class="${result.guid == null? 'unmatched' :(i % 2) == 0 ? 'odd' : 'even'}">
+                    <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                         <td>
                             <g:if test="${result.guid}">
                                 <a href="${bieUrl}/species/${result.guid}">${fieldValue(bean: result, field: "rawScientificName")}</a>
@@ -180,13 +192,17 @@
                             <g:else>
                                 ${fieldValue(bean: result, field: "rawScientificName")}
                             </g:else>
+                            <g:if test="${result.guid == null}">
+                                (unmatched)
+                            </g:if>
                         </td>
                         <td id="cn_${result.guid}">${bieSpecies?.get(1)}</td>
-                        <td id="img_${result.guid}"><img src="${bieSpecies?.get(0)}"/></td>
                         <g:each in="${keys}" var="key">
                             <g:set var="kvp" value="${result.kvpValues.find {it.key == key}}" />
                             <td>${kvp?.vocabValue?:kvp?.value}</td>
                         </g:each>
+                        <td id="img_${result.guid}"><img src="${bieSpecies?.get(0)}"/></td>
+
                       %{--<p>--}%
                           %{--${result.guid} ${result.rawScientificName}--}%
                       %{--</p>--}%

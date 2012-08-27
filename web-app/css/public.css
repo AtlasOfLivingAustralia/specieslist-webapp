@@ -1,4 +1,44 @@
 /* ALA specific items */
+
+ h2 span.count {
+    color: #666666;
+    font-size: 1.3em;
+    vertical-align: -9%;
+     float: right;
+     font-weight: bold;
+     margin-left: 2px;
+}
+.matchStats h2 {
+    font-size: 1.5em;
+
+}
+
+.tableList {
+    border: 1px solid #CCCCCC;
+    width: 100%;
+}
+
+hgroup h1 {
+    padding-bottom: 4px;
+    padding-top: 6px;
+}
+
+#customiseList {
+    background-color: #F0F0E8;
+    /*border: 1px solid #BBBBBB;*/
+    display: block;
+    float: left;
+    font-weight: bold;
+    margin: 4px 0;
+    padding: 2px 7px 1px 5px;
+    text-align: left;
+    width: 100%
+}
+
+
+th.parse { font-size: 12px; border-collapse: collapse; border: 1px solid #000000; padding:2px; background-color: #989898; color: #ffffff;}
+td.parse { font-size: 11px; border-collapse: collapse; border: 1px solid #000000; padding: 2px;}
+
 .odd {
     background: #f7f7f7;
 }
@@ -9,6 +49,11 @@
 .unmatched {
     background: #DC2929
 }
+
+.tabs-panes-noborder {
+    padding-top: 42px;
+}
+
 
 .button-group button, .buttonDiv {
     display: inline-block;

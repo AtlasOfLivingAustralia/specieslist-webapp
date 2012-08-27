@@ -6,7 +6,9 @@ if (!collectory.baseURL) {
 }
 /******* Change this stuff for your project *******/
 appName = 'specieslist-webapp'
-serverName='http://natasha.ala.org.au:8080'
+if(!serverName){
+    serverName='http://audax.ala.org.au:8080'
+}
 contextPath='/specieslist-webapp'
 security.cas.uriFilterPattern = '/speciesList, /speciesList/.*'
 /******* End of change this stuff for your project *******/
@@ -95,6 +97,7 @@ environments {
         grails.logging.jul.usebridge = true
         grails.serverURL = 'http://natasha.ala.org.au:8080/' + appName
         collectory.baseURL = 'http://natasha.ala.org.au:8080/Collectory'
+        serverName='http://natasha.ala.org.au:8080'
     }
     production {
         grails.logging.jul.usebridge = false
