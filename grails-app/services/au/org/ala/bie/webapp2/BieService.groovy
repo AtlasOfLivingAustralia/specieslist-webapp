@@ -188,4 +188,15 @@ class BieService {
     def lookupCommonNameForFamily(name) {
         return tempCache[name]?.preferredCommonName ?: ""
     }
+
+    def getIsAustralian(guid) {
+        def isAustralian = null
+        def ausTaxon = webService.getJson(grailsApplication.config.biocache.baseURL + "ws/australian/taxon/" + guid)
+
+        if (ausTaxon?.isAustralian) {
+            isAustralian = ausTaxon?.isAustralian
+        }
+
+        return isAustralian
+    }
 }

@@ -109,7 +109,14 @@
                     <section class="status">
                         <h2>Species presence</h2>
                         <g:if test="${tc?.taxonConcept?.rankID >= 7000}">
-                            <g:if test="${tc.isAustralian}">
+                            <g:set var="isAussie" value=""/>
+                            <g:if test="${isAustralian != null}">
+                                <g:set var="isAussie" value="${isAustralian}"/>
+                            </g:if>
+                            <g:else>
+                                <g:set var="isAussie" value="${tc.isAustralian}"/>
+                            </g:else>
+                            <g:if test="${isAussie}">
                                 <div><span class="native">&nbsp;</span>Recorded In Australia</div>
                             </g:if>
                             <g:else>
