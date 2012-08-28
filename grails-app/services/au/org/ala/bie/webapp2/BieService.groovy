@@ -189,13 +189,21 @@ class BieService {
         return tempCache[name]?.preferredCommonName ?: ""
     }
 
+    /**
+     * Lookup against biocache for isAustralian property
+     *
+     * @param guid
+     * @return
+     */
     def getIsAustralian(guid) {
-        def isAustralian = null
-        def ausTaxon = webService.getJson(grailsApplication.config.biocache.baseURL + "ws/australian/taxon/" + guid)
+        Boolean isAustralian = null
+        def ausTaxon = webService.getJson(grailsApplication.config.biocache.baseURL + "/ws/australian/taxon/" + guid)
 
-        if (ausTaxon?.isAustralian) {
-            isAustralian = ausTaxon?.isAustralian
+        if (ausTaxon instanceof JSONObject && ausTaxon.containsKey("isAustralian")) {
+            isAustralian = ausTaxon.get("isAustralian")
         }
+
+        log.debug("isAustralian lookup: " + isAustralian)
 
         return isAustralian
     }
