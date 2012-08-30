@@ -121,7 +121,7 @@ log4j = {
 
         environments {
             production {
-                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/var/log/tomcat6/getstarted.log", threshold: org.apache.log4j.Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
+                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/var/log/tomcat6/getstarted.log", threshold: org.apache.log4j.Level.INFO, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
                 'null' name: "stacktrace"
             }
             development {

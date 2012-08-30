@@ -1,6 +1,26 @@
 /* ALA specific items */
 
- h2 span.count {
+div#currentFilter {
+    border: 2px solid #CCCCCC;
+    border-radius: 5px 5px 5px 5px;
+    margin-bottom: 5px;
+    margin-left: -7px;
+    padding-left: 5px;
+}
+
+
+.refine h3{
+    padding-top: 15px;
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+.facets li {
+    list-style-type: none !important;
+}
+
+
+ h3 span.count {
     color: #666666;
     font-size: 1.3em;
     vertical-align: -9%;
@@ -8,7 +28,7 @@
      font-weight: bold;
      margin-left: 2px;
 }
-.matchStats h2 {
+.matchStats h3 {
     font-size: 1.5em;
 
 }

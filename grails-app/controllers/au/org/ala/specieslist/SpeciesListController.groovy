@@ -25,6 +25,7 @@ class SpeciesListController {
     def bieService
     def biocacheService
     def loggerService
+    def queryService
 
     def noOfRowsToDisplay = 5
 
@@ -195,9 +196,11 @@ class SpeciesListController {
     }
 
     def getGuidsForList(id, limit){
+        def fqs = params.fq?[params.fq].flatten().findAll{ it != null }:null
+        def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ",fqs, params.id)
         def isdr =id.startsWith("dr")
-        def where = isdr? "dataResourceUid=?":"id = ?"
-        def guids = SpeciesListItem.executeQuery("select guid from SpeciesListItem where guid is not null and " + where, [params.id] ,[max: limit])
+        //def where = isdr? "dataResourceUid=?":"id = ?"
+        def guids = SpeciesListItem.executeQuery("select sli.guid  " + baseQueryAndParams[0] + " and sli.guid is not null", baseQueryAndParams[1] ,[max: limit])
 
         return guids
     }

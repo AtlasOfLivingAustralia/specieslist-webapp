@@ -20,6 +20,8 @@
 <head>
     <gui:resources components="['dialog']"/>
     <meta name="layout" content="ala2"/>
+    <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
+    <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'getQueryParam.js')}"></script>
     <title>ALA Species List Items</title>
     <style type="text/css">
     #buttonDiv {display: none;}
@@ -34,21 +36,22 @@
         if(validateForm()){
             this.cancel();
             //downloadURL = $("#email").val();
-            downloadURL = "${request.contextPath}/speciesList/occurrences/${params.id}?type=Download&email="+$("#email").val()+"&reasonTypeId="+$("#reasonTypeId").val()+"&file="+$("#filename").val();
+            downloadURL = "${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Download&email="+$("#email").val()+"&reasonTypeId="+$("#reasonTypeId").val()+"&file="+$("#filename").val();
             window.location =  downloadURL//"${request.contextPath}/speciesList/occurrences/${params.id}?type=Download&email=$('#email').val()&reasonTypeId=$(#reasonTypeId).val()&file=$('#filename').val()"
         }
     }
     function downloadFieldGuide(o){
         if(validateForm()){
             this.cancel();
-            window.location = "${request.contextPath}/speciesList/fieldGuide/${params.id}"
+            //alert(${params.toQueryString()})
+            window.location = "${request.contextPath}/speciesList/fieldGuide/${params.id}${params.toQueryString()}"
         }
 
     }
     function downloadList(o){
          if(validateForm()){
              this.cancel();
-             window.location = "${request.contextPath}/speciesListItem/downloadList/${params.id}?file="+$("#filename").val()
+             window.location = "${request.contextPath}/speciesListItem/downloadList/${params.id}${params.toQueryString()}&file="+$("#filename").val()
          }
     }
     function validateForm() {
@@ -86,7 +89,7 @@
                 %{--<div id="buttonDiv" class="buttonDiv">--}%
                     <a class="button orange" title="View the download options for this species list." id="download">Download</a>
                     <a class="button orange" title="View occurrences for up to ${maxDownload} species on the list"
-                       href="${request.contextPath}/speciesList/occurrences/${params.id}?type=Search">View Occurrences</a>
+                       href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">View Occurrences</a>
 
                     <gui:dialog
                             title="Download"
@@ -162,6 +165,44 @@
 
                    </div>
                 </section>
+                <section class="refine">
+                    <g:if test="${facets.size()>0 || params.fq}">
+                        <h3>Refine Results</h3>
+                        <g:if test="${params.list('fq').size()>0&& params.list('fq').get(0).length()>0}">
+                        <div id="currentFilter">
+                            <h4>
+                                <span class="FieldName">Current Filters</span>
+                            </h4>
+                         <table>
+                        <g:each in="${params.list('fq')}" var="fq">
+                            <g:if test="${fq.length() >0}">
+                            <tr>
+                                <td>${fq}</td>
+                                %{--<a class="removeLink" onclick="removeFacet('family:ACANTHASPIDIIDAE'); return false;" href="#" oldtitle="remove filter" aria-describedby="ui-tooltip-1">X</a>--}%
+                                <td>  <b>[<a class="removeLink" title="Remove Filter" onclick="removeFacet('${fq}')">X</a>]</b></td>
+                            </tr>
+                            </g:if>
+                        </g:each>
+                         </table>
+                        </div>
+                        </g:if>
+                        <g:if test="${facets.containsKey("listProperties")}">
+                            <g:each in="${facets.get("listProperties")}" var="value">
+                                <h4>
+                                    <span class="FieldName">${value.getKey()}</span>
+                                    <ul class="facets">
+                                    <g:each in="${value.getValue()}" var="arr">
+                                        <li>
+                                        <a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]} </a> (${arr[3]})
+                                        </li>
+                                    </g:each>
+                                    </ul>
+                                </h4>
+                            </g:each>
+                        </g:if>
+                    </g:if>
+
+                </section>
             </div><!-- boxed attached -->
         </div> <!-- col narrow -->
 
@@ -201,7 +242,7 @@
                             <g:set var="kvp" value="${result.kvpValues.find {it.key == key}}" />
                             <td>${kvp?.vocabValue?:kvp?.value}</td>
                         </g:each>
-                        <td id="img_${result.guid}"><img src="${bieSpecies?.get(0)}"/></td>
+                        <td id="img_${result.guid}"><a href="${bieUrl}/species/${result.guid}" ><img src="${bieSpecies?.get(0)}"/></a></td>
 
                       %{--<p>--}%
                           %{--${result.guid} ${result.rawScientificName}--}%
@@ -212,7 +253,12 @@
         </table>
         <g:if test="${params.max<totalCount}">
             <div class="pagination" id="searchNavBar">
-                <g:paginate total="${totalCount}" action="list" id="${params.id}" />
+                <g:if test="${params.fq}">
+                    <g:paginate total="${totalCount}" action="list" id="${params.id}" params="${[fq: params.fq]}"/>
+                 </g:if>
+                <g:else>
+                    <g:paginate total="${totalCount}" action="list" id="${params.id}" />
+                </g:else>
             </div>
         </g:if>
         </section>
