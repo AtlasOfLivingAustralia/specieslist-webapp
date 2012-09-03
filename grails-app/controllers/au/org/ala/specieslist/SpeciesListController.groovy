@@ -31,7 +31,10 @@ class SpeciesListController {
 
     def index() { redirect(action: 'upload')}
 
-    def upload(){ /*maps to the upload.gsp */}
+    def upload(){ /*maps to the upload.gsp */
+        println(ListType.values())
+        render(view:"upload",model:  [listTypes:ListType.values()])
+    }
     /**
      * Current mechnism for deleting a species list
      * @return
@@ -67,6 +70,7 @@ class SpeciesListController {
         log.debug(params)
         org.codehaus.groovy.grails.web.json.JSONObject formParams = JSON.parse(request.getReader())
         log.debug(formParams.toString() + " class : " + formParams.getClass())
+
         if(formParams.speciesListName && formParams.headers && formParams.rawData){
             def drURL = helperService.addDataResourceForList(formParams.speciesListName, formParams.description, formParams.listUrl)
             log.debug(drURL)
@@ -78,7 +82,7 @@ class SpeciesListController {
                 CSVReader reader = helperService.getCSVReaderForText(formParams.rawData)
                 def header = formParams.headers
                 log.debug("Heder: " +header)
-                helperService.loadSpeciesList(reader,druid,formParams.speciesListName, formParams.description, formParams.listUrl, header.split(","),vocabs)
+                helperService.loadSpeciesList(reader,druid,formParams.speciesListName, ListType.valueOf(formParams.get("listType")), formParams.description, formParams.listUrl, header.split(","),vocabs)
                 def url =createLink(controller:'speciesListItem', action:'list', id: druid) +"?max=15"
                 def map = [url:url]
 //                println("THE URKL: "+url)

@@ -23,7 +23,7 @@
     </style>
 </head>
 
-<body class="yui-skin-sam">
+<body class="yui-skin-sam species">
 <script type="text/javascript">
     window.onload=init
     function init(){
@@ -31,7 +31,7 @@
             document.getElementById("speciesList").style.display = "block";
     }
 </script>
-<div id="content" class="species">
+<div id="content">
     <header id="page-header">
         <div class="inner">
             <nav id="breadcrumb">

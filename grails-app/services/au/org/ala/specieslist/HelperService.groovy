@@ -215,7 +215,7 @@ class HelperService {
         }
     }
 
-    def loadSpeciesList(CSVReader reader,druid,listname,description, listUrl, String[] header, Map vocabs){
+    def loadSpeciesList(CSVReader reader,druid,listname,ListType listType,description, listUrl, String[] header, Map vocabs){
         log.debug("Loading species list " + druid + " " + listname + " " + description + " " + listUrl + " " + header + " " + vocabs)
         def kvpmap = [:]
         addVocab(druid,vocabs,kvpmap)
@@ -227,6 +227,7 @@ class HelperService {
         sl.surname = authService.surname()
         sl.description = description
         sl.url = listUrl
+        sl.listType = listType
         String [] nextLine
         boolean checkedHeader = false
         int speciesValueIdx = getSpeciesIndex(header)

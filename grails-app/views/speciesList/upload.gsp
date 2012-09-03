@@ -79,14 +79,39 @@
             $('#viewVocabButton').hide();
         }
 
-        function uploadSpeciesList(){
+        function validateForm(){
+            var isValid = false;
+            var typeId = $("#listTypeId option:selected").val();
             if($('#listTitle').val().length > 0){
+                isValid=true
+            }
+            else{
+                $('#listTitle').focus()
+                alert("You must supply a species list title")
+            }
+            if(isValid){
+
+                if(typeId){
+                    isValid = true
+                }
+                else{
+                    isValid=false
+                    $("#listTypeId").focus();
+                    alert("You must supply a list type")
+                }
+            }
+            return isValid;
+        }
+
+        function uploadSpeciesList(){
+            if(validateForm()){
             var map =getVocabularies();
             map['headers'] = getColumnHeaders();
             map['speciesListName'] = $('#listTitle').val();
             map['description'] = $('#listDesc').val();
             map['listUrl'] = $('#listURL').val()
             map['rawData']  =$('#copyPasteData').val()
+            map['listType'] =$('#listTypeId').val()
             //console.log($.param(map))
             //console.log("The map: ",map)
             $('#recognisedDataDiv').hide();
@@ -109,10 +134,10 @@
 
         });
             }
-            else{
-                $('#listTitle').focus()
-                alert("You must supply a species list title")
-            }
+//            else{
+//                $('#listTitle').focus()
+//                alert("You must supply a species list title")
+//            }
             //dataType: "json",
 
 //            $.post(url, $.param(map),
@@ -243,6 +268,18 @@
                                     <td>
                                         <g:textField name="listTitle" style="width:99%"/>
                                     </td>
+                                </tr>
+                                <tr>
+                                    <td><label for="listTypeId"><g:message code="upload.listtype.label" default="List Type*" /></label></td>
+                                    <td>
+                                        <select name="listTypeId" id="listTypeId">
+                                            <option value="">-- select a type --</option>
+                                            <g:each in="${listTypes}" var="listType">
+                                                <option value="${listType}">${listType.getDisplayValue()}</option>
+                                            </g:each>
+                                        </select>
+                                    </td>
+
                                 </tr>
                                 <tr>
                                     <td>

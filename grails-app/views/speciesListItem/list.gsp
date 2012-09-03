@@ -20,16 +20,19 @@
 <head>
     <gui:resources components="['dialog']"/>
     <meta name="layout" content="ala2"/>
+    <link rel="stylesheet" href="${resource(dir:'css',file:'scrollableTable.css')}"/>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'getQueryParam.js')}"></script>
     <title>ALA Species List Items</title>
     <style type="text/css">
     #buttonDiv {display: none;}
+    #refine {display:none;}
     </style>
 
 <script type="text/javascript">
     function init(){
         document.getElementById("buttonDiv").style.display = "block";
+        document.getElementById("refine").style.display = "block";
     }
     $(document).ready(function(){ init(); });
     function downloadOccurrences(o){
@@ -71,8 +74,8 @@
 </script>
 
 </head>
-<body class="yui-skin-sam">
-<div id="content" class="species">
+<body class="yui-skin-sam species">
+<div id="content" >
     <header id="page-header">
         <div class="inner">
             <nav id="breadcrumb">
@@ -83,7 +86,8 @@
                 </ol>
             </nav>
             <hgroup class="leftfloat">
-                <h1>Species List <a href="${collectoryUrl}/public/show/${params.id}">${speciesList?.listName}</a></h1>
+                <h1>Species List </h1>
+                <h2><a href="${collectoryUrl}/public/show/${params.id}">${speciesList?.listName}</a></h2>
             </hgroup>
             <div class="rightfloat" id="buttonDiv">
                 %{--<div id="buttonDiv" class="buttonDiv">--}%
@@ -96,6 +100,7 @@
                             draggable="true"
                             id="downloadDialog"
                             width= "50em"
+                            clazz="sldialogs"
                             buttons="[
                                     [text:'Download Occurrence Records', handler: 'downloadOccurrences', isDefault: false],
                                     [text:'Download Species Field Guide', handler: 'downloadFieldGuide', isDefault: false],
@@ -159,22 +164,24 @@
                            <br/>
                            <h3>
                                <span class="count">${noMatchCount}</span>
-                            Unrecognised Taxa
+                            <a href="?fq=guid:null${queryParams}" title="View unrecognised taxa">Unrecognised Taxa </a>
                            </h3>
                        </g:if>
 
                    </div>
                 </section>
-                <section class="refine">
+                <section class="refine" id="refine">
                     <g:if test="${facets.size()>0 || params.fq}">
                         <h3>Refine Results</h3>
-                        <g:if test="${params.list('fq').size()>0&& params.list('fq').get(0).length()>0}">
+                        <g:set var="fqs" value="${params.list('fq')}" />
+                        <g:if test="${fqs.size()>0&& fqs.get(0).length()>0}">
                         <div id="currentFilter">
                             <h4>
                                 <span class="FieldName">Current Filters</span>
                             </h4>
                          <table>
-                        <g:each in="${params.list('fq')}" var="fq">
+
+                        <g:each in="${fqs}" var="fq">
                             <g:if test="${fq.length() >0}">
                             <tr>
                                 <td>${fq}</td>
@@ -191,11 +198,55 @@
                                 <h4>
                                     <span class="FieldName">${value.getKey()}</span>
                                     <ul class="facets">
-                                    <g:each in="${value.getValue()}" var="arr">
-                                        <li>
-                                        <a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]} </a> (${arr[3]})
-                                        </li>
-                                    </g:each>
+                                        <g:set var="i" value="${0}" />
+                                        <g:set var="values" value="${value.getValue()}" />
+                                        %{--<g:each in="${value.getValue()}" var="arr">--}%
+                                        <g:while test="${i < 3 && i<values.size()}">
+
+                                            <g:set var="arr" value="${values.get(i)}" />
+                                            <li>
+                                                <a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]} </a> (${arr[3]})
+                                            </li>
+                                            <%i++%>
+                                        </g:while>
+                                        <div class="showHide">
+                                            <a class="multipleFacetsLink" title="See more options." id="options${value.getKey()}">choose more...</a>
+                                            <gui:dialog
+                                                    title="Refine List"
+                                                    draggable="true"
+                                                    id="dialog_${value.getKey().replaceAll(" " ,"_")}"
+
+                                                    buttons="[
+
+                                                            [text:'Close', handler: 'function() {this.cancel();}', isDefault: true]
+                                                    ]"
+                                                    triggers="[show:[id:'options'+value.getKey(), on:'click']]"
+                                            >
+
+
+                                                <table class='compact scrollTable'>
+                                                    <thead class='fixedHeader'>
+                                                        <tr class='tableHead'>
+                                                            <th>&nbsp;</th>
+                                                            <th width="200px">${value.getKey()}</th>
+                                                            <th width=>Count</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class='scrollContent'>
+                                                        <g:each in="${value.getValue()}" var="arr">
+                                                        <tr>
+                                                            <td>&nbsp</td>
+                                                            <td width="205px"><a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]} </a></td>
+                                                            <td >${arr[3]}</td>
+                                                        </tr>
+                                                        </g:each>
+                                                    </tbody>
+                                                </table>
+                                            </gui:dialog>
+                                            %{--<a href="#multipleFacets" class="multipleFacetsLink" id="multi-${facetResult.fieldName}" data-displayname="<fmt:message key="facet.${facetResult.fieldName}"/>"--}%
+                                               %{--title="See more options or refine with multiple values">choose more...</a>--}%
+                                        </div>
+                                    %{--</g:each>--}%
                                     </ul>
                                 </h4>
                             </g:each>

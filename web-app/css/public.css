@@ -1,5 +1,35 @@
 /* ALA specific items */
 
+.species #page-header {
+    background:#faf8ed url(../images/peewee-banner-alc.jpg) center center no-repeat;
+    padding-bottom:12px;
+    border-bottom:1px solid #d1d1d1;
+}
+
+
+#page-header hgroup h2, table.bvp-expeditions div.button-nav h2 {
+    font-size: 1.6em;
+    max-width: 250px;
+    padding-bottom: 0;
+}
+
+.attached {
+    border-top: 1px solid #FaF8Ed;
+}
+.boxed {
+    background-color: #faf8ed;
+}
+
+.multipleFacetsLink{
+    padding-left: 10px;
+    font-weight: normal;
+    font-size: small;
+}
+
+.yui-dialog table{
+    width: 400px;
+}
+
 div#currentFilter {
     border: 2px solid #CCCCCC;
     border-radius: 5px 5px 5px 5px;
@@ -139,10 +169,10 @@ td.parse { font-size: 11px; border-collapse: collapse; border: 1px solid #000000
     /*    display: none;*/
     /*font-size: 13px;*/
 /*}*/
-#downloadDialog_c {
+.yui-dialog {
     text-align: left;
 }
-#downloadDialog_c label {
+.yui-dialog label {
     width: 35%;
     display: inline-block;
     text-align: right;
@@ -153,13 +183,13 @@ td.parse { font-size: 11px; border-collapse: collapse; border: 1px solid #000000
 /*#download {*/
     /*line-height: 1.4em;*/
 /*}*/
-#downloadDialog_c input {
+.yui-dialog input {
     float: none;
 }
 #termsOfUseDownload {
     text-align:left; padding-bottom:15px;
 }
-#downloadDialog_c p {
+.yui-dialog p {
     margin-bottom:10px;
 }
 /* Styling for GrailsUI components. */
@@ -168,7 +198,7 @@ td.parse { font-size: 11px; border-collapse: collapse; border: 1px solid #000000
     background: none;
 }
 
-#downloadDialog_c.bd {
+.yui-dialog.bd {
     background-color: #FFFFFF;
 }
 

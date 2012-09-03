@@ -17,15 +17,17 @@
     </script>
     <table class="tableList">
         <colgroup>
-            <col width="25%">
             <col width="22%">
-            <col width="22%">
+            <col width="19%">
+            <col width="16%">
+            <col width="12%">
             <col width="16%">
             <col width="5%">
         </colgroup>
     <thead>
     <tr>
         <td>List Name</td>
+        <td>List Type</td>
         <td>Owner</td>
         <td>Date Submitted</td>
         <td>Item Count</td>
@@ -36,6 +38,7 @@
     <g:each in="${lists}" var="list" status="i">
         <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
             <td><a href="${request.contextPath}/speciesListItem/list/${list.dataResourceUid}">${fieldValue(bean: list, field: "listName")}</a></td>
+            <td>${list.listType?.getDisplayValue()}</td>
             <td>${fieldValue(bean: list, field: "firstName")} ${fieldValue(bean: list, field: "surname")}</td>
             <td><g:formatDate format="yyyy-MM-dd" date="${list.dateCreated}"/></td>
             <td>${list.items.size()}</td>
