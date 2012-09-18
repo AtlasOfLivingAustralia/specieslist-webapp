@@ -10,10 +10,10 @@ class BieTagLib {
      * @attr rankId REQUIRED the rank id
      */
     def formatSciName = { attrs ->
-        def rankId = attrs.rankId
+        def rankId = attrs.rankId?:0
         def name = attrs.name
 
-        if (rankId >= 600) {
+        if (rankId >= 6000) {
             out << "<i>" + name + "</i>"
         } else {
             out << name
