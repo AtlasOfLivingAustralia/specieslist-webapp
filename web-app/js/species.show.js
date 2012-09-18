@@ -67,14 +67,23 @@ $(document).ready(function() {
     // LSID link to show popup with LSID info and links
     $("a#lsid").fancybox({
         closeClick : false,
-        helpers:  {
-            title:  null
-        },
+        helpers:  { title: null },
         width: '70%',
         height: '70%',
         maxWidth: 640,
         fitToView: false
     });
+
+    // LSID link to show popup data links
+    $("a#dataLinks").fancybox({
+        closeClick : false,
+        helpers:  { title: null },
+        width: '70%',
+        height: '70%',
+        maxWidth: 640,
+        fitToView: false
+    });
+
 
     // Charts via collectory charts.js
     var chartOptions = {
@@ -84,10 +93,11 @@ $(document).ready(function() {
         error: chartsError,
         width: 540,
         charts: ['collection_uid','state','month','decade'],
-        collection_uid: {title: 'By collection'},
-        state: {title: 'By state & territory'},
-        month: {chartType: "column"},
-        decade: {chartType: "column"}
+        collection_uid: {title: 'By collection',  backgroundColor: '#FFFEF7'},
+        state: {title: 'By state & territory', backgroundColor: '#FFFEF7'},
+        month: {chartType: "column", backgroundColor: '#FFFEF7'},
+        decade: {chartType: "column", backgroundColor: '#FFFEF7'},
+        backgroundColor: '#FFFEF7'
     }
 
     //loadFacetCharts(chartOptions);

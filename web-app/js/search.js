@@ -173,6 +173,7 @@ function numberWithCommas(x) {
 }
 
 function injectBhlResults() {
+
     var url = SEARCH_CONF.bhlUrl + "/select?q={!lucene q.op=AND}" + SEARCH_CONF.query + "&start=0&rows=0" +
         "&wt=json&fl=name%2CpageId%2CitemId%2Cscore&hl=on&hl.fl=text&hl.fragsize=200&" +
         "group=true&group.field=itemId&group.limit=7&group.ngroups=true&taxa=false";
@@ -183,7 +184,9 @@ function injectBhlResults() {
         jsonp: "json.wrf",
         success:  function(data) {
             var maxItems = parseInt(data.grouped.itemId.ngroups, 10);
-            var url = SEARCH_CONF.serverName + "/bhl-search?q=" + SEARCH_CONF.query;
+            var queryToUse = (SEARCH_CONF.query == "" ? "*:*" : SEARCH_CONF.query);
+            //console.log("Using the query: " + queryToUse);
+            var url = SEARCH_CONF.serverName + "/bhl-search?q=" + queryToUse;
             var html = "<li data-count=\"" + maxItems + "\"><a href=\"" + url + "\" id=\"bhlSearchLink\">BHL Literature</a> [" + numberWithCommas(maxItems) + "]</li>";
             insertSearchLinks(html);
         }
@@ -199,7 +202,7 @@ function injectBiocacheResults() {
         success:  function(data) {
             var maxItems = parseInt(data.totalRecords, 10);
             var url = SEARCH_CONF.biocacheUrl + "/occurrences/search?q=" + SEARCH_CONF.query;
-            var html = "<li data-count=\"" + maxItems + "\"><a href=\"" + url + "\" id=\"biocacheSearchLink\">Occurrence Records</a> [" + numberWithCommas(maxItems) + "]</li>";
+            var html = "<li data-count=\"" + maxItems + "\"><a href=\"" + url + "\" id=\"biocacheSearchLink\">Occurrence records</a> [" + numberWithCommas(maxItems) + "]</li>";
             insertSearchLinks(html);
         }
     });
