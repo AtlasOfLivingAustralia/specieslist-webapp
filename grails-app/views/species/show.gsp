@@ -97,7 +97,7 @@
                         <dt>Data links</dt>
                         <dd><a href="#lsidText" id="lsid" class="button" title="Life Science Identifier (pop-up)">LSID</a></dd>
                         <dd>
-                            <a href="#dataLinksText" id="dataLinks" class="button" title="JSON web service">JSON / <g:if test="${tc?.taxonConcept?.rankID % 1000 ==0}">WMS/</g:if> RDF</a>
+                            <a href="#dataLinksText" id="dataLinks" class="button" title="JSON web service">JSON / <g:if test="${tc?.taxonConcept?.rankID?:1 % 1000 == 0}">WMS/</g:if> RDF</a>
                         </dd>
                     </dl>
                     <div style="display:none;">
@@ -113,7 +113,7 @@
                             <p>
                                 For a JSON view of this data, click <a href="${grailsApplication.config.ala.bie.baseURL}/ws/species/${tc?.taxonConcept?.guid}.json">here</a>
                             </p>
-                            <g:if test="${tc?.taxonConcept?.rankID % 1000 ==0}">
+                            <g:if test="${tc?.taxonConcept?.rankID?:1 % 1000 == 0}">
                             <h2>WMS</h2>
                             <p>
                                 To use WMS services, copy and paste the following GetCapabilities URL into your

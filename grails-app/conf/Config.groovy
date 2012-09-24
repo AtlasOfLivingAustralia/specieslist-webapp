@@ -176,11 +176,16 @@ log4j = {
            'net.sf.ehcache.hibernate'
     warn   'org.mortbay.log',
            'grails.app'
-    info   'grails.app'
+    //info   'grails.app'
 
     environments {
+
+        test {
+            info   'grails.app'
+        }
         development {
             // Override previous setting for 'grails.app'
+            info   'grails.app'
             debug  'grails.app'
         }
     }
