@@ -87,6 +87,14 @@ class BieService {
         return JSON.parse(json)
     }
 
+    def getSpeciesList(guid){
+        if(!guid){
+            return null
+        }
+        def json = webService.get(grailsApplication.config.speciesList.baseURL +"/ws/species/"+guid)
+        return JSON.parse(json)
+    }
+
     def getTaxonConcept(guid) {
         if (!guid) {
             return null

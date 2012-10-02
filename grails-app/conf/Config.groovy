@@ -34,6 +34,9 @@ if (!collectory.baseURL) {
 if (!bhl.baseURL) {
     bhl.baseURL = "http://bhlidx.ala.org.au"
 }
+if( !speciesList.baseURL){
+    speciesList.baseURL ="http://lists.ala.org.au"
+}
 alerts.baseUrl = "http://alerts.ala.org.au/ws/"
 brds.guidUrl = "http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid="
 collectory.threatenedSpeciesCodesUrl = collectory.baseURL + "/public/showDataResource"

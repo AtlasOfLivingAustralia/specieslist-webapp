@@ -107,7 +107,8 @@ class SpeciesController {
                     isReadOnly: grailsApplication.config.ranking.readonly, // TODO: implement this properly based on BIE version
                     sortCommonNameSources: utilityService.getNamesAsSortedMap(etc.commonNames),
                     taxonHierarchy: bieService.getClassificationForGuid(guid),
-                    childConcepts: bieService.getChildConceptsForGuid(guid)
+                    childConcepts: bieService.getChildConceptsForGuid(guid),
+                    speciesList: bieService.getSpeciesList(guid)
                 ]
             )
         }

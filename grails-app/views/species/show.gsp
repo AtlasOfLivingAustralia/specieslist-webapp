@@ -21,6 +21,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <g:set var="alaUrl" value="${grailsApplication.config.ala.baseURL}"/>
 <g:set var="biocacheUrl" value="${grailsApplication.config.biocache.baseURL}"/>
+<g:set var="speciesListUrl" value="${grailsApplication.config.speciesList.baseURL}"/>
 <g:set var="spatialPortalUrl" value="${grailsApplication.config.spatial.baseURL}"/>
 <g:set var="collectoryUrl" value="${grailsApplication.config.collectory.baseURL}"/>
 <g:set var="citizenSciUrl" value="${grailsApplication.config.brds.guidUrl}"/>
@@ -190,6 +191,15 @@
                         </g:each>
                     </section>
                 </g:if>
+                <g:if test="${tc.categories}">
+                    <h2>Categories</h2>
+                    <g:each var="category" in="${tc.categories}">
+                        <div>
+                            <a href="${grailsApplication.config.collectory.threatenedSpeciesCodesUrl}/${category.infoSourceUid}" title="Category details" onclick="window.open(this.href); return false;">
+                                ${category.category}</a>
+                        </div>
+                    </g:each>
+                </g:if>
             </div>
         </div><!--col-narrow-->
         <div class="col-wide last">
@@ -342,6 +352,29 @@
                             </ul>
                         </section>
                     </g:elseif>
+                    <g:if test="${speciesList}">
+                        <h2>Species Lists</h2>
+                        <g:each in="${speciesList}" var="list">
+                            <table>
+                                <thead>
+                                    <td colspan="100%"> <a href="${speciesListUrl}/speciesListItem/list/${list.dataResourceUid}">${list?.list?.listName}</a></td>
+                                </thead>
+                            <g:if test="${list.kvpValues}">
+                                %{--<table>--}%
+                                <tbody>
+                                    <g:each in="${list.kvpValues}" var="kvp">
+                                        <tr>
+                                            <td><em>${kvp.key}:</em></td>
+                                            <td>
+                                                ${kvp.vocabValue?:kvp.value}
+                                            </td>
+                                        </tr>
+                                    </g:each>
+                                </tbody>
+                            </g:if>
+                        </g:each>
+                    </g:if>
+                    </table>
                 </section><!--#overview-->
                 <g:if test="${tc.taxonConcept?.rankID?:0 >= 6000}">
                     <section id="gallery">
