@@ -36,7 +36,7 @@ class QueryService {
         }
         }
         query.append(whereBuilder.toString())
-        println(query.toString())
+        log.debug(println(query.toString()))
          //println(queryparams)
         [query.toString(), queryparams]
 

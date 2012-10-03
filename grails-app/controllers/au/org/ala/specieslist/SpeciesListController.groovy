@@ -32,7 +32,7 @@ class SpeciesListController {
     def index() { redirect(action: 'upload')}
 
     def upload(){ /*maps to the upload.gsp */
-        println(ListType.values())
+        log.debug(ListType.values())
         render(view:"upload",model:  [listTypes:ListType.values()])
     }
     /**

@@ -2,19 +2,21 @@ if (!bie.baseURL) {
     bie.baseURL = "http://bie.ala.org.au"
 }
 if (!collectory.baseURL) {
-    colletory.baseURL = "http://audax.ala.org.au:8080/Collectory"
+    collectory.baseURL="http://collections.ala.org.au"
+    //collectory.baseURL = "http://audax.ala.org.au:8080/Collectory"
 }
 /******* Change this stuff for your project *******/
 appName = 'specieslist-webapp'
 if(!serverName){
-    serverName='http://audax.ala.org.au:8080'
+    serverName='http://lists.ala.org.au'
+    //serverName='http://audax.ala.org.au:8080'
 }
-contextPath='/specieslist-webapp'
+//contextPath='/specieslist-webapp'
 security.cas.uriFilterPattern = '/speciesList, /speciesList/.*'
 /******* End of change this stuff for your project *******/
-if (!security.cas.contextPath) {
-    security.cas.contextPath = "/specieslist-webapp"
-}
+//if (!security.cas.contextPath) {
+//    security.cas.contextPath = "/specieslist-webapp"
+//}
 if (!security.cas.authenticateOnlyIfLoggedInPattern) {
     security.cas.authenticateOnlyIfLoggedInPattern = "/speciesListItem/list,/speciesListItem/list/.*"
 }
@@ -96,15 +98,21 @@ environments {
     development {
         grails.logging.jul.usebridge = true
         grails.serverURL = 'http://natasha.ala.org.au:8080/' + appName
-        collectory.baseURL = 'http://natasha.ala.org.au:8080/Collectory'
+        //collectory.baseURL = 'http://natasha.ala.org.au:8080/Collectory'
+        collectory.baseURL ='http://audax.ala.org.au:8080/Collectory'
         serverName='http://natasha.ala.org.au:8080'
+        contextPath = "/specieslist-webapp"
     }
     production {
         grails.logging.jul.usebridge = false
         // TODO: grails.serverURL = "http://www.changeme.com"
-        grails.serverURL = 'http://audax.ala.org.au:8080/' + appName
-        collectory.baseURL ='http://audax.ala.org.au:8080/Collectory'
-        bie.baseURL = 'http://audax.ala.org.au:8080/bie-webapp2'
+        grails.serverURL = 'http://lists.ala.org.au'
+        //collectory.baseURL ='http://audax.ala.org.au:8080/Collectory'
+        collectory.baseURL='http://collections.ala.org.au'
+        //bie.baseURL = 'http://audax.ala.org.au:8080/bie-webapp2'
+        bie.baseURL = 'http://bie.ala.org.au'
+        serverName='lists.ala.org.au'
+        contextPath = ""
     }
 }
 
@@ -116,21 +124,22 @@ log4j = {
     //
     appenders {
 
-        console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.DEBUG
+        //console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.DEBUG
 //        rollingFile name: "dev2", layout: pattern(conversionPattern: "[POSTIE] %c{2} %m%n"), maxFileSize: 1024, file: "/tmp/postie.log", threshold: org.apache.log4j.Level.DEBUG
 
         environments {
             production {
-                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/var/log/tomcat6/getstarted.log", threshold: org.apache.log4j.Level.INFO, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
+                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.ERROR
+                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/var/log/tomcat6/specieslist.log", threshold: org.apache.log4j.Level.INFO, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
                 'null' name: "stacktrace"
             }
             development {
                 console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.DEBUG
-                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/tmp/getstarted.log", threshold: org.apache.log4j.Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
+                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/tmp/specieslist.log", threshold: org.apache.log4j.Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
                 'null' name: "stacktrace"
             }
             test {
-                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/tmp/getstarted-test.log", threshold: org.apache.log4j.Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
+                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/tmp/specieslist-test.log", threshold: org.apache.log4j.Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
                 'null' name: "stacktrace"
             }
         }
@@ -166,12 +175,11 @@ log4j = {
             'grails.app',
             'net',
             'grails.util.GrailsUtil'
-
     debug  'grails.app.domain.ala.postie',
             'grails.app.controller.ala.postie',
             'grails.app.service.ala.postie',
             'grails.app.tagLib.ala.postie',
-            'au.org.ala.species',
+            'grails.app',
             'grails.plugin.springcache'
 
 }

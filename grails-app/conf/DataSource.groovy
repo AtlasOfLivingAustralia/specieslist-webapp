@@ -31,7 +31,9 @@ environments {
     production {
         dataSource {
             dbCreate = "update"
-            url = "jdbc:mysql://localhost/specieslist?autoReconnect=true&connectTimeout=0"
+            url = "jdbc:mysql://ala-biedb1.vm.csiro.au/specieslist?autoReconnect=true&connectTimeout=0"
+            username="specieslist"
+            password="RHitoHYAbfmJBCT0zywo143tH"
             pooled = true
             properties {
                maxActive = -1

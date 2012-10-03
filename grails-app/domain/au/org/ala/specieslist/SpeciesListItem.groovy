@@ -26,6 +26,7 @@ class SpeciesListItem {
     Boolean isPublished //stores whether or not the species list for this item has been published to the BIE
     Date dateCreated
     Date lastUpdated
+    Integer itemOrder
 
     static hasMany = [kvpValues: SpeciesListKVP]
     static belongsTo = [list:SpeciesList]
@@ -43,6 +44,7 @@ class SpeciesListItem {
     static mapping ={
         dataResourceUid index: 'idx_data_resource_uid'
         guid index: 'idx_guid'
+        itemOrder index:  'idx_item_order'
         kvpValues lazy: false
     }
 

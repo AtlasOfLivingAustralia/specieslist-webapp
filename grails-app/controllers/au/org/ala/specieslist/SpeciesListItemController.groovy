@@ -18,7 +18,7 @@ class SpeciesListItemController {
             if (params.message)
                 flash.message = params.message
             params.max = Math.min(params.max ? params.int('max') : 10, 100)
-            params.sort = params.sort ?: "id"
+            params.sort = params.sort ?: "itemOrder"
             params.fetch= [ kvpValues: 'select' ]
 
             log.debug(params.toQueryString())
@@ -28,7 +28,7 @@ class SpeciesListItemController {
             //println(queryService.constructWithFacets("select count(distinct guid)",facets, params.id))
 
             def baseQueryAndParams = params.fq?queryService.constructWithFacets(" from SpeciesListItem sli ",fqs, params.id):null
-            println(baseQueryAndParams)
+            log.debug(baseQueryAndParams)
             //def queryparams = params.fq? queryService.constructWithFacets("select count(distinct guid)",fqs,params.id): ["select count(distinct guid) from SpeciesListItem where dataResourceUid=?",[params.id]]
             //This is used for the stats - should these be for the whole list or just the fqed version?
             def distinctCount =  params.fq?SpeciesList.executeQuery("select count(distinct guid) " + baseQueryAndParams[0],baseQueryAndParams[1]).head():SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid=?",params.id).head()//SpeciesListItem.executeQuery(queryparams[0],[queryparams[1]]).head()
@@ -48,10 +48,17 @@ class SpeciesListItemController {
             //println(speciesListItems)
             //log.debug("KEYS: " + keys)
             def guids = speciesListItems.collect{it.guid}
+            log.debug("guids " + guids)
+            def bieItems = bieService.bulkLookupSpecies(guids)
+            log.debug("Retrieved BIE Items")
+            def downloadReasons = loggerService.getReasons()
+            log.debug("Retrieved Logger Reasons")
+            def facets = generateFacetValues(fqs, baseQueryAndParams)
+            log.debug("Retrived facets")
             render(view:'list', model:[speciesList: SpeciesList.findByDataResourceUid(params.id),queryParams:queryParams,results: speciesListItems,
                     totalCount:totalCount,
                     noMatchCount:noMatchCount,
-                    distinctCount:distinctCount, keys:keys, bieItems:bieService.bulkLookupSpecies(guids), downloadReasons:loggerService.getReasons(), facets:generateFacetValues(fqs, baseQueryAndParams)])
+                    distinctCount:distinctCount, keys:keys, bieItems:bieItems, downloadReasons:downloadReasons, facets:facets])
         }
         else{
             //redirect to the public species list page

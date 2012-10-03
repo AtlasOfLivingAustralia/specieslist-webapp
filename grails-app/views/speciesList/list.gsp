@@ -55,7 +55,7 @@
         <div id="section" class="col-wide">
 
             <g:if test="${lists && total > 0}">
-                <p>Below is a listing of species lists that you have provided. You can use these lists to work with parts of the Atlas. Click on the "delete" button next a list to remove it from the Atlas.</p>
+                <p>Below is a listing of species lists that you have provided. You can use these lists to work with parts of the Atlas. Click on the "delete" button next to a list to remove it from the Atlas.</p>
                 <g:render template="/speciesList"/>
             </g:if>
             <g:else>

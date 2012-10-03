@@ -1,5 +1,16 @@
 /* ALA specific items */
 
+div.fwtable {
+    width: 890px;
+    overflow: auto;
+    display: inline-block
+}
+div.fhtable {
+    max-height: 400px;
+    overflow: auto;
+    display: inline-block
+}
+
 .species #page-header {
     background:#faf8ed url(../images/peewee-banner-alc.jpg) center center no-repeat;
     padding-bottom:12px;
@@ -66,6 +77,7 @@ div#currentFilter {
 .tableList {
     border: 1px solid #CCCCCC;
     width: 100%;
+    margin-bottom: 0px;
 }
 
 hgroup h1 {

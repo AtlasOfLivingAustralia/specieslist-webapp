@@ -6,6 +6,11 @@ grails.project.target.level = 1.6
 grails.project.source.level = 1.6
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
 
+// Remove the conflicting groovy jar before bundling
+grails.war.resources = { stagingDir ->
+    delete(file:"${stagingDir}/WEB-INF/lib/groovy-1.7.11.jar")
+}
+
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {

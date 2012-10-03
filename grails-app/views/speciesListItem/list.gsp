@@ -260,7 +260,7 @@
         <div class="col-wide last">
            <div class="tabs-panes-noborder">
             <section class="double">
-
+            <div class="fwtable">
             <table class="tableList">
                 <thead>
                 <tr>
@@ -302,6 +302,7 @@
                 </g:each>
             </tbody>
         </table>
+        </div>
         <g:if test="${params.max<totalCount}">
             <div class="pagination" id="searchNavBar">
                 <g:if test="${params.fq}">

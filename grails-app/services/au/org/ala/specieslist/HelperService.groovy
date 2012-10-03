@@ -62,7 +62,7 @@ class HelperService {
      * @return
      */
     def addDataResourceForList(name,description,url) {
-        def http = new HTTPBuilder(grailsApplication.config.colletory.baseURL +"/ws/dataResource")
+        def http = new HTTPBuilder(grailsApplication.config.collectory.baseURL +"/ws/dataResource")
         def jsonBody = createJsonForNewDataResource(name, description, url)
         log.debug(jsonBody)
         try{
@@ -231,14 +231,16 @@ class HelperService {
         String [] nextLine
         boolean checkedHeader = false
         int speciesValueIdx = getSpeciesIndex(header)
+        int count=0
         while ((nextLine = reader.readNext()) != null) {
             if(!checkedHeader){
                 checkedHeader = true
                 if(getSpeciesIndex(nextLine)>-1)
                     nextLine = reader.readNext()
             }
-            if(nextLine.length>0){
-                sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap))
+            if(nextLine.length>0 && org.apache.commons.lang.StringUtils.isNotBlank(nextLine[speciesValueIdx])){
+                count+=1;
+                sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap, count))
             }
 
 //            if(count%100){
@@ -249,7 +251,7 @@ class HelperService {
 //            }
         }
         if(!sl.validate()){
-            println(sl.errors.allErrors)
+            log.error(sl.errors.allErrors)
         }
         if(sl.items.size()>0)
             sl.save()
@@ -272,8 +274,10 @@ class HelperService {
         sl.firstName = authService.firstname()
         sl.surname = authService.surname()
         while ((nextLine = reader.readNext()) != null) {
-            sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap))
-            count++
+            if(org.apache.commons.lang.StringUtils.isNotBlank(nextLine)){
+                sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap))
+                count++
+            }
 //            if(count%100){
 //                def session = sessionFactory.currentSession
 //                session.flush()
@@ -284,12 +288,12 @@ class HelperService {
         sl.save()
     }
 
-    def insertSpeciesItem(String[] values, druid, int speciesIdx, Object[] header,map){
+    def insertSpeciesItem(String[] values, druid, int speciesIdx, Object[] header,map, int order){
         log.debug("Inserting " + values.toArrayString())
         SpeciesListItem sli = new SpeciesListItem()
         sli.dataResourceUid =druid
         sli.rawScientificName = values[speciesIdx]
-
+        sli.itemOrder = order
         int i =0
         header.each {
             if(i != speciesIdx && values[i])
