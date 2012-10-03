@@ -72,7 +72,7 @@ grails.project.dependency.resolution = {
             //for unresolvable dependency yui:[2.6.0,)
             excludes "yui"
         }
-
+        compile ":springcache:1.3.1"
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0"
         //runtime ":cached-resources:1.0"
