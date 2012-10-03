@@ -192,13 +192,18 @@
                     </section>
                 </g:if>
                 <g:if test="${tc.categories}">
-                    <h2>Categories</h2>
-                    <g:each var="category" in="${tc.categories}">
-                        <div>
-                            <a href="${grailsApplication.config.collectory.threatenedSpeciesCodesUrl}/${category.infoSourceUid}" title="Category details" onclick="window.open(this.href); return false;">
-                                ${category.category}</a>
-                        </div>
-                    </g:each>
+                    <section class="status">
+                        <h2>Categories</h2>
+                        <g:each var="category" in="${tc.categories}">
+                            <div>
+                                <a href=<g:if test="${category.identifier}">${category.identifier}</g:if><g:else>${grailsApplication.config.collectory.threatenedSpeciesCodesUrl}/${category.infoSourceUid}</g:else>
+                                   title="Category details" onclick="window.open(this.href); return false;">
+                                    <g:if test="${category.stateProvince}"><span class="iucn black"><g:message
+                                            code="region.${category.stateProvince}"/></span></g:if>
+                                    ${category.category}</a>
+                            </div>
+                        </g:each>
+                    </section>
                 </g:if>
             </div>
         </div><!--col-narrow-->
