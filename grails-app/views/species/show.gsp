@@ -194,15 +194,23 @@
                 <g:if test="${tc.categories}">
                     <section class="status">
                         <h2>Categories</h2>
-                        <g:each var="category" in="${tc.categories}">
-                            <div>
-                                <a href=<g:if test="${category.identifier}">${category.identifier}</g:if><g:else>${grailsApplication.config.collectory.threatenedSpeciesCodesUrl}/${category.infoSourceUid}</g:else>
-                                   title="Category details" onclick="window.open(this.href); return false;">
-                                    <g:if test="${category.stateProvince}"><span class="iucn black"><g:message
-                                            code="region.${category.stateProvince}"/></span></g:if>
-                                    ${category.category}</a>
-                            </div>
-                        </g:each>
+                        <table class="status">
+                            <g:each var="category" in="${tc.categories}">
+                                <div>
+
+                                    <g:set var="catURL" value="${category.identifier?:category.infoSourceURL}" />
+                                    <tr>
+                                        <g:if test="${category.stateProvince}">
+                                        <td><a href="${catURL}" title="Category details" onclick="window.open(this.href); return false;">
+                                            <span class="iucn category"><g:message
+                                                    code="region.${category.stateProvince}"/></span></a></td></g:if>
+                                        <td><a href="${catURL}" title="Category details" onclick="window.open(this.href); return false;">
+                                            ${category.category}
+                                        </a></td>
+                                    </tr>
+                                </div>
+                            </g:each>
+                        </table>
                     </section>
                 </g:if>
             </div>

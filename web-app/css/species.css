@@ -68,3 +68,23 @@ div.rankCommonName {
     padding-bottom: 0;
     max-width: 250px;
 }
+/* Extra CSS required to display the Categories in table.  */
+table.status tr td {
+   vertical-align: middle;
+   padding:0;
+}
+
+span.category {
+    background-color: #FFFFFF;
+    border: 1px solid #3D464C;
+    border-radius: 2em 2em 2em 2em;
+    color: #333A3F;
+    display: inline-block;
+    font-variant: small-caps;
+    font-weight: bold;
+    height: 40px;
+    line-height: 40px;
+    margin: 6px 6px 6px 0;
+    text-align: center;
+    width: 40px;
+}

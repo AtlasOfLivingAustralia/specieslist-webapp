@@ -68,7 +68,8 @@ class SpeciesController {
                     query: query?.trim(),
                     filterQuery: filterQuery,
                     idxTypes: utilityService.getIdxtypes(searchResults?.searchResults?.facetResults),
-                    isAustralian: false
+                    isAustralian: false,
+                    collectionsMap: utilityService.addFqUidMap(filterQuery)
             ])
         }
     }

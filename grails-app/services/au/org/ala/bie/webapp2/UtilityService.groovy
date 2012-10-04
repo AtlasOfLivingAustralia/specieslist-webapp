@@ -2,8 +2,11 @@ package au.org.ala.bie.webapp2
 
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.apache.commons.lang.StringUtils
+import grails.converters.JSON
 
 class UtilityService {
+    def grailsApplication
+    def webService
     /**
      * Get a map of region names to collectory codes
      *
@@ -180,6 +183,39 @@ class UtilityService {
             }
         }
         return facetMap
+    }
+
+    def addFqUidMap(List fqs){
+        //TODO have an expiring cache of collectory items so that we don't have to lookup the details every time.
+        def map = [:]
+        try{
+        fqs.each {
+            if(it.contains("uid:")){
+                String[] fqBits = StringUtils.split(it, ":", 2)
+                if(fqBits != null && fqBits.length > 1 && !"".equals(fqBits[1])){
+                    String uid = fqBits[1]
+                    String type = (uid.startsWith("dr")) ? "dataResource" :
+                                  (uid.startsWith("dp")) ? "dataProvider" :
+                                  (uid.startsWith("co")) ? "collection" :
+                                  (uid.startsWith("in")) ? "institution" : null
+                    if(type != null){
+                        String url = grailsApplication.config.collectory.baseURL+"/ws/"+type+"/"+uid
+                        def json = webService.get(url)
+                        Map wsmap =JSON.parse(json)
+                        map.putAt(uid, wsmap.get("name"))
+                        map.put(uid+"_resourceType", wsmap.get("resourceType"))
+                    }
+                }
+            }
+        }
+        }
+        catch(Exception e){
+            log.error("Unable to get collectory information.",e)
+        }
+        if(map.size()>0)
+            log.debug("Collectory UID map for filters " + map)
+        return map;
+
     }
 
     def getIdxtypes(facetResults) {
