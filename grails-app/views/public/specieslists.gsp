@@ -39,6 +39,9 @@
 
     </header>
     <div class="inner">
+        <g:if test="${flash.message}">
+            <div class="message">${flash.message}</div>
+        </g:if>
         <div id="section" class="col-wide">
             <p>
                 This tool allows you to upload a list of species, and work with that list within the Atlas.

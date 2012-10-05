@@ -72,7 +72,7 @@ class HelperService {
          }
         }
         catch(ex){
-            log.error("Unable to create a collectory enrey for the species list.",ex)
+            log.error("Unable to create a collectory entry for the species list.",ex)
             return null
         }
 
@@ -106,21 +106,22 @@ class HelperService {
             destFile.absolutePath
         }
     }
-    def getCSVReaderForText(String raw) {
-        def separator = getSeparator(raw)
+    def getCSVReaderForText(String raw, String separator) {
+        //def separator = getSeparator(raw)
         def csvReader = new CSVReader(new StringReader(raw), separator.charAt(0))
         csvReader
     }
 
     def getSeparator(String raw) {
-        int tabs = raw.count("\t")
-        int commas = raw.count(",")
+        String firstline = raw.substring(0, raw.indexOf("\n"))
+        int tabs = firstline.count("\t")
+        int commas = firstline.count(",")
         if(tabs > commas)
             return '\t'
         else
             return ','
     }
-    def parseValues(String[] processedHeader,CSVReader reader){
+    def parseValues(String[] processedHeader,CSVReader reader, String sep)throws Exception{
         def sciIdx = indexOfName(processedHeader)
         if(sciIdx>=0){
             //now lets determine the possible values
@@ -129,6 +130,8 @@ class HelperService {
             while ((nextLine = reader.readNext()) != null) {
                   nextLine.eachWithIndex {v,i ->
                       if(i != sciIdx){
+                          if(i>=processedHeader.length)
+                              throw new Exception("Row length does NOT match header length. Problematic row is " + nextLine.join(sep))
                           def set =map.get(processedHeader[i], [] as Set)
                           if(v != processedHeader[i])
                             set.add(v)

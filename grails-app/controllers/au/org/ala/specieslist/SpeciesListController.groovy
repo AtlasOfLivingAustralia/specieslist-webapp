@@ -89,6 +89,16 @@ class SpeciesListController {
                 render map as JSON
                 //redirect(controller: "speciesListItem",action: "list",id: druid,params: [max: 15, sort:"id"])
             }
+            else{
+
+                response.outputStream.write("Unable to add species list at this time. If this problem persists please report it.".getBytes())
+                response.setStatus(500)
+                response.sendError(500, "Unable to add species list at this time. If this problem persists please report it.")
+                //def map =[error: "Unable to add species list at this time. If this problem persists please report it."]
+                //render map as JSON
+                //render(view: "upload")
+                //throw new Error("Unablel to add species list at this time. If this problem persists please report it.")
+            }
 
         }
     }
@@ -236,8 +246,8 @@ class SpeciesListController {
     def parseData(){
         log.debug("Parsing for header")
         def rawData = request.getReader().readLines().join("\n").trim()
-
-        CSVReader csvReader =helperService.getCSVReaderForText(rawData)
+        String separator = helperService.getSeparator(rawData)
+        CSVReader csvReader =helperService.getCSVReaderForText(rawData, separator)
         def rawHeader =  csvReader.readNext()
         log.debug(rawHeader.toList())
         def processedHeader = helperService.parseHeader(rawHeader)?:helperService.parseData(rawHeader)
@@ -250,13 +260,21 @@ class SpeciesListController {
         }
         if (processedHeader.find{it == "scientific name" || it == "vernacular name" || it == "ambiguous name"} && processedHeader.size()>0){
             //grab all the unique values for the none scientific name fields to supply for potential vocabularies
-            def listProperties = helperService.parseValues(processedHeader as String[],helperService.getCSVReaderForText(rawData))
-            log.debug(listProperties)
-            render(view: 'parsedData', model: [columnHeaders:processedHeader, dataRows:dataRows, listProperties:listProperties])
+            try{
+                def listProperties = helperService.parseValues(processedHeader as String[],helperService.getCSVReaderForText(rawData, separator), separator)
+                log.debug(listProperties)
+                render(view: 'parsedData', model: [columnHeaders:processedHeader, dataRows:dataRows, listProperties:listProperties, listTypes:ListType.values()])
+            }
+            catch(Exception e){
+                e.printStackTrace()
+                log.debug(e.getMessage())
+                render(view: 'parsedData',model:[error: e.getMessage()])
+            }
+
 
         }
         else{
-            render(view: 'parsedData', model: [columnHeaders:processedHeader, dataRows:dataRows])
+            render(view: 'parsedData', model: [columnHeaders:processedHeader, dataRows:dataRows, listTypes:ListType.values()])
         }
     }
 }

@@ -15,54 +15,64 @@ class SpeciesListItemController {
     def list(){
         //can only show the list items for a specific list id.  List items do not make sense out of the context if their list
         if(params.id){
-            if (params.message)
-                flash.message = params.message
-            params.max = Math.min(params.max ? params.int('max') : 10, 100)
-            params.sort = params.sort ?: "itemOrder"
-            params.fetch= [ kvpValues: 'select' ]
 
-            log.debug(params.toQueryString())
-            //println(params.facets)
-            def fqs = params.fq?[params.fq].flatten().findAll{ it != null }:null
-            def queryParams = params.fq?"&fq="+fqs.join("&fq="):""
-            //println(queryService.constructWithFacets("select count(distinct guid)",facets, params.id))
+            //check to see if the list exists
+            def speciesList = SpeciesList.findByDataResourceUid(params.id)
+            if (!speciesList){
+                flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'speciesList.label', default: 'Species List'), params.id])}"
+                redirect(controller: "public", action: "speciesLists")
+            }
 
-            def baseQueryAndParams = params.fq?queryService.constructWithFacets(" from SpeciesListItem sli ",fqs, params.id):null
-            log.debug(baseQueryAndParams)
-            //def queryparams = params.fq? queryService.constructWithFacets("select count(distinct guid)",fqs,params.id): ["select count(distinct guid) from SpeciesListItem where dataResourceUid=?",[params.id]]
-            //This is used for the stats - should these be for the whole list or just the fqed version?
-            def distinctCount =  params.fq?SpeciesList.executeQuery("select count(distinct guid) " + baseQueryAndParams[0],baseQueryAndParams[1]).head():SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid=?",params.id).head()//SpeciesListItem.executeQuery(queryparams[0],[queryparams[1]]).head()
-            //need to get all keys to be included in the table so no need to add the filter.
-            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?",params.id)
+            else{
+                if (params.message)
+                    flash.message = params.message
+                params.max = Math.min(params.max ? params.int('max') : 10, 100)
+                params.sort = params.sort ?: "itemOrder"
+                params.fetch= [ kvpValues: 'select' ]
 
-            //def spqueries = params.fq ? queryService.constructWithFacets("select sli ", fqs, params.id):["select sli from SpeciesListItem as sli where sli.dataResourceUid=?",[params.id]]
-            //println(spqueries)
-            def speciesListItems =  params.fq? SpeciesListItem.executeQuery("select sli " + baseQueryAndParams[0], baseQueryAndParams[1],params): SpeciesListItem.findAllByDataResourceUid(params.id,params)
+                log.debug(params.toQueryString())
+                //println(params.facets)
+                def fqs = params.fq?[params.fq].flatten().findAll{ it != null }:null
+                def queryParams = params.fq?"&fq="+fqs.join("&fq="):""
+                //println(queryService.constructWithFacets("select count(distinct guid)",facets, params.id))
 
-            def totalCount= params.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0], baseQueryAndParams[1]).head():SpeciesListItem.countByDataResourceUid(params.id)
+                def baseQueryAndParams = params.fq?queryService.constructWithFacets(" from SpeciesListItem sli ",fqs, params.id):null
+                log.debug(baseQueryAndParams)
+                //def queryparams = params.fq? queryService.constructWithFacets("select count(distinct guid)",fqs,params.id): ["select count(distinct guid) from SpeciesListItem where dataResourceUid=?",[params.id]]
+                //This is used for the stats - should these be for the whole list or just the fqed version?
+                def distinctCount =  params.fq?SpeciesList.executeQuery("select count(distinct guid) " + baseQueryAndParams[0],baseQueryAndParams[1]).head():SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid=?",params.id).head()//SpeciesListItem.executeQuery(queryparams[0],[queryparams[1]]).head()
+                //need to get all keys to be included in the table so no need to add the filter.
+                def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?",params.id)
 
-            def noMatchCount = params.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0] + " AND sli.guid is null", baseQueryAndParams[1]).head(): SpeciesListItem.countByDataResourceUidAndGuidIsNull(params.id)
+                //def spqueries = params.fq ? queryService.constructWithFacets("select sli ", fqs, params.id):["select sli from SpeciesListItem as sli where sli.dataResourceUid=?",[params.id]]
+                //println(spqueries)
+                def speciesListItems =  params.fq? SpeciesListItem.executeQuery("select sli " + baseQueryAndParams[0], baseQueryAndParams[1],params): SpeciesListItem.findAllByDataResourceUid(params.id,params)
+
+                def totalCount= params.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0], baseQueryAndParams[1]).head():SpeciesListItem.countByDataResourceUid(params.id)
+
+                def noMatchCount = params.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0] + " AND sli.guid is null", baseQueryAndParams[1]).head(): SpeciesListItem.countByDataResourceUidAndGuidIsNull(params.id)
 
 
 
-            //println(speciesListItems)
-            //log.debug("KEYS: " + keys)
-            def guids = speciesListItems.collect{it.guid}
-            log.debug("guids " + guids)
-            def bieItems = bieService.bulkLookupSpecies(guids)
-            log.debug("Retrieved BIE Items")
-            def downloadReasons = loggerService.getReasons()
-            log.debug("Retrieved Logger Reasons")
-            def facets = generateFacetValues(fqs, baseQueryAndParams)
-            log.debug("Retrived facets")
-            render(view:'list', model:[speciesList: SpeciesList.findByDataResourceUid(params.id),queryParams:queryParams,results: speciesListItems,
-                    totalCount:totalCount,
-                    noMatchCount:noMatchCount,
-                    distinctCount:distinctCount, keys:keys, bieItems:bieItems, downloadReasons:downloadReasons, facets:facets])
+                //println(speciesListItems)
+                //log.debug("KEYS: " + keys)
+                def guids = speciesListItems.collect{it.guid}
+                log.debug("guids " + guids)
+                def bieItems = bieService.bulkLookupSpecies(guids)
+                log.debug("Retrieved BIE Items")
+                def downloadReasons = loggerService.getReasons()
+                log.debug("Retrieved Logger Reasons")
+                def facets = generateFacetValues(fqs, baseQueryAndParams)
+                log.debug("Retrived facets")
+                render(view:'list', model:[speciesList: SpeciesList.findByDataResourceUid(params.id),queryParams:queryParams,results: speciesListItems,
+                        totalCount:totalCount,
+                        noMatchCount:noMatchCount,
+                        distinctCount:distinctCount, keys:keys, bieItems:bieItems, downloadReasons:downloadReasons, facets:facets])
+            }
         }
         else{
             //redirect to the public species list page
-            redirect(controller: "public", action: "list")
+            redirect(controller: "public", action: "speciesLists")
         }
 
     }

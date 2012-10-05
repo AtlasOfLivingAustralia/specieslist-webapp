@@ -27,13 +27,14 @@
             $('#recognisedDataDiv').hide();
             $('#uploadDiv').hide()
             $('#statusMsgDiv').hide()
+            $('#uploadmsg').hide()
         }
 
         function parseColumns(){
             if($('#copyPasteData').val().trim() == ""){
                 reset();
             } else {
-                console.log($('#copyPasteData').val())
+                //console.log($('#copyPasteData').val())
                 $.ajaxSetup({
                     scriptCharset: "utf-8",
                     contentType: "text/html; charset=utf-8"
@@ -103,6 +104,12 @@
             return isValid;
         }
 
+        function reportError(error){
+            $('#statusMsgDiv').hide()
+            $('#uploadmsg').html(error)
+            $('#uploadmsg').show()
+        }
+
         function uploadSpeciesList(){
             if(validateForm()){
             var map =getVocabularies();
@@ -124,12 +131,14 @@
                 dataType:"json",
                 data: JSON.stringify(map),//.val().substring(0,$('#copyPasteData').val().indexOf('\n')),
                 success: function(response){
-                    console.log(response, response.url)
+                    //console.log(response, response.url)
+                    if(response.url != null)
+                        window.location.href = response.url;
 
-                    window.location.href = response.url;
                 },
                 error: function(xhr, textStatus, errorThrown) {
-                    console.log('Error!  Status = ' ,xhr.status, textStatus, errorThrown);
+                    //console.log('Error!  Status = ' ,xhr.status, textStatus, errorThrown, xhr.responseText);
+                    reportError("Error: " +errorThrown)
                 }
 
         });
@@ -227,6 +236,7 @@
         </div><!--inner-->
     </header>
     <div class="inner">
+        <div class="message" id="uploadmsg" style="clear:right;">${flash.message}</div>
         <div id="section" class="col-wide">
             A species list can consist of a list of scientific or common names and optionally associated properties. When
             a CSV list is supplied we will attempt to use the first line to determine mappings.
@@ -245,67 +255,10 @@
                 <p id="processingInfo"></p>
 
             </div>
-            <div id="recognisedDataDiv">
-                <h2>2. Check our initial interpretation</h2>
 
-                <p>Adjust headings that have been incorrectly matched using the text boxes.
+            <div id="recognisedData"></div>
 
 
-                <div id="recognisedData"></div>
-
-            </div>
-            <div id="uploadDiv">
-                <h2>3. Upload Species List</h2>
-                Please supply a title for your list.  You can optionally supply a description and external URL as a reference to the list.
-                <div id="processSampleUpload">
-                    <p style="padding-bottom:0px;">
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <label for="listTitle"><g:message code="upload.listname.label" default="Title*" /></label>
-                                    </td>
-                                    <td>
-                                        <g:textField name="listTitle" style="width:99%"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label for="listTypeId"><g:message code="upload.listtype.label" default="List Type*" /></label></td>
-                                    <td>
-                                        <select name="listTypeId" id="listTypeId">
-                                            <option value="">-- select a type --</option>
-                                            <g:each in="${listTypes}" var="listType">
-                                                <option value="${listType}">${listType.getDisplayValue()}</option>
-                                            </g:each>
-                                        </select>
-                                    </td>
-
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <label for="listDesc"><g:message code="upload.listdesc.label" default="Description" /></label>
-                                    </td>
-                                    <td>
-                                        <g:textArea cols="100" rows="5" name="listDesc" />
-                                    </td>
-
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <label for="listURL"><g:message code="upload.listlink.label" default="URL" /></label>
-                                    </td>
-                                    <td>
-                                        <g:textField name="listURL" style="width:99%" />
-                                    </td>
-
-                                </tr>
-
-
-                            </tbody>
-                        </table>
-                        %{--<label for="speciesListName" class="datasetName"><strong>Your species list name</strong></label>--}%
-                        %{--<input id="speciesListName" class="datasetName" name="datasetName" type="text" value="My test species list" style="width:350px; margin-bottom:5px;"/>--}%
-                        <input id="uploadButton" class="datasetName" type="button" value="Upload" onclick="javascript:uploadSpeciesList();"/>
                     <div id="uploadFeedback" style="clear:right;">
                     </div>
                     <div id="uploadProgressBar">
@@ -317,47 +270,7 @@
                 <h3>Uploading your list...</h3>
             </div>
 
-            %{--<g:uploadForm action="submitList">--}%
-                %{--<table>--}%
-                    %{--<tbody>--}%
-                        %{--<tr>--}%
-                            %{--<td>Species List Title:</td>--}%
-                            %{--<td>--}%
-                                %{--<g:textField name="speciesListTitle" value="" />--}%
-                            %{--</td>--}%
-                        %{--</tr>--}%
-                        %{--<tr>--}%
-                            %{--<td>File to upload:</td>--}%
-                            %{--<td><input type="file" name="species_list" /> </td>--}%
-                        %{--</tr>--}%
-                        %{--<tr>--}%
-                             %{--<td>Header Row indicates mapping:</td>--}%
-                             %{--<td>--}%
-                                 %{--<g:checkBox name="rowIndicatesMapping" value="true" onclick="updateCustom(this.checked);" />--}%
-                             %{--</td>--}%
-                        %{--</tr>--}%
-                        %{--<input type="submit" value="Upload List" />--}%
-                    %{--</tbody>--}%
-                %{--</table>--}%
-                %{--<div id="manualMapping" visibility="hidden">--}%
-                    %{--<table>--}%
-                        %{--<tr>--}%
-                            %{--<td>Columns</td>--}%
-                            %{--<td>--}%
-                                %{--<g:textField name="column0" value="scientific name" default="scientific name" />--}%
-                            %{--</td>--}%
-                            %{--<td>--}%
-                                %{----}%
-                            %{--</td>--}%
-                        %{--</tr>--}%
-                        %{--<tr><td/><td>--}%
-                            %{--<g:textField name="column1" value=""  />--}%
-                        %{--</td>--}%
-                            %{--<td><g:textField name="vocab1"/></td>--}%
-                        %{--</tr>--}%
-                    %{--</table>--}%
-                %{--</div>--}%
-            %{--</g:uploadForm>--}%
+
         </div>
     </div>
 </div> <!-- content div -->
