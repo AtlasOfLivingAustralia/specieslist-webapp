@@ -16,7 +16,7 @@
 <html>
 <head>
     <meta name="layout" content="ala2"/>
-    <title>Species List</title>
+    <title>Species lists | Atlas of Living Australia</title>
 </head>
 <body class="species">
 <div id="content">
@@ -25,14 +25,14 @@
             <nav id="breadcrumb">
                 <ol>
                     <li><a href="http://www.ala.org.au">Home</a></li>
-                    <li class="last">Species Lists</li>
+                    <li class="last">Species lists</li>
                 </ol>
             </nav>
             <hgroup class="leftfloat">
-                <h1>Species Lists</h1>
+                <h1>Species lists</h1>
             </hgroup>
             <div class="rightfloat">
-                <a class="button orange" title="Add Species List" href="${request.contextPath}/speciesList/upload">Add Species List</a>
+                <a class="button orange" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
                 <a class="button orange" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
             </div>
         </div><!--inner-->

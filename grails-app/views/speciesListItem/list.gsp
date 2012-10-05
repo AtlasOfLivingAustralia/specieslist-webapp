@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="${resource(dir:'css',file:'scrollableTable.css')}"/>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'getQueryParam.js')}"></script>
-    <title>ALA Species List Items</title>
+    <title>Species list items | Atlas of Living Australia</title>
     <style type="text/css">
     #buttonDiv {display: none;}
     #refine {display:none;}
@@ -81,8 +81,8 @@
             <nav id="breadcrumb">
                 <ol>
                     <li><a href="http://www.ala.org.au">Home</a></li>
-                    <li><a href="${request.contextPath}/public/speciesLists">All Species Lists</a></li>
-                    <li class="last">Species List Items</li>
+                    <li><a href="${request.contextPath}/public/speciesLists">Species lists</a></li>
+                    <li class="last">Species list items</li>
                 </ol>
             </nav>
             <hgroup class="leftfloat">

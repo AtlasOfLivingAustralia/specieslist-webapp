@@ -79,7 +79,7 @@ class SpeciesListController {
                 log.debug("Loading species list " + formParams.speciesListName)
                 def vocabs = formParams.findAll { it.key.startsWith("vocab") && it.value } //map of vocabs
                 log.debug("Vocabs: " +vocabs)
-                CSVReader reader = helperService.getCSVReaderForText(formParams.rawData)
+                CSVReader reader = helperService.getCSVReaderForText(formParams.rawData, helperService.getSeparator(formParams.rawData))
                 def header = formParams.headers
                 log.debug("Heder: " +header)
                 helperService.loadSpeciesList(reader,druid,formParams.speciesListName, ListType.valueOf(formParams.get("listType")), formParams.description, formParams.listUrl, header.split(","),vocabs)

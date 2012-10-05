@@ -16,7 +16,7 @@
 <html>
 <head>
     <meta name="layout" content="ala2"/>
-    <title>BIE Species List Upload</title>
+    <title>Upload a list | Species lists | Atlas of Living Australia</title>
     <script type="text/javascript">
         function init(){
             //hide('manualMapping')
@@ -225,13 +225,13 @@
         <div class="inner">
             <nav id="breadcrumb">
                 <ol>
-                    <li><a href="http://www.ala.org.au">Home</a></li>
-                    <li><a href="${request.contextPath}/public/speciesLists">Species Lists</a></li>
-                    <li class="last">Upload New List</li>
+                    <li><a href="http://www.ala.org.au">Atlas of Living Australia</a></li>
+                    <li><a href="${request.contextPath}/public/speciesLists">Species lists</a></li>
+                    <li class="last">Upload a list</li>
                 </ol>
             </nav>
             <hgroup>
-            <h1>Species List Upload</h1>
+            <h1>Upload a list</h1>
             </hgroup>
         </div><!--inner-->
     </header>

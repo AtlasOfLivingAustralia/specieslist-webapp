@@ -17,7 +17,7 @@
 <head>
     <gui:resources components="['dialog']"/>
     <meta name="layout" content="ala2"/>
-    <title>Species List</title>
+    <title>My Species lists | Atlas of Living Australia</title>
     <style type="text/css">
         #speciesList {display: none;}
     </style>
@@ -37,16 +37,16 @@
             <nav id="breadcrumb">
                 <ol>
                     <li><a href="http://www.ala.org.au">Home</a></li>
-                    <li><a href="${request.contextPath}/public/speciesLists">All Species Lists</a></li>
+                    <li><a href="${request.contextPath}/public/speciesLists">Species lists</a></li>
                     <li class="last">${request.getUserPrincipal()?.attributes?.firstname} ${request.getUserPrincipal()?.attributes?.lastname} Species Lists</li>
                 </ol>
             </nav>
 
             <hgroup class="leftfloat">
-                <h1>Species Lists</h1>
+                <h1>Species lists</h1>
             </hgroup>
             <div class="rightfloat">
-                <a class="button orange" title="Add Species List" href="${request.contextPath}/speciesList/upload">Add Species List</a>
+                <a class="button orange" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
             </div>
         </div><!--inner-->
     </header>
