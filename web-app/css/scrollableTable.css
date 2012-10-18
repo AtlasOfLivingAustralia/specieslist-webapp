@@ -139,7 +139,7 @@ html>body tbody.scrollContent tr td {
 }
 
 html>body tbody.scrollContent tr td + td {
-    width: 370px;
+    width: 380px;
     text-align: left;
 }
 

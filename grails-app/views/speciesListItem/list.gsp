@@ -18,7 +18,8 @@
 <g:set var="maxDownload" value="${grailsApplication.config.downloadLimit}" />
 <html>
 <head>
-    <gui:resources components="['dialog']"/>
+    %{--<gui:resources components="['dialog']"/>--}%
+    <r:require modules="fancybox"/>
     <meta name="layout" content="ala2"/>
     <link rel="stylesheet" href="${resource(dir:'css',file:'scrollableTable.css')}"/>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
@@ -29,12 +30,60 @@
     #refine {display:none;}
     </style>
 
-<script type="text/javascript">
+    <script type="text/javascript">
     function init(){
         document.getElementById("buttonDiv").style.display = "block";
         document.getElementById("refine").style.display = "block";
     }
-    $(document).ready(function(){ init(); });
+    $(document).ready(function(){
+        init();
+
+        // download link
+        $("#downloadLink").fancybox({
+            'hideOnContentClick' : false,
+            'hideOnOverlayClick': true,
+            'showCloseButton': true,
+            'titleShow' : false,
+            'autoDimensions' : false,
+            'width': 500,
+            'height': 400,
+            'padding': 10,
+            'margin': 10,
+            onCleanup: function() {
+                $("label[for='reasonTypeId']").css("color","#444");
+            }
+        });
+
+        // fancybox div for refining search with multiple facet values
+        $(".multipleFacetsLink").fancybox({
+            'hideOnContentClick' : false,
+            'hideOnOverlayClick': true,
+            'showCloseButton': true,
+            'titleShow' : false,
+            'transitionIn': 'elastic',
+            'transitionOut': 'elastic',
+            'speedIn': 400,
+            'speedOut': 400,
+            'scrolling': 'auto',
+            'centerOnScroll': true,
+            'autoDimensions' : false,
+            'width': 560,
+            'height': 560,
+            'padding': 10,
+            'margin': 10
+
+        });
+
+
+    });
+
+
+//    function loadMultiFacets(facetName, displayName) {
+//        console.log(facetName, displayName)
+//        console.log("#div"+facetName,$("#div"+facetName).innerHTML)
+//        $("div#dynamic").innerHTML=$("#div"+facetName).innerHTML;
+//    }
+
     function downloadOccurrences(o){
         if(validateForm()){
             this.cancel();
@@ -72,9 +121,10 @@
         return isValid;
     }
 </script>
-
+    <r:layoutResources/>
 </head>
 <body class="yui-skin-sam species">
+<r:layoutResources/>
 <div id="content" >
     <header id="page-header">
         <div class="inner">
@@ -91,50 +141,13 @@
             </hgroup>
             <div class="rightfloat" id="buttonDiv">
                 %{--<div id="buttonDiv" class="buttonDiv">--}%
-                    <a class="button orange" title="View the download options for this species list." id="download">Download</a>
+                    <a href="#download" class="button orange" title="View the download options for this species list." id="downloadLink">Download</a>
                     <a class="button orange" title="View occurrences for up to ${maxDownload} species on the list"
                        href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">View Occurrences</a>
+                <div style="display:none">
+                    <g:render template="/download"/>
+                </div>
 
-                    <gui:dialog
-                            title="Download"
-                            draggable="true"
-                            id="downloadDialog"
-                            width= "50em"
-                            clazz="sldialogs"
-                            buttons="[
-                                    [text:'Download Occurrence Records', handler: 'downloadOccurrences', isDefault: false],
-                                    [text:'Download Species Field Guide', handler: 'downloadFieldGuide', isDefault: false],
-                                    [text:'Download Species List', handler: 'downloadList', isDefault: false]
-                            ]"
-                            triggers="[show:[id:'download', on:'click']]"
-                    >
-                        <p id="termsOfUseDownload">
-                            By downloading this content you are agreeing to use it in accordance with the Atlas of Living Australia
-                            <a href="http://www.ala.org.au/about/terms-of-use/#TOUusingcontent">Terms of Use</a> and any Data Provider
-                        Terms associated with the data download.
-                            <br/><br/>
-                            Please provide the following details before downloading (* required):
-                        </p>
-                        <fieldset>
-                            <p><label for="email">Email</label>
-                                <input type="text" name="email" id="email" value="${request.remoteUser}" size="30"  />
-                            </p>
-                            <p><label for="filename">File Name</label>
-                                <input type="text" name="filename" id="filename" value="data" size="30"  />
-                            </p>
-                            <p><label for="reasonTypeId" style="vertical-align: top">Download Reason *</label>
-                                <select name="reasonTypeId" id="reasonTypeId">
-                                    <option value="">-- select a reason --</option>
-                                    <g:each in="${downloadReasons}" var="reason">
-                                        <option value="${reason.key}">${reason.value}</option>
-                                    </g:each>
-                                </select>
-                            </p>
-                        </fieldset>
-                        Note: The field guide may take several minutes to prepare and download.<br/>
-                        A maximum of ${maxDownload} species will be considered for each download.
-                    </gui:dialog>
-                %{--</div> <!-- button div -->--}%
             </div>  <!-- rightfloat -->
         </div><!--inner-->
     </header>
@@ -172,84 +185,107 @@
                 </section>
                 <section class="refine" id="refine">
                     <g:if test="${facets.size()>0 || params.fq}">
-                        <h3>Refine Results</h3>
+                        <h2>Refine results</h2>
                         <g:set var="fqs" value="${params.list('fq')}" />
                         <g:if test="${fqs.size()>0&& fqs.get(0).length()>0}">
                         <div id="currentFilter">
-                            <h4>
+                            <h3>
                                 <span class="FieldName">Current Filters</span>
-                            </h4>
-                         <table>
-
-                        <g:each in="${fqs}" var="fq">
-                            <g:if test="${fq.length() >0}">
-                            <tr>
-                                <td>${fq}</td>
-                                %{--<a class="removeLink" onclick="removeFacet('family:ACANTHASPIDIIDAE'); return false;" href="#" oldtitle="remove filter" aria-describedby="ui-tooltip-1">X</a>--}%
-                                <td>  <b>[<a class="removeLink" title="Remove Filter" onclick="removeFacet('${fq}')">X</a>]</b></td>
-                            </tr>
-                            </g:if>
-                        </g:each>
-                         </table>
+                            </h3>
+                        <div id="currentFilters" class="subnavlist">
+                            <ul>
+                                <g:each in="${fqs}" var="fq">
+                                    <g:if test="${fq.length() >0}">
+                                    <li>
+                                        ${fq.replaceFirst("kvp ","")}
+                                        %{--<a class="removeLink" onclick="removeFacet('family:ACANTHASPIDIIDAE'); return false;" href="#" oldtitle="remove filter" aria-describedby="ui-tooltip-1">X</a>--}%
+                                        [<b><a class="removeLink" title="Remove Filter" onclick="removeFacet('${fq}')">X</a></b>]
+                                    </li>
+                                    </g:if>
+                                </g:each>
+                            </ul>
+                         </div>
                         </div>
                         </g:if>
                         <g:if test="${facets.containsKey("listProperties")}">
                             <g:each in="${facets.get("listProperties")}" var="value">
-                                <h4>
+                                <h3>
                                     <span class="FieldName">${value.getKey()}</span>
-                                    <ul class="facets">
+                                </h3>
+                                <div id="facet-${value.getKey()}" class="subnavlist">
+                                    <ul>
                                         <g:set var="i" value="${0}" />
                                         <g:set var="values" value="${value.getValue()}" />
                                         %{--<g:each in="${value.getValue()}" var="arr">--}%
-                                        <g:while test="${i < 3 && i<values.size()}">
+                                        <g:while test="${i < 4 && i<values.size()}">
 
                                             <g:set var="arr" value="${values.get(i)}" />
                                             <li>
-                                                <a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]} </a> (${arr[3]})
+                                                <a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]}</a>  (${arr[3]})
                                             </li>
                                             <%i++%>
                                         </g:while>
-                                        <div class="showHide">
-                                            <a class="multipleFacetsLink" title="See more options." id="options${value.getKey()}">choose more...</a>
-                                            <gui:dialog
-                                                    title="Refine List"
-                                                    draggable="true"
-                                                    id="dialog_${value.getKey().replaceAll(" " ,"_")}"
+                                        <g:if test="${values.size()>4}">
+                                            <div class="showHide">
+                                                <a href="#div${value.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLink" id="multi-${value.getKey()}"
+                                                   title="See more options or refine with multiple values">choose more...</a>
+                                                <div style="display:none">
+                                                <div id="div${value.getKey().replaceAll(" " ,"_")}">
 
-                                                    buttons="[
+                                                %{--<a class="multipleFacetsLink" title="See more options." id="options${value.getKey()}">choose more...</a>--}%
+                                                %{--<gui:dialog--}%
+                                                        %{--title="Refine List"--}%
+                                                        %{--draggable="true"--}%
+                                                        %{--id="dialog_${value.getKey().replaceAll(" " ,"_")}"--}%
 
-                                                            [text:'Close', handler: 'function() {this.cancel();}', isDefault: true]
-                                                    ]"
-                                                    triggers="[show:[id:'options'+value.getKey(), on:'click']]"
-                                            >
+                                                        %{--buttons="[--}%
 
+                                                                %{--[text:'Close', handler: 'function() {this.cancel();}', isDefault: true]--}%
+                                                        %{--]"--}%
+                                                        %{--triggers="[show:[id:'options'+value.getKey(), on:'click']]"--}%
+                                                %{-->--}%
 
-                                                <table class='compact scrollTable'>
-                                                    <thead class='fixedHeader'>
-                                                        <tr class='tableHead'>
-                                                            <th>&nbsp;</th>
-                                                            <th width="200px">${value.getKey()}</th>
-                                                            <th width=>Count</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody class='scrollContent'>
-                                                        <g:each in="${value.getValue()}" var="arr">
-                                                        <tr>
-                                                            <td>&nbsp</td>
-                                                            <td width="205px"><a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]} </a></td>
-                                                            <td >${arr[3]}</td>
-                                                        </tr>
-                                                        </g:each>
-                                                    </tbody>
-                                                </table>
-                                            </gui:dialog>
-                                            %{--<a href="#multipleFacets" class="multipleFacetsLink" id="multi-${facetResult.fieldName}" data-displayname="<fmt:message key="facet.${facetResult.fieldName}"/>"--}%
-                                               %{--title="See more options or refine with multiple values">choose more...</a>--}%
-                                        </div>
-                                    %{--</g:each>--}%
-                                    </ul>
-                                </h4>
+                                                    <h3>Refine your search</h3>
+                                                    <table class='compact scrollTable'>
+                                                        <thead class='fixedHeader'>
+                                                            <tr class='tableHead'>
+                                                                <th>&nbsp;</th>
+                                                                <th>${value.getKey()}</th>
+                                                                <th width=>Count</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class='scrollContent'>
+                                                            <g:each in="${value.getValue()}" var="arr">
+                                                            <tr>
+                                                                <td>&nbsp</td>
+                                                                <td><a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]} </a></td>
+                                                                <td >${arr[3]}</td>
+                                                            </tr>
+                                                            </g:each>
+                                                        </tbody>
+                                                    </table>
+                                                %{--</gui:dialog>--}%
+                                                    </div>
+
+                                            </div>
+                                               </div><!-- invisible content div for facets -->
+                                        </g:if>
+                                        %{--</g:each>--}%
+                                        </ul>
+                                    </div>
+
                             </g:each>
+                            <div style="display:none"><!-- fancybox popup div -->
+                                <div id="multipleFacets">
+                                    <h3>Refine your search</h3>
+                                    <div id="dynamic" class="tableContainer"></div>
+                                    %{--<div id='submitFacets'>--}%
+                                        %{--<input type='submit' class='submit' id="include" value="INCLUDE selected items in search"/>--}%
+                                        %{--&nbsp;--}%
+                                        %{--<input type='submit' class='submit' id="exclude" value="EXCLUDE selected items from search"/>--}%
+                                    %{--</div>--}%
+                                </div>
+                            </div>
                         </g:if>
                     </g:if>
 
@@ -319,5 +355,12 @@
         %{--</div> <!-- results -->--}%
     </div>
 </div> <!-- content div -->
+%{--<script type="text/javascript">--}%
+    %{--function loadMultiFacets(facetName, displayName) {--}%
+        %{--console.log(facetName, displayName)--}%
+        %{--console.log("#div"+facetName,$("#div"+facetName),$("#div"+facetName).innerHTML)--}%
+        %{--$("div#dynamic").innerHTML=$("#div"+facetName).innerHTML;--}%
+    %{--}--}%
+%{--</script>--}%
 </body>
 </html>

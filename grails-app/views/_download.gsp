@@ -14,19 +14,7 @@
         Please provide the following details before downloading (* required):
     </p>
     <form id="downloadForm">
-        %{--<input type="hidden" name="searchParams" id="searchParams" value="<c:out value="${searchResults.urlParameters}"/>"/>--}%
-        %{--<c:choose>--}%
-            %{--<c:when test="${clubView}">--}%
-                %{--<input type="hidden" name="url" id="downloadUrl" value="${pageContext.request.contextPath}/proxy/download/download"/>--}%
-            %{--</c:when>--}%
-            %{--<c:otherwise>--}%
-                %{--<input type="hidden" name="url" id="downloadUrl" value="${biocacheServiceUrl}/occurrences/download"/>--}%
-            %{--</c:otherwise>--}%
-        %{--</c:choose>--}%
-        %{--<input type="hidden" name="url" id="downloadChecklistUrl" value="${biocacheServiceUrl}/occurrences/facets/download"/>--}%
-        %{--<input type="hidden" name="url" id="downloadFieldGuideUrl" value="${pageContext.request.contextPath}/occurrences/fieldguide/download"/>--}%
 
-        %{--<input type="hidden" name="extra" id="extraFields" value="${downloadExtraFields}"/>--}%
 
         <fieldset>
             <p><label for="email">Email</label>
@@ -38,20 +26,17 @@
             <p><label for="reasonTypeId" style="vertical-align: top">Download Reason *</label>
                 <select name="reasonTypeId" id="reasonTypeId">
                     <option value="">-- select a reason --</option>
-                    %{--<c:forEach var="it" items="${LoggerReason}">--}%
-                        %{--<option value="${it.id}">${it.name}</option>--}%
-                    %{--</c:forEach>--}%
+                    <g:each in="${downloadReasons}" var="reason">
+                        <option value="${reason.key}">${reason.value}</option>
+                    </g:each>
                 </select>
             </p>
-            %{--<c:set var="sourceId">--}%
-                %{--<c:forEach var="it" items="${LoggerSources}">--}%
-                    %{--<c:if test="${fn:toUpperCase(skin) == it.name}">${it.id}</c:if>--}%
-                %{--</c:forEach>--}%
-            %{--</c:set>--}%
+
             <br/>
             %{--<input type="hidden" name="sourceTypeId" id="sourceTypeId" value="${sourceId}"/>--}%
-            <input type="submit" value="Download All Records" id="downloadSubmitButton"/>&nbsp;
-            <input type="submit" value="Download Species Checklist" id="downloadCheckListSubmitButton"/>&nbsp;
+            <input type="submit" value="Download All Records" id="downloadSubmitButton" onclick="return downloadOccurrences()"/>&nbsp;
+            <input type="submit" value="Download Species Field Guide" id="downloadFieldGuideSubmitButton"/>&nbsp;
+            <input type="submit" value="Download Species List" id="downloadSpeciesListSubmitButton"/>&nbsp;
             %{--<c:if test="${skin != 'avh'}">--}%
                 %{--<input type="submit" value="Download Species Field Guide" id="downloadFieldGuideSubmitButton"/>&nbsp;--}%
             %{--</c:if>--}%
@@ -70,27 +55,22 @@
             // catch download submit button
             // Note the unbind().bind() syntax - due to Jquery ready being inside <body> tag.
 
-            $(":input#downloadSubmitButton").unbind("click").bind("click",function(e) {
+            $("#downloadSubmitButton").unbind("click").bind("click",function(e) {
                 e.preventDefault();
 
                 if (validateForm()) {
-                    var downloadUrl = generateDownloadPrefix($(":input#downloadUrl").val())+"&email="+$("#email").val()+"&sourceTypeId="+$("#sourceTypeId").val()+"&reasonTypeId="+
-                            $("#reasonTypeId").val()+"&file="+$("#filename").val()+"&extra="+$(":input#extraFields").val();
-                    //alert("downloadUrl = " + downloadUrl);
-                    window.location.href = downloadUrl;
-                    notifyDownloadStarted();
+                    downloadURL = "${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Download&email="+$("#email").val()+"&reasonTypeId="+$("#reasonTypeId").val()+"&file="+$("#filename").val();
+                    window.location.href =  downloadURL//"${request.contextPath}/speciesList/occurrences/${params.id}?type=Download&email=$('#email').val()&reasonTypeId=$(#reasonTypeId).val()&file=$('#filename').val()"
+                    notifyDownloadStarted()
                 }
             });
-            // catch checklist download submit button
-            $("#downloadCheckListSubmitButton").unbind("click").bind("click",function(e) {
-                e.preventDefault();
 
-                if (validateForm()) {
-                    downloadUrl = generateDownloadPrefix($("input#downloadChecklistUrl").val())+"&facets=species_guid&lookup=true&file="+
-                            $("#filename").val()+"&sourceTypeId="+$("#sourceTypeId").val()+"&reasonTypeId="+$("#reasonTypeId").val();
-                    //alert("downloadUrl = " + downloadUrl);
-                    window.location.href = downloadUrl;
-                    notifyDownloadStarted();
+            $("#downloadSpeciesListSubmitButton").unbind("click").bind("click",function(e) {
+                e.preventDefault();
+                if(validateForm()){
+                    //alert("${request.contextPath}/speciesListItem/downloadList/${params.id}${params.toQueryString()}&file="+$("#filename").val())
+                    window.location.href = "${request.contextPath}/speciesListItem/downloadList/${params.id}${params.toQueryString()}&file="+$("#filename").val()
+                    notifyDownloadStarted()
                 }
             });
 
@@ -99,10 +79,10 @@
                 e.preventDefault();
 
                 if (validateForm()) {
-                    var downloadUrl = generateDownloadPrefix($("input#downloadFieldGuideUrl").val())+"&facets=species_guid"+"&sourceTypeId="+
-                            $("#sourceTypeId").val()+"&reasonTypeId="+$("#reasonTypeId").val();
+                    var downloadUrl = "${request.contextPath}/speciesList/fieldGuide/${params.id}${params.toQueryString()}"
+                    //alert(downloadUrl)
                     window.open(downloadUrl);
-                    notifyDownloadStarted();
+                    notifyDownloadStarted()
                 }
             });
         });

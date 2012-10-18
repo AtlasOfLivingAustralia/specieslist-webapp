@@ -68,11 +68,11 @@ grails.project.dependency.resolution = {
         runtime ":hibernate:$grailsVersion"
         runtime ":jquery:1.7.1"
         runtime ":resources:1.1.6"
-        runtime ":yui:2.8.2"
-        runtime (":grails-ui:1.2.3"){
-            //for unresolvable dependency yui:[2.6.0,)
-            excludes "yui"
-        }
+//        runtime ":yui:2.8.2"
+//        runtime (":grails-ui:1.2.3"){
+//            //for unresolvable dependency yui:[2.6.0,)
+//            excludes "yui"
+//        }
         compile ":springcache:1.3.1"
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0"

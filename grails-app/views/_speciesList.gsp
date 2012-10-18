@@ -14,6 +14,30 @@
             this.cancel();
 
         }
+
+        function fancyConfirm(msg,listId,callback){
+            jQuery.fancybox({
+                'content':"<div style=\"margin:1px;width:240px;text-align:left;\">"+msg+"<div style=\"text-align:right;margin-top:10px;\"><input id=\"fancyConfirm_cancel\" style=\"margin:3px;padding:0px;\" type=\"button\" value=\"No\"><input id=\"fancyConfirm_ok\" style=\"margin:3px;padding:0px;\" type=\"button\" value=\"Yes\"></div></div>",
+                onComplete : function() {
+                    jQuery("#fancyConfirm_cancel").click(function() {
+                        ret = false;
+                        jQuery.fancybox.close();
+                    })
+                    jQuery("#fancyConfirm_ok").click(function() {
+                        ret = true;
+                        jQuery.fancybox.close();
+                        var url = "${createLink(controller:'speciesList', action:'delete')}" + "/"+listId;
+                        //console.log("DELETE ITEMS",listId, url)
+                        $.post(url,
+                                function(data){
+                                    //alert('Value returned from service: '  + data.uid);
+                                    window.location.reload()
+                                } );
+                    })
+                }
+
+            })
+        }
     </script>
     <table class="tableList">
         <colgroup>
@@ -55,20 +79,20 @@
                 %{--</td>--}%
                 <td>
                 <g:set var="test" value="${[id:list.id]}" />
-                <gui:dialog
-                        title="Delete ${list.listName}"
-                        draggable="true"
-                        id="dialog_${list.id}"
-                        params="${test}"
-                        buttons="[
-                                [text:'Yes', handler: 'deleteAction', isDefault: false],
-                                [text:'No', handler: 'function() {this.cancel();}', isDefault: true]
-                        ]"
-                        triggers="[show:[id:'delete_'+list.id, on:'click']]"
-                >
-                    Are you sure you would like to delete?
-                </gui:dialog>
-                    <a id="delete_${list.id}" class="buttonDiv">Delete</a>
+                %{--<gui:dialog--}%
+                        %{--title="Delete ${list.listName}"--}%
+                        %{--draggable="true"--}%
+                        %{--id="dialog_${list.id}"--}%
+                        %{--params="${test}"--}%
+                        %{--buttons="[--}%
+                                %{--[text:'Yes', handler: 'deleteAction', isDefault: false],--}%
+                                %{--[text:'No', handler: 'function() {this.cancel();}', isDefault: true]--}%
+                        %{--]"--}%
+                        %{--triggers="[show:[id:'delete_'+list.id, on:'click']]"--}%
+                %{-->--}%
+                    %{--Are you sure you would like to delete?--}%
+                %{--</gui:dialog>--}%
+                    <a href="#" onclick="fancyConfirm('Are you sure that you would like to delete ${list.listName}',${list.id});return false;" id="delete_${list.id}" class="buttonDiv">Delete</a>
                 </td>
                 %{--<gui:dialog--}%
                         %{--title='Delete ${list.listName}'--}%

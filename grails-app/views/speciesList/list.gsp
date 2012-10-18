@@ -15,15 +15,17 @@
 <!doctype html>
 <html>
 <head>
-    <gui:resources components="['dialog']"/>
+    <r:require modules="fancybox"/>
     <meta name="layout" content="ala2"/>
     <title>My Species lists | Atlas of Living Australia</title>
     <style type="text/css">
         #speciesList {display: none;}
     </style>
+    <r:layoutResources/>
 </head>
 
 <body class="yui-skin-sam species">
+<r:layoutResources/>
 <script type="text/javascript">
     window.onload=init
     function init(){
