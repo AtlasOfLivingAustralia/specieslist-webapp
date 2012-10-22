@@ -63,6 +63,7 @@ class HelperService {
      */
     def addDataResourceForList(name,description,url) {
         def http = new HTTPBuilder(grailsApplication.config.collectory.baseURL +"/ws/dataResource")
+        http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
         def jsonBody = createJsonForNewDataResource(name, description, url)
         log.debug(jsonBody)
         try{

@@ -9,6 +9,7 @@ class BiocacheService {
 
     def performBatchSearchOrDownload(guids,action, title) {
         def http = new HTTPBuilder(grailsApplication.config.biocacheService.baseURL +"/occurrences/batchSearch")
+        http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
         def postBody = [field:'lsid',queries: guids.join(","),
                 separator:',',redirectBase:grailsApplication.config.biocache.baseURL+"/occurrences/search",
                 action:action, title:title]

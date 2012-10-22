@@ -16,6 +16,7 @@ class BieService {
 
     def bulkLookupSpecies(list) {
         def http = new HTTPBuilder(grailsApplication.config.bieService.baseURL +"/species/guids/bulklookup.json")
+        http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
         def builder = new JSONBuilder()
         def map =[:]
         def jsonBody = "[\""
@@ -39,6 +40,7 @@ class BieService {
         }
         catch(ex){
             log.error("Unable to obtain species details from BIE", ex)
+            return map
         }
 //        http.post(body: jsonBody, requestContentType:groovyx.net.http.ContentType.JSON){ resp ->
 //            if(resp?.statusLine?.statusCode == 200){
