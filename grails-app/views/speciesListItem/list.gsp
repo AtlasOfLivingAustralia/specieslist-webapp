@@ -296,11 +296,13 @@
         <div class="col-wide last">
            <div class="tabs-panes-noborder">
             <section class="double">
-            <div class="fwtable">
+            <div class="fwtable" style="width: 726px;">
             <table class="tableList">
                 <thead>
                 <tr>
+                      <td>Supplied Name</td>
                       <td>Scientific Name</td>
+                      <td>Author</td>
                       <td>Common Name</td>
                     <g:each in="${keys}" var="key">
                         <td>${key}</td>
@@ -324,6 +326,8 @@
                                 (unmatched)
                             </g:if>
                         </td>
+                        <td>${bieSpecies?.get(2)}</td>
+                        <td>${bieSpecies?.get(3)}</td>
                         <td id="cn_${result.guid}">${bieSpecies?.get(1)}</td>
                         <g:each in="${keys}" var="key">
                             <g:set var="kvp" value="${result.kvpValues.find {it.key == key}}" />

@@ -304,7 +304,7 @@ class HelperService {
             i++
         }
         //lookup the raw
-        sli.guid = findAcceptedLsidByScientificName(sli.rawScientificName)
+        sli.guid = findAcceptedLsidByScientificName(sli.rawScientificName)?: findAcceptedLsidByCommonName(sli.rawScientificName)
         sli
         //sli.save()
     }

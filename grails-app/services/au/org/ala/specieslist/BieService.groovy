@@ -9,9 +9,13 @@ class BieService {
 
     def grailsApplication
 
+    /** The path to the repository */
+    protected String repositoryPath = "/data/bie/";
+    /** The URL to the repository */
+    protected String repositoryUrl = "http://bie.ala.org.au/repo/";
 
     def bulkLookupSpecies(list) {
-        def http = new HTTPBuilder(grailsApplication.config.bieService.baseURL +"/species/bulklookup.json")
+        def http = new HTTPBuilder(grailsApplication.config.bieService.baseURL +"/species/guids/bulklookup.json")
         def builder = new JSONBuilder()
         def map =[:]
         def jsonBody = "[\""
@@ -24,9 +28,11 @@ class BieService {
             log.debug(jsonResponse)
             jsonResponse.getJSONArray("searchDTOList").toArray().each{
                 def guid = it.guid
-                def image = it.thumbnail
+                def image = it.thumbnail?.replace(repositoryPath, repositoryUrl) //temporarily in place until the service returns the correct URL
                 def commonName = it.commonNameSingle
-                map.put(guid, [image,commonName])
+                def scientificName = it.name
+                def author = it.author
+                map.put(guid, [image,commonName, scientificName,author])
             }
             log.debug(map)
             return map
