@@ -196,7 +196,8 @@ class HelperService {
             null
     }
     def getSpeciesIndex(Object[] header){
-        header.findIndexOf { speciesValue.contains(it.toString().toLowerCase().replaceAll(" ",""))}
+        header.findIndexOf { speciesValue.contains(it.toString().toLowerCase().replaceAll(" ","")) || commonValues.contains(it.toLowerCase().replaceAll(" ",""))}
+
     }
 
     def vocabPattern = ~ / ?([A-Za-z0-9]*): ?([A-Z a-z0-9']*)(?:,|$)/
