@@ -41,11 +41,11 @@
     </script>
     <table class="tableList">
         <colgroup>
-            <col width="22%">
+            <col width="26%">
             <col width="19%">
             <col width="16%">
             <col width="12%">
-            <col width="16%">
+            <col width="12%">
             <col width="5%">
         </colgroup>
     <thead>
@@ -112,7 +112,7 @@
     </tbody>
 </table>
 <g:if test="${params.max<total}">
-    <div class="pagination">
+    <div class="pagination" id="searchNavBar">
         <g:paginate total="${total}" action="showList"  />
     </div>
 </g:if>

@@ -151,10 +151,10 @@ class SpeciesListItemController {
             //def sli =SpeciesListItem.findAllByDataResourceUid(params.id,params)
             def out = new StringWriter()
             def csvWriter = new CSVWriter(out)
-            def header =  ["scientificName","guid"]
+            def header =  ["Supplied Name","guid"]
             header.addAll(keys)
             log.debug(header)
-            csvWriter.writeNext(header  as String[])
+            csvWriter.writeNext(header as String[])
             sli.each{
                 def values = keys.collect{key->it.kvpValues.find {kvp ->kvp.key == key}}.collect{kvp->kvp?.vocabValue?:kvp?.value}
                 def row = [it.rawScientificName,it.guid]

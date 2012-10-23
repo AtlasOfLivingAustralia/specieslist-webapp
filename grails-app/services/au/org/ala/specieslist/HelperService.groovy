@@ -197,8 +197,10 @@ class HelperService {
             null
     }
     def getSpeciesIndex(Object[] header){
-        header.findIndexOf { speciesValue.contains(it.toString().toLowerCase().replaceAll(" ","")) || commonValues.contains(it.toLowerCase().replaceAll(" ",""))}
-
+        int idx =header.findIndexOf { speciesValue.contains(it.toString().toLowerCase().replaceAll(" ","")) }
+        if(idx <0)
+            idx =header.findIndexOf { commonValues.contains(it.toLowerCase().replaceAll(" ",""))}
+        return idx
     }
 
     def vocabPattern = ~ / ?([A-Za-z0-9]*): ?([A-Z a-z0-9']*)(?:,|$)/
@@ -299,14 +301,19 @@ class HelperService {
         sli.dataResourceUid =druid
         sli.rawScientificName = values[speciesIdx]
         sli.itemOrder = order
-        int i =0
-        header.each {
-            if(i != speciesIdx && values[i])
-                sli.addToKvpValues(map.get(it.toString()+"|"+values[i], new SpeciesListKVP(key: it.toString(), value: values[i], dataResourceUid: druid)))//createOrRetrieveSpeciesListKVP(it,values[i],druid))
-            i++
-        }
         //lookup the raw
         sli.guid = findAcceptedLsidByScientificName(sli.rawScientificName)?: findAcceptedLsidByCommonName(sli.rawScientificName)
+        int i =0
+        header.each {
+            if(i != speciesIdx && values[i]){
+                //check to see if the common name is already an "accepted" name for the species
+                String testLsid = commonValues.contains(it.toLowerCase().replaceAll(" ",""))?findAcceptedLsidByCommonName(values[i]):""
+                if(!testLsid.equals(sli.guid))
+                    sli.addToKvpValues(map.get(it.toString()+"|"+values[i], new SpeciesListKVP(key: it.toString(), value: values[i], dataResourceUid: druid)))//createOrRetrieveSpeciesListKVP(it,values[i],druid))
+            }
+            i++
+        }
+
         sli
         //sli.save()
     }

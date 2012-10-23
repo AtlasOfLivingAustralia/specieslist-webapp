@@ -150,7 +150,7 @@ class SpeciesListController {
 
     def list(){
         //list should be based on the user that is logged in
-        params.max = Math.min(params.max ? params.int('max') : 50, 100)
+        params.max = Math.min(params.max ? params.int('max') : 25, 100)
         params.sort = params.sort ?: "listName"
         params.fetch = [items: 'lazy']
 

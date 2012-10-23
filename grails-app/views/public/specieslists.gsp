@@ -42,11 +42,11 @@
         <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
         </g:if>
-        <div id="section" class="col-wide">
+
             <p>
                 This tool allows you to upload a list of species, and work with that list within the Atlas.
                 <br/>
-                Click "Add Species List" to upload your own list of taxa.
+                Click "Upload a list" to upload your own list of taxa.
             </p>
 
             %{--<a class="button orange" title="Add Species List" href="${request.contextPath}/speciesList/upload">Add Species List</a>--}%
@@ -84,7 +84,6 @@
             <p>There are no Species Lists available</p>
         </g:else>
         %{--</div> <!-- results -->--}%
-    </div>
     </div>
 </div> <!-- content div -->
 </body>

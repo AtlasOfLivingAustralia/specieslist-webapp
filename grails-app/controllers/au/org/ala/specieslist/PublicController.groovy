@@ -16,7 +16,7 @@ class PublicController {
     def speciesLists(){
         if (params.message)
             flash.message = params.message
-        params.max = Math.min(params.max ? params.int('max') : 50, 100)
+        params.max = Math.min(params.max ? params.int('max') : 25, 100)
         params.sort = params.sort ?: "listName"
         params.fetch = [items: 'lazy']
         render (view:'specieslists', model:[lists:SpeciesList.list(params), total:SpeciesList.count])
