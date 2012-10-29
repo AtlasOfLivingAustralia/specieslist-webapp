@@ -167,20 +167,27 @@ public class UriFilter implements Filter {
         if (PatternMatchingUtils.matches(requestUri, uriExclusionPatterns)) {
             if (filter instanceof AuthenticationFilter) {
                 logger.debug("Ignoring URI because it matches " + URI_EXCLUSION_FILTER_PATTERN);
+            } else {
+                logger.debug("No action taken as matches uriExclusionPatterns");
             }
             chain.doFilter(request, response);
         } else if (PatternMatchingUtils.matches(requestUri, uriInclusionPatterns)) {
             if (filter instanceof AuthenticationFilter) {
                 logger.debug("Forwarding URI '" + requestUri + "' to CAS authentication filters because it matches " + URI_FILTER_PATTERN);
+            } else {
+                logger.debug("No action taken - no matching pattern found in uriInclusionPatterns.");
             }
             filter.doFilter(request, response, chain);
         } else if (PatternMatchingUtils.matches(requestUri, authOnlyIfLoggedInPatterns) &&
                     AuthenticationCookieUtils.isUserLoggedIn((HttpServletRequest) request)) {
             if (filter instanceof AuthenticationFilter) {
                 logger.debug("Forwarding URI '" + requestUri + "' to CAS authentication filters because it matches " + AUTHENTICATE_ONLY_IF_LOGGED_IN_FILTER_PATTERN + " and ALA-Auth cookie exists");
+            } else {
+                logger.debug("No action taken - no matching pattern found in authOnlyIfLoggedInPatterns.");
             }
             filter.doFilter(request, response, chain);
         } else {
+            logger.debug("No action taken - no matching pattern found.");
             chain.doFilter(request, response);
         }
     }
