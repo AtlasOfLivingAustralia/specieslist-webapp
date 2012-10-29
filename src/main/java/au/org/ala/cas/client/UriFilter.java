@@ -168,14 +168,14 @@ public class UriFilter implements Filter {
             if (filter instanceof AuthenticationFilter) {
                 logger.debug("Ignoring URI because it matches " + URI_EXCLUSION_FILTER_PATTERN);
             } else {
-                logger.debug("No action taken as matches uriExclusionPatterns");
+                logger.debug("No action taken as matches uriExclusionPatterns for " + requestUri);
             }
             chain.doFilter(request, response);
         } else if (PatternMatchingUtils.matches(requestUri, uriInclusionPatterns)) {
             if (filter instanceof AuthenticationFilter) {
                 logger.debug("Forwarding URI '" + requestUri + "' to CAS authentication filters because it matches " + URI_FILTER_PATTERN);
             } else {
-                logger.debug("No action taken - no matching pattern found in uriInclusionPatterns.");
+                logger.debug("No action taken - no matching pattern found in uriInclusionPatterns for " + requestUri);
             }
             filter.doFilter(request, response, chain);
         } else if (PatternMatchingUtils.matches(requestUri, authOnlyIfLoggedInPatterns) &&
@@ -183,11 +183,11 @@ public class UriFilter implements Filter {
             if (filter instanceof AuthenticationFilter) {
                 logger.debug("Forwarding URI '" + requestUri + "' to CAS authentication filters because it matches " + AUTHENTICATE_ONLY_IF_LOGGED_IN_FILTER_PATTERN + " and ALA-Auth cookie exists");
             } else {
-                logger.debug("No action taken - no matching pattern found in authOnlyIfLoggedInPatterns.");
+                logger.debug("No action taken - no matching pattern found in authOnlyIfLoggedInPatterns for " + requestUri);
             }
             filter.doFilter(request, response, chain);
         } else {
-            logger.debug("No action taken - no matching pattern found.");
+            logger.debug("No action taken - no matching pattern found for " + requestUri);
             chain.doFilter(request, response);
         }
     }
