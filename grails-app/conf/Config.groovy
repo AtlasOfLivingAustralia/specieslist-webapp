@@ -37,6 +37,8 @@ if (!bhl.baseURL) {
 if( !speciesList.baseURL){
     speciesList.baseURL ="http://lists.ala.org.au"
 }
+userDetails.url ="http://auth.ala.org.au/userdetails/userDetails/"
+userDetails.path ="getUserList"
 alerts.baseUrl = "http://alerts.ala.org.au/ws/"
 brds.guidUrl = "http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid="
 collectory.threatenedSpeciesCodesUrl = collectory.baseURL + "/public/showDataResource"
@@ -74,6 +76,22 @@ if (!security.cas.bypass) {
 nonTruncatedSources = ["http://www.environment.gov.au/biodiversity/abrs/online-resources/flora/main/index.html"]
 
 auth.admin_role = "ROLE_ADMIN"
+
+springcache {
+    defaults {
+        // set default cache properties that will apply to all caches that do not override them
+        eternal = false
+        diskPersistent = false
+        timeToLive = 600
+        timeToIdle = 600
+    }
+    caches {
+        userListCache {
+            // set any properties unique to this cache
+            memoryStoreEvictionPolicy = "LRU"
+        }
+    }
+}
 
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
@@ -127,10 +145,9 @@ grails.hibernate.cache.queries = true
 environments {
     development {
         grails.logging.jul.usebridge = true
-        grails.host = "http://nickdos.ala.org.au"
-        //grails.host = "http://localhost"
+        grails.host = "http://localhost"
         grails.serverURL = "${grails.host}:8080/${appName}"
-        security.cas.appServerName = "http://nickdos.ala.org.au:8080"
+        security.cas.appServerName = "${grails.host}:8080"
         security.cas.contextPath = "/${appName}"
         // cached-resources plugin - keeps original filenames but adds cache-busting params
         grails.resources.debug = true

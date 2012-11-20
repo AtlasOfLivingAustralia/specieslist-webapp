@@ -59,7 +59,7 @@ class WebService implements InitializingBean {
 
     def doJsonPost(String url, String path, String port, String postBody) {
         //println "post = " + postBody
-        log.debug "postBody = " + postBody
+        //log.debug "postBody = " + postBody
         def http = new HTTPBuilder(url)
         http.request( groovyx.net.http.Method.POST, groovyx.net.http.ContentType.JSON ) {
             uri.path = path
@@ -70,7 +70,7 @@ class WebService implements InitializingBean {
             requestContentType = ContentType.URLENC
 
             response.success = { resp, json ->
-                log.debug "bulk lookup = " + json
+                //log.debug "bulk lookup = " + json
                 return json
             }
 
@@ -80,7 +80,31 @@ class WebService implements InitializingBean {
                 return error
             }
         }
+    }
 
+    def doJsonPost(String url, String path) {
+        //println "post = " + postBody
+        //log.debug "postBody = " + postBody
+        def http = new HTTPBuilder(url)
+        http.request( groovyx.net.http.Method.POST, groovyx.net.http.ContentType.JSON ) {
+            uri.path = path
+            if (port) {
+                uri.port = port as int
+            }
+            body = postBody
+            requestContentType = ContentType.URLENC
+
+            response.success = { resp, json ->
+                //log.debug "bulk lookup = " + json
+                return json
+            }
+
+            response.failure = { resp ->
+                def error = [error: "Unexpected error: ${resp.statusLine.statusCode} : ${resp.statusLine.reasonPhrase}"]
+                log.error "Oops: " + error.error
+                throw new Exception(error.error);
+            }
+        }
     }
 
     def doPost(String url, String path, String port, String postBody) {

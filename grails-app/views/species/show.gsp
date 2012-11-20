@@ -279,7 +279,7 @@
                                                             <br/>Source: ${image.infoSourceName}
                                                         </g:if>
                                                         <g:if test="${image.creator}">
-                                                            <br/>Image by: ${image.creator}
+                                                            <br/>Image by: <bie:lookupUserName id="${image.creator}"/>
                                                         </g:if>
                                                         <g:if test="${image.rights}">
                                                             <br/>Rights: ${image.rights}
@@ -410,7 +410,7 @@
                                                 ${image.title}<br/>
                                             </g:if>
                                             <g:if test="${image.creator}">
-                                                Image by: ${image.creator}<br/>
+                                                Image by: <bie:lookupUserName id="${image.creator}"/><br/>
                                             </g:if>
                                             <g:if test="${image.locality}">
                                                 Locality: ${image.locality}<br/>

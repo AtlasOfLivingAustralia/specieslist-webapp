@@ -2,6 +2,7 @@ package au.org.ala
 
 class BieTagLib {
     static namespace = 'bie'     // namespace for headers and footers
+    def authService
 
     /**
      * Format a scientific name with appropriate italics depending on rank
@@ -114,6 +115,24 @@ class BieTagLib {
                     mkp.yieldUnescaped("<span>Next &raquo;</span>")
                 }
             }
+        }
+    }
+
+    /**
+     * Attempt to lookup a user name for its id (email address) with fail-over to obfuscate the email address
+     *
+     * @attr id REQUIRED the input user id
+     */
+    def lookupUserName = { attrs ->
+        def email = attrs.id
+        def userIdMap = authService.getUserNamesForIdsMap(true)
+        def userName = userIdMap.get(email)
+        log.info "id = " + email + " || name = " + userName
+
+        if (userName) {
+            out << userName
+        } else {
+            out << email.replaceAll(/\@\w+/, "...")
         }
     }
 }
