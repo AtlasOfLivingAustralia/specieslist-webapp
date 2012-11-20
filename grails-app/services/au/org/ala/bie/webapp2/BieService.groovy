@@ -35,7 +35,7 @@ class BieService {
         def results = []
         data.getAt(name).each {item ->
             log.debug "item = " + item
-            results.add(item.identifier)
+            results.add(item.acceptedIdentifier)
         }
         log.debug "guid lookup => " + results
         return results.size() > 0 ? results[0] : ''
