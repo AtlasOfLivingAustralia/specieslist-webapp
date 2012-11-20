@@ -22,7 +22,7 @@ class WebService implements InitializingBean {
             conn.setReadTimeout(50000)
             return conn.content.text
         } catch (SocketTimeoutException e) {
-            def error = [error: "Timed out calling web service. URL= \${url}."]
+            def error = [error: "Timed out calling web service. URL= ${url}."]
             println error.error
             return error as JSON
         } catch (Exception e) {
@@ -126,11 +126,11 @@ class WebService implements InitializingBean {
             wr.close()
             return [error:  null, resp: JSON.parse(resp)]
         } catch (SocketTimeoutException e) {
-            def error = [error: "Timed out calling web service. URL= \${url}."]
+            def error = [error: "Timed out calling web service POST. URL= ${url}."]
             println error.error
             return error as JSON
         } catch (Exception e) {
-            def error = [error: "Failed calling web service. ${e.getClass()} ${e.getMessage()} ${e} URL= ${url}."]
+            def error = [error: "Failed calling web service POST. ${e.getClass()} ${e.getMessage()} ${e} URL= ${url}."]
             println error.error
             return error as JSON
         }
