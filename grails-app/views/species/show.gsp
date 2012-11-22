@@ -408,19 +408,20 @@
                                                                           style="height:100px;padding-right:3px;"/></a>
                                         <div id="thumbDiv${status}" style="display:none;">
                                             <g:if test="${image.title}">
-                                                ${image.title}<br/>
+                                                <span class="imageTitle">${image.title}</span><br/>
                                             </g:if>
                                             <g:if test="${image.creator}">
-                                                Image by: <bie:lookupUserName id="${image.creator}"/><br/>
+                                                <span class="imageMetadataField">Image by:</span>
+                                                <bie:lookupUserName id="${image.creator}"/><br/>
                                             </g:if>
                                             <g:if test="${image.locality}">
-                                                Locality: ${image.locality}<br/>
+                                                <span class="imageMetadataField">Locality:</span> ${image.locality}<br/>
                                             </g:if>
                                             <g:if test="${image.licence}">
-                                                Licence: ${image.licence}<br/>
+                                                <span class="imageMetadataField">Licence:</span> ${image.licence}<br/>
                                             </g:if>
                                             <g:if test="${image.rights}">
-                                                Rights: ${image.rights}<br/>
+                                                <span class="imageMetadataField">Rights:</span> ${image.rights}<br/>
                                             </g:if>
                                             <g:set var="imageUri">
                                                 <g:if test="${image.isPartOf && !image.occurrenceUid}">
@@ -434,16 +435,16 @@
                                                 </g:else>
                                             </g:set>
                                             <g:if test="${image.infoSourceURL == 'http://www.ala.org.au'}">
-                                                <cite>Source: ${image.infoSourceName}</cite>
+                                                <cite><span class="imageMetadataField">Source:</span> ${image.infoSourceName}</cite>
                                             </g:if>
                                             <g:elseif test="${image.infoSourceURL == 'http://www.elfram.com/'}">
-                                                <cite>Source: <a href="${image.infoSourceURL}" target="_blank" class="external">${image.infoSourceName}</a></cite>
+                                                <cite><span class="imageMetadataField">Source:</span> <a href="${image.infoSourceURL}" target="_blank" class="external">${image.infoSourceName}</a></cite>
                                             </g:elseif>
                                             <g:else>
-                                                <cite>Source: <a href="${imageUri}" target="_blank" class="external">${image.infoSourceName}</a></cite>
+                                                <cite><span class="imageMetadataField">Source:</span> <a href="${imageUri}" target="_blank" class="external">${image.infoSourceName}</a></cite>
                                             </g:else>
                                             <g:if test="${image.occurrenceUid}">
-                                                <a href="http://biocache.ala.org.au/occurrences/${image.occurrenceUid}" target="_blank">View more details for this image</a>
+                                                <p><a href="http://biocache.ala.org.au/occurrences/${image.occurrenceUid}" target="_blank">View more details for this image</a></p>
                                             </g:if>
                                             <g:if test="${!isReadOnly}">
                                                 <p class="imageRank-${image.documentId}">

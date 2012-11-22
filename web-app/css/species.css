@@ -88,3 +88,6 @@ span.category {
     text-align: center;
     width: 40px;
 }
+
+.imageTitle { font-weight: bold; font-size: 13px; }
+.imageMetadataField { font-weight: bold; }
