@@ -118,7 +118,8 @@
                             <h2>WMS</h2>
                             <p>
                                 To use WMS services, copy and paste the following GetCapabilities URL into your
-                                OGC client (e.g. <a href="http://udig.refractions.net">uDIG</a>, ArcGIS) <br/>
+                                OGC client (e.g. <a href="http://udig.refractions.net">uDIG</a>,
+                                    <a href="http://www.esri.com/software/arcgis">ESRI ArcGIS</a>) <br/>
                                 <a href="http://biocache.ala.org.au/ws/ogc/ows?q=${tc?.taxonConcept?.rankString}:${tc?.taxonConcept?.nameString}">
                                     http://biocache.ala.org.au/ws/ogc/ows?q=${tc?.taxonConcept?.rankString}:${tc?.taxonConcept?.nameString}
                                 </a><br/>

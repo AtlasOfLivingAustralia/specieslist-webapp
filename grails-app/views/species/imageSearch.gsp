@@ -24,7 +24,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>Image browser</title>
+    <title><g:if test="${params.scientificName}">${params.taxonRank}  ${params.scientificName} | </g:if> Image browser | Atlas of Living Australia</title>
     <meta name="layout" content="main" />
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'colorbox.css')}" type="text/css" media="screen" />
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.colorbox-min.js')}"></script>
