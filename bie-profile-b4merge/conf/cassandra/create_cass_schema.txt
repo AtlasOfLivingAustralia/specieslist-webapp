@@ -1,0 +1,25 @@
+/* Creates the cassandra 0.7.x schema necessary for biocache-store 
+   Run this file using:
+   ./cassandra-cli --host localhost --batch < create_cass_schema.txt
+*/
+
+/* all keyspaces are created using the ByteOrderPreservingPartitioner see the cassandra.yaml file */
+
+create keyspace bie;
+
+use bie;
+
+create column family tc with comparator=UTF8Type and default_validation_class=UTF8Type
+and comment='The column family for a BIE taxon concept' and key_validation_class=UTF8Type
+and compaction_strategy=LeveledCompactionStrategy  AND compaction_strategy_options=[{sstable_size_in_mb: 100}];
+
+create column family rk with comparator=UTF8Type and default_validation_class=UTF8Type
+and comment='The column family for Rankings' and key_validation_class=UTF8Type
+and compaction_strategy=LeveledCompactionStrategy;
+
+create column family gr with comparator=UTF8Type and default_validation_class=UTF8Type
+and comment='The column family for Geo Regions' and key_validation_class=UTF8Type
+and compaction_strategy=LeveledCompactionStrategy;
+
+
+      
