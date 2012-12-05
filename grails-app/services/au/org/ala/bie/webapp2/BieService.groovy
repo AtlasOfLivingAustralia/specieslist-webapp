@@ -155,8 +155,7 @@ class BieService {
 
     def getChildConceptsForGuid(guid) {
         String url = grailsApplication.config.bie?.baseURL + "/ws/childConcepts/" + guid
-        def json = webService.getJson(url).sort() { a, b -> a.rankId?:0 <=> b.rankId?:0 } // sort into ranks
-        //log.debug "getChildConceptsForGuid json = " + json
+        def json = webService.getJson(url).sort() { it.rankId?:0 }
 
         if (json instanceof JSONObject && json.has("error")) {
             log.warn "child concepts request error: " + json.error
