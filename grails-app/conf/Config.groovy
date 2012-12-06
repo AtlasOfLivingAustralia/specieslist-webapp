@@ -40,7 +40,8 @@ if( !speciesList.baseURL){
 userDetails.url ="http://auth.ala.org.au/userdetails/userDetails/"
 userDetails.path ="getUserList"
 alerts.baseUrl = "http://alerts.ala.org.au/ws/"
-brds.guidUrl = "http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid="
+//brds.guidUrl = "http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid="
+brds.guidUrl = "http://sightings.ala.org.au/"
 collectory.threatenedSpeciesCodesUrl = collectory.baseURL + "/public/showDataResource"
 ranking.readonly = false
 

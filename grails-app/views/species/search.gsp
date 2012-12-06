@@ -201,7 +201,7 @@
                                         </g:if>
                                         <g:if test="${result.rankId && result.rankId > 5000}">
                                             <span class="recordSighting" style="display:inline;">
-                                                <a href="http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid=${result.guid}">Record a sighting/share a photo</a>
+                                                <a href="${grailsApplication.config.brds.guidUrl}${result.guid}">Record a sighting/share a photo</a>
                                             </span>&nbsp;
                                             <g:if test="${result?.occCount?:0 > 0}">
                                                 <span class="recordSighting" style="display:inline;"><a href="http://biocache.ala.org.au/occurrences/taxa/${result.guid}">Occurrences:
