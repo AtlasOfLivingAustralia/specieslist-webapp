@@ -57,7 +57,7 @@ class SpeciesController {
 
         if (searchResults instanceof JSONObject && searchResults.has("error")) {
             log.error "Error requesting taxon concept object: " + searchResults.error
-            render(view: '../error', model: [message: etc.error])
+            render(view: '../error', model: [message: searchResults.error])
         } else {
             render(view: 'search', model: [
                     searchResults: searchResults?.searchResults,

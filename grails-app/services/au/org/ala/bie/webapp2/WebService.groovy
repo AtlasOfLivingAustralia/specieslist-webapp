@@ -7,7 +7,6 @@ import groovyx.net.http.ContentType
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.springframework.beans.factory.InitializingBean
 
-
 class WebService implements InitializingBean {
 
     public void afterPropertiesSet() {
@@ -24,11 +23,11 @@ class WebService implements InitializingBean {
         } catch (SocketTimeoutException e) {
             def error = [error: "Timed out calling web service. URL= ${url}."]
             println error.error
-            return error as JSON
+            return new groovy.json.JsonBuilder( error ).toString()
         } catch (Exception e) {
             def error = [error: "Failed calling web service. ${e.getClass()} ${e.getMessage()} URL= ${url}."]
             println error.error
-            return error as JSON
+            return new groovy.json.JsonBuilder( error ).toString()
         }
     }
 
