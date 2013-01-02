@@ -55,14 +55,14 @@ function removeFacet(facet) {
     var paramList = [];
 
     //is this a init search?
-    if(fqList == null || fqList == 'undefined'){
-        if('australian_s:recorded' == facet){
-            fqList = ['australian_s:recorded'];
-        }
-        else{
-            fqList = [''];
-        }
-    }
+//    if(fqList == null || fqList == 'undefined'){
+//        if('australian_s:recorded' == facet){
+//            fqList = ['australian_s:recorded'];
+//        }
+//        else{
+//            fqList = [''];
+//        }
+//    }
     if (q != null) {
         paramList.push("q=" + q);
     }
