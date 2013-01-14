@@ -231,13 +231,13 @@
                         <section class="double" id="divMap">
                             <h2>Mapped occurrence records</h2>
                             <div class="bg-white">
-                                <g:set var="spatialQuery" value="lsid:%22${guid}%22&cm=geospatial_kosher"/>
+                                <g:set var="spatialQuery" value="lsid:%22${guid}%22%20AND%20geospatial_kosher:true"/>
                                 <img id="mapImage" src="http://biocache.ala.org.au/ws/density/map?q=${spatialQuery}" class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>
                                 <img id="mapLegend" src="http://biocache.ala.org.au/ws/density/legend?q=${spatialQuery}" class="distroLegend" alt="map legend" onerror="this.style.display='none'"/>
                             </div>
                             <p>
                                 <a class="button" href="${biocacheUrl}/occurrences/taxa/${guid}" title="View records list">View records list</a>
-                                <a class="button" href="${spatialPortalUrl}/?q=${spatialQuery}" title="Map & analyse records">Map &amp; analyse records</a>
+                                <a class="button" href="${spatialPortalUrl}/?q=lsid:%22${guid}%22&cm=geospatial_kosher" title="Map & analyse records">Map &amp; analyse records</a>
                             </p>
                         </section>
                         <section class="last">

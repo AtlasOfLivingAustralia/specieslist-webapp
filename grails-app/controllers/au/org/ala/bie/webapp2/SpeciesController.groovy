@@ -100,7 +100,7 @@ class SpeciesController {
                     extraImages: bieService.getExtraImages(etc),
                     textProperties: utilityService.filterSimpleProperties(etc),
                     isAustralian: bieService.getIsAustralian(guid),
-                    isRoleAdmin: authService.userInRole(ConfigurationHolder.config.auth.admin_role),
+                    isRoleAdmin: authService.userInRole(grailsApplication.config.auth.admin_role),
                     userName: authService.username(),
                     isReadOnly: grailsApplication.config.ranking.readonly, // TODO: implement this properly based on BIE version
                     sortCommonNameSources: utilityService.getNamesAsSortedMap(etc.commonNames),
