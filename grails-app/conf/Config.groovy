@@ -134,7 +134,7 @@ grails.enable.native2ascii = true
 // packages to include in Spring bean scanning
 grails.spring.bean.packages = []
 // whether to disable processing of multi part requests
-grails.web.disable.multipart=false
+grails.web.disable.multipart = false
 
 // request parameters to mask when logging exceptions
 grails.exceptionresolver.params.exclude = ['password']
@@ -152,6 +152,7 @@ environments {
         security.cas.contextPath = "/${appName}"
         // cached-resources plugin - keeps original filenames but adds cache-busting params
         grails.resources.debug = true
+      //  bie.baseURL = "http://diasbtest1-cbr.vm.csiro.au:8080/bie-service"
     }
     test {
         grails.logging.jul.usebridge = false
@@ -171,43 +172,48 @@ environments {
     }
 }
 
+
 // log4j configuration
 log4j = {
-    // Example of changing the log pattern for the default console
-    // appender:
-    //
     appenders {
-        console name:'stdout', layout:pattern(conversionPattern: '%-5p [%c{2}] %m%n')
+        environments {
+            production {
+                rollingFile name: "bie-prod",
+                    maxFileSize: 104857600,
+                    file: "/var/log/tomcat6/biewebapp2.log",
+                    threshold: org.apache.log4j.Level.DEBUG,
+                    layout: pattern(conversionPattern: "%-5p: %d [%c{1}]  %m%n")
+                rollingFile name: "stacktrace",
+                    maxFileSize: 1024,
+                    file: "/var/log/tomcat6/biewebapp2-stacktrace.log"
+            }
+            development{
+                console name: "stdout", layout: pattern(conversionPattern: "%d [%c{1}]  %m%n"),
+                    threshold: org.apache.log4j.Level.DEBUG
+            }
+        }
     }
 
-//    root {
-//        debug: stdout
-//    }
+    root {
+        debug  'bie-prod'
+    }
 
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
            'org.codehaus.groovy.grails.web.pages', //  GSP
            'org.codehaus.groovy.grails.web.sitemesh', //  layouts
-           'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
+	         'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
            'org.codehaus.groovy.grails.web.mapping', // URL mapping
-           'org.codehaus.groovy.grails.commons', // core / classloading
-           'org.codehaus.groovy.grails.plugins', // plugins
-           'org.codehaus.groovy.grails.orm.hibernate', // hibernate integration
-           'org.springframework',
-           'org.hibernate',
-           'net.sf.ehcache.hibernate'
-    warn   'org.mortbay.log',
-           'grails.app'
-    //info   'grails.app'
+	         'org.codehaus.groovy.grails.commons', // core / classloading
+	         'org.codehaus.groovy.grails.plugins', // plugins
+           'org.springframework.jdbc',
+           'org.springframework.transaction',
+           'org.codehaus.groovy',
+           'org.grails',
+           'org.grails.plugin.resource',
+           'org.apache',
+           'grails.spring',
+           'grails.util.GrailsUtil',
+           'net.sf.ehcache'
 
-    environments {
-
-        test {
-            info   'grails.app'
-        }
-        development {
-            // Override previous setting for 'grails.app'
-            info   'grails.app'
-            debug  'grails.app'
-        }
-    }
+    debug  'ala'
 }
