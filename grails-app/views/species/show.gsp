@@ -356,9 +356,10 @@
                                     <li><a href="${ism.key}" target="_blank" class="infosource">${ism.value?.name}</a>
                                         <ul>
                                             <li>
-                                                <g:each in="${ism.value?.sections}" var="s" status="i">
+                                                <g:set var="sections" value="${ism.value?.sections?.minus(["hasOccurrenceRowKey","hasImageLicenseInfo"])}"/>
+                                                <g:each in="${sections}" var="s" status="i">
                                                     <g:set var="section"><g:message code="${s}"/></g:set>
-                                                    ${section}${section && i < ism.value?.sections.size() - 1?', ':''}
+                                                    ${section}${section && i < sections.size() - 1?', ':''}
                                                 </g:each>
                                                 %{--${is.value?.sections.join(",")}--}%
                                             </li>
@@ -639,9 +640,8 @@
                     </g:if>
                 </section><!--#names-->
                 <section id="classification">
-                    <h2>Working scientific classification</h2>
+                    <h2>Working classification</h2>
                     <div id="isAustralianSwitch"></div>
-
                         <g:each in="${taxonHierarchy}" var="taxon">
                             <!-- taxon = ${taxon} -->
                             <%-- Note: check for rankId is here due to some taxonHierarchy including taxa at higher rank than requested taxon (bug)--%>
@@ -649,15 +649,13 @@
                                 <dl><dt>${taxon.rank}</dt>
                                     <dd><a href="${request?.contextPath}/species/${taxon.guid}#classification" title="${taxon.rank}">
                                         <bie:formatSciName name="${taxon.scientificName}" rankId="${taxon.rankId?:0}"/>
-                                        <g:if test="${taxon.commonNameSingle && taxon.guid == guid}">: ${taxon.commonNameSingle}</g:if></a>
+                                        <g:if test="${taxon.commonNameSingle}">: ${taxon.commonNameSingle}</g:if></a>
                                     </dd>
                             </g:if>
                             <g:elseif test="${taxon.guid == tc.taxonConcept.guid}">
                                 <dl><dt id="currentTaxonConcept">${taxon.rank}</dt>
                                     <dd><span><bie:formatSciName name="${taxon.scientificName}" rankId="${taxon.rankId?:0}"/>
-                                        <g:if test="${taxon.commonNameSingle && taxon.guid == guid}">
-                                            : ${taxon.commonNameSingle}
-                                        </g:if></span>
+                                        <g:if test="${taxon.commonNameSingle}">: ${taxon.commonNameSingle}</g:if></span>
                                         <g:if test="${taxon.isAustralian || tc.isAustralian}">
                                             &nbsp;<span><img src="${grailsApplication.config.ala.baseURL}/wp-content/themes/ala2011/images/status_native-sm.png" alt="Recorded in Australia" title="Recorded in Australia" width="21" height="21"></span>
                                         </g:if>
@@ -665,13 +663,11 @@
                             </g:elseif>
                             <g:else><!-- Taxa ${taxon}) should not be here! --></g:else>
                         </g:each>
-                        <dl class="childClassification">
+                        <dl class="childClassificationXXX">
                             <g:set var="currentRank" value=""/>
                             <g:each in="${childConcepts}" var="child" status="i">
-                                <g:if test="${child.rank != currentRank}">
-                                    <g:set var="currentRank" value="${child.rank}"/>
-                                    <dt class="${child.isAustralian}">${child.rank}</dt>
-                                </g:if>
+                                <g:set var="currentRank" value="${child.rank}"/>
+                                <dt>${child.rank}</dt>
                                 <g:set var="taxonLabel"><bie:formatSciName name="${child.nameComplete ? child.nameComplete : child.name}"
                                            rankId="${child.rankId?:0}"/><g:if test="${child.commonNameSingle}">: ${child.commonNameSingle}</g:if></g:set>
                                 <dd><a href="${request?.contextPath}/species/${child.guid}#classification">${taxonLabel.trim()}</a>&nbsp;
@@ -694,7 +690,6 @@
                         <g:each in="${taxonHierarchy}" var="taxon">
                             </dl>
                         </g:each>
-
                 </section><!--classificatio-->
                 <section id="records">
                     <h2>Occurrence records</h2>
