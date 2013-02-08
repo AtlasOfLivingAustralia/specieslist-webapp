@@ -19,7 +19,6 @@ class SpeciesListKVP {
     String value
     String vocabValue
     String dataResourceUid
-//    static hasMany= [speciesListItem:SpeciesListItem]
     static belongsTo = SpeciesListItem
     static constraints = {
         vocabValue(nullable:true)
