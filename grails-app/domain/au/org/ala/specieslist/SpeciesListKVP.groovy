@@ -26,5 +26,6 @@ class SpeciesListKVP {
     }
     static mapping ={
         key column: 'the_key'
+        value column: "value", sqlType: "TEXT"
     }
 }
