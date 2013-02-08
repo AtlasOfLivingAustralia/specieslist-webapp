@@ -59,7 +59,7 @@ class SpeciesListController {
         //performs the cascade delete that is required.
         SpeciesListItem.findAllByDataResourceUid(params.id)*.delete()
         SpeciesListKVP.findAllByDataResourceUid(params.id)*.delete()
-        //TODO should the the dr be deleted from the collectory -- needs collectory support??
+        //TODO should the the dr be deleted from the collectory??
         flash.message = "Deleted Species List " + params.id
         redirect(action:  'upload')
     }
@@ -247,7 +247,7 @@ class SpeciesListController {
         log.debug("Parsing for header")
         def rawData = request.getReader().readLines().join("\n").trim()
         String separator = helperService.getSeparator(rawData)
-        CSVReader csvReader =helperService.getCSVReaderForText(rawData, separator)
+        CSVReader csvReader = helperService.getCSVReaderForText(rawData, separator)
         def rawHeader =  csvReader.readNext()
         log.debug(rawHeader.toList())
         def processedHeader = helperService.parseHeader(rawHeader)?:helperService.parseData(rawHeader)

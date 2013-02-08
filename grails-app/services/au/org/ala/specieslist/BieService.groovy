@@ -29,7 +29,7 @@ class BieService {
             log.debug(jsonResponse)
             jsonResponse.getJSONArray("searchDTOList").toArray().each{
                 def guid = it.guid
-                def image = it.thumbnail?.replace(repositoryPath, repositoryUrl) //temporarily in place until the service returns the correct URL
+                def image = it.smallImageUrl
                 def commonName = it.commonNameSingle
                 def scientificName = it.name
                 def author = it.author

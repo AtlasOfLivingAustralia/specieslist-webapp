@@ -42,7 +42,7 @@ class HelperService {
 
     def ambiguousValues = ["name"]
 
-    def collectoryKey="Venezuela"
+    def collectoryKey = "Venezuela"
 
     //"http://vpn-cbr-67.act.csiro.au:8080/Collectory"
 
@@ -62,21 +62,22 @@ class HelperService {
      * @return
      */
     def addDataResourceForList(name,description,url,username) {
-        def http = new HTTPBuilder(grailsApplication.config.collectory.baseURL +"/ws/dataResource")
-        http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
-        def jsonBody = createJsonForNewDataResource(name, description, url, username)
-        log.debug(jsonBody)
-        try{
-         http.post(body: jsonBody, requestContentType:JSON){ resp ->
-             assert resp.status == 201
-             return resp.headers['location'].getValue()
-         }
-        }
-        catch(ex){
-            log.error("Unable to create a collectory entry for the species list.",ex)
-            return null
-        }
+//        def http = new HTTPBuilder(grailsApplication.config.collectory.baseURL +"/ws/dataResource")
+//        http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
+//        def jsonBody = createJsonForNewDataResource(name, description, url)
+//        log.debug(jsonBody)
+//        try{
+//         http.post(body: jsonBody, requestContentType:JSON){ resp ->
+//             assert resp.status == 201
+//             return resp.headers['location'].getValue()
+//         }
+//        }
+//        catch(ex){
+//            log.error("Unable to create a collectory entry for the species list.",ex)
+//            return null
+//        }
 
+        return "http://collections.ala.org.au/tmp/drt" + System.currentTimeMillis()
     }
 
     def createJsonForNewDataResource(listname,description,URL,email){
@@ -172,6 +173,11 @@ class HelperService {
         headerResponse
     }
     def parseHeader(String[] header){
+
+
+
+
+
         //first step check to see if scientificname or common name is provided as a header
         def hasName = false;
         def headerResponse =header.collect{
@@ -204,8 +210,6 @@ class HelperService {
     }
 
     def vocabPattern = ~ / ?([A-Za-z0-9]*): ?([A-Z a-z0-9']*)(?:,|$)/
-
-
 
     //Adds the associated vocabulary
     def addVocab(druid, vocab, kvpmap){

@@ -7,6 +7,7 @@ class SpeciesListItemController {
     def bieService
     def loggerService
     def queryService
+    def maxLengthForFacet = 15
     def index() { }
     /**
      *
@@ -74,30 +75,32 @@ class SpeciesListItemController {
             //redirect to the public species list page
             redirect(controller: "public", action: "speciesLists")
         }
-
     }
 
     private def generateFacetValues(List fqs, baseQueryParams){
-        def map=[:]
+        def map = [:]
+
         //handle the user defined properties -- this will also make up the facets
-        String selectPart="select distinct kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt";
-        def middlePart = fqs?queryService.constructWithFacets(" from SpeciesListItem as sli join sli.kvpValues kvp1 join sli.kvpValues kvp", fqs, params.id):null
+        String selectPart = "select distinct kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt";
+        def middlePart = fqs ? queryService.constructWithFacets(" from SpeciesListItem as sli join sli.kvpValues kvp1 join sli.kvpValues kvp", fqs, params.id) : null
         def properties = null
         if(fqs){
             //get the ids for the query -- this allows correct counts when joins are being performed.
             def ids = SpeciesListItem.executeQuery("select distinct sli.id " + baseQueryParams[0], baseQueryParams[1])
+
             //println(ids)
             def results = SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt  from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=:druid and sli.id in (:list) group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc', [druid:params.id,list:ids])
+
             //println(results)
-            properties = results.groupBy {it[0]}.findAll{it.value.size()>1}
-        }
-        else{
-        def result = fqs? SpeciesListItem.executeQuery(selectPart+middlePart[0] +
-                " group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc", middlePart[1]):
-            SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt  from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=? group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc', params.id)
-        //def result = baseQueryParams? SpeciesListItem.executeQuery(selectPart + baseQueryParams[0] + " group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc", baseQueryParams[1]) : SpeciesListItem.executeQuery(selectPart +'  from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=? group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc', params.id)
-        //println(result)
-        properties = result.groupBy {it[0]}.findAll{it.value.size()>1}
+            properties = results.findAll{ it[1].length()<maxLengthForFacet }.groupBy { it[0] }.findAll{ it.value.size()>1}
+
+        } else {
+            def result = fqs? SpeciesListItem.executeQuery(selectPart+middlePart[0] +
+                    " group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc", middlePart[1]):
+                SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt  from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=? group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc', params.id)
+            //def result = baseQueryParams? SpeciesListItem.executeQuery(selectPart + baseQueryParams[0] + " group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc", baseQueryParams[1]) : SpeciesListItem.executeQuery(selectPart +'  from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=? group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc', params.id)
+            //println(result)
+            properties = result.findAll{it[1].length()<maxLengthForFacet}.groupBy{it[0]}.findAll{it.value.size()>1 }
         }
         //if there was a facet included in the result we will need to divide the
         if(properties)
@@ -109,30 +112,13 @@ class SpeciesListItemController {
 
     def facetsvalues(){
         if(params.id){
-            //generate the list of facets
-            //all the vocab terms
-//            def criteria = SpeciesListItem.createCriteria().add(Restrictions.eq('dataResourceUid',params.id))
-//
-//            def results = criteria.list{
-//
-//                createAlias('kvpValues','kvp')
-//
-//                projections{
-//                    groupProperty('kvp.key')
-//                    groupProperty('kvp.value')
-//                    groupProperty('kvp.vocabValue')
-//                    rowCount()
-//                }
-//            }
-//        }
-            def result = SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=? group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc', params.id)
+          def result = SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=? group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc', params.id)
           //group the same properties keys together
           def properties = result.groupBy {it[0]}
           def map =[:]
           map.listProperties = properties
           render map as JSON
-        //println(results)
-    }
+        }
         null
     }
 

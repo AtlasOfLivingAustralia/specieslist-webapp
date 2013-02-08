@@ -199,7 +199,7 @@
                                     <li>
                                         ${fq.replaceFirst("kvp ","")}
                                         %{--<a class="removeLink" onclick="removeFacet('family:ACANTHASPIDIIDAE'); return false;" href="#" oldtitle="remove filter" aria-describedby="ui-tooltip-1">X</a>--}%
-                                        [<b><a class="removeLink" title="Remove Filter" onclick="removeFacet('${fq}')">X</a></b>]
+                                        [<b><a href="#" class="removeLink" title="Remove Filter" onclick="removeFacet('${fq}')">X</a></b>]
                                     </li>
                                     </g:if>
                                 </g:each>
@@ -304,11 +304,10 @@
                       <td>Scientific Name (matched)</td>
                       <td>Author (matched)</td>
                       <td>Common Name (matched)</td>
-                    <g:each in="${keys}" var="key">
-                        <td>${key}</td>
-                    </g:each>
+                        <g:each in="${keys}" var="key">
+                            <td>${key}</td>
+                        </g:each>
                       <td>Image</td>
-
                 </tr>
                 </thead>
             <tbody>
@@ -331,9 +330,9 @@
                         <td id="cn_${result.guid}">${bieSpecies?.get(1)}</td>
                         <g:each in="${keys}" var="key">
                             <g:set var="kvp" value="${result.kvpValues.find {it.key == key}}" />
-                            <td>${kvp?.vocabValue?:kvp?.value}</td>
+                            <td>${kvp?.vocabValue?:kvp?.value?.trimLength(20)}</td>
                         </g:each>
-                        <td id="img_${result.guid}"><a href="${bieUrl}/species/${result.guid}" ><img src="${bieSpecies?.get(0)}"/></a></td>
+                        <td id="img_${result.guid}"><a href="${bieUrl}/species/${result.guid}" ><img src="${bieSpecies?.get(0)}" style="max-height:50px;max-width:100px;"/></a></td>
 
                       %{--<p>--}%
                           %{--${result.guid} ${result.rawScientificName}--}%
