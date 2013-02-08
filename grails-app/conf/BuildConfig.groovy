@@ -25,6 +25,7 @@ grails.project.dependency.resolution = {
         grailsHome()
         mavenLocal()
         mavenRepo "http://maven.ala.org.au/repository/"
+        mavenRepo "http://repository.gbif.org/content/repositories/gbif/"
         mavenRepo "http://repository.codehaus.org"
         mavenCentral()
         grailsPlugins()
@@ -48,6 +49,14 @@ grails.project.dependency.resolution = {
         compile group: 'org.codehaus.groovy.modules.http-builder',
                 name: 'http-builder',
                 version: '0.5.2'
+
+//        compile group:'org.gbif',
+//                name:'ecat-common',
+//                version:'1.5.1-SNAPSHOT'
+//
+        compile group:'org.gbif',
+                name:'gbif-common',
+                version:'0.7'
 
 
 
