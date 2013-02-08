@@ -25,7 +25,7 @@
 <g:set var="spatialPortalUrl" value="${grailsApplication.config.spatial.baseURL}"/>
 <g:set var="collectoryUrl" value="${grailsApplication.config.collectory.baseURL}"/>
 <g:set var="citizenSciUrl" value="${grailsApplication.config.brds.guidUrl}"/>
-<g:set var="guid" value="${tc?.taxonConcept?.guid?:''}"/>
+<g:set var="guid" value="${tc?.previousGuid?:tc?.taxonConcept?.guid?:''}"/>
 <g:set var="sciNameFormatted"><bie:formatSciName name="${tc?.taxonConcept?.nameString}" rankId="${tc?.taxonConcept?.rankID?:0}"/></g:set>
 <g:set var="synonymsQuery"><g:each in="${tc?.synonyms}" var="synonym" status="i">\"${synonym.nameString}\"<g:if test="${i < tc.synonyms.size() - 1}"> OR </g:if></g:each></g:set>
 <!doctype html>
