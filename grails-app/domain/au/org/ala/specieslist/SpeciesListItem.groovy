@@ -45,7 +45,7 @@ class SpeciesListItem {
         dataResourceUid index: 'idx_data_resource_uid'
         guid index: 'idx_guid'
         itemOrder index:  'idx_item_order'
-        kvpValues lazy: false
+        //kvpValues lazy: false
     }
 
 }

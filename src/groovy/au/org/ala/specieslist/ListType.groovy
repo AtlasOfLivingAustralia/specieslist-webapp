@@ -23,6 +23,7 @@ public enum ListType {
     LOCAL_LIST("checklist for local"),
     COMMON_TRAIT("species with common trait"),
     COMMON_HABITAT("species with common habitat"),
+    SPATIAL_PORTAL("A list that has been defined from the spatial portal"),
     TEST("test list"),
     OTHER("other")
 

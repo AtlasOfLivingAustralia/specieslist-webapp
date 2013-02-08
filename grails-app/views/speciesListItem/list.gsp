@@ -301,9 +301,9 @@
                 <thead>
                 <tr>
                       <td>Supplied Name</td>
-                      <td>Scientific Name</td>
-                      <td>Author</td>
-                      <td>Common Name</td>
+                      <td>Scientific Name (matched)</td>
+                      <td>Author (matched)</td>
+                      <td>Common Name (matched)</td>
                     <g:each in="${keys}" var="key">
                         <td>${key}</td>
                     </g:each>

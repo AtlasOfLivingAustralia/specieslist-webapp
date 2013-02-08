@@ -59,7 +59,7 @@ class SpeciesListController {
         //performs the cascade delete that is required.
         SpeciesListItem.findAllByDataResourceUid(params.id)*.delete()
         SpeciesListKVP.findAllByDataResourceUid(params.id)*.delete()
-        //TODO should the the dr be deleted from the collectory??
+        //TODO should the the dr be deleted from the collectory -- needs collectory support??
         flash.message = "Deleted Species List " + params.id
         redirect(action:  'upload')
     }
@@ -72,7 +72,7 @@ class SpeciesListController {
         log.debug(formParams.toString() + " class : " + formParams.getClass())
 
         if(formParams.speciesListName && formParams.headers && formParams.rawData){
-            def drURL = helperService.addDataResourceForList(formParams.speciesListName, formParams.description, formParams.listUrl)
+            def drURL = helperService.addDataResourceForList(formParams.speciesListName, formParams.description, formParams.listUrl,null)
             log.debug(drURL)
             if(drURL){
                 def druid = drURL.toString().substring(drURL.lastIndexOf('/') +1)

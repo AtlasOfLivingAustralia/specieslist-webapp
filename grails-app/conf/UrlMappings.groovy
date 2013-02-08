@@ -7,6 +7,15 @@ class UrlMappings {
 			}
 		}
 
+        //ws to support CRUD operations on lists
+        "/ws/speciesList/${druid}?" (controller: 'webService'){
+            action = [GET:'getListDetails',POST:'saveList']
+        }
+
+        "/ws/speciesListItems/${druid}" (controller: 'webService'){
+            action = [GET:'getListItemDetails']
+        }
+
         //ws to obtain values for a specified species guid
         "/ws/species/$guid?" (controller: 'webService',action: 'getListItemsForSpecies')
 

@@ -61,10 +61,10 @@ class HelperService {
      * @param description
      * @return
      */
-    def addDataResourceForList(name,description,url) {
+    def addDataResourceForList(name,description,url,username) {
         def http = new HTTPBuilder(grailsApplication.config.collectory.baseURL +"/ws/dataResource")
         http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
-        def jsonBody = createJsonForNewDataResource(name, description, url)
+        def jsonBody = createJsonForNewDataResource(name, description, url, username)
         log.debug(jsonBody)
         try{
          http.post(body: jsonBody, requestContentType:JSON){ resp ->
@@ -79,14 +79,14 @@ class HelperService {
 
     }
 
-    def createJsonForNewDataResource(listname,description,URL){
+    def createJsonForNewDataResource(listname,description,URL,email){
         def builder = new JSONBuilder()
 
         def result = builder.build{
             name = listname
             user = "Species List Upload"
             api_key = collectoryKey
-            email = authService.email()
+            email = authService.email()?:email?:""
             firstName = ""
             lastName = ""
             websiteUrl=URL?:""
@@ -222,6 +222,25 @@ class HelperService {
         }
     }
 
+    def loadSpeciesList(Map json, String druid, List<String> items){
+        SpeciesList sl = new SpeciesList(json)
+        sl.setDataResourceUid(druid)
+        items.eachWithIndex { item, i ->
+            //look it up
+            SpeciesListItem sli = new SpeciesListItem()
+            sli.dataResourceUid =druid
+            sli.rawScientificName = item
+            sli.itemOrder = i
+
+            sli.guid = findAcceptedLsidByScientificName(sli.rawScientificName)?: findAcceptedLsidByCommonName(sli.rawScientificName)
+            sl.addToItems(sli)
+        }
+        if(!sl.validate()){
+            log.error(sl.errors.allErrors)
+        }
+        sl.save()
+    }
+
     def loadSpeciesList(CSVReader reader,druid,listname,ListType listType,description, listUrl, String[] header, Map vocabs){
         log.debug("Loading species list " + druid + " " + listname + " " + description + " " + listUrl + " " + header + " " + vocabs)
         def kvpmap = [:]
@@ -250,12 +269,6 @@ class HelperService {
                 sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap, count))
             }
 
-//            if(count%100){
-//                def session = sessionFactory.currentSession
-//                session.flush()
-//                session.clear()
-//                propertyInstanceMap.get().clear()
-//            }
         }
         if(!sl.validate()){
             log.error(sl.errors.allErrors)
@@ -285,12 +298,7 @@ class HelperService {
                 sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap))
                 count++
             }
-//            if(count%100){
-//                def session = sessionFactory.currentSession
-//                session.flush()
-//                session.clear()
-//                propertyInstanceMap.get().clear()
-//            }
+
         }
         sl.save()
     }

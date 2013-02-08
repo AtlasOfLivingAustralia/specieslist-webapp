@@ -20,6 +20,28 @@ import grails.web.JSONBuilder
  */
 class WebServiceController {
 
+    def helperService
+    def authService
+    def beforeInterceptor = [action:this.&prevalidate,only:['getListDetails','saveList']]
+
+    private def prevalidate(){
+        //ensure that the supplied druid is valid
+        println("Prevalidating...")
+        if(params.druid){
+            def list = SpeciesList.findByDataResourceUid(params.druid)
+            if (list){
+                params.splist=list
+            }
+            else{
+                notFound "Unable to locate species list ${params.druid}"
+                return false
+            }
+        }
+        return true
+    }
+
+
+
     def index() { }
 
     def getTaxaOnList(){
@@ -51,6 +73,117 @@ class WebServiceController {
         render builder.build{listOfRecordMaps}
 
     }
+
+
+    /**
+     *   Returns either a JSON list of species lists or a specific species list
+     *
+     *   @param druid - the data resource uid for the list to return  (optional)
+     *   @param splist - optional instance (added by the beforeInterceptor)
+     */
+    def getListDetails ={
+        println("params" + params)
+        if(params.splist) {
+            def sl = params.splist
+            println("The speciesList: " +sl)
+            def builder = new JSONBuilder()
+
+            def retValue = builder.build{
+                dataResourceUid = sl.dataResourceUid
+                listName = sl.listName
+                if(sl.listType) listType = sl.listType
+            }
+            println(" The retvalue: " + retValue)
+            render retValue
+
+        }
+        else{
+            //we need to return a summary of all lists
+            def allLists = SpeciesList.list([sort: 'listName',fetch: [items: 'lazy']])
+            def retValue =allLists.collect{[dataResourceUid: it.dataResourceUid, listName: it.listName, listType:it?.listType?.toString(), username:it.username, firstName:it.firstName, surname:it.surname]}
+
+            render retValue as JSON
+        }
+    }
+
+    /**
+     * Returns a summary list of items that form part of the supplied species list.
+     */
+    def getListItemDetails ={
+        def list = params.nonulls? SpeciesListItem.findAllByDataResourceUidAndGuidIsNotNull(params.druid):SpeciesListItem.findAllByDataResourceUid(params.druid)
+        def newList= list.collect{[id:it.id,name:it.rawScientificName, lsid: it.guid]}
+        render newList as JSON
+    }
+
+    /**
+     * Saves the details of the species list when no druid is provided in the JSON body
+     * a new list is inserted.  Inserting a new list will fail if there are no items to be
+     * included on the list.
+     */
+    def saveList = {
+        println("HERE I AM in saveList")
+        if(params.splist || params.druid){
+            //a list update is not supported at the moment
+            badRequest "Updates to existing list are unsupported."
+        }
+        else{
+            //create a new list
+            println("SAVE LIST " + params)
+            println(request)
+            println("COOKIES:" +request.cookies)
+            try{
+                def jsonBody =request.JSON
+                println("BODY : "+jsonBody)
+                def userCookie =request.cookies.find{it.name == 'ALA-Auth'}
+                println(userCookie)
+                if(userCookie){
+                    String username =userCookie.getValue()
+                    //test to see that the user is valid
+                    if(authService.isValidUserName(username)){
+
+                        if (jsonBody.listItems && jsonBody.listName){
+                            jsonBody.username=username
+                            def drURL = helperService.addDataResourceForList(jsonBody.listName, null, null, username)
+                            if(drURL){
+                                def druid = drURL.toString().substring(drURL.lastIndexOf('/') +1)
+                                List<String> list = jsonBody.listItems.split(",")
+                                helperService.loadSpeciesList(jsonBody,druid,list)
+                                created druid
+                            }
+                            else
+                                badRequest "Unable to generate collectory entry."
+                        }
+                        else
+                            badRequest "Missing compulsory mandatory properties."
+                    }
+                    else
+                        badRequest "Supplied username is invalid"
+                }
+                else
+                    badRequest "User has not logged in or cookies are disabled"
+            }
+            catch (Exception e){
+                e.printStackTrace()
+                render(status:  404, text: "Unable to parse JSON body")
+            }
+        }
+    }
+
+
+    def created = { uid ->
+        response.addHeader 'druid', uid
+        render(status:201, text:'added species list')
+    }
+
+    def badRequest = {text ->
+        render(status:400, text: text)
+    }
+
+    def notFound = { text ->
+        render(status:404, text: text)
+    }
+
+
 
     def markAsPublished(){
         //marks the supplied data resource as published

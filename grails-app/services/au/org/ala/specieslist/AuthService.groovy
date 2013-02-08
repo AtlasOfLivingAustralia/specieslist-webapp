@@ -18,4 +18,9 @@ class AuthService {
         (RequestContextHolder.currentRequestAttributes()?.getUserPrincipal()?.attributes?.lastname)?:null
     }
 
+    def isValidUserName(String username){
+        //TODO check that the username is for a current CAS user
+        true
+    }
+
 }

@@ -18,7 +18,7 @@ security.cas.uriFilterPattern = '/speciesList, /speciesList/.*'
 //    security.cas.contextPath = "/specieslist-webapp"
 //}
 if (!security.cas.authenticateOnlyIfLoggedInPattern) {
-    security.cas.authenticateOnlyIfLoggedInPattern = "/speciesListItem/list,/speciesListItem/list/.*"
+    security.cas.authenticateOnlyIfLoggedInPattern = "/speciesListItem/list,/speciesListItem/list/.*,/ws/speciesList"
 }
 /******* ALA standard config ************/
 headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
@@ -98,8 +98,8 @@ environments {
     development {
         grails.logging.jul.usebridge = true
         grails.serverURL = 'http://natasha.ala.org.au:8080/' + appName
-        //collectory.baseURL = 'http://natasha.ala.org.au:8080/Collectory'
-        collectory.baseURL ='http://audax.ala.org.au:8080/Collectory'
+        collectory.baseURL = 'http://localhost:9080/Collectory'
+        //collectory.baseURL ='http://audax.ala.org.au:8080/Collectory'
         serverName='http://natasha.ala.org.au:8080'
         contextPath = "/specieslist-webapp"
     }
@@ -134,7 +134,7 @@ log4j = {
                 'null' name: "stacktrace"
             }
             development {
-                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.DEBUG
+                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.TRACE
                 rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/tmp/specieslist.log", threshold: org.apache.log4j.Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
                 'null' name: "stacktrace"
             }
@@ -151,6 +151,7 @@ log4j = {
         warn 'tomcatLog'
         info 'tomcatLog'
         debug 'tomcatLog', 'stdout'
+        trace 'tomcatLog', 'stdout'
         additivity = true
     }
 
