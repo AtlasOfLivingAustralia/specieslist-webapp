@@ -26,7 +26,7 @@ class WebServiceController {
 
     private def prevalidate(){
         //ensure that the supplied druid is valid
-        println("Prevalidating...")
+        log.debug("Prevalidating...")
         if(params.druid){
             def list = SpeciesList.findByDataResourceUid(params.druid)
             if (list){
@@ -82,10 +82,10 @@ class WebServiceController {
      *   @param splist - optional instance (added by the beforeInterceptor)
      */
     def getListDetails ={
-        println("params" + params)
+        log.debug("params" + params)
         if(params.splist) {
             def sl = params.splist
-            println("The speciesList: " +sl)
+            log.debug("The speciesList: " +sl)
             def builder = new JSONBuilder()
 
             def retValue = builder.build{
@@ -93,7 +93,7 @@ class WebServiceController {
                 listName = sl.listName
                 if(sl.listType) listType = sl.listType
             }
-            println(" The retvalue: " + retValue)
+            log.debug(" The retvalue: " + retValue)
             render retValue
 
         }
@@ -121,21 +121,21 @@ class WebServiceController {
      * included on the list.
      */
     def saveList = {
-        println("HERE I AM in saveList")
+        log.debug("HERE I AM in saveList")
         if(params.splist || params.druid){
             //a list update is not supported at the moment
             badRequest "Updates to existing list are unsupported."
         }
         else{
             //create a new list
-            println("SAVE LIST " + params)
-            println(request)
-            println("COOKIES:" +request.cookies)
+            log.debug("SAVE LIST " + params)
+            log.debug(request)
+            log.debug("COOKIES:" +request.cookies)
             try{
                 def jsonBody =request.JSON
-                println("BODY : "+jsonBody)
+                log.debug("BODY : "+jsonBody)
                 def userCookie =request.cookies.find{it.name == 'ALA-Auth'}
-                println(userCookie)
+                log.debug(userCookie)
                 if(userCookie){
                     String username =userCookie.getValue()
                     //test to see that the user is valid
@@ -163,7 +163,7 @@ class WebServiceController {
                     badRequest "User has not logged in or cookies are disabled"
             }
             catch (Exception e){
-                e.printStackTrace()
+                log.error(e.getMessage(),e)
                 render(status:  404, text: "Unable to parse JSON body")
             }
         }

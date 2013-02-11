@@ -90,7 +90,6 @@ class SpeciesListController {
                 //redirect(controller: "speciesListItem",action: "list",id: druid,params: [max: 15, sort:"id"])
             }
             else{
-
                 response.outputStream.write("Unable to add species list at this time. If this problem persists please report it.".getBytes())
                 response.setStatus(500)
                 response.sendError(500, "Unable to add species list at this time. If this problem persists please report it.")
@@ -99,7 +98,6 @@ class SpeciesListController {
                 //render(view: "upload")
                 //throw new Error("Unablel to add species list at this time. If this problem persists please report it.")
             }
-
         }
     }
 
@@ -119,12 +117,12 @@ class SpeciesListController {
             def druid = drURL.toString().substring(drURL.lastIndexOf('/') +1)
             //download the supplied file to the local files system
             def localFilePath = helperService.uploadFile(druid, uploadedFile)
-            println("The local file " + localFilePath)
+            log.debug("The local file " + localFilePath)
             //create a new species list item for each line of the file
-            println(params)
+            log.debug(params)
             //set of the columns if necessary
             def columns = params.findAll { it.key.startsWith("column") && it.value }.sort{it.key.replaceAll("column","") as int}
-            println(columns.toString() + " " + columns.size())
+            log.debug(columns.toString() + " " + columns.size())
 
             def header = (columns.size() > 0 && !params.containsKey('rowIndicatesMapping')) ? columns.values().toArray(["",""]) : null
 
@@ -133,10 +131,10 @@ class SpeciesListController {
             def vocabMap = [:]
             vocabs?.each{
                 int i = it.key.replaceAll("vocab","") as int
-                println("header :" + header[i] + " value: "+ it.value)
+                log.debug("header :" + header[i] + " value: "+ it.value)
                 vocabMap.put(header[i] , it.value)
             }
-            println(vocabMap)
+            log.debug(vocabMap)
             helperService.loadSpeciesList(params.speciesListTitle,druid,localFilePath,params.containsKey('rowIndicatesMapping'),header,vocabMap)
             //redirect the use to a summary of the records that they submitted - include links to BIE species page
             //also mention that the list will be loaded into BIE overnight.
@@ -159,10 +157,10 @@ class SpeciesListController {
     }
 
     def test(){
-        println(helperService.addDataResourceForList("My test List"))
-        println(authService.email())
+        log.debug(helperService.addDataResourceForList("My test List"))
+        log.debug(authService.email())
         //bieService.bulkLookupSpecies(["urn:lsid:biodiversity.org.au:afd.taxon:31a9b8b8-4e8f-4343-a15f-2ed24e0bf1ae"])
-        println(loggerService.getReasons())
+        log.debug(loggerService.getReasons())
     }
 
     def showList(){
@@ -227,16 +225,15 @@ class SpeciesListController {
             def guids = getGuidsForList(params.id, grailsApplication.config.downloadLimit)
 
             def splist = SpeciesList.findByDataResourceUid(params.id)
-            def title = "Species List: <a href=\""+grailsApplication.config.grails.serverURL+"/speciesListItem/list/"+params.id+"\">" +splist.listName
+            def title = "Species List: " + splist.listName
 
-            def url =biocacheService.performBatchSearchOrDownload(guids,params.type, title)
+            def url = biocacheService.performBatchSearchOrDownload(guids,params.type, title)
 
-
-
-            if(url)
+            if(url){
                 redirect(url:url)
-            else
+            } else {
                 redirect(controller: "speciesListItem", action: "list", id:params.id)
+            }
         }
     }
     /**

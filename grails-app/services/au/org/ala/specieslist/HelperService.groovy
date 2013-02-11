@@ -65,7 +65,7 @@ class HelperService {
         if(grailsApplication.config.collectory.enableSync){
             def http = new HTTPBuilder(grailsApplication.config.collectory.baseURL +"/ws/dataResource")
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
-            def jsonBody = createJsonForNewDataResource(name, description, url)
+            def jsonBody = createJsonForNewDataResource(name, description, url, username)
             log.debug(jsonBody)
             try{
              http.post(body: jsonBody, requestContentType:JSON){ resp ->
@@ -90,7 +90,7 @@ class HelperService {
             name = listname
             user = "Species List Upload"
             api_key = collectoryKey
-            email = authService.email()?:email?:""
+            email = email?:""
             firstName = ""
             lastName = ""
             websiteUrl=URL?:""
