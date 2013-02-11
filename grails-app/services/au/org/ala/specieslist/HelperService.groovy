@@ -62,22 +62,25 @@ class HelperService {
      * @return
      */
     def addDataResourceForList(name,description,url,username) {
-//        def http = new HTTPBuilder(grailsApplication.config.collectory.baseURL +"/ws/dataResource")
-//        http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
-//        def jsonBody = createJsonForNewDataResource(name, description, url)
-//        log.debug(jsonBody)
-//        try{
-//         http.post(body: jsonBody, requestContentType:JSON){ resp ->
-//             assert resp.status == 201
-//             return resp.headers['location'].getValue()
-//         }
-//        }
-//        catch(ex){
-//            log.error("Unable to create a collectory entry for the species list.",ex)
-//            return null
-//        }
-
-        return "http://collections.ala.org.au/tmp/drt" + System.currentTimeMillis()
+        if(grailsApplication.config.collectory.enableSync){
+            def http = new HTTPBuilder(grailsApplication.config.collectory.baseURL +"/ws/dataResource")
+            http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
+            def jsonBody = createJsonForNewDataResource(name, description, url)
+            log.debug(jsonBody)
+            try{
+             http.post(body: jsonBody, requestContentType:JSON){ resp ->
+                 assert resp.status == 201
+                 return resp.headers['location'].getValue()
+             }
+            }
+            catch(ex){
+                log.error("Unable to create a collectory entry for the species list.",ex)
+                return null
+            }
+        } else{
+           //return a dummy URL
+          "http://collections.ala.org.au/tmp/drt" + System.currentTimeMillis()
+        }
     }
 
     def createJsonForNewDataResource(listname,description,URL,email){

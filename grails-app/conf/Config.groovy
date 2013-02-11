@@ -13,6 +13,8 @@ if(!serverName){
 }
 //contextPath='/specieslist-webapp'
 security.cas.uriFilterPattern = '/speciesList, /speciesList/.*'
+collectory.enableSync = true
+
 /******* End of change this stuff for your project *******/
 //if (!security.cas.contextPath) {
 //    security.cas.contextPath = "/specieslist-webapp"
@@ -97,10 +99,11 @@ grails.hibernate.cache.queries = true
 environments {
     development {
         grails.logging.jul.usebridge = true
-        grails.serverURL = 'http://natasha.ala.org.au:8080/' + appName
-        collectory.baseURL = 'http://localhost:9080/Collectory'
-        //collectory.baseURL ='http://audax.ala.org.au:8080/Collectory'
-        serverName='http://natasha.ala.org.au:8080'
+        //grails.serverURL = 'http://natasha.ala.org.au:8080/' + appName
+        grails.serverURL = 'http://moyesyside.ala.org.au:8080/' + appName
+        //collectory.baseURL = 'http://natasha.ala.org.au:8080/Collectory'
+        collectory.baseURL ='http://audax.ala.org.au:8080/Collectory'
+        serverName='http://moyesyside.ala.org.au:8080'
         contextPath = "/specieslist-webapp"
     }
     production {
