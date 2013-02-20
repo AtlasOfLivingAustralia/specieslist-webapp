@@ -100,9 +100,9 @@
                         <dd>
                             <a href="#dataLinksText" id="dataLinks" class="button" title="JSON web service">JSON / <g:if test="${tc?.taxonConcept?.rankID?:1 % 1000 == 0}">WMS/</g:if> RDF</a>
                         </dd>
-                        <dt>Related pages</dt>
-                        <dd><a class="button" href="${biocacheUrl}/occurrences/taxa/${guid}" title="View occurrence records for ${sciNameFormatted}">Species records</a></dd>
-                        <dd><a class="button" href="${spatialPortalUrl}/?q=lsid:%22${guid}%22&cm=geospatial_kosher" title="GIS analysis of occurrence records for ${sciNameFormatted}">Spatial analysis</a></dd>
+                        %{--<dt>Related pages</dt>--}%
+                        %{--<dd><a class="button" href="${biocacheUrl}/occurrences/taxa/${guid}" title="View occurrence records for ${sciNameFormatted}">Species records</a></dd>--}%
+                        %{--<dd><a class="button" href="${spatialPortalUrl}/?q=lsid:%22${guid}%22&cm=geospatial_kosher" title="GIS analysis of occurrence records for ${sciNameFormatted}">Spatial analysis</a></dd>--}%
                     </dl>
                     <div style="display:none;">
                         <div id="lsidText">
