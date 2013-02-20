@@ -100,6 +100,9 @@
                         <dd>
                             <a href="#dataLinksText" id="dataLinks" class="button" title="JSON web service">JSON / <g:if test="${tc?.taxonConcept?.rankID?:1 % 1000 == 0}">WMS/</g:if> RDF</a>
                         </dd>
+                        <dt>Related pages</dt>
+                        <dd><a class="button" href="${biocacheUrl}/occurrences/taxa/${guid}" title="View occurrence records for ${sciNameFormatted}">Species records</a></dd>
+                        <dd><a class="button" href="${spatialPortalUrl}/?q=lsid:%22${guid}%22&cm=geospatial_kosher" title="GIS analysis of occurrence records for ${sciNameFormatted}">Spatial analysis</a></dd>
                     </dl>
                     <div style="display:none;">
                         <div id="lsidText">
@@ -229,7 +232,12 @@
                 <section id="overview">
                     <div class="four-column">
                         <section class="double" id="divMap">
-                            <h2>Mapped occurrence records</h2>
+                            <div id="expertDistroDiv" style="display:none;margin-bottom: 10px;">
+                                <h2>Expert distribution map</h2>
+                                <img id="distroMapImage" src="${resource(dir: 'images', file: 'noImage.jpg')}" class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>
+                                <div class="mapAttribution">Expert distribution map provided by <span id="dataResource">[data resource not known]</span></div>
+                            </div>
+                            <h2>Occurrence records map</h2>
                             <div class="bg-white">
                                 <g:set var="spatialQuery" value="lsid:%22${guid}%22%20AND%20geospatial_kosher:true"/>
                                 <img id="mapImage" src="http://biocache.ala.org.au/ws/density/map?q=${spatialQuery}" class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>

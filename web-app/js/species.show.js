@@ -120,6 +120,10 @@ $(document).ready(function() {
     });
 
     $(".thumbImageBrowse").tooltip();
+    $(".col-narrow a").tooltip({ position: "bottom right", offset: [0, -20], opacity: 0.9});
+
+    // add expert distrobution map
+    addExpertDistroMap();
 
 }); // end document.ready
 
@@ -301,4 +305,20 @@ function rankThisCommonName(guid, documentId, blackList, positive, name) {
         // catch ajax errors (requires JQuery 1.5+) - usually 500 error
         $('#cnRank-'+documentId).html('An error occurred: ' + errorThrown + " (" + jqXHR.status + ")");
     });
+}
+
+function addExpertDistroMap() {
+    var url = "http://spatial.ala.org.au/layers-service/distribution/map/" + SHOW_CONF.guid + "?callback=?";
+    $.getJSON(url, function(data){
+        if (data.available) {
+            $("#expertDistroDiv img").attr("src", data.url);
+
+            if (data.dataResourceName && data.dataResourceUrl) {
+                var attr = $('<a>').attr('href', data.dataResourceUrl).text(data.dataResourceName)
+                $("#expertDistroDiv #dataResource").html(attr);
+            }
+
+            $("#expertDistroDiv").show();
+        }
+    })
 }
