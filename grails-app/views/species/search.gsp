@@ -243,7 +243,7 @@
                                     <h4><g:message code="idxType.${result.idxType}"/>:
                                         <a href="${result.guid}">${result.name}</a></h4>
                                     <p>
-                                        <span>${result.description}</span>
+                                        <span class="searchDescription">${result.description?.trimLength(500)}</span>
                                         <!-- ${sectionText} -->
                                     </p>
                                 </g:elseif>

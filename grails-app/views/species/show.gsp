@@ -233,9 +233,9 @@
                     <div class="four-column">
                         <section class="double" id="divMap">
                             <div id="expertDistroDiv" style="display:none;margin-bottom: 10px;">
-                                <h2>Expert distribution map</h2>
+                                <h2>Compiled distribution map</h2>
                                 <img id="distroMapImage" src="${resource(dir: 'images', file: 'noImage.jpg')}" class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>
-                                <div class="mapAttribution">Expert distribution map provided by <span id="dataResource">[data resource not known]</span></div>
+                                <div class="mapAttribution">Compiled distribution map provided by <span id="dataResource">[data resource not known]</span></div>
                             </div>
                             <h2>Occurrence records map</h2>
                             <div class="bg-white">
