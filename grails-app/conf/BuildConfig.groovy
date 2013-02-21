@@ -40,7 +40,7 @@ grails.project.dependency.resolution = {
         // "au.org.ala:bie-profile:1.0-SNAPSHOT"
         compile group:'au.org.ala',
                 name:'bie-profile',
-                version:'1.0-SNAPSHOT',
+                version:'1.1-SNAPSHOT',
                 transitive:false
         compile "commons-httpclient:commons-httpclient:3.1",
                 "atg:json-taglib:0.4.1",
