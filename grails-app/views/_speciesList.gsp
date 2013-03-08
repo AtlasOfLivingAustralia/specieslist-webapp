@@ -63,7 +63,8 @@
         <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
             <td><a href="${request.contextPath}/speciesListItem/list/${list.dataResourceUid}">${fieldValue(bean: list, field: "listName")}</a></td>
             <td>${list.listType?.getDisplayValue()}</td>
-            <td>${fieldValue(bean: list, field: "firstName")} ${fieldValue(bean: list, field: "surname")}</td>
+            %{--<td>${fieldValue(bean: list, field: "firstName")} ${fieldValue(bean: list, field: "surname")}</td>--}%
+            <td>${list.fullName}</td>
             <td><g:formatDate format="yyyy-MM-dd" date="${list.dateCreated}"/></td>
             <td>${list.items.size()}</td>
             <g:if test="${list.username = request.getUserPrincipal()?.attributes?.email}">

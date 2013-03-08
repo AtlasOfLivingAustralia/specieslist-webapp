@@ -1,6 +1,7 @@
 package au.org.ala.specieslist
 
 class SpeciesList {
+    def authService
     String listName
     String firstName
     String surname
@@ -13,7 +14,7 @@ class SpeciesList {
     ListType listType
     Boolean isPrivate
 
-
+    static transients = [ "fullName" ]
 
     static hasMany = [items: SpeciesListItem]
 
@@ -33,6 +34,8 @@ class SpeciesList {
         username index: 'idx_username'
     }
 
-
+    def String getFullName(){
+        authService.getDisplayNameFor(username)
+    }
 
 }

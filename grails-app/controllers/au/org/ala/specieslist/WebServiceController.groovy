@@ -99,8 +99,10 @@ class WebServiceController {
         }
         else{
             //we need to return a summary of all lists
-            def allLists = SpeciesList.list([sort: 'listName',fetch: [items: 'lazy']])
-            def retValue =allLists.collect{[dataResourceUid: it.dataResourceUid, listName: it.listName, listType:it?.listType?.toString(), username:it.username, firstName:it.firstName, surname:it.surname]}
+            //def allLists = SpeciesList.list([sort: 'listName',fetch: [items: 'lazy']])
+            //def allLists = params.user? SpeciesList.findAll("from SpeciesList sl order by case username when '" + params.user +"' then 0 else 1 end, listName",[max:4, offset:10]):SpeciesList.list([sort: 'listName',fetch: [items: 'lazy']])
+            def allLists = params.user? SpeciesList.findAll("from SpeciesList sl order by case username when '" + params.user +"' then 0 else 1 end, listName"):SpeciesList.list([sort: 'listName',fetch: [items: 'lazy']])
+            def retValue =allLists.collect{[dataResourceUid: it.dataResourceUid, listName: it.listName, listType:it?.listType?.toString(), username:it.username, firstName:it.firstName, surname:it.surname, fullName:it.getFullName()]}
 
             render retValue as JSON
         }
@@ -121,7 +123,7 @@ class WebServiceController {
      * included on the list.
      */
     def saveList = {
-        log.debug("HERE I AM in saveList")
+        log.debug("Saving a user list")
         if(params.splist || params.druid){
             //a list update is not supported at the moment
             badRequest "Updates to existing list are unsupported."
@@ -134,15 +136,17 @@ class WebServiceController {
             try{
                 def jsonBody =request.JSON
                 log.debug("BODY : "+jsonBody)
+                //request.cookies.each { log.debug(it.getName() + "##" + it.getValue())}
                 def userCookie =request.cookies.find{it.name == 'ALA-Auth'}
-                log.debug(userCookie)
+                log.debug(userCookie.toString() + " " + userCookie.getValue())
                 if(userCookie){
-                    String username =userCookie.getValue()
+                    String username =java.net.URLDecoder.decode(userCookie.getValue(),'utf-8')
                     //test to see that the user is valid
                     if(authService.isValidUserName(username)){
 
                         if (jsonBody.listItems && jsonBody.listName){
                             jsonBody.username=username
+                            log.warn(jsonBody)
                             def drURL = helperService.addDataResourceForList(jsonBody.listName, null, null, username)
                             if(drURL){
                                 def druid = drURL.toString().substring(drURL.lastIndexOf('/') +1)

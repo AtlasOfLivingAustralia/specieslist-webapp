@@ -95,15 +95,20 @@ grails.exceptionresolver.params.exclude = ['password']
 // enable query caching by default
 grails.hibernate.cache.queries = true
 
+//authService properties
+auth.userDetailsUrl='http://auth.ala.org.au/userdetails/userDetails/'
+auth.userNamesForIdPath='getUserList'
+auth.userNamesForNumericIdPath='getUserListWithIds'
+
 // set per-environment serverURL stem for creating absolute links
 environments {
     development {
         grails.logging.jul.usebridge = true
-        //grails.serverURL = 'http://natasha.ala.org.au:8080/' + appName
-        grails.serverURL = 'http://moyesyside.ala.org.au:8080/' + appName
+        grails.serverURL = 'http://natasha.ala.org.au:8080/' + appName
+        //grails.serverURL = 'http://moyesyside.ala.org.au:8080/' + appName
         //collectory.baseURL = 'http://natasha.ala.org.au:8080/Collectory'
         collectory.baseURL ='http://audax.ala.org.au:8080/Collectory'
-        serverName='http://moyesyside.ala.org.au:8080'
+        serverName='http://natasha.ala.org.au:8080'
         contextPath = "/specieslist-webapp"
     }
     production {
@@ -198,7 +203,12 @@ springcache {
     caches {
         loggerCache {
             // set any properties unique to this cache
+            eternal=true
             memoryStoreEvictionPolicy = "LRU"
+        }
+        authCache {
+            memoryStoreEvictionPolicy = "LRU"
+            timeToLive="600"
         }
     }
 }
