@@ -46,6 +46,11 @@ grails.project.dependency.resolution = {
                 "atg:json-taglib:0.4.1",
                 "org.codehaus.jackson:jackson-core-asl:1.8.6",
                 "org.codehaus.jackson:jackson-mapper-asl:1.8.6"
+        compile group:'au.org.ala',
+                name:'ala-cas-client',
+                version:'1.0-SNAPSHOT',
+                transitive:false
+        compile 'org.jasig.cas.client:cas-client-core:3.1.12'
         // runtime 'mysql:mysql-connector-java:5.1.16'
     }
 
