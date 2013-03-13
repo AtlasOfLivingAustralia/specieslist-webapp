@@ -43,7 +43,7 @@ grails.project.dependency.resolution = {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         compile group:'au.org.ala',
                 name:'ala-name-matching',
-                version:'1.1-SNAPSHOT',
+                version:'1.2-SNAPSHOT',
                 transitive:true
 
         compile group: 'org.codehaus.groovy.modules.http-builder',
