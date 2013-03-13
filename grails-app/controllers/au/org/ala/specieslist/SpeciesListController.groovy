@@ -151,8 +151,16 @@ class SpeciesListController {
         params.max = Math.min(params.max ? params.int('max') : 25, 100)
         params.sort = params.sort ?: "listName"
         params.fetch = [items: 'lazy']
-
-        render(view: "list", model: [lists:SpeciesList.findAllByUsername(authService.email(),params), total:SpeciesList.count])
+        try{
+            def lists = SpeciesList.findAllByUsername(authService.email(),params)
+            def count = SpeciesList.count
+            render(view: "list", model: [lists:lists, total:count])
+        }
+        catch(Exception e){
+            log.error "Error requesting species Lists: " ,e
+            response.status = 404
+            render(view: '../error', model: [message: "Unable to retrieve species lists. Please let us know if this error persists. <br>Error:<br>" + e.getMessage()])
+        }
 
     }
 
@@ -164,24 +172,28 @@ class SpeciesListController {
     }
 
     def showList(){
-
-        if (params.message)
-            flash.message = params.message
-        params.max = Math.min(params.max ? params.int('max') : 10, 100)
-        params.sort = params.sort ?: "id"
-        //force the SpeciesListItem to perform a join on the kvp table.
-        //params.fetch = [kvpValues: 'join'] -- doesn't work for a 1 ro many query because it doesn't correctly obey the "max" param
-        //params.remove("id")
-        params.fetch= [ kvpValues: 'select' ]
-        log.error(params.toQueryString())
-        def distinctCount = SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid='"+params.id+"'").head()
-        def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid='"+params.id+"'")
-        def speciesListItems =  SpeciesListItem.findAllByDataResourceUid(params.id,params)
-        log.debug("KEYS: " + keys)
-        render(view:'/speciesListItem/list', model:[results: speciesListItems,
-                    totalCount:SpeciesListItem.countByDataResourceUid(params.id),
-                    noMatchCount:SpeciesListItem.countByDataResourceUidAndGuidIsNull(params.id),
-                    distinctCount:distinctCount, keys:keys])
+        try{
+            if (params.message)
+                flash.message = params.message
+            params.max = Math.min(params.max ? params.int('max') : 10, 100)
+            params.sort = params.sort ?: "id"
+            //force the SpeciesListItem to perform a join on the kvp table.
+            //params.fetch = [kvpValues: 'join'] -- doesn't work for a 1 ro many query because it doesn't correctly obey the "max" param
+            //params.remove("id")
+            params.fetch= [ kvpValues: 'select' ]
+            log.error(params.toQueryString())
+            def distinctCount = SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid='"+params.id+"'").head()
+            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid='"+params.id+"'")
+            def speciesListItems =  SpeciesListItem.findAllByDataResourceUid(params.id,params)
+            log.debug("KEYS: " + keys)
+            render(view:'/speciesListItem/list', model:[results: speciesListItems,
+                        totalCount:SpeciesListItem.countByDataResourceUid(params.id),
+                        noMatchCount:SpeciesListItem.countByDataResourceUidAndGuidIsNull(params.id),
+                        distinctCount:distinctCount, keys:keys])
+        }
+        catch(Exception e){
+            render(view: '../error', model: [message: "Unable to retrieve species lists. Please let us know if this error persists. <br>Error:<br>" + e.getMessage()])
+        }
     }
     /**
      * Downloads the field guid for this species list
@@ -237,7 +249,7 @@ class SpeciesListController {
         }
     }
     /**
-     * Performs an initial parse of the species list to provide feedback on values. Alllowing
+     * Performs an initial parse of the species list to provide feedback on values. Allowing
      * users to supply vocabs etc.
      */
     def parseData(){
@@ -273,6 +285,12 @@ class SpeciesListController {
         else{
             render(view: 'parsedData', model: [columnHeaders:processedHeader, dataRows:dataRows, listTypes:ListType.values()])
         }
+    }
+    /**
+     * Rematches the scientific names in the supplied list
+     */
+    def rematch(){
+
     }
 }
 

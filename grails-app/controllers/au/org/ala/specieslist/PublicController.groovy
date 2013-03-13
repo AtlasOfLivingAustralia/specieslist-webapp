@@ -10,11 +10,17 @@ class PublicController {
 
     def index() {
         //redirect to the correct type of list based on whether or not the use is logged in
-        def username = authService.email()
-        if(username && SpeciesList.countByUsername(username)>0)
-            redirect(controller: 'speciesList',action: 'upload')
+        try{
+            def username = authService.email()
+            log.debug("username: " + username)
+            if(username && SpeciesList.countByUsername(username)>0)
+                redirect(controller: 'speciesList',action: 'upload')
 
-        redirect(action: 'speciesLists')
+            redirect(action: 'speciesLists')
+        }
+        catch(Exception e){
+            render(view: '../error', model: [message: "Unable to retrieve species lists. Please let us know if this error persists. <br>Error:<br>" + e.getMessage()])
+        }
     }
 
     def speciesLists(){
@@ -24,7 +30,16 @@ class PublicController {
         params.sort = params.sort ?: "listName"
         params.fetch = [items: 'lazy']
         //println("Returning the species list for render")
-        render (view:'specieslists', model:[lists:SpeciesList.list(params), total:SpeciesList.count])
+        try{
+            def lists=SpeciesList.list(params)
+            def total = SpeciesList.count
+            render (view:'specieslists', model:[lists:lists, total:total])
+        }
+        catch(Exception e){
+            log.error "Error requesting species Lists: " ,e
+            response.status = 404
+            render(view: '../error', model: [message: "Unable to retrieve species lists. Please let us know if this error persists. <br>Error:<br>" + e.getMessage()])
+        }
     }
 
 }
