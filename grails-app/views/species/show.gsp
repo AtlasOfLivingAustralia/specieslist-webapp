@@ -408,12 +408,7 @@
                             <div id="imageGallery">
                                 <g:each var="image" in="${tc.images}" status="status">
                                     <g:if test="${!image.isBlackListed}">
-                                        <g:set var="imageUri">
-                                            <g:if test="${image.repoId}">images/${image.repoId}.jpg</g:if>
-                                            <g:elseif test="${false && image.documentId}">images/${image.documentId}.jpg</g:elseif>
-                                            <g:else>${image.repoLocation}</g:else>
-                                        </g:set>
-                                        <a class="thumbImage" rel="thumbs" title="${image.title?:''}" href="${imageUri}"
+                                        <a class="thumbImage" rel="thumbs" title="${image.title?:''}" href="${image.largeImageUrl}"
                                            id="thumb${status}"><img src="${image.smallImageUrl}" alt="${image.infoSourceName}"
                                                                           alt="${image.title}" height="100px"
                                                                           style="height:100px;padding-right:3px;"/></a>
