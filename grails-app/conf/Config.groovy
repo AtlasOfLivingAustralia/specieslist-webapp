@@ -42,7 +42,7 @@ grails.project.groupId = au.org.ala // change this to alter the default package 
 /******* End of ALA standard config ************/
 /*** Config specific for species list ***/
 bie.download = "/data/bie-staging/species-list"
-bie.nameIndexLocation = "/data/lucene/namematchingv_13"
+bie.nameIndexLocation = "/data/lucene/namematching_v13"
 downloadLimit="200" //the number of species to limit downloads to
 /*** End config specific for species list ***/
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
