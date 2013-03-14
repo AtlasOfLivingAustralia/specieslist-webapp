@@ -3,11 +3,14 @@ package au.org.ala.specieslist
 import org.springframework.web.context.request.RequestContextHolder
 import grails.plugin.springcache.annotations.Cacheable
 import groovyx.net.http.HTTPBuilder
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
 class AuthService {
 
     private Map<String,String> userNamesById
     private Map<String,String> userNamesByNumericIds
+
+    public static final  String ROLE_ADMIN="ROLE_ADMIN"
 
     def grailsApplication
 
@@ -27,6 +30,17 @@ class AuthService {
     def isValidUserName(String username){
         //TODO check that the username is for a current CAS user
         true
+    }
+
+    def isAdmin() {
+        return ConfigurationHolder.config.security.cas.bypass ||
+                RequestContextHolder.currentRequestAttributes()?.isUserInRole(ROLE_ADMIN)
+    }
+
+    protected boolean userInRole(role) {
+        return ConfigurationHolder.config.security.cas.bypass ||
+                RequestContextHolder.currentRequestAttributes()?.isUserInRole(role) ||
+                isAdmin()
     }
 
     @Cacheable("authCache")

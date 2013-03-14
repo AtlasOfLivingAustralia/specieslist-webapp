@@ -12,7 +12,7 @@ if(!serverName){
     //serverName='http://audax.ala.org.au:8080'
 }
 //contextPath='/specieslist-webapp'
-security.cas.uriFilterPattern = '/speciesList, /speciesList/.*'
+security.cas.uriFilterPattern = '/speciesList, /speciesList/.*,/admin,/admin/.*'
 collectory.enableSync = false
 
 /******* End of change this stuff for your project *******/

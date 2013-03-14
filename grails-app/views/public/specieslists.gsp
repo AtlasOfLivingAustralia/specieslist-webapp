@@ -25,7 +25,7 @@
             <nav id="breadcrumb">
                 <ol>
                     <li><a href="http://www.ala.org.au">Home</a></li>
-                    <li class="last">Species lists</li>
+                    <li class="last"><a class="current" href="${request.contextPath}/admin/speciesLists">Species lists</a></li>
                 </ol>
             </nav>
             <hgroup class="leftfloat">

@@ -15,7 +15,7 @@
 
         }
 
-        function fancyConfirm(msg,listId,callback){
+        function fancyConfirm(msg,listId,action,callback){
             jQuery.fancybox({
                 'content':"<div style=\"margin:1px;width:240px;text-align:left;\">"+msg+"<div style=\"text-align:right;margin-top:10px;\"><input id=\"fancyConfirm_cancel\" style=\"margin:3px;padding:0px;\" type=\"button\" value=\"No\"><input id=\"fancyConfirm_ok\" style=\"margin:3px;padding:0px;\" type=\"button\" value=\"Yes\"></div></div>",
                 onComplete : function() {
@@ -26,12 +26,12 @@
                     jQuery("#fancyConfirm_ok").click(function() {
                         ret = true;
                         jQuery.fancybox.close();
-                        var url = "${createLink(controller:'speciesList', action:'delete')}" + "/"+listId;
-                        //console.log("DELETE ITEMS",listId, url)
+                        var url = "${request.contextPath}"+"/speciesList/"+action+ "/"+listId;
+                        //console.log("Dialog ACTION ITEMS",listId, url)
                         $.post(url,
                                 function(data){
                                     //alert('Value returned from service: '  + data.uid);
-                                    window.location.reload()
+                                        window.location.reload()
                                 } );
                     })
                 }
@@ -42,11 +42,11 @@
     <table class="tableList">
         <colgroup>
             <col width="26%">
-            <col width="19%">
+            <col width="24%">
             <col width="16%">
             <col width="12%">
             <col width="12%">
-            <col width="5%">
+            %{--<col width="5%">--}%
         </colgroup>
     <thead>
     <tr>
@@ -55,7 +55,10 @@
         <td>Owner</td>
         <td>Date Submitted</td>
         <td>Item Count</td>
+        <g:if test="${request.getUserPrincipal()}">
         <td/>
+        <td/>
+        </g:if>
     </tr>
     </thead>
     <tbody>
@@ -93,7 +96,10 @@
                 %{-->--}%
                     %{--Are you sure you would like to delete?--}%
                 %{--</gui:dialog>--}%
-                    <a href="#" onclick="fancyConfirm('Are you sure that you would like to delete ${list.listName}',${list.id});return false;" id="delete_${list.id}" class="buttonDiv">Delete</a>
+                    <a href="#" onclick="fancyConfirm('Are you sure that you would like to delete ${list.listName}',${list.id},'delete');return false;" id="delete_${list.id}" class="buttonDiv">Delete</a>
+                </td>
+                <td>
+                    <a href="#" onclick="fancyConfirm('Are you sure that you would like to rematch ${list.listName}',${list.id},'rematch');return false;" id="rematch_${list.id}" class="buttonDiv">Rematch</a>
                 </td>
                 %{--<gui:dialog--}%
                         %{--title='Delete ${list.listName}'--}%
@@ -107,7 +113,7 @@
                     %{--Are you sure you would like to delete?--}%
                 %{--</gui:dialog>--}%
             </g:if>
-            <g:else><td/></g:else>
+            %{--<g:else><td/></g:else>--}%
         </tr>
     </g:each>
     </tbody>

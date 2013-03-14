@@ -21,6 +21,7 @@ import au.org.ala.checklist.lucene.CBIndexSearch
 import groovyx.net.http.HTTPBuilder
 import static groovyx.net.http.ContentType.JSON
 import grails.web.JSONBuilder
+import au.org.ala.data.model.LinnaeanRankClassification
 /**
  * Provides all the services for the species list webapp.  It may be necessary to break this into
  * multiple services if it grows too large
@@ -368,7 +369,7 @@ class HelperService {
             lsid = getNameSearcher().searchForLSIDCommonName(commonName)
         }
         catch(e){
-
+            log.error(e.getMessage())
         }
         lsid
     }
@@ -376,10 +377,19 @@ class HelperService {
     def findAcceptedLsidByScientificName(scientificName){
         String lsid = null
         try{
-            lsid = getNameSearcher().searchForLSID(scientificName, true);
+            def cl = new LinnaeanRankClassification()
+            cl.setScientificName(scientificName)
+            lsid = getNameSearcher().searchForAcceptedLsidDefaultHandling(cl, true);
+//            def cl = new LinnaeanRankClassification()
+//            cl.setScientificName(scientificName)
+//            def metric = getNameSearcher().searchForRecordMetrics(cl, false,true);
+//            if(metric && metric.getResult()){
+//                def result = metric.getResult()
+//                lsid = result.isSynonym()? getNameSearcher().searchForRecordByLsid(result.getAcceptedLsid())?.getLsid():result.getLsid()
+//            }
         }
         catch(Exception e){
-
+             log.error(e.getMessage())
         }
         lsid
     }

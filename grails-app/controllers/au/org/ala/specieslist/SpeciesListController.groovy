@@ -290,7 +290,19 @@ class SpeciesListController {
      * Rematches the scientific names in the supplied list
      */
     def rematch(){
-
+        log.debug("Rematching for " + params.id)
+        if (params.id && !params.id.startsWith("dr"))
+            params.id = SpeciesList.get(params.id)?.dataResourceUid
+        def items = params.id?SpeciesListItem.findAllByDataResourceUid(params.id):SpeciesListItem.list()
+        //now for each item returned peform
+        log.debug(items.size)
+        items.each {
+            String rawName = it.rawScientificName
+            String currentLsid = it.guid
+            String newLsid =helperService.findAcceptedLsidByScientificName(rawName)?:helperService.findAcceptedLsidByCommonName(rawName)
+            if(newLsid && !currentLsid.equals(newLsid))
+                log.debug("Different lsid for " + rawName + " current: " + currentLsid + " new : " + newLsid)
+        }
     }
 }
 
