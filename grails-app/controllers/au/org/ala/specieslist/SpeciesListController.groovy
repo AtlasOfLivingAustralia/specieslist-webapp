@@ -299,9 +299,19 @@ class SpeciesListController {
         items.each {
             String rawName = it.rawScientificName
             String currentLsid = it.guid
-            String newLsid =helperService.findAcceptedLsidByScientificName(rawName)?:helperService.findAcceptedLsidByCommonName(rawName)
-            if(newLsid && !currentLsid.equals(newLsid))
-                log.debug("Different lsid for " + rawName + " current: " + currentLsid + " new : " + newLsid)
+            if(rawName && rawName.length()>0){
+                String newLsid =helperService.findAcceptedLsidByScientificName(rawName)?:helperService.findAcceptedLsidByCommonName(rawName)
+                if(newLsid && !currentLsid.equals(newLsid)){
+                    log.debug("Different lsid for " + rawName + " current: " + currentLsid + " new : " + newLsid)
+                    it.guid = newLsid
+                    it.save()
+                }
+            }
+            else{
+                it.guid=null
+                it.guid=null
+                it.save()
+            }
         }
     }
 }
