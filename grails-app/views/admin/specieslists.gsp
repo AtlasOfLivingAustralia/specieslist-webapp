@@ -8,10 +8,13 @@
 <!doctype html>
 <html>
 <head>
+    <r:require modules="fancybox"/>
     <meta name="layout" content="ala2"/>
     <title>Species lists | Atlas of Living Australia</title>
+    <r:layoutResources/>
 </head>
 <body class="species">
+<r:layoutResources/>
 <div id="content">
     <header id="page-header">
         <div class="inner">
