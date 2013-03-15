@@ -5,6 +5,7 @@ import org.ala.dto.ExtendedTaxonConceptDTO
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.jackson.map.ObjectMapper
 import org.codehaus.jackson.map.DeserializationConfig
+import org.codehaus.groovy.grails.web.json.JSONElement
 
 class BieService {
 
@@ -92,8 +93,8 @@ class BieService {
             return null
         }
         try{
-        def json = webService.get(grailsApplication.config.speciesList.baseURL +"/ws/species/"+guid)
-        return JSON.parse(json)
+            def json = webService.get(grailsApplication.config.speciesList.baseURL +"/ws/species/"+guid,true)
+            return JSON.parse(json)
         }
         catch(Exception e){
             //handles the situation where time out exceptions etc occur.

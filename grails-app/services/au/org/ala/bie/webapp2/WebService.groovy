@@ -13,7 +13,10 @@ class WebService implements InitializingBean {
         JSONObject.NULL.metaClass.asBoolean = {-> false}
     }
 
-    def get(String url) {
+    def get(String url){
+        get(url,false)
+    }
+    def get(String url, boolean throwError) {
         log.debug "GET on " + url
         def conn = new URL(url).openConnection()
         try {
@@ -21,13 +24,21 @@ class WebService implements InitializingBean {
             conn.setReadTimeout(50000)
             return conn.content.text
         } catch (SocketTimeoutException e) {
-            def error = [error: "Timed out calling web service. URL= ${url}."]
-            println error.error
-            return new groovy.json.JsonBuilder( error ).toString()
+            if(throwError)
+                throw e
+            else{
+                def error = [error: "Timed out calling web service. URL= ${url}."]
+                println error.error
+                return new groovy.json.JsonBuilder( error ).toString()
+            }
         } catch (Exception e) {
-            def error = [error: "Failed calling web service. ${e.getClass()} ${e.getMessage()} URL= ${url}."]
-            println error.error
-            return new groovy.json.JsonBuilder( error ).toString()
+            if(throwError)
+                throw e;
+            else{
+                def error = [error: "Failed calling web service. ${e.getClass()} ${e.getMessage()} URL= ${url}."]
+                println error.error
+                return new groovy.json.JsonBuilder( error ).toString()
+            }
         }
     }
 
@@ -106,12 +117,16 @@ class WebService implements InitializingBean {
         }
     }
 
-    def doPost(String url, String path, String port, String postBody) {
+    def doPost(String url, String path, String port, String postBody){
+        doPost(url,path,port,postBody,"application/json")
+    }
+
+    def doPost(String url, String path, String port, String postBody, String contentType) {
         //def conn = new URL("http://bie.ala.org.au/ws/species/guids/bulklookup.json").openConnection()
         def conn = new URL(url).openConnection()
         try {
             conn.setDoOutput(true)
-            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Content-Type", contentType);
             OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream())
             wr.write(postBody)
             wr.flush()
