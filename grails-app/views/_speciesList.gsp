@@ -16,6 +16,7 @@
         }
 
         function fancyConfirm(msg,listId,action,callback){
+            //alert("${request.contextPath}"+"/speciesList/"+action+ "/"+listId)
             jQuery.fancybox({
                 'content':"<div style=\"margin:1px;width:240px;text-align:left;\">"+msg+"<div style=\"text-align:right;margin-top:10px;\"><input id=\"fancyConfirm_cancel\" style=\"margin:3px;padding:0px;\" type=\"button\" value=\"No\"><input id=\"fancyConfirm_ok\" style=\"margin:3px;padding:0px;\" type=\"button\" value=\"Yes\"></div></div>",
                 onComplete : function() {
@@ -70,7 +71,7 @@
             <td>${list.fullName}</td>
             <td><g:formatDate format="yyyy-MM-dd" date="${list.dateCreated}"/></td>
             <td>${list.items.size()}</td>
-            <g:if test="${list.username = request.getUserPrincipal()?.attributes?.email}">
+            <g:if test="${list.username == request.getUserPrincipal()?.attributes?.email || request.isUserInRole("ROLE_ADMIN")}">
                 %{--<td id="delete${list.id}">--}%
                     %{--Delete--}%
                     %{--<a class="buttonDiv" href="#deleteList?listid=${list.id}">Delete</a>--}%
