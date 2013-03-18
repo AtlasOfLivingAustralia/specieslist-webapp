@@ -72,6 +72,7 @@ class SpeciesListItemController {
                 }
             }
             catch(Exception e){
+                log.error("Unable to view species list items.", e)
                 render(view: '../error', model: [message: "Unable to retrieve species list items. Please let us know if this error persists. <br>Error:<br>" + e.getMessage()])
             }
         }
