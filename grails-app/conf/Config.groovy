@@ -137,7 +137,7 @@ log4j = {
 
         environments {
             production {
-                //console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.ERROR
+                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.ERROR
                 rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/var/log/tomcat6/specieslist.log", threshold: org.apache.log4j.Level.INFO, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
                 'null' name: "stacktrace"
             }
