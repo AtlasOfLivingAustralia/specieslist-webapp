@@ -1,0 +1,145 @@
+.species #page-header {
+    /*background:#faf8ed url(../images/peewee-banner-alc.jpg) center center no-repeat;*/
+    /*padding-bottom:12px;*/
+    /*border-bottom:1px solid #d1d1d1;*/
+}
+
+.breadcrumb {
+    background-color: inherit;
+    margin: 0 0 10px 0;
+    padding: 0;
+}
+
+.breadcrumb > li > .icon {
+    color: #555555;
+    opacity:0.6;
+    filter:alpha(opacity=60);
+    margin: 1px 4px 0;
+}
+
+th, td {
+    padding: .5em 5px;
+    vertical-align: top;
+}
+
+p span.count {
+    float: right;
+}
+
+.header-btns {
+    padding-top:16px;
+    padding-right:4px;
+    text-align: right;
+}
+
+#page-header, #page-header2 {
+    margin-bottom: 15px;
+}
+
+.tableList thead th {
+    vertical-align: top;
+}
+
+.tableList {
+    white-space: nowrap;
+    max-width: none;
+    width: auto;
+    margin:0;
+}
+
+#public-specieslist .tableList {
+    width: 100%;
+}
+
+#speciesList {
+    margin-top: 20px;
+}
+
+#facets-column {
+    margin-top: 5px;
+}
+
+#refine {
+    margin-top: 22px;
+    padding-top: 8px;
+    border-top: 1px solid #ccc;
+}
+
+div#download {
+    font-size: 13px;
+}
+#downloadForm {
+    text-align: left;
+}
+#downloadForm label {
+    color: #444444;
+    font-size: 13px;
+    display: inline-block;
+    padding-right: 10px;
+    text-align: right;
+    width: 35%;
+}
+#download {
+    line-height: 1.4em;
+}
+#downloadForm input  {
+    float: none;
+    margin-bottom: 2px;
+    font-size: 13px;
+}
+
+#downloadForm select  {
+    float: none;
+    margin-bottom: 0px;
+    font-size: 13px;
+}
+
+#termsOfUseDownload {
+    text-align:left; padding-bottom:15px;
+}
+
+/*a.removeLink {*/
+    /*display: inline-block;*/
+    /*float: right;*/
+/*}*/
+
+#currentFilters {
+    margin-bottom: 15px;
+}
+
+
+#currentFilters > ul {
+    list-style: none;
+    margin-left: 10px;
+    padding-left:15px;
+}
+
+#currentFilters > ul > li {
+    margin: 0px;
+    padding: 0px;
+    text-indent: -1.3em;
+    margin-left: 0;
+}
+
+#currentFilters .tooltip {
+    text-indent: 0;
+}
+
+.refine ul {
+    list-style: none;
+    margin-left: 10px;
+}
+
+.refine p {
+    margin-bottom: 0;
+}
+
+.showHide {
+    margin-left: -6px;
+    font-size: 13px;
+}
+
+table.scrollTable {
+    border: 1px solid #ccc;
+    width: auto;
+}

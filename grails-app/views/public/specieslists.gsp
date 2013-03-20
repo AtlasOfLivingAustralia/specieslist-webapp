@@ -15,30 +15,32 @@
 <!doctype html>
 <html>
 <head>
-    <meta name="layout" content="ala2"/>
+    <meta name="layout" content="main"/>
     <title>Species lists | Atlas of Living Australia</title>
 </head>
 <body class="species">
 <div id="content">
     <header id="page-header">
-        <div class="inner">
-            <nav id="breadcrumb">
-                <ol>
-                    <li><a href="http://www.ala.org.au">Home</a></li>
-                    <li class="last"><a class="current" href="${request.contextPath}/admin/speciesLists">Species lists</a></li>
+        <div class="inner row-fluid" style="display: none;">
+            <div id="breadcrumb" class="span12">
+                <ol class="breadcrumb">
+                    %{--<li><a href="http://www.ala.org.au">Home</a> <span class=" icon icon-arrow-right"></span></li>--}%
+                    <li class="active"><a class="current" href="${request.contextPath}/admin/speciesLists">Species lists</a></li>
                 </ol>
-            </nav>
-            <hgroup class="leftfloat">
+            </div>
+        </div>
+        <div class="row-fluid">
+            <hgroup class="span8">
                 <h1>Species lists</h1>
             </hgroup>
-            <div class="rightfloat">
-                <a class="button orange" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
-                <a class="button orange" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
+            <div class="span4 header-btns">
+                <a class="btn btn-ala" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
+                <a class="btn btn-ala" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
             </div>
-        </div><!--inner-->
+        </div><!--.row-fluid-->
 
     </header>
-    <div class="inner">
+    <div class="inner" id="public-specieslist">
         <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
         </g:if>

@@ -12,4 +12,5 @@ modules = {
 //        resource url:'/fancybox/fancybox_overlay.png'
 //        resource url:'/fancybox/fancybox_sprite.png'
     }
+
 }

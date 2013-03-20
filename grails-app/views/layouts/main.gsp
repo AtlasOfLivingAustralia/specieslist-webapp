@@ -1,27 +1,103 @@
-<!doctype html>
-<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
-<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
-<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
-<!--[if IE 9 ]>    <html lang="en" class="no-js ie9"> <![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js"><!--<![endif]-->
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-		<title><g:layoutTitle default="Grails"/></title>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="shortcut icon" href="${resource(dir: 'images', file: 'favicon.ico')}" type="image/x-icon">
-		<link rel="apple-touch-icon" href="${resource(dir: 'images', file: 'apple-touch-icon.png')}">
-		<link rel="apple-touch-icon" sizes="114x114" href="${resource(dir: 'images', file: 'apple-touch-icon-retina.png')}">
-		<link rel="stylesheet" href="${resource(dir: 'css', file: 'main.css')}" type="text/css">
-		<link rel="stylesheet" href="${resource(dir: 'css', file: 'mobile.css')}" type="text/css">
-		<g:layoutHead/>
-        <r:layoutResources />
-	</head>
-<body class="yui-skin-sam">
-<div style="float:right; border: solid 1px black; background: #CCC; padding:20px; margin: 20px;"><g:link url="/guiDemo">Demo Home</g:link></div>
+<%@ page import="org.codehaus.groovy.grails.commons.ConfigurationHolder" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="app.version" content="${g.meta(name:'app.version')}"/>
+    <meta name="app.build" content="${g.meta(name:'app.build')}"/>
+    <meta name="description" content="Atlas of Living Australia"/>
+    <meta name="author" content="Atlas of Living Australia">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<div style="padding: 0px 50px">
+    <title><g:layoutTitle /> | Atlas of Living Australia</title>
+
+    <link rel="icon" type="image/x-icon" href="http://www.ala.org.au/wp-content/themes/ala2011/images/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="http://www.ala.org.au/wp-content/themes/ala2011/images/favicon.ico">
+
+    <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'bootstrap.css', plugin:'ala-web-theme')}">
+    <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'bootstrap-responsive.css', plugin:'ala-web-theme')}">
+    <link rel="stylesheet" type="text/css" media="screen" href="${grailsApplication.config.ala.baseURL?:'http://www.ala.org.au'}/wp-content/themes/ala2011/css/jquery.autocomplete.css" />
+    <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'AlaBsAdditions.css')}">
+
+    %{--<r:require module="jquery"/>--}%
+    <script type="text/javascript" src="${grailsApplication.config.ala.baseURL?:'http://www.ala.org.au'}/wp-content/themes/ala2011/scripts/html5.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    %{--<script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="${resource(dir: 'js', file: 'jquery.tools.min.js', plugin:'ala-web-theme')}"></script>--}%
+    <script src="${resource(dir: 'js', file: 'bootstrap.js', plugin:'ala-web-theme')}"></script>
+
+    <g:layoutHead />
+    %{--<r:layoutResources/>--}%
+    <script language="JavaScript" type="text/javascript" src="${grailsApplication.config.ala.baseURL?:'http://www.ala.org.au'}/wp-content/themes/ala2011/scripts/jquery.autocomplete.js"></script>
+    <script language="JavaScript" type="text/javascript" src="${grailsApplication.config.ala.baseURL?:'http://www.ala.org.au'}/wp-content/themes/ala2011/scripts/uservoice.js"></script>
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript">
+        // initialise plugins
+        jQuery(function(){
+            // autocomplete on navbar search input
+            jQuery("form#search-form-2011 input#search-2011, form#search-inpage input#search").autocomplete('http://bie.ala.org.au/search/auto.jsonp', {
+                extraParams: {limit: 100},
+                dataType: 'jsonp',
+                parse: function(data) {
+                    var rows = new Array();
+                    data = data.autoCompleteList;
+                    for(var i=0; i<data.length; i++){
+                        rows[i] = {
+                            data:data[i],
+                            value: data[i].matchedNames[0],
+                            result: data[i].matchedNames[0]
+                        };
+                    }
+                    return rows;
+                },
+                matchSubset: false,
+                formatItem: function(row, i, n) {
+                    return row.matchedNames[0];
+                },
+                cacheLength: 10,
+                minChars: 3,
+                scroll: false,
+                max: 10,
+                selectFirst: false
+            });
+        });
+    </script>
+</head>
+<body class="${pageProperty(name:'body.class')}" id="${pageProperty(name:'body.id')}" onload="${pageProperty(name:'body.onload')}">
+
+<hf:banner logoutUrl="${grailsApplication.config.grails.serverURL}/logout/logout"/>
+
+<hf:menu/>
+
+<div class="container" id="main-content">
     <g:layoutBody />
-</div>
-</body>>
+
+</div><!--/.container-->
+
+<hf:footer/>
+
+%{--<r:layoutResources/>--}%
+
+<script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+    var pageTracker = _gat._getTracker("UA-4355440-1");
+    pageTracker._initData();
+    pageTracker._trackPageview();
+</script>
+<script type="text/javascript">
+    // show warning if using IE6
+    if ($.browser.msie && $.browser.version.slice(0,1) == '6') {
+        $('#header').prepend($('<div style="text-align:center;color:red;">WARNING: This page is not compatible with IE6.' +
+                ' Many functions will still work but layout and image transparency will be disrupted.</div>'));
+    }
+</script>
+</body>
 </html>

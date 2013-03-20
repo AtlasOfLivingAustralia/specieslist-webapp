@@ -16,7 +16,7 @@
 <html>
 <head>
     <r:require modules="fancybox"/>
-    <meta name="layout" content="ala2"/>
+    <meta name="layout" content="main"/>
     <title>My Species lists | Atlas of Living Australia</title>
     <style type="text/css">
         #speciesList {display: none;}
@@ -34,28 +34,30 @@
     }
 </script>
 <div id="content">
-    <header id="page-header">
-        <div class="inner">
-            <nav id="breadcrumb">
-                <ol>
-                    <li><a href="http://www.ala.org.au">Home</a></li>
-                    <li><a href="${request.contextPath}/public/speciesLists">Species lists</a></li>
-                    <li class="last">${request.getUserPrincipal()?.attributes?.firstname} ${request.getUserPrincipal()?.attributes?.lastname} Species Lists</li>
+    <header id="page-header2">
+        <div class="innerZ row-fluid">
+            <div id="breadcrumb" class="span12">
+                <ol class="breadcrumb">
+                    %{--<li><a href="http://www.ala.org.au">Home</a> <span class=" icon icon-arrow-right"></span></li>--}%
+                    <li><a href="${request.contextPath}/public/speciesLists">Species lists</a> <span class=" icon icon-arrow-right"></span></li>
+                    <li class="active">${request.getUserPrincipal()?.attributes?.firstname} ${request.getUserPrincipal()?.attributes?.lastname}&apos;s Species Lists</li>
                 </ol>
-            </nav>
-
-            <hgroup class="leftfloat">
-                <h1>Species lists</h1>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <hgroup class="span8">
+                <h1>My species lists</h1>
             </hgroup>
-            <div class="rightfloat">
-                <a class="button orange" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
+            <div class="span4 header-btns">
+                <a class="btn btn-ala" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
             </div>
         </div><!--inner-->
     </header>
 
     <div class="inner">
             <g:if test="${lists && total > 0}">
-                <p>Below is a listing of species lists that you have provided. You can use these lists to work with parts of the Atlas. Click on the "delete" button next to a list to remove it from the Atlas.</p>
+                <p>Below is a listing of species lists that you have provided. You can use these lists to work with parts of the Atlas.
+                    Click on the "delete" button next to a list to remove it from the Atlas.</p>
                 <g:render template="/speciesList"/>
             </g:if>
             <g:else>

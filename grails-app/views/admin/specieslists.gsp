@@ -9,32 +9,31 @@
 <html>
 <head>
     <r:require modules="fancybox"/>
-    <meta name="layout" content="ala2"/>
+    <meta name="layout" content="main"/>
     <title>Species lists | Atlas of Living Australia</title>
     <r:layoutResources/>
 </head>
 <body class="species">
 <r:layoutResources/>
 <div id="content">
-    <header id="page-header">
-        <div class="inner">
-            <nav id="breadcrumb">
-                <ol>
-                    <li><a href="http://www.ala.org.au">Home</a></li>
-                    <li class="last">Species lists</li>
-                </ol>
-            </nav>
-            <hgroup class="leftfloat">
-                <h1>Species lists</h1>
-            </hgroup>
-            <div class="rightfloat">
-                <a class="button orange" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
-                <a class="button orange" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
-                <a class="button orange" title="Rematch" href="${request.contextPath}/speciesList/rematch">Rematch All</a>
-            </div>
-   </div><!--inner-->
-
-    </header>
+    <div class="inner row-fluid" style="display: none;">
+        <div id="breadcrumb" class="span12">
+            <ol class="breadcrumb">
+                %{--<li><a href="http://www.ala.org.au">Home</a> <span class=" icon icon-arrow-right"></span></li>--}%
+                <li class="active"><a class="current" href="${request.contextPath}/admin/speciesLists">Species lists</a></li>
+            </ol>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <hgroup class="span8">
+            <h1>Species lists</h1>
+        </hgroup>
+        <div class="span4 header-btns">
+            <a class="btn btn-ala" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
+            <a class="btn btn-ala" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
+            <a class="btn btn-ala" title="Rematch" href="${request.contextPath}/speciesList/rematch">Rematch All</a>
+        </div>
+    </div><!--inner-->
     <div class="inner">
         <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
@@ -44,7 +43,7 @@
             <p>
                 Below is a listing of all species lists that can be administered.
             </p>
-            <g:render template="/speciesList"/>%
+            <g:render template="/speciesList"/>
         </g:if>
         <g:else>
             <p>There are no Species Lists available</p>

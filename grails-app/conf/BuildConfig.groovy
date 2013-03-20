@@ -25,7 +25,7 @@ grails.project.dependency.resolution = {
         grailsHome()
         mavenLocal()
         mavenRepo "http://maven.ala.org.au/repository/"
-        mavenRepo "http://repository.gbif.org/content/repositories/gbif/"
+        //mavenRepo "http://repository.gbif.org/content/repositories/gbif/"
         mavenRepo "http://repository.codehaus.org"
         mavenCentral()
         grailsPlugins()
@@ -58,16 +58,6 @@ grails.project.dependency.resolution = {
                 name:'gbif-common',
                 version:'0.7'
 
-
-
-        /*
-        <dependency>
-  <groupId>org.codehaus.groovy.modules.http-builder</groupId>
-  <artifactId>http-builder</artifactId>
-  <version>0.5.2</version>
-</dependency>
-         */
-
         // runtime 'mysql:mysql-connector-java:5.1.16'
         build 'au.org.ala:ala-cas-client:1.0-SNAPSHOT'
         build 'org.jasig.cas:cas-client-core:3.1.10'
@@ -77,12 +67,14 @@ grails.project.dependency.resolution = {
         runtime ":hibernate:$grailsVersion"
         runtime ":jquery:1.7.1"
         runtime ":resources:1.1.6"
+        runtime ":ala-web-theme:0.1.5"
 //        runtime ":yui:2.8.2"
 //        runtime (":grails-ui:1.2.3"){
 //            //for unresolvable dependency yui:[2.6.0,)
 //            excludes "yui"
 //        }
         compile ":springcache:1.3.1"
+
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0"
         //runtime ":cached-resources:1.0"

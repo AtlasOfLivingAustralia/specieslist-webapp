@@ -18,12 +18,14 @@
         function fancyConfirm(msg,listId,action,callback){
             //alert("${request.contextPath}"+"/speciesList/"+action+ "/"+listId)
             jQuery.fancybox({
-                'content':"<div style=\"margin:1px;width:240px;text-align:left;\">"+msg+"<div style=\"text-align:right;margin-top:10px;\"><input id=\"fancyConfirm_cancel\" style=\"margin:3px;padding:0px;\" type=\"button\" value=\"No\"><input id=\"fancyConfirm_ok\" style=\"margin:3px;padding:0px;\" type=\"button\" value=\"Yes\"></div></div>",
+                'content':"<div style=\"margin:1px;width:240px;text-align:left;\">"+msg+"<div style=\"text-align:right;margin-top:10px;\"><input id=\"fancyConfirm_cancel\" type=\"button\" value=\"No\" class=\"actionButton btn btn-small\">&nbsp;<input id=\"fancyConfirm_ok\" type=\"button\" value=\"Yes\" class=\"actionButton btn btn-small\"></div></div>",
+                'padding': 10,
+                'margin': 20,
                 onComplete : function() {
                     jQuery("#fancyConfirm_cancel").click(function() {
                         ret = false;
                         jQuery.fancybox.close();
-                    })
+                    });
                     jQuery("#fancyConfirm_ok").click(function() {
                         ret = true;
                         jQuery.fancybox.close();
@@ -40,7 +42,7 @@
             })
         }
     </script>
-    <table class="tableList">
+    <table class="tableList table-bordered">
         <colgroup>
             <col width="26%">
             <col width="24%">
@@ -51,14 +53,13 @@
         </colgroup>
     <thead>
     <tr>
-        <td>List Name</td>
-        <td>List Type</td>
-        <td>Owner</td>
-        <td>Date Submitted</td>
-        <td>Item Count</td>
+        <th>List Name</th>
+        <th>List Type</th>
+        <th>Owner</th>
+        <th>Date Submitted</th>
+        <th>Item Count</th>
         <g:if test="${request.getUserPrincipal()}">
-        <td/>
-        <td/>
+            <th colspan="2">Actions</th>
         </g:if>
     </tr>
     </thead>

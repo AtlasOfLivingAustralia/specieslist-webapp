@@ -20,10 +20,12 @@
 <head>
     %{--<gui:resources components="['dialog']"/>--}%
     <r:require modules="fancybox"/>
-    <meta name="layout" content="ala2"/>
+    <meta name="layout" content="main"/>
     <link rel="stylesheet" href="${resource(dir:'css',file:'scrollableTable.css')}"/>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'getQueryParam.js')}"></script>
+    <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery-ui-1.8.17.custom.min.js')}"></script>
+    <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery.doubleScroll.js')}"></script>
     <title>Species list items | Atlas of Living Australia</title>
     <style type="text/css">
     #buttonDiv {display: none;}
@@ -45,7 +47,7 @@
             'showCloseButton': true,
             'titleShow' : false,
             'autoDimensions' : false,
-            'width': 500,
+            'width': 520,
             'height': 400,
             'padding': 10,
             'margin': 10,
@@ -74,7 +76,11 @@
 
         });
 
+        // Add scroll bar to top and bottom of table
+        $('.fwtable').doubleScroll();
 
+        // Tooltip for link title
+        $('#content a').tooltip({placement: "bottom", html: true, delay: 200});
     });
 
 
@@ -127,35 +133,37 @@
 <r:layoutResources/>
 <div id="content" >
     <header id="page-header">
-        <div class="inner">
-            <nav id="breadcrumb">
-                <ol>
-                    <li><a href="http://www.ala.org.au">Home</a></li>
-                    <li><a href="${request.contextPath}/public/speciesLists">Species lists</a></li>
-                    <li class="last">Species list items</li>
-                </ol>
-            </nav>
-            <hgroup class="leftfloat">
-                <h1>Species List </h1>
-                <h2><a href="${collectoryUrl}/public/show/${params.id}">${speciesList?.listName}</a></h2>
-            </hgroup>
-            <div class="rightfloat" id="buttonDiv">
-                %{--<div id="buttonDiv" class="buttonDiv">--}%
-                    <a href="#download" class="button orange" title="View the download options for this species list." id="downloadLink">Download</a>
-                    <a class="button orange" title="View occurrences for up to ${maxDownload} species on the list"
-                       href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">View Occurrences</a>
-                <div style="display:none">
-                    <g:render template="/download"/>
-                </div>
 
+        <div class="inner row-fluid">
+            <div id="breadcrumb" class="span12">
+                <ol class="breadcrumb">
+                    %{--<li><a href="http://www.ala.org.au">Home</a> <span class=" icon icon-arrow-right"></span></li>--}%
+                    <li><a href="${request.contextPath}/public/speciesLists">Species lists</a> <span class=" icon icon-arrow-right"></span></li>
+                    <li class="active">${speciesList?.listName?:"Species list items"}</li>
+                </ol>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span7">
+                <h2>Species List: <a href="${collectoryUrl}/public/show/${params.id}" title="view Date Resource page">${speciesList?.listName}</a></h2>
+            </div>
+
+            <div class="span5 header-btns" id="buttonDiv">
+                %{--<div id="buttonDiv" class="buttonDiv">--}%
+                <a href="#download" class="btn btn-ala" title="View the download options for this species list." id="downloadLink">Download</a>
+                <a class="btn btn-ala" title="View occurrences for up to ${maxDownload} species on the list"
+                   href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">View Occurrences</a>
             </div>  <!-- rightfloat -->
+
+            <div style="display:none">
+                <g:render template="/download"/>
+            </div>
         </div><!--inner-->
     </header>
 
-    <div class="inner">
-
-        <div class="col-narrow">
-            <div class="boxed attached">
+<div class="inner row-fluid">
+    <div class="span3 well" id="facets-column">
+        <div class="boxedZ attachedZ">
                 %{--<div id="customiseList" >--}%
 
                     %{--<a id="customiseListButton" class="buttonDiv">Customise</a>--}%
@@ -163,60 +171,61 @@
                 <section class="meta">
                     <div class="matchStats">
 
-                       <h3>
-                           <span class="count">${totalCount}</span>
-                           Number of Taxa
-                       </h3>
-                       <br/>
-                       <h3>
-                           <span class="count">${distinctCount}</span>
-                           Distinct Species
-                       </h3>
+                        <p>
+                            <span class="count">${totalCount}</span>
+                            Number of Taxa
+                        </p>
+                        %{--<br/>--}%
+                        <p>
+                            <span class="count">${distinctCount}</span>
+                            Distinct Species
+                        </p>
 
-                       <g:if test="${noMatchCount>0}">
-                           <br/>
-                           <h3>
-                               <span class="count">${noMatchCount}</span>
-                            <a href="?fq=guid:null${queryParams}" title="View unrecognised taxa">Unrecognised Taxa </a>
-                           </h3>
-                       </g:if>
+                        <g:if test="${noMatchCount>0}">
+                        %{--<br/>--}%
+                            <p>
+                                <span class="count">${noMatchCount}</span>
+                                <a href="?fq=guid:null${queryParams}" title="View unrecognised taxa">Unrecognised Taxa </a>
+                            </p>
+                        </g:if>
 
-                   </div>
+                    </div>
                 </section>
                 <section class="refine" id="refine">
                     <g:if test="${facets.size()>0 || params.fq}">
-                        <h2>Refine results</h2>
+                        <h4>Refine results</h4>
                         <g:set var="fqs" value="${params.list('fq')}" />
                         <g:if test="${fqs.size()>0&& fqs.get(0).length()>0}">
-                        <div id="currentFilter">
-                            <h3>
-                                <span class="FieldName">Current Filters</span>
-                            </h3>
-                        <div id="currentFilters" class="subnavlist">
-                            <ul>
-                                <g:each in="${fqs}" var="fq">
-                                    <g:if test="${fq.length() >0}">
-                                    <li>
-                                        ${fq.replaceFirst("kvp ","")}
-                                        %{--<a class="removeLink" onclick="removeFacet('family:ACANTHASPIDIIDAE'); return false;" href="#" oldtitle="remove filter" aria-describedby="ui-tooltip-1">X</a>--}%
-                                        [<b><a href="#" class="removeLink" title="Remove Filter" onclick="removeFacet('${fq}')">X</a></b>]
-                                    </li>
-                                    </g:if>
-                                </g:each>
-                            </ul>
-                         </div>
-                        </div>
+                            <div id="currentFilter">
+                                <p>
+                                    <span class="FieldName">Current Filters</span>
+                                </p>
+                                <div id="currentFilters" class="subnavlist">
+                                    <ul>
+                                        <g:each in="${fqs}" var="fq">
+                                            <g:if test="${fq.length() >0}">
+                                                <li>
+                                                    <a href="#" class="removeLink " title="Uncheck (remove filter)" onclick="removeFacet('${fq}')"><i class="icon-check"></i></a>
+                                                    ${fq.replaceFirst("kvp ","")}
+                                                    %{--<a class="removeLink" onclick="removeFacet('family:ACANTHASPIDIIDAE'); return false;" href="#" oldtitle="remove filter" aria-describedby="ui-tooltip-1">X</a>--}%
+                                                    %{--[<b><a href="#" class="removeLink" title="Remove Filter" onclick="removeFacet('${fq}')">X</a></b>]--}%
+                                                </li>
+                                            </g:if>
+                                        </g:each>
+                                    </ul>
+                                </div>
+                            </div>
                         </g:if>
                         <g:if test="${facets.containsKey("listProperties")}">
                             <g:each in="${facets.get("listProperties")}" var="value">
-                                <h3>
+                                <p>
                                     <span class="FieldName">${value.getKey()}</span>
-                                </h3>
+                                </p>
                                 <div id="facet-${value.getKey()}" class="subnavlist">
                                     <ul>
                                         <g:set var="i" value="${0}" />
                                         <g:set var="values" value="${value.getValue()}" />
-                                        %{--<g:each in="${value.getValue()}" var="arr">--}%
+                                    %{--<g:each in="${value.getValue()}" var="arr">--}%
                                         <g:while test="${i < 4 && i<values.size()}">
 
                                             <g:set var="arr" value="${values.get(i)}" />
@@ -227,62 +236,62 @@
                                         </g:while>
                                         <g:if test="${values.size()>4}">
                                             <div class="showHide">
-                                                <a href="#div${value.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLink" id="multi-${value.getKey()}"
-                                                   title="See more options or refine with multiple values">choose more...</a>
+                                                <i class="icon icon-hand-right"></i> <a href="#div${value.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLink" id="multi-${value.getKey()}"
+                                                                                        title="See full list of values">choose more...</a>
                                                 <div style="display:none">
-                                                <div id="div${value.getKey().replaceAll(" " ,"_")}">
+                                                    <div id="div${value.getKey().replaceAll(" " ,"_")}">
 
-                                                %{--<a class="multipleFacetsLink" title="See more options." id="options${value.getKey()}">choose more...</a>--}%
-                                                %{--<gui:dialog--}%
+                                                        %{--<a class="multipleFacetsLink" title="See more options." id="options${value.getKey()}">choose more...</a>--}%
+                                                        %{--<gui:dialog--}%
                                                         %{--title="Refine List"--}%
                                                         %{--draggable="true"--}%
                                                         %{--id="dialog_${value.getKey().replaceAll(" " ,"_")}"--}%
 
                                                         %{--buttons="[--}%
 
-                                                                %{--[text:'Close', handler: 'function() {this.cancel();}', isDefault: true]--}%
+                                                        %{--[text:'Close', handler: 'function() {this.cancel();}', isDefault: true]--}%
                                                         %{--]"--}%
                                                         %{--triggers="[show:[id:'options'+value.getKey(), on:'click']]"--}%
-                                                %{-->--}%
+                                                        %{-->--}%
 
-                                                    <h3>Refine your search</h3>
-                                                    <table class='compact scrollTable'>
-                                                        <thead class='fixedHeader'>
+                                                        <h3>Refine your search</h3>
+                                                        <table class='table table-striped compact scrollTable'>
+                                                            <thead class='fixedHeader'>
                                                             <tr class='tableHead'>
                                                                 <th>&nbsp;</th>
                                                                 <th>${value.getKey()}</th>
-                                                                <th width=>Count</th>
+                                                                <th>Count</th>
                                                             </tr>
-                                                        </thead>
-                                                        <tbody class='scrollContent'>
+                                                            </thead>
+                                                            <tbody class='scrollContent'>
                                                             <g:each in="${value.getValue()}" var="arr">
-                                                            <tr>
-                                                                <td>&nbsp</td>
-                                                                <td><a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]} </a></td>
-                                                                <td >${arr[3]}</td>
-                                                            </tr>
+                                                                <tr>
+                                                                    <td>&nbsp</td>
+                                                                    <td><a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]} </a></td>
+                                                                    <td>${arr[3]}</td>
+                                                                </tr>
                                                             </g:each>
-                                                        </tbody>
-                                                    </table>
-                                                %{--</gui:dialog>--}%
+                                                            </tbody>
+                                                        </table>
+                                                        %{--</gui:dialog>--}%
                                                     </div>
 
-                                            </div>
-                                               </div><!-- invisible content div for facets -->
+                                                </div>
+                                            </div><!-- invisible content div for facets -->
                                         </g:if>
-                                        %{--</g:each>--}%
-                                        </ul>
-                                    </div>
+                                    %{--</g:each>--}%
+                                    </ul>
+                                </div>
 
                             </g:each>
                             <div style="display:none"><!-- fancybox popup div -->
                                 <div id="multipleFacets">
-                                    <h3>Refine your search</h3>
+                                    <p>Refine your search</p>
                                     <div id="dynamic" class="tableContainer"></div>
                                     %{--<div id='submitFacets'>--}%
-                                        %{--<input type='submit' class='submit' id="include" value="INCLUDE selected items in search"/>--}%
-                                        %{--&nbsp;--}%
-                                        %{--<input type='submit' class='submit' id="exclude" value="EXCLUDE selected items from search"/>--}%
+                                    %{--<input type='submit' class='submit' id="include" value="INCLUDE selected items in search"/>--}%
+                                    %{--&nbsp;--}%
+                                    %{--<input type='submit' class='submit' id="exclude" value="EXCLUDE selected items from search"/>--}%
                                     %{--</div>--}%
                                 </div>
                             </div>
@@ -293,68 +302,63 @@
             </div><!-- boxed attached -->
         </div> <!-- col narrow -->
 
-        <div class="col-wide last">
-           <div class="tabs-panes-noborder">
-            <section class="double">
-            <div class="fwtable" style="width: 726px;">
-            <table class="tableList">
-                <thead>
-                <tr>
-                      <td>Supplied Name</td>
-                      <td>Scientific Name (matched)</td>
-                      <td>Author (matched)</td>
-                      <td>Common Name (matched)</td>
-                        <g:each in="${keys}" var="key">
-                            <td>${key}</td>
-                        </g:each>
-                      <td>Image</td>
-                </tr>
-                </thead>
-            <tbody>
-                <g:each var="result" in="${results}" status="i">
-                    <g:set var="bieSpecies" value="${bieItems?.get(result.guid)}"/>
-                    <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-                        <td>
-                            <g:if test="${result.guid}">
-                                <a href="${bieUrl}/species/${result.guid}">${fieldValue(bean: result, field: "rawScientificName")}</a>
+        <div class="span9">
+            <div class="tabs-panes-noborderZ">
+                <section class="double">
+                    <div class="fwtable table-bordered" style="overflow:auto;width:100%;">
+                        <table class="tableList">
+                            <thead>
+                            <tr>
+                                <th>Supplied Name</th>
+                                <th>Scientific Name (matched)</th>
+                                <th>Image</th>
+                                <th>Author (matched)</th>
+                                <th>Common Name (matched)</th>
+                                <g:each in="${keys}" var="key">
+                                    <th>${key}</th>
+                                </g:each>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <g:each var="result" in="${results}" status="i">
+                                <g:set var="bieSpecies" value="${bieItems?.get(result.guid)}"/>
+                                <g:set var="bieTitle">species page for <i>${result.rawScientificName}</i></g:set>
+                                <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
+                                    <td>
+                                        ${fieldValue(bean: result, field: "rawScientificName")}
+                                        <g:if test="${result.guid == null}">
+                                            (unmatched)
+                                        </g:if>
+                                    </td>
+                                    <td><a href="${bieUrl}/species/${result.guid}" title="${bieTitle}">${bieSpecies?.get(2)}</a></td>
+                                    <td id="img_${result.guid}"><a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img src="${bieSpecies?.get(0)}" style="max-height:50px;max-width:100px;"/></a></td>
+                                    <td>${bieSpecies?.get(3)}</td>
+                                    <td id="cn_${result.guid}">${bieSpecies?.get(1)}</td>
+                                    <g:each in="${keys}" var="key">
+                                        <g:set var="kvp" value="${result.kvpValues.find {it.key == key}}" />
+                                        <td>${kvp?.vocabValue?:kvp?.value?.trimLength(20)}</td>
+                                    </g:each>
+                                %{--<p>--}%
+                                %{--${result.guid} ${result.rawScientificName}--}%
+                                %{--</p>--}%
+                                </tr>
+                            </g:each>
+                            </tbody>
+                        </table>
+                    </div>
+                    <g:if test="${params.max<totalCount}">
+                        <div class="pagination" id="searchNavBar">
+                            <g:if test="${params.fq}">
+                                <g:paginate total="${totalCount}" action="list" id="${params.id}" params="${[fq: params.fq]}"/>
                             </g:if>
                             <g:else>
-                                ${fieldValue(bean: result, field: "rawScientificName")}
+                                <g:paginate total="${totalCount}" action="list" id="${params.id}" />
                             </g:else>
-                            <g:if test="${result.guid == null}">
-                                (unmatched)
-                            </g:if>
-                        </td>
-                        <td>${bieSpecies?.get(2)}</td>
-                        <td>${bieSpecies?.get(3)}</td>
-                        <td id="cn_${result.guid}">${bieSpecies?.get(1)}</td>
-                        <g:each in="${keys}" var="key">
-                            <g:set var="kvp" value="${result.kvpValues.find {it.key == key}}" />
-                            <td>${kvp?.vocabValue?:kvp?.value?.trimLength(20)}</td>
-                        </g:each>
-                        <td id="img_${result.guid}"><a href="${bieUrl}/species/${result.guid}" ><img src="${bieSpecies?.get(0)}" style="max-height:50px;max-width:100px;"/></a></td>
-
-                      %{--<p>--}%
-                          %{--${result.guid} ${result.rawScientificName}--}%
-                      %{--</p>--}%
-                    </tr>
-                </g:each>
-            </tbody>
-        </table>
-        </div>
-        <g:if test="${params.max<totalCount}">
-            <div class="pagination" id="searchNavBar">
-                <g:if test="${params.fq}">
-                    <g:paginate total="${totalCount}" action="list" id="${params.id}" params="${[fq: params.fq]}"/>
-                 </g:if>
-                <g:else>
-                    <g:paginate total="${totalCount}" action="list" id="${params.id}" />
-                </g:else>
-            </div>
-        </g:if>
-        </section>
+                        </div>
+                    </g:if>
+                </section>
             </div> <!-- tabs-panes-noborder -->
-            </div> <!-- "col-wide last" -->
+        </div> <!-- .span9 -->
         %{--</div> <!-- results -->--}%
     </div>
 </div> <!-- content div -->

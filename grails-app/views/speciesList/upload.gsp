@@ -15,115 +15,115 @@
 <!doctype html>
 <html>
 <head>
-    <meta name="layout" content="ala2"/>
-    <title>Upload a list | Species lists | Atlas of Living Australia</title>
-    <script type="text/javascript">
-        function init(){
-            //hide('manualMapping')
+<meta name="layout" content="main"/>
+<title>Upload a list | Species lists | Atlas of Living Australia</title>
+<script type="text/javascript">
+    function init(){
+        //hide('manualMapping')
+        reset();
+    }
+
+    function reset(){
+        $('#recognisedDataDiv').hide();
+        $('#uploadDiv').hide();
+        $('#statusMsgDiv').hide();
+        $('#uploadmsg').hide();
+    }
+
+    function parseColumns(){
+        if($('#copyPasteData').val().trim() == ""){
             reset();
+        } else {
+            //console.log($('#copyPasteData').val())
+            $.ajaxSetup({
+                scriptCharset: "utf-8",
+                contentType: "text/html; charset=utf-8"
+            });
+            var url = "${createLink(controller:'speciesList', action:'parseData')}";
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: $('#copyPasteData').val(),//.val().substring(0,$('#copyPasteData').val().indexOf('\n')),
+                success: function(data){
+                    $('#recognisedDataDiv').show();
+                    $('#recognisedData').html(data);
+                    $('#uploadDiv').show();
+                    $('#listvocab').hide();
+                }
+            });
         }
+    }
 
-        function reset(){
-            $('#recognisedDataDiv').hide();
-            $('#uploadDiv').hide()
-            $('#statusMsgDiv').hide()
-            $('#uploadmsg').hide()
-        }
-
-        function parseColumns(){
-            if($('#copyPasteData').val().trim() == ""){
-                reset();
-            } else {
-                //console.log($('#copyPasteData').val())
-                $.ajaxSetup({
-                    scriptCharset: "utf-8",
-                    contentType: "text/html; charset=utf-8"
-                });
-                var url = "${createLink(controller:'speciesList', action:'parseData')}";
-                $.ajax({
-                    type: "POST",
-                    url: url,
-                    data: $('#copyPasteData').val(),//.val().substring(0,$('#copyPasteData').val().indexOf('\n')),
-                    success: function(data){
-                        $('#recognisedDataDiv').show();
-                        $('#recognisedData').html(data)
-                        $('#uploadDiv').show()
-                        $('#listvocab').hide()
-                    }
-                });
-            }
-        }
-
-        function updateCustom(checked){
+    function updateCustom(checked){
 //            alert("Here... " + checked)
-            if (checked)
-            {
-                hide('manualMapping');
+        if (checked)
+        {
+            hide('manualMapping');
+        }
+        else{
+            show('manualMapping');
+        }
+    }
+    function hide(obj)
+    {
+        obj1 = document.getElementById(obj);
+        obj1.style.visibility = 'hidden';
+    }
+    function show(obj)
+    {
+        obj1 = document.getElementById(obj);
+        obj1.style.visibility = 'visible';
+    }
+
+    function viewVocab(){
+        $('#listvocab').show();
+        $('#viewVocabButton').hide();
+    }
+
+    function validateForm(){
+        var isValid = false;
+        var typeId = $("#listTypeId option:selected").val();
+        if($('#listTitle').val().length > 0){
+            isValid=true
+        }
+        else{
+            $('#listTitle').focus();
+            alert("You must supply a species list title");
+        }
+        if(isValid){
+
+            if(typeId){
+                isValid = true
             }
             else{
-                show('manualMapping');
+                isValid=false
+                $("#listTypeId").focus();
+                alert("You must supply a list type");
             }
         }
-        function hide(obj)
-        {
-            obj1 = document.getElementById(obj);
-            obj1.style.visibility = 'hidden';
-        }
-        function show(obj)
-        {
-            obj1 = document.getElementById(obj);
-            obj1.style.visibility = 'visible';
-        }
+        return isValid;
+    }
 
-        function viewVocab(){
-            $('#listvocab').show();
-            $('#viewVocabButton').hide();
-        }
+    function reportError(error){
+        $('#statusMsgDiv').hide();
+        $('#uploadmsg').html(error);
+        $('#uploadmsg').show();
+    }
 
-        function validateForm(){
-            var isValid = false;
-            var typeId = $("#listTypeId option:selected").val();
-            if($('#listTitle').val().length > 0){
-                isValid=true
-            }
-            else{
-                $('#listTitle').focus()
-                alert("You must supply a species list title")
-            }
-            if(isValid){
-
-                if(typeId){
-                    isValid = true
-                }
-                else{
-                    isValid=false
-                    $("#listTypeId").focus();
-                    alert("You must supply a list type")
-                }
-            }
-            return isValid;
-        }
-
-        function reportError(error){
-            $('#statusMsgDiv').hide()
-            $('#uploadmsg').html(error)
-            $('#uploadmsg').show()
-        }
-
-        function uploadSpeciesList(){
-            if(validateForm()){
+    function uploadSpeciesList(){
+        if(validateForm()){
             var map =getVocabularies();
             map['headers'] = getColumnHeaders();
             map['speciesListName'] = $('#listTitle').val();
             map['description'] = $('#listDesc').val();
-            map['listUrl'] = $('#listURL').val()
-            map['rawData']  =$('#copyPasteData').val()
-            map['listType'] =$('#listTypeId').val()
+            map['listUrl'] = $('#listURL').val();
+            map['rawData']  =$('#copyPasteData').val();
+            map['listType'] =$('#listTypeId').val();
             //console.log($.param(map))
             //console.log("The map: ",map)
             $('#recognisedDataDiv').hide();
-            $('#uploadDiv').hide()
-            $('#statusMsgDiv').show()
+            $('#uploadDiv').hide();
+            $('#statusMsgDiv').show();
             var url = "${createLink(controller:'speciesList', action:'uploadList')}";
             $.ajax({
                 type: "POST",
@@ -138,16 +138,16 @@
                 },
                 error: function(xhr, textStatus, errorThrown) {
                     //console.log('Error!  Status = ' ,xhr.status, textStatus, errorThrown, xhr.responseText);
-                    reportError("Error: " +errorThrown)
+                    reportError("Error: " +errorThrown);
                 }
 
-        });
-            }
+            });
+        }
 //            else{
 //                $('#listTitle').focus()
 //                alert("You must supply a species list title")
 //            }
-            //dataType: "json",
+        //dataType: "json",
 
 //            $.post(url, $.param(map),
 //                    function(data){
@@ -156,82 +156,84 @@
 //                    } );
 
 
-        }
+    }
 
-        function getVocabularies(){
-            var potentialVocabH3s = $('div.vocabDiv');
-            var vocabMap = {};
-            $.each(potentialVocabH3s, function(index,vdiv){
-                var value = ""
-                var h3value = "vocab_"+$(vdiv).find('h3:first').text()
+    function getVocabularies(){
+        var potentialVocabH3s = $('div.vocabDiv');
+        var vocabMap = {};
+        $.each(potentialVocabH3s, function(index,vdiv){
+            var value = "";
+            var h3value = "vocab_"+$(vdiv).find('h3:first').text();
 
-                //console.log("tbody",$("table[for='"+header3.for+"']"))
-                $(vdiv).find('table').find('tbody').find('tr').each(function(index2,vrow){
+            //console.log("tbody",$("table[for='"+header3.for+"']"))
+            $(vdiv).find('table').find('tbody').find('tr').each(function(index2,vrow){
 
-                    if(value.length>0)
-                        value = value +","
+                if(value.length>0)
+                    value = value +",";
 
-                    var vkey = $(vrow).children().eq(0).text()
+                var vkey = $(vrow).children().eq(0).text();
 
-                    var vvalue= $(vrow).children().eq(1).children().eq(0).val()
-                    if(vvalue.length>0)
-                        value = value + vkey +":"+vvalue
-                })
-
-                vocabMap[h3value] = value
+                var vvalue= $(vrow).children().eq(1).children().eq(0).val();
+                if(vvalue.length>0)
+                    value = value + vkey +":"+vvalue;
             })
-            //console.log("vocabMap: ",vocabMap)
-            return vocabMap
 
-        }
+            vocabMap[h3value] = value;
+        })
+        //console.log("vocabMap: ",vocabMap)
+        return vocabMap
 
-        function getColumnHeaders(){
+    }
 
-            var columnHeaderInputs = $('input.columnHeaderInput');
-            var columnHeadersCSV = "";
-            var i = 0;
-            $.each(columnHeaderInputs, function(index, input){
-                if(index>0){
-                    columnHeadersCSV = columnHeadersCSV + ",";
-                }
-                columnHeadersCSV = columnHeadersCSV + input.value;
-                i++;
-            });
+    function getColumnHeaders(){
 
-            return columnHeadersCSV;
-        }
+        var columnHeaderInputs = $('input.columnHeaderInput');
+        var columnHeadersCSV = "";
+        var i = 0;
+        $.each(columnHeaderInputs, function(index, input){
+            if(index>0){
+                columnHeadersCSV = columnHeadersCSV + ",";
+            }
+            columnHeadersCSV = columnHeadersCSV + input.value;
+            i++;
+        });
 
-        function updateH3(column){
-            //console.log("H3: " , column)
-            //$("h3[for='"+column.id+"']").html(column.value)
-            var columnHeaderInputs = $('input.columnHeaderInput');
-            var test =""
-            $.each(columnHeaderInputs, function(index, input){
-                //console.log("updateTables", index, input.id);
+        return columnHeadersCSV;
+    }
 
-                $("h3[for='"+input.id+"']").html($(input).val()) ;
-                //console.log("h3 for",$("h3[for='"+input.id+"']"));
-            })
-        }
+    function updateH3(column){
+        //console.log("H3: " , column)
+        //$("h3[for='"+column.id+"']").html(column.value)
+        var columnHeaderInputs = $('input.columnHeaderInput');
+        var test =""
+        $.each(columnHeaderInputs, function(index, input){
+            //console.log("updateTables", index, input.id);
 
-//        //setup the page
-        $(document).ready(function(){ init(); });
-    </script>
+            $("h3[for='"+input.id+"']").html($(input).val());
+            //console.log("h3 for",$("h3[for='"+input.id+"']"));
+        })
+    }
+
+    //        //setup the page
+    $(document).ready(function(){ init(); });
+</script>
 </head>
 
 <body class="species">
 <div id="content">
     <header id="page-header">
         <div class="inner">
-            <nav id="breadcrumb">
-                <ol>
-                    <li><a href="http://www.ala.org.au">Atlas of Living Australia</a></li>
-                    <li><a href="${request.contextPath}/public/speciesLists">Species lists</a></li>
-                    <li class="last">Upload a list</li>
-                </ol>
-            </nav>
+            <div class="inner row-fluid">
+                <div id="breadcrumb" class="span12">
+                    <ol class="breadcrumb">
+                        %{--<li><a href="http://www.ala.org.au">Home</a> <span class=" icon icon-arrow-right"></span></li>--}%
+                        <li><a href="${request.contextPath}/public/speciesLists">Species lists</a> <span class=" icon icon-arrow-right"></span></li>
+                        <li class="last">Upload a list</li>
+                    </ol>
+                </div>
+            </div>
             <hgroup>
-            <h1>Upload a list</h1>
+                <h1>Upload a list</h1>
             </hgroup>
         </div><!--inner-->
     </header>
@@ -248,9 +250,9 @@
 
                 <g:textArea
                         id="copyPasteData"
-                        name="copyPasteData" rows="15" cols="120"
+                        name="copyPasteData" rows="15" cols="120" style="width:100%;"
                         onkeyup="javascript:window.setTimeout('parseColumns()', 500, true);"></g:textArea>
-                <g:submitButton id="checkData" class="actionButton" name="checkData" value="Check Data"
+                <g:submitButton id="checkData" class="actionButton btn" name="checkData" value="Check Data"
                                 onclick="javascript:parseColumns();"/>
                 <p id="processingInfo"></p>
 
@@ -259,19 +261,14 @@
             <div id="recognisedData"></div>
 
 
-                    <div id="uploadFeedback" style="clear:right;">
-                    </div>
-                    <div id="uploadProgressBar">
-                    </div>
-                </p>
-                </div>
+            <div id="uploadFeedback" style="clear:right;">
             </div>
-            <div id="statusMsgDiv">
-                <h3>Uploading your list...</h3>
+            <div id="uploadProgressBar">
             </div>
-
-
         </div>
+    </div>
+    <div id="statusMsgDiv">
+        <h3>Uploading your list...</h3>
     </div>
 </div> <!-- content div -->
 </body>

@@ -104,11 +104,13 @@ auth.userNamesForNumericIdPath='getUserListWithIds'
 environments {
     development {
         grails.logging.jul.usebridge = true
-        grails.serverURL = 'http://natasha.ala.org.au:8080/' + appName
+        grails.serverURL = 'http://dev.ala.org.au:8080/' + appName
         //grails.serverURL = 'http://moyesyside.ala.org.au:8080/' + appName
         //collectory.baseURL = 'http://natasha.ala.org.au:8080/Collectory'
         collectory.baseURL ='http://audax.ala.org.au:8080/Collectory'
-        serverName='http://natasha.ala.org.au:8080'
+        serverName='http://dev.ala.org.au:8080'
+        security.cas.appServerName = serverName
+        security.cas.contextPath = "/${appName}"
         contextPath = "/specieslist-webapp"
     }
     production {

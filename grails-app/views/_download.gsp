@@ -18,12 +18,12 @@
 
         <fieldset>
             <p><label for="email">Email</label>
-                <input type="text" name="email" id="email" value="natasha" size="30"  />
+                <input type="text" name="email" id="email" value="${request.remoteUser}" size="30"  />
             </p>
             <p><label for="filename">File Name</label>
-                <input type="text" name="filename" id="filename" value="data" size="30"  />
+                <input type="text" name="filename" id="filename" value="${speciesList?.listName?.replaceAll(~/\s+/, "_")?:"data"}" size="30"  />
             </p>
-            <p><label for="reasonTypeId" style="vertical-align: top">Download Reason *</label>
+            <p><label for="reasonTypeId" style="">Download Reason *</label>
                 <select name="reasonTypeId" id="reasonTypeId">
                     <option value="">-- select a reason --</option>
                     <g:each in="${downloadReasons}" var="reason">
@@ -34,13 +34,13 @@
 
             <br/>
             %{--<input type="hidden" name="sourceTypeId" id="sourceTypeId" value="${sourceId}"/>--}%
-            <input type="submit" value="Download All Records" id="downloadSubmitButton" onclick="return downloadOccurrences()"/>&nbsp;
-            <input type="submit" value="Download Species Field Guide" id="downloadFieldGuideSubmitButton"/>&nbsp;
-            <input type="submit" value="Download Species List" id="downloadSpeciesListSubmitButton"/>&nbsp;
+            <input type="submit" value="Download All Records" class="actionButton btn btn-small" id="downloadSubmitButton" onclick="return downloadOccurrences()"/>
+            <input type="submit" value="Download Species Field Guide" class="actionButton btn btn-small" id="downloadFieldGuideSubmitButton"/>
+            <input type="submit" value="Download Species List" class="actionButton btn btn-small" id="downloadSpeciesListSubmitButton"/>
             %{--<c:if test="${skin != 'avh'}">--}%
-                %{--<input type="submit" value="Download Species Field Guide" id="downloadFieldGuideSubmitButton"/>&nbsp;--}%
+            %{--<input type="submit" value="Download Species Field Guide" id="downloadFieldGuideSubmitButton"/>&nbsp;--}%
             %{--</c:if>--}%
-        <!--
+            <!--
             <input type="reset" value="Cancel" onClick="$.fancybox.close();"/>
             -->
             <p style="margin-top:10px;">
