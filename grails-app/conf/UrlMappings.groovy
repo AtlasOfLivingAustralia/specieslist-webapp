@@ -25,6 +25,8 @@ class UrlMappings {
 
         "/ws/speciesList/publish/$druid?" (controller: 'webService', action:  'markAsPublished')
 
+        "/ws"(view:'/webService/ws')
+
 //        "/"(view:"/index")
 
 		"/"(controller: 'public' ,action:  'index')

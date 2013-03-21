@@ -91,7 +91,11 @@ class WebServiceController {
             def retValue = builder.build{
                 dataResourceUid = sl.dataResourceUid
                 listName = sl.listName
-                if(sl.listType) listType = sl.listType
+                if(sl.listType) listType = sl?.listType?.toString()
+                dateCreated = sl.dateCreated
+                username =  sl.username
+                fullName = sl.getFullName()
+                itemCount=SpeciesListItem.countByList(sl)
             }
             log.debug(" The retvalue: " + retValue)
             render retValue
@@ -99,10 +103,19 @@ class WebServiceController {
         }
         else{
             //we need to return a summary of all lists
-            //def allLists = SpeciesList.list([sort: 'listName',fetch: [items: 'lazy']])
-            //def allLists = params.user? SpeciesList.findAll("from SpeciesList sl order by case username when '" + params.user +"' then 0 else 1 end, listName",[max:4, offset:10]):SpeciesList.list([sort: 'listName',fetch: [items: 'lazy']])
-            def allLists = params.user? SpeciesList.findAll("from SpeciesList sl order by case username when '" + params.user +"' then 0 else 1 end, listName"):SpeciesList.list([sort: 'listName',fetch: [items: 'lazy']])
-            def retValue =allLists.collect{[dataResourceUid: it.dataResourceUid, listName: it.listName, listType:it?.listType?.toString(), username:it.username, firstName:it.firstName, surname:it.surname, fullName:it.getFullName()]}
+            //allowing for customisation in sort order and paging
+            params.fetch = [items: 'lazy']
+            if(params.sort)
+                params.user = null
+            if(!params.user)
+                params.sort = params.sort ?: "listName"
+            params.order= params.order?:"asc"
+            //def allLists = params.user? SpeciesList.findAll("from SpeciesList sl order by case username when '" + params.user +"' then 0 else 1 end, listName"):SpeciesList.list([sort: 'listName',fetch: [items: 'lazy']])
+            String query = params.user ? "from SpeciesList sl order by case username when ? then 0 else 1 end, listName":null
+            log.debug("Query : " + query)
+            def ids = params.sort =="count" ? SpeciesList.executeQuery("SELECT sl.id FROM SpeciesList sl join sl.items AS item GROUP BY sl.id ORDER BY COUNT(item) " + params.order,[], params) :null
+            def allLists = params.sort == "count"?SpeciesList.getAll(ids):params.user? SpeciesList.findAll(query,[params.user], params):SpeciesList.list(params)
+            def retValue =[listCount:SpeciesList.count, sort:  params.sort, order: params.order, max: params.max, offset:  params.offset, lists:allLists.collect{[dataResourceUid: it.dataResourceUid, listName: it.listName, listType:it?.listType?.toString(), dateCreated:it.dateCreated, username:it.username,  fullName:it.getFullName(), itemCount:SpeciesListItem.countByList(it)]}]
 
             render retValue as JSON
         }
