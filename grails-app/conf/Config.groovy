@@ -12,7 +12,6 @@ if(!serverName){
     //serverName='http://audax.ala.org.au:8080'
 }
 //contextPath='/specieslist-webapp'
-security.cas.uriFilterPattern = '/speciesList, /speciesList/.*,/admin,/admin/.*'
 collectory.enableSync = false
 
 /******* End of change this stuff for your project *******/
@@ -24,6 +23,7 @@ if (!security.cas.authenticateOnlyIfLoggedInPattern) {
 }
 /******* ALA standard config ************/
 headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
+security.cas.uriFilterPattern = '/speciesList, /speciesList/.*, /admin, /admin/.*, /speciesListItem/edit/.*'
 security.cas.casServerName = 'https://auth.ala.org.au'
 security.cas.uriExclusionFilterPattern = '/images.*,/css.*,/js.*,/speciesList/occurrences/.*,/speciesList/fieldGuide/.*'
 security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
@@ -121,8 +121,10 @@ environments {
         collectory.baseURL='http://collections.ala.org.au'
         //bie.baseURL = 'http://audax.ala.org.au:8080/bie-webapp2'
         bie.baseURL = 'http://bie.ala.org.au'
-        serverName='lists.ala.org.au'
+        serverName = grails.serverURL
         contextPath = ""
+        security.cas.appServerName = serverName
+        security.cas.contextPath = contextPath
     }
 }
 
