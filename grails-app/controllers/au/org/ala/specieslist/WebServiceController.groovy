@@ -111,7 +111,7 @@ class WebServiceController {
                 params.sort = params.sort ?: "listName"
             params.order= params.order?:"asc"
             //def allLists = params.user? SpeciesList.findAll("from SpeciesList sl order by case username when '" + params.user +"' then 0 else 1 end, listName"):SpeciesList.list([sort: 'listName',fetch: [items: 'lazy']])
-            String query = params.user ? "from SpeciesList sl order by case username when ? then 0 else 1 end, listName":null
+            String query = params.user ? "from SpeciesList sl order by case username when ? then 0 else 1 end, lastUpdated desc":null
             log.debug("Query : " + query)
             def ids = params.sort =="count" ? SpeciesList.executeQuery("SELECT sl.id FROM SpeciesList sl join sl.items AS item GROUP BY sl.id ORDER BY COUNT(item) " + params.order,[], params) :null
             def allLists = params.sort == "count"?SpeciesList.getAll(ids):params.user? SpeciesList.findAll(query,[params.user], params):SpeciesList.list(params)
