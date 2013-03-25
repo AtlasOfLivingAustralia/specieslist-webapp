@@ -121,9 +121,9 @@ environments {
         collectory.baseURL='http://collections.ala.org.au'
         //bie.baseURL = 'http://audax.ala.org.au:8080/bie-webapp2'
         bie.baseURL = 'http://bie.ala.org.au'
-        serverName = grails.serverURL
+        serverName = 'lists.ala.org.au'
         contextPath = ""
-        security.cas.appServerName = serverName
+        security.cas.appServerName = grails.serverURL
         security.cas.contextPath = contextPath
     }
 }
