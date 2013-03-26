@@ -16,6 +16,7 @@
 <g:set var="bieUrl" value="${grailsApplication.config.bie.baseURL}"/>
 <g:set var="collectoryUrl" value="${grailsApplication.config.collectory.baseURL}" />
 <g:set var="maxDownload" value="${grailsApplication.config.downloadLimit}" />
+<g:set var="userCanEdit" value="${params.action == 'edit' && speciesList.username == request.getUserPrincipal()?.attributes?.email || request.isUserInRole("ROLE_ADMIN")}" />
 <html>
 <head>
     %{--<gui:resources components="['dialog']"/>--}%
@@ -81,6 +82,11 @@
 
         // Tooltip for link title
         $('#content a').tooltip({placement: "bottom", html: true, delay: 200});
+
+
+
+        console.log("owner = ${speciesList.username}");
+        console.log("logged in user = ${request.getUserPrincipal()?.attributes?.email}");
     });
 
 
@@ -145,9 +151,29 @@
         </div>
         <div class="row-fluid">
             <div class="span7">
-                <h2>Species List: <a href="${collectoryUrl}/public/show/${params.id}" title="view Date Resource page">${speciesList?.listName}</a></h2>
+                <h2>
+                    Species List: <a href="${collectoryUrl}/public/show/${params.id}" title="view Date Resource page">${speciesList?.listName}</a>
+                    <g:if test="${userCanEdit}">
+                        <a href="#" class="btn btn-primary btn-small" data-remote="${createLink(action: 'editPermissions', id: params.id)}"
+                            data-target="#modal" data-toggle="modal" style="margin:0 0 5px 15px;"><i class="icon-user icon-white"></i> Edit permissions</a>
+                    </g:if>
+                </h2>
             </div>
-
+            <g:if test="${userCanEdit}">
+                <div class="modal hide fade" id="modal">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h3 id="myModalLabel">List permissions</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p><img src="${resource(dir:'images',file:'spinner.gif')}" alt="spinner icon"/></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                        <button class="btn btn-primary" id="saveEditors">Save changes</button>
+                    </div>
+                </div>
+            </g:if>
             <div class="span5 header-btns" id="buttonDiv">
                 %{--<div id="buttonDiv" class="buttonDiv">--}%
                 <a href="#download" class="btn btn-ala" title="View the download options for this species list." id="downloadLink">Download</a>
@@ -162,6 +188,9 @@
     </header>
 
 <div class="inner row-fluid">
+    <g:if test="${flash.message}">
+        <div class="message alert alert-info"><b>Alert:</b> ${flash.message}</div>
+    </g:if>
     <div class="span3 well" id="facets-column">
         <div class="boxedZ attachedZ">
                 %{--<div id="customiseList" >--}%
@@ -303,7 +332,7 @@
         </div> <!-- col narrow -->
 
         <div class="span9">
-            <div class="tabs-panes-noborderZ">
+            <div class="">
                 <section class="double">
                     <div class="fwtable table-bordered" style="overflow:auto;width:100%;">
                         <table class="tableList">

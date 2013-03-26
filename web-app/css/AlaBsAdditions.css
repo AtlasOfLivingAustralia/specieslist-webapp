@@ -1,12 +1,19 @@
-.species #page-header {
-    /*background:#faf8ed url(../images/peewee-banner-alc.jpg) center center no-repeat;*/
-    /*padding-bottom:12px;*/
-    /*border-bottom:1px solid #d1d1d1;*/
+body {
+    font-size: 13px;
+}
+
+h1 {font-size: 2.0em;}
+h2 {font-size: 1.8em;}
+h3 {font-size: 1.6em;}
+h4 {font-size: 1.4em;}
+
+#content {
+    margin-bottom: 20px;
 }
 
 .breadcrumb {
     background-color: inherit;
-    margin: 0 0 10px 0;
+    margin: 0 0 5px 0;
     padding: 0;
 }
 
@@ -15,6 +22,13 @@
     opacity:0.6;
     filter:alpha(opacity=60);
     margin: 1px 4px 0;
+}
+
+#breadcrumb a.current {
+    text-decoration: none;
+    color: #333;
+    cursor: default;
+    background-image: none !important;
 }
 
 th, td {
@@ -33,7 +47,7 @@ p span.count {
 }
 
 #page-header, #page-header2 {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .tableList thead th {
@@ -142,4 +156,8 @@ div#download {
 table.scrollTable {
     border: 1px solid #ccc;
     width: auto;
+}
+
+#content div.pagination span.gap {
+    cursor: default;
 }

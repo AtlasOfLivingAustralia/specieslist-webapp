@@ -8,7 +8,8 @@ class AdminController {
 
     def auth() {
         if (!authService.isAdmin()) {
-            render "You are not authorised to access this page."
+            flash.message = "You are not authorised to access this page."
+            redirect(controller: "public", action: "speciesLists")
             return false
         }
         return true

@@ -1,5 +1,6 @@
 package au.org.ala.specieslist
 
+import au.org.ala.cas.util.AuthenticationCookieUtils
 import org.springframework.web.context.request.RequestContextHolder
 import grails.plugin.springcache.annotations.Cacheable
 import groovyx.net.http.HTTPBuilder
@@ -25,6 +26,10 @@ class AuthService {
 
     def surname(){
         (RequestContextHolder.currentRequestAttributes()?.getUserPrincipal()?.attributes?.lastname)?:null
+    }
+
+    def isUserLoggedInViaCookie() {
+        AuthenticationCookieUtils.isUserLoggedIn(RequestContextHolder.currentRequestAttributes().getRequest())
     }
 
     def isValidUserName(String username){
@@ -65,13 +70,14 @@ class AuthService {
     public String getDisplayNameFor(String value){
         String displayName = value;
         if(value != null){
-            if(grailsApplication.mainContext.authService.getMapOFAllUserNamesById().containsKey(value))
+            if(grailsApplication.mainContext.authService.getMapOFAllUserNamesById().containsKey(value)) {
                 displayName = userNamesById.get(value);
-            else if(grailsApplication.mainContext.authService.getMapOfAllUserNamesByNumericId().containsKey(value)){
+            } else if(grailsApplication.mainContext.authService.getMapOfAllUserNamesByNumericId().containsKey(value)) {
                 displayName=userNamesByNumericIds.get(value);
             }
-            else if(displayName.contains("@"))
+            else if(displayName.contains("@")) {
                 displayName = displayName.substring(0, displayName.indexOf("@"));
+            }
         }
         return displayName;
     }

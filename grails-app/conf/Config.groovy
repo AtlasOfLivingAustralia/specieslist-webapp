@@ -194,7 +194,7 @@ log4j = {
             'grails.app.tagLib.ala.postie',
             'grails.app',
             'grails.plugin.springcache'
-
+            'au.org.ala'
 }
 
 //springcache configuration

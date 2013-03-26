@@ -2,6 +2,7 @@ package au.org.ala.specieslist
 
 class SpeciesList {
     def authService
+
     String listName
     String firstName
     String surname
@@ -13,6 +14,7 @@ class SpeciesList {
     Date lastUpdated
     ListType listType
     Boolean isPrivate
+    String[] editors
 
     static transients = [ "fullName" ]
 
@@ -26,6 +28,7 @@ class SpeciesList {
         isPrivate nullable:true, index: 'idx_listprivate'
         firstName nullable: true
         surname nullable: true
+        editors nullable: true
     }
 
     static mapping = {

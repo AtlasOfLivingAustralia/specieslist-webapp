@@ -25,7 +25,7 @@ grails.project.dependency.resolution = {
         grailsHome()
         mavenLocal()
         mavenRepo "http://maven.ala.org.au/repository/"
-        //mavenRepo "http://repository.gbif.org/content/repositories/gbif/"
+        mavenRepo "http://repository.gbif.org/content/repositories/gbif/"
         mavenRepo "http://repository.codehaus.org"
         mavenCentral()
         grailsPlugins()

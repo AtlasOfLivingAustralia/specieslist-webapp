@@ -1,13 +1,15 @@
 package au.org.ala.specieslist
+
 import grails.converters.*
 import au.com.bytecode.opencsv.CSVWriter
-import org.grails.datastore.mapping.query.Restrictions
 
 class SpeciesListItemController {
     def bieService
     def loggerService
     def queryService
+    def authService
     def maxLengthForFacet = 15
+
     def index() { }
     /**
      *
@@ -15,49 +17,63 @@ class SpeciesListItemController {
      */
     def list(){
         //can only show the list items for a specific list id.  List items do not make sense out of the context if their list
-        if(params.id){
-            try{
+        if (authService.isUserLoggedInViaCookie()) {
+            // Logged-in users go to different URL, which is under auth check, so we can show edit
+            // buttons if they have correct permissions.
+            redirect(action: "edit", params: params)
+        }
+
+        doListDisplay(params)
+    }
+
+    def edit() {
+
+//        if () {
+//            authService.email()
+//        }
+        doListDisplay(params)
+    }
+
+    private doListDisplay(requestParams) {
+        if (requestParams.id) {
+            try {
                 //check to see if the list exists
-                def speciesList = SpeciesList.findByDataResourceUid(params.id)
-                if (!speciesList){
-                    flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'speciesList.label', default: 'Species List'), params.id])}"
+                def speciesList = SpeciesList.findByDataResourceUid(requestParams.id)
+                if (!speciesList) {
+                    flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'speciesList.label', default: 'Species List'), requestParams.id])}"
                     redirect(controller: "public", action: "speciesLists")
-                }
+                } else {
+                    if (requestParams.message)
+                        flash.message = requestParams.message
+                    requestParams.max = Math.min(requestParams.max ? requestParams.int('max') : 10, 100)
+                    requestParams.sort = requestParams.sort ?: "itemOrder"
+                    requestParams.fetch = [kvpValues: 'select']
 
-                else{
-                    if (params.message)
-                        flash.message = params.message
-                    params.max = Math.min(params.max ? params.int('max') : 10, 100)
-                    params.sort = params.sort ?: "itemOrder"
-                    params.fetch= [ kvpValues: 'select' ]
-
-                    log.debug(params.toQueryString())
+                    log.debug(requestParams.toQueryString())
                     //println(params.facets)
-                    def fqs = params.fq?[params.fq].flatten().findAll{ it != null }:null
-                    def queryParams = params.fq?"&fq="+fqs.join("&fq="):""
+                    def fqs = requestParams.fq ? [requestParams.fq].flatten().findAll { it != null } : null
+                    def queryParams = requestParams.fq ? "&fq=" + fqs.join("&fq=") : ""
                     //println(queryService.constructWithFacets("select count(distinct guid)",facets, params.id))
 
-                    def baseQueryAndParams = params.fq?queryService.constructWithFacets(" from SpeciesListItem sli ",fqs, params.id):null
+                    def baseQueryAndParams = requestParams.fq ? queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, requestParams.id) : null
                     log.debug(baseQueryAndParams)
                     //def queryparams = params.fq? queryService.constructWithFacets("select count(distinct guid)",fqs,params.id): ["select count(distinct guid) from SpeciesListItem where dataResourceUid=?",[params.id]]
                     //This is used for the stats - should these be for the whole list or just the fqed version?
-                    def distinctCount =  params.fq?SpeciesList.executeQuery("select count(distinct guid) " + baseQueryAndParams[0],baseQueryAndParams[1]).head():SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid=?",params.id).head()//SpeciesListItem.executeQuery(queryparams[0],[queryparams[1]]).head()
+                    def distinctCount = requestParams.fq ? SpeciesList.executeQuery("select count(distinct guid) " + baseQueryAndParams[0], baseQueryAndParams[1]).head() : SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid=?", requestParams.id).head()//SpeciesListItem.executeQuery(queryparams[0],[queryparams[1]]).head()
                     //need to get all keys to be included in the table so no need to add the filter.
-                    def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?",params.id)
+                    def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?", requestParams.id)
 
                     //def spqueries = params.fq ? queryService.constructWithFacets("select sli ", fqs, params.id):["select sli from SpeciesListItem as sli where sli.dataResourceUid=?",[params.id]]
                     //println(spqueries)
-                    def speciesListItems =  params.fq? SpeciesListItem.executeQuery("select sli " + baseQueryAndParams[0], baseQueryAndParams[1],params): SpeciesListItem.findAllByDataResourceUid(params.id,params)
+                    def speciesListItems = requestParams.fq ? SpeciesListItem.executeQuery("select sli " + baseQueryAndParams[0], baseQueryAndParams[1], requestParams) : SpeciesListItem.findAllByDataResourceUid(requestParams.id, requestParams)
 
-                    def totalCount= params.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0], baseQueryAndParams[1]).head():SpeciesListItem.countByDataResourceUid(params.id)
+                    def totalCount = requestParams.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0], baseQueryAndParams[1]).head() : SpeciesListItem.countByDataResourceUid(requestParams.id)
 
-                    def noMatchCount = params.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0] + " AND sli.guid is null", baseQueryAndParams[1]).head(): SpeciesListItem.countByDataResourceUidAndGuidIsNull(params.id)
-
-
+                    def noMatchCount = requestParams.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0] + " AND sli.guid is null", baseQueryAndParams[1]).head() : SpeciesListItem.countByDataResourceUidAndGuidIsNull(requestParams.id)
 
                     //println(speciesListItems)
                     //log.debug("KEYS: " + keys)
-                    def guids = speciesListItems.collect{it.guid}
+                    def guids = speciesListItems.collect { it.guid }
                     log.debug("guids " + guids)
                     def bieItems = bieService.bulkLookupSpecies(guids)
                     log.debug("Retrieved BIE Items")
@@ -65,20 +81,70 @@ class SpeciesListItemController {
                     log.debug("Retrieved Logger Reasons")
                     def facets = generateFacetValues(fqs, baseQueryAndParams)
                     log.debug("Retrived facets")
-                    render(view:'list', model:[speciesList: SpeciesList.findByDataResourceUid(params.id),queryParams:queryParams,results: speciesListItems,
-                            totalCount:totalCount,
-                            noMatchCount:noMatchCount,
-                            distinctCount:distinctCount, keys:keys, bieItems:bieItems, downloadReasons:downloadReasons, facets:facets])
+                    log.debug("Checking speciesList: " + speciesList)
+                    log.debug("Checking editors: " + speciesList.editors)
+                    render(view: 'list', model: [
+                            speciesList: SpeciesList.findByDataResourceUid(requestParams.id),
+                            queryParams: queryParams,
+                            results: speciesListItems,
+                            totalCount: totalCount,
+                            noMatchCount: noMatchCount,
+                            distinctCount: distinctCount,
+                            keys: keys,
+                            bieItems: bieItems,
+                            downloadReasons: downloadReasons,
+                            facets: facets
+                    ])
                 }
             }
-            catch(Exception e){
+            catch (Exception e) {
                 log.error("Unable to view species list items.", e)
                 render(view: '../error', model: [message: "Unable to retrieve species list items. Please let us know if this error persists. <br>Error:<br>" + e.getMessage()])
             }
-        }
-        else{
+        } else {
             //redirect to the public species list page
             redirect(controller: "public", action: "speciesLists")
+        }
+    }
+
+    /**
+     * Provides (ajax) content for the edit permissions modal popup
+     */
+    def editPermissions() {
+        def speciesList = SpeciesList.findByDataResourceUid(params.id)
+        if (!speciesList) {
+            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'speciesList.label', default: 'Species List'), params.id])}"
+            redirect(controller: "public", action: "speciesLists")
+        } else {
+            if (params.message)
+                flash.message = params.message
+
+        }
+        render(view: "permissions", model: [speciesList: speciesList, mapOfUserNamesById: authService.getMapOFAllUserNamesById()])
+    }
+
+    /**
+     * webservices to update a list of editors for a given list
+     */
+    def updateEditors() {
+        log.debug "editors param = " + params.'editors[]'
+        def speciesList = SpeciesList.findByDataResourceUid(params.id)
+        if (!speciesList) {
+            render(text: "Requested list with ID " + params.id + " was not found", status: 404);
+        } else {
+            speciesList.editors = params.'editors[]'
+            log.debug("editors = " + speciesList.editors);
+            if (!speciesList.save(flush: true)) {
+                def errors = []
+                speciesList.errors.each {
+                    errors.add(it)
+                }
+                render(text: "Error orrurred while saving list: " + errors.join("; "), status: 500);
+            } else {
+                log.info("updated list of editors for id: " + params.id)
+                log.info("list: " + params.id)
+                render(text: "list.editors successfully updated")
+            }
         }
     }
 

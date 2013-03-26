@@ -21,7 +21,7 @@
 <body class="species">
 <div id="content">
     <header id="page-header">
-        <div class="inner row-fluid" style="display: none;">
+        <div class="inner row-fluid" style="display: block;">
             <div id="breadcrumb" class="span12">
                 <ol class="breadcrumb">
                     %{--<li><a href="http://www.ala.org.au">Home</a> <span class=" icon icon-arrow-right"></span></li>--}%
@@ -42,7 +42,10 @@
     </header>
     <div class="inner" id="public-specieslist">
         <g:if test="${flash.message}">
-            <div class="message">${flash.message}</div>
+            <div class="message alert alert-info">
+                <button type="button" class="close" onclick="$(this).parent().hide()">×</button>
+                <b>Alert:</b> ${flash.message}
+            </div>
         </g:if>
 
             <p>

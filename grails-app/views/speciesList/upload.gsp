@@ -49,6 +49,11 @@
                     $('#recognisedData').html(data);
                     $('#uploadDiv').show();
                     $('#listvocab').hide();
+                },
+                error: function(jqXHR, textStatus, error) {
+                    //console.log("jqXHR", jqXHR);
+                    var ExtractedErrorMsg = $(jqXHR.responseText).find(".error-details").clone().wrap('<p>').parent().html(); // hack to get outerHtml
+                    reportError("<b>Error:</b> " + error + " (" + jqXHR.status + ")<br/><code style='background-color:inherit;'>" + ExtractedErrorMsg + "</code>");
                 }
             });
         }
@@ -106,8 +111,8 @@
 
     function reportError(error){
         $('#statusMsgDiv').hide();
-        $('#uploadmsg').html(error);
-        $('#uploadmsg').show();
+        $('#uploadFeedback div').html(error);
+        $('#uploadFeedback').show();
     }
 
     function uploadSpeciesList(){
@@ -238,7 +243,7 @@
         </div><!--inner-->
     </header>
     <div class="inner">
-        <div class="message" id="uploadmsg" style="clear:right;">${flash.message}</div>
+        <div class="message alert alert-info" id="uploadmsg" style="clear:right;">${flash.message}</div>
         <div id="section" class="col-wide">
             A species list can consist of a list of scientific or common names and optionally associated properties. When
             a CSV list is supplied we will attempt to use the first line to determine mappings.
@@ -261,7 +266,9 @@
             <div id="recognisedData"></div>
 
 
-            <div id="uploadFeedback" style="clear:right;">
+            <div id="uploadFeedback" style="clear:right;display:none;" class="alert alert-error">
+                <button type="button" class="close" onclick="$(this).parent().hide()">×</button>
+                <div></div>
             </div>
             <div id="uploadProgressBar">
             </div>
