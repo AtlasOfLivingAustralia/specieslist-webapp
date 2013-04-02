@@ -11,26 +11,25 @@ class SpeciesListItemController {
     def maxLengthForFacet = 15
 
     def index() { }
+
     /**
-     *
-     * @return
+     * Public display of a species list
      */
     def list(){
         //can only show the list items for a specific list id.  List items do not make sense out of the context if their list
         if (authService.isUserLoggedInViaCookie()) {
             // Logged-in users go to different URL, which is under auth check, so we can show edit
             // buttons if they have correct permissions.
-            redirect(action: "edit", params: params)
+            redirect(action: "listAuth", params: params)
         }
 
         doListDisplay(params)
     }
 
-    def edit() {
-
-//        if () {
-//            authService.email()
-//        }
+    /**
+     *
+     */
+    def listAuth() {
         doListDisplay(params)
     }
 
@@ -104,47 +103,6 @@ class SpeciesListItemController {
         } else {
             //redirect to the public species list page
             redirect(controller: "public", action: "speciesLists")
-        }
-    }
-
-    /**
-     * Provides (ajax) content for the edit permissions modal popup
-     */
-    def editPermissions() {
-        def speciesList = SpeciesList.findByDataResourceUid(params.id)
-        if (!speciesList) {
-            flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'speciesList.label', default: 'Species List'), params.id])}"
-            redirect(controller: "public", action: "speciesLists")
-        } else {
-            if (params.message)
-                flash.message = params.message
-
-        }
-        render(view: "permissions", model: [speciesList: speciesList, mapOfUserNamesById: authService.getMapOFAllUserNamesById()])
-    }
-
-    /**
-     * webservices to update a list of editors for a given list
-     */
-    def updateEditors() {
-        log.debug "editors param = " + params.'editors[]'
-        def speciesList = SpeciesList.findByDataResourceUid(params.id)
-        if (!speciesList) {
-            render(text: "Requested list with ID " + params.id + " was not found", status: 404);
-        } else {
-            speciesList.editors = params.'editors[]'
-            log.debug("editors = " + speciesList.editors);
-            if (!speciesList.save(flush: true)) {
-                def errors = []
-                speciesList.errors.each {
-                    errors.add(it)
-                }
-                render(text: "Error orrurred while saving list: " + errors.join("; "), status: 500);
-            } else {
-                log.info("updated list of editors for id: " + params.id)
-                log.info("list: " + params.id)
-                render(text: "list.editors successfully updated")
-            }
         }
     }
 

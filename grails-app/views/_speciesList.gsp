@@ -42,7 +42,7 @@
             })
         }
     </script>
-    <table class="tableList table-bordered">
+    <table class="tableList table table-bordered table-striped">
         <colgroup>
             <col width="26%">
             <col width="24%">

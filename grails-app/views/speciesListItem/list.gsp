@@ -16,7 +16,17 @@
 <g:set var="bieUrl" value="${grailsApplication.config.bie.baseURL}"/>
 <g:set var="collectoryUrl" value="${grailsApplication.config.collectory.baseURL}" />
 <g:set var="maxDownload" value="${grailsApplication.config.downloadLimit}" />
-<g:set var="userCanEdit" value="${params.action == 'edit' && speciesList.username == request.getUserPrincipal()?.attributes?.email || request.isUserInRole("ROLE_ADMIN")}" />
+<g:set var="userCanEditPermissions" value="${
+    params.action == 'listAuth' &&
+    (speciesList.username == request.getUserPrincipal()?.attributes?.email || request.isUserInRole("ROLE_ADMIN"))
+}" />
+<g:set var="userCanEditData" value="${
+    params.action == 'listAuth' &&
+    (   speciesList.username == request.getUserPrincipal()?.attributes?.email ||
+        request.isUserInRole("ROLE_ADMIN") ||
+        request.getUserPrincipal()?.attributes?.email in speciesList.editors
+    )
+}" />
 <html>
 <head>
     %{--<gui:resources components="['dialog']"/>--}%
@@ -83,10 +93,65 @@
         // Tooltip for link title
         $('#content a').tooltip({placement: "bottom", html: true, delay: 200});
 
+        // submit edit record changes via POST
+        $("button.saveRecord").click(function() {
+            var id = $(this).data("id");
+            var modal = $(this).data("modal");
+            var thisFormData = $("form#editForm_" + id).serializeArray();
 
+            $.post("${createLink(controller: "editor", action: 'editRecord')}", thisFormData, function(data, textStatus, jqXHR) {
+                //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
+                $(modal).modal('hide');
+                alert(jqXHR.responseText);
+                window.location.reload(true);
+            }).error(function(jqXHR, textStatus, error) {
+                alert("An error occurred: " + error + " - " + jqXHR.responseText);
+                $(modal).modal('hide');
+            });
+        });
 
-        console.log("owner = ${speciesList.username}");
-        console.log("logged in user = ${request.getUserPrincipal()?.attributes?.email}");
+        // create record via POST
+        $("button#saveNewRecord").click(function() {
+            var id = $(this).data("id");
+            var modal = $(this).data("modal");
+            var thisFormData = $("form#editForm_").serializeArray();
+
+            if (!$("form#editForm_").find("#rawScientificName").val()) {
+                alert("Required field: accepted name cannot be blank");
+                return false;
+            }
+            //thisFormData.push({id: id});
+            //console.log("thisFormData", id, thisFormData)
+            $.post("${createLink(controller: "editor", action: 'createRecord')}", thisFormData, function(data, textStatus, jqXHR) {
+                //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
+                $(modal).modal('hide');
+                alert(jqXHR.responseText);
+                window.location.reload(true);
+            }).error(function(jqXHR, textStatus, error) {
+                alert("An error occurred: " + error + " - " + jqXHR.responseText);
+                $(modal).modal('hide');
+            });
+        });
+
+        // submit delete record via GET
+        $("button.deleteSpecies").click(function() {
+            var id = $(this).data("id");
+            var modal = $(this).data("modal");
+
+            $.get("${createLink(controller: "editor", action: 'deleteRecord')}", {id: id}, function(data, textStatus, jqXHR) {
+                $(modal).modal('hide');
+                //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
+                alert(jqXHR.responseText + " - reloading page...");
+                window.location.reload(true);
+                //$('#modal').modal('hide');
+            }).error(function(jqXHR, textStatus, error) {
+                alert("An error occurred: " + error + " - " + jqXHR.responseText);
+                $(modal).modal('hide');
+            });
+        });
+
+        //console.log("owner = ${speciesList.username}");
+        //console.log("logged in user = ${request.getUserPrincipal()?.attributes?.email}");
     });
 
 
@@ -153,17 +218,21 @@
             <div class="span7">
                 <h2>
                     Species List: <a href="${collectoryUrl}/public/show/${params.id}" title="view Date Resource page">${speciesList?.listName}</a>
-                    <g:if test="${userCanEdit}">
-                        <a href="#" class="btn btn-primary btn-small" data-remote="${createLink(action: 'editPermissions', id: params.id)}"
-                            data-target="#modal" data-toggle="modal" style="margin:0 0 5px 15px;"><i class="icon-user icon-white"></i> Edit permissions</a>
+                    <g:if test="${userCanEditPermissions}">
+                        <a href="#" class="btn btn-primary btn-small" data-remote="${createLink(controller: 'editor', action: 'editPermissions', id: params.id)}"
+                            data-target="#modal" data-toggle="modal" style="margin:0 0 5px 12px;"><i class="icon-user icon-white"></i> Edit permissions</a>
+                    </g:if>
+                    <g:if test="${userCanEditData}">
+                        <a href="#" class="btn btn-primary btn-small" data-remote="${createLink(controller: 'editor', action: 'addRecordScreen', id: params.id)}"
+                           data-target="#addRecord" data-toggle="modal" style="margin:0 0 5px 5px;"><i class="icon-plus-sign icon-white"></i> Add species</a>
                     </g:if>
                 </h2>
             </div>
-            <g:if test="${userCanEdit}">
+            <g:if test="${userCanEditPermissions}">
                 <div class="modal hide fade" id="modal">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h3 id="myModalLabel">List permissions</h3>
+                        <h3 id="myModalLabel">Species list permissions</h3>
                     </div>
                     <div class="modal-body">
                         <p><img src="${resource(dir:'images',file:'spinner.gif')}" alt="spinner icon"/></p>
@@ -171,6 +240,21 @@
                     <div class="modal-footer">
                         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
                         <button class="btn btn-primary" id="saveEditors">Save changes</button>
+                    </div>
+                </div>
+            </g:if>
+            <g:if test="${userCanEditData}">
+                <div class="modal hide fade" id="addRecord">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h3>Add record values</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p><img src="${resource(dir:'images',file:'spinner.gif')}" alt="spinner icon"/></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                        <button class="btn btn-primary" id="saveNewRecord" data-id="${speciesList.id}" data-modal="#addRecord">Save changes</button>
                     </div>
                 </div>
             </g:if>
@@ -199,7 +283,10 @@
                 %{--</div>--}%
                 <section class="meta">
                     <div class="matchStats">
-
+                        <p>
+                            <span class="count">${speciesList.firstName} ${speciesList.surname}</span>
+                            Owner
+                        </p>
                         <p>
                             <span class="count">${totalCount}</span>
                             Number of Taxa
@@ -335,9 +422,12 @@
             <div class="">
                 <section class="double">
                     <div class="fwtable table-bordered" style="overflow:auto;width:100%;">
-                        <table class="tableList">
+                        <table class="tableList table table-bordered table-striped">
                             <thead>
                             <tr>
+                                <g:if test="${userCanEditData}">
+                                    <th>Action</th>
+                                </g:if>
                                 <th>Supplied Name</th>
                                 <th>Scientific Name (matched)</th>
                                 <th>Image</th>
@@ -350,10 +440,46 @@
                             </thead>
                             <tbody>
                             <g:each var="result" in="${results}" status="i">
+                                <g:set var="recId" value="${result.id}"/>
                                 <g:set var="bieSpecies" value="${bieItems?.get(result.guid)}"/>
                                 <g:set var="bieTitle">species page for <i>${result.rawScientificName}</i></g:set>
                                 <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
+                                    <g:if test="${userCanEditData}">
+                                        <td>
+                                            <div class="btn-group btn-group">
+                                                <a class="btn btn-small" href="#" title="edit" data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
+                                                   data-target="#editRecord_${recId}" data-toggle="modal" ><i class="icon-pencil"></i></a>
+                                                <a class="btn btn-small" href="#" title="delete" data-target="#deleteRecord_${recId}" data-toggle="modal"><i class="icon-trash"></i></a>
+                                            </div>
+                                            <div class="modal hide fade" id="editRecord_${recId}">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                                    <h3>Edit record values</h3>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p><img src="${resource(dir:'images',file:'spinner.gif')}" alt="spinner icon"/></p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                                                    <button class="btn btn-primary saveRecord" data-modal="#editRecord_${recId}" data-id="${recId}">Save changes</button>
+                                                </div>
+                                            </div>
+                                            <div class="modal hide fade" id="deleteRecord_${recId}">
+                                                <div class="modal-header">
+                                                    <h3>Are you sure you want to delete this species record?</h3>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>This will permanently delete the data for species <i>${result.rawScientificName}</i></p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                                                    <button class="btn btn-primary deleteSpecies" data-modal="#deleteRecord_${recId}" data-id="${recId}">Delete</button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </g:if>
                                     <td>
+                                        %{--[${fieldValue(bean: result, field: "itemOrder")}] --}%
                                         ${fieldValue(bean: result, field: "rawScientificName")}
                                         <g:if test="${result.guid == null}">
                                             (unmatched)

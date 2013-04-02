@@ -14,11 +14,10 @@ class SpeciesList {
     Date lastUpdated
     ListType listType
     Boolean isPrivate
-    String[] editors
 
     static transients = [ "fullName" ]
 
-    static hasMany = [items: SpeciesListItem]
+    static hasMany = [items: SpeciesListItem, editors: String]
 
     static constraints = {
 
@@ -32,7 +31,7 @@ class SpeciesList {
     }
 
     static mapping = {
-
+        items cascade: "all-delete-orphan"
         listType index: 'idx_listtype'
         username index: 'idx_username'
     }

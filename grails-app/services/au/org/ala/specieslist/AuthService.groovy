@@ -70,7 +70,7 @@ class AuthService {
     public String getDisplayNameFor(String value){
         String displayName = value;
         if(value != null){
-            if(grailsApplication.mainContext.authService.getMapOFAllUserNamesById().containsKey(value)) {
+            if(grailsApplication.mainContext.authService.getMapOFAllUserNamesById()?.containsKey(value)) {
                 displayName = userNamesById.get(value);
             } else if(grailsApplication.mainContext.authService.getMapOfAllUserNamesByNumericId().containsKey(value)) {
                 displayName=userNamesByNumericIds.get(value);

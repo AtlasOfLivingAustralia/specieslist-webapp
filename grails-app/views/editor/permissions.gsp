@@ -70,7 +70,7 @@ in turn, allows those <strong>editors</strong> to edit and delete entries in thi
             source: ListOfUserNames,
             minLength: 2,
             updater: function(item) {
-                console.log("email", item.split(" -- ")[1]);
+                //console.log("email", item.split(" -- ")[1]);
                 return item.split(" -- ")[1];
             }
         });
@@ -79,7 +79,7 @@ in turn, allows those <strong>editors</strong> to edit and delete entries in thi
          * Add button for user id input - adds ID to the table
          */
         $("#userEditForm").submit(function() {
-            var userId = $("#search").val();
+            var userId = $("#search").val().trim();
             if (mapOfUserNamesById[userId]) {
                 //insert row into table
                 $("#userTable tbody").append("<tr class='editor'><td>"+mapOfUserNamesById[userId]+"</td><td class='userId'>"+userId+"</td><td>editor</td><td>${removeLink}</td></tr>");
@@ -106,11 +106,11 @@ in turn, allows those <strong>editors</strong> to edit and delete entries in thi
                 editors: editors
             };
             $.post("${createLink(action: 'updateEditors')}", params, function(data, textStatus, jqXHR) {
-                console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
+                //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
                 alert("Editors were successfully saved");
                 $('#modal').modal('hide');
             }).error(function(jqXHR, textStatus, error) {
-                alert("An error occurred: " + error);
+                alert("An error occurred: " + error + " - " + jqXHR.responseText);
             });
         });
     });

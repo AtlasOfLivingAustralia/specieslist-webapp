@@ -23,7 +23,7 @@ if (!security.cas.authenticateOnlyIfLoggedInPattern) {
 }
 /******* ALA standard config ************/
 headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
-security.cas.uriFilterPattern = '/speciesList, /speciesList/.*, /admin, /admin/.*, /speciesListItem/edit/.*'
+security.cas.uriFilterPattern = '/speciesList, /speciesList/.*, /admin, /admin/.*, /speciesListItem/listAuth/.*, /editor, /editor/.*'
 security.cas.casServerName = 'https://auth.ala.org.au'
 security.cas.uriExclusionFilterPattern = '/images.*,/css.*,/js.*,/speciesList/occurrences/.*,/speciesList/fieldGuide/.*'
 security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
