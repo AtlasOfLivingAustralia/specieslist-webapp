@@ -153,7 +153,7 @@ class SpeciesListController {
         params.fetch = [items: 'lazy']
         try{
             def lists = SpeciesList.findAllByUsername(authService.email(),params)
-            def count = SpeciesList.count
+            def count = SpeciesList.countByUsername(authService.email(),params)
             render(view: "list", model: [lists:lists, total:count])
         }
         catch(Exception e){
