@@ -99,6 +99,11 @@
             var modal = $(this).data("modal");
             var thisFormData = $("form#editForm_" + id).serializeArray();
 
+            if (!$("form#editForm_" + id).find("#rawScientificName").val()) {
+                alert("Required field: supplied name cannot be blank");
+                return false;
+            }
+
             $.post("${createLink(controller: "editor", action: 'editRecord')}", thisFormData, function(data, textStatus, jqXHR) {
                 //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
                 $(modal).modal('hide');
@@ -117,7 +122,7 @@
             var thisFormData = $("form#editForm_").serializeArray();
 
             if (!$("form#editForm_").find("#rawScientificName").val()) {
-                alert("Required field: accepted name cannot be blank");
+                alert("Required field: supplied name cannot be blank");
                 return false;
             }
             //thisFormData.push({id: id});

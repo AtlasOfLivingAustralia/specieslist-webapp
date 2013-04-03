@@ -1,5 +1,18 @@
  <!-- Template for diplaying a list of species list with or without a delete button -->
     <script type="text/javascript">
+
+        $(document).ready(function(){
+            // make table header cells clickable
+            $("table .sortable").each(function(i){
+                var href = $(this).find("a").attr("href");
+                $(this).css("cursor", "pointer");
+                $(this).click(function(){
+                    window.location.href = href;
+                });
+            });
+
+        });
+
         function deleteAction(){
             //console.log(this)
             var listId = this.id.replace("dialog_","");
