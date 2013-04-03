@@ -1,5 +1,4 @@
  <!-- Template for diplaying a list of species list with or without a delete button -->
-<div id="speciesList" class="speciesList">
     <script type="text/javascript">
         function deleteAction(){
             //console.log(this)
@@ -28,21 +27,46 @@
                     });
                     jQuery("#fancyConfirm_ok").click(function() {
                         ret = true;
-                        jQuery.fancybox.close();
+                        //jQuery.fancybox.close();
                         var url = "${request.contextPath}"+"/speciesList/"+action+ "/"+listId;
                         //console.log("Dialog ACTION ITEMS",listId, url)
-                        $.post(url,
-                                function(data){
-                                    //alert('Value returned from service: '  + data.uid);
-                                        window.location.reload()
-                                } );
+                        $.post(url, function(data){
+                            //alert('Value returned from service: '  + data.uid);
+                            alert(action + ' was successful');
+                            window.location.reload()
+                        }).error(function(jqXHR, textStatus, error) {
+                            alert("An error occurred: " + error + " - " + jqXHR.responseText);
+                        }).complete(function() {
+                            jQuery.fancybox.close();
+                        });
                     })
                 }
 
             })
         }
+
+        function reloadWithMax(el) {
+            var max = $(el).find(":selected").val();
+            var params = {
+                max: max,
+                sort: "${params.sort}",
+                order: "${params.order}",
+                offset: "${params.offset?:0}"
+            }
+            var paramStr = jQuery.param(params);
+            window.location.href = window.location.pathname + '?' + paramStr;
+        }
     </script>
-    <table class="tableList table table-bordered table-striped">
+<div style="float: right;">
+    Items per page:
+    <select id="maxItems" class="input-mini" onchange="reloadWithMax(this)">
+        <g:each in="${[10,25,50,100]}" var="max">
+            <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
+        </g:each>
+    </select>
+</div>
+ <div id="speciesList" class="speciesList">
+    <table class="tableList table table-bordered table-striped" style="width:100%;">
         <colgroup>
             <col width="26%">
             <col width="24%">
@@ -53,11 +77,16 @@
         </colgroup>
     <thead>
     <tr>
-        <th>List Name</th>
-        <th>List Type</th>
-        <th>Owner</th>
-        <th>Date Submitted</th>
-        <th>Item Count</th>
+        <g:sortableColumn property="listName" title="${message(code: 'speciesList.listName.label', default: 'List Name')}" />
+        <g:sortableColumn property="listType" title="${message(code: 'speciesList.listType.label', default: 'List Type')}" />
+        <g:sortableColumn property="username" title="${message(code: 'speciesList.username.label', default: 'Owner')}" />
+        <g:sortableColumn property="dateCreated" title="${message(code: 'speciesList.name.dateCreated', default: 'Date Submitted')}" />
+        <g:sortableColumn property="itemsCount" title="${message(code: 'speciesList.name.count', default: 'Item Count')}" />
+        %{--<th><a href="${createLink(controller: params.controller, action: params.action, params:[sort:'listName', order: (params.order == "asc") ? "desc" : "asc"])}">List Name</a></th>
+        <th><a href="${createLink(controller: params.controller, action: params.action, params:[sort:'listType', order: (params.order == "asc") ? "desc" : "asc"])}">List Type</a></th>
+        <th><a href="${createLink(controller: params.controller, action: params.action, params:[sort:'username', order: (params.order == "asc") ? "desc" : "asc"])}">Owner</a></th>
+        <th><a href="${createLink(controller: params.controller, action: params.action, params:[sort:'dateCreated', order: (params.order == "asc") ? "desc" : "asc"])}">Date Submitted</a></th>
+        <th><a href="${createLink(controller: params.controller, action: params.action, params:[sort:'count', order: (params.order == "asc") ? "desc" : "asc"])}">Item Count</a></th>--}%
         <g:if test="${request.getUserPrincipal()}">
             <th colspan="2">Actions</th>
         </g:if>
@@ -121,7 +150,7 @@
     </tbody>
 </table>
 <g:if test="${params.max<total}">
-    <div class="pagination" id="searchNavBar">
+    <div class="pagination" id="searchNavBar" data-total="${total}" data-max="${params.max}">
         <g:paginate total="${total}" />
     </div>
 </g:if>

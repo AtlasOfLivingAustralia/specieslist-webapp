@@ -97,22 +97,39 @@ class EditorController {
         log.debug "sli KVPs = " + sli.kvpValues
         if (sli) {
             // check for changed values
-            def newKVPList = [] as Set // will replace existing SpeciesListItem.kvpValues set
-            // TODO: might have to use removeFrom* and addTo* to update many-to-many relationships ???
-            sli.kvpValues.each { kvp ->
-                def key = kvp.key
-                if (params[key] != kvp.value) {
-                    log.debug "KVP has been changed: " + params[key] + " VS " + kvp.value
+            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?", sli.dataResourceUid)
+            def kvpRemoveList = [] as Set
+
+            keys.each { key ->
+                def kvp = sli.kvpValues.find { it.key == key } // existing KVP if any
+
+                if (params[key] != kvp?.value) {
+                    log.debug "KVP has been changed: " + params[key] + " VS " + kvp?.value
                     def newKvp = SpeciesListKVP.findByDataResourceUidAndKeyAndValue(sli.dataResourceUid, key, params[key])
-                    if (!newKvp) {
-                        log.debug "Couldn't find an existing KVP, so creating a new one..."
-                        newKvp = new SpeciesListKVP(dataResourceUid: sli.dataResourceUid, key: key, value: params[key], SpeciesListItem: sli );
+
+                    if (kvp) {
+                        // old value was not empty - remove from this SLI
+                        kvpRemoveList.add(kvp)
                     }
-                    newKVPList.add(newKvp)
+
+                    if (params[key]) {
+                        // new value is empty
+                        if (!newKvp) {
+                            // There is no existing KVP for the new value
+                            log.debug "Couldn't find an existing KVP, so creating a new one..."
+                            newKvp = new SpeciesListKVP(dataResourceUid: sli.dataResourceUid, key: key, value: params[key], SpeciesListItem: sli )
+                        }
+
+                        sli.addToKvpValues(newKvp)
+                    }
                 } else {
                     log.debug "KVP is unchanged: " + kvp.value
-                    newKVPList.add(kvp)
                 }
+            }
+
+            // remove KVP items that have changed (need to do this separately to avoid java.util.ConcurrentModificationException)
+            kvpRemoveList.each {
+                sli.removeFromKvpValues(it)
             }
 
             //check if rawScientificName has changed
@@ -122,8 +139,6 @@ class EditorController {
                 // lookup guid
                 sli.guid = helperService.findAcceptedLsidByScientificName(sli.rawScientificName)?: helperService.findAcceptedLsidByCommonName(sli.rawScientificName)
             }
-
-            sli.kvpValues = newKVPList
 
             if (!sli.validate()) {
                 def message = "Could not update SpeciesListItem: ${sli.rawScientificName} - " + sli.errors.allErrors
@@ -198,6 +213,16 @@ class EditorController {
         def sli = SpeciesListItem.get(params.id)
 
         if (sli) {
+            // remove attached KVP records
+            // two step process to avoid java.util.ConcurrentModificationException
+            def kvpRemoveList = [] as Set
+            sli.kvpValues.each {
+                kvpRemoveList.add(it)
+            }
+            kvpRemoveList.each {
+                sli.removeFromKvpValues(it)
+            }
+
             try {
                 sli.delete(flush: true)
                 render(text: "Record successfully deleted", status: 200)

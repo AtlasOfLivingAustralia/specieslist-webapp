@@ -14,6 +14,7 @@ class SpeciesList {
     Date lastUpdated
     ListType listType
     Boolean isPrivate
+    Long itemsCount //= items.size()
 
     static transients = [ "fullName" ]
 
@@ -34,10 +35,15 @@ class SpeciesList {
         items cascade: "all-delete-orphan"
         listType index: 'idx_listtype'
         username index: 'idx_username'
+        itemsCount formula: "(select count(*) from species_list_item sli where sli.list_id = id)"
     }
 
     def String getFullName(){
         authService.getDisplayNameFor(username)
     }
+
+//    def getListCount() {
+//        items.size()
+//    }
 
 }

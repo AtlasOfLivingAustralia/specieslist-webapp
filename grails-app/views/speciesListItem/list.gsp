@@ -197,6 +197,18 @@
 
         return isValid;
     }
+
+    function reloadWithMax(el) {
+        var max = $(el).find(":selected").val();
+        var params = {
+            max: max,
+            sort: "${params.sort}",
+            order: "${params.order}",
+            offset: "${params.offset?:0}"
+        }
+        var paramStr = jQuery.param(params);
+        window.location.href = window.location.pathname + '?' + paramStr;
+    }
 </script>
     <r:layoutResources/>
 </head>
@@ -271,10 +283,20 @@
         </div><!--inner-->
     </header>
 
+    <div style="width: 100%; text-align: right;">
+        Items per page:
+        <select id="maxItems" class="input-mini" onchange="reloadWithMax(this)">
+            <g:each in="${[10,25,50,100]}" var="max">
+                <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
+            </g:each>
+        </select>
+    </div>
+
 <div class="inner row-fluid">
     <g:if test="${flash.message}">
         <div class="message alert alert-info"><b>Alert:</b> ${flash.message}</div>
     </g:if>
+
     <div class="span3 well" id="facets-column">
         <div class="boxedZ attachedZ">
                 %{--<div id="customiseList" >--}%

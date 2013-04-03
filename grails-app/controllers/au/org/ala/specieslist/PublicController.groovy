@@ -29,6 +29,7 @@ class PublicController {
         params.max = Math.min(params.max ? params.int('max') : 25, 100)
         params.sort = params.sort ?: "listName"
         params.fetch = [items: 'lazy']
+        log.debug "params = " + params
         //println("Returning the species list for render")
         try{
             def lists=SpeciesList.list(params)

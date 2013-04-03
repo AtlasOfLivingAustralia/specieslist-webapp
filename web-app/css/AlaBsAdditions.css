@@ -47,7 +47,7 @@ p span.count {
 }
 
 #page-header, #page-header2 {
-    margin-bottom: 10px;
+    /*margin-bottom: 10px;*/
 }
 
 .tableList thead th {
@@ -173,4 +173,21 @@ td.dataField {
 td.dataValue > input[type="text"] {
     margin-bottom: 0;
     min-height: 28px;
+}
+
+.tableList .sortable {
+     background: url('../images/sort_both.png') no-repeat center right;
+ }
+.tableList .sorted, .tableList .sorted.asc {
+    background: url('../images/sort_asc.png') no-repeat center right;
+}
+.tableList .sorted.desc {
+    background: url('../images/sort_desc.png') no-repeat center right;
+}
+
+#maxItems {
+    height: 22px;
+    font-size: 11px;
+    line-height: 18px;
+    margin-bottom: 4px;
 }
