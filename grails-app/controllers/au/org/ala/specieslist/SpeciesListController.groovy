@@ -306,7 +306,7 @@ class SpeciesListController {
                 NameSearchResult nsr = helperService.findAcceptedConceptByScientificName(rawName)?:helperService.findAcceptedConceptByCommonName(rawName)
 
                 //if(newLsid && !currentLsid.equals(newLsid)){
-                if(nsr.lsid){
+                if(nsr){
                     log.debug("rematching lsid for " + rawName + " current: " + currentLsid + " new : " + nsr.lsid)
                     log.debug("Checking NSR - lsid: " + nsr.lsid + " | id: " + nsr.id + " | value: " + nsr.toString()) + "||"
                     it.guid = nsr.lsid
