@@ -1,3 +1,4 @@
+<%@ page import="au.org.ala.specieslist.AuthService" %>
 %{--
   - Copyright (C) 2012 Atlas of Living Australia
   - All Rights Reserved.
@@ -183,9 +184,9 @@
     }); // end document ready
 
     function toggleEditMeta(showHide) {
-        $("#edit-meta-div").toggle(showHide);
+        $("#edit-meta-div").slideToggle(showHide);
         //$("#edit-meta-button").hide();
-        $("#show-meta-dl").toggle(!showHide);
+        $("#show-meta-dl").slideToggle(!showHide);
     }
 
 //    function loadMultiFacets(facetName, displayName) {
@@ -321,7 +322,7 @@
         </g:if>
         <dl class="dl-horizontal" id="show-meta-dl">
             <dt>Owner</dt>
-            <dd>${speciesList.firstName} ${speciesList.surname}</dd>
+            <dd>${speciesList.fullName?:'&nbsp;'}</dd>
             <dt>List type</dt>
             <dd>${speciesList.listType?.displayValue}</dd>
             <g:if test="${speciesList.description}">
@@ -345,7 +346,7 @@
                         <label class="control-label" for="owner">Owner</label>
                         <div class="controls">
                             <select name="owner" id="owner" class="input-xlarge">
-                                <g:each in="${users}" var="userId"><option ${(speciesList.username == userId) ? 'selected="selected"':''}>${userId}</option></g:each>
+                                <g:each in="${users}" var="userId"><option value="${userId}" ${(speciesList.username == userId) ? 'selected="selected"':''}><sl:getFullNameForUserId userId="${userId}" /></option></g:each>
                             </select>
                         </div>
                     </div>
