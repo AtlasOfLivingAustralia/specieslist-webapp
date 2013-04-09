@@ -176,7 +176,8 @@ td.dataValue > input[type="text"] {
 }
 
 .tableList .sortable {
-     background: url('../images/sort_both.png') no-repeat center right;
+    background: url('../images/sort_both.png') no-repeat center right;
+    padding-right: 18px;
  }
 .tableList .sorted, .tableList .sorted.asc {
     background: url('../images/sort_asc.png') no-repeat center right;
@@ -190,4 +191,67 @@ td.dataValue > input[type="text"] {
     font-size: 11px;
     line-height: 18px;
     margin-bottom: 4px;
+}
+
+#list-meta-data {
+    margin-bottom: 10px;
+    padding: 0;
+    background-color: #f9f9f9;/*#EBF9FF;  #EBF8FF; */
+    border: 1px solid #dddddd; /*#C2EBFF;*/
+    padding-right: 10px;
+}
+
+#list-meta-data dl {
+    clear: both;
+    margin: 10px 0;
+}
+
+#edit-meta-button {
+    margin:5px 5px;
+    float: left;
+    display: inline-block;
+    position: absolute;
+}
+
+.searchWidgets {
+    width: 20%;
+    float: right;
+    margin: 22px 0;
+    text-align: right;
+}
+
+#content div#searchNavBar.pagination.listPagination {
+    width: 80%;
+    float: left;
+}
+
+#edit-meta-div {
+    padding-top: 10px;
+}
+
+#edit-meta-form input, #edit-meta-form textarea, #edit-meta-form select {
+    height: 16px;
+    font-size: 12px;
+    line-height: 18px;
+    margin-bottom: 2px;
+}
+
+#edit-meta-form select {
+    height: 26px;
+}
+
+#edit-meta-form textarea {
+    height: auto;
+}
+
+#edit-meta-form input[type="checkbox"] {
+    margin-top: 8px;
+}
+
+#edit-meta-form label {
+    font-weight: bold;
+}
+
+#edit-meta-form .control-group {
+    margin-bottom: 6px;
 }

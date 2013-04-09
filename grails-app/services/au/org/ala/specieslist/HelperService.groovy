@@ -16,6 +16,7 @@
 package au.org.ala.specieslist
 
 import au.com.bytecode.opencsv.CSVReader
+import au.org.ala.checklist.lucene.model.NameSearchResult
 import au.org.ala.specieslist.SpeciesListItem
 import au.org.ala.checklist.lucene.CBIndexSearch
 import groovyx.net.http.HTTPBuilder
@@ -392,6 +393,30 @@ class HelperService {
              log.error(e.getMessage())
         }
         lsid
+    }
+
+    def findAcceptedConceptByScientificName(scientificName){
+        NameSearchResult nameSearchRecord
+        try{
+            def cl = new LinnaeanRankClassification()
+            cl.setScientificName(scientificName)
+            nameSearchRecord = getNameSearcher().searchForAcceptedRecordDefaultHandling(cl, true)
+        }
+        catch(Exception e){
+            log.error(e.getMessage())
+        }
+        nameSearchRecord
+    }
+
+    def findAcceptedConceptByCommonName(commonName){
+        NameSearchResult nameSearchRecord
+        try{
+            nameSearchRecord = getNameSearcher().searchForCommonName(commonName)
+        }
+        catch(Exception e){
+            log.error(e.getMessage())
+        }
+        nameSearchRecord
     }
 
 }

@@ -70,6 +70,8 @@ class SpeciesListItemController {
 
                     def noMatchCount = requestParams.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0] + " AND sli.guid is null", baseQueryAndParams[1]).head() : SpeciesListItem.countByDataResourceUidAndGuidIsNull(requestParams.id)
 
+                    def users = SpeciesList.executeQuery("select distinct sl.username from SpeciesList sl")
+
                     //println(speciesListItems)
                     //log.debug("KEYS: " + keys)
                     def guids = speciesListItems.collect { it.guid }
@@ -92,6 +94,7 @@ class SpeciesListItemController {
                             keys: keys,
                             bieItems: bieItems,
                             downloadReasons: downloadReasons,
+                            users: users,
                             facets: facets
                     ])
                 }

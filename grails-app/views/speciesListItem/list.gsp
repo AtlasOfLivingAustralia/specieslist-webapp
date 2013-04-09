@@ -157,8 +157,36 @@
 
         //console.log("owner = ${speciesList.username}");
         //console.log("logged in user = ${request.getUserPrincipal()?.attributes?.email}");
-    });
 
+        // Toggle display of list meta data editing
+        $("#edit-meta-button").click(function(el) {
+            el.preventDefault();
+            toggleEditMeta(!$("#edit-meta-div").is(':visible'));
+        });
+
+        // submit edit meta data
+        $("#edit-meta-submit").click(function(el) {
+            el.preventDefault();
+            var thisFormData = $(this).parents("form").serializeArray();
+            //console.log("thisFormData", thisFormData);
+
+            $.post("${createLink(controller: "editor", action: 'editSpeciesList')}", thisFormData, function(data, textStatus, jqXHR) {
+                //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
+                alert(jqXHR.responseText);
+                window.location.reload(true);
+            }).error(function(jqXHR, textStatus, error) {
+                alert("An error occurred: " + error + " - " + jqXHR.responseText);
+                //$(modal).modal('hide');
+            });
+        });
+
+    }); // end document ready
+
+    function toggleEditMeta(showHide) {
+        $("#edit-meta-div").toggle(showHide);
+        //$("#edit-meta-button").hide();
+        $("#show-meta-dl").toggle(!showHide);
+    }
 
 //    function loadMultiFacets(facetName, displayName) {
 //        console.log(facetName, displayName)
@@ -236,12 +264,12 @@
                 <h2>
                     Species List: <a href="${collectoryUrl}/public/show/${params.id}" title="view Date Resource page">${speciesList?.listName}</a>
                     <g:if test="${userCanEditPermissions}">
-                        <a href="#" class="btn btn-primary btn-small" data-remote="${createLink(controller: 'editor', action: 'editPermissions', id: params.id)}"
-                            data-target="#modal" data-toggle="modal" style="margin:0 0 5px 12px;"><i class="icon-user icon-white"></i> Edit permissions</a>
+                        <a href="#" class="btn btn-small" data-remote="${createLink(controller: 'editor', action: 'editPermissions', id: params.id)}"
+                            data-target="#modal" data-toggle="modal" style="margin:0 0 5px 12px;"><i class="icon-user "></i> Edit permissions</a>
                     </g:if>
                     <g:if test="${userCanEditData}">
-                        <a href="#" class="btn btn-primary btn-small" data-remote="${createLink(controller: 'editor', action: 'addRecordScreen', id: params.id)}"
-                           data-target="#addRecord" data-toggle="modal" style="margin:0 0 5px 5px;"><i class="icon-plus-sign icon-white"></i> Add species</a>
+                        <a href="#" class="btn btn-small" data-remote="${createLink(controller: 'editor', action: 'addRecordScreen', id: params.id)}"
+                           data-target="#addRecord" data-toggle="modal" style="margin:0 0 5px 5px;"><i class="icon-plus-sign "></i> Add species</a>
                     </g:if>
                 </h2>
             </div>
@@ -287,14 +315,82 @@
             </div>
         </div><!--inner-->
     </header>
-
-    <div style="width: 100%; text-align: right;">
-        Items per page:
-        <select id="maxItems" class="input-mini" onchange="reloadWithMax(this)">
-            <g:each in="${[10,25,50,100]}" var="max">
-                <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
-            </g:each>
-        </select>
+    <div class="well well-small" id="list-meta-data">
+        <g:if test="${userCanEditPermissions}">
+            <a href="#" class="btn btn-small" id="edit-meta-button"><i class="icon-pencil"></i> Edit</a>
+        </g:if>
+        <dl class="dl-horizontal" id="show-meta-dl">
+            <dt>Owner</dt>
+            <dd>${speciesList.firstName} ${speciesList.surname}</dd>
+            <dt>List type</dt>
+            <dd>${speciesList.listType?.displayValue}</dd>
+            <g:if test="${speciesList.description}">
+                <dt>Description</dt>
+                <dd>${speciesList.description}</dd>
+            </g:if>
+            <g:if test="${speciesList.url}">
+                <dt>URL</dt>
+                <dd><a href="${speciesList.url}" target="_blank">${speciesList.url}</a></dd>
+            </g:if>
+            <dt>Date created</dt>
+            <dd><g:formatDate format="yyyy-MM-dd" date="${speciesList.dateCreated?:0}"/></dd>
+            <dt>Is private</dt>
+            <dd><g:formatBoolean boolean="${speciesList.isPrivate?:false}" /></dd>
+        </dl>
+        <g:if test="${userCanEditPermissions}">
+            <div id="edit-meta-div" class="hide">
+                <form class="form-horizontal" id="edit-meta-form">
+                    <input type="hidden" name="id" value="${speciesList.id}" />
+                    <div class="control-group">
+                        <label class="control-label" for="owner">Owner</label>
+                        <div class="controls">
+                            <select name="owner" id="owner" class="input-xlarge">
+                                <g:each in="${users}" var="userId"><option ${(speciesList.username == userId) ? 'selected="selected"':''}>${userId}</option></g:each>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="listType">List type</label>
+                        <div class="controls">
+                            <select name="listType" id="listType" class="input-xlarge">
+                                <g:each in="${au.org.ala.specieslist.ListType.values()}" var="type"><option value="${type.name()}" ${(speciesList.listType == type) ? 'selected="selected"':''}>${type.displayValue}</option></g:each>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="description">Description</label>
+                        <div class="controls">
+                            <textarea rows="3" name="description" id="description" class="input-block-level">${speciesList.description}</textarea>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="url">URL</label>
+                        <div class="controls">
+                            <input type="url" name="url" id="url" class="input-xlarge" value="${speciesList.url}" />
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="dateCreated">Date created</label>
+                        <div class="controls">
+                            <input type="date" name="dateCreated" id="dateCreated" data-date-format="yyyy-mm-dd" class="input-xlarge" value="<g:formatDate format="yyyy-MM-dd" date="${speciesList.dateCreated?:0}"/>" />
+                            %{--<g:datePicker name="dateCreated" value="${speciesList.dateCreated}" precision="day" relativeYears="[-2..7]" class="input-small"/>--}%
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="isPrivate">Is private</label>
+                        <div class="controls">
+                            <input type="checkbox" id="isPrivate" name="isPrivate" class="input-xlarge" value="true" data-value="${speciesList.isPrivate}" ${(speciesList.isPrivate == true) ? 'checked="checked"':''} />
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="controls">
+                            <button type="submit" id="edit-meta-submit" class="btn btn-primary">Save</button>
+                            <button class="btn" onclick="toggleEditMeta(false);return false;">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </g:if>
     </div>
 
 <div class="inner row-fluid">
@@ -310,10 +406,10 @@
                 %{--</div>--}%
                 <section class="meta">
                     <div class="matchStats">
-                        <p>
-                            <span class="count">${speciesList.firstName} ${speciesList.surname}</span>
-                            Owner
-                        </p>
+                        %{--<p>--}%
+                            %{--<span class="count">${speciesList.firstName} ${speciesList.surname}</span>--}%
+                            %{--Owner--}%
+                        %{--</p>--}%
                         <p>
                             <span class="count">${totalCount}</span>
                             Number of Taxa
@@ -528,8 +624,18 @@
                             </tbody>
                         </table>
                     </div>
+
                     <g:if test="${params.max<totalCount}">
-                        <div class="pagination" id="searchNavBar">
+                        <div class="searchWidgets">
+                            Items per page:
+                            <select id="maxItems" class="input-mini" onchange="reloadWithMax(this)">
+                                <g:each in="${[10,25,50,100]}" var="max">
+                                    <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
+                                </g:each>
+                            </select>
+                        </div>
+
+                        <div class="pagination listPagination" id="searchNavBar">
                             <g:if test="${params.fq}">
                                 <g:paginate total="${totalCount}" action="list" id="${params.id}" params="${[fq: params.fq]}"/>
                             </g:if>

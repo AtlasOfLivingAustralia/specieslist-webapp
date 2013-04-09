@@ -1,5 +1,7 @@
 package au.org.ala.specieslist
 
+import java.text.SimpleDateFormat
+
 class EditorController {
     def authService
     def helperService
@@ -265,6 +267,31 @@ class EditorController {
                 log.info("updated list of editors for id: " + params.id)
                 log.info("list: " + params.id)
                 render(text: "list.editors successfully updated")
+            }
+        }
+    }
+
+    def editSpeciesList() {
+        def speciesList = SpeciesList.get(params.id)
+        if (!speciesList) {
+            render(text: "Requested list with ID " + params.id + " was not found", status: 404);
+        } else if (!authService.isAdmin() && speciesList.username != authService.email()) {
+            render(text: "You are not authorised to modify this list", status: 403 )
+        } else {
+            // fix date format
+            if (params.dateCreated) {
+                // assume format of yyyy-mm-dd
+                params.dateCreated = new SimpleDateFormat("yyyy-MM-dd").parse(params.dateCreated)
+            }
+            speciesList.properties = params
+            if (!speciesList.save(flush: true)) {
+                def errors = []
+                speciesList.errors.each {
+                    errors.add(it)
+                }
+                render(text: "Error occurred while saving species list: " + errors.join("; "), status: 500);
+            } else {
+                render(text: "species list successfully updated")
             }
         }
     }

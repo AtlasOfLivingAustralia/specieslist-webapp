@@ -14,7 +14,7 @@ class SpeciesList {
     Date lastUpdated
     ListType listType
     Boolean isPrivate
-    Long itemsCount //= items.size()
+    Long itemsCount = 0
 
     static transients = [ "fullName" ]
 
@@ -41,9 +41,5 @@ class SpeciesList {
     def String getFullName(){
         authService.getDisplayNameFor(username)
     }
-
-//    def getListCount() {
-//        items.size()
-//    }
 
 }

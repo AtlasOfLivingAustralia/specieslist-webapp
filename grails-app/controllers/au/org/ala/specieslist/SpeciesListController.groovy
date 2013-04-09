@@ -15,6 +15,7 @@
 package au.org.ala.specieslist
 
 import au.com.bytecode.opencsv.CSVReader
+import au.org.ala.checklist.lucene.model.NameSearchResult
 import grails.converters.*
 
 
@@ -295,24 +296,36 @@ class SpeciesListController {
             params.id = SpeciesList.get(params.id)?.dataResourceUid
         def items = params.id?SpeciesListItem.findAllByDataResourceUid(params.id):SpeciesListItem.list()
         //now for each item returned peform
-        log.debug(items.size)
-        items.each {
+        log.debug("total items = "+items.size)
+        items.eachWithIndex { it, i ->
             String rawName = it.rawScientificName
             String currentLsid = it.guid
+            log.debug i + ". Rematching: " + rawName
             if(rawName && rawName.length()>0){
-                String newLsid =helperService.findAcceptedLsidByScientificName(rawName)?:helperService.findAcceptedLsidByCommonName(rawName)
-                if(newLsid && !currentLsid.equals(newLsid)){
-                    log.debug("Different lsid for " + rawName + " current: " + currentLsid + " new : " + newLsid)
-                    it.guid = newLsid
-                    it.save()
+                //String newLsid =helperService.findAcceptedLsidByScientificName(rawName)?:helperService.findAcceptedLsidByCommonName(rawName)
+                NameSearchResult nsr = helperService.findAcceptedConceptByScientificName(rawName)?:helperService.findAcceptedConceptByCommonName(rawName)
+
+                //if(newLsid && !currentLsid.equals(newLsid)){
+                if(nsr.lsid){
+                    log.debug("rematching lsid for " + rawName + " current: " + currentLsid + " new : " + nsr.lsid)
+                    log.debug("Checking NSR - lsid: " + nsr.lsid + " | id: " + nsr.id + " | value: " + nsr.toString()) + "||"
+                    it.guid = nsr.lsid
+                    it.matchedName = nsr.getRankClassification()?.scientificName
+
+                    if (!it.save(flush: true)) {
+                        log.error "Error saving item (" + rawName +"): " + it.errors()
+                    }
                 }
             }
             else{
                 it.guid=null
                 it.guid=null
-                it.save()
+                if (!it.save(flush: true)) {
+                    log.error "Error saving item (" + rawName +"): " + it.errors()
+                }
             }
         }
+        render(text: "Rematch complete")
     }
 }
 
