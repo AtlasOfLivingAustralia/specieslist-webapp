@@ -321,21 +321,27 @@
             <a href="#" class="btn btn-small" id="edit-meta-button"><i class="icon-pencil"></i> Edit</a>
         </g:if>
         <dl class="dl-horizontal" id="show-meta-dl">
-            <dt>Owner</dt>
+            <dt>${message(code: 'speciesList.listName.label', default: 'List name')}</dt>
+            <dd>${speciesList.listName?:'&nbsp;'}</dd>
+            <dt>${message(code: 'speciesList.username.label', default: 'Owner')}</dt>
             <dd>${speciesList.fullName?:'&nbsp;'}</dd>
-            <dt>List type</dt>
+            <dt>${message(code: 'speciesList.listType.label', default: 'List type')}</dt>
             <dd>${speciesList.listType?.displayValue}</dd>
             <g:if test="${speciesList.description}">
-                <dt>Description</dt>
+                <dt>${message(code: 'speciesList.description.label', default: 'Description')}</dt>
                 <dd>${speciesList.description}</dd>
             </g:if>
             <g:if test="${speciesList.url}">
-                <dt>URL</dt>
+                <dt>${message(code: 'speciesList.url.label', default: 'URL')}</dt>
                 <dd><a href="${speciesList.url}" target="_blank">${speciesList.url}</a></dd>
             </g:if>
-            <dt>Date created</dt>
-            <dd><g:formatDate format="yyyy-MM-dd" date="${speciesList.dateCreated?:0}"/></dd>
-            <dt>Is private</dt>
+            <g:if test="${speciesList.wkt}">
+                <dt>${message(code: 'speciesList.wkt.label', default: 'WKT polygon')}</dt>
+                <dd>${speciesList.wkt}</dd>
+            </g:if>
+            <dt>${message(code: 'speciesList.dateCreated.label', default: 'Date submitted')}</dt>
+            <dd><g:formatDate format="yyyy-MM-dd" date="${speciesList.dateCreated?:0}"/><!-- ${speciesList.lastUpdated} --></dd>
+            <dt>${message(code: 'speciesList.isPrivate.label', default: 'Is private')}</dt>
             <dd><g:formatBoolean boolean="${speciesList.isPrivate?:false}" /></dd>
         </dl>
         <g:if test="${userCanEditPermissions}">
@@ -343,7 +349,13 @@
                 <form class="form-horizontal" id="edit-meta-form">
                     <input type="hidden" name="id" value="${speciesList.id}" />
                     <div class="control-group">
-                        <label class="control-label" for="owner">Owner</label>
+                        <label class="control-label" for="listName">${message(code: 'speciesList.listName.label', default: 'List name')}</label>
+                        <div class="controls">
+                            <input type="text" name="listName" id="listName" class="input-xlarge" value="${speciesList.listName}" />
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="owner">${message(code: 'speciesList.username.label', default: 'Owner')}</label>
                         <div class="controls">
                             <select name="owner" id="owner" class="input-xlarge">
                                 <g:each in="${users}" var="userId"><option value="${userId}" ${(speciesList.username == userId) ? 'selected="selected"':''}><sl:getFullNameForUserId userId="${userId}" /></option></g:each>
@@ -351,7 +363,7 @@
                         </div>
                     </div>
                     <div class="control-group">
-                        <label class="control-label" for="listType">List type</label>
+                        <label class="control-label" for="listType">${message(code: 'speciesList.listType.label', default: 'List type')}</label>
                         <div class="controls">
                             <select name="listType" id="listType" class="input-xlarge">
                                 <g:each in="${au.org.ala.specieslist.ListType.values()}" var="type"><option value="${type.name()}" ${(speciesList.listType == type) ? 'selected="selected"':''}>${type.displayValue}</option></g:each>
@@ -359,26 +371,32 @@
                         </div>
                     </div>
                     <div class="control-group">
-                        <label class="control-label" for="description">Description</label>
+                        <label class="control-label" for="description">${message(code: 'speciesList.description.label', default: 'Description')}</label>
                         <div class="controls">
                             <textarea rows="3" name="description" id="description" class="input-block-level">${speciesList.description}</textarea>
                         </div>
                     </div>
                     <div class="control-group">
-                        <label class="control-label" for="url">URL</label>
+                        <label class="control-label" for="url">${message(code: 'speciesList.url.label', default: 'URL')}</label>
                         <div class="controls">
                             <input type="url" name="url" id="url" class="input-xlarge" value="${speciesList.url}" />
                         </div>
                     </div>
                     <div class="control-group">
-                        <label class="control-label" for="dateCreated">Date created</label>
+                        <label class="control-label" for="description">${message(code: 'speciesList.wkt.label', default: 'WKT polygon')}</label>
+                        <div class="controls">
+                            <textarea rows="3" name="wkt" id="wkt" class="input-block-level">${speciesList.wkt}</textarea>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="dateCreated">${message(code: 'speciesList.dateCreated.label', default: 'Date submitted')}</label>
                         <div class="controls">
                             <input type="date" name="dateCreated" id="dateCreated" data-date-format="yyyy-mm-dd" class="input-xlarge" value="<g:formatDate format="yyyy-MM-dd" date="${speciesList.dateCreated?:0}"/>" />
                             %{--<g:datePicker name="dateCreated" value="${speciesList.dateCreated}" precision="day" relativeYears="[-2..7]" class="input-small"/>--}%
                         </div>
                     </div>
                     <div class="control-group">
-                        <label class="control-label" for="isPrivate">Is private</label>
+                        <label class="control-label" for="isPrivate">${message(code: 'speciesList.isPrivate.label', default: 'Is private')}</label>
                         <div class="controls">
                             <input type="checkbox" id="isPrivate" name="isPrivate" class="input-xlarge" value="true" data-value="${speciesList.isPrivate}" ${(speciesList.isPrivate == true) ? 'checked="checked"':''} />
                         </div>

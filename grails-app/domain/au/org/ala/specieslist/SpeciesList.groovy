@@ -10,6 +10,7 @@ class SpeciesList {
     String dataResourceUid
     String description
     String url
+    String wkt
     Date dateCreated
     Date lastUpdated
     ListType listType
@@ -21,9 +22,9 @@ class SpeciesList {
     static hasMany = [items: SpeciesListItem, editors: String]
 
     static constraints = {
-
         url(nullable:true)
         description(nullable: true)
+        wkt(nullable: true)
         listType nullable: true, index: 'idx_listtype'
         isPrivate nullable:true, index: 'idx_listprivate'
         firstName nullable: true
@@ -35,6 +36,7 @@ class SpeciesList {
         items cascade: "all-delete-orphan"
         listType index: 'idx_listtype'
         username index: 'idx_username'
+        wkt type: 'text'
         itemsCount formula: "(select count(*) from species_list_item sli where sli.list_id = id)"
     }
 

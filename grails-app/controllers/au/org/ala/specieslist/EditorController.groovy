@@ -284,6 +284,7 @@ class EditorController {
                 params.dateCreated = new SimpleDateFormat("yyyy-MM-dd").parse(params.dateCreated)
             }
             speciesList.properties = params
+            speciesList.lastUpdated = new Date()
             if (!speciesList.save(flush: true)) {
                 def errors = []
                 speciesList.errors.each {

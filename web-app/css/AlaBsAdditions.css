@@ -255,3 +255,7 @@ td.dataValue > input[type="text"] {
 #edit-meta-form .control-group {
     margin-bottom: 6px;
 }
+
+dl#show-meta-dl dt {
+    margin-top: -1px;
+}
