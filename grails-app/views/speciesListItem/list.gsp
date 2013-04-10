@@ -181,6 +181,12 @@
             });
         });
 
+        //
+        $("#toggleListInfo").click(function(el) {
+            el.preventDefault();
+            $("#list-meta-data").slideToggle(!$("#list-meta-data").is(':visible'))
+        });
+
     }); // end document ready
 
     function toggleEditMeta(showHide) {
@@ -264,9 +270,10 @@
             <div class="span7">
                 <h2>
                     Species List: <a href="${collectoryUrl}/public/show/${params.id}" title="view Date Resource page">${speciesList?.listName}</a>
+                    <a href="#" id="toggleListInfo" class="btn btn-small" style="margin:0 0 5px 12px;"><i class="icon-info-sign "></i> List info</a>
                     <g:if test="${userCanEditPermissions}">
                         <a href="#" class="btn btn-small" data-remote="${createLink(controller: 'editor', action: 'editPermissions', id: params.id)}"
-                            data-target="#modal" data-toggle="modal" style="margin:0 0 5px 12px;"><i class="icon-user "></i> Edit permissions</a>
+                            data-target="#modal" data-toggle="modal" style="margin:0 0 5px 5px;"><i class="icon-user "></i> Edit permissions</a>
                     </g:if>
                     <g:if test="${userCanEditData}">
                         <a href="#" class="btn btn-small" data-remote="${createLink(controller: 'editor', action: 'addRecordScreen', id: params.id)}"
@@ -316,7 +323,8 @@
             </div>
         </div><!--inner-->
     </header>
-    <div class="well well-small" id="list-meta-data">
+    <div class="alert alert-info hide" id="list-meta-data">
+        <button type="button" class="close" onclick="$(this).parent().slideUp()">&times;</button>
         <g:if test="${userCanEditPermissions}">
             <a href="#" class="btn btn-small" id="edit-meta-button"><i class="icon-pencil"></i> Edit</a>
         </g:if>
