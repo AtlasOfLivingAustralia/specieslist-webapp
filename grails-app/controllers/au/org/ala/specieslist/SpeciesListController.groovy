@@ -82,8 +82,8 @@ class SpeciesListController {
                 log.debug("Vocabs: " +vocabs)
                 CSVReader reader = helperService.getCSVReaderForText(formParams.rawData, helperService.getSeparator(formParams.rawData))
                 def header = formParams.headers
-                log.debug("Heder: " +header)
-                helperService.loadSpeciesList(reader,druid,formParams.speciesListName, ListType.valueOf(formParams.get("listType")), formParams.description, formParams.listUrl, header.split(","),vocabs)
+                log.debug("Header: " +header)
+                helperService.loadSpeciesList(reader,druid,formParams.speciesListName, ListType.valueOf(formParams.get("listType")), formParams.description, formParams.listUrl, formParams.listWkt, header.split(","),vocabs)
                 def url =createLink(controller:'speciesListItem', action:'list', id: druid) +"?max=15"
                 def map = [url:url]
 //                println("THE URKL: "+url)

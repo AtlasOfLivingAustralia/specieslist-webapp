@@ -99,7 +99,7 @@
             %{--</div>--}%
             <div id="uploadDiv">
                 <h2>3. Upload Species List</h2>
-                Please supply a title for your list.  You can optionally supply a description and external URL as a reference to the list.
+                Please supply a title for your list.  You can optionally supply a description, an external URL as a reference to the list and a geospatial bounds for the list (in WKT format).
                 <div id="processSampleUpload">
                     %{--<p style="padding-bottom:0px;">--}%
                     <table>
@@ -139,6 +139,15 @@
                             </td>
                             <td>
                                 <g:textField name="listURL" style="width:99%"/>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="listWkt"><g:message code="upload.listWkt.label" default="Spatial bounds for data (WKT)"/></label>
+                            </td>
+                            <td>
+                                <g:textArea cols="100" rows="5" name="listWkt"/>
                             </td>
 
                         </tr>

@@ -292,7 +292,7 @@ class EditorController {
                 }
                 render(text: "Error occurred while saving species list: " + errors.join("; "), status: 500);
             } else {
-                render(text: "species list successfully updated")
+                render(text: "species list successfully updated - reloading page.")
             }
         }
     }

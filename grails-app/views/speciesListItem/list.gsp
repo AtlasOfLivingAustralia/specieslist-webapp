@@ -336,7 +336,7 @@
                 <dd><a href="${speciesList.url}" target="_blank">${speciesList.url}</a></dd>
             </g:if>
             <g:if test="${speciesList.wkt}">
-                <dt>${message(code: 'speciesList.wkt.label', default: 'WKT polygon')}</dt>
+                <dt>${message(code: 'speciesList.wkt.label', default: 'WKT vector')}</dt>
                 <dd>${speciesList.wkt}</dd>
             </g:if>
             <dt>${message(code: 'speciesList.dateCreated.label', default: 'Date submitted')}</dt>
@@ -383,7 +383,7 @@
                         </div>
                     </div>
                     <div class="control-group">
-                        <label class="control-label" for="description">${message(code: 'speciesList.wkt.label', default: 'WKT polygon')}</label>
+                        <label class="control-label" for="description">${message(code: 'speciesList.wkt.label', default: 'WKT vector')}</label>
                         <div class="controls">
                             <textarea rows="3" name="wkt" id="wkt" class="input-block-level">${speciesList.wkt}</textarea>
                         </div>
@@ -624,7 +624,8 @@
                                         %{--[${fieldValue(bean: result, field: "itemOrder")}] --}%
                                         ${fieldValue(bean: result, field: "rawScientificName")}
                                         <g:if test="${result.guid == null}">
-                                            (unmatched)
+                                            <br/>(unmatched - try <a href="http://google.com/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="google" clas="btn btn-primary btn-mini">Google</a>,
+                                            <a href="http://biocache.ala.org.au/occurrences/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="biocache" clas="btn btn-success btn-mini">Biocache</a>)
                                         </g:if>
                                     </td>
                                     <td><a href="${bieUrl}/species/${result.guid}" title="${bieTitle}">${bieSpecies?.get(2)}</a></td>

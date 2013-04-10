@@ -259,3 +259,8 @@ td.dataValue > input[type="text"] {
 dl#show-meta-dl dt {
     margin-top: -1px;
 }
+
+img#spinner {
+    display: none;
+    float: left;
+}

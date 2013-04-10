@@ -30,7 +30,7 @@
         function fancyConfirm(msg,listId,action,callback){
             //alert("${request.contextPath}"+"/speciesList/"+action+ "/"+listId)
             jQuery.fancybox({
-                'content':"<div style=\"margin:1px;width:240px;text-align:left;\">"+msg+"<div style=\"text-align:right;margin-top:10px;\"><input id=\"fancyConfirm_cancel\" type=\"button\" value=\"No\" class=\"actionButton btn btn-small\">&nbsp;<input id=\"fancyConfirm_ok\" type=\"button\" value=\"Yes\" class=\"actionButton btn btn-small\"></div></div>",
+                'content':"<div style=\"margin:1px;width:240px;text-align:left;\">"+msg+"<div style=\"text-align:right;margin-top:10px;\"><input id=\"fancyConfirm_cancel\" type=\"button\" value=\"No\" class=\"actionButton btn btn-small\">&nbsp;<input id=\"fancyConfirm_ok\" type=\"button\" value=\"Yes\" class=\"actionButton btn btn-small\"><img src='${resource(dir:'images',file:'spinner.gif')}' id='spinner'/></div></div>",
                 'padding': 10,
                 'margin': 20,
                 onComplete : function() {
@@ -40,6 +40,8 @@
                     });
                     jQuery("#fancyConfirm_ok").click(function() {
                         ret = true;
+                        $("img#spinner").show(); // show spinning gif
+                        $("#fancyConfirm_ok").attr("disabled","disabled"); // disable "Yes" button while processing
                         //jQuery.fancybox.close();
                         var url = "${request.contextPath}"+"/speciesList/"+action+ "/"+listId;
                         //console.log("Dialog ACTION ITEMS",listId, url)
@@ -50,6 +52,8 @@
                         }).error(function(jqXHR, textStatus, error) {
                             alert("An error occurred: " + error + " - " + jqXHR.responseText);
                         }).complete(function() {
+                            $("img#spinner").hide();
+                            $("#fancyConfirm_ok").removeAttr("disabled");
                             jQuery.fancybox.close();
                         });
                     })

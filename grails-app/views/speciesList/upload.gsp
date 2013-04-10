@@ -122,10 +122,11 @@
             map['speciesListName'] = $('#listTitle').val();
             map['description'] = $('#listDesc').val();
             map['listUrl'] = $('#listURL').val();
+            map['listWkt'] = $('#listWkt').val();
             map['rawData']  =$('#copyPasteData').val();
             map['listType'] =$('#listTypeId').val();
             //console.log($.param(map))
-            //console.log("The map: ",map)
+            console.log("The map: ",map)
             $('#recognisedDataDiv').hide();
             $('#uploadDiv').hide();
             $('#statusMsgDiv').show();
