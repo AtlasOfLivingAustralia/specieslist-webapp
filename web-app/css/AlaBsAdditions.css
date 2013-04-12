@@ -272,3 +272,13 @@ img#spinner {
     top: 6px;
     right: 4px;
 }
+
+img.smallSpeciesImage {
+    max-height: 50px;
+    max-width: 100px;
+}
+
+#viewRecord img.smallSpeciesImage {
+    max-height: none;
+    max-width: none;
+}

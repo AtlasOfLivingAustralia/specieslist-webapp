@@ -675,7 +675,7 @@
                                         </g:if>
                                     </td>
                                     <td><a href="${bieUrl}/species/${result.guid}" title="${bieTitle}">${bieSpecies?.get(2)}</a></td>
-                                    <td id="img_${result.guid}"><a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img src="${bieSpecies?.get(0)}" style="max-height:50px;max-width:100px;"/></a></td>
+                                    <td id="img_${result.guid}"><a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img src="${bieSpecies?.get(0)}" class="smallSpeciesImage"/></a></td>
                                     <td>${bieSpecies?.get(3)}</td>
                                     <td id="cn_${result.guid}">${bieSpecies?.get(1)}</td>
                                     <g:each in="${keys}" var="key">
