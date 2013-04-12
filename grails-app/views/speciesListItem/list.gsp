@@ -319,7 +319,6 @@
                         </g:if>
                     </div>
                 </h2>
-
             </div>
             <g:if test="${userCanEditPermissions}">
                 <div class="modal hide fade" id="modal">
@@ -684,7 +683,7 @@
                                     <g:each in="${keys}" var="key">
                                         <g:set var="kvp" value="${result.kvpValues.find {it.key == key}}" />
                                         <g:set var="val" value="${kvp?.vocabValue?:kvp?.value}" />
-                                        <td class="kvp ${val?.length() > 40 ? 'scrollWidth':''}"><div>${val}</div></td>
+                                        <td class="kvp ${val?.length() > 35 ? 'scrollWidth':''}"><div>${val}</div></td>
                                     </g:each>
                                 %{--<p>--}%
                                 %{--${result.guid} ${result.rawScientificName}--}%

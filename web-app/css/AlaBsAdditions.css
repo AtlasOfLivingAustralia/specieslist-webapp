@@ -298,7 +298,7 @@ img.smallSpeciesImage {
     white-space: -moz-pre-wrap; /* Firefox */
     white-space: -pre-wrap;     /* Opera <7 */
     white-space: -o-pre-wrap;   /* Opera 7 */
-    word-wrap: break-word;      /* IE */
+    /*word-wrap: break-word;      *//* IE */
     max-height: 80px;
     padding: 8px;
 }
