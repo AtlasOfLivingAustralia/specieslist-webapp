@@ -205,14 +205,13 @@
 
     function viewRecordForId(recordId) {
         // read header values from the table
-        var row = $("tr#row_" + recordId);
-        var headerRow = $(row).closest("table").find("thead th").not(".action");
+        var headerRow = $("table#speciesListTable > thead th").not(".action");
         var headers = [];
         $(headerRow).each(function(i, el) {
             headers.push($(this).text());
         });
         // read species row values from the table
-        var valueTds = $(row).find("td").not(".action");
+        var valueTds = $("tr#row_" + recordId + " > td").not(".action");
         var values = [];
         $(valueTds).each(function(i, el) {
             var val = $(this).html();
@@ -609,7 +608,7 @@
             <div class="">
                 <section class="double">
                     <div class="fwtable table-bordered" style="overflow:auto;width:100%;">
-                        <table class="tableList table table-bordered table-striped">
+                        <table class="tableList table table-bordered table-striped" id="speciesListTable">
                             <thead>
                             <tr>
                                 <th class="action">Action</th>
@@ -692,7 +691,7 @@
                     </div>
                     <div class="modal hide fade" id="viewRecord">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                            <button type="button" class="close" onclick="$('#viewRecord .modal-body').scrollTop(0);" data-dismiss="modal" aria-hidden="true">×</button>
                             <h3>View record details</h3>
                         </div>
                         <div class="modal-body">
