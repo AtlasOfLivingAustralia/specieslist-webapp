@@ -221,7 +221,7 @@
             }
             values.push(val);
         });
-        console.log("values", values.length, "headers", headers.length);
+        //console.log("values", values.length, "headers", headers.length);
         $("#viewRecord p.spinner").hide();
         $("#viewRecord tbody").html(""); // clear values
         $.each(headers, function(i, el) {
@@ -705,7 +705,7 @@
                         <div class="modal-footer">
                             <button class="btn btn-primary hide" data-id="${recId}">Previous</button>
                             <button class="btn btn-primary hide" data-id="${recId}">Next</button>
-                            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                            <button class="btn" onclick="$('#viewRecord .modal-body').scrollTop(0);" data-dismiss="modal" aria-hidden="true">Close</button>
                         </div>
                     </div>
 
