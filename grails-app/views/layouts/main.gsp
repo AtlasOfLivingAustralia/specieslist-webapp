@@ -24,7 +24,7 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     %{--<script src="http://code.jquery.com/jquery-latest.js"></script>
     <script src="${resource(dir: 'js', file: 'jquery.tools.min.js', plugin:'ala-web-theme')}"></script>--}%
-    <script src="${resource(dir: 'js', file: 'bootstrap.js', plugin:'ala-web-theme')}"></script>
+    <script src="${resource(dir: 'js', file: 'bootstrap.min.js', plugin:'ala-web-theme')}"></script>
 
     <g:layoutHead />
     %{--<r:layoutResources/>--}%

@@ -92,7 +92,7 @@
         $('.fwtable').doubleScroll();
 
         // Tooltip for link title
-        $('#content a').tooltip({placement: "bottom", html: true, delay: 200});
+        $('#content a').tooltip({placement: "bottom", html: true, delay: 200, container: "body"});
 
         // submit edit record changes via POST
         $("button.saveRecord").click(function() {
@@ -181,10 +181,18 @@
             });
         });
 
-        //
+        // toggle display of list info box
         $("#toggleListInfo").click(function(el) {
             el.preventDefault();
             $("#list-meta-data").slideToggle(!$("#list-meta-data").is(':visible'))
+        });
+
+        // catch click ion view record button (on each row)
+        // extract values from main table and display in table inside modal popup
+        $("a.viewRecordButton").click(function(el) {
+            el.preventDefault();
+            var recordId = $(this).data("id");
+            viewRecordForId(recordId);
         });
 
     }); // end document ready
@@ -193,6 +201,35 @@
         $("#edit-meta-div").slideToggle(showHide);
         //$("#edit-meta-button").hide();
         $("#show-meta-dl").slideToggle(!showHide);
+    }
+
+    function viewRecordForId(recordId) {
+        // read header values from the table
+        var row = $("tr#row_" + recordId);
+        var headerRow = $(row).closest("table").find("thead th").not(".action");
+        var headers = [];
+        $(headerRow).each(function(i, el) {
+            headers.push($(this).text());
+        });
+        // read species row values from the table
+        var valueTds = $(row).find("td").not(".action");
+        var values = [];
+        $(valueTds).each(function(i, el) {
+            var val = $(this).html();
+            if ($.type(val) === "string") {
+                val = $.trim(val);
+            }
+            values.push(val);
+        });
+        console.log("values", values.length, "headers", headers.length);
+        $("#viewRecord p.spinner").hide();
+        $("#viewRecord tbody").html(""); // clear values
+        $.each(headers, function(i, el) {
+            var row = "<tr><td>"+el+"</td><td>"+values[i]+"</td></tr>";
+            $("#viewRecord tbody").append(row);
+        });
+        $("#viewRecord table").show();
+        $('#viewRecord').modal();
     }
 
 //    function loadMultiFacets(facetName, displayName) {
@@ -575,9 +612,7 @@
                         <table class="tableList table table-bordered table-striped">
                             <thead>
                             <tr>
-                                <g:if test="${userCanEditData}">
-                                    <th>Action</th>
-                                </g:if>
+                                <th class="action">Action</th>
                                 <th>Supplied Name</th>
                                 <th>Scientific Name (matched)</th>
                                 <th>Image</th>
@@ -593,14 +628,17 @@
                                 <g:set var="recId" value="${result.id}"/>
                                 <g:set var="bieSpecies" value="${bieItems?.get(result.guid)}"/>
                                 <g:set var="bieTitle">species page for <i>${result.rawScientificName}</i></g:set>
-                                <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
-                                    <g:if test="${userCanEditData}">
-                                        <td>
-                                            <div class="btn-group btn-group">
-                                                <a class="btn btn-small" href="#" title="edit" data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
+                                <tr class="${(i % 2) == 0 ? 'odd' : 'even'}" id="row_${recId}">
+                                    <td class="action">
+                                        <div class="btn-group btn-group">
+                                            <a class="btn btn-small viewRecordButton" href="#viewRecord" title="view record" data-id="${recId}"><i class="icon-list"></i></a>
+                                            <g:if test="${userCanEditData}">
+                                            <a class="btn btn-small" href="#" title="edit" data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
                                                    data-target="#editRecord_${recId}" data-toggle="modal" ><i class="icon-pencil"></i></a>
                                                 <a class="btn btn-small" href="#" title="delete" data-target="#deleteRecord_${recId}" data-toggle="modal"><i class="icon-trash"></i></a>
-                                            </div>
+                                            </g:if>
+                                        </div>
+                                        <g:if test="${userCanEditData}">
                                             <div class="modal hide fade" id="editRecord_${recId}">
                                                 <div class="modal-header">
                                                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -626,8 +664,8 @@
                                                     <button class="btn btn-primary deleteSpecies" data-modal="#deleteRecord_${recId}" data-id="${recId}">Delete</button>
                                                 </div>
                                             </div>
-                                        </td>
-                                    </g:if>
+                                        </g:if>
+                                    </td>
                                     <td>
                                         %{--[${fieldValue(bean: result, field: "itemOrder")}] --}%
                                         ${fieldValue(bean: result, field: "rawScientificName")}
@@ -642,7 +680,7 @@
                                     <td id="cn_${result.guid}">${bieSpecies?.get(1)}</td>
                                     <g:each in="${keys}" var="key">
                                         <g:set var="kvp" value="${result.kvpValues.find {it.key == key}}" />
-                                        <td>${kvp?.vocabValue?:kvp?.value?.trimLength(250)?.wrapHtmlLength(50)}</td>
+                                        <td class="kvp">${kvp?.vocabValue?:kvp?.value?.trimLength(1000)?.wrapHtmlLength(50)}</td>
                                     </g:each>
                                 %{--<p>--}%
                                 %{--${result.guid} ${result.rawScientificName}--}%
@@ -651,6 +689,24 @@
                             </g:each>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="modal hide fade" id="viewRecord">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                            <h3>View record details</h3>
+                        </div>
+                        <div class="modal-body">
+                            <p class="spinner"><img src="${resource(dir:'images',file:'spinner.gif')}" alt="spinner icon"/></p>
+                            <table class="table table-bordered table-condensed table-striped hide">
+                                <thead><th>Field</th><th>Value</th></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary hide" data-id="${recId}">Previous</button>
+                            <button class="btn btn-primary hide" data-id="${recId}">Next</button>
+                            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                        </div>
                     </div>
 
                     <g:if test="${params.max<totalCount}">
