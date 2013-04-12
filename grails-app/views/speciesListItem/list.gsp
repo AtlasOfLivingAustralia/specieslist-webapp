@@ -679,7 +679,8 @@
                                     <td id="cn_${result.guid}">${bieSpecies?.get(1)}</td>
                                     <g:each in="${keys}" var="key">
                                         <g:set var="kvp" value="${result.kvpValues.find {it.key == key}}" />
-                                        <td class="kvp">${kvp?.vocabValue?:kvp?.value?.trimLength(1000)?.wrapHtmlLength(50)}</td>
+                                        <g:set var="val" value="${kvp?.vocabValue?:kvp?.value}" />
+                                        <td class="kvp ${val?.length() > 40 ? 'scrollWidth':''}"><div>${val}</div></td>
                                     </g:each>
                                 %{--<p>--}%
                                 %{--${result.guid} ${result.rawScientificName}--}%
