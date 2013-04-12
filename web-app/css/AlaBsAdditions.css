@@ -302,3 +302,7 @@ img.smallSpeciesImage {
     max-height: 80px;
     padding: 8px;
 }
+
+#listActionButtons {
+    display: inline-block;
+}
