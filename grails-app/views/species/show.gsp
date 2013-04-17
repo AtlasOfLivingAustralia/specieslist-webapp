@@ -429,8 +429,9 @@
                                             <g:if test="${image.rights}">
                                                 <span class="imageMetadataField">Rights:</span> ${image.rights}<br/>
                                             </g:if>
+                                            <!-- Flickr images need to use identifier instead of isPartOf for the imageUri -->
                                             <g:set var="imageUri">
-                                                <g:if test="${image.isPartOf && !image.occurrenceUid}">
+                                                <g:if test="${image.isPartOf && !image.identifier?.startsWith('http://www.flickr.com') }">
                                                     ${image.isPartOf}
                                                 </g:if>
                                                 <g:elseif test="${image.identifier}">
