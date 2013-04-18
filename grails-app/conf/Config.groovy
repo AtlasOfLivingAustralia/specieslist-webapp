@@ -119,6 +119,7 @@ environments {
         grails.serverURL = 'http://lists.ala.org.au'
         //collectory.baseURL ='http://audax.ala.org.au:8080/Collectory'
         collectory.baseURL='http://collections.ala.org.au'
+        collectory.enableSync = true
         //bie.baseURL = 'http://audax.ala.org.au:8080/bie-webapp2'
         bie.baseURL = 'http://bie.ala.org.au'
         serverName = 'lists.ala.org.au'
