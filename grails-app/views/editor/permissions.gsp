@@ -109,6 +109,7 @@ in turn, allows those <strong>editors</strong> to edit and delete entries in thi
                 //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
                 alert("Editors were successfully saved");
                 $('#modal').modal('hide');
+                window.location.reload(true);
             }).error(function(jqXHR, textStatus, error) {
                 alert("An error occurred: " + error + " - " + jqXHR.responseText);
             });

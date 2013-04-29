@@ -390,6 +390,10 @@
             <dd><g:formatDate format="yyyy-MM-dd" date="${speciesList.dateCreated?:0}"/><!-- ${speciesList.lastUpdated} --></dd>
             <dt>${message(code: 'speciesList.isPrivate.label', default: 'Is private')}</dt>
             <dd><g:formatBoolean boolean="${speciesList.isPrivate?:false}" /></dd>
+            <g:if test="${speciesList.editors}">
+                <dt>${message(code: 'speciesList.editors.label', default: 'List editors')}</dt>
+                <dd>${speciesList.editors.collect{ sl.getFullNameForUserId(userId: it) }?.join(", ")}</dd>
+            </g:if>
         </dl>
         <g:if test="${userCanEditPermissions}">
             <div id="edit-meta-div" class="hide">
