@@ -389,7 +389,7 @@
             <dt>${message(code: 'speciesList.dateCreated.label', default: 'Date submitted')}</dt>
             <dd><g:formatDate format="yyyy-MM-dd" date="${speciesList.dateCreated?:0}"/><!-- ${speciesList.lastUpdated} --></dd>
             <dt>${message(code: 'speciesList.isPrivate.label', default: 'Is private')}</dt>
-            <dd><g:formatBoolean boolean="${speciesList.isPrivate?:false}" /></dd>
+            <dd><g:formatBoolean boolean="${speciesList.isPrivate?:false}" true="Yes" false="No"/></dd>
             <g:if test="${speciesList.editors}">
                 <dt>${message(code: 'speciesList.editors.label', default: 'List editors')}</dt>
                 <dd>${speciesList.editors.collect{ sl.getFullNameForUserId(userId: it) }?.join(", ")}</dd>
@@ -677,7 +677,7 @@
                                         ${fieldValue(bean: result, field: "rawScientificName")}
                                         <g:if test="${result.guid == null}">
                                             <br/>(unmatched - try <a href="http://google.com/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="google" clas="btn btn-primary btn-mini">Google</a>,
-                                            <a href="http://biocache.ala.org.au/occurrences/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="biocache" clas="btn btn-success btn-mini">Biocache</a>)
+                                            <a href="http://biocache.ala.org.au/occurrences/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="biocache" clas="btn btn-success btn-mini">Occurrences</a>)
                                         </g:if>
                                     </td>
                                     <td><a href="${bieUrl}/species/${result.guid}" title="${bieTitle}">${bieSpecies?.get(2)}</a></td>
