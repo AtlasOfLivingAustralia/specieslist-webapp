@@ -490,7 +490,7 @@
                             Distinct Species
                         </p>
 
-                        <g:if test="${noMatchCount>0}">
+                        <g:if test="${noMatchCount>0 && noMatchCount!=totalCount}">
                         %{--<br/>--}%
                             <p>
                                 <span class="count">${noMatchCount}</span>
@@ -515,7 +515,7 @@
                                             <g:if test="${fq.length() >0}">
                                                 <li>
                                                     <a href="#" class="removeLink " title="Uncheck (remove filter)" onclick="removeFacet('${fq}')"><i class="icon-check"></i></a>
-                                                    ${fq.replaceFirst("kvp ","")}
+                                                    <g:message code="facet.${fq.replaceFirst("kvp ","")}" default="${fq.replaceFirst("kvp ","")}"/>
                                                     %{--<a class="removeLink" onclick="removeFacet('family:ACANTHASPIDIIDAE'); return false;" href="#" oldtitle="remove filter" aria-describedby="ui-tooltip-1">X</a>--}%
                                                     %{--[<b><a href="#" class="removeLink" title="Remove Filter" onclick="removeFacet('${fq}')">X</a></b>]--}%
                                                 </li>
