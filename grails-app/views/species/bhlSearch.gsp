@@ -170,11 +170,11 @@
 </head>
 <body class="species">
     <header id="page-header">
-        <div class="inner">
-            <nav id="breadcrumb">
-                <ol>
-                    <li><a href="${alaUrl}">Home</a></li>
-                    <li class="last">BHL Search</li>
+        <div class="inner row-fluid">
+            <nav id="breadcrumb" class="span12">
+                <ol class="breadcrumb">
+                    <li><a href="${alaUrl}">Home</a> <span class=" icon icon-arrow-right"></span></li>
+                    <li class="active">BHL Search</li>
                 </ol>
             </nav>
             <hgroup>
@@ -196,13 +196,17 @@
 
         <section id="content-search">
             <form id="search-form" action="" method="get" name="search-form">
-            <label for="search">Search</label>
-            <input id="search" title="Search" type="text" name="q" placeholder="${params.q?:''}" />
-            <span class="search-button-wrapper">
-                <button id="search-button" class="search-button" value="Search" type="submit">
-                    <img src="http://www.ala.org.au/wp-content/themes/ala2011/images/button_search.png" alt="Search" width="27" height="27" />
-                </button>
-            </span>
+            %{--<label for="search">Search</label>--}%
+            <div class="input-append">
+                <input id="search" class="span4" name="q" type="text" placeholder="Search BHL" autocomplete="off" value="${params.q?:''}">
+                <input type="submit" class="btn" alt="Search" value="Search">
+            </div>
+            %{--<input id="search" title="Search" type="text" name="q" placeholder="${params.q?:''}" />--}%
+            %{--<span class="search-button-wrapper">--}%
+                %{--<button id="search-button" class="search-button" value="Search" type="submit">--}%
+                    %{--<img src="http://www.ala.org.au/wp-content/themes/ala2011/images/button_search.png" alt="Search" width="27" height="27" />--}%
+                %{--</button>--}%
+            %{--</span>--}%
             </form>
         </section>
 

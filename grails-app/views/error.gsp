@@ -7,16 +7,16 @@
 </head>
 <body>
     <header id="page-header">
-        <div class="inner">
-            <nav id="breadcrumb">
-                <ol>
-                    <li><a href="${alaUrl}">Home</a></li>
-                    <li><a href="${alaUrl}/australias-species/">Australia&#39;s species</a></li>
-                    <li class="last">Error Page</li>
+        <div class="inner row-fluid">
+            <nav id="breadcrumb" class="span12">
+                <ol class="breadcrumb">
+                    <li><a href="${alaUrl}">Home</a> <span class=" icon icon-arrow-right"></span></li>
+                    <li><a href="${alaUrl}/australias-species/">Australia&#39;s species</a> <span class=" icon icon-arrow-right"></span></li>
+                    <li class="active">Biodiversity Information Explorer (BIE)</li>
                 </ol>
             </nav>
             <hgroup>
-                %{--<h1>Error page</h1>--}%
+                <h1>Error</h1>
             </hgroup>
         </div>
     </header>

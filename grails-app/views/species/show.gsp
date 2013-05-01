@@ -65,30 +65,32 @@
     <script type="text/javascript" src="${resource(dir: 'js', file: 'species.show.js')}"></script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'trove.js')}"></script>
 </head>
-<body class="species">
+<body class="species content">
     <header id="page-header">
-        <div class="inner">
-            <nav id="breadcrumb">
-                <ol>
-                    <li><a href="${alaUrl}">Home</a></li>
-                    <li><a href="${alaUrl}/australias-species/">Australia&#39;s species</a></li>
-                    <li class="last"><bie:formatSciName name="${tc?.taxonConcept?.nameString}" rankId="${tc?.taxonConcept?.rankID?:0}"/></li>
+        <div class="inner row-fluid">
+            <div id="breadcrumb" class="span12">
+                <ol class="breadcrumb">
+                    <li><a href="${alaUrl}">Home</a> <span class=" icon icon-arrow-right"></span></li>
+                    <li><a href="${alaUrl}/australias-species/">Australia&#39;s species</a> <span class=" icon icon-arrow-right"></span></li>
+                    <li class="active"><bie:formatSciName name="${tc?.taxonConcept?.nameString}" rankId="${tc?.taxonConcept?.rankID?:0}"/></li>
                 </ol>
-            </nav>
-            <hgroup class="leftfloat">
+            </div>
+        </div>
+        <hgroup class="row-fluid">
+            <div class="span8">
                 <h1><bie:formatSciName name="${tc?.taxonConcept?.nameString}" rankId="${tc?.taxonConcept?.rankID?:0}"/>
                     <span>${tc?.taxonConcept?.author?:""}</span></h1>
                 <h2>${(tc?.commonNames) ? tc?.commonNames?.opt(0)?.nameString : '<br/>'}</h2>
-            </hgroup>
-            <div class="rightfloat">
-                <a href="${citizenSciUrl}${guid}" class="button orange" title="Record a sighting">Record a sighting</a>
-                <a id="alertsButton" class="button orange" href="#">Alerts <img width="18" height="18" src="${resource(dir: 'images', file: 'alerts-button.png')}"></a>
             </div>
-        </div>
+            <div class="span4">
+                <a href="${citizenSciUrl}${guid}" class="btn btn-ala" title="Record a sighting">Record a sighting</a>
+                <a id="alertsButton" class="btn btn-ala" href="#">Alerts <img width="18" height="18" src="${resource(dir: 'images', file: 'alerts-button.png')}"></a>
+            </div>
+        </hgroup>
     </header>
-    <div class="inner">
-        <div class="col-narrow">
-            <div class="boxed attached">
+    <div class="row-fluid">
+        <div class="span3">
+            <div class="well well-small">
                 <section class="meta">
                     <dl>
                         <dt>Name source</dt>
@@ -219,17 +221,19 @@
                 </g:if>
             </div>
         </div><!--col-narrow-->
-        <div class="col-wide last">
-            <ul class="tabs">
-                <li><a id="t1" href="#overview">Overview</a></li>
-                <g:if test="${tc.taxonConcept?.rankID?:0 >= 6000}"><li><a id="t2" href="#gallery">Gallery</a></li></g:if>
-                <li><a id="t3" href="#names">Names</a></li>
-                <li><a id="t4" href="#classification">Classification</a></li>
-                <li><a id="t5" href="#records">Records</a></li>
-                <li id="bhl"><a id="t6" href="#literature">Literature</a></li>
-            </ul>
-            <div class="tabs-panes-noborder">
-                <section id="overview">
+        <div class="span9">
+            <div class="tabbable tabs-belowZ">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a id="t1" href="#overview" data-toggle="tab">Overview</a></li>
+                    <g:if test="${tc.taxonConcept?.rankID?:0 >= 6000}"><li><a id="t2" href="#gallery" data-toggle="tab">Gallery</a></li></g:if>
+                    <li><a id="t3" href="#names" data-toggle="tab">Names</a></li>
+                    <li><a id="t4" href="#classification" data-toggle="tab">Classification</a></li>
+                    <li><a id="t5" href="#records" data-toggle="tab">Records</a></li>
+                    <li id="bhl"><a id="t6" href="#literature" data-toggle="tab">Literature</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <section  class="tab-pane active" id="overview">
                     <div class="four-column">
                         <section class="double" id="divMap">
                             <div id="expertDistroDiv" style="display:none;margin-bottom: 10px;">
@@ -402,7 +406,7 @@
                     </table>
                 </section><!--#overview-->
                 <g:if test="${tc.taxonConcept?.rankID?:0 >= 6000}">
-                    <section id="gallery">
+                    <section class="tab-pane" id="gallery">
                         <g:if test="${tc.images}">
                             <h2>Images</h2>
                             <div id="imageGallery">
@@ -536,7 +540,7 @@
                         </g:else>
                     </section><!--#gallery-->
                 </g:if>
-                <section id="names">
+                <section class="tab-pane" id="names">
                     <h2>Names and sources</h2>
                     <table class="outline">
                         <thead>
@@ -643,7 +647,7 @@
                         </tbody></table>
                     </g:if>
                 </section><!--#names-->
-                <section id="classification">
+                <section class="tab-pane" id="classification">
                     <h2>Working classification</h2>
                     <div id="isAustralianSwitch"></div>
                         <g:each in="${taxonHierarchy}" var="taxon">
@@ -695,7 +699,7 @@
                             </dl>
                         </g:each>
                 </section><!--classificatio-->
-                <section id="records">
+                <section class="tab-pane" id="records">
                     <h2>Occurrence records</h2>
                     <div id="occurrenceRecords">
                         <p><a href="${biocacheUrl}/occurrences/taxa/${guid}">View
@@ -723,7 +727,7 @@
                         </g:each>
                     </g:if>
                 </section><!--#records-->
-                <section id="literature">
+                <section class="tab-pane" id="literature">
                     <h2>Name references found in the Biodiversity Heritage Library</h2>
                     <div id="status-box" class="column-wrap" style="display: none;">
                         <div id="search-status" class="column-wrap" >

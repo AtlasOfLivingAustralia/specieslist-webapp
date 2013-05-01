@@ -36,7 +36,7 @@ $(document).ready(function() {
     });
     $("select#per-page").change(function() {
         var val = $("option:selected", this).val();
-        reloadWithParam('pageSize',val);
+        reloadWithParam('max',val);
     });
 
     // AJAX search results
@@ -188,7 +188,7 @@ function injectBhlResults() {
 
             //console.log("Using the query: " + queryToUse);
             var url = SEARCH_CONF.serverName + "/bhl-search?q=" + queryToUse;
-            var html = "<li data-count=\"" + maxItems + "\"><a href=\"" + url + "\" id=\"bhlSearchLink\">BHL Literature</a> [" + numberWithCommas(maxItems) + "]</li>";
+            var html = "<li data-count=\"" + maxItems + "\"><a href=\"" + url + "\" id=\"bhlSearchLink\">BHL Literature</a> (" + numberWithCommas(maxItems) + ")</li>";
             insertSearchLinks(html);
         }
     });
@@ -204,7 +204,7 @@ function injectBiocacheResults() {
         success:  function(data) {
             var maxItems = parseInt(data.totalRecords, 10);
             var url = SEARCH_CONF.biocacheUrl + "/occurrences/search?q=" + queryToUse;
-            var html = "<li data-count=\"" + maxItems + "\"><a href=\"" + url + "\" id=\"biocacheSearchLink\">Occurrence records</a> [" + numberWithCommas(maxItems) + "]</li>";
+            var html = "<li data-count=\"" + maxItems + "\"><a href=\"" + url + "\" id=\"biocacheSearchLink\">Occurrence records</a> (" + numberWithCommas(maxItems) + ")</li>";
             insertSearchLinks(html);
         }
     });
@@ -216,14 +216,7 @@ function insertSearchLinks(html) {
         // if not, create it
         var h2 = "<h3>Related Searches</h3>";
         var div = "<div class='subnavlist' id='facet-extSearch'><ul></ul></div>";
-
-        if ($("#currentFilters").length) {
-            $("#currentFilters").next("h3").before(h2 + div);
-        } else {
-            $("#accordion").prepend(h2 + div);
-        }
-
-
+        $("#relatedSearches").append(h2 + div);
     }
     // add content
     $("#facet-extSearch ul").append(html);

@@ -5,37 +5,40 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="app.version" content="${g.meta(name:'app.version')}"/>
     <meta name="app.build" content="${g.meta(name:'app.build')}"/>
-    <meta name="description" content="The Atlas of Living Australia's data profile"/>
+    <meta name="description" content="Atlas of Living Australia"/>
+    <meta name="author" content="Atlas of Living Australia">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title><g:layoutTitle /></title>
 
-    <link rel="stylesheet" href="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/style.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/css/wp-styles.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/css/buttons.css" type="text/css" media="screen" />
-    <link rel="icon" type="image/x-icon" href="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/images/favicon.ico" />
-    <link rel="shortcut icon" type="image/x-icon" href="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/images/favicon.ico" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/css/jquery.autocomplete.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/css/search.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/css/skin.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/css/sf.css" />
-    %{--<r:require module="jquery"/>--}%
-    <script type="text/javascript" src="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/scripts/html5.js"></script>
+    <link rel="icon" type="image/x-icon" href="http://www.ala.org.au/wp-content/themes/ala2011/images/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="http://www.ala.org.au/wp-content/themes/ala2011/images/favicon.ico">
+
+    <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'bootstrap.css', plugin:'ala-web-theme')}">
+    <link rel="stylesheet" type="text/css" media="screen" href="${resource(dir: 'css', file: 'bootstrap-responsive.css', plugin:'ala-web-theme')}">
+    <link rel="stylesheet" type="text/css" media="screen" href="${grailsApplication.config.ala.baseURL?:'http://www.ala.org.au'}/wp-content/themes/ala2011/css/jquery.autocomplete.css" />
+    <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'AlaBsAdditions.css')}">
+
+    <script type="text/javascript" src="${grailsApplication.config.ala.baseURL?:'http://www.ala.org.au'}/wp-content/themes/ala2011/scripts/html5.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    %{--<script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="${resource(dir: 'js', file: 'jquery.tools.min.js', plugin:'ala-web-theme')}"></script>--}%
+    <script src="${resource(dir: 'js', file: 'bootstrap.js', plugin:'ala-web-theme')}"></script>
+
     <g:layoutHead />
     <r:layoutResources/>
-    <script language="JavaScript" type="text/javascript" src="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/scripts/superfish/superfish.js"></script>
-    <script language="JavaScript" type="text/javascript" src="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/scripts/jquery.autocomplete.js"></script>
-    <script language="JavaScript" type="text/javascript" src="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala2011/scripts/uservoice.js"></script>
+    <script language="JavaScript" type="text/javascript" src="${grailsApplication.config.ala.baseURL?:'http://www.ala.org.au'}/wp-content/themes/ala2011/scripts/jquery.autocomplete.js"></script>
+    <script language="JavaScript" type="text/javascript" src="${grailsApplication.config.ala.baseURL?:'http://www.ala.org.au'}/wp-content/themes/ala2011/scripts/uservoice.js"></script>
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
     <script type="text/javascript">
-
         // initialise plugins
-
         jQuery(function(){
-            jQuery('ul.sf').superfish( {
-                delay:500,
-                autoArrows:false,
-                dropShadows:false
-            });
-
+            // autocomplete on navbar search input
             jQuery("form#search-form-2011 input#search-2011, form#search-inpage input#search").autocomplete('http://bie.ala.org.au/search/auto.jsonp', {
                 extraParams: {limit: 100},
                 dataType: 'jsonp',
@@ -66,14 +69,16 @@
 </head>
 <body class="${pageProperty(name:'body.class')}" id="${pageProperty(name:'body.id')}" onload="${pageProperty(name:'body.onload')}">
 
-<hf:banner logoutUrl="${ConfigurationHolder.config.grails.serverURL}/logout"/>
+<hf:banner logoutUrl="${grailsApplication.config.grails.serverURL}/logout/logout"/>
 
 <hf:menu/>
 
-<g:layoutBody />
+<div class="container" id="main-content">
+    <g:layoutBody />
+</div><!--/.container-->
 
 <hf:footer/>
-
+<!-- JS resources-->
 <r:layoutResources/>
 
 <script type="text/javascript">

@@ -11,7 +11,7 @@ section.clearfix {
     clear: left;
 }
 
-body p, body ul {
+body > p, body > ul {
     padding-bottom: 10px;
 }
 
