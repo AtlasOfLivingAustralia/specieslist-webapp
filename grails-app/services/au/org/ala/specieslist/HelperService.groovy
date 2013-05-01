@@ -40,7 +40,7 @@ class HelperService {
 
     def speciesValue = ["species", "scientificname", "taxonname"]
 
-    def commonValues = ["commmonname","vernacularname"]
+    def commonValues = ["commonname","vernacularname"]
 
     def ambiguousValues = ["name"]
 
@@ -189,6 +189,10 @@ class HelperService {
             if(speciesValue.contains(it.toLowerCase().replaceAll(" ",""))){
                 hasName = true
                 "scientific name"
+            }
+            else if(commonValues.contains(it.toLowerCase().replaceAll(" ",""))){
+                hasName = true
+                "vernacular name"
             }
             else if(commonValues.contains(it.toLowerCase().replaceAll(" ",""))){
                 hasName = true

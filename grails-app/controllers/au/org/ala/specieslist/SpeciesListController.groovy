@@ -229,6 +229,17 @@ class SpeciesListController {
 
         return guids
     }
+
+    def getUnmatchedNamesForList(id, limit) {
+        def fqs = params.fq?[params.fq].flatten().findAll{ it != null }:null
+        def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ",fqs, params.id)
+        def isdr =id.startsWith("dr")
+        //def where = isdr? "dataResourceUid=?":"id = ?"
+        def names = SpeciesListItem.executeQuery("select sli.rawScientificName  " + baseQueryAndParams[0] + " and sli.guid is null", baseQueryAndParams[1] ,[max: limit])
+
+        return names
+    }
+
     /**
      * Either downloads records from biocache or redirects to bicache depending on the type
      * @return
@@ -236,11 +247,21 @@ class SpeciesListController {
     def occurrences(){
         if (params.id && params.type){
             def guids = getGuidsForList(params.id, grailsApplication.config.downloadLimit)
-
+            def unMatchedNames = getUnmatchedNamesForList(params.id, grailsApplication.config.downloadLimit)
             def splist = SpeciesList.findByDataResourceUid(params.id)
             def title = "Species List: " + splist.listName
+            def downloadDto = new DownloadDto()
+            bindData(downloadDto, params)
 
-            def url = biocacheService.performBatchSearchOrDownload(guids,params.type, title)
+            log.debug "downloadDto = " + downloadDto
+            log.debug "unMatchedNames = " + unMatchedNames
+            def url = biocacheService.performBatchSearchOrDownload(guids, unMatchedNames, downloadDto, title, splist.wkt)
+
+//            if (splist.wkt) {
+//                url = biocacheService.performBatchSearchOrDownload(guids, unMatchedNames, downloadDto, title, splist.wkt)
+//            } else {
+//                url = biocacheService.performBatchSearchOrDownload(guids, params.type, title)
+//            }
 
             if(url){
                 redirect(url:url)
@@ -268,11 +289,11 @@ class SpeciesListController {
             dataRows.add(currentLine)
             currentLine = csvReader.readNext()
         }
-        if (processedHeader.find{it == "scientific name" || it == "vernacular name" || it == "ambiguous name"} && processedHeader.size()>0){
+        if (processedHeader.find{it == "scientific name" || it == "vernacular name" ||  it == "common name" || it == "ambiguous name"} && processedHeader.size()>0){
             //grab all the unique values for the none scientific name fields to supply for potential vocabularies
             try{
                 def listProperties = helperService.parseValues(processedHeader as String[],helperService.getCSVReaderForText(rawData, separator), separator)
-                log.debug(listProperties)
+                log.debug("names - " + listProperties)
                 render(view: 'parsedData', model: [columnHeaders:processedHeader, dataRows:dataRows, listProperties:listProperties, listTypes:ListType.values()])
             }
             catch(Exception e){
