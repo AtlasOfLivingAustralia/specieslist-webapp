@@ -34,7 +34,7 @@
     </script>
     <script type="text/javascript" src="${resource(dir: 'js', file: 'search.js')}"></script>
 </head>
-<body class="species content">
+<body class="species search content">
     <header id="page-header">
         <div class="inner row-fluid">
             <div id="breadcrumb" class="span12">
@@ -53,7 +53,7 @@
                     <h1>Search for <b>${query}</b> did not match any documents</h1><br/>
                 </g:else>
             </div>
-            <div class="span3 well well-small" id="relatedSearches">
+            <div class="span3 well well-small hidden-phone" id="relatedSearches">
                 <!-- content inserted via jQuery -->
             </div>
         </hgroup>

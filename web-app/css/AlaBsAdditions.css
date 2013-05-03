@@ -31,11 +31,11 @@ h4 {font-size: 1.4em;}
     background-image: none !important;
 }
 
-#page-header hgroup {
-    /*margin-bottom: 20px;*/
+#page-header hgroup h1, #page-header hgroup h2 {
+    margin: 0;
 }
 
-#page-header hgroup h1 {
+body.search #page-header hgroup h1 {
     font-weight: normal;
 }
 
@@ -77,6 +77,10 @@ div.results h4 {
 
 .results h4 {
     margin: 0;
+}
+
+#relatedSearches {
+    margin-top: -25px;
 }
 
 #relatedSearches h3, #relatedSearches ul {

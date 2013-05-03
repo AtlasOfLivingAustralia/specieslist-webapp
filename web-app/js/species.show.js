@@ -27,17 +27,46 @@
  */
 $(document).ready(function() {
     //setup tabs
-    var bhlInit = false;
-    $("ul.tabs").tabs("div.tabs-panes-noborder > section", {
-        history: true,
-        effect: 'fade',
-        onClick: function(event, index) {
-            if (index == 5 && !bhlInit) {
-                doBhlSearch(0, 10, false);
-                bhlInit = true;
-            }
+//    var bhlInit = false;
+//    $("ul.tabs").tabs("div.tabs-panes-noborder > section", {
+//        history: true,
+//        effect: 'fade',
+//        onClick: function(event, index) {
+//            if (index == 5 && !bhlInit) {
+//                doBhlSearch(0, 10, false);
+//                bhlInit = true;
+//            }
+//        }
+//    });
+    if (location.hash !== '') {
+        $('.nav-tabs a[href="' + location.hash.replace('tab_','') + '"]').tab('show');
+    }
+    $(window).on('hashchange', function() {
+        //console.log('hashchange');
+        var currentHash = location.hash.replace('tab_','');
+        if (location.hash !== '') {
+            //console.log('changing tab to ' + currentHash);
+            $('.nav-tabs a[href="' + currentHash + '"]').tab('show');
+        } else {
+            $('.nav-tabs a:first').tab('show');
         }
     });
+    var bhlInit = false;
+    $('a[data-toggle="tab"]').on('shown', function(e) {
+        //console.log("this", $(this).attr('id'));
+        var id = $(this).attr('id');
+        if (id == "t6" && !bhlInit) {
+            doBhlSearch(0, 10, false);
+            bhlInit = true;
+        }
+        if (id != "t1") {
+            location.hash = 'tab_'+ $(e.target).attr('href').substr(1);
+        } else {
+            location.hash = '';
+        }
+    });
+
+    console.log("before colorbox");
 
     // Gallery image popups using ColorBox
     $("a.thumbImage").colorbox({
@@ -59,7 +88,7 @@ $(document).ready(function() {
             if ( cbox != undefined){
                 cbox.resize();
             } else{
-                console.log("cboxis undefined 0: " + cbox);
+                //console.log("cboxis undefined 0: " + cbox);
             }
         }
     });
@@ -106,6 +135,7 @@ $(document).ready(function() {
     // alerts button
     $("#alertsButton").click(function(e) {
         e.preventDefault();
+        console.log("alertsButton");
         var query = "Species: " + SHOW_CONF.scientificName;
         var searchString = "?q=" + SHOW_CONF.guid;
         //console.log("fqueries",fqueries, query);
@@ -228,9 +258,9 @@ function doBhlSearch(start, rows, scroll) {
             //console.log("nav buttons", prevStart, nextStart);
 
             buf += '<div id="button-bar">';
-            if (prevStart >= 0) buf += '<input type="button" value="Previous page" onclick="doBhlSearch(' + prevStart + ',' + rows + ', true)">';
+            if (prevStart >= 0) buf += '<input type="button" class="btn" value="Previous page" onclick="doBhlSearch(' + prevStart + ',' + rows + ', true)">';
             buf += '&nbsp;&nbsp;&nbsp;';
-            if (nextStart <= maxItems) buf += '<input type="button" value="Next page" onclick="doBhlSearch(' + nextStart + ',' + rows + ', true)">';
+            if (nextStart <= maxItems) buf += '<input type="button" class="btn" value="Next page" onclick="doBhlSearch(' + nextStart + ',' + rows + ', true)">';
             buf += '</div>';
 
             $("#solr-results").html(buf);

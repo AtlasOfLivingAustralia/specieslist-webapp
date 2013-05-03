@@ -82,15 +82,15 @@
                     <span>${tc?.taxonConcept?.author?:""}</span></h1>
                 <h2>${(tc?.commonNames) ? tc?.commonNames?.opt(0)?.nameString : '<br/>'}</h2>
             </div>
-            <div class="span4">
+            <div class="span4" id="actionButtons">
                 <a href="${citizenSciUrl}${guid}" class="btn btn-ala" title="Record a sighting">Record a sighting</a>
-                <a id="alertsButton" class="btn btn-ala" href="#">Alerts <img width="18" height="18" src="${resource(dir: 'images', file: 'alerts-button.png')}"></a>
+                <a id="alertsButton" class="btn btn-ala" href="#">Alerts <i class="icon-bell icon-white"></i></a>
             </div>
         </hgroup>
     </header>
     <div class="row-fluid">
         <div class="span3">
-            <div class="well well-small">
+            <div class="well">
                 <section class="meta">
                     <dl>
                         <dt>Name source</dt>
@@ -98,15 +98,14 @@
                         <dt>Rank</dt>
                         <dd style="text-transform: capitalize;">${tc?.taxonConcept?.rankString}</dd>
                         <dt>Data links</dt>
-                        <dd><a href="#lsidText" id="lsid" class="button" title="Life Science Identifier (pop-up)">LSID</a></dd>
-                        <dd>
-                            <a href="#dataLinksText" id="dataLinks" class="button" title="JSON web service">JSON / <g:if test="${tc?.taxonConcept?.rankID?:1 % 1000 == 0}">WMS/</g:if> RDF</a>
+                        <dd><a href="#lsidText" id="lsid" class="btn btn-small" title="Life Science Identifier (pop-up)">LSID</a>
+                            <a href="#dataLinksText" id="dataLinks" class="btn btn-small" title="JSON web service">JSON / <g:if test="${tc?.taxonConcept?.rankID?:1 % 1000 == 0}">WMS /</g:if>RDF</a>
                         </dd>
                         %{--<dt>Related pages</dt>--}%
                         %{--<dd><a class="button" href="${biocacheUrl}/occurrences/taxa/${guid}" title="View occurrence records for ${sciNameFormatted}">Species records</a></dd>--}%
                         %{--<dd><a class="button" href="${spatialPortalUrl}/?q=lsid:%22${guid}%22&cm=geospatial_kosher" title="GIS analysis of occurrence records for ${sciNameFormatted}">Spatial analysis</a></dd>--}%
                     </dl>
-                    <div style="display:none;">
+                    <div class="hide">
                         <div id="lsidText">
                             <h2><a href="http://lsids.sourceforge.net/" target="_blank" title="More information on LSIDs">Life Science Identifier (LSID):</a></h2>
                             <p><a href="http://lsid.tdwg.org/summary/${guid}" target="_blank" title="Original source for this LSID">${guid}</a></p>
@@ -148,75 +147,83 @@
                             </p>
                         </div>
                     </div>
+
                 </section>
                 <g:if test="${tc.habitats || tc?.taxonConcept?.rankID?:0 >= 7000 && tc.isAustralian}">
                     <section class="status">
-                        <h2>Species presence</h2>
-                        <g:if test="${tc?.taxonConcept?.rankID?:0 >= 7000}">
-                            <g:set var="isAussie" value=""/>
-                            <g:if test="${isAustralian != null}">
-                                <g:set var="isAussie" value="${isAustralian}"/>
+                        <dl>
+                            <dt>Species presence</dt>
+                            <g:if test="${tc?.taxonConcept?.rankID?:0 >= 7000}">
+                                <g:set var="isAussie" value=""/>
+                                <g:if test="${isAustralian != null}">
+                                    <g:set var="isAussie" value="${isAustralian}"/>
+                                </g:if>
+                                <g:else>
+                                    <g:set var="isAussie" value="${tc.isAustralian}"/>
+                                </g:else>
+                                <g:if test="${isAussie}">
+                                    <dd><span class="native">&nbsp;</span>Recorded In Australia</dd>
+                                </g:if>
+                                <g:else>
+                                    <dd><span class="nonnative">&nbsp;</span>Not recorded In Australia</dd>
+                                </g:else>
                             </g:if>
-                            <g:else>
-                                <g:set var="isAussie" value="${tc.isAustralian}"/>
-                            </g:else>
-                            <g:if test="${isAussie}">
-                                <div><span class="native">&nbsp;</span>Recorded In Australia</div>
-                            </g:if>
-                            <g:else>
-                                <div><span class="nonnative">&nbsp;</span>Not recorded In Australia</div>
-                            </g:else>
-                        </g:if>
-                        <g:each var="habitat" in="${tc.habitats}">
-                            <g:set var="divMarine">
-                                <div><span class="marine">&nbsp;</span>Marine Habitats</div>
-                            </g:set>
-                            <g:set var="divTerrestrial">
-                                <div><span class="terrestrial">&nbsp;</span>Terrestrial Habitats</div>
-                            </g:set>
-                            <g:set var="divLimnetic">
-                                <div><span class="terrestrial-aquatic">&nbsp;</span>Terrestrial Aquatic Habitats</div>
-                            </g:set>
-                            <g:if test="${habitat.status == 'M'}">${divMarine}</g:if>
-                            <g:elseif test="${habitat.status == 'N'}">${divTerrestrial}</g:elseif>
-                            <g:elseif test="${habitat.status == 'Limnetic'}">${divLimnetic}</g:elseif>
-                            <g:else>${divMarine} ${divTerrestrial}</g:else>
-                        </g:each>
+                            <g:each var="habitat" in="${tc.habitats}">
+                                <g:set var="divMarine">
+                                    <dd><span class="marine">&nbsp;</span>Marine Habitats</dd>
+                                </g:set>
+                                <g:set var="divTerrestrial">
+                                    <dd><span class="terrestrial">&nbsp;</span>Terrestrial Habitats</dd>
+                                </g:set>
+                                <g:set var="divLimnetic">
+                                    <dd><span class="terrestrial-aquatic">&nbsp;</span>Terrestrial Aquatic Habitats</dd>
+                                </g:set>
+                                <g:if test="${habitat.status == 'M'}">${divMarine}</g:if>
+                                <g:elseif test="${habitat.status == 'N'}">${divTerrestrial}</g:elseif>
+                                <g:elseif test="${habitat.status == 'Limnetic'}">${divLimnetic}</g:elseif>
+                                <g:else>${divMarine} ${divTerrestrial}</g:else>
+                            </g:each>
+                        </dl>
                     </section>
                 </g:if>
                 <g:if test="${tc.conservationStatuses}">
                     <section class="status">
-                        <h2>Conservation status</h2>
-                        <g:each var="status" in="${tc.conservationStatuses}">
-                            <g:set var="regionCode" value="${status.region ?: "IUCN"}"/>
-                            <div>
-                                <a href="${grailsApplication.config.collectory.threatenedSpeciesCodesUrl}/${statusRegionMap.get(regionCode)}" title="Threatened Species Codes - details"
-                                    onclick="window.open(this.href); return false;"><span class="iucn <bie:colourForStatus status="${status.status}"/>"><g:message
-                                    code="region.${regionCode}"/></span>${status.rawStatus}</a>
-                            </div>
-                        </g:each>
+                        <dl>
+                            <dt>Conservation status</dt>
+                            <g:each var="status" in="${tc.conservationStatuses}">
+                                <g:set var="regionCode" value="${status.region ?: "IUCN"}"/>
+                                <dd>
+                                    <a href="${grailsApplication.config.collectory.threatenedSpeciesCodesUrl}/${statusRegionMap.get(regionCode)}" title="Threatened Species Codes - details"
+                                       onclick="window.open(this.href); return false;"><span class="iucn <bie:colourForStatus status="${status.status}"/>"><g:message
+                                            code="region.${regionCode}"/></span>${status.rawStatus}</a>
+                                </dd>
+                            </g:each>
+                        </dl>
                     </section>
                 </g:if>
                 <g:if test="${tc.categories}">
                     <section class="status">
-                        <h2>Categories</h2>
-                        <table class="status">
-                            <g:each var="category" in="${tc.categories}">
-                                <div>
-
-                                    <g:set var="catURL" value="${category.identifier?:category.infoSourceURL}" />
-                                    <tr>
-                                        <g:if test="${category.stateProvince}">
-                                        <td><a href="${catURL}" title="Category details" onclick="window.open(this.href); return false;">
-                                            <span class="iucn category"><g:message
-                                                    code="region.${category.stateProvince}"/></span></a></td></g:if>
-                                        <td><a href="${catURL}" title="Category details" onclick="window.open(this.href); return false;">
-                                            ${category.category}
-                                        </a></td>
-                                    </tr>
-                                </div>
-                            </g:each>
-                        </table>
+                        <dl>
+                            <dt>Categories</dt>
+                            <dd>
+                                <table class="status">
+                                    <g:each var="category" in="${tc.categories}">
+                                        <div>
+                                            <g:set var="catURL" value="${category.identifier?:category.infoSourceURL}" />
+                                            <tr>
+                                                <g:if test="${category.stateProvince}">
+                                                    <td><a href="${catURL}" title="Category details" onclick="window.open(this.href); return false;">
+                                                        <span class="iucn category"><g:message
+                                                                code="region.${category.stateProvince}"/></span></a></td></g:if>
+                                                <td><a href="${catURL}" title="Category details" onclick="window.open(this.href); return false;">
+                                                    ${category.category}
+                                                </a></td>
+                                            </tr>
+                                        </div>
+                                    </g:each>
+                                </table>
+                            </dd>
+                        </dl>
                     </section>
                 </g:if>
             </div>
@@ -232,27 +239,10 @@
                     <li id="bhl"><a id="t6" href="#literature" data-toggle="tab">Literature</a></li>
                 </ul>
             </div>
-            <div class="tab-content">
+            <div class="tab-content ">
                 <section  class="tab-pane active" id="overview">
                     <div class="four-column">
-                        <section class="double" id="divMap">
-                            <div id="expertDistroDiv" style="display:none;margin-bottom: 10px;">
-                                <h2>Compiled distribution map</h2>
-                                <img id="distroMapImage" src="${resource(dir: 'images', file: 'noImage.jpg')}" class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>
-                                <div class="mapAttribution">Compiled distribution map provided by <span id="dataResource">[data resource not known]</span></div>
-                            </div>
-                            <h2>Occurrence records map</h2>
-                            <div class="bg-white">
-                                <g:set var="spatialQuery" value="lsid:%22${guid}%22%20AND%20geospatial_kosher:true"/>
-                                <img id="mapImage" src="http://biocache.ala.org.au/ws/density/map?q=${spatialQuery}" class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>
-                                <img id="mapLegend" src="http://biocache.ala.org.au/ws/density/legend?q=${spatialQuery}" class="distroLegend" alt="map legend" onerror="this.style.display='none'"/>
-                            </div>
-                            <p>
-                                <a class="button" href="${biocacheUrl}/occurrences/taxa/${guid}" title="View records list">View records list</a>
-                                <a class="button" href="${spatialPortalUrl}/?q=lsid:%22${guid}%22&cm=geospatial_kosher" title="Map & analyse records">Map &amp; analyse records</a>
-                            </p>
-                        </section>
-                        <section class="last">
+                        <section class="span4" id="overviewImage">
                             <ul class="overviewImages">
                                 <g:if test="${extraImages}">
                                     <g:set var="imageSearchUrl" value="${createLink(controller:'image-search', action: 'showSpecies', params:[taxonRank: tc?.taxonConcept?.rankString, scientificName: tc?.taxonConcept?.nameString])}" />
@@ -278,7 +268,7 @@
                                 <g:else>
                                     <g:set var="imageSize" value="314"/>
                                     <g:set var="gotOne" value="${false}"/>
-                                    <%--Iterate over images and check image is not black listed--%>
+                                <%--Iterate over images and check image is not black listed--%>
                                     <g:each var="image" in="${tc.images}" status="status">
                                         <g:if test="${!image.isBlackListed && !gotOne}">
                                             <g:set var="gotOne" value="${true}"/>
@@ -286,28 +276,45 @@
                                             <li>
                                                 <a href="${image.repoLocation}" id="thumb0" class="thumbImage"
                                                    title="Species representative photo"><img src="${image.smallImageUrl}"
-                                                   class="overviewImage"
-                                                   style="width:100%;max-width:${imageSize}px"
-                                                   alt="representative image of taxa" /></a>
-                                                    <cite>
-                                                        <g:if test="${image.licence}">
-                                                            <br/>Source: ${image.infoSourceName}
-                                                        </g:if>
-                                                        <g:if test="${image.creator}">
-                                                            <br/>Image by: <bie:lookupUserName id="${image.creator}"/>
-                                                        </g:if>
-                                                        <g:if test="${image.rights}">
-                                                            <br/>Rights: ${image.rights}
-                                                        </g:if>
-                                                        <g:if test="${false && image.licence}">
-                                                            <br/>Licence: ${image.licence}
-                                                        </g:if>
-                                                    </cite>
+                                                                                             class="overviewImage"
+                                                                                             style="width:100%;max-width:${imageSize}px"
+                                                                                             alt="representative image of taxa" /></a>
+                                                <cite>
+                                                    <g:if test="${image.licence}">
+                                                        <br/>Source: ${image.infoSourceName}
+                                                    </g:if>
+                                                    <g:if test="${image.creator}">
+                                                        <br/>Image by: <bie:lookupUserName id="${image.creator}"/>
+                                                    </g:if>
+                                                    <g:if test="${image.rights}">
+                                                        <br/>Rights: ${image.rights}
+                                                    </g:if>
+                                                    <g:if test="${false && image.licence}">
+                                                        <br/>Licence: ${image.licence}
+                                                    </g:if>
+                                                </cite>
                                             </li>
                                         </g:if>
                                     </g:each>
                                 </g:else>
                             </ul>
+                        </section>
+                        <section class="span5" id="divMap">
+                            <div id="expertDistroDiv" style="display:none;margin-bottom: 10px;">
+                                <h2>Compiled distribution map</h2>
+                                <img id="distroMapImage" src="${resource(dir: 'images', file: 'noImage.jpg')}" class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>
+                                <div class="mapAttribution">Compiled distribution map provided by <span id="dataResource">[data resource not known]</span></div>
+                            </div>
+                            <h2>Occurrence records map</h2>
+                            <div class="bg-white">
+                                <g:set var="spatialQuery" value="lsid:%22${guid}%22%20AND%20geospatial_kosher:true"/>
+                                <img id="mapImage" src="http://biocache.ala.org.au/ws/density/map?q=${spatialQuery}" class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>
+                                <img id="mapLegend" src="http://biocache.ala.org.au/ws/density/legend?q=${spatialQuery}" class="distroLegend" alt="map legend" onerror="this.style.display='none'"/>
+                            </div>
+                            <p>
+                                <a class="button" href="${biocacheUrl}/occurrences/taxa/${guid}" title="View records list">View records list</a>
+                                <a class="button" href="${spatialPortalUrl}/?q=lsid:%22${guid}%22&cm=geospatial_kosher" title="Map & analyse records">Map &amp; analyse records</a>
+                            </p>
                         </section>
                     </div>
                     <g:set var="descriptionBlock">
@@ -341,67 +348,58 @@
                     <g:if test="${infoSources}">
                         <section id="resources" class="clearfix">
                             <h2>Online resources</h2>
-                            <ul>
+                            <dd>
                                 <g:each var="is" in="${infoSources}" status="status">
                                 %{--<g:set var="infoSource" value="${entry.value}"/>--}%<!--code>${is}</code-->
-                                    <li><a href="${is.value?.infoSourceURL}" target="_blank" class="infosource">${is.value?.infoSourceName}</a>
-                                        <ul>
-                                            <li>
-                                                <g:each in="${is.value?.sections}" var="s" status="i">
-                                                    <g:set var="section"><g:message code="${s}"/></g:set>
-                                                    ${section}${section && i>1 && is.value?.sections?.size()>1 ?', ':''}
-                                                </g:each>
-                                                %{--${is.value?.sections.join(",")}--}%
-                                            </li>
-                                        </ul>
-                                    </li>
+                                    <dt><a href="${is.value?.infoSourceURL}" target="_blank" class="infosource">${is.value?.infoSourceName}</a></dt>
+                                    <dd>
+                                        <g:each in="${is.value?.sections}" var="s" status="i">
+                                            <g:set var="section"><g:message code="${s}"/></g:set>
+                                            ${section}${section && i>1 && is.value?.sections?.size()>1 ?', ':''}
+                                        </g:each>
+                                        %{--${is.value?.sections.join(",")}--}%
+                                    </dd>
                                 </g:each>
-                            </ul>
+                            </dd>
                         </section>
                     </g:if>
                     <g:elseif test="${infoSourceMap}">
                         <section id="resources" class="clearfix">
                             <h2>Online resources</h2>
-                            <ul>
+                            <dl>
                                 <g:each var="ism" in="${infoSourceMap}" status="status">
                                 %{--<g:set var="infoSource" value="${entry.value}"/>--}%<!--code>${ism}</code-->
-                                    <li><a href="${ism.key}" target="_blank" class="infosource">${ism.value?.name}</a>
-                                        <ul>
-                                            <li>
-                                                <g:set var="sections" value="${ism.value?.sections?.minus(["hasOccurrenceRowKey","hasImageLicenseInfo"])}"/>
-                                                <g:each in="${sections}" var="s" status="i">
-                                                    <g:set var="section"><g:message code="${s}"/></g:set>
-                                                    ${section}${section && i < sections.size() - 1?', ':''}
-                                                </g:each>
-                                                %{--${is.value?.sections.join(",")}--}%
-                                            </li>
-                                        </ul>
-                                    </li>
+                                    <dt><a href="${ism.key}" target="_blank" class="infosource">${ism.value?.name}</a></dt>
+                                    <dd>
+                                        <g:set var="sections" value="${ism.value?.sections?.minus(["hasOccurrenceRowKey","hasImageLicenseInfo"])}"/>
+                                        <g:each in="${sections}" var="s" status="i">
+                                            <g:set var="section"><g:message code="${s}"/></g:set>
+                                            ${section}${section && i < sections.size() - 1?', ':''}
+                                        </g:each>
+                                        %{--${is.value?.sections.join(",")}--}%
+                                    </dd>
                                 </g:each>
-                            </ul>
+                            </dl>
                         </section>
                     </g:elseif>
                     <g:if test="${speciesList}">
                         <h2>Species Lists</h2>
-                        <g:each in="${speciesList}" var="list">
-                            <table>
-                                <thead>
-                                    <td colspan="100%"> <a href="${speciesListUrl}/speciesListItem/list/${list.dataResourceUid}">${list?.list?.listName}</a></td>
-                                </thead>
-                            <g:if test="${list.kvpValues}">
-                                %{--<table>--}%
-                                <tbody>
+                        <dl id="speciesLists">
+                            <g:each in="${speciesList}" var="list">
+                                <dt>
+                                    <a href="${speciesListUrl}/speciesListItem/list/${list.dataResourceUid}">${list?.list?.listName}</a>
+                                </dt>
+                                <g:if test="${list.kvpValues}">
                                     <g:each in="${list.kvpValues}" var="kvp">
-                                        <tr>
-                                            <td><em>${kvp.key}:</em></td>
-                                            <td>
+                                        <dd>
+                                            <span>${kvp.key}:</span>
                                                 ${kvp.vocabValue?:kvp.value}
-                                            </td>
-                                        </tr>
+                                        </dd>
                                     </g:each>
-                                </tbody>
-                            </g:if>
-                        </g:each>
+                                </g:if>
+                            </g:each>
+                        </dl>
+
                     </g:if>
                     </table>
                 </section><!--#overview-->
@@ -542,7 +540,7 @@
                 </g:if>
                 <section class="tab-pane" id="names">
                     <h2>Names and sources</h2>
-                    <table class="outline">
+                    <table class="outline table table-condensed">
                         <thead>
                             <tr>
                                 <th>Accepted name</th>
@@ -567,7 +565,7 @@
                     </table>
                     <g:if test="${tc.synonyms}">
                         <h2>Synonyms</h2>
-                        <table class="outline">
+                        <table class="outline table table-condensed">
                             <thead>
                                 <tr>
                                     <th>Synonyms</th>
@@ -599,7 +597,7 @@
                     </g:if>
                     <g:if test="${tc.commonNames}">
                         <h2>Common Names</h2>
-                        <table class="borders">
+                        <table class="outline table table-condensed">
                             <thead>
                                 <tr>
                                     <th>Common name</th>
@@ -748,8 +746,8 @@
                         <h2>Name references found in the TROVE - NLA </h2>
                         <div id="trove-results-home" class="column-wrap">
                         </div>
-                        <input type="button" id="previousTrove" value="Previous page"/>
-                        <input type="button" id="nextTrove" value="Next page"/>
+                        <input type="button" class="btn" id="previousTrove" value="Previous page"/>
+                        <input type="button" class="btn" id="nextTrove" value="Next page"/>
                     </div>
                     <script type="text/javascript">
                         setupTrove('${tc?.taxonConcept?.nameString}','trove-container','trove-results-home','previousTrove','nextTrove');
