@@ -1,6 +1,7 @@
 modules = {
     application {
         resource url:'js/application.js'
+        resource url:'css/AlaBsAdditions.css'
     }
     fancybox {
         resource url:'/fancybox/jquery.fancybox-1.3.4.css'

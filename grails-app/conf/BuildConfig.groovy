@@ -65,9 +65,9 @@ grails.project.dependency.resolution = {
 
     plugins {
         runtime ":hibernate:$grailsVersion"
-        runtime ":jquery:1.7.1"
+        runtime ":jquery:1.8.3"
         runtime ":resources:1.1.6"
-        runtime ":ala-web-theme:0.1.7"
+        runtime ":ala-web-theme:0.1.8"
 //        runtime ":yui:2.8.2"
 //        runtime (":grails-ui:1.2.3"){
 //            //for unresolvable dependency yui:[2.6.0,)
