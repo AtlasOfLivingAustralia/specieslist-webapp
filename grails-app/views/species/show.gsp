@@ -242,12 +242,29 @@
             <div class="tab-content ">
                 <section  class="tab-pane active" id="overview">
                     <div class="four-column">
-                        <section class="span4" id="overviewImage">
+                        <section class="" id="divMap">
+                            <div id="expertDistroDiv" style="display:none;margin-bottom: 10px;">
+                                <h2>Compiled distribution map</h2>
+                                <img id="distroMapImage" src="${resource(dir: 'images', file: 'noImage.jpg')}" class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>
+                                <div class="mapAttribution">Compiled distribution map provided by <span id="dataResource">[data resource not known]</span></div>
+                            </div>
+                            <h2>Occurrence records map</h2>
+                            <div class="bg-white">
+                                <g:set var="spatialQuery" value="lsid:%22${guid}%22%20AND%20geospatial_kosher:true"/>
+                                <img id="mapImage" src="http://biocache.ala.org.au/ws/density/map?q=${spatialQuery}" class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>
+                                <img id="mapLegend" src="http://biocache.ala.org.au/ws/density/legend?q=${spatialQuery}" class="distroLegend" alt="map legend" onerror="this.style.display='none'"/>
+                            </div>
+                            <p>
+                                <a class="button" href="${biocacheUrl}/occurrences/taxa/${guid}" title="View records list">View records list</a>
+                                <a class="button" href="${spatialPortalUrl}/?q=lsid:%22${guid}%22&cm=geospatial_kosher" title="Map & analyse records">Map &amp; analyse records</a>
+                            </p>
+                        </section>
+                        <section class="" id="overviewImage">
                             <ul class="overviewImages">
                                 <g:if test="${extraImages}">
                                     <g:set var="imageSearchUrl" value="${createLink(controller:'image-search', action: 'showSpecies', params:[taxonRank: tc?.taxonConcept?.rankString, scientificName: tc?.taxonConcept?.nameString])}" />
                                     <li>
-                                        <a href="${imageSearchUrl}" class="button">
+                                        <a href="${imageSearchUrl}" class="btn">
                                             View images of species for ${sciNameFormatted}</a>
                                     </li>
                                 </g:if>
@@ -298,23 +315,6 @@
                                     </g:each>
                                 </g:else>
                             </ul>
-                        </section>
-                        <section class="span5" id="divMap">
-                            <div id="expertDistroDiv" style="display:none;margin-bottom: 10px;">
-                                <h2>Compiled distribution map</h2>
-                                <img id="distroMapImage" src="${resource(dir: 'images', file: 'noImage.jpg')}" class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>
-                                <div class="mapAttribution">Compiled distribution map provided by <span id="dataResource">[data resource not known]</span></div>
-                            </div>
-                            <h2>Occurrence records map</h2>
-                            <div class="bg-white">
-                                <g:set var="spatialQuery" value="lsid:%22${guid}%22%20AND%20geospatial_kosher:true"/>
-                                <img id="mapImage" src="http://biocache.ala.org.au/ws/density/map?q=${spatialQuery}" class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>
-                                <img id="mapLegend" src="http://biocache.ala.org.au/ws/density/legend?q=${spatialQuery}" class="distroLegend" alt="map legend" onerror="this.style.display='none'"/>
-                            </div>
-                            <p>
-                                <a class="button" href="${biocacheUrl}/occurrences/taxa/${guid}" title="View records list">View records list</a>
-                                <a class="button" href="${spatialPortalUrl}/?q=lsid:%22${guid}%22&cm=geospatial_kosher" title="Map & analyse records">Map &amp; analyse records</a>
-                            </p>
                         </section>
                     </div>
                     <g:set var="descriptionBlock">
@@ -540,7 +540,7 @@
                 </g:if>
                 <section class="tab-pane" id="names">
                     <h2>Names and sources</h2>
-                    <table class="outline table table-condensed">
+                    <table class="table table-condensed">
                         <thead>
                             <tr>
                                 <th>Accepted name</th>

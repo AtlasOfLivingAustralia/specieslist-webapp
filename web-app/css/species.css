@@ -4,7 +4,7 @@ ul.overviewImages {
 
 ul.overviewImages li {
     list-style:none;
-    margin: 0;
+    margin: 5px 0;
 }
 
 section.clearfix {
@@ -156,12 +156,12 @@ section#classification dt#currentTaxonConcept, section#literature table .earlies
 
 #divMap {
     width: 480px;
+    margin-right: 20px;
     float: left;
 }
 
 #overviewImage {
-    /*width: 234px;*/
-    float: right;
+    float: left;
 }
 
 .nav-tabs li a {
@@ -183,7 +183,7 @@ body > p, body > ul {
     padding-bottom: 10px;
 }
 
-td[colspan="2"] {
+td[colspan="2"], section#names th {
     border-bottom: 1px solid #D1D1D1;
 }
 
@@ -207,6 +207,19 @@ div.rankCommonName {
     background: none;
     padding: 0;
 }
+
+section#names tr.cite td {
+    border-top: none;
+}
+
+section#names th {
+    width: 50%;
+}
+
+section#names td ul {
+    margin: 0;
+}
+
 .source ul {
     padding-bottom: 0;
 }

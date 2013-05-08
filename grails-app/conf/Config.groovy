@@ -128,7 +128,7 @@ environments {
         grails.serverURL = "http://bie-test.ala.org.au"
         security.cas.appServerName = grails.serverURL
         security.cas.contextPath = ""
-        //log4j.appender.'errors.File'="/var/log/tomcat/biewebapp2-stacktrace.log"
+        log4j.appender.'errors.File'="/var/log/tomcat/biewebapp2-stacktrace.log"
     }
     production {
         grails.logging.jul.usebridge = false
@@ -169,10 +169,10 @@ log4j = {
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
            'org.codehaus.groovy.grails.web.pages', //  GSP
            'org.codehaus.groovy.grails.web.sitemesh', //  layouts
-	         'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
+	       'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
            'org.codehaus.groovy.grails.web.mapping', // URL mapping
-	         'org.codehaus.groovy.grails.commons', // core / classloading
-	         'org.codehaus.groovy.grails.plugins', // plugins
+	       'org.codehaus.groovy.grails.commons', // core / classloading
+	       'org.codehaus.groovy.grails.plugins', // plugins
            'org.springframework.jdbc',
            'org.springframework.transaction',
            'org.codehaus.groovy',

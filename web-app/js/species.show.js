@@ -215,7 +215,7 @@ function doBhlSearch(start, rows, scroll) {
             var itemNumber = parseInt(data.responseHeader.params.start, 10) + 1;
             var maxItems = parseInt(data.grouped.itemId.ngroups, 10);
             if (maxItems == 0) {
-                return cancelSearch("No references were found for <code>" + query + "</code>");
+                return cancelSearch("No references were found for <pre>" + query + "</pre>");
             }
             var startItem = parseInt(start, 10);
             var pageSize = parseInt(rows, 10);
@@ -224,7 +224,7 @@ function doBhlSearch(start, rows, scroll) {
             //console.log(startItem, pageSize, showingTo);
             var pageSize = parseInt(rows, 10);
             buf += '<div class="results-summary">Showing ' + showingFrom + " to " + showingTo + " of " + maxItems +
-                ' results for the query <code>' + query + '</code>.</div>'
+                ' results for the query <pre>' + query + '</pre></div>'
             // grab highlight text and store in map/hash
             var highlights = {};
             $.each(data.highlighting, function(idx, hl) {

@@ -5,9 +5,6 @@ grails.project.test.reports.dir = "target/test-reports"
 grails.project.target.level = 1.6
 grails.project.source.level = 1.6
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
-grails.project.dependency.resolution = {
-    checksums true
-}
 
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
@@ -56,9 +53,9 @@ grails.project.dependency.resolution = {
 
     plugins {
         runtime ":hibernate:$grailsVersion"
-        runtime ":jquery:1.7.1"
+        runtime ":jquery:1.8.3"
         runtime ":resources:1.1.6"
-        runtime ":ala-web-theme:0.1.7"
+        runtime ":ala-web-theme:0.1.8"
 
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0"
