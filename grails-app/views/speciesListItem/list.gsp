@@ -286,10 +286,8 @@
         window.location.href = window.location.pathname + '?' + paramStr;
     }
 </script>
-    <r:layoutResources/>
 </head>
 <body class="yui-skin-sam species">
-<r:layoutResources/>
 <div id="content" >
     <header id="page-header">
 

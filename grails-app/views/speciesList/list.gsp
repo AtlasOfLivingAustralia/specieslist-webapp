@@ -21,11 +21,9 @@
     <style type="text/css">
         #speciesList {display: none;}
     </style>
-    <r:layoutResources/>
 </head>
 
 <body class="yui-skin-sam species">
-<r:layoutResources/>
 <script type="text/javascript">
     window.onload=init
     function init(){
