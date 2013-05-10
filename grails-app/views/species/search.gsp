@@ -52,7 +52,7 @@
                     <form class="form-search" action="${grailsApplication.config.grails.serverURL}/search">
                         <div class="input-append">
                             <input type="text" class="search-query" name="q" id="search-2013" style="width:280px;" placeholder="Search the Atlas" autocomplete="off" value="${params.q}"/>
-                            <button type="submit" class="btn"><i class="icon-search"></i></button>
+                            <button type="submit" class="btn"><i class="icon-search" style="margin-left:-3px;"></i></button>
                         </div>
                     </form>
                 </div>

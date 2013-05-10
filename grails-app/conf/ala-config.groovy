@@ -5,14 +5,14 @@
  * OR override these values in your app's Config.groovy file and comment-out in this file
  */
 
-security.cas.casServerName = 'https://auth.ala.org.au'
-security.cas.uriFilterPattern = "/admin, /admin/.*"// pattern for pages that require authentication
-security.cas.uriExclusionFilterPattern = '/images.*,/css.*,/js.*,/less.*'
-security.cas.authenticateOnlyIfLoggedInPattern = "/species/.*" // pattern for pages that can optionally display info about the logged-in user
-security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
-security.cas.logoutUrl = 'https://auth.ala.org.au/cas/logout'
-security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
-security.cas.bypass = false
+//security.cas.casServerName = 'https://auth.ala.org.au'
+//security.cas.uriFilterPattern = "/admin, /admin/.*"// pattern for pages that require authentication
+//security.cas.uriExclusionFilterPattern = '/images.*,/css.*,/js.*,/less.*'
+//security.cas.authenticateOnlyIfLoggedInPattern = "/species/.*" // pattern for pages that can optionally display info about the logged-in user
+//security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
+//security.cas.logoutUrl = 'https://auth.ala.org.au/cas/logout'
+//security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
+//security.cas.bypass = false
 
 appContext = grails.util.Metadata.current.'app.name'
 headerAndFooter.baseURL = 'http://www2.ala.org.au/commonui'

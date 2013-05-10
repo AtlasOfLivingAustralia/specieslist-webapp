@@ -33,14 +33,14 @@ ranking.readonly = false
 /******************************************************************************\
  *  SECURITY
  \******************************************************************************/
-//security.cas.urlPattern = "/admin, /admin/.*"
-//security.cas.urlExclusionPattern = "/images.*,/css.*,/js.*,.*json,.*xml"
-//security.cas.authenticateOnlyIfLoggedInPattern = "/species/.*"
-//security.cas.casServerName = "https://auth.ala.org.au"
-//security.cas.loginUrl = "${security.cas.casServerName}/cas/login"
-//security.cas.logoutUrl = "${security.cas.casServerName}/cas/logout"
-////security.cas.contextPath = "/workforce" //"""${appName}"
-//security.cas.bypass = false
+security.cas.casServerName = 'https://auth.ala.org.au'
+security.cas.uriFilterPattern = "/admin, /admin/.*"// pattern for pages that require authentication
+security.cas.uriExclusionFilterPattern = "/images.*,/css.*/less.*,/js.*,.*json,.*xml"
+security.cas.authenticateOnlyIfLoggedInPattern = "/species/.*" // pattern for pages that can optionally display info about the logged-in user
+security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
+security.cas.logoutUrl = 'https://auth.ala.org.au/cas/logout'
+security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
+security.cas.bypass = false
 
 nonTruncatedSources = ["http://www.environment.gov.au/biodiversity/abrs/online-resources/flora/main/index.html"]
 
@@ -116,6 +116,7 @@ environments {
         grails.logging.jul.usebridge = true
         grails.host = "http://dev.ala.org.au"
         grails.serverURL = "${grails.host}:8080/${appName}"
+        bie.baseURL = grails.serverURL
         security.cas.appServerName = "${grails.host}:8080"
         security.cas.contextPath = "/${appName}"
         // cached-resources plugin - keeps original filenames but adds cache-busting params
