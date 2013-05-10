@@ -33,18 +33,8 @@
 <head>
     <meta name="layout" content="main" />
     <title>${tc?.taxonConcept?.nameString} ${(tc?.commonNames) ? ' : ' + tc?.commonNames?.get(0)?.nameString : ''} | Atlas of Living Australia</title>
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'species.css')}" type="text/css" media="screen" />
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'colorbox.css')}" type="text/css" media="screen" />
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'snazzy.css')}" type="text/css" media="screen" />
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'jquery.fancybox.css')}" type="text/css" media="screen" />
-    <script src="${resource(dir: 'js', file: 'jquery.tools.min.js')}"></script><!-- tabs, etc. -->
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.htmlClean.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.colorbox-min.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.fancybox.pack.js')}"></script>
-    <script type="text/javascript" src="http://ajax.googleapis.com/jsapi"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.jsonp-2.3.1.min.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'charts2.js')}"></script>
-    <script type="text/javascript">
+    <r:require module="show"/>
+    <r:script disposition='head'>
         // load google charts api
         google.load("visualization", "1", {packages:["corechart"]});
 
@@ -61,9 +51,7 @@
             alertsUrl:      "${grailsApplication.config.alerts.baseUrl}",
             remoteUser:     "${request.remoteUser?:''}"
         }
-    </script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'species.show.js')}"></script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'trove.js')}"></script>
+    </r:script>
 </head>
 <body class="species content">
     <header id="page-header">

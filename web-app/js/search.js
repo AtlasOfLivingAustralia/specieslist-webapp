@@ -42,6 +42,16 @@ $(document).ready(function() {
     // AJAX search results
     injectBhlResults();
     injectBiocacheResults();
+
+    // in mobile view toggle display of facets
+    $("#toggleFacetDisplay").click(function() {
+        $(this).find("i").toggleClass("icon-chevron-down icon-chevron-right");
+        if ($("#accordion").is(":visible")) {
+            $("#accordion").removeClass("overrideHide");
+        } else {
+            $("#accordion").addClass("overrideHide");
+        }
+    });
 });
 
 /**

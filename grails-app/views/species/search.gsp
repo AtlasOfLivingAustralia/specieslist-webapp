@@ -12,7 +12,7 @@
   - implied. See the License for the specific language governing
   - rights and limitations under the License.
   --}%
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page import="au.org.ala.BieTagLib" contentType="text/html;charset=UTF-8" %>
 <g:set var="alaUrl" value="${grailsApplication.config.ala.baseURL}"/>
 <g:set var="biocacheUrl" value="${grailsApplication.config.biocache.baseURL}"/>
 <!doctype html>
@@ -20,19 +20,17 @@
 <head>
     <meta name="layout" content="main" />
     <title>${query} | Search | <g:message code="site.title"/></title>
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'bie.search.css')}" type="text/css" media="screen" />
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.sortElemets.js')}"></script>
-    <script type="text/javascript">
+    <r:require module="search"/>
+    <r:script disposition='head'>
         // global var to pass GSP vars into JS file
         SEARCH_CONF = {
-            query: "${query}",
+            query: "${BieTagLib.escapeJS(query)}",
             serverName: "${grailsApplication.config.grails.serverURL}",
             bieUrl: "${grailsApplication.config.bie.baseURL}",
             biocacheUrl: "${grailsApplication.config.biocache.baseURL}",
             bhlUrl: "${grailsApplication.config.bhl.baseURL}"
         }
-    </script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'search.js')}"></script>
+    </r:script>
 </head>
 <body class="species search content">
     <header id="page-header">
@@ -46,6 +44,18 @@
         </div>
         <hgroup class="row-fluid">
             <div class="span9">
+                <div class="hidden-desktop">
+                    %{--<form class="navbar-form" id="search-inpage" action="${grailsApplication.config.grails.serverURL}/search">--}%
+                        %{--<input type="text" name="q" style="width:280px;" id="search-2013" placeholder="Search the Atlas" autocomplete="off" value="${params.q}"/>--}%
+                        %{--<button type="submit" class="btn" style="margin-top:4px;"><i class="icon-search"></i></button>--}%
+                    %{--</form>--}%
+                    <form class="form-search" action="${grailsApplication.config.grails.serverURL}/search">
+                        <div class="input-append">
+                            <input type="text" class="search-query" name="q" id="search-2013" style="width:280px;" placeholder="Search the Atlas" autocomplete="off" value="${params.q}"/>
+                            <button type="submit" class="btn"><i class="icon-search"></i></button>
+                        </div>
+                    </form>
+                </div>
                 <g:if test="${searchResults.totalRecords}">
                     <h1>Search for <b>${query.replaceFirst(/^\*$/, "[all records]")}</b> returned <g:formatNumber number="${searchResults.totalRecords}" type="number"/> results</h1>
                 </g:if>
@@ -66,8 +76,12 @@
             <div class="span3">
                 <div class="well well-small">
                     <div class="facetLinks">
-                        <h2>Refine results</h2>
-                        <div id="accordion">
+                        <h2 class="hidden-phone">Refine results</h2>
+                        <h3 class="visible-phone">
+                            <a href="#" id="toggleFacetDisplay"><i class="icon-chevron-down" id="facetIcon"></i>
+                                Refine results</a>
+                        </h3>
+                        <div class="hidden-phone" id="accordion">
                             <g:if test="${query && filterQuery}">
                                 <g:set var="queryParam">q=${query.encodeAsHTML()}<g:if test="${!filterQuery.isEmpty()}">&fq=${filterQuery?.join("&fq=")}</g:if></g:set>
                             </g:if>

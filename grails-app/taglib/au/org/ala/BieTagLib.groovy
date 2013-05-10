@@ -1,5 +1,7 @@
 package au.org.ala
 
+import org.apache.commons.lang.StringEscapeUtils
+
 class BieTagLib {
     static namespace = 'bie'     // namespace for headers and footers
     def authService
@@ -134,5 +136,15 @@ class BieTagLib {
         } else {
             out << email.replaceAll(/\@\w+/, "...")
         }
+    }
+
+    /**
+     * Custom function to escape a string for JS use
+     *
+     * @param value
+     * @return
+     */
+    def static escapeJS(String value) {
+        return StringEscapeUtils.escapeJavaScript(value);
     }
 }
