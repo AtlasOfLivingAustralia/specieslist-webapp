@@ -67,6 +67,7 @@ p span.count {
 
 #speciesList {
     margin-top: 20px;
+    clear: both;
 }
 
 #facets-column {
