@@ -334,27 +334,6 @@
                             </g:each>
                         </ul>
                     </g:if>
-                    <g:if test="${infoSources}">
-                        <section id="resources" class="clearfix">
-                            <h2>Online resources</h2>
-                            <ul>
-                                <g:each var="is" in="${infoSources}" status="status">
-                                %{--<g:set var="infoSource" value="${entry.value}"/>--}%<!--code>${is}</code-->
-                                    <li><a href="${is.value?.infoSourceURL}" target="_blank" class="infosource">${is.value?.infoSourceName}</a>
-                                        <ul>
-                                            <li>
-                                                <g:each in="${is.value?.sections}" var="s" status="i">
-                                                    <g:set var="section"><g:message code="${s}"/></g:set>
-                                                    ${section}${section && i>1 && is.value?.sections?.size()>1 ?', ':''}
-                                                </g:each>
-                                                %{--${is.value?.sections.join(",")}--}%
-                                            </li>
-                                        </ul>
-                                    </li>
-                                </g:each>
-                            </ul>
-                        </section>
-                    </g:if>
                     <g:elseif test="${infoSourceMap}">
                         <section id="resources" class="clearfix">
                             <h2>Online resources</h2>

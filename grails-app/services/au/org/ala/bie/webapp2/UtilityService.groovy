@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils
 import grails.converters.JSON
 
 class UtilityService {
+
     def grailsApplication
     def webService
     /**
@@ -111,9 +112,9 @@ class UtilityService {
             }
         }
 
-        log.debug "1. infoSourceMap = " + infoSourceMap
+        if(log.debugEnabled) log.debug "1. infoSourceMap = " + infoSourceMap
         infoSourceMap = infoSourceMap.sort {a, b -> a.value.name <=> b.value.name}
-        log.debug "2. infoSourceMap = " + infoSourceMap
+        if(log.debugEnabled) log.debug "2. infoSourceMap = " + infoSourceMap
 
         return infoSourceMap
     }
@@ -130,8 +131,6 @@ class UtilityService {
                         normaliseString(names[i - 1]?.nameString) + "=" + names[i - 1]?.infoSourceName
             }
         }
-//        log.debug "unDuplicateNames: names = " + names
-//        log.debug "unDuplicateNames: namesSet = " + namesSet
         return namesSet
     }
 
@@ -161,11 +160,7 @@ class UtilityService {
             }
 
             namesMap.put(nameKey, tempGroupedNames)
-            //log.debug i + ". " + name.nameString?.replaceAll(/[^a-zA-Z0-9]/, "").trim().toLowerCase() + "=" + names2[i - 1]?.nameString?.replaceAll(/[^a-zA-Z0-9]/, "").trim().toLowerCase()
-            //log.debug "namesMap = " + namesMap
         }
-        //log.debug "getNamesAsSortedMap: names = " + sortedNames
-        //log.debug "getNamesAsSortedMap: namesMap = " + namesMap
         // sort by having names with most number of infoSources listed higher
         return namesMap.sort() { a, b -> b.value.size <=> a.value.size }
     }

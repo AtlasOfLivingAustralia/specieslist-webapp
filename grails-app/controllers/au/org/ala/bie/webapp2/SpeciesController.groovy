@@ -95,7 +95,6 @@ class SpeciesController {
             render(view: 'show', model: [
                     tc: etc,
                     statusRegionMap: utilityService.getStatusRegionCodes(),
-                    infoSources: bieService.getInfoSourcesForGuid(guid),
                     infoSourceMap: utilityService.getInfoSourcesForTc(etc), // fallback for bieService.getInfoSourcesForGuid(guid)
                     extraImages: bieService.getExtraImages(etc),
                     textProperties: utilityService.filterSimpleProperties(etc),

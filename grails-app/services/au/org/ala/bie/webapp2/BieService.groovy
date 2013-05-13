@@ -2,6 +2,7 @@ package au.org.ala.bie.webapp2
 
 import grails.converters.JSON
 import org.ala.dto.ExtendedTaxonConceptDTO
+import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.jackson.map.ObjectMapper
 import org.codehaus.jackson.map.DeserializationConfig
@@ -111,7 +112,12 @@ class BieService {
         log.debug "url = " + grailsApplication.config.bie.baseURL + "/ws/species/" + guid + ".json"
         def json = webService.get(grailsApplication.config.bie.baseURL + "/ws/species/" + guid + ".json")
         //log.debug "ETC json: " + json
-        return JSON.parse(json)
+        try{
+            JSON.parse(json)
+        } catch (Exception e){
+            log.warn "Problem retrieving information for Taxon: " + guid
+            null
+        }
     }
 
     def getExtraImages(tc) {
@@ -129,16 +135,6 @@ class BieService {
         log.debug "images = " + images
 
         return images
-    }
-
-    def getInfoSourcesForGuid(guid) {
-        def infoSources = webService.getJson(grailsApplication.config.bie.baseURL + "/ws/infosources/" + guid)
-
-        if (infoSources instanceof JSONObject && infoSources.has("error")) {
-            return [:]
-        } else {
-            return infoSources
-        }
     }
 
     def getClassificationForGuid(guid) {
