@@ -15,6 +15,8 @@
 package au.org.ala.specieslist
 import grails.converters.*
 import grails.web.JSONBuilder
+import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
+
 /**
  * Provides all the webservices to be used from other sources eg the BIE
  */
@@ -22,6 +24,7 @@ class WebServiceController {
 
     def helperService
     def authService
+    def queryService
     def beforeInterceptor = [action:this.&prevalidate,only:['getListDetails','saveList']]
 
     private def prevalidate(){
@@ -44,6 +47,15 @@ class WebServiceController {
 
     def index() { }
 
+    def getDistinctValues(){
+        def field = params.field
+
+        def props = [fetch:[ mylist: 'join']]
+        log.debug("Distinct values " + field +" "+ params)
+        def results = queryService.getFilterListItemResult(props, params,null,null,field )
+        render results as JSON
+    }
+
     def getTaxaOnList(){
         def druid = params.druid
         def results = SpeciesListItem.executeQuery("select guid from SpeciesListItem where dataResourceUid=?",[druid])
@@ -53,15 +65,20 @@ class WebServiceController {
     def getListItemsForSpecies(){
         def guid = params.guid
         def lists = params.dr?.split(",")
-        def props = [fetch:[kvpValues: 'join']]
-        def results = lists ? SpeciesListItem.findAllByGuidAndDataResourceUidInList(guid, lists,props) : SpeciesListItem.findAllByGuid(guid,props)
+        def props = [fetch:[kvpValues: 'join', mylist: 'join']]
+
+        def results = queryService.getFilterListItemResult(props, params, guid, lists,null)
+
+        //def results = lists ? SpeciesListItem.findAllByGuidAndDataResourceUidInList(guid, lists,props) : SpeciesListItem.findAllByGuid(guid,props)
         //def result2 =results.collect {[id: it.id, dataResourceUid: it.dataResourceUid, guid: it.guid, kvpValues: it.kvpValue.collect{ id:it.}]}
         def builder = new JSONBuilder()
+
+        //log.debug("RESULTS: " + results)
 
         def listOfRecordMaps = results.collect{li ->
             [ dataResourceUid:li.dataResourceUid,
               guid: li.guid,
-              list:[username:li.list.username,listName:li.list.listName],
+              list:[username:li.mylist.username,listName:li.mylist.listName,sds: li.mylist.isSDS?:false],
               kvpValues: li.kvpValues.collect{kvp->
                   [ key:kvp.key,
                     value:kvp.value,
@@ -95,7 +112,7 @@ class WebServiceController {
                 dateCreated = sl.dateCreated
                 username =  sl.username
                 fullName = sl.getFullName()
-                itemCount=SpeciesListItem.countByList(sl)
+                itemCount=sl.itemsCount//SpeciesListItem.countByList(sl)
             }
             log.debug(" The retvalue: " + retValue)
             render retValue
@@ -109,13 +126,18 @@ class WebServiceController {
                 params.user = null
             if(!params.user)
                 params.sort = params.sort ?: "listName"
+            if(params.sort == "count") params.sort = "itemsCount"
             params.order= params.order?:"asc"
+
             //def allLists = params.user? SpeciesList.findAll("from SpeciesList sl order by case username when '" + params.user +"' then 0 else 1 end, listName"):SpeciesList.list([sort: 'listName',fetch: [items: 'lazy']])
+            //When no extra sort field is provided with a params.user this represents a special case for the initial spatial portal
             String query = params.user ? "from SpeciesList sl order by case username when ? then 0 else 1 end, lastUpdated desc":null
             log.debug("Query : " + query)
-            def ids = params.sort =="count" ? SpeciesList.executeQuery("SELECT sl.id FROM SpeciesList sl join sl.items AS item GROUP BY sl.id ORDER BY COUNT(item) " + params.order,[], params) :null
-            def allLists = params.sort == "count"?SpeciesList.getAll(ids):params.user? SpeciesList.findAll(query,[params.user], params):SpeciesList.list(params)
-            def retValue =[listCount:SpeciesList.count, sort:  params.sort, order: params.order, max: params.max, offset:  params.offset, lists:allLists.collect{[dataResourceUid: it.dataResourceUid, listName: it.listName, listType:it?.listType?.toString(), dateCreated:it.dateCreated, username:it.username,  fullName:it.getFullName(), itemCount:SpeciesListItem.countByList(it)]}]
+           // def ids = params.sort =="count" ? SpeciesList.executeQuery("SELECT sl.id FROM SpeciesList sl join sl.items AS item GROUP BY sl.id ORDER BY COUNT(item) " + params.order,[], params) :null
+            //def allLists = params.sort == "count"?SpeciesList.getAll(ids):params.user? SpeciesList.findAll(query,[params.user], params):SpeciesList.list(params)
+            def allLists = query?SpeciesList.findAll(query,[params.user], params):queryService.getFilterListResult(params)
+            def listCounts = query?SpeciesList.count:allLists.totalCount
+            def retValue =[listCount:listCounts, sort:  params.sort, order: params.order, max: params.max, offset:  params.offset, lists:allLists.collect{[dataResourceUid: it.dataResourceUid, listName: it.listName, listType:it?.listType?.toString(), dateCreated:it.dateCreated, username:it.username,  fullName:it.getFullName(), itemCount:it.itemsCount]}]
 
             render retValue as JSON
         }

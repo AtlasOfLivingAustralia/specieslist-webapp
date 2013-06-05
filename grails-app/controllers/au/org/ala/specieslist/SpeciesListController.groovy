@@ -34,7 +34,10 @@ class SpeciesListController {
 
     def upload(){ /*maps to the upload.gsp */
         log.debug(ListType.values())
-        render(view:"upload",model:  [listTypes:ListType.values()])
+        if(params.id)
+            render(view: "upload", model: [list:  SpeciesList.findByDataResourceUid(params.id), listTypes:ListType.values()])
+        else
+            render(view:"upload",model:  [listTypes:ListType.values()])
     }
     /**
      * Current mechnism for deleting a species list
@@ -65,6 +68,16 @@ class SpeciesListController {
         redirect(action:  'upload')
     }
 
+    def createOrRetrieveDataResourceUid(dataResourceUid, speciesListName, description, listUrl){
+        if(!dataResourceUid){
+            def drURL = helperService.addDataResourceForList(speciesListName, description, listUrl,null)
+            log.debug(drURL)
+            drURL.toString().substring(drURL.lastIndexOf('/') +1)
+        }
+        else
+            dataResourceUid
+    }
+
     def uploadList(){
         //the raw data and list name must exist
         log.debug("upload the list....")
@@ -73,17 +86,19 @@ class SpeciesListController {
         log.debug(formParams.toString() + " class : " + formParams.getClass())
 
         if(formParams.speciesListName && formParams.headers && formParams.rawData){
-            def drURL = helperService.addDataResourceForList(formParams.speciesListName, formParams.description, formParams.listUrl,null)
-            log.debug(drURL)
-            if(drURL){
-                def druid = drURL.toString().substring(drURL.lastIndexOf('/') +1)
+            //def drURL = helperService.addDataResourceForList(formParams.speciesListName, formParams.description, formParams.listUrl,null)
+            //log.debug(drURL)
+            def druid = createOrRetrieveDataResourceUid(formParams.id,formParams.speciesListName, formParams.description, formParams.listUrl)
+            if(druid){
+                //def druid = drURL.toString().substring(drURL.lastIndexOf('/') +1)
                 log.debug("Loading species list " + formParams.speciesListName)
                 def vocabs = formParams.findAll { it.key.startsWith("vocab") && it.value } //map of vocabs
                 log.debug("Vocabs: " +vocabs)
                 CSVReader reader = helperService.getCSVReaderForText(formParams.rawData, helperService.getSeparator(formParams.rawData))
                 def header = formParams.headers
                 log.debug("Header: " +header)
-                helperService.loadSpeciesList(reader,druid,formParams.speciesListName, ListType.valueOf(formParams.get("listType")), formParams.description, formParams.listUrl, formParams.listWkt, header.split(","),vocabs)
+
+                helperService.loadSpeciesList(reader,druid,formParams.speciesListName, ListType.valueOf(formParams.get("listType")), formParams.description, formParams.listUrl, formParams.listWkt,formParams.isBIE, formParams.isSDS, header.split(","),vocabs)
                 def url =createLink(controller:'speciesListItem', action:'list', id: druid) +"?max=15"
                 def map = [url:url]
 //                println("THE URKL: "+url)
@@ -147,15 +162,40 @@ class SpeciesListController {
         }
     }
 
+    def get
+
     def list(){
-        //list should be based on the user that is logged in
-        params.max = Math.min(params.max ? params.int('max') : 25, 100)
-        params.sort = params.sort ?: "listName"
-        params.fetch = [items: 'lazy']
+        //list should be based on the user that is logged in so add the filter condition
+        def username = authService.email()
+        if (username)
+            params['username'] = "eq:"+username
         try{
-            def lists = SpeciesList.findAllByUsername(authService.email(),params)
-            def count = SpeciesList.countByUsername(authService.email(),params)
-            render(view: "list", model: [lists:lists, total:count])
+            def lists = queryService.getFilterListResult(params)
+
+            //now remove the params that were added
+            params.remove('username')
+
+            log.debug("lists:" + lists)
+
+//        def qparams =[:]
+//        qparams.max = Math.min(params.max ? params.int('max') : 25, 100)
+//        qparams.sort = params.sort ?: "listName"
+//        qparams.fetch = [items: 'lazy']
+//        params.remove('max')
+//        params.remove('sort')
+//        def username = authService.email()
+//        if (username)
+//            params['username'] = username
+//        try{
+//            def c = SpeciesList.createCriteria()
+//            def lists= c.list(qparams){
+//                and{
+//
+//                }
+//            }
+            //def lists = SpeciesList.findAllByUsername(authService.email(),params)
+            //def count = SpeciesList.countByUsername(authService.email(),params)
+            render(view: "list", model: [lists:lists, total:lists.totalCount])
         }
         catch(Exception e){
             log.error "Error requesting species Lists: " ,e

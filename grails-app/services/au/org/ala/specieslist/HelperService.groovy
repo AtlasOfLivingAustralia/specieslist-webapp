@@ -93,8 +93,8 @@ class HelperService {
             user = "Species List Upload"
             api_key = collectoryKey
             email = email?:""
-            firstName = ""
-            lastName = ""
+            firstName = authService.firstname()?:""
+            lastName = authService.surname()?:""
             websiteUrl=URL?:""
             pubDescription=description?:""
             resourceType = "uploads"
@@ -254,11 +254,14 @@ class HelperService {
         sl.save()
     }
 
-    def loadSpeciesList(CSVReader reader,druid,listname,ListType listType,description, listUrl, listWkt, String[] header, Map vocabs){
+    def loadSpeciesList(CSVReader reader,druid,listname,ListType listType,description, listUrl, listWkt, Boolean isBIE, Boolean isSDS, String[] header, Map vocabs){
         log.debug("Loading species list " + druid + " " + listname + " " + description + " " + listUrl + " " + header + " " + vocabs)
         def kvpmap = [:]
         addVocab(druid,vocabs,kvpmap)
-        SpeciesList sl = new SpeciesList()
+        //attempt to retrieve an existing list first
+        SpeciesList sl = SpeciesList.findByDataResourceUid(druid)?:new SpeciesList()
+        if (sl.dataResourceUid)
+            sl.items.clear()
         sl.listName = listname
         sl.dataResourceUid=druid
         sl.username = authService.email()
@@ -268,6 +271,8 @@ class HelperService {
         sl.url = listUrl
         sl.wkt = listWkt
         sl.listType = listType
+        if(isBIE)sl.isBIE=true
+        if(isSDS)sl.isSDS=true
         String [] nextLine
         boolean checkedHeader = false
         int speciesValueIdx = getSpeciesIndex(header)

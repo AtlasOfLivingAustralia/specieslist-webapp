@@ -29,7 +29,9 @@ class SpeciesListItem {
     Integer itemOrder
 
     static hasMany = [kvpValues: SpeciesListKVP]
-    static belongsTo = [list:SpeciesList]
+    //NC 2013-05-09: Changed the name for the list relationship because this is a reserved word in certain situations. This causes
+    //issues when being used in a "criteria"
+    static belongsTo = [mylist:SpeciesList]
 
     static constraints = {
         //guid unique:  'name' //AK for the table
@@ -45,6 +47,8 @@ class SpeciesListItem {
         dataResourceUid index: 'idx_data_resource_uid'
         guid index: 'idx_guid'
         itemOrder index:  'idx_item_order'
+        //NC 2013-05-09: Needed to map the old FK column name to the new one
+        mylist (column:'list_id')
         //kvpValues cascade: "all-delete-orphan"
         //kvpValues lazy: false
     }

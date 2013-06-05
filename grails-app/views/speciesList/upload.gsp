@@ -25,7 +25,10 @@
 
     function reset(){
         $('#recognisedDataDiv').hide();
-        $('#uploadDiv').hide();
+        if("${list}")
+            $('#uploadDiv').show();
+        else
+            $('#uploadDiv').hide();
         $('#statusMsgDiv').hide();
         $('#uploadmsg').hide();
     }
@@ -125,6 +128,17 @@
             map['listWkt'] = $('#listWkt').val();
             map['rawData']  =$('#copyPasteData').val();
             map['listType'] =$('#listTypeId').val();
+            //add the existing data resource uid if it is provided to handle a resubmit
+            if("${list}")
+                map['id'] = "${list?.dataResourceUid}"
+            //if the isBIE checkbox exists add the value
+            if($('#isBIE').length>0){
+                map['isBIE']=$('#isBIE').is(':checked');
+            }
+            //if the isSDS checkbox exists add the value
+            if($('#isSDS').length>0){
+                map['isSDS']=$('#isSDS').is(':checked');
+            }
             //console.log($.param(map))
             console.log("The map: ",map)
             $('#recognisedDataDiv').hide();
@@ -239,15 +253,26 @@
                 </div>
             </div>
             <hgroup>
-                <h1>Upload a list</h1>
+                <g:if test="${list}">
+                    <h1><g:message code="upload.heading.hasList" default="Upload a list"/></h1>
+                </g:if>
+                <g:else>
+                    <h1><g:message code="upload.heading" default="Upload a list"/></h1>
+                </g:else>
             </hgroup>
         </div><!--inner-->
     </header>
     <div class="inner">
         <div class="message alert alert-info" id="uploadmsg" style="clear:right;">${flash.message}</div>
         <div id="section" class="col-wide">
+
+            <g:if test="${list}">
+                <div class="message alert alert-info"><g:message code="upload.instructions.hasList" default="Upload a list"/></div>
+            </g:if>
+
             A species list can consist of a list of scientific or common names and optionally associated properties. When
             a CSV list is supplied we will attempt to use the first line to determine mappings.
+
             <div id="initialPaste">
                 <h2>1. Paste your species list here</h2>
                 <p>To paste your data, click the rectangle below, and type <strong>control-V (Windows)</strong>
@@ -266,6 +291,80 @@
 
             <div id="recognisedData"></div>
 
+            <!-- Moved the upload div to here so that the values can be remembered to support a reload of the species list-->
+
+            <div id="uploadDiv">
+                <h2>3. Upload Species List</h2>
+                Please supply a title for your list.  You can optionally supply a description, an external URL as a reference to the list and a geospatial bounds for the list (in WKT format).
+                <div id="processSampleUpload">
+                    %{--<p style="padding-bottom:0px;">--}%
+                    <table>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <label for="listTitle"><g:message code="upload.listname.label" default="Title*"/></label>
+                            </td>
+                            <td>
+                                <g:textField name="listTitle" style="width:99%" value="${list?.listName}"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="listTypeId"><g:message code="upload.listtype.label" default="List Type*"/></label></td>
+                            <td>
+                                <select name="listTypeId" id="listTypeId">
+                                    <option value="">-- select a type --</option>
+                                    <g:each in="${au.org.ala.specieslist.ListType.values()}" var="type"><option value="${type.name()}" ${(list?.listType == type) ? 'selected="selected"':''}>${type.displayValue}</option></g:each>
+                                </select>
+                            </td>
+
+                        </tr>
+                        <g:if test="${request.isUserInRole("ROLE_ADMIN")}">
+                            <tr>
+                                <td><label for="isBIE"><g:message code= "speciesList.isBIE.label" default= "Included in BIE"/></label> </td>
+                                <td><g:checkBox name="isBIE" id="isBIE" checked="${list?.isBIE}"/></td>
+                            </tr>
+                            <tr>
+                                <td><label for="isSDS"><g:message code= "speciesList.isSDS.label" default= "Part of the SDS"/></label> </td>
+                                <td><g:checkBox name="isSDS" id="isSDS" checked="${list?.isSDS}"/></td>
+                            </tr>
+                        </g:if>
+                        <tr>
+                            <td>
+                                <label for="listDesc"><g:message code="upload.listdesc.label" default="Description"/></label>
+                            </td>
+                            <td>
+                                <g:textArea cols="100" rows="5" name="listDesc">${list?.description}</g:textArea>
+
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="listURL"><g:message code="upload.listlink.label" default="URL"/></label>
+                            </td>
+                            <td>
+                                <g:textField name="listURL" style="width:99%">${list?.url}</g:textField>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="listWkt"><g:message code="upload.listWkt.label" default="Spatial bounds for data (WKT)"/></label>
+                            </td>
+                            <td>
+                                <g:textArea cols="100" rows="5" name="listWkt">${list?.wkt}</g:textArea>
+                            </td>
+
+                        </tr>
+                        </tbody>
+                    </table>
+                    %{--<label for="speciesListName" class="datasetName"><strong>Your species list name</strong></label>--}%
+                    %{--<input id="speciesListName" class="datasetName" name="datasetName" type="text" value="My test species list" style="width:350px; margin-bottom:5px;"/>--}%
+                    <input id="uploadButton" class="datasetName actionButton btn" type="button" value="Upload"
+                           onclick="javascript:uploadSpeciesList();"/>
+                    %{--</p>--}%
+                </div>
+            </div>
 
             <div id="uploadFeedback" style="clear:right;display:none;" class="alert alert-error">
                 <button type="button" class="close" onclick="$(this).parent().hide()">×</button>

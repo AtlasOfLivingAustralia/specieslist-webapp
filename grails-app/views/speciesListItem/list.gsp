@@ -388,6 +388,10 @@
             <dd><g:formatDate format="yyyy-MM-dd" date="${speciesList.dateCreated?:0}"/><!-- ${speciesList.lastUpdated} --></dd>
             <dt>${message(code: 'speciesList.isPrivate.label', default: 'Is private')}</dt>
             <dd><g:formatBoolean boolean="${speciesList.isPrivate?:false}" true="Yes" false="No"/></dd>
+            <dt>${message(code: 'speciesList.isBIE.label', default: 'Included in BIE')}</dt>
+            <dd><g:formatBoolean boolean="${speciesList.isBIE?:false}" true="Yes" false="No"/></dd>
+            <dt>${message(code: 'speciesList.isSDS.label', default: 'Part of the SDS')}</dt>
+            <dd><g:formatBoolean boolean="${speciesList.isSDS?:false}" true="Yes" false="No"/></dd>
             <g:if test="${speciesList.editors}">
                 <dt>${message(code: 'speciesList.editors.label', default: 'List editors')}</dt>
                 <dd>${speciesList.editors.collect{ sl.getFullNameForUserId(userId: it) }?.join(", ")}</dd>
@@ -450,6 +454,20 @@
                             <input type="checkbox" id="isPrivate" name="isPrivate" class="input-xlarge" value="true" data-value="${speciesList.isPrivate}" ${(speciesList.isPrivate == true) ? 'checked="checked"':''} />
                         </div>
                     </div>
+                    <g:if test="${request.isUserInRole("ROLE_ADMIN")}">
+                        <div class="control-group">
+                            <label class="control-label" for="isBIE">${message(code: 'speciesList.isBIE.label', default: 'Included in BIE')}</label>
+                            <div class="controls">
+                                <input type="checkbox" id="isBIE" name="isBIE" class="input-xlarge" value="true" data-value="${speciesList.isBIE}" ${(speciesList.isBIE == true) ? 'checked="checked"':''} />
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="isSDS">${message(code: 'speciesList.isSDS.label', default: 'Part of the SDS')}</label>
+                            <div class="controls">
+                                <input type="checkbox" id="isSDS" name="isSDS" class="input-xlarge" value="true" data-value="${speciesList.isSDS}" ${(speciesList.isSDS == true) ? 'checked="checked"':''} />
+                            </div>
+                        </div>
+                    </g:if>
                     <div class="control-group">
                         <div class="controls">
                             <button type="submit" id="edit-meta-submit" class="btn btn-primary">Save</button>

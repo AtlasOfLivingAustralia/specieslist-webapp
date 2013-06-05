@@ -51,7 +51,7 @@ class EditorController {
             def speciesList = SpeciesList.findByDataResourceUid(params.id)
             log.debug "speciesList DRUid = " + speciesList.dataResourceUid
             // create new item (not actually saved in DB)
-            sli = new SpeciesListItem(list: speciesList, dataResourceUid: speciesList.dataResourceUid)
+            sli = new SpeciesListItem(mylist: speciesList, dataResourceUid: speciesList.dataResourceUid)
             log.debug "List's DRUid = " + sli.dataResourceUid
         }
         else  {
@@ -64,7 +64,7 @@ class EditorController {
             render(view: "editRecordScreen")
         }
         else {
-            SpeciesList sl = sli.list
+            SpeciesList sl = sli.mylist
             log.debug "Item's list = " + sl.listName
             log.debug "Item's DRUid = " + sli.dataResourceUid
             log.debug "Item's Size = " + sl.items.size()

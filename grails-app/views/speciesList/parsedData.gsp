@@ -97,69 +97,79 @@
             %{--<div id="recognisedData"></div>--}%
 
             %{--</div>--}%
-            <div id="uploadDiv">
-                <h2>3. Upload Species List</h2>
-                Please supply a title for your list.  You can optionally supply a description, an external URL as a reference to the list and a geospatial bounds for the list (in WKT format).
-                <div id="processSampleUpload">
+            %{--<div id="uploadDiv">--}%
+                %{--<h2>3. Upload Species List</h2>--}%
+                %{--Please supply a title for your list.  You can optionally supply a description, an external URL as a reference to the list and a geospatial bounds for the list (in WKT format).--}%
+                %{--<div id="processSampleUpload">--}%
                     %{--<p style="padding-bottom:0px;">--}%
-                    <table>
-                    <tbody>
-                    <tr>
-                       <td>
-                           <label for="listTitle"><g:message code="upload.listname.label" default="Title*"/></label>
-                                                    </td>
-                        <td>
-                            <g:textField name="listTitle" style="width:99%"/>
-                        </td>
-                        </tr>
-                        <tr>
-                            <td><label for="listTypeId"><g:message code="upload.listtype.label" default="List Type*"/></label></td>
-                            <td>
-                                <select name="listTypeId" id="listTypeId">
-                                    <option value="">-- select a type --</option>
-                                    <g:each in="${listTypes}" var="listType">
-                                        <option value="${listType}">${listType.getDisplayValue()}</option>
-                                    </g:each>
-                                </select>
-                            </td>
+                    %{--<table>--}%
+                    %{--<tbody>--}%
+                    %{--<tr>--}%
+                       %{--<td>--}%
+                           %{--<label for="listTitle"><g:message code="upload.listname.label" default="Title*"/></label>--}%
+                                                    %{--</td>--}%
+                        %{--<td>--}%
+                            %{--<g:textField name="listTitle" style="width:99%"/>--}%
+                        %{--</td>--}%
+                        %{--</tr>--}%
+                        %{--<tr>--}%
+                            %{--<td><label for="listTypeId"><g:message code="upload.listtype.label" default="List Type*"/></label></td>--}%
+                            %{--<td>--}%
+                                %{--<select name="listTypeId" id="listTypeId">--}%
+                                    %{--<option value="">-- select a type --</option>--}%
+                                    %{--<g:each in="${listTypes}" var="listType">--}%
+                                        %{--<option value="${listType}">${listType.getDisplayValue()}</option>--}%
+                                    %{--</g:each>--}%
+                                %{--</select>--}%
+                            %{--</td>--}%
 
-                        </tr>
-                        <tr>
-                            <td>
-                                <label for="listDesc"><g:message code="upload.listdesc.label" default="Description"/></label>
-                            </td>
-                            <td>
-                                <g:textArea cols="100" rows="5" name="listDesc"/>
-                            </td>
+                        %{--</tr>--}%
+                        %{--<g:if test="${request.isUserInRole("ROLE_ADMIN")}">--}%
+                            %{--<tr>--}%
+                                %{--<td><label for="isBIE"><g:message code= "speciesList.isBIE.label" default= "Included in BIE"/></label> </td>--}%
+                                %{--<td><g:checkBox name="isBIE" id="isBIE"/></td>--}%
+                            %{--</tr>--}%
+                            %{--<tr>--}%
+                                %{--<td><label for="isSDS"><g:message code= "speciesList.isSDS.label" default= "Part of the SDS"/></label> </td>--}%
+                                %{--<td><g:checkBox name="isSDS" id="isSDS"/></td>--}%
+                            %{--</tr>--}%
+                        %{--</g:if>--}%
+                        %{--<tr>--}%
+                            %{--<td>--}%
+                                %{--<label for="listDesc"><g:message code="upload.listdesc.label" default="Description"/></label>--}%
+                            %{--</td>--}%
+                            %{--<td>--}%
+                                %{--<g:textArea cols="100" rows="5" name="listDesc"/>--}%
+                            %{--</td>--}%
 
-                        </tr>
-                        <tr>
-                            <td>
-                                <label for="listURL"><g:message code="upload.listlink.label" default="URL"/></label>
-                            </td>
-                            <td>
-                                <g:textField name="listURL" style="width:99%"/>
-                            </td>
+                        %{--</tr>--}%
+                        %{--<tr>--}%
+                            %{--<td>--}%
+                                %{--<label for="listURL"><g:message code="upload.listlink.label" default="URL"/></label>--}%
+                            %{--</td>--}%
+                            %{--<td>--}%
+                                %{--<g:textField name="listURL" style="width:99%"/>--}%
+                            %{--</td>--}%
 
-                        </tr>
-                        <tr>
-                            <td>
-                                <label for="listWkt"><g:message code="upload.listWkt.label" default="Spatial bounds for data (WKT)"/></label>
-                            </td>
-                            <td>
-                                <g:textArea cols="100" rows="5" name="listWkt"/>
-                            </td>
+                        %{--</tr>--}%
+                        %{--<tr>--}%
+                            %{--<td>--}%
+                                %{--<label for="listWkt"><g:message code="upload.listWkt.label" default="Spatial bounds for data (WKT)"/></label>--}%
+                            %{--</td>--}%
+                            %{--<td>--}%
+                                %{--<g:textArea cols="100" rows="5" name="listWkt"/>--}%
+                            %{--</td>--}%
 
-                        </tr>
-                        </tbody>
-                        </table>
+                        %{--</tr>--}%
+                        %{--</tbody>--}%
+                        %{--</table>--}%
                     %{--<label for="speciesListName" class="datasetName"><strong>Your species list name</strong></label>--}%
                     %{--<input id="speciesListName" class="datasetName" name="datasetName" type="text" value="My test species list" style="width:350px; margin-bottom:5px;"/>--}%
-                        <input id="uploadButton" class="datasetName actionButton btn" type="button" value="Upload"
-                               onclick="javascript:uploadSpeciesList();"/>
+                        %{--<input id="uploadButton" class="datasetName actionButton btn" type="button" value="Upload"--}%
+                               %{--onclick="javascript:uploadSpeciesList();"/>--}%
                     %{--</p>--}%
-                </div>
-            </div>
+                %{--</div>--}%
+            %{--</div>--}%
         </g:else>
     </div>
 </div>

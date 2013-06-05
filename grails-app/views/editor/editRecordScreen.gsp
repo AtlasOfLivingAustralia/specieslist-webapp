@@ -22,8 +22,8 @@
             <dt>Scientific Name (matched)</dt><dd>${record.matchedName}</dd>
         </dl>
     </div>
-    <form class="editRecordForm" id="editForm_${record.id}" data-id="${record.id?:record.list?.id}">
-        <input type="hidden" name="id" value="${record.id?:record.list?.id}"/>
+    <form class="editRecordForm" id="editForm_${record.id}" data-id="${record.id?:record.mylist?.id}">
+        <input type="hidden" name="id" value="${record.id?:record.mylist?.id}"/>
         <table id="editRecordTable" class="table table-bordered table-condensed">
             <thead>
             <tr>
