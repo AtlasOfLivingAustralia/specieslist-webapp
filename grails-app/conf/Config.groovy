@@ -13,30 +13,15 @@
 /******************************************************************************\
  *  EXTERNAL SERVERS
  \******************************************************************************/
-if (!bie.baseURL) {
-    bie.baseURL = "http://bie.ala.org.au"
-}
-if (!bie.searchPath) {
-    bie.searchPath = "/search"
-}
-if (!biocache.baseURL) {
-    biocache.baseURL = "http://biocache.ala.org.au"
-}
-if (!spatial.baseURL) {
-    spatial.baseURL = "http://spatial.ala.org.au"
-}
-if (!ala.baseURL) {
-    ala.baseURL = "http://www.ala.org.au"
-}
-if (!collectory.baseURL) {
-    collectory.baseURL = "http://collections.ala.org.au"
-}
-if (!bhl.baseURL) {
-    bhl.baseURL = "http://bhlidx.ala.org.au"
-}
-if( !speciesList.baseURL){
-    speciesList.baseURL ="http://lists.ala.org.au"
-}
+bie.baseURL = "http://bie.ala.org.au"
+bie.searchPath = "/search"
+biocache.baseURL = "http://biocache.ala.org.au"
+spatial.baseURL = "http://spatial.ala.org.au"
+ala.baseURL = "http://www.ala.org.au"
+collectory.baseURL = "http://collections.ala.org.au"
+bhl.baseURL = "http://bhlidx.ala.org.au"
+speciesList.baseURL ="http://lists.ala.org.au"
+
 userDetails.url ="http://auth.ala.org.au/userdetails/userDetails/"
 userDetails.path ="getUserList"
 alerts.baseUrl = "http://alerts.ala.org.au/ws/"
@@ -48,31 +33,14 @@ ranking.readonly = false
 /******************************************************************************\
  *  SECURITY
  \******************************************************************************/
-if (!security.cas.urlPattern) {
-    security.cas.urlPattern = "/admin, /admin/.*"
-}
-if (!security.cas.urlExclusionPattern) {
-    security.cas.urlExclusionPattern = "/images.*,/css.*,/js.*,.*json,.*xml"
-}
-if (!security.cas.authenticateOnlyIfLoggedInPattern) {
-    security.cas.authenticateOnlyIfLoggedInPattern = "/species/.*"
-}
-if (!security.cas.casServerName) {
-    security.cas.casServerName = "https://auth.ala.org.au"
-}
-if (!security.cas.loginUrl) {
-    security.cas.loginUrl = "${security.cas.casServerName}/cas/login"
-}
-if (!security.cas.logoutUrl) {
-    security.cas.logoutUrl = "${security.cas.casServerName}/cas/logout"
-}
-if (!security.cas.contextPath) {
-    //security.cas.contextPath = "/workforce" //"""${appName}"
-}
-if (!security.cas.bypass) {
-    security.cas.bypass = false
-}
-
+security.cas.casServerName = 'https://auth.ala.org.au'
+security.cas.uriFilterPattern = "/admin, /admin/.*"// pattern for pages that require authentication
+security.cas.uriExclusionFilterPattern = "/images.*,/css.*/less.*,/js.*,.*json,.*xml"
+security.cas.authenticateOnlyIfLoggedInPattern = "/species/.*" // pattern for pages that can optionally display info about the logged-in user
+security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
+security.cas.logoutUrl = 'https://auth.ala.org.au/cas/logout'
+security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
+security.cas.bypass = false
 
 nonTruncatedSources = ["http://www.environment.gov.au/biodiversity/abrs/online-resources/flora/main/index.html"]
 
@@ -146,8 +114,9 @@ grails.hibernate.cache.queries = true
 environments {
     development {
         grails.logging.jul.usebridge = true
-        grails.host = "http://localhost"
+        grails.host = "http://dev.ala.org.au"
         grails.serverURL = "${grails.host}:8080/${appName}"
+        bie.baseURL = grails.serverURL
         security.cas.appServerName = "${grails.host}:8080"
         security.cas.contextPath = "/${appName}"
         // cached-resources plugin - keeps original filenames but adds cache-busting params
@@ -160,7 +129,7 @@ environments {
         grails.serverURL = "http://bie-test.ala.org.au"
         security.cas.appServerName = grails.serverURL
         security.cas.contextPath = ""
-        //log4j.appender.'errors.File'="/var/log/tomcat/biewebapp2-stacktrace.log"
+        log4j.appender.'errors.File'="/var/log/tomcat/biewebapp2-stacktrace.log"
     }
     production {
         grails.logging.jul.usebridge = false
@@ -201,10 +170,10 @@ log4j = {
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
            'org.codehaus.groovy.grails.web.pages', //  GSP
            'org.codehaus.groovy.grails.web.sitemesh', //  layouts
-	         'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
+	       'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
            'org.codehaus.groovy.grails.web.mapping', // URL mapping
-	         'org.codehaus.groovy.grails.commons', // core / classloading
-	         'org.codehaus.groovy.grails.plugins', // plugins
+	       'org.codehaus.groovy.grails.commons', // core / classloading
+	       'org.codehaus.groovy.grails.plugins', // plugins
            'org.springframework.jdbc',
            'org.springframework.transaction',
            'org.codehaus.groovy',

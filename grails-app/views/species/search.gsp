@@ -12,7 +12,7 @@
   - implied. See the License for the specific language governing
   - rights and limitations under the License.
   --}%
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page import="au.org.ala.BieTagLib" contentType="text/html;charset=UTF-8" %>
 <g:set var="alaUrl" value="${grailsApplication.config.ala.baseURL}"/>
 <g:set var="biocacheUrl" value="${grailsApplication.config.biocache.baseURL}"/>
 <!doctype html>
@@ -20,47 +20,68 @@
 <head>
     <meta name="layout" content="main" />
     <title>${query} | Search | <g:message code="site.title"/></title>
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'bie.search.css')}" type="text/css" media="screen" />
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.sortElemets.js')}"></script>
-    <script type="text/javascript">
+    <r:require module="search"/>
+    <r:script disposition='head'>
         // global var to pass GSP vars into JS file
         SEARCH_CONF = {
-            query: "${query}",
+            query: "${BieTagLib.escapeJS(query)}",
             serverName: "${grailsApplication.config.grails.serverURL}",
             bieUrl: "${grailsApplication.config.bie.baseURL}",
             biocacheUrl: "${grailsApplication.config.biocache.baseURL}",
             bhlUrl: "${grailsApplication.config.bhl.baseURL}"
         }
-    </script>
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'search.js')}"></script>
+    </r:script>
 </head>
-<body class="species">
+<body class="species search content">
     <header id="page-header">
-        <div class="inner">
-            <nav id="breadcrumb">
-                <ol>
-                    <li><a href="${alaUrl}">Home</a></li>
-                    <li class="last">Search the Atlas</li>
+        <div class="inner row-fluid">
+            <div id="breadcrumb" class="span12">
+                <ol class="breadcrumb">
+                    <li><a href="${alaUrl}">Home</a> <span class=" icon icon-arrow-right"></span></li>
+                    <li class="active">Search the Atlas</li>
                 </ol>
-            </nav>
-            <hgroup>
+            </div>
+        </div>
+        <hgroup class="row-fluid">
+            <div class="span9">
+                <div class="hidden-desktop">
+                    %{--<form class="navbar-form" id="search-inpage" action="${grailsApplication.config.grails.serverURL}/search">--}%
+                        %{--<input type="text" name="q" style="width:280px;" id="search-2013" placeholder="Search the Atlas" autocomplete="off" value="${params.q}"/>--}%
+                        %{--<button type="submit" class="btn" style="margin-top:4px;"><i class="icon-search"></i></button>--}%
+                    %{--</form>--}%
+                    <form class="form-search" action="${grailsApplication.config.grails.serverURL}/search">
+                        <div class="input-append">
+                            <input type="text" class="search-query" name="q" id="search-2013" style="width:280px;" placeholder="Search the Atlas" autocomplete="off" value="${params.q}"/>
+                            <button type="submit" class="btn"><i class="icon-search" style="margin-left:-3px;"></i></button>
+                        </div>
+                    </form>
+                </div>
                 <g:if test="${searchResults.totalRecords}">
                     <h1>Search for <b>${query.replaceFirst(/^\*$/, "[all records]")}</b> returned <g:formatNumber number="${searchResults.totalRecords}" type="number"/> results</h1>
                 </g:if>
                 <g:else>
-                    <h1 style="font-size: 1.8em;">Search for <b>${query}</b> did not match any documents</h1><br/>
+                    <h1>Search for <b>${query}</b> did not match any documents</h1><br/>
                 </g:else>
-            </hgroup>
-        </div>
+            </div>
+            <div class="span3 well well-small hidden-phone" id="relatedSearches">
+                <!-- content inserted via jQuery -->
+            </div>
+        </hgroup>
     </header>
+
     <g:if test="${searchResults.totalRecords}">
         <g:set var="paramsValues" value="${[:]}"/>
-        <div class="inner">
-            <div class="col-narrow">
-                <div class="boxed attached">
+
+        <div class="row-fluid">
+            <div class="span3">
+                <div class="well well-small">
                     <div class="facetLinks">
-                        <h2>Refine results</h2>
-                        <div id="accordion">
+                        <h2 class="hidden-phone">Refine results</h2>
+                        <h3 class="visible-phone">
+                            <a href="#" id="toggleFacetDisplay"><i class="icon-chevron-down" id="facetIcon"></i>
+                                Refine results</a>
+                        </h3>
+                        <div class="hidden-phone" id="accordion">
                             <g:if test="${query && filterQuery}">
                                 <g:set var="queryParam">q=${query.encodeAsHTML()}<g:if test="${!filterQuery.isEmpty()}">&fq=${filterQuery?.join("&fq=")}</g:if></g:set>
                             </g:if>
@@ -135,32 +156,32 @@
                     </div><!--end #facets-->
                 </div><!--end .boxed-->
             </div><!--end .col-narrow-->
-            <div class="col-wide last">
+            <div class="span9">
                 <div class="solrResults">
                     <div id="dropdowns">
                         <g:if test="${idxTypes.contains("TAXON")}">
                             <g:set var="downloadUrl" value="${grailsApplication.config.bie.baseURL}/ws/download/?${downloadParams}${appendQueryParam}&sort=${searchResults.sort}&dir=${searchResults.dir}"/>
-                            <input type="button" onclick="window.location='${downloadUrl}'" value="Download" title="Download a list of taxa for your search" style="float:left;"/>
+                            <input type="button" onclick="window.location='${downloadUrl}'" value="Download" title="Download a list of taxa for your search" class="btn btn-small" style="float:left;"/>
                             %{--<div id="downloads" class="buttonDiv" style="">--}%
                                 %{--<a href="${grailsApplication.config.bie.baseURL}/download/?${downloadParams}${appendQueryParam}&sort=${searchResults.sort}&dir=${searchResults.dir}" id="downloadLink" title="Download taxa results for your search">Download</a>--}%
                             %{--</div>--}%
                         </g:if>
                         <div id="sortWidget">
                             <label for="per-page">Results per page</label>
-                            <select id="per-page" name="per-page">
-                                <option value="10" ${(params.pageSize == '10') ? "selected=\"selected\"" : ""}>10</option>
-                                <option value="20" ${(params.pageSize == '20') ? "selected=\"selected\"" : ""}>20</option>
-                                <option value="50" ${(params.pageSize == '50') ? "selected=\"selected\"" : ""}>50</option>
-                                <option value="100" ${(params.pageSize == '100') ? "selected=\"selected\"" : ""} >100</option>
+                            <select id="per-page" name="per-page" class="input-mini">
+                                <option value="10" ${(params.max == '10') ? "selected=\"selected\"" : ""}>10</option>
+                                <option value="20" ${(params.max == '20') ? "selected=\"selected\"" : ""}>20</option>
+                                <option value="50" ${(params.max == '50') ? "selected=\"selected\"" : ""}>50</option>
+                                <option value="100" ${(params.max == '100') ? "selected=\"selected\"" : ""} >100</option>
                             </select>
-                            Sort by
-                            <select id="sort" name="sort">
+                            <label for="sort">Sort by</label>
+                            <select id="sort" name="sort" class="input-small">
                                 <option value="score" ${(params.sort == 'score') ? "selected=\"selected\"" : ""}>best match</option>
                                 <option value="commonNameSingle" ${(params.sort == 'commonNameSingle') ? "selected=\"selected\"" : ""}>common name</option>
                                 <option value="rank" ${(params.sort == 'rank') ? "selected=\"selected\"" : ""}>taxon rank</option>
                             </select>
-                            Sort order
-                            <select id="dir" name="dir">
+                            <label for="dir">Sort order</label>
+                            <select id="dir" name="dir" class="input-small">
                                 <option value="asc" ${(params.dir == 'asc') ? "selected=\"selected\"" : ""}>normal</option>
                                 <option value="desc" ${(params.dir == 'desc') ? "selected=\"selected\"" : ""}>reverse</option>
                             </select>
@@ -185,7 +206,7 @@
                                             <a href="${request.contextPath}/species/${result.guid}" class="occurrenceLink"><bie:formatSciName rankId="${result.rankId}" name="${(result.nameComplete) ? result.nameComplete : result.name}" acceptedName="${result.acceptedConceptName}"/> ${result.author?:''}</a>
                                         </g:if>
                                         <g:if test="${result.acceptedConceptName}">
-                                            accepted name: ${result.acceptedConceptName}
+                                            (accepted name: ${result.acceptedConceptName})
                                         </g:if>
                                         <g:if test="${result.commonNameSingle}"><span class="commonNameSummary">&nbsp;&ndash;&nbsp; ${result.commonNameSingle}</span></g:if>
                                     </h4>
@@ -213,7 +234,6 @@
                                         </g:if>
                                     <!-- ${sectionText} -->
                                     </p>
-                                    <div class="resultSeparator">&nbsp;</div>
                                 </g:if>
                                 <g:elseif test="${result.has("regionTypeName") && result.get("regionTypeName")}">
                                     <h4><g:message code="idxType.${result.idxType}"/>:
@@ -253,7 +273,7 @@
                                     <p>
                                         <span>${result.highlight}</span>
                                         <!-- ${sectionText} -->
-                                        <br/>
+                                        %{--<br/>--}%
                                     </p>
                                 </g:elseif>
                                 <g:elseif test="${result.has("idxType") && result.idxType == 'LAYERS'}">
@@ -268,14 +288,18 @@
                                     <h4><g:message code="idxType.${result.idxType}"/>: <a href="${result.guid}">${result.name}</a></h4>
                                     <p><!-- ${sectionText} --></p>
                                 </g:else>
+                            <div class="resultSeparator">&nbsp;</div>
                         </g:each>
                     </div><!--close results-->
-                    <g:if test="${searchResults && searchResults.totalRecords > searchResults.pageSize}">
+                    <g:if test="${false && searchResults && searchResults.totalRecords > searchResults.pageSize}">
                         <div id="searchNavBar">
                             <bie:searchNavigationLinks totalRecords="${searchResults?.totalRecords}" startIndex="${searchResults?.startIndex}"
                                       lastPage="${lastPage?:-1}" pageSize="${searchResults?.pageSize}"/>
                         </div>
                     </g:if>
+                    <div class="pagination listPagination" id="searchNavBar">
+                        <g:paginate total="${searchResults?.totalRecords}"  params="${[q: params.q, fq: params.fq, dir: params.dir ]}"/>
+                    </div>
                 </div><!--solrResults-->
             </div><!--end .col-wide last-->
         </div><!--end .inner-->

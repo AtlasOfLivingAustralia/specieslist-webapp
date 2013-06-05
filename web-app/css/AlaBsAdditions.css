@@ -1,0 +1,372 @@
+body {
+    font-size: 13px;
+}
+
+h1 {font-size: 2.0em;}
+h2 {font-size: 1.8em;}
+h3 {font-size: 1.6em;}
+h4 {font-size: 1.4em;}
+
+#content {
+    margin-bottom: 20px;
+}
+
+.breadcrumb {
+    background-color: inherit;
+    margin: 0 0 5px 0;
+    padding: 0;
+}
+
+.breadcrumb > li > .icon {
+    color: #555555;
+    opacity:0.6;
+    filter:alpha(opacity=60);
+    margin: 1px 4px 0;
+}
+
+#breadcrumb a.current {
+    text-decoration: none;
+    color: #333;
+    cursor: default;
+    background-image: none !important;
+}
+
+#page-header hgroup h1, #page-header hgroup h2 {
+    margin: 0;
+}
+
+body.search #page-header hgroup h1 {
+    font-weight: normal;
+}
+
+#sortWidget label {
+    display: inline;
+    padding-left: 8px;
+}
+
+#sortWidget .input-mini, #sortWidget .input-small {
+    height: 22px;
+    font-size: 11px;
+    line-height: 18px;
+    margin-bottom: 4px;
+}
+
+.alignright, img.alignright {
+    display: inline;
+    float: right;
+    margin-left: 12px;
+    margin-bottom: 12px;
+}
+
+div.results h4 {
+    font-size: 1.2em;
+    line-height: 1.8em;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.well h2, .well h3 {
+    margin: 0;
+    line-height: 1.6em;
+}
+
+.well h3 {
+    font-weight: normal;
+    font-size: 1.4em;
+    padding-top: 5px;
+}
+
+.results h4 {
+    margin: 0;
+}
+
+#relatedSearches {
+    margin-top: -25px;
+}
+
+#relatedSearches h3, #relatedSearches ul {
+    padding: 0;
+}
+
+.species .tab-content {
+    border-bottom: 1px solid #DDD;
+    border-right: 1px solid #DDD;
+    border-left: 1px solid #DDD;
+    padding: 15px; /* add some nice padding */
+}
+
+.species .nav {
+    margin-bottom: 0;
+}
+
+
+/* check these and delete if not used */
+
+th, td {
+    padding: .5em 5px;
+    vertical-align: top;
+}
+
+p span.count {
+    float: right;
+}
+
+.header-btns {
+    padding-top:16px;
+    padding-right:4px;
+    text-align: right;
+}
+
+#page-header, #page-header2 {
+    /*margin-bottom: 10px;*/
+}
+
+.tableList thead th {
+    vertical-align: top;
+}
+
+.tableList {
+    white-space: nowrap;
+    max-width: none;
+    width: auto;
+    margin:0;
+}
+
+#public-specieslist .tableList {
+    width: 100%;
+}
+
+#speciesList {
+    margin-top: 20px;
+}
+
+#facets-column {
+    margin-top: 5px;
+}
+
+#refine {
+    margin-top: 22px;
+    padding-top: 8px;
+    border-top: 1px solid #ccc;
+}
+
+div#download {
+    font-size: 13px;
+}
+#downloadForm {
+    text-align: left;
+}
+#downloadForm label {
+    color: #444444;
+    font-size: 13px;
+    display: inline-block;
+    padding-right: 10px;
+    text-align: right;
+    width: 35%;
+}
+#download {
+    line-height: 1.4em;
+}
+#downloadForm input  {
+    float: none;
+    margin-bottom: 2px;
+    font-size: 13px;
+}
+
+#downloadForm select  {
+    float: none;
+    margin-bottom: 0px;
+    font-size: 13px;
+}
+
+#termsOfUseDownload {
+    text-align:left; padding-bottom:15px;
+}
+
+/*a.removeLink {*/
+/*display: inline-block;*/
+/*float: right;*/
+/*}*/
+
+#currentFilters {
+    margin-bottom: 15px;
+}
+
+
+#currentFilters > ul {
+    list-style: none;
+    margin-left: 10px;
+    padding-left:15px;
+}
+
+#currentFilters > ul > li {
+    margin: 0px;
+    padding: 0px;
+    text-indent: -1.3em;
+    margin-left: 0;
+}
+
+#currentFilters .tooltip {
+    text-indent: 0;
+}
+
+.refine ul {
+    list-style: none;
+    margin-left: 10px;
+}
+
+.refine p {
+    margin-bottom: 0;
+}
+
+.showHide {
+    margin-left: -6px;
+    font-size: 13px;
+}
+
+table.scrollTable {
+    border: 1px solid #ccc;
+    width: auto;
+}
+
+#content div.pagination span.gap {
+    cursor: default;
+}
+
+table#editRecordTable {
+    background-color: white;
+}
+
+td.dataField {
+    padding-top: 10px;
+}
+
+td.dataValue > input[type="text"] {
+    margin-bottom: 0;
+    min-height: 28px;
+}
+
+.tableList .sortable {
+    background: url('../images/sort_both.png') no-repeat center right;
+    padding-right: 18px;
+}
+.tableList .sorted, .tableList .sorted.asc {
+    background: url('../images/sort_asc.png') no-repeat center right;
+}
+.tableList .sorted.desc {
+    background: url('../images/sort_desc.png') no-repeat center right;
+}
+
+
+#list-meta-data {
+    margin-bottom: 10px;
+    padding: 0;
+    color: #000;
+    background-color: #f9f9f9;/*#EBF9FF;  #EBF8FF; */
+    border: 1px solid #dddddd; /*#C2EBFF;*/
+    padding-right: 10px;
+}
+
+#list-meta-data dl {
+    /*clear: both;*/
+    margin: 10px 0;
+}
+
+#edit-meta-button {
+    margin:5px 5px;
+    float: left;
+    display: inline-block;
+    position: absolute;
+}
+
+.searchWidgets {
+    width: 20%;
+    float: right;
+    margin: 22px 0;
+    text-align: right;
+}
+
+#content div#searchNavBar.pagination.listPagination {
+    width: 80%;
+    float: left;
+}
+
+#edit-meta-div {
+    padding-top: 10px;
+}
+
+#edit-meta-form input, #edit-meta-form textarea, #edit-meta-form select {
+    height: 16px;
+    font-size: 12px;
+    line-height: 18px;
+    margin-bottom: 2px;
+}
+
+#edit-meta-form select {
+    height: 26px;
+}
+
+#edit-meta-form textarea {
+    height: auto;
+}
+
+#edit-meta-form input[type="checkbox"] {
+    margin-top: 8px;
+}
+
+#edit-meta-form label {
+    font-weight: bold;
+}
+
+#edit-meta-form .control-group {
+    margin-bottom: 6px;
+}
+
+dl#show-meta-dl dt {
+    margin-top: -1px;
+}
+
+img#spinner {
+    display: none;
+    float: left;
+}
+
+.alert .close {
+    display: inline-block;
+    position: relative;
+    top: 6px;
+    right: 4px;
+}
+
+img.smallSpeciesImage {
+    max-height: 50px;
+    max-width: 100px;
+}
+
+#viewRecord img.smallSpeciesImage {
+    max-height: none;
+    max-width: none;
+}
+
+#speciesListTable td.kvp  {
+    padding: 0;
+}
+
+#speciesListTable td.kvp.scrollWidth  {
+    min-width: 300px;
+}
+
+#speciesListTable td.kvp div {
+    /*position: relative;*/
+    overflow-x: auto;
+    white-space: pre-wrap;      /* CSS3 */
+    white-space: -moz-pre-wrap; /* Firefox */
+    white-space: -pre-wrap;     /* Opera <7 */
+    white-space: -o-pre-wrap;   /* Opera 7 */
+    /*word-wrap: break-word;      *//* IE */
+    max-height: 80px;
+    padding: 8px;
+}
+
+#listActionButtons {
+    display: inline-block;
+}

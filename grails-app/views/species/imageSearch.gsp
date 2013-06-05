@@ -176,12 +176,12 @@
 </head>
 <body class="fluid">
     <header id="page-header">
-        <div class="inner">
-            <nav id="breadcrumb">
-                <ol>
-                    <li><a href="${alaUrl}">Home</a></li>
-                    <li><a href="${alaUrl}/australias-species/">Australia&#39;s species</a></li>
-                    <li class="last">Image browser for ${msg}</li>
+        <div class="inner row-fluid">
+            <nav id="breadcrumb" class="span12">
+                <ol class="breadcrumb">
+                    <li><a href="${alaUrl}">Home</a> <span class=" icon icon-arrow-right"></span></li>
+                    <li><a href="${alaUrl}/australias-species/">Australia&#39;s species</a> <span class=" icon icon-arrow-right"></span></li>
+                    <li class="active">Image browser for ${msg}</li>
                 </ol>
             </nav>
             <hgroup>

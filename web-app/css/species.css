@@ -4,18 +4,186 @@ ul.overviewImages {
 
 ul.overviewImages li {
     list-style:none;
-    margin: 0;
+    margin: 5px 0;
 }
 
 section.clearfix {
     clear: left;
 }
 
-body p, body ul {
+section.meta dl, section.status dl {
+    margin: 0;
+}
+
+section.meta dt, section.status dt {
+    margin: 5px 0;
+}
+
+.meta a.btn {
+    font-weight: bold;
+}
+
+/* Species status icons */
+.status dd span {
+    height:40px;
+    width:40px;
+    margin:0 6px 12px 0;
+    display:inline-block;
+    font-weight:bold;
+    line-height:40px;
+    color:#333a3f;
+    text-align:center;
+    -moz-border-radius: 2em;
+    -webkit-border-radius: 2em;
+    border-radius: 2em; /* Opera 10.5, IE 9 */
+    font-variant:small-caps;
+    border:1px solid #3d464c;
+    background-color:#fff;
+}
+
+.status dd.green span,
+.status dd span.green {
+    background-color:#43c205;
+    border-color:#43c205;
+    color:#fff;
+}
+.status dd.yellow span,
+.status dd span.yellow {
+    background-color:#ffbb00;
+    border-color:#ffbb00;
+}
+
+.status dd.red  span,
+.status dd span.red {
+    background-color:#e30202;
+    border-color:#e30202;
+    color:#fff;
+}
+
+.status dd.marine span,
+.status dd span.marine{
+    border-color:#3a5c83;
+    background:#3a5c83 url(images/status_marine.png) center center no-repeat;
+}
+
+.status dd.terrestrial span,
+.status dd span.terrestrial{
+    border-color:#809325;
+    background:#fff url(images/status_terrestrial.png) center center no-repeat;
+}
+
+.status dd.terrestrial-aquatic span,
+.status dd span.terrestrial-aquatic{
+    border-color:#3a5c83;
+    background:#fff url(images/status_terrestrial-aquatic.png) center center no-repeat;
+}
+
+.status dd.native span,
+.status dd span.native {
+    border-color:#3d464c;
+    background:#3d464c url(images/status_native.png) center center no-repeat;
+}
+
+.status dd.nonnative span,
+.status dd span.nonnative{
+    border-color:#3d464c;
+    background:#3d464c url(images/status_nonnative.png) center center no-repeat;
+}
+
+.status dd.last {
+    margin:0;
+}
+/* end species status */
+nav.classification {
+    margin-bottom:12px;
+    padding-bottom:9px;
+    border-bottom:1px solid #d1d1d1;
+}
+nav.classification ol li{
+    display:inline;
+}
+nav.classification ol li:after{
+    content: ' : ';
+}
+nav.classification ol li:last-child:after{
+    content:'';
+}
+/* Temp styles to be added to speciesPage.css in WP ALA theme */
+
+/* classifications styles */
+div.rankCommonName {
+    position: relative;
+    width: 170px;
+    font-size: .9em;
+    background-color: #FFF;
+    padding: 5px;
+    margin-left: 10px;
+    border: 1px solid #333a3f;
+    -webkit-border-radius: 0 8px 8px 8px;
+    -moz-border-radius: 0 8px 8px 8px;
+    border-radius: 0 8px 8px 8px;
+    -webkit-box-shadow: 3px 3px 3px #d1d1d1;
+    -moz-box-shadow: 3px 3px 3px #d1d1d1;
+    box-shadow: 3px 3px 3px #d1d1d1;
+}
+section#classification dl#classificationList {
+    margin-left:0;
+}
+section#classification dl {
+    margin:4px 0 0 24px;
+}
+section#classification dl dt {
+    float:left;
+    padding-right:10px;
+}
+section#classification dl  dd {
+    /*float:left;*/
+    padding-top: 1px;
+    display: block;
+    /*margin: 0;*/
+}
+section#classification dd img {
+    vertical-align:middle;
+}
+section#classification dl.childClassification dt,section#classification dl.childClassification dd{
+    float:none;
+}
+section#classification dt#currentTaxonConcept, section#literature table .earliestReferenceLabel{
+    color:#df4a21;
+}
+/* end classifications styles */
+
+
+#divMap {
+    width: 480px;
+    margin-right: 20px;
+    float: left;
+}
+
+#overviewImage {
+    float: left;
+}
+
+.nav-tabs li a {
+    background-color: #f0f0e8;
+    border: 1px solid #ddd;
+    margin-right: 3px;
+}
+
+#speciesLists dd span {
+    color: #333a3f;
+    font-weight: bold;
+}
+
+#imageGallery a img {
+    padding-bottom: 7px;
+}
+
+body > p, body > ul {
     padding-bottom: 10px;
 }
 
-td[colspan="2"] {
+td[colspan="2"], section#names th {
     border-bottom: 1px solid #D1D1D1;
 }
 
@@ -39,6 +207,19 @@ div.rankCommonName {
     background: none;
     padding: 0;
 }
+
+section#names tr.cite td {
+    border-top: none;
+}
+
+section#names th {
+    width: 50%;
+}
+
+section#names td ul {
+    margin: 0;
+}
+
 .source ul {
     padding-bottom: 0;
 }
@@ -59,14 +240,18 @@ div.rankCommonName {
 }
 
 #page-header hgroup h1 {
-    padding-top: 6px;
-    padding-bottom: 4px;
+    padding-top: 4px;
+    padding-bottom: 0px;
 }
 
 #page-header hgroup h2, table.bvp-expeditions div.button-nav h2 {
-    font-size: 2.0em;
-    padding-bottom: 10px;
-    max-width: 250px;
+    font-size: 1.6em;
+    padding-bottom: 12px;
+}
+
+#page-header #actionButtons {
+    text-align: right;
+    padding: 10px 0;
 }
 /* Extra CSS required to display the Categories in table.  */
 table.status tr td {

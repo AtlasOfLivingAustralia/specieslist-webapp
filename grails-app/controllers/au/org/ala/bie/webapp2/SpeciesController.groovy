@@ -35,8 +35,8 @@ class SpeciesController {
         def query = params.q?:"".trim()
         if(query == "*") query = ""
         def filterQuery = params.list('fq') // will be a list even with only one value
-        def startIndex = params.start?:0
-        def pageSize = params.pageSize?:10
+        def startIndex = params.offset?:0
+        def pageSize = params.max?:10
         def sortField = params.sort?:"score"
         def sortDirection = params.dir?:"asc"
         def requestObj = new SearchRequestParamsDTO(query, filterQuery, startIndex, pageSize, sortField, sortDirection)

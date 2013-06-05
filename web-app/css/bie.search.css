@@ -30,6 +30,20 @@ body > .inner {
 .facetLinks {
     padding-left: 4px;
 }
+.facetLinks #facetIcon {
+    margin-top: 3px;
+}
+.overrideHide {
+    display: block !important;
+}
+a#toggleFacetDisplay,
+a#toggleFacetDisplay:link,
+a#toggleFacetDisplay:active,
+a#toggleFacetDisplay:visited,
+a#toggleFacetDisplay:hover {
+    color: #333a3f;
+    text-decoration: none;
+}
 .species div.col-wide.last {
     top: 0;
 }
