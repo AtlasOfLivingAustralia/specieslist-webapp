@@ -23,15 +23,13 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <g:set var="alaUrl" value="${grailsApplication.config.ala.baseURL}"/>
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
     <title>${params.q} | BHL Search | Atlas of Living Australia</title>
     <meta name="layout" content="main" />
-    <link rel="stylesheet" href="${resource(dir: 'css', file: 'snazzy.css')}" type="text/css" media="screen" />
-    <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.htmlClean.js')}"></script>
-    <r:require module="colorbox"/>
-    <script type="text/javascript">
+    <r:require modules="colorbox, cleanHtml, snazzy"/>
+    <r:script disposition='head'>
         /**
          * OnLoad equavilent in JQuery
          */
@@ -164,10 +162,7 @@
             return true;
         }
 
-    </script>
-    <style type="text/css">
-
-    </style>
+    </r:script>
 </head>
 <body class="species">
     <header id="page-header">

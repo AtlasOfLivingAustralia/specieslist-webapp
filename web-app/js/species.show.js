@@ -27,17 +27,6 @@
  */
 $(document).ready(function() {
     //setup tabs
-//    var bhlInit = false;
-//    $("ul.tabs").tabs("div.tabs-panes-noborder > section", {
-//        history: true,
-//        effect: 'fade',
-//        onClick: function(event, index) {
-//            if (index == 5 && !bhlInit) {
-//                doBhlSearch(0, 10, false);
-//                bhlInit = true;
-//            }
-//        }
-//    });
     if (location.hash !== '') {
         $('.nav-tabs a[href="' + location.hash.replace('tab_','') + '"]').tab('show');
     }
@@ -65,8 +54,6 @@ $(document).ready(function() {
             location.hash = '';
         }
     });
-
-    console.log("before colorbox");
 
     // Gallery image popups using ColorBox
     $("a.thumbImage").colorbox({
@@ -135,7 +122,7 @@ $(document).ready(function() {
     // alerts button
     $("#alertsButton").click(function(e) {
         e.preventDefault();
-        console.log("alertsButton");
+        //console.log("alertsButton");
         var query = "Species: " + SHOW_CONF.scientificName;
         var searchString = "?q=" + SHOW_CONF.guid;
         //console.log("fqueries",fqueries, query);
@@ -154,6 +141,9 @@ $(document).ready(function() {
 
     // add expert distrobution map
     addExpertDistroMap();
+
+    //Trove search results
+    setupTrove('Macropus rufus','trove-container','trove-results-home','previousTrove','nextTrove');
 
 }); // end document.ready
 

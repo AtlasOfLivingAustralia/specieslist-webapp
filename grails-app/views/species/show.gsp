@@ -737,9 +737,6 @@
                         <input type="button" class="btn" id="previousTrove" value="Previous page"/>
                         <input type="button" class="btn" id="nextTrove" value="Next page"/>
                     </div>
-                    <script type="text/javascript">
-                        setupTrove('${tc?.taxonConcept?.nameString}','trove-container','trove-results-home','previousTrove','nextTrove');
-                    </script>
                     <style type="text/css">
                     .trove-results-home .titleInfo { height:15px; }
                     </style>

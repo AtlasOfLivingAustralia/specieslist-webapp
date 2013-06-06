@@ -11,16 +11,22 @@ modules = {
     }
 
     show {
-        dependsOn 'colorbox, fancybox'
+        dependsOn 'colorbox, fancybox, cleanHtml, snazzy'
         resource url:[dir:'css', file:'species.css', disposition: 'head']
-        resource url:[dir:'css', file:'snazzy.css', disposition: 'head']
         resource url:[dir:'js', file:'jquery.sortElemets.js', disposition: 'head']
-        resource url:[dir:'js', file:'jquery.htmlClean.js', disposition: 'head']
         resource url:[dir:'js', file:'jquery.jsonp-2.3.1.min.js', disposition: 'head']
         resource url:[dir:'js', file:'trove.js', disposition: 'head']
         resource url:'http://ajax.googleapis.com/jsapi', attrs:[type:'js'], disposition: 'head'
         resource url:[dir:'js', file:'charts2.js', disposition: 'head']
         resource url:[dir:'js', file:'species.show.js', disposition: 'head']
+    }
+
+    cleanHtml {
+        resource url:[dir:'js', file:'jquery.htmlClean.js', disposition: 'head']
+    }
+
+    snazzy {
+        resource url:[dir:'css', file:'snazzy.css', disposition: 'head']
     }
 
     colorbox {
