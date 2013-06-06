@@ -30,6 +30,7 @@
     <meta name="layout" content="main" />
     <link rel="stylesheet" href="${resource(dir: 'css', file: 'snazzy.css')}" type="text/css" media="screen" />
     <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.htmlClean.js')}"></script>
+    <r:require module="colorbox"/>
     <script type="text/javascript">
         /**
          * OnLoad equavilent in JQuery
