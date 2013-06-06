@@ -85,8 +85,10 @@
     <tr>
         <g:sortableColumn property="listName" title="${message(code: 'speciesList.listName.label', default: 'List Name')}" />
         <g:sortableColumn property="listType" title="${message(code: 'speciesList.listType.label', default: 'List Type')}" />
-        <g:sortableColumn property="isBIE" title="${message(code: 'speciesList.isBIE.label', default: 'Included in BIE')}" />
-        <g:sortableColumn property="isSDS" title="${message(code: 'speciesList.isSDS.label', default: 'Part of the SDS')}" />
+        <g:if test="${request.isUserInRole("ROLE_ADMIN")}">
+            <g:sortableColumn property="isBIE" title="${message(code: 'speciesList.isBIE.label', default: 'Included in BIE')}" />
+            <g:sortableColumn property="isSDS" title="${message(code: 'speciesList.isSDS.label', default: 'Part of the SDS')}" />
+        </g:if>
         <g:sortableColumn property="username" title="${message(code: 'speciesList.username.label', default: 'Owner')}" />
         <g:sortableColumn property="dateCreated" title="${message(code: 'speciesList.name.dateCreated', default: 'Date Submitted')}" />
         <g:sortableColumn property="itemsCount" title="${message(code: 'speciesList.name.count', default: 'Item Count')}" />
@@ -100,8 +102,10 @@
         <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
             <td><a href="${request.contextPath}/speciesListItem/list/${list.dataResourceUid}">${fieldValue(bean: list, field: "listName")}</a></td>
             <td>${list.listType?.getDisplayValue()}</td>
-            <td><g:formatBoolean boolean="${list.isBIE?:false}" true="Yes" false="No"/></td>
-            <td><g:formatBoolean boolean="${list.isSDS?:false}" true="Yes" false="No"/></td>
+            <g:if test="${request.isUserInRole("ROLE_ADMIN")}">
+                <td><g:formatBoolean boolean="${list.isBIE?:false}" true="Yes" false="No"/></td>
+                <td><g:formatBoolean boolean="${list.isSDS?:false}" true="Yes" false="No"/></td>
+            </g:if>
             %{--<td>${fieldValue(bean: list, field: "firstName")} ${fieldValue(bean: list, field: "surname")}</td>--}%
             <td>${list.fullName}</td>
             <td><g:formatDate format="yyyy-MM-dd" date="${list.dateCreated}"/></td>

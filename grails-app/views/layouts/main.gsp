@@ -18,13 +18,13 @@
         // initialise plugins
         jQuery(function(){
             // autocomplete on navbar search input
-            jQuery("form#search-form-2011 input#search-2011, form#search-inpage input#search").autocomplete('http://bie.ala.org.au/search/auto.jsonp', {
+            jQuery("form#search-form-2011 input#search-2011, form#search-inpage input#search, input#search-2013").autocomplete('http://bie.ala.org.au/search/auto.jsonp', {
                 extraParams: {limit: 100},
                 dataType: 'jsonp',
                 parse: function(data) {
                     var rows = new Array();
                     data = data.autoCompleteList;
-                    for(var i=0; i<data.length; i++){
+                    for(var i=0; i<data.length; i++) {
                         rows[i] = {
                             data:data[i],
                             value: data[i].matchedNames[0],
