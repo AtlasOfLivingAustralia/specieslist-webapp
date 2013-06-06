@@ -233,13 +233,13 @@
                         <section class="" id="divMap">
                             <div id="expertDistroDiv" style="display:none;margin-bottom: 10px;">
                                 <h2>Compiled distribution map</h2>
-                                <img id="distroMapImage" src="${resource(dir: 'images', file: 'noImage.jpg')}" class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>
+                                <img id="distroMapImage" src="${resource(dir: 'images', file: 'noImage.jpg')}" class="distroImg" style="width:316px;" alt="occurrence map" onerror="this.style.display='none'"/>
                                 <div class="mapAttribution">Compiled distribution map provided by <span id="dataResource">[data resource not known]</span></div>
                             </div>
                             <h2>Occurrence records map</h2>
                             <div class="bg-white">
                                 <g:set var="spatialQuery" value="lsid:%22${guid}%22%20AND%20geospatial_kosher:true"/>
-                                <img id="mapImage" src="http://biocache.ala.org.au/ws/density/map?q=${spatialQuery}" class="distroImg" width="316" alt="occurrence map" onerror="this.style.display='none'"/>
+                                <img id="mapImage" src="http://biocache.ala.org.au/ws/density/map?q=${spatialQuery}" class="distroImg" style="width:316px;" alt="occurrence map" onerror="this.style.display='none'"/>
                                 <img id="mapLegend" src="http://biocache.ala.org.au/ws/density/legend?q=${spatialQuery}" class="distroLegend" alt="map legend" onerror="this.style.display='none'"/>
                             </div>
                             <p>
