@@ -40,7 +40,7 @@ grails.project.dependency.resolution = {
                 version:'1.1-SNAPSHOT',
                 transitive:false
         compile "commons-httpclient:commons-httpclient:3.1",
-                "atg:json-taglib:0.4.1",
+//                "atg:json-taglib:0.4.1",
                 "org.codehaus.jackson:jackson-core-asl:1.8.6",
                 "org.codehaus.jackson:jackson-mapper-asl:1.8.6"
         compile group:'au.org.ala',
