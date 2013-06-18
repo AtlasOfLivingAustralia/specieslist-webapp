@@ -75,15 +75,24 @@ function queryTrove(){
                     buff += '<span class="troveIdx">';
                     buff += '<b>'+ (index + TROVE.s + 1) +'</b>.&nbsp;';
                     buff += '</span>';
-                    buff += '<span class="title"><a href="' + value.troveUrl + '">' + value.title + '</a></span></p>';
-                    //buff +=  '<p class="contributors">';
-                    //$.each(value.contributor, function(ci, cv){
-                    //  console.log('contributor: ' + cv);
-                    //  buff += cv;
-                    //});
-                    //buff +=  value.contributor;
-                    //buff +=  '</p>';
-                    //buff +=  '</a>';
+                    buff += '<span class="title"><a href="' + value.troveUrl + '">' + value.title + '</a></span>';
+                    buff += '</p>';
+                    if(value.contributor != null){
+                        buff +=  '<p class="contributors">Contributors: ';
+                        var contribIdx = 0;
+                        $.each(value.contributor, function(ci, cv){
+                          console.log('contributor: ' + cv);
+                          if(contribIdx>0){
+                            buff += '; ';
+                          }
+                          buff += '<span class="contributor">' + cv + '</span>';
+                          contribIdx = contribIdx+1;
+                        });
+                        buff +=  '</p>';
+                    }
+                    if(value.issued != null){
+                       buff +=  '<p class="dateIssued">Date issued: ' + value.issued + '</p>';
+                    }
                     buff +=  '</div>';
                 });
                 $('#'+TROVE.divId).html(buff);

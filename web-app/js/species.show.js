@@ -143,14 +143,13 @@ $(document).ready(function() {
     addExpertDistroMap();
 
     //Trove search results
-    setupTrove('Macropus rufus','trove-container','trove-results-home','previousTrove','nextTrove');
-
+    setupTrove(SHOW_CONF.scientificName,'trove-container','trove-results-home','previousTrove','nextTrove');
 }); // end document.ready
-
 
 function chartsError() {
     $("#chartsError").html("An error occurred and charts cannot be displayed at this time.");
 }
+
 /**
  * BHL search to populate literature tab
  *

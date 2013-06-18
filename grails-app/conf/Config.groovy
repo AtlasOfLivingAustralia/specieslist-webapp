@@ -186,3 +186,10 @@ log4j = {
 
     debug  'ala'
 }
+
+appContext = grails.util.Metadata.current.'app.name'
+headerAndFooter.baseURL = 'http://www2.ala.org.au/commonui'
+ala.baseURL = "http://www.ala.org.au"
+bie.baseURL = "http://bie.ala.org.au"
+bie.searchPath = "/search"
+grails.project.groupId = "au.org.ala" // change this to alter the default package name and Maven publishing destination
