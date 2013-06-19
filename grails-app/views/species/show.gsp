@@ -149,7 +149,9 @@
                                 <g:else>
                                     <g:set var="isAussie" value="${tc.isAustralian}"/>
                                 </g:else>
-                                <g:if test="${isAussie}">
+                                %{-- NC 2013-06-19: We don't wnat ot report that a species is ausralian if AFD or APC has excluded its presence --}%
+                                %{-- TODO we probably need to have an icon to represent that the species "is excluded" --}%
+                                <g:if test="${isAussie && !tc.taxonConcept.isExcluded}">
                                     <dd><span class="native">&nbsp;</span>Recorded In Australia</dd>
                                 </g:if>
                                 <g:else>
