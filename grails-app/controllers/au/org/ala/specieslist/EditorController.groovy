@@ -139,7 +139,8 @@ class EditorController {
                 log.debug "rawScientificName is different: " + params.rawScientificName + " VS " + sli.rawScientificName
                 sli.rawScientificName = params.rawScientificName
                 // lookup guid
-                sli.guid = helperService.findAcceptedLsidByScientificName(sli.rawScientificName)?: helperService.findAcceptedLsidByCommonName(sli.rawScientificName)
+                helperService.matchNameToSpeciesListItem(sli.rawScientificName, sli)
+                //sli.guid = helperService.findAcceptedLsidByScientificName(sli.rawScientificName)?: helperService.findAcceptedLsidByCommonName(sli.rawScientificName)
             }
 
             if (!sli.validate()) {
@@ -174,7 +175,8 @@ class EditorController {
             def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?", sl.dataResourceUid)
             log.debug "keys = " + keys
             def sli = new SpeciesListItem(dataResourceUid: sl.dataResourceUid, rawScientificName: params.rawScientificName, itemOrder: sl.items.size() + 1)
-            sli.guid = helperService.findAcceptedLsidByScientificName(sli.rawScientificName)?: helperService.findAcceptedLsidByCommonName(sli.rawScientificName)
+            //sli.guid = helperService.findAcceptedLsidByScientificName(sli.rawScientificName)?: helperService.findAcceptedLsidByCommonName(sli.rawScientificName)
+            helperService.matchNameToSpeciesListItem(sli.rawScientificName, sli)
 
             keys.each { key ->
                 log.debug "key: " + key + " has value: " + params[key]

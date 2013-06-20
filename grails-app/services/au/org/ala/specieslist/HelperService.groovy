@@ -244,8 +244,8 @@ class HelperService {
             sli.dataResourceUid =druid
             sli.rawScientificName = item
             sli.itemOrder = i
-
-            sli.guid = findAcceptedLsidByScientificName(sli.rawScientificName)?: findAcceptedLsidByCommonName(sli.rawScientificName)
+            //sli.guid = findAcceptedLsidByScientificName(sli.rawScientificName)?: findAcceptedLsidByCommonName(sli.rawScientificName)
+            matchNameToSpeciesListItem(sli.rawScientificName, sli)
             sl.addToItems(sli)
         }
         if(!sl.validate()){
@@ -254,7 +254,7 @@ class HelperService {
         sl.save()
     }
 
-    def loadSpeciesList(CSVReader reader,druid,listname,ListType listType,description, listUrl, listWkt, Boolean isBIE, Boolean isSDS, String[] header, Map vocabs){
+    def loadSpeciesList(CSVReader reader,druid,listname,ListType listType,description, listUrl, listWkt, Boolean isBIE, Boolean isSDS, String region, String authority, String category, String generalisation, String sdsType, String[] header, Map vocabs){
         log.debug("Loading species list " + druid + " " + listname + " " + description + " " + listUrl + " " + header + " " + vocabs)
         def kvpmap = [:]
         addVocab(druid,vocabs,kvpmap)
@@ -271,6 +271,11 @@ class HelperService {
         sl.url = listUrl
         sl.wkt = listWkt
         sl.listType = listType
+        sl.region = region
+        sl.authority = authority
+        sl.category = category
+        sl.generalisation = generalisation
+        sl.sdsType = sdsType
         if(isBIE)sl.isBIE=true
         if(isSDS)sl.isSDS=true
         String [] nextLine
@@ -329,14 +334,20 @@ class HelperService {
         sli.rawScientificName = values[speciesIdx]
         sli.itemOrder = order
         //lookup the raw
-        sli.guid = findAcceptedLsidByScientificName(sli.rawScientificName)?: findAcceptedLsidByCommonName(sli.rawScientificName)
+        //sli.guid = findAcceptedLsidByScientificName(sli.rawScientificName)?: findAcceptedLsidByCommonName(sli.rawScientificName)
+        matchNameToSpeciesListItem(sli.rawScientificName, sli)
         int i =0
         header.each {
             if(i != speciesIdx && values[i]){
                 //check to see if the common name is already an "accepted" name for the species
                 String testLsid = commonValues.contains(it.toLowerCase().replaceAll(" ",""))?findAcceptedLsidByCommonName(values[i]):""
-                if(!testLsid.equals(sli.guid))
-                    sli.addToKvpValues(map.get(it.toString()+"|"+values[i], new SpeciesListKVP(key: it.toString(), value: values[i], dataResourceUid: druid)))//createOrRetrieveSpeciesListKVP(it,values[i],druid))
+                if(!testLsid.equals(sli.guid)) {
+                    SpeciesListKVP kvp =map.get(it.toString()+"|"+values[i], new SpeciesListKVP(key: it.toString(), value: values[i], dataResourceUid: druid))
+                    if  (kvp.itemOrder == null) {
+                        kvp.itemOrder = i
+                    }
+                    sli.addToKvpValues(kvp)//createOrRetrieveSpeciesListKVP(it,values[i],druid))
+                }
             }
             i++
         }
@@ -365,6 +376,15 @@ class HelperService {
                 session.clear()
                 propertyInstanceMap.get().clear()
             }
+        }
+    }
+
+    def matchNameToSpeciesListItem(String name, SpeciesListItem sli){
+        NameSearchResult nsr = findAcceptedConceptByScientificName(sli.rawScientificName)?: findAcceptedConceptByCommonName(sli.rawScientificName)
+        if(nsr){
+            sli.guid = nsr.getLsid()
+            sli.family = nsr.getRankClassification().getFamily()
+            sli.matchedName = nsr.getRankClassification().getScientificName()
         }
     }
 

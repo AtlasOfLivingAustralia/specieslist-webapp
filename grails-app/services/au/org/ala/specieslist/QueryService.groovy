@@ -13,6 +13,8 @@ class QueryService {
     def criteriaMethods = grails.orm.HibernateCriteriaBuilder.class.getMethods().findAll{it.getParameterTypes().length<3}.collectEntries{[it.name, it]}
     /**
      * retrieves the lists that obey the supplied filters
+     *
+     * Filters are supplied in the Criteria specific manner- eg eq:
      * @param params
      */
     def getFilterListResult(params){
@@ -30,13 +32,22 @@ class QueryService {
                     def matcher = (value =~ filterRegEx)
                     if(matcher.matches()){
                         def fvalue = matcher[0][2]
-                        //handle the situation where the enum needs to be replaced
-                        if (key == 'listType')
-                            fvalue = ListType.valueOf(fvalue)
-                        //now handle the supported filter conditions
-                        switch(matcher[0][1]){
-                            case "eq":eq(key,fvalue)
+                        //now handle the supported filter conditions by gaining access to the criteria methods using reflection
+                        def method =criteriaMethods.get(matcher[0][1])
+                        if(method){
+                            Object[] args =[getValueBasedOnType(speciesListProperties[key],fvalue)]
+                            if(method.getParameterTypes().size()>1)
+                                args = [key] +args[0]
+                            //log.debug("ARGS : " +args + " method : " + method)
+                            method.invoke(c, args)
                         }
+                        //handle the situation where the enum needs to be replaced
+//                        if (key == 'listType')
+//                            fvalue = ListType.valueOf(fvalue)
+//                        //now handle the supported filter conditions
+//                        switch(matcher[0][1]){
+//                            case "eq":eq(key,fvalue)
+//                        }
                     }
                 }
             }
@@ -46,7 +57,7 @@ class QueryService {
         lists
     }
     /**
-     * retrieves the species list items that obey the supplied fiilters.
+     * retrieves the species list items that obey the supplied filters.
      *
      * When a distinct field is provided the values of the field are returned rather than a SpeciesListItem
      * @param props
@@ -60,7 +71,7 @@ class QueryService {
         def c = SpeciesListItem.createCriteria()
 
         //log.debug("CRITERIA METHODS: " +criteriaMethods)
-        c.list(props){
+        c.list(props += params){
             //set the results transformer so that we don't get duplicate records because of the 1:many relationship between a list item and KVP
             setResultTransformer(org.hibernate.criterion.CriteriaSpecification.DISTINCT_ROOT_ENTITY)
             and{
@@ -107,11 +118,6 @@ class QueryService {
                                      args = [key] +args
                                 method.invoke(c, args)
                             }
-//                            switch(matcher[0][1]){
-//                                case "eq":eq(key,getValueBasedOnType(speciesListProperties[key],fvalue));break;
-//                                case "isNull":isNull(key);break;
-//
-//                            }
                         }
                     }
                 }
@@ -126,7 +132,13 @@ class QueryService {
             default:value; break;
         }
     }
-
+    /**
+     * Constructs a query based on the filters that have been applied in the KVPs etc.
+     * @param base
+     * @param facets
+     * @param dataResourceUid
+     * @return
+     */
     def constructWithFacets(String base, List facets, String dataResourceUid) {
         StringBuilder query = new StringBuilder(base)
         StringBuilder whereBuilder = new StringBuilder(" where sli.dataResourceUid=? ")

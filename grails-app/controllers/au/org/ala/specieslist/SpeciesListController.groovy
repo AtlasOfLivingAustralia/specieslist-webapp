@@ -34,8 +34,16 @@ class SpeciesListController {
 
     def upload(){ /*maps to the upload.gsp */
         log.debug(ListType.values())
-        if(params.id)
-            render(view: "upload", model: [list:  SpeciesList.findByDataResourceUid(params.id), listTypes:ListType.values()])
+        if(params.id){
+            //get the list if it exists and ensure that the user is an admin or the owner
+            def list = SpeciesList.findByDataResourceUid(params.id)
+            if(list?.username == authService.email() || authService.userInRole("ROLE_ADMIN")){
+                render(view: "upload", model: [resourceUid:params.id, list:  list, listTypes:ListType.values()])
+            } else {
+                flash.message = "${message(code: 'error.message.reloadListPermission', args: [params.id])}"
+                redirect(controller: "public", action:"speciesLists")
+            }
+        }
         else
             render(view:"upload",model:  [listTypes:ListType.values()])
     }
@@ -48,6 +56,7 @@ class SpeciesListController {
         def sl = SpeciesList.get(params.id)
         if(sl){
             sl.delete()
+            //TODO remove the items from the collectory
         }
         redirect(action: 'list')
 
@@ -98,7 +107,9 @@ class SpeciesListController {
                 def header = formParams.headers
                 log.debug("Header: " +header)
 
-                helperService.loadSpeciesList(reader,druid,formParams.speciesListName, ListType.valueOf(formParams.get("listType")), formParams.description, formParams.listUrl, formParams.listWkt,formParams.isBIE, formParams.isSDS, header.split(","),vocabs)
+                helperService.loadSpeciesList(reader,druid,formParams.speciesListName, ListType.valueOf(formParams.get("listType")), formParams.description, formParams.listUrl, formParams.listWkt,
+                        formParams.isBIE, formParams.isSDS,formParams.region,formParams.authority,formParams.category,formParams.generalisation, formParams.sdsType,
+                        header.split(","),vocabs)
                 def url =createLink(controller:'speciesListItem', action:'list', id: druid) +"?max=15"
                 def map = [url:url]
 //                println("THE URKL: "+url)
@@ -177,24 +188,6 @@ class SpeciesListController {
 
             log.debug("lists:" + lists)
 
-//        def qparams =[:]
-//        qparams.max = Math.min(params.max ? params.int('max') : 25, 100)
-//        qparams.sort = params.sort ?: "listName"
-//        qparams.fetch = [items: 'lazy']
-//        params.remove('max')
-//        params.remove('sort')
-//        def username = authService.email()
-//        if (username)
-//            params['username'] = username
-//        try{
-//            def c = SpeciesList.createCriteria()
-//            def lists= c.list(qparams){
-//                and{
-//
-//                }
-//            }
-            //def lists = SpeciesList.findAllByUsername(authService.email(),params)
-            //def count = SpeciesList.countByUsername(authService.email(),params)
             render(view: "list", model: [lists:lists, total:lists.totalCount])
         }
         catch(Exception e){
@@ -363,20 +356,24 @@ class SpeciesListController {
             String currentLsid = it.guid
             log.debug i + ". Rematching: " + rawName
             if(rawName && rawName.length()>0){
-                //String newLsid =helperService.findAcceptedLsidByScientificName(rawName)?:helperService.findAcceptedLsidByCommonName(rawName)
-                NameSearchResult nsr = helperService.findAcceptedConceptByScientificName(rawName)?:helperService.findAcceptedConceptByCommonName(rawName)
-
-                //if(newLsid && !currentLsid.equals(newLsid)){
-                if(nsr){
-                    log.debug("rematching lsid for " + rawName + " current: " + currentLsid + " new : " + nsr.lsid)
-                    log.debug("Checking NSR - lsid: " + nsr.lsid + " | id: " + nsr.id + " | value: " + nsr.toString()) + "||"
-                    it.guid = nsr.lsid
-                    it.matchedName = nsr.getRankClassification()?.scientificName
-
-                    if (!it.save(flush: true)) {
+                helperService.matchNameToSpeciesListItem(rawName, it)
+                if (!it.save(flush: true)) {
                         log.error "Error saving item (" + rawName +"): " + it.errors()
-                    }
                 }
+                //String newLsid =helperService.findAcceptedLsidByScientificName(rawName)?:helperService.findAcceptedLsidByCommonName(rawName)
+//                NameSearchResult nsr = helperService.findAcceptedConceptByScientificName(rawName)?:helperService.findAcceptedConceptByCommonName(rawName)
+//
+//                //if(newLsid && !currentLsid.equals(newLsid)){
+//                if(nsr){
+//                    log.debug("rematching lsid for " + rawName + " current: " + currentLsid + " new : " + nsr.lsid)
+//                    log.debug("Checking NSR - lsid: " + nsr.lsid + " | id: " + nsr.id + " | value: " + nsr.toString()) + "||"
+//                    it.guid = nsr.lsid
+//                    it.matchedName = nsr.getRankClassification()?.scientificName
+//
+//                    if (!it.save(flush: true)) {
+//                        log.error "Error saving item (" + rawName +"): " + it.errors()
+//                    }
+//                }
             }
             else{
                 it.guid=null

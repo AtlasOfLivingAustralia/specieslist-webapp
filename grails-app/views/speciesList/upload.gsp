@@ -31,6 +31,21 @@
             $('#uploadDiv').hide();
         $('#statusMsgDiv').hide();
         $('#uploadmsg').hide();
+        refreshSDSRows();
+    }
+
+    function refreshSDSRows(){
+        var ischecked=$('#isSDS').is(':checked');
+        var rows = $('table.listDetailTable tr');
+        if(ischecked) {
+            //$("#SDSOnly").fadeIn(200);
+            rows.filter('.SDSOnly').show();
+
+
+        } else {
+            //$("#SDSOnly").fadeOut(200);
+            rows.filter('.SDSOnly').hide();
+        }
     }
 
     function parseColumns(){
@@ -129,8 +144,8 @@
             map['rawData']  =$('#copyPasteData').val();
             map['listType'] =$('#listTypeId').val();
             //add the existing data resource uid if it is provided to handle a resubmit
-            if("${list}")
-                map['id'] = "${list?.dataResourceUid}"
+            if("${resourceUid}")
+                map['id'] = "${resourceUid}"
             //if the isBIE checkbox exists add the value
             if($('#isBIE').length>0){
                 map['isBIE']=$('#isBIE').is(':checked');
@@ -138,6 +153,15 @@
             //if the isSDS checkbox exists add the value
             if($('#isSDS').length>0){
                 map['isSDS']=$('#isSDS').is(':checked');
+                var ischecked=$('#isSDS').is(':checked');
+                if(ischecked){
+                    //add the SDS only properties
+                    map['region'] = $('#sdsRegion').val();
+                    map['authority'] = $('#authority').val();
+                    map['category'] = $('#category').val();
+                    map['generalisation'] = $('#generalisation').val();
+                    map['sdsType'] = $('#sdsType').val();
+                }
             }
             //console.log($.param(map))
             console.log("The map: ",map)
@@ -235,7 +259,16 @@
     }
 
     //        //setup the page
-    $(document).ready(function(){ init(); });
+    $(document).ready(function(){
+
+        init();
+
+        $("#isSDS").change(function(){
+            refreshSDSRows();
+      });
+
+    });
+
 </script>
 </head>
 
@@ -266,7 +299,7 @@
         <div class="message alert alert-info" id="uploadmsg" style="clear:right;">${flash.message}</div>
         <div id="section" class="col-wide">
 
-            <g:if test="${list}">
+            <g:if test="${resourceUid}">
                 <div class="message alert alert-info"><g:message code="upload.instructions.hasList" default="Upload a list"/></div>
             </g:if>
 
@@ -298,7 +331,7 @@
                 Please supply a title for your list.  You can optionally supply a description, an external URL as a reference to the list and a geospatial bounds for the list (in WKT format).
                 <div id="processSampleUpload">
                     %{--<p style="padding-bottom:0px;">--}%
-                    <table>
+                    <table class="listDetailTable">
                         <tbody>
                         <tr>
                             <td>
@@ -328,6 +361,36 @@
                                 <td><g:checkBox name="isSDS" id="isSDS" checked="${list?.isSDS}"/></td>
                             </tr>
                         </g:if>
+                         <tr class="SDSOnly" >
+                             <td><label>Region</label></td>
+                             <td>
+                                 <g:textField name="sdsRegion" style="width:99%" value="${list?.region}"/>
+                             </td>
+                         </tr>
+                        <tr class="SDSOnly">
+                            <td><label>Authority</label></td>
+                            <td>
+                                <g:textField name="authority" style="width:99%" value="${list?.authority}"/>
+                            </td>
+                        </tr>
+                        <tr class="SDSOnly">
+                            <td><label>Category</label></td>
+                            <td>
+                                <g:textField name="category" style="width:99%" value="${list?.category}"/>
+                            </td>
+                        </tr>
+                        <tr class="SDSOnly">
+                            <td><label>Generalisation</label></td>
+                            <td>
+                                <g:textField name="generalisation" style="width:99%" value="${list?.generalisation}"/>
+                            </td>
+                        </tr>
+                        <tr class="SDSOnly">
+                            <td><label>SDS Type</label></td>
+                            <td>
+                                <g:textField name="sdsType" style="width:99%" value="${list?.sdsType}"/>
+                            </td>
+                        </tr>
                         <tr>
                             <td>
                                 <label for="listDesc"><g:message code="upload.listdesc.label" default="Description"/></label>

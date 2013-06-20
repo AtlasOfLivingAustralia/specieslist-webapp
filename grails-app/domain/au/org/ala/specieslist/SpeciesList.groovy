@@ -18,6 +18,11 @@ class SpeciesList {
     Boolean isSDS
     Boolean isBIE
     Long itemsCount = 0
+    String region
+    String authority
+    String generalisation
+    String category
+    String sdsType
 
     static transients = [ "fullName" ]
 
@@ -34,6 +39,11 @@ class SpeciesList {
         firstName nullable: true
         surname nullable: true
         editors nullable: true
+        region(nullable:  true)
+        category nullable:  true
+        generalisation(nullable: true)
+        authority(nullable:  true)
+        sdsType nullable:  true
     }
 
     static mapping = {

@@ -14,11 +14,12 @@
  */
 package au.org.ala.specieslist
 
-class SpeciesListKVP {
+class SpeciesListKVP implements Comparable {
     String key
     String value
     String vocabValue
     String dataResourceUid
+    Integer itemOrder
     static belongsTo = SpeciesListItem
     static constraints = {
         vocabValue(nullable:true)
@@ -26,5 +27,11 @@ class SpeciesListKVP {
     static mapping ={
         key column: 'the_key'
         value column: "value", sqlType: "TEXT"
+    }
+
+    public int compareTo(def other){
+        if(itemOrder == 0 && other?.itemOrder == 0)
+            return key <=> other?.key
+        return itemOrder <=> other?.itemOrder //<=> Groovy compare to operator
     }
 }

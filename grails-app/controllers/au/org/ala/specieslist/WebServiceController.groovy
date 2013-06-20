@@ -73,7 +73,7 @@ class WebServiceController {
         //def result2 =results.collect {[id: it.id, dataResourceUid: it.dataResourceUid, guid: it.guid, kvpValues: it.kvpValue.collect{ id:it.}]}
         def builder = new JSONBuilder()
 
-        //log.debug("RESULTS: " + results)
+        log.debug("RESULTS: " + results)
 
         def listOfRecordMaps = results.collect{li ->
             [ dataResourceUid:li.dataResourceUid,
@@ -137,7 +137,19 @@ class WebServiceController {
             //def allLists = params.sort == "count"?SpeciesList.getAll(ids):params.user? SpeciesList.findAll(query,[params.user], params):SpeciesList.list(params)
             def allLists = query?SpeciesList.findAll(query,[params.user], params):queryService.getFilterListResult(params)
             def listCounts = query?SpeciesList.count:allLists.totalCount
-            def retValue =[listCount:listCounts, sort:  params.sort, order: params.order, max: params.max, offset:  params.offset, lists:allLists.collect{[dataResourceUid: it.dataResourceUid, listName: it.listName, listType:it?.listType?.toString(), dateCreated:it.dateCreated, username:it.username,  fullName:it.getFullName(), itemCount:it.itemsCount]}]
+            def retValue =[listCount:listCounts, sort:  params.sort, order: params.order, max: params.max, offset:  params.offset,
+                    lists:allLists.collect{[dataResourceUid: it.dataResourceUid,
+                                            listName: it.listName,
+                                            listType:it?.listType?.toString(),
+                                            dateCreated:it.dateCreated,
+                                            username:it.username,
+                                            fullName:it.getFullName(),
+                                            itemCount:it.itemsCount,
+                                            region:it.region,
+                                            category:it.category,
+                                            generalisation:it.generalisation,
+                                            authority:it.authority,
+                                            sdsType:it.sdsType]}]
 
             render retValue as JSON
         }
@@ -147,9 +159,17 @@ class WebServiceController {
      * Returns a summary list of items that form part of the supplied species list.
      */
     def getListItemDetails ={
-        def list = params.nonulls? SpeciesListItem.findAllByDataResourceUidAndGuidIsNotNull(params.druid):SpeciesListItem.findAllByDataResourceUid(params.druid)
-        def newList= list.collect{[id:it.id,name:it.rawScientificName, lsid: it.guid]}
-        render newList as JSON
+        if(params.druid) {
+            def list = params.nonulls? SpeciesListItem.findAllByDataResourceUidAndGuidIsNotNull(params.druid):SpeciesListItem.findAllByDataResourceUid(params.druid)
+            def newList= list.collect{[id:it.id,name:it.rawScientificName, lsid: it.guid]}
+            render newList as JSON
+        } else {
+            //no data resource uid was supplied.
+            def props = [fetch:[ kvpValues: 'join']]
+            def list = queryService.getFilterListItemResult(props, params, null, null,null)
+            render list.collect{[guid:it.guid, name: it.matchedName?:it.rawScientificName, family: it.family, dataResourceUid: it.dataResourceUid, kvpValues: it.kvpValues?.collect{i -> [key: i.key, value:i.vocabValue?:i.value]}]}  as JSON
+        }
+
     }
 
     /**

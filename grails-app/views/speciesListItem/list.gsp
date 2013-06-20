@@ -392,6 +392,28 @@
             <dd><g:formatBoolean boolean="${speciesList.isBIE?:false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.isSDS.label', default: 'Part of the SDS')}</dt>
             <dd><g:formatBoolean boolean="${speciesList.isSDS?:false}" true="Yes" false="No"/></dd>
+            <g:if test="${speciesList.isSDS}">
+                <g:if test="${speciesList.region}">
+                    <dt>${message(code: 'speciesList.region.label', default: 'SDS Region')}</dt>
+                    <dd>${speciesList.region}</dd>
+                </g:if>
+                <g:if test="${speciesList.authority}">
+                    <dt>${message(code: 'speciesList.authority.label', default: 'SDS Authority')}</dt>
+                    <dd>${speciesList.authority}</dd>
+                </g:if>
+                <g:if test="${speciesList.category}">
+                    <dt>${message(code: 'speciesList.category.label', default: 'SDS Category')}</dt>
+                    <dd>${speciesList.category}</dd>
+                </g:if>
+                <g:if test="${speciesList.generalisation}">
+                    <dt>${message(code: 'speciesList.generalisation.label', default: 'SDS Coordinate Generalisation')}</dt>
+                    <dd>${speciesList.generalisation}</dd>
+                </g:if>
+                <g:if test="${speciesList.sdsType}">
+                    <dt>${message(code: 'speciesList.sdsType.label', default: 'SDS Type')}</dt>
+                    <dd>${speciesList.sdsType}</dd>
+                </g:if>
+            </g:if>
             <g:if test="${speciesList.editors}">
                 <dt>${message(code: 'speciesList.editors.label', default: 'List editors')}</dt>
                 <dd>${speciesList.editors.collect{ sl.getFullNameForUserId(userId: it) }?.join(", ")}</dd>
@@ -467,6 +489,38 @@
                                 <input type="checkbox" id="isSDS" name="isSDS" class="input-xlarge" value="true" data-value="${speciesList.isSDS}" ${(speciesList.isSDS == true) ? 'checked="checked"':''} />
                             </div>
                         </div>
+                        <g:if test="${speciesList.isSDS}">
+                            <div class="control-group">
+                                <label class="control-label" for="region">${message(code: 'speciesList.region.label', default: 'SDS Region')}</label>
+                                <div class="controls">
+                                    <g:textField name="region">${speciesList.region}</g:textField>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="authority">${message(code: 'speciesList.authority.label', default: 'SDS Authority')}</label>
+                                <div class="controls">
+                                    <g:textField name="authority">${speciesList.authority}</g:textField>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="category">${message(code: 'speciesList.category.label', default: 'SDS Category')}</label>
+                                <div class="controls">
+                                    <g:textField name="category">${speciesList.category}</g:textField>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="generalisation">${message(code: 'speciesList.generalisation.label', default: 'SDS Generalisation')}</label>
+                                <div class="controls">
+                                    <g:textField name="generalisation">${speciesList.generalisation}</g:textField>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="sdsType">${message(code: 'speciesList.sdsType.label', default: 'SDS Type')}</label>
+                                <div class="controls">
+                                    <g:textField name="sdsType">${speciesList.sdsType}</g:textField>
+                                </div>
+                            </div>
+                        </g:if>
                     </g:if>
                     <div class="control-group">
                         <div class="controls">
@@ -541,59 +595,129 @@
                                 </div>
                             </div>
                         </g:if>
-                        <g:if test="${facets.containsKey("listProperties")}">
-                            <g:each in="${facets.get("listProperties")}" var="value">
+
+                        <g:each in="${facets}" var="entry">
+                            <g:if test="${entry.key == "listProperties"}">
+                            %{--<g:if test="${facets.containsKey("listProperties")}">--}%
+                                <g:each in="${facets.get("listProperties")}" var="value">
+                                    <p>
+                                        <span class="FieldName">${value.getKey()}</span>
+                                    </p>
+                                    <div id="facet-${value.getKey()}" class="subnavlist">
+                                        <ul>
+                                            <g:set var="i" value="${0}" />
+                                            <g:set var="values" value="${value.getValue()}" />
+                                        %{--<g:each in="${value.getValue()}" var="arr">--}%
+                                            <g:while test="${i < 4 && i<values.size()}">
+
+                                                <g:set var="arr" value="${values.get(i)}" />
+                                                <li>
+                                                    <a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]}</a>  (${arr[3]})
+                                                </li>
+                                                <%i++%>
+                                            </g:while>
+                                            <g:if test="${values.size()>4}">
+                                                <div class="showHide">
+                                                    <i class="icon icon-hand-right"></i> <a href="#div${value.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLink" id="multi-${value.getKey()}"
+                                                                                            title="See full list of values">choose more...</a>
+                                                    <div style="display:none">
+                                                        <div id="div${value.getKey().replaceAll(" " ,"_")}">
+
+                                                            %{--<a class="multipleFacetsLink" title="See more options." id="options${value.getKey()}">choose more...</a>--}%
+                                                            %{--<gui:dialog--}%
+                                                            %{--title="Refine List"--}%
+                                                            %{--draggable="true"--}%
+                                                            %{--id="dialog_${value.getKey().replaceAll(" " ,"_")}"--}%
+
+                                                            %{--buttons="[--}%
+
+                                                            %{--[text:'Close', handler: 'function() {this.cancel();}', isDefault: true]--}%
+                                                            %{--]"--}%
+                                                            %{--triggers="[show:[id:'options'+value.getKey(), on:'click']]"--}%
+                                                            %{-->--}%
+
+                                                            <h3>Refine your search</h3>
+                                                            <table class='table table-striped compact scrollTable'>
+                                                                <thead class='fixedHeader'>
+                                                                <tr class='tableHead'>
+                                                                    <th>&nbsp;</th>
+                                                                    <th>${value.getKey()}</th>
+                                                                    <th>Count</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody class='scrollContent'>
+                                                                <g:each in="${value.getValue()}" var="arr">
+                                                                    <tr>
+                                                                        <td>&nbsp</td>
+                                                                        <td><a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]} </a></td>
+                                                                        <td>${arr[3]}</td>
+                                                                    </tr>
+                                                                </g:each>
+                                                                </tbody>
+                                                            </table>
+                                                            %{--</gui:dialog>--}%
+                                                        </div>
+
+                                                    </div>
+                                                </div><!-- invisible content div for facets -->
+                                            </g:if>
+                                        %{--</g:each>--}%
+                                        </ul>
+                                    </div>
+
+                                </g:each>
+                                <div style="display:none"><!-- fancybox popup div -->
+                                    <div id="multipleFacets">
+                                        <p>Refine your search</p>
+                                        <div id="dynamic" class="tableContainer"></div>
+                                        %{--<div id='submitFacets'>--}%
+                                        %{--<input type='submit' class='submit' id="include" value="INCLUDE selected items in search"/>--}%
+                                        %{--&nbsp;--}%
+                                        %{--<input type='submit' class='submit' id="exclude" value="EXCLUDE selected items from search"/>--}%
+                                        %{--</div>--}%
+                                    </div>
+                                </div>
+                            </g:if>
+                            <g:else>
                                 <p>
-                                    <span class="FieldName">${value.getKey()}</span>
+                                    <span class="FieldName">${entry.key}</span>
                                 </p>
-                                <div id="facet-${value.getKey()}" class="subnavlist">
+
+                                <div id="facet-${entry.key}" class="subnavlist">
                                     <ul>
                                         <g:set var="i" value="${0}" />
-                                        <g:set var="values" value="${value.getValue()}" />
+                                        <g:set var="values" value="${entry.value}" />
                                     %{--<g:each in="${value.getValue()}" var="arr">--}%
                                         <g:while test="${i < 4 && i<values.size()}">
 
                                             <g:set var="arr" value="${values.get(i)}" />
                                             <li>
-                                                <a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]}</a>  (${arr[3]})
+                                                <a href="?fq=${entry.key}:${arr[0]}${queryParams}">${arr[0]}</a>  (${arr[1]})
                                             </li>
                                             <%i++%>
                                         </g:while>
                                         <g:if test="${values.size()>4}">
                                             <div class="showHide">
-                                                <i class="icon icon-hand-right"></i> <a href="#div${value.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLink" id="multi-${value.getKey()}"
+                                                <i class="icon icon-hand-right"></i> <a href="#div${entry.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLink" id="multi-${entry.getKey()}"
                                                                                         title="See full list of values">choose more...</a>
                                                 <div style="display:none">
-                                                    <div id="div${value.getKey().replaceAll(" " ,"_")}">
-
-                                                        %{--<a class="multipleFacetsLink" title="See more options." id="options${value.getKey()}">choose more...</a>--}%
-                                                        %{--<gui:dialog--}%
-                                                        %{--title="Refine List"--}%
-                                                        %{--draggable="true"--}%
-                                                        %{--id="dialog_${value.getKey().replaceAll(" " ,"_")}"--}%
-
-                                                        %{--buttons="[--}%
-
-                                                        %{--[text:'Close', handler: 'function() {this.cancel();}', isDefault: true]--}%
-                                                        %{--]"--}%
-                                                        %{--triggers="[show:[id:'options'+value.getKey(), on:'click']]"--}%
-                                                        %{-->--}%
+                                                    <div id="div${entry.key.replaceAll(" " ,"_")}">
 
                                                         <h3>Refine your search</h3>
                                                         <table class='table table-striped compact scrollTable'>
                                                             <thead class='fixedHeader'>
                                                             <tr class='tableHead'>
                                                                 <th>&nbsp;</th>
-                                                                <th>${value.getKey()}</th>
+                                                                <th>${entry.getKey()}</th>
                                                                 <th>Count</th>
                                                             </tr>
                                                             </thead>
                                                             <tbody class='scrollContent'>
-                                                            <g:each in="${value.getValue()}" var="arr">
+                                                            <g:each in="${entry.getValue()}" var="arr">
                                                                 <tr>
                                                                     <td>&nbsp</td>
-                                                                    <td><a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]} </a></td>
-                                                                    <td>${arr[3]}</td>
+                                                                    <td><a href="?fq=${entry.key}:${arr[0]}${queryParams}">${arr[0]} </a></td>
+                                                                    <td>${arr[1]}</td>
                                                                 </tr>
                                                             </g:each>
                                                             </tbody>
@@ -604,23 +728,14 @@
                                                 </div>
                                             </div><!-- invisible content div for facets -->
                                         </g:if>
-                                    %{--</g:each>--}%
+
                                     </ul>
                                 </div>
 
-                            </g:each>
-                            <div style="display:none"><!-- fancybox popup div -->
-                                <div id="multipleFacets">
-                                    <p>Refine your search</p>
-                                    <div id="dynamic" class="tableContainer"></div>
-                                    %{--<div id='submitFacets'>--}%
-                                    %{--<input type='submit' class='submit' id="include" value="INCLUDE selected items in search"/>--}%
-                                    %{--&nbsp;--}%
-                                    %{--<input type='submit' class='submit' id="exclude" value="EXCLUDE selected items from search"/>--}%
-                                    %{--</div>--}%
-                                </div>
-                            </div>
-                        </g:if>
+
+
+                            </g:else>
+                        </g:each>
                     </g:if>
 
                 </section>

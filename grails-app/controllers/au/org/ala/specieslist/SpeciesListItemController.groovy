@@ -60,7 +60,7 @@ class SpeciesListItemController {
                     //This is used for the stats - should these be for the whole list or just the fqed version?
                     def distinctCount = requestParams.fq ? SpeciesList.executeQuery("select count(distinct guid) " + baseQueryAndParams[0], baseQueryAndParams[1]).head() : SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid=?", requestParams.id).head()//SpeciesListItem.executeQuery(queryparams[0],[queryparams[1]]).head()
                     //need to get all keys to be included in the table so no need to add the filter.
-                    def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?", requestParams.id)
+                    def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=? order by itemOrder", requestParams.id)
 
                     //def spqueries = params.fq ? queryService.constructWithFacets("select sli ", fqs, params.id):["select sli from SpeciesListItem as sli where sli.dataResourceUid=?",[params.id]]
                     //println(spqueries)
@@ -121,7 +121,12 @@ class SpeciesListItemController {
             def ids = SpeciesListItem.executeQuery("select distinct sli.id " + baseQueryParams[0], baseQueryParams[1])
 
             //println(ids)
-            def results = SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt  from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=:druid and sli.id in (:list) group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc', [druid:params.id,list:ids])
+            def results = SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt  from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=:druid and sli.id in (:list) group by kvp.key, kvp.value, kvp.vocabValue order by kvp.itemOrder,kvp.key,cnt desc', [druid:params.id,list:ids])
+
+            //obtain the families from the common list facets
+            def commonResults = SpeciesListItem.executeQuery('select sli.family, count(sli) as cnt from SpeciesListItem sli where sli.family is not null AND sli.dataResourceUid=:druid and sli.id in (:list) group by sli.family order by cnt desc', [druid:params.id, list:ids])
+            if(commonResults.size>1)
+                map.family = commonResults
 
             //println(results)
             properties = results.findAll{ it[1].length()<maxLengthForFacet }.groupBy { it[0] }.findAll{ it.value.size()>1}
@@ -129,10 +134,15 @@ class SpeciesListItemController {
         } else {
             def result = fqs? SpeciesListItem.executeQuery(selectPart+middlePart[0] +
                     " group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc", middlePart[1]):
-                SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt  from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=? group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc', params.id)
+                SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt  from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=? group by kvp.key, kvp.value, kvp.vocabValue order by kvp.itemOrder,kvp.key,cnt desc', params.id)
             //def result = baseQueryParams? SpeciesListItem.executeQuery(selectPart + baseQueryParams[0] + " group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc", baseQueryParams[1]) : SpeciesListItem.executeQuery(selectPart +'  from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=? group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc', params.id)
             //println(result)
             properties = result.findAll{it[1].length()<maxLengthForFacet}.groupBy{it[0]}.findAll{it.value.size()>1 }
+
+            //obtain the families from the common list facets
+            def commonResults = SpeciesListItem.executeQuery('select family, count(*) as cnt from SpeciesListItem where family is not null AND dataResourceUid=? group by family order by cnt desc',params.id)
+            if(commonResults.size>1)
+                map.family =commonResults
         }
         //if there was a facet included in the result we will need to divide the
         if(properties)
