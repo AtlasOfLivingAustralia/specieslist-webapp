@@ -493,31 +493,31 @@
                             <div class="control-group">
                                 <label class="control-label" for="region">${message(code: 'speciesList.region.label', default: 'SDS Region')}</label>
                                 <div class="controls">
-                                    <g:textField name="region">${speciesList.region}</g:textField>
+                                    <input type="text" name="region" id="region" class="input-xlarge" value="${speciesList.region}" />
                                 </div>
                             </div>
                             <div class="control-group">
                                 <label class="control-label" for="authority">${message(code: 'speciesList.authority.label', default: 'SDS Authority')}</label>
                                 <div class="controls">
-                                    <g:textField name="authority">${speciesList.authority}</g:textField>
+                                    <input type="text" name="authority" id="authority" class="input-xlarge" value="${speciesList.authority}" />
                                 </div>
                             </div>
                             <div class="control-group">
                                 <label class="control-label" for="category">${message(code: 'speciesList.category.label', default: 'SDS Category')}</label>
                                 <div class="controls">
-                                    <g:textField name="category">${speciesList.category}</g:textField>
+                                    <input type="text" name="category" id="category" class="input-xlarge" value="${speciesList.category}" />
                                 </div>
                             </div>
                             <div class="control-group">
                                 <label class="control-label" for="generalisation">${message(code: 'speciesList.generalisation.label', default: 'SDS Generalisation')}</label>
                                 <div class="controls">
-                                    <g:textField name="generalisation">${speciesList.generalisation}</g:textField>
+                                    <input type="text" name="generalisation" id="generalisation" class="input-xlarge" value="${speciesList.generalisation}" />
                                 </div>
                             </div>
                             <div class="control-group">
                                 <label class="control-label" for="sdsType">${message(code: 'speciesList.sdsType.label', default: 'SDS Type')}</label>
                                 <div class="controls">
-                                    <g:textField name="sdsType">${speciesList.sdsType}</g:textField>
+                                    <input type="text" name="sdsType" id="sdsType" class="input-xlarge" value="${speciesList.sdsType}" />
                                 </div>
                             </div>
                         </g:if>
