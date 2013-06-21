@@ -142,6 +142,7 @@ class WebServiceController {
                                             listName: it.listName,
                                             listType:it?.listType?.toString(),
                                             dateCreated:it.dateCreated,
+                                            lastUpdated:it.lastUpdated,
                                             username:it.username,
                                             fullName:it.getFullName(),
                                             itemCount:it.itemsCount,
