@@ -12,6 +12,8 @@ class ExternalSiteController {
     def genbankBase = "http://www.ncbi.nlm.nih.gov"
     def scholarBase = "http://scholar.google.com"
 
+    def genbankCountRegex = """All \\(([0-9]{1,})\\)"""
+
     def genbank = {
 
         def searchStrings = params.list("s")
@@ -22,6 +24,11 @@ class ExternalSiteController {
         Elements results = doc.select("div.rslt")
 
         def totalResults = doc.select("a[title=Total Results]").text()
+
+        def matcher = totalResults =~ "All \\(([0-9]{1,})\\)"
+        matcher.find()
+        totalResults = matcher.group(1)
+
         def formattedResults = []
         results.each { result ->
             Elements titleEl = result.getElementsByClass("title")
@@ -47,6 +54,11 @@ class ExternalSiteController {
         Document doc = Jsoup.connect(url).userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6").referrer("http://www.google.com")get()
 
         def totalResults = doc.select("div[id=gs_ab_md]").get(0).text()
+
+        def matcher = totalResults =~ "About ([0-9\\,]{1,}) results \\([0-9\\.]{1,} sec\\)"
+        matcher.find()
+        totalResults = matcher.group(1)
+
         Elements results = doc.select("div[class=gs_r]")
         def formattedResults = []
         results.each { result ->
