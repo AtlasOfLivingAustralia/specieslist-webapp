@@ -48,6 +48,7 @@ grails.project.dependency.resolution = {
                 version:'1.0-SNAPSHOT',
                 transitive:false
         compile 'org.jasig.cas.client:cas-client-core:3.1.12'
+        runtime 'org.jsoup:jsoup:1.7.2'
         // runtime 'mysql:mysql-connector-java:5.1.16'
     }
 
@@ -56,6 +57,7 @@ grails.project.dependency.resolution = {
         runtime ":jquery:1.7.1"
         runtime ":resources:1.1.6"
         runtime ":ala-web-theme:0.1.10"
+
 
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0"
