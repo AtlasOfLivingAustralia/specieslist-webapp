@@ -49,8 +49,32 @@
             serverName:     "${grailsApplication.config.grails.serverURL}",
             bieUrl:         "${grailsApplication.config.bie.baseURL}",
             alertsUrl:      "${grailsApplication.config.alerts.baseUrl}",
-            remoteUser:     "${request.remoteUser?:''}"
+            remoteUser:     "${request.remoteUser?:''}",
+            genbankUrl:     "${createLink(controller: 'externalSite', action:'genbank',params:[s:tc?.taxonConcept?.nameString?:''])}",
+            scholarUrl:     "${createLink(controller: 'externalSite', action:'scholar',params:[s:tc?.taxonConcept?.nameString?:''])}"
         }
+
+        $(function(){
+            $.ajax({url: SHOW_CONF.genbankUrl}).done(function ( data ) {
+                $('#genbankResultCount').html('-  <a href="' + data.resultsUrl + '"> view all results - ' + data.total + '</a>');
+                $.each(data.results, function(idx, result){
+                   $('#genbank').append('<tr><td>'+
+                        '<a class="externalLink" href="' + result.link + '">' + result.title + '</a><br/>' +
+                        '<span class="">' + result.description + '</span><br/>' +
+                        '<span class="">' + result.furtherDescription +'</span></td></tr>');
+                });
+            });
+
+            $.ajax({url: SHOW_CONF.scholarUrl}).done(function ( data ) {
+                $('#scholarResultCount').html('- <a href="' + data.resultsUrl + '"> view all results - ' + data.total + '</a>');
+                $.each(data.results, function(idx, result){
+                   $('#scholar').append('<tr><td>'+
+                        '<a class="externalLink" href="' + result.link + '">' + result.title + '</a><br/>' +
+                        '<span class="">' + result.description + '</span><br/>' +
+                        '<span class="">' + result.furtherDescription +'</span></td></tr>');
+                });
+            });
+        })
     </r:script>
 </head>
 <body class="species content">
@@ -227,6 +251,7 @@
                     <li><a id="t4" href="#classification" data-toggle="tab">Classification</a></li>
                     <li><a id="t5" href="#records" data-toggle="tab">Records</a></li>
                     <li id="bhl"><a id="t6" href="#literature" data-toggle="tab">Literature</a></li>
+                    <li><a id="t7" href="#other" data-toggle="tab">Other</a></li>
                 </ul>
             </div>
             <div class="tab-content ">
@@ -245,8 +270,8 @@
                                 <img id="mapLegend" src="http://biocache.ala.org.au/ws/density/legend?q=${spatialQuery}" class="distroLegend" alt="map legend" onerror="this.style.display='none'"/>
                             </div>
                             <p>
-                                <a class="button" href="${biocacheUrl}/occurrences/taxa/${guid}" title="View records list">View records list</a>
-                                <a class="button" href="${spatialPortalUrl}/?q=lsid:%22${guid}%22&cm=geospatial_kosher" title="Map & analyse records">Map &amp; analyse records</a>
+                                <a class="btn" href="${biocacheUrl}/occurrences/taxa/${guid}" title="View records list">View records list</a>
+                                <a class="btn" href="${spatialPortalUrl}/?q=lsid:%22${guid}%22&cm=geospatial_kosher" title="Map & analyse records">Map &amp; analyse records</a>
                             </p>
                         </section>
                         <section class="" id="overviewImage">
@@ -743,8 +768,22 @@
                     .trove-results-home .titleInfo { height:15px; }
                     </style>
             </section><!--#literature-->
+            <section class="tab-pane" id="other">
+                <h2>Genbank <span id="genbankResultCount"></span></h2>
+                <table id="genbank" class="table">
+                </table>
+                <h2>Google scholar <span id="scholarResultCount"></span></h2>
+                <table id="scholar" class="table">
+                </table>
+            </section>
             </div><!--tabs-panes-noborder-->
         </div><!--col-wide last-->
     </div><!--inner-->
+
+<r:script>
+
+
+</r:script>
+
 </body>
 </html>
