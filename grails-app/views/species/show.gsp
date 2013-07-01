@@ -64,16 +64,6 @@
                         '<span class="">' + result.furtherDescription +'</span></td></tr>');
                 });
             });
-
-            $.ajax({url: SHOW_CONF.scholarUrl}).done(function ( data ) {
-                $('#scholarResultCount').html('- <a href="' + data.resultsUrl + '"> view all results - ' + data.total + '</a>');
-                $.each(data.results, function(idx, result){
-                   $('#scholar').append('<tr><td>'+
-                        '<a class="externalLink" href="' + result.link + '">' + result.title + '</a><br/>' +
-                        '<span class="">' + result.description + '</span><br/>' +
-                        '<span class="">' + result.furtherDescription +'</span></td></tr>');
-                });
-            });
         })
     </r:script>
 </head>
@@ -251,7 +241,7 @@
                     <li><a id="t4" href="#classification" data-toggle="tab">Classification</a></li>
                     <li><a id="t5" href="#records" data-toggle="tab">Records</a></li>
                     <li id="bhl"><a id="t6" href="#literature" data-toggle="tab">Literature</a></li>
-                    <li><a id="t7" href="#other" data-toggle="tab">Other</a></li>
+                    <li><a id="t7" href="#other" data-toggle="tab">Sequences</a></li>
                 </ul>
             </div>
             <div class="tab-content ">
@@ -772,9 +762,9 @@
                 <h2>Genbank <span id="genbankResultCount"></span></h2>
                 <table id="genbank" class="table">
                 </table>
-                <h2>Google scholar <span id="scholarResultCount"></span></h2>
-                <table id="scholar" class="table">
-                </table>
+                %{--<h2>Google scholar <span id="scholarResultCount"></span></h2>--}%
+                %{--<table id="scholar" class="table">--}%
+                %{--</table>--}%
             </section>
             </div><!--tabs-panes-noborder-->
         </div><!--col-wide last-->
