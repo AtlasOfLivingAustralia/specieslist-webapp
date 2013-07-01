@@ -16,16 +16,12 @@ class ExternalSiteController {
 
         def searchStrings = params.list("s")
         def searchParams = URLEncoder.encode("\"" + searchStrings.join("\" OR \"") + "\"", "UTF-8")
-
         def url = (genbankBase + "/nuccore/?term=" + searchParams)
-
-        println url
 
         Document doc = Jsoup.connect(url).get()
         Elements results = doc.select("div.rslt")
 
         def totalResultsRaw = doc.select("a[title=Total Results]").text()
-
         def matcher = totalResultsRaw =~ "All \\(([0-9]{1,})\\)"
         def found = matcher.find()
         def totalResults = 0
