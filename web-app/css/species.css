@@ -132,6 +132,13 @@ section#classification dl#classificationList {
 section#classification dl {
     margin:4px 0 0 24px;
 }
+
+@media screen and (max-width: 600px) {
+    section#classification dl {
+        margin:4px 0 0 0px;
+    }
+}
+
 section#classification dl dt {
     float:left;
     padding-right:10px;
