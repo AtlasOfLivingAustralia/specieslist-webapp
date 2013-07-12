@@ -322,6 +322,7 @@
                             </ul>
                         </section>
                     </div>
+                    <div class="clearfix"></div>
                     <g:set var="descriptionBlock">
                         <g:set var="counter" value="${0}"/>
                         <g:each var="textProperty" in="${textProperties}" status="status">
@@ -334,7 +335,7 @@
                         </g:each>
                     </g:set>
                     <g:if test="${descriptionBlock?.trim().length() > 0}">
-                        <section class="clearfix">
+                        <section>
                             <h2>Description</h2>
                             ${descriptionBlock}
                         </section>

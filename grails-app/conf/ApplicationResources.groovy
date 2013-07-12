@@ -11,7 +11,7 @@ modules = {
     }
 
     show {
-        dependsOn 'colorbox, fancybox, cleanHtml, snazzy'
+        dependsOn 'colorbox, fancybox, cleanHtml, snazzy, bootstrap'
         resource url:[dir:'css', file:'species.css', disposition: 'head']
         resource url:[dir:'js', file:'jquery.sortElemets.js', disposition: 'head']
         resource url:[dir:'js', file:'jquery.jsonp-2.3.1.min.js', disposition: 'head']
