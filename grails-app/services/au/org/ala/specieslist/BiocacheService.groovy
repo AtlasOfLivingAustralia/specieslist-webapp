@@ -77,7 +77,7 @@ class BiocacheService {
                             returnUrl += "/occurrences/search?q=qid:" + qid
                             break
                         case "Download":
-                            returnUrl += "/ws/occurrences/download?q=qid:" + qid + "&file=" + downloadDto.file
+                            returnUrl += "/ws/occurrences/index/download?q=qid:" + qid + "&file=" + downloadDto.file
                             returnUrl += "&reason=" + downloadDto.reasonTypeId + "&email=" + downloadDto.email
                             break
                     }
