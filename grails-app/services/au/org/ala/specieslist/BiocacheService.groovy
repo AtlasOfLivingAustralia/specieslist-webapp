@@ -7,30 +7,40 @@ class BiocacheService {
 
     def grailsApplication
 
-    def performBatchSearchOrDownload(guids, action, title) {
-        def http = new HTTPBuilder(grailsApplication.config.biocacheService.baseURL +"/occurrences/batchSearch")
+    def getQid(guids, unMatchedNames, title, wkt){
+        def http = new HTTPBuilder(grailsApplication.config.biocacheService.baseURL +"/webportal/params")
         http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
-        def postBody = [field:'lsid',queries: guids.join(","),
-                separator:',',redirectBase:grailsApplication.config.biocache.baseURL+"/occurrences/search",
-                action:action, title:title]
-        log.debug "action = " + action
-        try{
-        http.post(body: postBody, requestContentType:groovyx.net.http.ContentType.URLENC){resp->
-            //return the location in the header
-            log.debug(resp.headers)
+        def query = ""
 
-            if(resp.status == 302){
-                return  resp.headers['location'].getValue()
+        if (guids) {
+            query = "lsid:\"" + guids.join("\" OR lsid:\"") + "\""
+        }
+
+        if (unMatchedNames) {
+            query += ((query) ? " OR " : "") + "raw_name:\"" + unMatchedNames.collect{ it.trim() }.join("\" OR raw_name:\"") + "\""
+        }
+
+        def postBody = [q:query, wkt: wkt, title: title]
+        log.debug "postBody = " + postBody
+
+        try {
+            http.post(body: postBody, requestContentType:groovyx.net.http.ContentType.URLENC){ resp, reader ->
+                //return the location in the header
+                log.debug(resp.headers)
+                if (resp.status == 302) {
+                    log.debug "302 redirect response from biocache"
+                    return [status:resp.status, result:resp.headers['location'].getValue()]
+                } else if (resp.status == 200) {
+                    log.debug "200 OK response from biocache"
+                    return [status:resp.status, result:reader.getText()]
+                } else {
+                    return [status:500]
+                }
             }
-            else return null;
-        }
-        }
-        catch(ex){
+        } catch(ex) {
             log.error("Unable to get occurrences: " ,ex)
             return null;
         }
-
-
     }
 
     /**
@@ -43,56 +53,29 @@ class BiocacheService {
      * @return
      */
     def performBatchSearchOrDownload(guids, unMatchedNames, downloadDto, title, wkt) {
-        def http = new HTTPBuilder(grailsApplication.config.biocacheService.baseURL +"/webportal/params")
-        http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
-        def query
 
-        if (guids) {
-            query = "lsid:\"" + guids.join("\" OR lsid:\"") + "\""
-        }
-
-        if (unMatchedNames) {
-            query += ((query) ? " OR " : "") + "raw_name:\"" + unMatchedNames.collect{ it.trim() }.join("\" OR raw_name:\"") + "\""
-        }
-
-        def postBody = [q:query, wkt: wkt, title: title]
-        log.debug "postBody = " + postBody
-        log.debug "action = " + downloadDto.type
-
-        try{
-            http.post(body: postBody, requestContentType:groovyx.net.http.ContentType.URLENC){ resp, reader->
-                //return the location in the header
-                log.debug(resp.headers)
-
-                if(resp.status == 302){
-                    return  resp.headers['location'].getValue()
-                }
-                else if (resp.status == 200) {
-                    log.debug "200 OK reponse"
-                    //log.debug "text = " + reader.getText()
-                    def qid = reader.getText()
-                    def returnUrl = grailsApplication.config.biocache.baseURL
-                    switch ( downloadDto.type ) {
-                        case "Search":
-                            returnUrl += "/occurrences/search?q=qid:" + qid
-                            break
-                        case "Download":
-                            returnUrl += "/ws/occurrences/index/download?q=qid:" + qid + "&file=" + downloadDto.file
-                            returnUrl += "&reason=" + downloadDto.reasonTypeId + "&email=" + downloadDto.email
-                            break
-                    }
-
-                    return returnUrl
-                }
-                else return null;
+        def resp = getQid(guids, unMatchedNames, title, wkt)
+        if(resp.status == 302){
+            resp.result
+        } else if (resp.status == 200) {
+            log.debug "200 OK response"
+            def qid = resp.result
+            def returnUrl = grailsApplication.config.biocache.baseURL
+            switch ( downloadDto.type ) {
+                case "Search":
+                    returnUrl += "/occurrences/search?q=qid:" + qid
+                    break
+                case "Download":
+                    returnUrl += "/ws/occurrences/index/download?q=qid:" + qid + "&file=" + downloadDto.file
+                    returnUrl += "&reason=" + downloadDto.reasonTypeId + "&email=" + downloadDto.email
+                    break
             }
+            returnUrl
+        } else {
+            null
         }
-        catch(ex){
-            log.error("Unable to get occurrences: " ,ex)
-            return null;
-        }
-
     }
+
     //Location	http://biocache.ala.org.au/occurrences/search?q=qid:1344230443917
     def createJsonForBatch(guids){
         def builder = new JSONBuilder()

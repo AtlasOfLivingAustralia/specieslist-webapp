@@ -60,5 +60,4 @@ class SpeciesList {
     def String getFullName(){
         authService.getDisplayNameFor(username)
     }
-
 }

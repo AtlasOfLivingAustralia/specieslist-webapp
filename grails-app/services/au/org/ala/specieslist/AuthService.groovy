@@ -20,6 +20,10 @@ class AuthService {
         (RequestContextHolder.currentRequestAttributes()?.getUserPrincipal()?.attributes?.email)?:null
     }
 
+    def username(){
+        getDisplayNameFor(email())
+    }
+
     def firstname(){
         (RequestContextHolder.currentRequestAttributes()?.getUserPrincipal()?.attributes?.firstname)?:null
     }
@@ -53,20 +57,23 @@ class AuthService {
         loadMapOfAllUserNamesById()
         return userNamesById
     }
+
     protected void loadMapOfAllUserNamesById() {
         try {
             final String jsonUri = grailsApplication.config.auth.userDetailsUrl + grailsApplication.config.auth.userNamesForIdPath;
             log.info("authCache requesting: " + jsonUri);
             def http = new HTTPBuilder(jsonUri)
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
-            def response=http.post([:])
-            userNamesById = (Map<String,String>)response
+            def response= http.post([:])
+            userNamesById = (Map<String,String>) response
             //userNamesById = restTemplate.postForObject(jsonUri, null, Map.class);
         } catch (Exception ex) {
+            userNamesById = [:]
             log.error("RestTemplate error: " + ex.getMessage(), ex);
         }
         //logger.debug("userNamesById = " + StringUtils.join(userNamesById.keySet(), "|"));
     }
+
     public String getDisplayNameFor(String value){
         String displayName = value;
         if(value != null){
@@ -98,9 +105,8 @@ class AuthService {
             userNamesByNumericIds = (Map<String,String>)response
             //userNamesByNumericIds = restTemplate.postForObject(jsonUri, null, Map.class);
         } catch (Exception ex) {
+            userNamesByNumericIds = [:]
             log.error("Error getting numeric ids: " + ex.getMessage(), ex);
         }
-        //logger.debug("userNamesByIds = " + StringUtils.join(userNamesByNumericIds.keySet(), "|"));
     }
-
 }

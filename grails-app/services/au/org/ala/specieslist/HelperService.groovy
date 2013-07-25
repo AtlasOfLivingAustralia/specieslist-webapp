@@ -19,6 +19,7 @@ import au.com.bytecode.opencsv.CSVReader
 import au.org.ala.checklist.lucene.model.NameSearchResult
 import au.org.ala.specieslist.SpeciesListItem
 import au.org.ala.checklist.lucene.CBIndexSearch
+import groovy.json.JsonOutput
 import groovyx.net.http.HTTPBuilder
 import static groovyx.net.http.ContentType.JSON
 import grails.web.JSONBuilder
@@ -46,61 +47,64 @@ class HelperService {
 
     def collectoryKey = "Venezuela"
 
-    //"http://vpn-cbr-67.act.csiro.au:8080/Collectory"
-
-    /*
-       String name = "my test dataset";
-    String api_key ="Venezuela";
-    String user= "Sandbox upload services";
-    String email = "";
-    String firstName = "";
-    String lastName = "";
-     */
-
     /**
      * Adds a data resource to the collectory for this species list
      * @param username
      * @param description
      * @return
      */
-    def addDataResourceForList(name,description,url,username) {
+    def addDataResourceForList(map) {
         if(grailsApplication.config.collectory.enableSync){
-            def http = new HTTPBuilder(grailsApplication.config.collectory.baseURL +"/ws/dataResource")
+            def postUrl = grailsApplication.config.collectory.baseURL +"/ws/dataResource"
+            def http = new HTTPBuilder(postUrl)
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
-            def jsonBody = createJsonForNewDataResource(name, description, url, username)
+            def jsonBody = createJsonForNewDataResource(map)
             log.debug(jsonBody)
-            try{
-             http.post(body: jsonBody, requestContentType:JSON){ resp ->
+
+            try {
+               http.post(body: jsonBody, requestContentType:JSON){ resp ->
                  assert resp.status == 201
                  return resp.headers['location'].getValue()
-             }
-            }
-            catch(ex){
+               }
+            } catch(ex){
                 log.error("Unable to create a collectory entry for the species list.",ex)
                 return null
             }
-        } else{
+
+        } else {
            //return a dummy URL
           "http://collections.ala.org.au/tmp/drt" + System.currentTimeMillis()
         }
     }
 
-    def createJsonForNewDataResource(listname,description,URL,email){
-        def builder = new JSONBuilder()
+    def updateDataResourceForList(drId, map) {
+        if(grailsApplication.config.collectory.enableSync){
+            def postUrl = grailsApplication.config.collectory.baseURL +"/ws/dataResource/" + drId
 
-        def result = builder.build{
-            name = listname
-            user = "Species List Upload"
-            api_key = collectoryKey
-            email = email?:""
-            firstName = authService.firstname()?:""
-            lastName = authService.surname()?:""
-            websiteUrl=URL?:""
-            pubDescription=description?:""
-            resourceType = "uploads"
-
+            def http = new HTTPBuilder(postUrl)
+            http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
+            def jsonBody = createJsonForNewDataResource(map)
+            log.debug(jsonBody)
+            try {
+               http.post(body: jsonBody, requestContentType:JSON){ resp ->
+                 log.debug("Response code: " + resp.status)
+               }
+            } catch(ex) {
+                log.error("Unable to create a collectory entry for the species list.",ex)
+            }
+        } else {
+           //return a dummy URL
+          "http://collections.ala.org.au/tmp/drt" + System.currentTimeMillis()
         }
-        result.toString(false)
+    }
+
+    def createJsonForNewDataResource(map){
+        map.api_key = collectoryKey
+        map.user = 'Species list upload'
+        map.firstName = authService.firstname()?:""
+        map.lastName = authService.surname()?:""
+        JsonOutput jo = new JsonOutput()
+        jo.toJson(map)
     }
 
     def uploadFile(druid, uploadedFile){
@@ -120,13 +124,19 @@ class HelperService {
     }
 
     def getSeparator(String raw) {
-        String firstline = raw.substring(0, raw.indexOf("\n"))
+        def firstline = ""
+        if(raw.indexOf("\n")>0){
+            firstline = raw.substring(0, raw.indexOf("\n"))
+        } else {
+            firstline = raw
+        }
         int tabs = firstline.count("\t")
         int commas = firstline.count(",")
-        if(tabs > commas)
-            return '\t'
-        else
-            return ','
+        if(tabs > commas) {
+            '\t'
+        } else {
+            ','
+        }
     }
     def parseValues(String[] processedHeader,CSVReader reader, String sep)throws Exception{
         def sciIdx = indexOfName(processedHeader)
@@ -260,8 +270,9 @@ class HelperService {
         addVocab(druid,vocabs,kvpmap)
         //attempt to retrieve an existing list first
         SpeciesList sl = SpeciesList.findByDataResourceUid(druid)?:new SpeciesList()
-        if (sl.dataResourceUid)
+        if (sl.dataResourceUid){
             sl.items.clear()
+        }
         sl.listName = listname
         sl.dataResourceUid=druid
         sl.username = authService.email()
@@ -281,7 +292,7 @@ class HelperService {
         String [] nextLine
         boolean checkedHeader = false
         int speciesValueIdx = getSpeciesIndex(header)
-        int count=0
+        int count = 0
         while ((nextLine = reader.readNext()) != null) {
             if(!checkedHeader){
                 checkedHeader = true
@@ -297,8 +308,11 @@ class HelperService {
         if(!sl.validate()){
             log.error(sl.errors.allErrors)
         }
-        if(sl.items.size()>0)
+        if(sl.items.size()>0){
             sl.save()
+        }
+
+        count
     }
 
     def loadSpeciesList(listname,druid, filename, boolean useHeader, header,vocabs){

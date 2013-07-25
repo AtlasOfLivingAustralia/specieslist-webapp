@@ -43,10 +43,11 @@ class SpeciesListController {
                 flash.message = "${message(code: 'error.message.reloadListPermission', args: [params.id])}"
                 redirect(controller: "public", action:"speciesLists")
             }
-        }
-        else
+        } else {
             render(view:"upload",model:  [listTypes:ListType.values()])
+        }
     }
+
     /**
      * Current mechnism for deleting a species list
      * @return
@@ -59,8 +60,8 @@ class SpeciesListController {
             //TODO remove the items from the collectory
         }
         redirect(action: 'list')
-
     }
+
     /**
      * OLD delete
      * @return
@@ -77,14 +78,14 @@ class SpeciesListController {
         redirect(action:  'upload')
     }
 
-    def createOrRetrieveDataResourceUid(dataResourceUid, speciesListName, description, listUrl){
+    def createOrRetrieveDataResourceUid(dataResourceUid, speciesListName){
         if(!dataResourceUid){
-            def drURL = helperService.addDataResourceForList(speciesListName, description, listUrl,null)
+            def drURL = helperService.addDataResourceForList([name:speciesListName])
             log.debug(drURL)
             drURL.toString().substring(drURL.lastIndexOf('/') +1)
-        }
-        else
+        } else {
             dataResourceUid
+        }
     }
 
     def uploadList(){
@@ -95,35 +96,55 @@ class SpeciesListController {
         log.debug(formParams.toString() + " class : " + formParams.getClass())
 
         if(formParams.speciesListName && formParams.headers && formParams.rawData){
-            //def drURL = helperService.addDataResourceForList(formParams.speciesListName, formParams.description, formParams.listUrl,null)
-            //log.debug(drURL)
-            def druid = createOrRetrieveDataResourceUid(formParams.id,formParams.speciesListName, formParams.description, formParams.listUrl)
+
+            def druid = createOrRetrieveDataResourceUid(
+                    formParams.id,
+                    formParams.speciesListName
+            )
+
             if(druid){
-                //def druid = drURL.toString().substring(drURL.lastIndexOf('/') +1)
+
                 log.debug("Loading species list " + formParams.speciesListName)
                 def vocabs = formParams.findAll { it.key.startsWith("vocab") && it.value } //map of vocabs
+
                 log.debug("Vocabs: " +vocabs)
                 CSVReader reader = helperService.getCSVReaderForText(formParams.rawData, helperService.getSeparator(formParams.rawData))
                 def header = formParams.headers
-                log.debug("Header: " +header)
 
-                helperService.loadSpeciesList(reader,druid,formParams.speciesListName, ListType.valueOf(formParams.get("listType")), formParams.description, formParams.listUrl, formParams.listWkt,
-                        formParams.isBIE, formParams.isSDS,formParams.region,formParams.authority,formParams.category,formParams.generalisation, formParams.sdsType,
-                        header.split(","),vocabs)
-                def url =createLink(controller:'speciesListItem', action:'list', id: druid) +"?max=15"
+                log.debug("Header: " +header)
+                def itemCount = helperService.loadSpeciesList(reader,druid,formParams.speciesListName,
+                        ListType.valueOf(formParams.get("listType")),
+                        formParams.description,
+                        formParams.listUrl,
+                        formParams.listWkt,
+                        formParams.isBIE,
+                        formParams.isSDS,
+                        formParams.region,
+                        formParams.authority,
+                        formParams.category,
+                        formParams.generalisation,
+                        formParams.sdsType,
+                        header.split(","),
+                        vocabs)
+
+                def url = createLink(controller:'speciesListItem', action:'list', id: druid) +"?max=15"
+                //update the URL for the list
+                helperService.updateDataResourceForList(druid,
+                        [
+                         pubDescription: formParams.description,
+                         websiteUrl: grailsApplication.config.serverName + url,
+                         techDescription: "This list was first uploaded by " + authService.username() + " on the " + (new Date()) + "." + "It contains " + itemCount + " taxa.",
+                         resourceType : "uploads",
+                         status : "dataAvailable",
+                         contentTypes : '["Species list"]'
+                        ]
+                )
                 def map = [url:url]
-//                println("THE URKL: "+url)
                 render map as JSON
-                //redirect(controller: "speciesListItem",action: "list",id: druid,params: [max: 15, sort:"id"])
-            }
-            else{
+            } else {
                 response.outputStream.write("Unable to add species list at this time. If this problem persists please report it.".getBytes())
                 response.setStatus(500)
                 response.sendError(500, "Unable to add species list at this time. If this problem persists please report it.")
-                //def map =[error: "Unable to add species list at this time. If this problem persists please report it."]
-                //render map as JSON
-                //render(view: "upload")
-                //throw new Error("Unablel to add species list at this time. If this problem persists please report it.")
             }
         }
     }
@@ -173,14 +194,14 @@ class SpeciesListController {
         }
     }
 
-    def get
-
     def list(){
         //list should be based on the user that is logged in so add the filter condition
         def username = authService.email()
-        if (username)
+        if (username){
             params['username'] = "eq:"+username
-        try{
+        }
+
+        try {
             def lists = queryService.getFilterListResult(params)
 
             //now remove the params that were added
@@ -189,13 +210,11 @@ class SpeciesListController {
             log.debug("lists:" + lists)
 
             render(view: "list", model: [lists:lists, total:lists.totalCount])
-        }
-        catch(Exception e){
+        } catch(Exception e) {
             log.error "Error requesting species Lists: " ,e
             response.status = 404
             render(view: '../error', model: [message: "Unable to retrieve species lists. Please let us know if this error persists. <br>Error:<br>" + e.getMessage()])
         }
-
     }
 
     def test(){
@@ -236,8 +255,6 @@ class SpeciesListController {
     def fieldGuide(){
         if (params.id){
             def isdr = params.id.startsWith("dr")
-//            def where = isdr? "dataResourceUid='"+params.id+"'":"id = " + params.id
-//            def guids = SpeciesListItem.executeQuery("select guid from SpeciesListItem where guid is not null and " + where)
             def guids = getGuidsForList(params.id,grailsApplication.config.downloadLimit)
             def speciesList = isdr?SpeciesList.findByDataResourceUid(params.id):SpeciesList.get(params.id)
             if(speciesList){
@@ -256,11 +273,7 @@ class SpeciesListController {
     def getGuidsForList(id, limit){
         def fqs = params.fq?[params.fq].flatten().findAll{ it != null }:null
         def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ",fqs, params.id)
-        def isdr =id.startsWith("dr")
-        //def where = isdr? "dataResourceUid=?":"id = ?"
-        def guids = SpeciesListItem.executeQuery("select sli.guid  " + baseQueryAndParams[0] + " and sli.guid is not null", baseQueryAndParams[1] ,[max: limit])
-
-        return guids
+        SpeciesListItem.executeQuery("select sli.guid  " + baseQueryAndParams[0] + " and sli.guid is not null", baseQueryAndParams[1] ,[max: limit])
     }
 
     def getUnmatchedNamesForList(id, limit) {
@@ -269,8 +282,21 @@ class SpeciesListController {
         def isdr =id.startsWith("dr")
         //def where = isdr? "dataResourceUid=?":"id = ?"
         def names = SpeciesListItem.executeQuery("select sli.rawScientificName  " + baseQueryAndParams[0] + " and sli.guid is null", baseQueryAndParams[1] ,[max: limit])
-
         return names
+    }
+
+    def spatialPortal(){
+        if (params.id && params.type){
+            def guids = getGuidsForList(params.id, grailsApplication.config.downloadLimit)
+            def unMatchedNames = getUnmatchedNamesForList(params.id, grailsApplication.config.downloadLimit)
+            def splist = SpeciesList.findByDataResourceUid(params.id)
+            def title = "Species List: " + splist.listName
+            log.debug "unMatchedNames = " + unMatchedNames
+            def qid = biocacheService.getQid(guids, unMatchedNames, title, splist.wkt)
+            if(qid.status == 200){
+                redirect(url:"http://spatial.ala.org.au/?q=qid:"+qid.result)
+            }
+        }
     }
 
     /**
@@ -289,13 +315,6 @@ class SpeciesListController {
             log.debug "downloadDto = " + downloadDto
             log.debug "unMatchedNames = " + unMatchedNames
             def url = biocacheService.performBatchSearchOrDownload(guids, unMatchedNames, downloadDto, title, splist.wkt)
-
-//            if (splist.wkt) {
-//                url = biocacheService.performBatchSearchOrDownload(guids, unMatchedNames, downloadDto, title, splist.wkt)
-//            } else {
-//                url = biocacheService.performBatchSearchOrDownload(guids, params.type, title)
-//            }
-
             if(url){
                 redirect(url:url)
             } else {
@@ -303,6 +322,7 @@ class SpeciesListController {
             }
         }
     }
+
     /**
      * Performs an initial parse of the species list to provide feedback on values. Allowing
      * users to supply vocabs etc.
@@ -318,29 +338,25 @@ class SpeciesListController {
         log.debug(processedHeader)
         def dataRows = new ArrayList<String[]>()
         def currentLine = csvReader.readNext()
-        for(int i=0; i<noOfRowsToDisplay && currentLine!=null; i++){
+        for(int i = 0; i < noOfRowsToDisplay && currentLine != null; i++){
             dataRows.add(currentLine)
             currentLine = csvReader.readNext()
         }
         if (processedHeader.find{it == "scientific name" || it == "vernacular name" ||  it == "common name" || it == "ambiguous name"} && processedHeader.size()>0){
             //grab all the unique values for the none scientific name fields to supply for potential vocabularies
-            try{
+            try {
                 def listProperties = helperService.parseValues(processedHeader as String[],helperService.getCSVReaderForText(rawData, separator), separator)
                 log.debug("names - " + listProperties)
                 render(view: 'parsedData', model: [columnHeaders:processedHeader, dataRows:dataRows, listProperties:listProperties, listTypes:ListType.values()])
-            }
-            catch(Exception e){
-                e.printStackTrace()
+            } catch(Exception e){
                 log.debug(e.getMessage())
                 render(view: 'parsedData',model:[error: e.getMessage()])
             }
-
-
-        }
-        else{
+        } else {
             render(view: 'parsedData', model: [columnHeaders:processedHeader, dataRows:dataRows, listTypes:ListType.values()])
         }
     }
+
     /**
      * Rematches the scientific names in the supplied list
      */
@@ -353,31 +369,14 @@ class SpeciesListController {
         log.debug("total items = "+items.size)
         items.eachWithIndex { it, i ->
             String rawName = it.rawScientificName
-            String currentLsid = it.guid
             log.debug i + ". Rematching: " + rawName
             if(rawName && rawName.length()>0){
                 helperService.matchNameToSpeciesListItem(rawName, it)
                 if (!it.save(flush: true)) {
                         log.error "Error saving item (" + rawName +"): " + it.errors()
                 }
-                //String newLsid =helperService.findAcceptedLsidByScientificName(rawName)?:helperService.findAcceptedLsidByCommonName(rawName)
-//                NameSearchResult nsr = helperService.findAcceptedConceptByScientificName(rawName)?:helperService.findAcceptedConceptByCommonName(rawName)
-//
-//                //if(newLsid && !currentLsid.equals(newLsid)){
-//                if(nsr){
-//                    log.debug("rematching lsid for " + rawName + " current: " + currentLsid + " new : " + nsr.lsid)
-//                    log.debug("Checking NSR - lsid: " + nsr.lsid + " | id: " + nsr.id + " | value: " + nsr.toString()) + "||"
-//                    it.guid = nsr.lsid
-//                    it.matchedName = nsr.getRankClassification()?.scientificName
-//
-//                    if (!it.save(flush: true)) {
-//                        log.error "Error saving item (" + rawName +"): " + it.errors()
-//                    }
-//                }
-            }
-            else{
-                it.guid=null
-                it.guid=null
+            } else {
+                it.guid = null
                 if (!it.save(flush: true)) {
                     log.error "Error saving item (" + rawName +"): " + it.errors()
                 }

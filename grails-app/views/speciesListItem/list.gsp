@@ -351,8 +351,11 @@
             <div class="span5 header-btns" id="buttonDiv">
                 %{--<div id="buttonDiv" class="buttonDiv">--}%
                 <a href="#download" class="btn btn-ala" title="View the download options for this species list." id="downloadLink">Download</a>
+
                 <a class="btn btn-ala" title="View occurrences for up to ${maxDownload} species on the list"
-                   href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">View Occurrences</a>
+                   href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">View occurrences records</a>
+
+                <a href="${request.contextPath}/speciesList/spatialPortal/${params.id}${params.toQueryString()}&type=Search" class="btn btn-ala" title="View the spatial portal." id="downloadLink">View in spatial portal</a>
             </div>  <!-- rightfloat -->
 
             <div style="display:none">

@@ -104,14 +104,16 @@ auth.userNamesForNumericIdPath='getUserListWithIds'
 environments {
     development {
         grails.logging.jul.usebridge = true
+        //grails.serverURL = 'http://dev.ala.org.au:8081/' + appName
         grails.serverURL = 'http://dev.ala.org.au:8080/' + appName
-        //grails.serverURL = 'http://moyesyside.ala.org.au:8080/' + appName
-        //collectory.baseURL = 'http://natasha.ala.org.au:8080/Collectory'
-        collectory.baseURL ='http://audax.ala.org.au:8080/Collectory'
+        collectory.baseURL ='http://testweb1.ala.org.au:8080/collectory'
+//        collectory.baseURL ='http://dev.ala.org.au:8080/collectory'
+        //serverName='http://dev.ala.org.au:8081'
         serverName='http://dev.ala.org.au:8080'
         security.cas.appServerName = serverName
         security.cas.contextPath = "/${appName}"
         contextPath = "/specieslist-webapp"
+        collectory.enableSync = true
     }
     production {
         grails.logging.jul.usebridge = false
@@ -188,13 +190,18 @@ log4j = {
             'au',
             'grails.app',
             'net',
-            'grails.util.GrailsUtil'
+            'grails.util.GrailsUtil',
+            'grails.app.service.org.grails.plugin.resource',
+            'grails.app.service.org.grails.plugin.resource.ResourceTagLib',
+            'grails.app',
+            'grails.plugin.springcache',
+            'au.org.ala.cas.client',
+            'grails.spring.BeanBuilder',
+            'grails.plugin.webxml'
     debug  'grails.app.domain.ala.postie',
             'grails.app.controller.ala.postie',
             'grails.app.service.ala.postie',
             'grails.app.tagLib.ala.postie',
-            'grails.app',
-            'grails.plugin.springcache'
             'au.org.ala'
 }
 
