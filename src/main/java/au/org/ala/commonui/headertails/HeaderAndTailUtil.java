@@ -6,6 +6,8 @@ import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
+
+import java.io.File;
 import java.io.InputStream;
 import java.security.Principal;
 import java.util.Properties;
@@ -48,7 +50,7 @@ public class HeaderAndTailUtil {
     protected static String hideSearchForm = "id=\"header-search\" style=\"display:none;\"";
     // logging
     private final static Logger logger = Logger.getLogger(HeaderAndTailUtil.class);
-
+    protected static Properties configProperties;
     /**
      * Look for field overrides in properties file
      */
@@ -74,6 +76,48 @@ public class HeaderAndTailUtil {
         } catch (Exception e) {
             logger.debug("Error loading properties file: " + e, e);
         }
+        /*NC 2013-08-13 - We are changing the CAS configuration to be configurable via the *-config.proeprties file.
+                          By convention we will be using appname-config.properties files. These will be configurable outside 
+                          outside webapps provided the external directory is included on the class path.
+                          
+         */ 
+        //attempt to locate the *-config.properties file
+        java.net.URL[] urls =((java.net.URLClassLoader)Thread.currentThread().getContextClassLoader()).getURLs();
+        for(java.net.URL url : urls){
+            logger.debug("Handling " + url.getPath());
+            //only want to load a single config file.
+            if(configProperties == null){
+                java.io.File f  = new java.io.File(url.getPath());
+                if(f.isDirectory()){
+                    //check to see if the *-config file exists.
+                    
+                    String[] filenames =f.list(new java.io.FilenameFilter(){
+    
+                        @Override
+                        public boolean accept(File dir, String name) {
+                            return (name.endsWith("config.properties"));
+                        }
+                        
+                    });
+                    logger.debug("Filenames " + filenames.length);
+                    if(filenames.length>0){
+                        //assume that the first one is the *-config.properties file to be used
+                        logger.debug("Using config file " +filenames[0]);
+                        InputStream in2 = Thread.currentThread().getContextClassLoader().getResourceAsStream(filenames[0]);
+                        configProperties = new Properties();
+                        try{
+                            configProperties.load(in2);
+                        } catch(Exception e){
+                            logger.warn("Unable to load config proerties in " + filenames[0], e );
+                        }
+                    }
+                }
+            }
+        }
+        if(configProperties == null){
+            configProperties = new Properties();
+        }
+        logger.info("The configProperties " + configProperties);
     }
 
     /**
@@ -101,6 +145,13 @@ public class HeaderAndTailUtil {
         this.pageContext = pageContext;
         this.readPropsFromContext();
     }
+    /**
+     * NC: 2013-08-13
+     * Reads the property from the properties file before check to see if it has been provided in the web.xml as a init param. 
+     */
+    private String getPropertyValue(String property){        
+        return configProperties.getProperty(property, pageContext.getServletContext().getInitParameter(property));
+    }
 
     /**
      * Init method to override some fields via init params in web.xml
@@ -109,17 +160,17 @@ public class HeaderAndTailUtil {
         // Read some properties from the web.xml file via servlet context
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
 
-        String searchServer = pageContext.getServletContext().getInitParameter("searchServerName");
+        String searchServer = getPropertyValue("searchServerName");//pageContext.getServletContext().getInitParameter("searchServerName");
         if (StringUtils.isNotBlank(searchServer)) {
             defaultSearchServer = searchServer;
         }
 
-        String casServer = pageContext.getServletContext().getInitParameter("casServerName");
+        String casServer = getPropertyValue("casServerName");//pageContext.getServletContext().getInitParameter("casServerName");
         if (StringUtils.isNotBlank(casServer)) {
             defaultCasServer = casServer;
         }
 
-        String centralServer = pageContext.getServletContext().getInitParameter("centralServer");
+        String centralServer = getPropertyValue("centralServer");//pageContext.getServletContext().getInitParameter("centralServer");
         if (StringUtils.isNotBlank(centralServer)) {
             defaultCentralServer = centralServer;
         }
