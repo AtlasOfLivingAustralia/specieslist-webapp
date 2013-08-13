@@ -35,18 +35,32 @@ public class PropertyLoaderTag extends TagSupport {
 	protected String bundle;
 	/** The property to retrieve */
 	protected String property;
+	/** Whether or not to check the initParams from the web.xml */
+	protected Boolean checkInit=false;
 	
 	/**
 	 * @see javax.servlet.jsp.tagext.TagSupport#doStartTag()
 	 */
 	public int doStartTag() throws JspException {
-		
+		logger.debug("Writing tag " + bundle + " " + property + " " +checkInit);
 		try {
 			ResourceBundle rb = ResourceBundle.getBundle(bundle);			
 			pageContext.getOut().print(rb.getString(property));
 		} catch (Exception e) {
 			//this could be expected behaviour for properties with a default
 			logger.warn(e.getMessage(), e);
+			if(checkInit){
+    			//NC: 2013-08-13: now check to see if the property is provided in the web.xml initParams.
+    			String value = pageContext.getServletContext().getInitParameter(property);
+    			logger.info("Getting the init value " + property + " : " + value);
+    			if(value != null){
+    			    try{
+    			        pageContext.getOut().print(value);
+    			    } catch(Exception e2){
+    			        logger.warn(e2.getMessage(), e2);
+    			    }
+    			}
+			}
 		}
 		return super.doStartTag();
 	}
@@ -64,4 +78,13 @@ public class PropertyLoaderTag extends TagSupport {
 	public void setProperty(String property) {
 		this.property = property;
 	}
+
+
+    /**
+     * @param checkInitParams the checkInit to set
+     */
+    public void setCheckInit(Boolean checkInit) {
+        this.checkInit = checkInit;
+    }
+	
 }
