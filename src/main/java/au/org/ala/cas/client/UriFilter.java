@@ -99,7 +99,7 @@ public class UriFilter implements Filter {
     private List<Pattern> uriExclusionPatterns;
 
     public void init(FilterConfig filterConfig) throws ServletException {
-
+        filterConfig = new AlaFilterConfig(filterConfig);
         //
         // Get contextPath parameter
         //

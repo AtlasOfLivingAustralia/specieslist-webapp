@@ -54,6 +54,7 @@ public class AlaHttpServletRequestWrapperFilter extends AbstractConfigurationFil
 	private boolean ignoreCase;
 
 	public void init(FilterConfig filterConfig) throws ServletException {
+	    filterConfig = new AlaFilterConfig(filterConfig);
         this.roleAttribute = getPropertyFromInitParams(filterConfig, "roleAttribute", "authority");
         this.ignoreCase = Boolean.parseBoolean(getPropertyFromInitParams(filterConfig, "ignoreCase", "true"));
 	}
