@@ -1,7 +1,9 @@
 //locations to search for config files that get merged into the main config
 //config files can either be Java properties files or ConfigSlurper scripts
-
 def appName = "bie-webapp2"
+grails.project.groupId = "au.org.ala" // change this to alter the default package name and Maven publishing destination
+appContext = grails.util.Metadata.current.'app.name'
+
 grails.config.locations = [ "classpath:${appName}-config.properties",
                              "classpath:${appName}-config.groovy",
                              "file:${userHome}/.grails/${appName}-config.properties",
@@ -59,6 +61,9 @@ if(!collectory.threatenedSpeciesCodesUrl){
 }
 if(!ranking.readonly){
     ranking.readonly = false
+}
+if(!headerAndFooter.baseURL){
+    headerAndFooter.baseURL = 'http://www2.ala.org.au/commonui'
 }
 
 /******************************************************************************\
@@ -235,13 +240,9 @@ log4j = {
            'org.grails.plugin',
            'org.grails.plugin.resource',
            'org.grails.plugin.resource.ResourceTagLib',
-           'org.grails.plugin.cachedresources'
+           'org.grails.plugin.cachedresources',
+           'grails.app.services.org.grails.plugin.resource',
+           'grails.app.taglib.org.grails.plugin.resource',
+           'grails.app.resourceMappers.org.grails.plugin.resource'
     debug  'au.org.ala.bie.webapp2'
 }
-
-appContext = grails.util.Metadata.current.'app.name'
-headerAndFooter.baseURL = 'http://www2.ala.org.au/commonui'
-ala.baseURL = "http://www.ala.org.au"
-bie.baseURL = "http://bie.ala.org.au"
-bie.searchPath = "/search"
-grails.project.groupId = "au.org.ala" // change this to alter the default package name and Maven publishing destination
