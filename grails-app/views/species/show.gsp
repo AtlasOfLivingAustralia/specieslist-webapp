@@ -51,7 +51,8 @@
             alertsUrl:      "${grailsApplication.config.alerts.baseUrl}",
             remoteUser:     "${request.remoteUser?:''}",
             genbankUrl:     "${createLink(controller: 'externalSite', action:'genbank',params:[s:tc?.taxonConcept?.nameString?:''])}",
-            scholarUrl:     "${createLink(controller: 'externalSite', action:'scholar',params:[s:tc?.taxonConcept?.nameString?:''])}"
+            scholarUrl:     "${createLink(controller: 'externalSite', action:'scholar',params:[s:tc?.taxonConcept?.nameString?:''])}",
+            soundUrl:       "${createLink(controller: 'species', action:'soundSearch',params:[s:tc?.taxonConcept?.nameString?:''])}"
         }
 
         $(function(){
@@ -64,8 +65,33 @@
                         '<span class="">' + result.furtherDescription +'</span></td></tr>');
                 });
             });
+
+            $.ajax({url: SHOW_CONF.soundUrl}).done(function ( data ) {
+                if(data.sounds){
+                    $('#sounds').append('<h3 style="clear:left;">Sounds</h3>');
+                    $('#sounds').append('<audio src="' + data.sounds[0].alternativeFormats['audio/mpeg'] + '" preload="auto" />' );
+                    audiojs.events.ready(function() {
+                        var as = audiojs.createAll();
+                    });
+                    var source = "";
+                    if(data.processed.attribution.collectionName){
+                        source = data.processed.attribution.collectionName
+                    } else {
+                        source = data.processed.attribution.dataResourceName
+                    }
+                    $('#sounds').append('<span>Source: ' + source + '</span><br/>' );
+                    $('#sounds').append('<span><a href="${biocacheUrl}/occurrence/'+ data.raw.uuid +'">View more details of this audio</a></span>' );
+                }
+            });
         })
     </r:script>
+    <style type="text/css">
+
+        div.audiojs { margin: 15px 0px 5px; }
+        div.audiojs div.scrubber { width:120px;}
+        div.audiojs div.time { width:50px; }
+
+    </style>
 </head>
 <body class="species content">
     <header id="page-header">
@@ -320,6 +346,9 @@
                                     </g:each>
                                 </g:else>
                             </ul>
+                        </section>
+
+                        <section id="sounds">
                         </section>
                     </div>
                     <div class="clearfix"></div>
@@ -763,18 +792,19 @@
                 <h2>Genbank <span id="genbankResultCount"></span></h2>
                 <table id="genbank" class="table">
                 </table>
-                %{--<h2>Google scholar <span id="scholarResultCount"></span></h2>--}%
-                %{--<table id="scholar" class="table">--}%
-                %{--</table>--}%
             </section>
             </div><!--tabs-panes-noborder-->
         </div><!--col-wide last-->
     </div><!--inner-->
 
-<r:script>
+    <r:script>
 
 
-</r:script>
+
+
+
+
+    </r:script>
 
 </body>
 </html>

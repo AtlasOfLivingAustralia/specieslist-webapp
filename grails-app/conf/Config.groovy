@@ -1,50 +1,98 @@
-// locations to search for config files that get merged into the main config
-// config files can either be Java properties files or ConfigSlurper scripts
+//locations to search for config files that get merged into the main config
+//config files can either be Java properties files or ConfigSlurper scripts
 
-// grails.config.locations = [ "classpath:${appName}-config.properties",
-//                             "classpath:${appName}-config.groovy",
-//                             "file:${userHome}/.grails/${appName}-config.properties",
-//                             "file:${userHome}/.grails/${appName}-config.groovy"]
+def appName = "bie-webapp2"
+grails.config.locations = [ "classpath:${appName}-config.properties",
+                             "classpath:${appName}-config.groovy",
+                             "file:${userHome}/.grails/${appName}-config.properties",
+                             "file:/data/${appName}/config/${appName}-config.groovy",
+]
 
-// if (System.properties["${appName}.config.location"]) {
-//    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
-// }
+if (System.properties["${appName}.config.location"]) {
+    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
+}
 
 /******************************************************************************\
  *  EXTERNAL SERVERS
  \******************************************************************************/
-bie.baseURL = "http://bie.ala.org.au"
-bie.searchPath = "/search"
-biocache.baseURL = "http://biocache.ala.org.au"
-spatial.baseURL = "http://spatial.ala.org.au"
-ala.baseURL = "http://www.ala.org.au"
-collectory.baseURL = "http://collections.ala.org.au"
-bhl.baseURL = "http://bhlidx.ala.org.au"
-speciesList.baseURL ="http://lists.ala.org.au"
-
-userDetails.url ="http://auth.ala.org.au/userdetails/userDetails/"
-userDetails.path ="getUserList"
-alerts.baseUrl = "http://alerts.ala.org.au/ws/"
-//brds.guidUrl = "http://cs.ala.org.au/bdrs-ala/bdrs/user/atlas.htm?surveyId=1&guid="
-brds.guidUrl = "http://sightings.ala.org.au/"
-collectory.threatenedSpeciesCodesUrl = collectory.baseURL + "/public/showDataResource"
-ranking.readonly = false
+if(!bie.baseURL){
+    bie.baseURL = "http://bie.ala.org.au"
+}
+if(!bie.searchPath){
+    bie.searchPath = "/search"
+}
+if(!biocache.baseURL){
+    biocache.baseURL = "http://biocache.ala.org.au"
+}
+if(!biocacheService.baseURL){
+    biocacheService.baseURL = "http://biocache.ala.org.au/ws"
+}
+if(!spatial.baseURL){
+    spatial.baseURL = "http://spatial.ala.org.au"
+}
+if(!ala.baseURL){
+    ala.baseURL = "http://www.ala.org.au"
+}
+if(!collectory.baseURL){
+    collectory.baseURL = "http://collections.ala.org.au"
+}
+if(!bhl.baseURL){
+    bhl.baseURL = "http://bhlidx.ala.org.au"
+}
+if(!speciesList.baseURL){
+    speciesList.baseURL = "http://lists.ala.org.au"
+}
+if(!userDetails.url){
+    userDetails.url ="http://auth.ala.org.au/userdetails/userDetails/"
+}
+if(!userDetails.path){
+    userDetails.path ="getUserList"
+}
+if(!alerts.baseUrl){
+    alerts.baseUrl = "http://alerts.ala.org.au/ws/"
+}
+if(!brds.guidUrl){
+    brds.guidUrl = "http://sightings.ala.org.au/"
+}
+if(!collectory.threatenedSpeciesCodesUrl){
+    collectory.threatenedSpeciesCodesUrl = collectory.baseURL + "/public/showDataResource"
+}
+if(!ranking.readonly){
+    ranking.readonly = false
+}
 
 /******************************************************************************\
  *  SECURITY
  \******************************************************************************/
-security.cas.casServerName = 'https://auth.ala.org.au'
-security.cas.uriFilterPattern = "/admin, /admin/.*"// pattern for pages that require authentication
-security.cas.uriExclusionFilterPattern = "/images.*,/css.*/less.*,/js.*,.*json,.*xml"
-security.cas.authenticateOnlyIfLoggedInPattern = "/species/.*" // pattern for pages that can optionally display info about the logged-in user
-security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
-security.cas.logoutUrl = 'https://auth.ala.org.au/cas/logout'
-security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
-security.cas.bypass = false
+if(!security.cas.casServerName){
+    security.cas.casServerName = 'https://auth.ala.org.au'
+}
+if(!security.cas.uriFilterPattern ){
+    security.cas.uriFilterPattern = "/admin, /admin/.*"// pattern for pages that require authentication
+}
+if(!security.cas.uriExclusionFilterPattern){
+    security.cas.uriExclusionFilterPattern = "/images.*,/css.*/less.*,/js.*,.*json,.*xml"
+}
+if(!security.cas.authenticateOnlyIfLoggedInPattern){
+    security.cas.authenticateOnlyIfLoggedInPattern = "/species/.*" // pattern for pages that can optionally display info about the logged-in user
+}
+if(!security.cas.loginUrl){
+    security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
+}
+if(!security.cas.logoutUrl){
+    security.cas.logoutUrl = 'https://auth.ala.org.au/cas/logout'
+}
+if(!security.cas.casServerUrlPrefix){
+    security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
+}
+if(!security.cas.bypass){
+    security.cas.bypass = false
+}
+if(!auth.admin_role){
+    auth.admin_role = "ROLE_ADMIN"
+}
 
 nonTruncatedSources = ["http://www.environment.gov.au/biodiversity/abrs/online-resources/flora/main/index.html"]
-
-auth.admin_role = "ROLE_ADMIN"
 
 springcache {
     defaults {
@@ -170,10 +218,10 @@ log4j = {
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
            'org.codehaus.groovy.grails.web.pages', //  GSP
            'org.codehaus.groovy.grails.web.sitemesh', //  layouts
-	       'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
+           'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
            'org.codehaus.groovy.grails.web.mapping', // URL mapping
-	       'org.codehaus.groovy.grails.commons', // core / classloading
-	       'org.codehaus.groovy.grails.plugins', // plugins
+           'org.codehaus.groovy.grails.commons', // core / classloading
+           'org.codehaus.groovy.grails.plugins', // plugins
            'org.springframework.jdbc',
            'org.springframework.transaction',
            'org.codehaus.groovy',
@@ -181,10 +229,14 @@ log4j = {
            'org.grails.plugin.resource',
            'org.apache',
            'grails.spring',
+           'au.org.ala.cas',
            'grails.util.GrailsUtil',
-           'net.sf.ehcache'
-
-    debug  'ala'
+           'net.sf.ehcache',
+           'org.grails.plugin',
+           'org.grails.plugin.resource',
+           'org.grails.plugin.resource.ResourceTagLib',
+           'org.grails.plugin.cachedresources'
+    debug  'au.org.ala.bie.webapp2'
 }
 
 appContext = grails.util.Metadata.current.'app.name'

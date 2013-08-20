@@ -19,6 +19,7 @@ modules = {
         resource url:'http://ajax.googleapis.com/jsapi', attrs:[type:'js'], disposition: 'head'
         resource url:[dir:'js', file:'charts2.js', disposition: 'head']
         resource url:[dir:'js', file:'species.show.js', disposition: 'head']
+        resource url:[dir:'js', file:'audio.min.js', disposition: 'head']
     }
 
     cleanHtml {

@@ -24,9 +24,11 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  * @author "Nick dos Remedios <Nick.dosRemedios@csiro.au>"
  */
 class SpeciesController {
+
     def bieService
     def utilityService
     def authService
+    def biocacheService
 
     /**
      * Search page - display search results fro the BIE (includes results for non-species pages too)
@@ -124,6 +126,13 @@ class SpeciesController {
 
     def bhlSearch = {
         render (view: 'bhlSearch')
+    }
+
+    def soundSearch = {
+        def result = biocacheService.getSoundsForTaxon(params.s)
+        render(contentType: "text/json") {
+            result
+        }
     }
 
     /**

@@ -65,8 +65,7 @@ class UtilityService {
             }
             textProperties.add(sp)
         }
-
-        return textProperties;
+        textProperties;
     }
 
     /**
@@ -86,7 +85,7 @@ class UtilityService {
         } catch (Exception e) {
             log.debug("Unable to truncate " + text, e);
         }
-        return text;
+        text;
     }
 
     def getInfoSourcesForTc(etc) {
@@ -116,7 +115,7 @@ class UtilityService {
         infoSourceMap = infoSourceMap.sort {a, b -> a.value.name <=> b.value.name}
         if(log.debugEnabled) log.debug "2. infoSourceMap = " + infoSourceMap
 
-        return infoSourceMap
+        infoSourceMap
     }
 
     def unDuplicateNames(names) {
@@ -131,7 +130,7 @@ class UtilityService {
                         normaliseString(names[i - 1]?.nameString) + "=" + names[i - 1]?.infoSourceName
             }
         }
-        return namesSet
+        namesSet
     }
 
     /**
@@ -162,7 +161,7 @@ class UtilityService {
             namesMap.put(nameKey, tempGroupedNames)
         }
         // sort by having names with most number of infoSources listed higher
-        return namesMap.sort() { a, b -> b.value.size <=> a.value.size }
+        namesMap.sort() { a, b -> b.value.size <=> a.value.size }
     }
 
     def normaliseString(input) {
@@ -177,40 +176,40 @@ class UtilityService {
                 facetMap.put(fqBits[0], fqBits[-1]?:"");
             }
         }
-        return facetMap
+        facetMap
     }
 
     def addFqUidMap(List fqs){
         //TODO have an expiring cache of collectory items so that we don't have to lookup the details every time.
         def map = [:]
         try{
-        fqs.each {
-            if(it.contains("uid:")){
-                String[] fqBits = StringUtils.split(it, ":", 2)
-                if(fqBits != null && fqBits.length > 1 && !"".equals(fqBits[1])){
-                    String uid = fqBits[1]
-                    String type = (uid.startsWith("dr")) ? "dataResource" :
-                                  (uid.startsWith("dp")) ? "dataProvider" :
-                                  (uid.startsWith("co")) ? "collection" :
-                                  (uid.startsWith("in")) ? "institution" : null
-                    if(type != null){
-                        String url = grailsApplication.config.collectory.baseURL+"/ws/"+type+"/"+uid
-                        def json = webService.get(url)
-                        Map wsmap =JSON.parse(json)
-                        map.putAt(uid, wsmap.get("name"))
-                        map.put(uid+"_resourceType", wsmap.get("resourceType"))
+            fqs.each {
+                if(it.contains("uid:")){
+                    String[] fqBits = StringUtils.split(it, ":", 2)
+                    if(fqBits != null && fqBits.length > 1 && !"".equals(fqBits[1])){
+                        String uid = fqBits[1]
+                        String type = (uid.startsWith("dr")) ? "dataResource" :
+                                      (uid.startsWith("dp")) ? "dataProvider" :
+                                      (uid.startsWith("co")) ? "collection" :
+                                      (uid.startsWith("in")) ? "institution" : null
+                        if(type != null){
+                            String url = grailsApplication.config.collectory.baseURL+"/ws/"+type+"/"+uid
+                            def json = webService.get(url)
+                            Map wsmap =JSON.parse(json)
+                            map.putAt(uid, wsmap.get("name"))
+                            map.put(uid+"_resourceType", wsmap.get("resourceType"))
+                        }
                     }
                 }
             }
-        }
-        }
-        catch(Exception e){
+        } catch(Exception e){
             log.error("Unable to get collectory information.",e)
         }
-        if(map.size()>0)
+        if(map.size()>0){
             log.debug("Collectory UID map for filters " + map)
-        return map;
+        }
 
+        map
     }
 
     def getIdxtypes(facetResults) {
@@ -223,8 +222,7 @@ class UtilityService {
                 }
             }
         }
-
-        return idxtypes
+        idxtypes
     }
 
     def getJsonMimeType(params) {
