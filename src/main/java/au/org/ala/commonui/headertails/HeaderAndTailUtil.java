@@ -4,6 +4,7 @@ import au.org.ala.cas.util.AuthenticationCookieUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import javax.naming.Context;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 
@@ -76,46 +77,22 @@ public class HeaderAndTailUtil {
         } catch (Exception e) {
             logger.debug("Error loading properties file: " + e, e);
         }
-        /*NC 2013-08-13 - We are changing the CAS configuration to be configurable via the *-config.proeprties file.
-                          By convention we will be using appname-config.properties files. These will be configurable outside 
-                          outside webapps provided the external directory is included on the class path.
-                          
-         */ 
-        //attempt to locate the *-config.properties file
-        java.net.URL[] urls =((java.net.URLClassLoader)Thread.currentThread().getContextClassLoader()).getURLs();
-        for(java.net.URL url : urls){
-            logger.debug("Handling " + url.getPath());
-            //only want to load a single config file.
-            if(configProperties == null){
-                java.io.File f  = new java.io.File(url.getPath());
-                if(f.isDirectory()){
-                    //check to see if the *-config file exists.
-                    
-                    String[] filenames =f.list(new java.io.FilenameFilter(){
-    
-                        @Override
-                        public boolean accept(File dir, String name) {
-                            return (name.endsWith("config.properties"));
-                        }
-                        
-                    });
-                    logger.debug("Filenames " + filenames.length);
-                    if(filenames.length>0){
-                        //assume that the first one is the *-config.properties file to be used
-                        logger.debug("Using config file " +filenames[0]);
-                        InputStream in2 = Thread.currentThread().getContextClassLoader().getResourceAsStream(filenames[0]);
-                        configProperties = new Properties();
-                        try{
-                            configProperties.load(in2);
-                        } catch(Exception e){
-                            logger.warn("Unable to load config proerties in " + filenames[0], e );
-                        }
-                    }
-                }
-            }
-        }
-        if(configProperties == null){
+        /* NC 2013-08-20 - We are actually changing this to use an JNDI environment property for "configPropFile"
+                           
+         
+         */
+
+        try{
+            javax.naming.Context ctx = new javax.naming.InitialContext();
+            String filename =(String)ctx.lookup("java:comp/env/configPropFile");
             configProperties = new Properties();
+            configProperties.load(new java.io.FileInputStream(new java.io.File(filename)));
+        } catch(Exception e){
+            //don't do anything obviously can't find the value
+        }
+
+        if(configProperties == null){
+            configProperties = prop;
         }
         logger.info("The configProperties " + configProperties);
     }
@@ -134,6 +111,7 @@ public class HeaderAndTailUtil {
         this.logoutControllerUrlPath = logoutControllerUrlPath;
         this.populateSearchBox = populateSearchBox;
         this.readPropsFromContext();
+        //logger.debug("defaultSearchServer: " +defaultSearchServer + " defaultCasServer: " +defaultCasServer + " defaultCentralServer: " + defaultCentralServer);
     }
 
     /**
