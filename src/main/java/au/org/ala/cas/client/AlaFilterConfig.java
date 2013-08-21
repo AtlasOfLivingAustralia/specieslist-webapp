@@ -31,100 +31,56 @@ public class AlaFilterConfig implements FilterConfig {
     private ServletContext embeddedServletContext;
     private Properties casProperties;
     private java.util.List<String> whitelist;
-    private Enumeration propertyEnumeration;
-    private Enumeration filterEnumeration;
+    
 
     public AlaFilterConfig(FilterConfig config) {
         this.embeddedFilterConfig = config;
-        filterEnumeration = config.getInitParameterNames();
+        
         // load the cas.properties file
         loadProperties();
         embeddedServletContext = new
         AlaServletContext(config.getServletContext(), casProperties);
         
         
-        // try {
-        // casProperties = new Properties();
-        // InputStream inStream = Thread.currentThread()
-        // .getContextClassLoader()
-        // .getResourceAsStream("cas.properties");
-        // //System.out.println("CAS INSTREAM:::: "+inStream.read() + " " +
-        // inStream.toString());
-        // casProperties.load(inStream);
-        // if(casProperties.size()>0){
-        // propertyEnumeration = casProperties.keys();
-        // }
-        // embeddedServletContext = new
-        // AlaServletContext(config.getServletContext(), casProperties);
-        //
-        // } catch (Exception e) {
-        // //Exception will be thrown if no configuration exists.
-        // e.printStackTrace();
-        // }
     }
 
     private void loadProperties() {
         /*
-         * NC 2013-08-13 - We are changing the CAS configuration to be
-         * configurable via the *-config.proeprties file. By convention we will
-         * be using appname-config.properties files. These will be configurable
-         * outside outside webapps provided the external directory is included
-         * on the class path.
+         * NC 2013-08-21: Config properties file is provided by A JNDI environment variable by the name configPropFile
          * 
          * Sometimes the other properties that are in the properties file can prevent the 
          * authenticator from doing its job correctly. To counteract this we look for a  
          * casProperties value in the properties file to supply a comma separated list of supported
          * properties.
          */
-        // attempt to locate the *-config.properties file
-        java.net.URL[] urls = ((java.net.URLClassLoader) Thread.currentThread()
-                .getContextClassLoader()).getURLs();
-        for (java.net.URL url : urls) {
-            //logger.debug("Handling " + url.getPath());
-            // only want to load a single config file.
-            if (casProperties == null) {
-                logger.debug("Handling " + url.getPath());
-                java.io.File f = new java.io.File(url.getPath());
-                if (f.isDirectory()) {
-                    // check to see if the *-config file exists.
-
-                    String[] filenames = f.list(new java.io.FilenameFilter() {                        
-                        public boolean accept(File dir, String name) {
-                            return (name.endsWith("config.properties"));
-                        }
-                    });
-                    logger.debug("Filenames " + filenames.length);
-                    if (filenames.length > 0) {
-                        // assume that the first one is the *-config.properties
-                        // file to be used
-                        logger.debug("Using config file " + filenames[0]);
-                        InputStream in2 = Thread.currentThread()
-                                .getContextClassLoader()
-                                .getResourceAsStream(filenames[0]);
-                        casProperties = new Properties();
-                        try {
-                            Properties p = new Properties();
-                            p.load(in2);
-                            //remove the properties that don't make up the cas configuration
-                            if(p.containsKey("casProperties")){
-                                whitelist = Arrays.asList(p.getProperty("casProperties").split(","));
-                                for(String item: whitelist){
-                                    Object value = p.getProperty(item);
-                                    if(value != null){
-                                        casProperties.put(item, p.getProperty(item));
-                                    }
-                                }
-                            } else{
-                                casProperties = p;
-                            }
-                        } catch (Exception e) {
-                            logger.warn("Unable to load config properties in "
-                                    + filenames[0], e);
+        
+        try{
+            javax.naming.Context ctx = new javax.naming.InitialContext();
+            String filename =(String)ctx.lookup("java:comp/env/configPropFile");
+            casProperties = new Properties();
+            try {
+                Properties p = new Properties();
+                p.load(new java.io.FileInputStream(new File(filename)));
+                //remove the properties that don't make up the cas configuration
+                if(p.containsKey("casProperties")){
+                    whitelist = Arrays.asList(p.getProperty("casProperties").split(","));
+                    for(String item: whitelist){
+                        Object value = p.getProperty(item);
+                        if(value != null){
+                            casProperties.put(item, p.getProperty(item));
                         }
                     }
+                } else{
+                    casProperties = p;
                 }
+            } catch (Exception e) {
+                logger.warn("Unable to load config properties in "
+                        + filename, e);
             }
-        }
+        } catch(Exception e){
+            //don't do anything obviously can't find the value
+        }        
+       
         if (casProperties == null) {
             casProperties = new Properties();
         }
@@ -168,8 +124,7 @@ public class AlaFilterConfig implements FilterConfig {
 
         private ServletContext embeddedContext;
         private Properties casProperties;
-        private Enumeration propertyEnumeration;
-        private Enumeration contextEnumeration;
+
 
         AlaServletContext(ServletContext context, Properties properties) {
             this.embeddedContext = context;
