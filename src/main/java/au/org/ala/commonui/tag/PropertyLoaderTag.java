@@ -14,6 +14,7 @@
  ***************************************************************************/
 package au.org.ala.commonui.tag;
 
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 import javax.servlet.jsp.JspException;
@@ -37,30 +38,64 @@ public class PropertyLoaderTag extends TagSupport {
 	protected String property;
 	/** Whether or not to check the initParams from the web.xml */
 	protected Boolean checkInit=false;
+	/** Whether or not to check for tghe properties that were supplied in the fileProperties JNDI entry */
+	protected Boolean checkSupplied=false; 
+	
+	/** Initialise properties that will be used when no bundle name is provided */	
+	private static Properties props = new Properties();
+	static{
+	    //initialise properties based on 
+	    //System.out.println("INITIALISING THE PRPERTIES FOR THE TAG lib");
+        try{
+            javax.naming.Context ctx = new javax.naming.InitialContext();
+            String filename =(String)ctx.lookup("java:comp/env/configPropFile");            
+            props.load(new java.io.FileInputStream(new java.io.File(filename)));
+           // System.out.println("THE PROPS IN TAG: " + props);
+        } catch(Exception e){
+            //don't do anything obviously can't find the value
+        }
+	}
 	
 	/**
 	 * @see javax.servlet.jsp.tagext.TagSupport#doStartTag()
 	 */
 	public int doStartTag() throws JspException {
 		logger.debug("Writing tag " + bundle + " " + property + " " +checkInit);
-		try {
-			ResourceBundle rb = ResourceBundle.getBundle(bundle);			
-			pageContext.getOut().print(rb.getString(property));
-		} catch (Exception e) {
-			//this could be expected behaviour for properties with a default
-			logger.warn(e.getMessage(), e);
-			if(checkInit){
-    			//NC: 2013-08-13: now check to see if the property is provided in the web.xml initParams.
-    			String value = pageContext.getServletContext().getInitParameter(property);
-    			logger.info("Getting the init value " + property + " : " + value);
-    			if(value != null){
-    			    try{
-    			        pageContext.getOut().print(value);
-    			    } catch(Exception e2){
-    			        logger.warn(e2.getMessage(), e2);
-    			    }
-    			}
-			}
+		boolean found =false;
+		
+		if(!checkSupplied || props.size()<1){
+    		try {
+    			ResourceBundle rb = ResourceBundle.getBundle(bundle);			
+    			pageContext.getOut().print(rb.getString(property));
+    			found=true;
+    		} catch (Exception e) {
+    			//this could be expected behaviour for properties with a default
+    			logger.warn(e.getMessage(), e);
+    			
+    		}
+		} else{
+		    //check to see if it is in the properties file that was supplied in the JNDI
+		    String value = props.getProperty(property);
+		    if(value != null){
+		        try{
+		        pageContext.getOut().print(value);
+		        found =true;
+		        } catch(Exception e){}
+		    }
+		}
+		if(!found && checkInit){
+		    
+                //NC: 2013-08-13: now check to see if the property is provided in the web.xml initParams.
+                String value = pageContext.getServletContext().getInitParameter(property);
+                logger.info("Getting the init value " + property + " : " + value);
+                if(value != null){
+                    try{
+                        pageContext.getOut().print(value);
+                    } catch(Exception e2){
+                        logger.warn(e2.getMessage(), e2);
+                    }
+                }
+            
 		}
 		return super.doStartTag();
 	}
@@ -86,5 +121,14 @@ public class PropertyLoaderTag extends TagSupport {
     public void setCheckInit(Boolean checkInit) {
         this.checkInit = checkInit;
     }
+
+    /**
+     * @param checkSupplied the checkSupplied to set
+     */
+    public void setCheckSupplied(Boolean checkSupplied) {
+        this.checkSupplied = checkSupplied;
+    }
+    
+    
 	
 }
