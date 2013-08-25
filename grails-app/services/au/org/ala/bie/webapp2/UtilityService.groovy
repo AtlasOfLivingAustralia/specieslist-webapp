@@ -130,6 +130,7 @@ class UtilityService {
                         normaliseString(names[i - 1]?.nameString) + "=" + names[i - 1]?.infoSourceName
             }
         }
+        log.debug "namesSet: ${namesSet}"
         namesSet
     }
 
@@ -142,7 +143,6 @@ class UtilityService {
     def getNamesAsSortedMap(commonNames) {
         def sortedNames = unDuplicateNames(commonNames)
         def names2 = new ArrayList(sortedNames) // take a copy
-        names2.sort {it.nameString?.trim().toLowerCase()}
         def namesMap = [:] as LinkedHashMap // Map of String, List<CommonNames>
 
         names2.eachWithIndex { name, i ->
@@ -160,8 +160,8 @@ class UtilityService {
 
             namesMap.put(nameKey, tempGroupedNames)
         }
-        // sort by having names with most number of infoSources listed higher
-        namesMap.sort() { a, b -> b.value.size <=> a.value.size }
+
+        namesMap
     }
 
     def normaliseString(input) {
