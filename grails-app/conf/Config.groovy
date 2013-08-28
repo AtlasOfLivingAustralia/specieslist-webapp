@@ -1,49 +1,105 @@
-if (!bie.baseURL) {
-    bie.baseURL = "http://bie.ala.org.au"
+/******************************************************************************\
+ *  CONFIG MANAGEMENT
+ \******************************************************************************/
+def appName = 'specieslist-webapp'
+def ENV_NAME = "${appName.toUpperCase()}_CONFIG"
+def default_config = "/data/${appName}/config/${appName}-config.properties"
+if(!grails.config.locations || !(grails.config.locations instanceof List)) {
+    grails.config.locations = []
+}
+
+if(System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
+    println "[${appName}] Including configuration file specified in environment: " + System.getenv(ENV_NAME);
+    grails.config.locations.add "file:" + System.getenv(ENV_NAME)
+} else if(System.getProperty(ENV_NAME) && new File(System.getProperty(ENV_NAME)).exists()) {
+    println "[${appName}] Including configuration file specified on command line: " + System.getProperty(ENV_NAME);
+    grails.config.locations.add "file:" + System.getProperty(ENV_NAME)
+} else if(new File(default_config).exists()) {
+    println "[${appName}] Including default configuration file: " + default_config;
+    grails.config.locations.add "file:" + default_config
+} else {
+    println "[${appName}] No external configuration file defined."
+}
+
+println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
+
+/******* ALA standard config ************/
+if(!serverName){
+    serverName = 'http://lists.ala.org.au'
+}
+if (!collectory.enableSync) {
+    collectory.enableSync = false
 }
 if (!collectory.baseURL) {
     collectory.baseURL="http://collections.ala.org.au"
-    //collectory.baseURL = "http://audax.ala.org.au:8080/Collectory"
 }
-/******* Change this stuff for your project *******/
-appName = 'specieslist-webapp'
-if(!serverName){
-    serverName='http://lists.ala.org.au'
-    //serverName='http://audax.ala.org.au:8080'
+if (!security.cas.uriFilterPattern ) {
+    security.cas.uriFilterPattern  = '/speciesList, /speciesList/.*, /admin, /admin/.*, /speciesListItem/listAuth/.*, /editor, /editor/.*'
 }
-//contextPath='/specieslist-webapp'
-collectory.enableSync = false
-
-/******* End of change this stuff for your project *******/
-//if (!security.cas.contextPath) {
-//    security.cas.contextPath = "/specieslist-webapp"
-//}
 if (!security.cas.authenticateOnlyIfLoggedInPattern) {
     security.cas.authenticateOnlyIfLoggedInPattern = "/speciesListItem/list,/speciesListItem/list/.*,/ws/speciesList"
 }
-/******* ALA standard config ************/
-headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
-security.cas.uriFilterPattern = '/speciesList, /speciesList/.*, /admin, /admin/.*, /speciesListItem/listAuth/.*, /editor, /editor/.*'
-security.cas.casServerName = 'https://auth.ala.org.au'
-security.cas.uriExclusionFilterPattern = '/images.*,/css.*,/js.*,/speciesList/occurrences/.*,/speciesList/fieldGuide/.*'
-security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
-security.cas.logoutUrl = 'https://auth.ala.org.au/cas/logout'
-security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
-security.cas.bypass = false
-ala.baseURL = "http://www.ala.org.au"
-bie.baseURL = "http://bie.ala.org.au"
-biocacheService.baseURL = "http://biocache.ala.org.au/ws"
-bieService.baseURL = "http://bie.ala.org.au/ws"
-biocache.baseURL = "http://biocache.ala.org.au"
-fieldGuide.baseURL = "http://fieldguide.ala.org.au"
-//bie.baseURL = "http://natasha.ala.org.au:8090/bie-webapp2"//"http://bie.ala.org.au"
-bie.searchPath = "/search"
-grails.project.groupId = au.org.ala // change this to alter the default package name and Maven publishing destination
+if (!security.cas.casServerName) {
+    security.cas.casServerName = 'https://auth.ala.org.au'
+}
+if (!security.cas.uriExclusionFilterPattern) {
+    ssecurity.cas.uriExclusionFilterPattern = '/images.*,/css.*,/js.*,/speciesList/occurrences/.*,/speciesList/fieldGuide/.*'
+}
+if (!security.cas.authenticateOnlyIfLoggedInPattern) {
+    security.cas.authenticateOnlyIfLoggedInPattern = "/speciesListItem/list,/speciesListItem/list/.*,/ws/speciesList"
+}
+if (!security.cas.loginUrl) {
+    security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
+}
+if (!security.cas.logoutUrl) {
+    security.cas.logoutUrl = 'https://auth.ala.org.au/cas/logout'
+}
+if (!security.cas.casServerUrlPrefix) {
+    security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
+}
+if (!security.cas.bypass) {
+    security.cas.bypass = false
+}
+if (!downloadLimit) {
+    downloadLimit = "200"
+}
+if (!biocacheService.baseURL) {
+    biocacheService.baseURL = "http://biocache.ala.org.au/ws"
+}
+if (!headerAndFooter.baseURL ) {
+    headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
+}
+if (!ala.baseURL) {
+    ala.baseURL = "http://www.ala.org.au"
+}
+if (!bie.baseURL) {
+    bie.baseURL = "http://bie.ala.org.au"
+}
+if (!bieService.baseURL) {
+    bieService.baseURL = "http://bie.ala.org.au/ws"
+}
+if (!biocache.baseURL) {
+    biocache.baseURL = "http://biocache.ala.org.au"
+}
+if (!fieldGuide.baseURL) {
+    fieldGuide.baseURL = "http://fieldguide.ala.org.au"
+}
+if (!bie.searchPath) {
+    bie.searchPath = "/search"
+}
+if (!bie.download) {
+    bie.download = "/data/bie-staging/species-list"
+}
+if (!bie.nameIndexLocation) {
+    bie.nameIndexLocation = "/data/lucene/namematching_v13"
+}
+
 /******* End of ALA standard config ************/
 /*** Config specific for species list ***/
-bie.download = "/data/bie-staging/species-list"
-bie.nameIndexLocation = "/data/lucene/namematching_v13"
-downloadLimit="200" //the number of species to limit downloads to
+grails.project.groupId = au.org.ala // change this to alter the default package name and Maven publishing destination
+appContext = grails.util.Metadata.current.'app.name'
+
+ //the number of species to limit downloads to
 /*** End config specific for species list ***/
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.use.accept.header = false
@@ -61,12 +117,8 @@ grails.mime.types = [ html: ['text/html','application/xhtml+xml'],
                       multipartForm: 'multipart/form-data'
                     ]
 
-// URL Mapping Cache Max Size, defaults to 5000
-//grails.urlmapping.cache.maxsize = 1000
-
 // What URL patterns should be processed by the resources plugin
 grails.resources.adhoc.patterns = ['/images/*', '/css/*', '/js/*', '/plugins/*']
-
 
 // The default codec used to encode data with ${}
 grails.views.default.codec = "none" // none, html, base64
@@ -104,11 +156,8 @@ auth.userNamesForNumericIdPath='getUserListWithIds'
 environments {
     development {
         grails.logging.jul.usebridge = true
-        //grails.serverURL = 'http://dev.ala.org.au:8081/' + appName
         grails.serverURL = 'http://dev.ala.org.au:8080/' + appName
         collectory.baseURL ='http://testweb1.ala.org.au:8080/collectory'
-//        collectory.baseURL ='http://dev.ala.org.au:8080/collectory'
-        //serverName='http://dev.ala.org.au:8081'
         serverName='http://dev.ala.org.au:8080'
         security.cas.appServerName = serverName
         security.cas.contextPath = "/${appName}"
@@ -119,39 +168,27 @@ environments {
         grails.logging.jul.usebridge = false
         // TODO: grails.serverURL = "http://www.changeme.com"
         grails.serverURL = 'http://lists.ala.org.au'
-        //collectory.baseURL ='http://audax.ala.org.au:8080/Collectory'
         collectory.baseURL='http://collections.ala.org.au'
         collectory.enableSync = true
-        //bie.baseURL = 'http://audax.ala.org.au:8080/bie-webapp2'
-        bie.baseURL = 'http://bie.ala.org.au'
-        serverName = 'lists.ala.org.au'
         contextPath = ""
         security.cas.appServerName = grails.serverURL
         security.cas.contextPath = contextPath
+        collectory.enableSync = true
     }
 }
 
 // log4j configuration
-// log4j configuration
 log4j = {
     // Example of changing the log pattern for the default console
     // appender:
-    //
     appenders {
-
-        //console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.DEBUG
-//        rollingFile name: "dev2", layout: pattern(conversionPattern: "[POSTIE] %c{2} %m%n"), maxFileSize: 1024, file: "/tmp/postie.log", threshold: org.apache.log4j.Level.DEBUG
-
         environments {
             production {
-                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.ERROR
-                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/var/log/tomcat6/specieslist.log", threshold: org.apache.log4j.Level.INFO, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
+                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/var/log/tomcat6/specieslist.log", threshold: org.apache.log4j.Level.ERROR, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
                 'null' name: "stacktrace"
             }
             development {
-                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.TRACE
-                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/tmp/specieslist.log", threshold: org.apache.log4j.Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
-                'null' name: "stacktrace"
+                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"), threshold: org.apache.log4j.Level.DEBUG
             }
             test {
                 rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/tmp/specieslist-test.log", threshold: org.apache.log4j.Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
@@ -164,9 +201,6 @@ log4j = {
         // change the root logger to my tomcatLog file
         error 'tomcatLog'
         warn 'tomcatLog'
-        info 'tomcatLog'
-        debug 'tomcatLog', 'stdout'
-        trace 'tomcatLog', 'stdout'
         additivity = true
     }
 
