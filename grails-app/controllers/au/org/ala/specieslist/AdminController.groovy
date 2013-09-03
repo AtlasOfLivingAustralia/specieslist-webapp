@@ -1,8 +1,10 @@
 package au.org.ala.specieslist
 
 class AdminController {
+
     def authService
     def queryService
+    def helperService
     def beforeInterceptor = [action:this.&auth]
 
     def index() { redirect(action: 'speciesLists')}
@@ -11,25 +13,36 @@ class AdminController {
         if (!authService.isAdmin()) {
             flash.message = "You are not authorised to access this page."
             redirect(controller: "public", action: "speciesLists")
-            return false
+            false
+        } else {
+            true
         }
-        return true
     }
+
+    def syncMetadataForLists(){
+        SpeciesList.all.each { list ->
+            //update the list metadata in the collectory
+            helperService.updateDataResourceForList(list.dataResourceUid,
+                    [
+                     pubDescription: list.description,
+                     websiteUrl: grailsApplication.config.serverName + grailsApplication.config.contextPath + '/speciesListItem/list/' + list.dataResourceUid,
+                     techDescription: "This list was first uploaded by " + list.firstName
+                             + " " +list.surname + " on the " + list.lastUpdated
+                             + "." + "It contains " + list.itemsCount + " taxa.",
+                     resourceType : "uploads",
+                     status : "dataAvailable",
+                     contentTypes : '["species list"]'
+                    ]
+            )
+        }
+        render(status:201, text:'done')
+    }
+
     def speciesLists(){
-        //returns all the species list for editable actions
-//        if (params.message)
-//            flash.message = params.message
-//        params.max = Math.min(params.max ? params.int('max') : 25, 100)
-//        params.sort = params.sort ?: "listName"
-//        params.fetch = [items: 'lazy']
-        //println("Returning the species list for render")
-        try{
-//            def lists=SpeciesList.list(params)
-//            def total = SpeciesList.count
+        try {
             def lists = queryService.getFilterListResult(params)
             render (view:'specieslists', model:[lists:lists, total:lists.totalCount])
-        }
-        catch(Exception e){
+        } catch(Exception e) {
             log.error "Error requesting species Lists: " ,e
             response.status = 404
             render(view: '../error', model: [message: "Unable to retrieve species lists. Please let us know if this error persists. <br>Error:<br>" + e.getMessage()])

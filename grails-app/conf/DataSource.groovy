@@ -19,7 +19,7 @@ environments {
             driverClassName = "com.mysql.jdbc.Driver"
             username = "root"
             password = "password"
-            logSql = true
+            logSql = false
         }
     }
     test {
@@ -34,6 +34,7 @@ environments {
             url = "jdbc:mysql://ala-biedb1.vm.csiro.au/specieslist?autoReconnect=true&connectTimeout=0"
             username="specieslist"
             password="RHitoHYAbfmJBCT0zywo143tH"
+            logSql = false
             pooled = true
             properties {
                maxActive = -1

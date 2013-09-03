@@ -43,8 +43,6 @@ class WebServiceController {
         return true
     }
 
-
-
     def index() { }
 
     def getDistinctValues(){
@@ -88,9 +86,7 @@ class WebServiceController {
             ]
         }
         render builder.build{listOfRecordMaps}
-
     }
-
 
     /**
      *   Returns either a JSON list of species lists or a specific species list
@@ -116,9 +112,7 @@ class WebServiceController {
             }
             log.debug(" The retvalue: " + retValue)
             render retValue
-
-        }
-        else{
+        } else {
             //we need to return a summary of all lists
             //allowing for customisation in sort order and paging
             params.fetch = [items: 'lazy']
@@ -170,7 +164,6 @@ class WebServiceController {
             def list = queryService.getFilterListItemResult(props, params, null, null,null)
             render list.collect{[guid:it.guid, name: it.matchedName?:it.rawScientificName, family: it.family, dataResourceUid: it.dataResourceUid, kvpValues: it.kvpValues?.collect{i -> [key: i.key, value:i.vocabValue?:i.value]}]}  as JSON
         }
-
     }
 
     /**
@@ -183,8 +176,7 @@ class WebServiceController {
         if(params.splist || params.druid){
             //a list update is not supported at the moment
             badRequest "Updates to existing list are unsupported."
-        }
-        else{
+        } else {
             //create a new list
             log.debug("SAVE LIST " + params)
             log.debug(request)
@@ -196,39 +188,36 @@ class WebServiceController {
                 def userCookie =request.cookies.find{it.name == 'ALA-Auth'}
                 log.debug(userCookie.toString() + " " + userCookie.getValue())
                 if(userCookie){
-                    String username =java.net.URLDecoder.decode(userCookie.getValue(),'utf-8')
+                    String username = java.net.URLDecoder.decode(userCookie.getValue(),'utf-8')
                     //test to see that the user is valid
                     if(authService.isValidUserName(username)){
-
                         if (jsonBody.listItems && jsonBody.listName){
-                            jsonBody.username=username
+                            jsonBody.username = username
                             log.warn(jsonBody)
-                            def drURL = helperService.addDataResourceForList(jsonBody.listName, null, null, username)
+                            def drURL = helperService.addDataResourceForList([name:jsonBody.listName, username:username])
                             if(drURL){
                                 def druid = drURL.toString().substring(drURL.lastIndexOf('/') +1)
                                 List<String> list = jsonBody.listItems.split(",")
                                 helperService.loadSpeciesList(jsonBody,druid,list)
                                 created druid
-                            }
-                            else
+                            } else {
                                 badRequest "Unable to generate collectory entry."
-                        }
-                        else
+                            }
+                        } else {
                             badRequest "Missing compulsory mandatory properties."
-                    }
-                    else
+                        }
+                    } else {
                         badRequest "Supplied username is invalid"
-                }
-                else
+                    }
+                } else {
                     badRequest "User has not logged in or cookies are disabled"
-            }
-            catch (Exception e){
+                }
+            } catch (Exception e){
                 log.error(e.getMessage(),e)
                 render(status:  404, text: "Unable to parse JSON body")
             }
         }
     }
-
 
     def created = { uid ->
         response.addHeader 'druid', uid
@@ -243,15 +232,12 @@ class WebServiceController {
         render(status:404, text: text)
     }
 
-
-
     def markAsPublished(){
         //marks the supplied data resource as published
         if (params.druid){
             SpeciesListItem.executeUpdate("update SpeciesListItem set isPublished=true where dataResourceUid='"+params.druid+"'")
             render "Species list " + params.druid + " has been published"
-        }
-        else{
+        } else {
             render(view: '../error', model: [message: "No data resource has been supplied"])
         }
     }
@@ -274,12 +260,11 @@ class WebServiceController {
                 //each of the results are rendered as CSV
                 def sb = ''<<''
                 if(it.kvpValues){
-                    it.kvpValues.each{ kvp ->
+                    it.kvpValues.each { kvp ->
                         sb<<toCsv(it.guid)<<','<<toCsv(it.dataResourceUid)<<','<<toCsv(kvp.key)<<','<<toCsv(kvp.value)<<','<<toCsv(kvp.vocabValue)<<'\n'
                     }
-                }
-                else{
-                    sb<<toCsv(it.guid)<<','<<toCsv(it.dataResourceUid)<<',,,\n'
+                } else {
+                    sb << toCsv(it.guid) << ',' << toCsv(it.dataResourceUid) << ',,,\n'
                 }
                 out.print(sb.toString())
             }

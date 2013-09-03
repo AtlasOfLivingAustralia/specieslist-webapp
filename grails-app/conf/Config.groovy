@@ -157,7 +157,7 @@ environments {
     development {
         grails.logging.jul.usebridge = true
         grails.serverURL = 'http://dev.ala.org.au:8080/' + appName
-        collectory.baseURL ='http://testweb1.ala.org.au:8080/collectory'
+        collectory.baseURL ='http://testweb1.ala.org.au/collectory'
         serverName='http://dev.ala.org.au:8080'
         security.cas.appServerName = serverName
         security.cas.contextPath = "/${appName}"
@@ -166,7 +166,6 @@ environments {
     }
     production {
         grails.logging.jul.usebridge = false
-        // TODO: grails.serverURL = "http://www.changeme.com"
         grails.serverURL = 'http://lists.ala.org.au'
         collectory.baseURL='http://collections.ala.org.au'
         collectory.enableSync = true
