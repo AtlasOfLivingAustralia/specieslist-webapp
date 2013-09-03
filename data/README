@@ -1,0 +1,10 @@
+Do not edit files in this directory, on the production server!
+
+Instead, please edit a checked-out version of these files on your local system. Once tested,
+please commit your changes and then perform a `sudo svn up` on the production server.
+
+The files can be found: http://code.google.com/p/ala-bie/source/browse/trunk/ala-header-and-tails/data/
+
+Cheers
+
+Nick
