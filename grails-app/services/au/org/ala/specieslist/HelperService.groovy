@@ -60,7 +60,6 @@ class HelperService {
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
             def jsonBody = createJsonForNewDataResource(map)
             log.debug(jsonBody)
-
             try {
                http.post(body: jsonBody, requestContentType:JSON){ resp ->
                  assert resp.status == 201
@@ -109,7 +108,6 @@ class HelperService {
 
     def uploadFile(druid, uploadedFile){
         if(druid){
-
             def destDir = new File(grailsApplication.config.bie.download + File.separator + druid + File.separator)
             destDir.mkdirs()
             def destFile = new File( destDir,"species_list.csv")
@@ -117,10 +115,9 @@ class HelperService {
             destFile.absolutePath
         }
     }
+
     def getCSVReaderForText(String raw, String separator) {
-        //def separator = getSeparator(raw)
-        def csvReader = new CSVReader(new StringReader(raw), separator.charAt(0))
-        csvReader
+        new CSVReader(new StringReader(raw), separator.charAt(0))
     }
 
     def getSeparator(String raw) {
@@ -138,6 +135,7 @@ class HelperService {
             ','
         }
     }
+
     def parseValues(String[] processedHeader,CSVReader reader, String sep)throws Exception{
         def sciIdx = indexOfName(processedHeader)
         if(sciIdx>=0){
@@ -156,14 +154,15 @@ class HelperService {
                   }
             }
             return map;
-        }
-        else
+        } else {
             null
+        }
     }
 
     def indexOfName(String[] processedHeader){
         processedHeader.findIndexOf {it == "scientific name" || it == "vernacular name" || it == "ambiguous name"}
     }
+
     /**
      * determines what the header should be based on the data supplied
      * @param header
@@ -175,23 +174,17 @@ class HelperService {
             if(findAcceptedLsidByScientificName(it)){
                 hasName = true
                 "scientific name"
-            }
-            else if(findAcceptedLsidByCommonName(it)){
+            } else if(findAcceptedLsidByCommonName(it)){
                 hasName = true
                 "vernacular name"
-            }
-            else{
+            } else {
                 "UNKNOWN" + (unknowni++)
             }
-
         }
         headerResponse
     }
+
     def parseHeader(String[] header){
-
-
-
-
 
         //first step check to see if scientificname or common name is provided as a header
         def hasName = false;
@@ -199,28 +192,26 @@ class HelperService {
             if(speciesValue.contains(it.toLowerCase().replaceAll(" ",""))){
                 hasName = true
                 "scientific name"
-            }
-            else if(commonValues.contains(it.toLowerCase().replaceAll(" ",""))){
+            } else if(commonValues.contains(it.toLowerCase().replaceAll(" ",""))){
                 hasName = true
                 "vernacular name"
-            }
-            else if(commonValues.contains(it.toLowerCase().replaceAll(" ",""))){
+            } else if(commonValues.contains(it.toLowerCase().replaceAll(" ",""))){
                 hasName = true
                 "vernacular name"
-            }
-            else if(ambiguousValues.contains(it.toLowerCase().replaceAll(" ",""))){
+            } else if(ambiguousValues.contains(it.toLowerCase().replaceAll(" ",""))){
                 hasName = true
                 "ambiguous name"
-            }
-            else
+            } else {
                 it
-
+            }
         }
+
         if(hasName)
             headerResponse
         else
             null
     }
+
     def getSpeciesIndex(Object[] header){
         int idx =header.findIndexOf { speciesValue.contains(it.toString().toLowerCase().replaceAll(" ","")) }
         if(idx <0)
@@ -350,9 +341,9 @@ class HelperService {
         //lookup the raw
         //sli.guid = findAcceptedLsidByScientificName(sli.rawScientificName)?: findAcceptedLsidByCommonName(sli.rawScientificName)
         matchNameToSpeciesListItem(sli.rawScientificName, sli)
-        int i =0
+        int i = 0
         header.each {
-            if(i != speciesIdx && values[i]){
+            if(i != speciesIdx && values.length > i && values[i]){
                 //check to see if the common name is already an "accepted" name for the species
                 String testLsid = commonValues.contains(it.toLowerCase().replaceAll(" ",""))?findAcceptedLsidByCommonName(values[i]):""
                 if(!testLsid.equals(sli.guid)) {
@@ -410,10 +401,9 @@ class HelperService {
 
     def findAcceptedLsidByCommonName(commonName){
         String lsid = null
-        try{
+        try {
             lsid = getNameSearcher().searchForLSIDCommonName(commonName)
-        }
-        catch(e){
+        } catch(e){
             log.error(e.getMessage())
         }
         lsid
@@ -432,8 +422,7 @@ class HelperService {
 //                def result = metric.getResult()
 //                lsid = result.isSynonym()? getNameSearcher().searchForRecordByLsid(result.getAcceptedLsid())?.getLsid():result.getLsid()
 //            }
-        }
-        catch(Exception e){
+        } catch(Exception e){
              log.error(e.getMessage())
         }
         lsid

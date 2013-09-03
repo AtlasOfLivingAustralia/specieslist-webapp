@@ -20,8 +20,7 @@ class LoggerService {
             }
             log.debug(map)
             return map;
-        }
-        catch(ex){
+        } catch(ex) {
             //TODO return a default list
             return null;
         }
