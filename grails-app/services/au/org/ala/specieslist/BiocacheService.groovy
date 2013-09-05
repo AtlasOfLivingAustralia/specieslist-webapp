@@ -13,7 +13,7 @@ class BiocacheService {
         def query = ""
 
         if (guids) {
-            query = "lsid:\"" + guids.join("\" OR lsid:\"") + "\""
+            query = "lsid:" + guids.join(" OR lsid:")
         }
 
         if (unMatchedNames) {
