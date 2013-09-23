@@ -30,116 +30,144 @@ import org.apache.commons.lang.builder.ToStringStyle;
  */
 
 public class LogEventVO implements Serializable {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private String comment = "";
+    private String comment = "";
 
-	private int eventTypeId = 0;
+    private int eventTypeId = 0;
 
-	private String userIP = "";
-	
-	private Map<String, Integer> recordCounts = new Hashtable<String, Integer>();
+    private String userIP = "";
+    
+    private Map<String, Integer> recordCounts = new Hashtable<String, Integer>();
 
-	private String userEmail = "";
-	
-	private String month = "";
-	
-	private Integer reasonTypeId;
-	
-	private Integer sourceTypeId;
-	
-	public LogEventVO() {
+    private String userEmail = "";
+    
+    private String month = "";
+    
+    private Integer reasonTypeId;
+    
+    private Integer sourceTypeId;
+    
+    /** The URL that caused the event to be logged. This should allow the some reporting on the type of queries people are using to generate downloads */
+    private String sourceUrl;
+    
+    public LogEventVO() {
     }
 
     public LogEventVO(LogEventType eventType, String userEmail, String comment, String userIP, Map<String, Integer> recordCounts) {
-    	this(eventType.getId(), null, null, userEmail, comment, userIP, null, recordCounts);
+        this(eventType.getId(), null, null, userEmail, comment, userIP, null, recordCounts);
     }
     
     public LogEventVO(LogEventType eventType, String userEmail, String comment, String userIP, String month, Map<String, Integer> recordCounts) {
-    	this(eventType.getId(), null, null, userEmail, comment, userIP, month, recordCounts);
+        this(eventType.getId(), null, null, userEmail, comment, userIP, month, recordCounts);
     }
 
     public LogEventVO(LogEventType eventType, Integer reasonTypeId, Integer sourceTypeId, String userEmail, String comment, String userIP, Map<String, Integer> recordCounts) {
-    	this(eventType.getId(), reasonTypeId, sourceTypeId, userEmail, comment, userIP, null, recordCounts);
+        this(eventType.getId(), reasonTypeId, sourceTypeId, userEmail, comment, userIP, null, recordCounts);
     }
     
     public LogEventVO(LogEventType eventType, Integer reasonTypeId, Integer sourceTypeId, String userEmail, String comment, String userIP, String month, Map<String, Integer> recordCounts) {
-    	this(eventType.getId(), reasonTypeId, sourceTypeId, userEmail, comment, userIP, month, recordCounts);
+        this(eventType.getId(), reasonTypeId, sourceTypeId, userEmail, comment, userIP, month, recordCounts);
     }
-        
+    /**
+     * Create a new LogEventVO with a sourceURL that generated the log message. 
+     * 
+     * @param eventTypeId
+     * @param reasonTypeId
+     * @param sourceTypeId
+     * @param userEmail
+     * @param comment
+     * @param userIP
+     * @param month
+     * @param recordCounts
+     * @param sourceUrl
+     */
+    public LogEventVO(int eventTypeId, Integer reasonTypeId, Integer sourceTypeId, String userEmail, String comment, String userIP, String month, Map<String, Integer> recordCounts, String sourceUrl) {
+       this(eventTypeId, reasonTypeId, sourceTypeId, userEmail, comment, userIP, month, recordCounts);
+       this.sourceUrl = sourceUrl;
+    }
+    
     public LogEventVO(int eventTypeId, Integer reasonTypeId, Integer sourceTypeId, String userEmail, String comment, String userIP, String month, Map<String, Integer> recordCounts) {
-    	this.sourceTypeId = sourceTypeId;
-    	this.reasonTypeId = reasonTypeId;
-    	this.eventTypeId = eventTypeId;
-    	if(userEmail != null){
-    		this.userEmail = userEmail;
-    	}
-    	if(comment != null){
-    		this.comment = comment;
-    	}
-    	if(userIP != null){
-    		this.userIP = userIP;
-    	}
-    	if(month != null){
-    		this.month = month;
-    	}
-    	if(recordCounts != null){
-    		this.recordCounts = recordCounts;
-    	}    	
+        this.sourceTypeId = sourceTypeId;
+        this.reasonTypeId = reasonTypeId;
+        this.eventTypeId = eventTypeId;
+        if(userEmail != null){
+            this.userEmail = userEmail;
+        }
+        if(comment != null){
+            this.comment = comment;
+        }
+        if(userIP != null){
+            this.userIP = userIP;
+        }
+        if(month != null){
+            this.month = month;
+        }
+        if(recordCounts != null){
+            this.recordCounts = recordCounts;
+        }       
     }
 
     public LogEventVO(int eventTypeId, Integer reasonTypeId, Integer sourceTypeId, String userEmail, String comment, String userIP, Map<String, Integer> recordCounts) {
-    	this(eventTypeId, reasonTypeId, sourceTypeId, userEmail, comment, userIP, null, recordCounts);
+        this(eventTypeId, reasonTypeId, sourceTypeId, userEmail, comment, userIP, null, recordCounts);
     }
     
-	public String getComment() {
-		return this.comment;
-	}
+    public String getComment() {
+        return this.comment;
+    }
 
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 
-	public int getEventTypeId() {
-		return eventTypeId;
-	}
+    public int getEventTypeId() {
+        return eventTypeId;
+    }
 
-	public void setEventTypeId(int eventTypeId) {
-		this.eventTypeId = eventTypeId;
-	}
-	
-	public Map<String, Integer> getRecordCounts() {
-		return this.recordCounts;
-	}
+    public void setEventTypeId(int eventTypeId) {
+        this.eventTypeId = eventTypeId;
+    }
+    
+    public Map<String, Integer> getRecordCounts() {
+        return this.recordCounts;
+    }
 
-	public void setRecordCount(Map<String, Integer> recordCounts) {
-		this.recordCounts = recordCounts;
-	}
+    public void setRecordCount(Map<String, Integer> recordCounts) {
+        this.recordCounts = recordCounts;
+    }
 
-	public String getUserEmail() {
-		return this.userEmail;
-	}
+    public String getUserEmail() {
+        return this.userEmail;
+    }
 
-	public void setUserEmail(String userEmail) {
-		this.userEmail = userEmail;
-	}
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
 
 
-	public String getUserIP() {
-		return this.userIP;
-	}
+    public String getUserIP() {
+        return this.userIP;
+    }
 
-	public void setUserIP(String userIP) {
-		this.userIP = userIP;
-	}
-	
+    public void setUserIP(String userIP) {
+        this.userIP = userIP;
+    }
+    
     public String getMonth() {
-		return month;
-	}
+        return month;
+    }
 
-	public void setMonth(String month) {
-		this.month = month;
-	}
+    public void setMonth(String month) {
+        this.month = month;
+    }
+    
+    public String getSourceUrl() {
+        return sourceUrl;
+    }
+
+    public void setSourceUrl(String sourceUrl) {
+        this.sourceUrl = sourceUrl;
+    }
 
     /**
      * To-string method.
@@ -149,40 +177,40 @@ public class LogEventVO implements Serializable {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 
-	public Integer getReasonTypeId() {
-		return reasonTypeId;
-	}
+    public Integer getReasonTypeId() {
+        return reasonTypeId;
+    }
 
-	public void setReasonTypeId(Integer reasonTypeId) {
-		this.reasonTypeId = reasonTypeId;
-	}
+    public void setReasonTypeId(Integer reasonTypeId) {
+        this.reasonTypeId = reasonTypeId;
+    }
 
-	public Integer getSourceTypeId() {
-		return sourceTypeId;
-	}
+    public Integer getSourceTypeId() {
+        return sourceTypeId;
+    }
 
-	public void setSourceTypeId(Integer sourceTypeId) {
-		this.sourceTypeId = sourceTypeId;
-	}
-	
-	/*
-	private String userId;
+    public void setSourceTypeId(Integer sourceTypeId) {
+        this.sourceTypeId = sourceTypeId;
+    }
+    
+    /*
+    private String userId;
 
-	private int month;
+    private int month;
 
-	public String getUserId() {
-		return this.userId;
-	}
+    public String getUserId() {
+        return this.userId;
+    }
 
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
-	public int getMonth() {
-		return this.month;
-	}
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+    public int getMonth() {
+        return this.month;
+    }
 
-	public void setMonth(int month) {
-		this.month = month;
-	}	
-*/	
+    public void setMonth(int month) {
+        this.month = month;
+    }   
+*/  
 }

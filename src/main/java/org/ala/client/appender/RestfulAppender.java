@@ -134,7 +134,8 @@ public class RestfulAppender extends AppenderSkeleton {
 
 	public void close() {
 		restfulClient = null;
-		this.close();
+		//This is a recursive call to the same method. Would cause a stack overflow.  
+		//this.close();
 	}
 
 	public boolean requiresLayout() {
