@@ -452,4 +452,12 @@ class HelperService {
         nameSearchRecord
     }
 
+    // JSON response is returned as the unconverted model with the appropriate
+    // content-type. The JSON conversion is handled in the filter. This allows
+    // for universal JSONP support.
+    def asJson(model, response)  {
+        response.setContentType("application/json")
+        model
+    }
+
 }

@@ -12,7 +12,7 @@
     <title>Species lists | Atlas of Living Australia</title>
     <r:require module="fancybox"/>
 </head>
-<body class="species">
+<body class="">
 <div id="content">
     <header id="page-header">
         <div class="inner row-fluid">

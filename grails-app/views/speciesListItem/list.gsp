@@ -287,7 +287,7 @@
     }
 </script>
 </head>
-<body class="yui-skin-sam species">
+<body class="yui-skin-sam nav-species">
 <div id="content" >
     <header id="page-header">
 

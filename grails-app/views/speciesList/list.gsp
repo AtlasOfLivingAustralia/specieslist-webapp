@@ -23,7 +23,7 @@
     </style>
 </head>
 
-<body class="yui-skin-sam species">
+<body class="yui-skin-sam nav-species">
 <script type="text/javascript">
     window.onload=init
     function init(){

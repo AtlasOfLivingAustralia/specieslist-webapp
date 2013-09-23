@@ -51,13 +51,14 @@ class WebServiceController {
         def props = [fetch:[ mylist: 'join']]
         log.debug("Distinct values " + field +" "+ params)
         def results = queryService.getFilterListItemResult(props, params,null,null,field )
-        render results as JSON
+        helperService.asJson(results, response)
     }
 
     def getTaxaOnList(){
         def druid = params.druid
         def results = SpeciesListItem.executeQuery("select guid from SpeciesListItem where dataResourceUid=?",[druid])
-        render results as JSON
+        //render results as JSON
+        helperService.asJson(results, response)
     }
 
     def getListItemsForSpecies(){
@@ -146,7 +147,8 @@ class WebServiceController {
                                             authority:it.authority,
                                             sdsType:it.sdsType]}]
 
-            render retValue as JSON
+            //render retValue as JSON
+            helperService.asJson(retValue, response)
         }
     }
 
@@ -157,7 +159,8 @@ class WebServiceController {
         if(params.druid) {
             def list = params.nonulls? SpeciesListItem.findAllByDataResourceUidAndGuidIsNotNull(params.druid):SpeciesListItem.findAllByDataResourceUid(params.druid)
             def newList= list.collect{[id:it.id,name:it.rawScientificName, lsid: it.guid]}
-            render newList as JSON
+            //render newList as JSON
+            helperService.asJson(newList, response)
         } else {
             //no data resource uid was supplied.
             def props = [fetch:[ kvpValues: 'join']]

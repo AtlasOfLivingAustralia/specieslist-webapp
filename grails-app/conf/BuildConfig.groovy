@@ -4,6 +4,7 @@ grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 grails.project.target.level = 1.6
 grails.project.source.level = 1.6
+grails.project.work.dir = "work"
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
 
 // Remove the conflicting groovy jar before bundling
@@ -59,8 +60,9 @@ grails.project.dependency.resolution = {
                 version:'0.7'
 
         // runtime 'mysql:mysql-connector-java:5.1.16'
-        build 'au.org.ala:ala-cas-client:1.0-SNAPSHOT'
-        build 'org.jasig.cas:cas-client-core:3.1.10'
+        //build 'au.org.ala:ala-cas-client:1.0-SNAPSHOT'
+        //build 'org.jasig.cas:cas-client-core:3.1.10'
+        runtime 'mysql:mysql-connector-java:5.1.18'
     }
 
     plugins {

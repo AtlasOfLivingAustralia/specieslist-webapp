@@ -12,7 +12,7 @@
     <meta name="layout" content="ala2"/>
     <title>Species lists Webservices| Atlas of Living Australia</title>
 </head>
-<body class="species">
+<body class="">
     <div id="content">
         <div class="inner">
         <h2>Species List Web Services</h2>

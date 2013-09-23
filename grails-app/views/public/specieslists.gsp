@@ -18,7 +18,7 @@
     <meta name="layout" content="main"/>
     <title>Species lists | Atlas of Living Australia</title>
 </head>
-<body class="species">
+<body class="">
 <div id="content">
     <header id="page-header">
         <div class="inner row-fluid" style="display: block;">

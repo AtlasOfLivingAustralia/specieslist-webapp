@@ -272,7 +272,7 @@
 </script>
 </head>
 
-<body class="species">
+<body class="">
 <div id="content">
     <header id="page-header">
         <div class="inner">
