@@ -19,7 +19,7 @@ class QueryService {
      */
     def getFilterListResult(params){
         //list should be based on the user that is logged in
-        params.max = Math.min(params.max ? params.int('max') : 25, 100)
+        params.max = Math.min(params.max ? params.int('max') : 25, 1000)
         params.sort = params.sort ?: "listName"
         params.fetch = [items: 'lazy']
 
