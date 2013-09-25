@@ -9,7 +9,7 @@
 <!doctype html>
 <html>
 <head>
-    <meta name="layout" content="ala2"/>
+    <meta name="layout" content="main"/>
     <title>Species lists Webservices| Atlas of Living Australia</title>
 </head>
 <body class="">

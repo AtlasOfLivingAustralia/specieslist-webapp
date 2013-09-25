@@ -76,6 +76,7 @@ grails.project.dependency.resolution = {
 //            excludes "yui"
 //        }
         compile ":springcache:1.3.1"
+        compile ":jsonp:0.2"
 
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0"
