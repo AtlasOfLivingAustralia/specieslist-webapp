@@ -93,7 +93,7 @@
 
     </style>
 </head>
-<body class="species content">
+<body class="species nav-species content">
     <header id="page-header">
         <div class="inner row-fluid">
             <div id="breadcrumb" class="span12">

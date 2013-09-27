@@ -127,7 +127,7 @@ class BieTagLib {
      */
     def lookupUserName = { attrs ->
         def email = attrs.id
-        def userIdMap = authService.getUserNamesForIdsMap(true)
+        def userIdMap = authService.getAllUserNameMap()
         def userName = userIdMap.get(email)
         log.info "id = " + email + " || name = " + userName
 

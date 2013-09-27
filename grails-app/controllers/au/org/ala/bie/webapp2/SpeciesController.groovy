@@ -15,6 +15,7 @@
 
 package au.org.ala.bie.webapp2
 
+import grails.converters.JSON
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -102,7 +103,7 @@ class SpeciesController {
                     textProperties: utilityService.filterSimpleProperties(etc),
                     isAustralian: bieService.getIsAustralian(guid),
                     isRoleAdmin: authService.userInRole(grailsApplication.config.auth.admin_role),
-                    userName: authService.username(),
+                    userName: authService.email,
                     isReadOnly: grailsApplication.config.ranking.readonly, // TODO: implement this properly based on BIE version
                     sortCommonNameSources: utilityService.getNamesAsSortedMap(etc.commonNames),
                     taxonHierarchy: bieService.getClassificationForGuid(guid),
@@ -130,9 +131,15 @@ class SpeciesController {
 
     def soundSearch = {
         def result = biocacheService.getSoundsForTaxon(params.s)
-        render(contentType: "text/json") {
-            result
+
+        if (result) {
+            render(contentType: "text/json") {
+                result
+            }
+        } else {
+            render(status: 404, text: "No sounds found")
         }
+
     }
 
     /**

@@ -32,7 +32,7 @@
         }
     </r:script>
 </head>
-<body class="species search content">
+<body class="species nav-species search content">
     <header id="page-header">
         <div class="inner row-fluid">
             <div id="breadcrumb" class="span12">

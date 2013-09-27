@@ -174,7 +174,7 @@
 
     </style>
 </head>
-<body class="fluid">
+<body class="nav-species fluid">
     <header id="page-header">
         <div class="inner row-fluid">
             <nav id="breadcrumb" class="span12">

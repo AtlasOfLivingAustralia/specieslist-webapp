@@ -2,6 +2,7 @@ grails.servlet.version = "2.5" // Change depending on target container complianc
 grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
+//grails.project.work.dir = "target"
 grails.project.target.level = 1.6
 grails.project.source.level = 1.6
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
@@ -27,7 +28,7 @@ grails.project.dependency.resolution = {
         // uncomment these to enable remote dependency resolution from public Maven repositories
         //mavenCentral()
         //mavenLocal()
-        mavenRepo "http://snapshots.repository.codehaus.org"        //required for jquery plugin
+        //mavenRepo "http://snapshots.repository.codehaus.org"        //required for jquery plugin
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://repository.jboss.com/maven2/"
@@ -55,14 +56,19 @@ grails.project.dependency.resolution = {
     plugins {
         runtime ":hibernate:$grailsVersion"
         runtime ":jquery:1.7.1"
-        runtime ":resources:1.1.6"
-        runtime ":ala-web-theme:0.1.10"
-
-
+        runtime ":resources:1.2"
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0"
-        //runtime ":cached-resources:1.0"
         //runtime ":yui-minify-resources:0.1.4"
+        // Moved these plugins from application.properties file
+        compile ':cache:1.0.1'
+        runtime ":cached-resources:1.0"
+        runtime ":cache-headers:1.1.5"
+        runtime ":rest:0.7"
+
+        compile(":ala-web-theme:0.1.12") {
+            excludes "jquery","resources","cache","servlet-api"
+        }
 
         build ":tomcat:$grailsVersion"
     }

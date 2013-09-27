@@ -169,7 +169,7 @@ environments {
         grails.logging.jul.usebridge = true
         grails.host = "http://dev.ala.org.au"
         grails.serverURL = "${grails.host}:8080/${appName}"
-        bie.baseURL = grails.serverURL
+        //bie.baseURL = grails.serverURL
         security.cas.appServerName = "${grails.host}:8080"
         security.cas.contextPath = "/${appName}"
         // cached-resources plugin - keeps original filenames but adds cache-busting params

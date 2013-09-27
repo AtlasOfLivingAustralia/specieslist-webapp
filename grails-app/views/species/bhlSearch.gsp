@@ -164,7 +164,7 @@
 
     </r:script>
 </head>
-<body class="species">
+<body class="nav-species">
     <header id="page-header">
         <div class="inner row-fluid">
             <nav id="breadcrumb" class="span12">
