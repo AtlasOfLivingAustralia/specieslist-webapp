@@ -168,7 +168,17 @@
         // submit edit meta data
         $("#edit-meta-submit").click(function(el) {
             el.preventDefault();
-            var thisFormData = $(this).parents("form").serializeArray();
+            var $form = $(this).parents("form");
+            var thisFormData = $($form).serializeArray();
+            // serializeArray ignores unchecked checkboxes so explicitly send data for these
+            thisFormData = thisFormData.concat(
+                $($form).find('input[type=checkbox]:not(:checked)').map(
+                    function() {
+                        return {"name": this.name, "value": false}
+                    }
+                ).get()
+            );
+
             //console.log("thisFormData", thisFormData);
 
             $.post("${createLink(controller: "editor", action: 'editSpeciesList')}", thisFormData, function(data, textStatus, jqXHR) {
