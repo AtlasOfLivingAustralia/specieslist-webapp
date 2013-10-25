@@ -1,4 +1,5 @@
- <!-- Template for diplaying a list of species list with or without a delete button -->
+<%@page defaultCodec="html" %>
+<!-- Template for diplaying a list of species list with or without a delete button -->
     <script type="text/javascript">
 
         $(document).ready(function(){
@@ -113,10 +114,10 @@
             <g:if test="${list.username == request.getUserPrincipal()?.attributes?.email || request.isUserInRole("ROLE_ADMIN")}">
                 <td>
                 <g:set var="test" value="${[id:list.id]}" />
-                    <a href="#" onclick="fancyConfirm('Are you sure that you would like to delete ${list.listName}',${list.id},'delete');return false;" id="delete_${list.id}" class="buttonDiv">Delete</a>
+                    <a href="#" onclick="fancyConfirm('Are you sure that you would like to delete ${list.listName.encodeAsHTML()}',${list.id},'delete');return false;" id="delete_${list.id}" class="buttonDiv">Delete</a>
                 </td>
                 <td>
-                    <a href="#" onclick="fancyConfirm('Are you sure that you would like to rematch ${list.listName}',${list.id},'rematch');return false;" id="rematch_${list.id}" class="buttonDiv">Rematch</a>
+                    <a href="#" onclick="fancyConfirm('Are you sure that you would like to rematch ${list.listName.encodeAsHTML()}',${list.id},'rematch');return false;" id="rematch_${list.id}" class="buttonDiv">Rematch</a>
                 </td>
                 <td>
                     <a href="${request.contextPath}/speciesList/upload/${list.dataResourceUid}"  class="buttonDiv">Reload</a>
