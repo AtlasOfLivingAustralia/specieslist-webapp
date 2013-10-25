@@ -240,8 +240,17 @@ class HelperService {
         SpeciesList sl = SpeciesList.findByDataResourceUid(druid) ?: new SpeciesList(json)
 
         if (sl.dataResourceUid) {
+            // updating an existing list
             sl.items.clear() // assume new list of species will replace existing one (no updates allowed for now)
+            if (json?.editors) {
+                // update the list of editors (comma separated list of email addresses)
+                sl.editors = (sl.editors + json.editors.tokenize(',')).unique() // merge lists and remove duplicates
+            }
+            if (json?.listName) {
+                sl.listName = json.listName // always update the list name
+            }
         } else {
+            // create a new list
             sl.setDataResourceUid(druid)
         }
 
