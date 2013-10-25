@@ -237,8 +237,14 @@ class HelperService {
     }
 
     def loadSpeciesList(Map json, String druid, List<String> items){
-        SpeciesList sl = new SpeciesList(json)
-        sl.setDataResourceUid(druid)
+        SpeciesList sl = SpeciesList.findByDataResourceUid(druid) ?: new SpeciesList(json)
+
+        if (sl.dataResourceUid) {
+            sl.items.clear() // assume new list of species will replace existing one (no updates allowed for now)
+        } else {
+            sl.setDataResourceUid(druid)
+        }
+
         items.eachWithIndex { item, i ->
             //look it up
             SpeciesListItem sli = new SpeciesListItem()

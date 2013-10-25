@@ -12,6 +12,10 @@ class UrlMappings {
             action = [GET:'getListDetails',POST:'saveList']
         }
 
+        "/ws/speciesListPost/${druid}?" (controller: 'webService'){
+            action = [POST:'saveList']
+        }
+
         "/ws/speciesListItems/${druid}?" (controller: 'webService'){
             action = [GET:'getListItemDetails']
         }

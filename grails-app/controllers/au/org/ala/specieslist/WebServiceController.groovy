@@ -13,6 +13,7 @@
  * rights and limitations under the License.
  */
 package au.org.ala.specieslist
+
 import grails.converters.*
 import grails.web.JSONBuilder
 import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
@@ -155,7 +156,10 @@ class WebServiceController {
      */
     def getListItemDetails ={
         if(params.druid) {
-            def list = params.nonulls? SpeciesListItem.findAllByDataResourceUidAndGuidIsNotNull(params.druid):SpeciesListItem.findAllByDataResourceUid(params.druid)
+            params.sort = params.sort ?: "itemOrder" // default to order the items were imported in
+            def list = params.nonulls ?
+                      SpeciesListItem.findAllByDataResourceUidAndGuidIsNotNull(params.druid, params)
+                    : SpeciesListItem.findAllByDataResourceUid(params.druid, params)
             def newList= list.collect{[id:it.id,name:it.rawScientificName, lsid: it.guid]}
             render newList as JSON
         } else {
@@ -173,55 +177,54 @@ class WebServiceController {
      */
     def saveList = {
         log.debug("Saving a user list")
-        if(params.splist || params.druid){
-            //a list update is not supported at the moment
-            badRequest "Updates to existing list are unsupported."
-        } else {
-            //create a new list
-            log.debug("SAVE LIST " + params)
-            log.debug(request)
-            log.debug("COOKIES:" +request.cookies)
-            try{
-                def jsonBody =request.JSON
-                log.debug("BODY : "+jsonBody)
-                //request.cookies.each { log.debug(it.getName() + "##" + it.getValue())}
-                def userCookie =request.cookies.find{it.name == 'ALA-Auth'}
-                log.debug(userCookie.toString() + " " + userCookie.getValue())
-                if(userCookie){
-                    String username = java.net.URLDecoder.decode(userCookie.getValue(),'utf-8')
-                    //test to see that the user is valid
-                    if(authService.isValidUserName(username)){
-                        if (jsonBody.listItems && jsonBody.listName){
-                            jsonBody.username = username
-                            log.warn(jsonBody)
+        //create a new list
+
+        try{
+            def jsonBody = request.JSON
+            def userCookie = request.cookies.find{it.name == 'ALA-Auth'}
+
+            if(userCookie){
+                String username = java.net.URLDecoder.decode(userCookie.getValue(),'utf-8')
+                //test to see that the user is valid
+                if(authService.isValidUserName(username)){
+                    if (jsonBody.listItems && jsonBody.listName){
+                        jsonBody.username = username
+                        log.warn(jsonBody)
+                        def druid = params.druid //= helperService.addDataResourceForList([name:jsonBody.listName, username:username])
+
+                        if (!druid) {
                             def drURL = helperService.addDataResourceForList([name:jsonBody.listName, username:username])
-                            if(drURL){
-                                def druid = drURL.toString().substring(drURL.lastIndexOf('/') +1)
-                                List<String> list = jsonBody.listItems.split(",")
-                                helperService.loadSpeciesList(jsonBody,druid,list)
-                                created druid
+
+                            if (drURL) {
+                                druid = drURL.toString().substring(drURL.lastIndexOf('/') +1)
                             } else {
                                 badRequest "Unable to generate collectory entry."
                             }
-                        } else {
-                            badRequest "Missing compulsory mandatory properties."
                         }
+
+                        List<String> list = jsonBody.listItems.split(",")
+                        helperService.loadSpeciesList(jsonBody,druid,list)
+                        created druid
                     } else {
-                        badRequest "Supplied username is invalid"
+                        badRequest "Missing compulsory mandatory properties."
                     }
                 } else {
-                    badRequest "User has not logged in or cookies are disabled"
+                    badRequest "Supplied username is invalid"
                 }
-            } catch (Exception e){
-                log.error(e.getMessage(),e)
-                render(status:  404, text: "Unable to parse JSON body")
+            } else {
+                badRequest "User has not logged in or cookies are disabled"
             }
+        } catch (Exception e){
+            log.error(e.getMessage(),e)
+            render(status:  404, text: "Unable to parse JSON body")
         }
     }
 
     def created = { uid ->
         response.addHeader 'druid', uid
-        render(status:201, text:'added species list')
+        response.status = 201
+        def outputMap = [message:'added species list', druid: uid]
+        render outputMap as JSON
     }
 
     def badRequest = {text ->
