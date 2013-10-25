@@ -45,9 +45,6 @@ if (!security.cas.casServerName) {
 if (!security.cas.uriExclusionFilterPattern) {
     ssecurity.cas.uriExclusionFilterPattern = '/images.*,/css.*,/js.*,/speciesList/occurrences/.*,/speciesList/fieldGuide/.*'
 }
-if (!security.cas.authenticateOnlyIfLoggedInPattern) {
-    security.cas.authenticateOnlyIfLoggedInPattern = "/speciesListItem/list,/speciesListItem/list/.*,/ws/speciesList"
-}
 if (!security.cas.loginUrl) {
     security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
 }
@@ -162,7 +159,7 @@ environments {
         security.cas.appServerName = serverName
         security.cas.contextPath = "/${appName}"
         contextPath = "/specieslist-webapp"
-        collectory.enableSync = true
+        collectory.enableSync = false
     }
     production {
         grails.logging.jul.usebridge = false
