@@ -5,7 +5,7 @@
   Time: 9:01 AM
   To change this template use File | Settings | File Templates.
 --%>
-
+<%@page defaultCodec="none" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
@@ -23,7 +23,7 @@ in turn, allows those <strong>editors</strong> to edit and delete entries in thi
     <input id="search" type="text" class="input-xlarge" data-provide="typeahead" placeholder="Start typing a user's name or email address..." autocomplete="off">
     <button type="submit" class="btn">Add</button>
 </form>
-<table id="userTable" class="table table-bordered">
+<table id="userTable" class="table table-bordered" style="margin-top: 10px;">
     <thead>
         <tr><th>Name</th><th>Email</th><th>Role</th><th>Action</th></tr>
     </thead>
@@ -49,10 +49,10 @@ in turn, allows those <strong>editors</strong> to edit and delete entries in thi
     // user id map and list
     <g:set var="lastEl" value="${mapOfUserNamesById.keySet().size() - 1}"/>
     var mapOfUserNamesById = {
-        <g:each in="${mapOfUserNamesById.keySet()}" var="userId" status="i">"${userId}": "${mapOfUserNamesById[userId]}"<g:if test="${i < lastEl}">,</g:if></g:each>
+        <g:each in="${mapOfUserNamesById.keySet()}" var="userId" status="i">"${userId.trim()}": "${mapOfUserNamesById[userId]}"<g:if test="${i < lastEl}">,</g:if></g:each>
     };
     var ListOfUserNames = [
-        <g:each in="${mapOfUserNamesById.keySet()}" var="userId" status="j">"${mapOfUserNamesById[userId]} -- ${userId}"<g:if test="${j < lastEl}">,</g:if></g:each>
+        <g:each in="${mapOfUserNamesById.keySet()}" var="userId" status="j">"${mapOfUserNamesById[userId]} -- ${userId.trim()}"<g:if test="${j < lastEl}">,</g:if></g:each>
     ];
 
     /**
