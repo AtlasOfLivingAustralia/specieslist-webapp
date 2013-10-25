@@ -1,8 +1,8 @@
 package au.org.ala.specieslist
 
 import au.org.ala.cas.util.AuthenticationCookieUtils
+import grails.plugin.cache.Cacheable
 import org.springframework.web.context.request.RequestContextHolder
-import grails.plugin.springcache.annotations.Cacheable
 import groovyx.net.http.HTTPBuilder
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
 

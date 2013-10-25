@@ -1,8 +1,7 @@
 package au.org.ala.specieslist
 
+import grails.plugin.cache.Cacheable
 import groovyx.net.http.HTTPBuilder
-//import grails.converters.JSON
-import grails.plugin.springcache.annotations.Cacheable
 
 class LoggerService {
 

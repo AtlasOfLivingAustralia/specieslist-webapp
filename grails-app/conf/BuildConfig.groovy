@@ -68,14 +68,17 @@ grails.project.dependency.resolution = {
     plugins {
         runtime ":hibernate:$grailsVersion"
         runtime ":jquery:1.7.1"
-        runtime ":resources:1.1.6"
-        runtime ":ala-web-theme:0.1.11"
+        runtime ":resources:1.2"
+        compile(":ala-web-theme:0.1.12") {
+            excludes "jquery","resources","servlet-api"
+        }
 //        runtime ":yui:2.8.2"
 //        runtime (":grails-ui:1.2.3"){
 //            //for unresolvable dependency yui:[2.6.0,)
 //            excludes "yui"
 //        }
-        compile ":springcache:1.3.1"
+        //compile ":springcache:1.3.1"
+        compile ':cache:1.0.1'
         compile ":jsonp:0.2"
 
         // Uncomment these (or add new ones) to enable additional resources capabilities
