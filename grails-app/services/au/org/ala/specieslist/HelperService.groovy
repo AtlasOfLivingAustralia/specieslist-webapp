@@ -249,6 +249,7 @@ class HelperService {
             if (json?.listName) {
                 sl.listName = json.listName // always update the list name
             }
+            // consider simply doing a `sl.properties = json` instead ?? Will blat any properties added via the SL webapp though
         } else {
             // create a new list
             sl.setDataResourceUid(druid)
