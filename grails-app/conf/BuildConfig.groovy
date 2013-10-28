@@ -10,6 +10,7 @@ grails.project.work.dir = "work"
 // Remove the conflicting groovy jar before bundling
 grails.war.resources = { stagingDir ->
     delete(file:"${stagingDir}/WEB-INF/lib/groovy-1.7.11.jar")
+    delete(file:"${stagingDir}/WEB-INF/lib/groovy-all-2.0.5.jar")
 }
 
 grails.project.dependency.resolution = {
