@@ -29,7 +29,7 @@ class AdminController {
                      techDescription: "This list was first uploaded by " + list.firstName
                              + " " +list.surname + " on the " + list.lastUpdated
                              + "." + "It contains " + list.itemsCount + " taxa.",
-                     resourceType : "uploads",
+                     resourceType : "species-list",
                      status : "dataAvailable",
                      contentTypes : '["species list"]'
                     ]
