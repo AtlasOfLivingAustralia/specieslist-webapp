@@ -134,9 +134,9 @@ class SpeciesListController {
                          pubDescription: formParams.description,
                          websiteUrl: grailsApplication.config.serverName + url,
                          techDescription: "This list was first uploaded by " + authService.username() + " on the " + (new Date()) + "." + "It contains " + itemCount + " taxa.",
-                         resourceType : "uploads",
+                         resourceType : "species-list",
                          status : "dataAvailable",
-                         contentTypes : '["Species list"]'
+                         contentTypes : '["species list"]'
                         ]
                 )
                 def map = [url:url]

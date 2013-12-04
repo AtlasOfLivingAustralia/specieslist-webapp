@@ -72,7 +72,7 @@ class HelperService {
 
         } else {
            //return a dummy URL
-          "http://collections.ala.org.au/tmp/drt" + System.currentTimeMillis()
+          grailsApplication.config.collectory.baseURL + "/tmp/drt" + System.currentTimeMillis()
         }
     }
 
@@ -93,7 +93,7 @@ class HelperService {
             }
         } else {
            //return a dummy URL
-          "http://collections.ala.org.au/tmp/drt" + System.currentTimeMillis()
+          grailsApplication.config.collectory.baseURL + "/tmp/drt" + System.currentTimeMillis()
         }
     }
 
@@ -110,7 +110,7 @@ class HelperService {
         if(druid){
             def destDir = new File(grailsApplication.config.bie.download + File.separator + druid + File.separator)
             destDir.mkdirs()
-            def destFile = new File( destDir,"species_list.csv")
+            def destFile = new File(destDir, "species_list.csv")
             uploadedFile.transferTo(destFile)
             destFile.absolutePath
         }
@@ -136,7 +136,7 @@ class HelperService {
         }
     }
 
-    def parseValues(String[] processedHeader,CSVReader reader, String sep)throws Exception{
+    def parseValues(String[] processedHeader, CSVReader reader, String sep)throws Exception{
         def sciIdx = indexOfName(processedHeader)
         if(sciIdx>=0){
             //now lets determine the possible values
@@ -306,7 +306,7 @@ class HelperService {
                 if(getSpeciesIndex(nextLine)>-1)
                     nextLine = reader.readNext()
             }
-            if(nextLine.length>0 && org.apache.commons.lang.StringUtils.isNotBlank(nextLine[speciesValueIdx])){
+            if(nextLine.length > 0 && org.apache.commons.lang.StringUtils.isNotBlank(nextLine[speciesValueIdx])){
                 count+=1;
                 sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap, count))
             }
@@ -411,7 +411,7 @@ class HelperService {
 
     def getNameSearcher(){
         if(!cbIdxSearcher)
-            cbIdxSearcher =new CBIndexSearch(grailsApplication.config.bie.nameIndexLocation)
+            cbIdxSearcher = new CBIndexSearch(grailsApplication.config.bie.nameIndexLocation)
         cbIdxSearcher
     }
 
