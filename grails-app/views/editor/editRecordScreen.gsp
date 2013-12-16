@@ -39,12 +39,15 @@
                 <td>&nbsp;</td>
             </tr>
             %{--<g:each in="${record.kvpValues}" var="field">--}%
-            <g:each in="${KVPKeys}" var="key">
+            <g:each in="${KVPKeys}" var="key" status="i">
                 <g:set var="hasVocab" value="${keyVocabs}"/>
                 <g:set var="fieldSet" value="${record.kvpValues.findAll { it.key == key } as List}"/>
                 <g:set var="field" value="${fieldSet[0]}"/>
                 <tr class='${field}'>
-                    <td class="dataField">${key}</td>
+                    <td class="dataField">
+                        ${key}
+                        <input type="hidden" name="itemOrder_${key}" value="${kvpOrder[i]?:0}"/>
+                    </td>
                     <td class='dataValue'>
                         <g:if test="${field?.value?.size() > 50}">
                             <textarea name="${key}" class="input-block-level" rows="2" ${(hasVocab)?"readonly='readonly'":""}>${field?.value}</textarea>

@@ -71,11 +71,13 @@ class EditorController {
             def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?", sl.dataResourceUid)
             def keyVocabs = [:]
             def kvpMap = [:]
+            def kvpOrder = []
             keys.each { key ->
                 def vocabValues = SpeciesListKVP.executeQuery("select distinct vocabValue from SpeciesListKVP where dataResourceUid=? and key=?", [sl.dataResourceUid, key])
                 log.debug "vocabValues = " + vocabValues + " size: " + vocabValues.size()
-                def kvp = SpeciesListKVP.findAllByDataResourceUidAndKey(sli.dataResourceUid, key)
-                log.debug key + ":kvp = " + kvp
+                def kvp = SpeciesListKVP.findByDataResourceUidAndKey(sli.dataResourceUid, key)
+                kvpOrder.add(kvp.itemOrder)
+                log.debug key + ":kvp = " + kvp + " -> itemOrder = ${kvp.itemOrder}"
                 if (vocabValues && vocabValues[0]) {
                     // ad blank value to vocabValues for drop-down list to have empty first option
                     vocabValues.add(0, "-- select --")
@@ -86,7 +88,7 @@ class EditorController {
 
             log.debug "list's keys = " + keys.join("|")
             log.debug "list's vocabs = " + keyVocabs
-            render(view: "editRecordScreen", model: [record: sli, KVPKeys: keys, keyVocabs: keyVocabs, kvpMap: kvpMap])
+            render(view: "editRecordScreen", model: [record: sli, KVPKeys: keys, kvpOrder: kvpOrder, keyVocabs: keyVocabs, kvpMap: kvpMap])
         }
     }
 
@@ -119,7 +121,12 @@ class EditorController {
                         if (!newKvp) {
                             // There is no existing KVP for the new value
                             log.debug "Couldn't find an existing KVP, so creating a new one..."
-                            newKvp = new SpeciesListKVP(dataResourceUid: sli.dataResourceUid, key: key, value: params[key], SpeciesListItem: sli )
+                            newKvp = new SpeciesListKVP(
+                                    dataResourceUid: sli.dataResourceUid,
+                                    key: key,
+                                    value: params[key],
+                                    itemOrder: kvp?.itemOrder?:0,
+                                    SpeciesListItem: sli ).save(failOnError: true, flush: true)
                         }
 
                         sli.addToKvpValues(newKvp)
@@ -131,11 +138,12 @@ class EditorController {
 
             // remove KVP items that have changed (need to do this separately to avoid java.util.ConcurrentModificationException)
             kvpRemoveList.each {
+                log.debug "Removing outdated kvp value: ${it}"
                 sli.removeFromKvpValues(it)
             }
 
             //check if rawScientificName has changed
-            if (params.rawScientificName != sli.rawScientificName) {
+            if (params.rawScientificName.trim() != sli.rawScientificName.trim()) {
                 log.debug "rawScientificName is different: " + params.rawScientificName + " VS " + sli.rawScientificName
                 sli.rawScientificName = params.rawScientificName
                 // lookup guid
@@ -181,11 +189,12 @@ class EditorController {
             keys.each { key ->
                 log.debug "key: " + key + " has value: " + params[key]
                 def value = params[key]
+                def itemOrder = params["itemOrder_${key}"]
                 if (value) {
                     def newKvp = SpeciesListKVP.findByDataResourceUidAndKeyAndValue(sl.dataResourceUid, key, value)
                     if (!newKvp) {
                         log.debug "Couldn't find an existing KVP, so creating a new one..."
-                        newKvp = new SpeciesListKVP(dataResourceUid: sli.dataResourceUid, key: key, value: params[key], SpeciesListItem: sli );
+                        newKvp = new SpeciesListKVP(dataResourceUid: sli.dataResourceUid, key: key, value: params[key], SpeciesListItem: sli, itemOrder: itemOrder );
                     }
 
                     sli.addToKvpValues(newKvp)
