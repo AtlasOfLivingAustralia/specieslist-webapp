@@ -36,7 +36,7 @@
         <div class="innerZ row-fluid">
             <div id="breadcrumb" class="span12">
                 <ol class="breadcrumb">
-                    %{--<li><a href="http://www.ala.org.au">Home</a> <span class=" icon icon-arrow-right"></span></li>--}%
+                    <li><a href="http://www.ala.org.au">Home</a> <span class=" icon icon-arrow-right"></span></li>
                     <li><a href="${request.contextPath}/public/speciesLists">Species lists</a> <span class=" icon icon-arrow-right"></span></li>
                     <li class="active">${request.getUserPrincipal()?.attributes?.firstname} ${request.getUserPrincipal()?.attributes?.lastname}&apos;s Species Lists</li>
                 </ol>

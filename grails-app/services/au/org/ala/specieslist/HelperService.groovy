@@ -35,6 +35,7 @@ class HelperService {
     def authService
 
     def sessionFactory
+
     def propertyInstanceMap = org.codehaus.groovy.grails.plugins.DomainClassGrailsPlugin.PROPERTY_INSTANCE_MAP
 
     def cbIdxSearcher = null
@@ -66,7 +67,7 @@ class HelperService {
                  return resp.headers['location'].getValue()
                }
             } catch(ex){
-                log.error("Unable to create a collectory entry for the species list.",ex)
+                log.error("Unable to create a collectory entry for the species list.", ex)
                 return null
             }
 
@@ -79,7 +80,6 @@ class HelperService {
     def updateDataResourceForList(drId, map) {
         if(grailsApplication.config.collectory.enableSync){
             def postUrl = grailsApplication.config.collectory.baseURL +"/ws/dataResource/" + drId
-
             def http = new HTTPBuilder(postUrl)
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
             def jsonBody = createJsonForNewDataResource(map)
@@ -99,6 +99,7 @@ class HelperService {
 
     def createJsonForNewDataResource(map){
         map.api_key = collectoryKey
+        map.resourceType = "species-list"
         map.user = 'Species list upload'
         map.firstName = authService.firstname()?:""
         map.lastName = authService.surname()?:""

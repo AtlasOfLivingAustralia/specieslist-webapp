@@ -431,6 +431,8 @@
                 <dt>${message(code: 'speciesList.editors.label', default: 'List editors')}</dt>
                 <dd>${speciesList.editors.collect{ sl.getFullNameForUserId(userId: it) }?.join(", ")}</dd>
             </g:if>
+            <dt>${message(code: 'speciesList.metadata.label', default: 'Metadata link')}</dt>
+            <dd><a href="${grailsApplication.config.collectory.baseURL}/public/show/${speciesList.dataResourceUid}">${grailsApplication.config.collectory.baseURL}/public/show/${speciesList.dataResourceUid}</a></dd>
         </dl>
         <g:if test="${userCanEditPermissions}">
             <div id="edit-meta-div" class="hide">

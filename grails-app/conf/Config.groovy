@@ -155,11 +155,12 @@ environments {
         grails.logging.jul.usebridge = true
         grails.serverURL = 'http://dev.ala.org.au:8080/' + appName
         collectory.baseURL ='http://testweb1.ala.org.au/collectory'
+//        collectory.baseURL = 'http://dev.ala.org.au:8080/collectory'
         serverName='http://dev.ala.org.au:8080'
         security.cas.appServerName = serverName
         security.cas.contextPath = "/${appName}"
         contextPath = "/specieslist-webapp"
-        collectory.enableSync = false
+        collectory.enableSync = true
     }
     production {
         grails.logging.jul.usebridge = false
