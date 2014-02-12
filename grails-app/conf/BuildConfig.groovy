@@ -66,7 +66,7 @@ grails.project.dependency.resolution = {
         runtime ":cache-headers:1.1.5"
         runtime ":rest:0.7"
 
-        compile(":ala-web-theme:0.1.12") {
+        compile(":ala-web-theme:0.2.3") {
             excludes "jquery","resources","cache","servlet-api"
         }
 

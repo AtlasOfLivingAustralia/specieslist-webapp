@@ -16,7 +16,7 @@ modules = {
         resource url:[dir:'js', file:'jquery.sortElemets.js', disposition: 'head']
         resource url:[dir:'js', file:'jquery.jsonp-2.3.1.min.js', disposition: 'head']
         resource url:[dir:'js', file:'trove.js', disposition: 'head']
-        resource url:'http://ajax.googleapis.com/jsapi', attrs:[type:'js'], disposition: 'head'
+        resource url:'https://ajax.googleapis.com/jsapi', attrs:[type:'js'], disposition: 'head'
         resource url:[dir:'js', file:'charts2.js', disposition: 'head']
         resource url:[dir:'js', file:'species.show.js', disposition: 'head']
         resource url:[dir:'js', file:'audio.min.js', disposition: 'head']

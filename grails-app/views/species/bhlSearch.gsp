@@ -70,7 +70,7 @@
                 return cancelSearch("No names were found to search BHL");
             }
 
-            var url = "http://bhlidx.ala.org.au/select?q=" + query + '&start=' + start + "&rows=" + rows +
+            var url = "//bhlidx.ala.org.au/select?q=" + query + '&start=' + start + "&rows=" + rows +
                     "&wt=json&fl=name%2CpageId%2CitemId%2Cscore&hl=on&hl.fl=text&hl.fragsize=200&" +
                     "group=true&group.field=itemId&group.limit=11&group.ngroups=true&taxa=false";
             var buf = "";
@@ -107,7 +107,7 @@
                     $.each(data.grouped.itemId.groups, function(idx, obj) {
                         buf += '<div class="result-box">';
                         buf += '<b>' + itemNumber++;
-                        buf += '.</b> <a target="item" href="http://biodiversitylibrary.org/item/' + obj.groupValue + '">' + obj.doclist.docs[0].name + '</a> ';
+                        buf += '.</b> <a target="item" href="//biodiversitylibrary.org/item/' + obj.groupValue + '">' + obj.doclist.docs[0].name + '</a> ';
                         var suffix = '';
                         if (obj.doclist.numFound > 1) {
                             suffix = 's';
@@ -116,8 +116,8 @@
 
                         $.each(obj.doclist.docs, function(idx, page) {
                             var highlightText = $('<div>'+highlights[page.pageId]+'</div>').htmlClean({allowedTags: ["em"]}).html();
-                            buf += '<div class="page-thumbnail"><a target="page image" href="http://biodiversitylibrary.org/page/' +
-                                    page.pageId + '"><img src="http://biodiversitylibrary.org/pagethumb/' + page.pageId +
+                            buf += '<div class="page-thumbnail"><a target="page image" href="//biodiversitylibrary.org/page/' +
+                                    page.pageId + '"><img src="//biodiversitylibrary.org/pagethumb/' + page.pageId +
                                     '" alt="Page Id ' + page.pageId + '"  width="60px" height="100px"/><div class="highlight-context">' +
                                     highlightText + '</div></a></div>';
                         })
