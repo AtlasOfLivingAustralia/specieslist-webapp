@@ -108,6 +108,11 @@ public class RestfulAppender extends AppenderSkeleton {
         	}
         	else if(event.getMessage() instanceof String){
         		message = (String)object;
+        		if(message.startsWith("Discarded")){        		    
+        		    //NQ:2014-02-13 - This is a special type of message that was sent from the AsynAppender to let us know that 
+        		    //some messages were discarded
+        		    return 0;
+        		}
         		//validate json string
         		vo = deserMapper.readValue(message, LogEventVO.class);        		
         	}
