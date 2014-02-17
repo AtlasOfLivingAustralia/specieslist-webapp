@@ -85,7 +85,7 @@ class SpeciesController {
             guid = bieService.findLsidByName(guid?.trim());
         }
 
-        def etc = bieService.getTaxonConcept(guid)
+        def etc = bieService.getTaxonConcept(guid?:params.guid) // if name lookup fails, try params.guid
 
         if (!etc) {
             log.error "Error requesting taxon concept object: " + params.guid
