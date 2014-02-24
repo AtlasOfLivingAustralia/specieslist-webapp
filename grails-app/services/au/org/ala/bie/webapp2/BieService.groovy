@@ -31,7 +31,7 @@ class BieService {
     def findLsidByName(name) {
         //def url = grailsApplication.config.bie.baseURL + "/ws/species/guids/"
         //def data = webService.doJsonPost(url, "bulklookup.json", "", ([name] as JSON).toString())
-        def url = grailsApplication.config.bie.baseURL + "/ws/guid/batch?q=" + URLEncoder.encode(name)
+        def url = grailsApplication.config.bie.baseURL + "/ws/guid/batch?q=" + name.encodeAsURL()
         def data = webService.getJson(url)
         log.debug "data => " + data
         def results = []
@@ -53,7 +53,7 @@ class BieService {
         if (bieNameGuidCache[name]) {
             return bieNameGuidCache[name]
         }
-        def resp = getJson(grailsApplication.config.bie.baseURL + "/ws/species/" + key + ".json")
+        def resp = getJson(grailsApplication.config.bie.baseURL + "/ws/species/" + key.encodeAsURL() + ".json")
         if (!resp || resp.error) {
             return [name: name, guid: guid]
         }
@@ -69,8 +69,8 @@ class BieService {
             return null
         }
 
-        log.debug "url = " + grailsApplication.config.bie.baseURL + "/ws/species/" + guid + ".json"
-        def json = webService.get(grailsApplication.config.bie.baseURL + "/ws/species/" + guid + ".json")
+        log.debug "url = " + grailsApplication.config.bie.baseURL + "/ws/species/" + guid.encodeAsURL() + ".json"
+        def json = webService.get(grailsApplication.config.bie.baseURL + "/ws/species/" + guid.encodeAsURL() + ".json")
         //log.debug "ETC json: " + json
         ObjectMapper mapper = new ObjectMapper()
         mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -94,7 +94,7 @@ class BieService {
             return null
         }
         try{
-            def json = webService.get(grailsApplication.config.speciesList.baseURL +"/ws/species/"+guid,true)
+            def json = webService.get(grailsApplication.config.speciesList.baseURL + "/ws/species/" + guid.encodeAsURL(), true)
             return JSON.parse(json)
         }
         catch(Exception e){
@@ -109,8 +109,8 @@ class BieService {
             return null
         }
 
-        log.debug "url = " + grailsApplication.config.bie.baseURL + "/ws/species/" + guid + ".json"
-        def json = webService.get(grailsApplication.config.bie.baseURL + "/ws/species/" + guid + ".json")
+        log.debug "url = " + grailsApplication.config.bie.baseURL + "/ws/species/" + guid.encodeAsURL() + ".json"
+        def json = webService.get(grailsApplication.config.bie.baseURL + "/ws/species/" + guid.encodeAsURL() + ".json")
         //log.debug "ETC json: " + json
         try{
             JSON.parse(json)
@@ -126,7 +126,7 @@ class BieService {
         if (tc?.taxonConcept?.rankID && tc?.taxonConcept?.rankID < 7000 /*&& tc?.taxonConcept?.rankID % 1000 == 0*/) {
             // only lookup for higher taxa of major ranks
             // /ws/higherTaxa/images
-            images = webService.getJson(grailsApplication.config.bie.baseURL + "/ws/higherTaxa/images.json?scientificName=" + tc?.taxonConcept?.nameString + "&taxonRank=" + tc?.taxonConcept?.rankString)
+            images = webService.getJson(grailsApplication.config.bie.baseURL + "/ws/higherTaxa/images.json?scientificName=" + tc?.taxonConcept?.nameString?.encodeAsURL + "&taxonRank=" + tc?.taxonConcept?.rankString?.encodeAsURL)
         }
 
         if (images.hasProperty("error")) {
@@ -138,9 +138,9 @@ class BieService {
     }
 
     def getClassificationForGuid(guid) {
-        String url = grailsApplication.config.bie?.baseURL + "/ws/classification/" + guid
+        String url = grailsApplication.config.bie?.baseURL + "/ws/classification/" + guid.encodeAsURL()
         def json = webService.getJson(url)
-        log.debug "json type = " + json.class
+        log.debug "json type = " + json
         if (json instanceof JSONObject && json.has("error")) {
             log.warn "classification request error: " + json.error
             return [:]
@@ -151,7 +151,7 @@ class BieService {
     }
 
     def getChildConceptsForGuid(guid) {
-        String url = grailsApplication.config.bie?.baseURL + "/ws/childConcepts/" + guid
+        String url = grailsApplication.config.bie?.baseURL + "/ws/childConcepts/" + guid.encodeAsURL()
         def json = webService.getJson(url).sort() { it.rankId?:0 }
 
         if (json instanceof JSONObject && json.has("error")) {
@@ -164,7 +164,7 @@ class BieService {
     }
 
     def getPreferredImage(name) {
-        def resp = getJson(grailsApplication.config.bie.baseUrl + "/ws/species/${name}.json")
+        def resp = getJson(grailsApplication.config.bie.baseUrl + "/ws/species/${name.encodeAsURL()}.json")
         return extractPreferredImage(resp.images)
     }
 
@@ -208,7 +208,7 @@ class BieService {
      */
     def getIsAustralian(guid) {
         Boolean isAustralian = null
-        def ausTaxon = webService.getJson(grailsApplication.config.biocache.baseURL + "/ws/australian/taxon/" + guid)
+        def ausTaxon = webService.getJson(grailsApplication.config.biocache.baseURL + "/ws/australian/taxon/" + guid.encodeAsURL())
 
         if (ausTaxon instanceof JSONObject && ausTaxon.containsKey("isAustralian")) {
             isAustralian = ausTaxon.get("isAustralian")
