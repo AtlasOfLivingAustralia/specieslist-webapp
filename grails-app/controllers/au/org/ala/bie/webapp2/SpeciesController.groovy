@@ -95,14 +95,14 @@ class SpeciesController {
                     infoSourceMap: utilityService.getInfoSourcesForTc(etc), // fallback for bieService.getInfoSourcesForGuid(guid)
                     extraImages: bieService.getExtraImages(etc),
                     textProperties: utilityService.filterSimpleProperties(etc),
-                    isAustralian: bieService.getIsAustralian(guid),
+                    isAustralian: bieService.getIsAustralian(etc.taxonConcept?.guid?:guid),
                     isRoleAdmin: authService.userInRole(grailsApplication.config.auth.admin_role),
                     userName: authService.email,
                     isReadOnly: grailsApplication.config.ranking.readonly, // TODO: implement this properly based on BIE version
                     sortCommonNameSources: utilityService.getNamesAsSortedMap(etc.commonNames),
                     taxonHierarchy: bieService.getClassificationForGuid(guid),
                     childConcepts: bieService.getChildConceptsForGuid(guid),
-                    speciesList: bieService.getSpeciesList(guid)
+                    speciesList: bieService.getSpeciesList(etc.taxonConcept?.guid?:guid)
                 ]
             )
         }
