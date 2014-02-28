@@ -15,6 +15,8 @@
 
 package au.org.ala.bie.webapp2
 
+import org.apache.commons.httpclient.util.URIUtil
+
 /**
  * DTO to pass search request params between classes
  * 
@@ -39,7 +41,7 @@ class SearchRequestParamsDTO {
 
     def getQueryString() {
         def queryStr = new StringBuilder()
-        queryStr.append("q=" + q.encodeAsURL())
+        queryStr.append("q=" + URIUtil.encodeWithinQuery(q)) //q.encodeAsURL())
         def fqIsList = fq.getClass().metaClass.getMetaMethod("join", String)
         if (fq && fqIsList) {
             def newFq = fq.collect { it.replaceAll(/\s+/, "+") }
