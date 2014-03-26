@@ -2,13 +2,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>au.org.ala</groupId>
     <artifactId>ala-common-ui</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <name>ALA Common UI</name>
     <description>ALA Common UI components</description>
 
 <!-- AN SCM entry that points to the SVN directory that contains the pom file for the project  -->
     <scm>
-        <developerConnection>scm:svn:https://ala-bie.googlecode.com/svn/trunk/ala-common-ui/</developerConnection>
+        <developerConnection>scm:svn:https://ala-bie.googlecode.com/svn/tags/ala-common-ui-1.0</developerConnection>
     </scm>
 
     <dependencies>
