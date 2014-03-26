@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	
 	<groupId>au.org.ala</groupId>
 	<artifactId>ala-cas-client</artifactId>
 	<!-- NC 2013-08-09: Second version that is configurable via a cas.properties file -->
-	<version>2.0-SNAPSHOT</version>
+	<version>2.0</version>
 	<packaging>jar</packaging>
 	
 	<name>ala-cas-client</name>
@@ -14,7 +13,7 @@
 
     <!--NQ: 2014-03-26 Set up the SCM details needed to manage a release point to the SCN directory that contains the POM -->
     <scm>
-        <developerConnection>scm:svn:https://ala-bie.googlecode.com/svn/trunk/ala-cas-client/</developerConnection>
+        <developerConnection>scm:svn:https://ala-bie.googlecode.com/svn/tags/ala-cas-client-2.0</developerConnection>
     </scm>
 
 	<properties>
