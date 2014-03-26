@@ -10,7 +10,13 @@
 	
 	<name>ala-cas-client</name>
 	<url>http://maven.apache.org</url>
-	
+
+
+    <!--NQ: 2014-03-26 Set up the SCM details needed to manage a release point to the SCN directory that contains the POM -->
+    <scm>
+        <developerConnection>scm:svn:https://ala-bie.googlecode.com/svn/trunk/ala-cas-client/</developerConnection>
+    </scm>
+
 	<properties>
 	  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -84,6 +90,11 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+        			<artifactId>maven-release-plugin</artifactId>
+        			<version>2.5</version>
+      			</plugin>
 		</plugins>
 	</build>
 </project>
