@@ -20,7 +20,10 @@
 		<name>ALA</name>
 		<url>http://www.ala.org</url>
 	</organization>
-		
+    <!-- AN SCM entry that points to the SVN directory that contains the pom file for the project  -->
+    <scm>
+        <developerConnection>scm:svn:https://ala-bie.googlecode.com/svn/trunk/ala-logger/</developerConnection>
+    </scm>		
     <dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -68,6 +71,11 @@
 	            </configuration>
 	        </plugin>
 	    </plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-release-plugin</artifactId>
+              	<version>2.5</version>
+            </plugin>
 	</build>
 
     <distributionManagement>
