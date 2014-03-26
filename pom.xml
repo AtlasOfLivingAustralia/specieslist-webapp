@@ -3,12 +3,12 @@
     <groupId>au.org.ala</groupId>
     <artifactId>ala-header-and-tails</artifactId>
     <!--  NC 20130813 - incremented version to support a properties file in addition to the XML. -->
-    <version>2.0-SNAPSHOT</version>
+    <version>2.0</version>
     <name>ALA Header and Tails</name>
     <description>ALA Header and Tails</description>
     <!-- AN SCM entry that points to the SVN directory that contains the pom file for the project  -->
     <scm>
-        <developerConnection>scm:svn:https://ala-bie.googlecode.com/svn/trunk/ala-header-and-tails/</developerConnection>
+        <developerConnection>scm:svn:https://ala-bie.googlecode.com/svn/tags/ala-header-and-tails-2.0</developerConnection>
     </scm>
     <dependencies>
         <!-- Sun's JSP API-->
