@@ -8,7 +8,7 @@
 
 <!-- AN SCM entry that points to the SVN directory that contains the pom file for the project  -->
     <scm>
-        <developerConnection>scm:svn:https://ala-portal.googlecode.com/svn/trunk/biocache-store/</developerConnection>
+        <developerConnection>scm:svn:https://ala-bie.googlecode.com/svn/trunk/ala-common-ui/</developerConnection>
     </scm>
 
     <dependencies>
