@@ -6,7 +6,10 @@
     <version>2.0-SNAPSHOT</version>
     <name>ALA Header and Tails</name>
     <description>ALA Header and Tails</description>
-
+    <!-- AN SCM entry that points to the SVN directory that contains the pom file for the project  -->
+    <scm>
+        <developerConnection>scm:svn:https://ala-bie.googlecode.com/svn/trunk/ala-header-and-tails/</developerConnection>
+    </scm>
     <dependencies>
         <!-- Sun's JSP API-->
         <dependency>
@@ -79,6 +82,11 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+            	<groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-release-plugin</artifactId>
+                <version>2.5</version>
             </plugin>
         </plugins>
     </build>
