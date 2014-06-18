@@ -1,7 +1,7 @@
 /******************************************************************************\
  *  CONFIG MANAGEMENT
  \******************************************************************************/
-def appName = 'specieslist-webapp'
+def appName = grails.util.Metadata.current.'app.name'
 def ENV_NAME = "${appName.toUpperCase()}_CONFIG"
 def default_config = "/data/${appName}/config/${appName}-config.properties"
 if(!grails.config.locations || !(grails.config.locations instanceof List)) {
@@ -160,7 +160,7 @@ environments {
         security.cas.appServerName = serverName
         security.cas.contextPath = "/${appName}"
         contextPath = "/specieslist-webapp"
-        collectory.enableSync = true
+        collectory.enableSync = false
     }
     production {
         grails.logging.jul.usebridge = false
@@ -174,6 +174,7 @@ environments {
     }
 }
 
+logging.dir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs'  : '/var/log/tomcat6')
 // log4j configuration
 log4j = {
     // Example of changing the log pattern for the default console
@@ -181,7 +182,7 @@ log4j = {
     appenders {
         environments {
             production {
-                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: "/var/log/tomcat6/specieslist.log", threshold: org.apache.log4j.Level.ERROR, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
+                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: logging.dir + "/specieslist.log", threshold: org.apache.log4j.Level.ERROR, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
                 'null' name: "stacktrace"
             }
             development {
@@ -229,10 +230,10 @@ log4j = {
             'au.org.ala.cas.client',
             'grails.spring.BeanBuilder',
             'grails.plugin.webxml'
-    debug  'grails.app.domain.ala.postie',
-            'grails.app.controller.ala.postie',
-            'grails.app.service.ala.postie',
-            'grails.app.tagLib.ala.postie',
+    debug  'grails.app.domain',
+            'grails.app.controller',
+            'grails.app.service',
+            'grails.app.tagLib',
             'au.org.ala'
 }
 

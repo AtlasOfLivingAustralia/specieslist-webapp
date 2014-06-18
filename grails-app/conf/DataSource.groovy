@@ -27,22 +27,6 @@ environments {
         }
     }
     production {
-        dataSource {
-            dbCreate = "update"
-            url = "jdbc:mysql://ala-biedb1.vm.csiro.au/specieslist?autoReconnect=true&connectTimeout=0"
-            // username & password set in ext config
-            logSql = false
-            pooled = true
-            properties {
-               maxActive = -1
-               minEvictableIdleTimeMillis=1800000
-               timeBetweenEvictionRunsMillis=1800000
-               numTestsPerEvictionRun=3
-               testOnBorrow=true
-               testWhileIdle=true
-               testOnReturn=true
-               validationQuery="SELECT 1"
-            }
-        }
+        // must be set via external config
     }
 }
