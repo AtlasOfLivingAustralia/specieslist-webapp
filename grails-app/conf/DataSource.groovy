@@ -1,8 +1,8 @@
 dataSource {
     pooled = true
     driverClassName = "com.mysql.jdbc.Driver"
-    username = "root"
-    password = "password"
+    username = ""
+    password = ""
 }
 hibernate {
     cache.use_second_level_cache = true
@@ -17,8 +17,6 @@ environments {
             dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
             url = "jdbc:mysql://localhost/specieslist?autoReconnect=true&connectTimeout=0"
             driverClassName = "com.mysql.jdbc.Driver"
-            username = "root"
-            password = "password"
             logSql = false
         }
     }
@@ -32,8 +30,7 @@ environments {
         dataSource {
             dbCreate = "update"
             url = "jdbc:mysql://ala-biedb1.vm.csiro.au/specieslist?autoReconnect=true&connectTimeout=0"
-            username="specieslist"
-            password="RHitoHYAbfmJBCT0zywo143tH"
+            // username & password set in ext config
             logSql = false
             pooled = true
             properties {
