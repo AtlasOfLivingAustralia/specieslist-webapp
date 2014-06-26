@@ -69,7 +69,7 @@ grails.project.dependency.resolution = {
         runtime ":jquery:1.7.1"
         runtime ":resources:1.2"
 
-        compile(":ala-web-theme:[0.1,]") {
+        compile(":ala-web-theme:[0.6,]") {
             excludes "jquery","resources","cache","servlet-api"
         }
 //        runtime ":yui:2.8.2"
