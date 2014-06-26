@@ -4,7 +4,7 @@
 
 grails.project.groupId = "au.org.ala"
 
-def appName = grails.util.Metadata.current.'app.name'
+//def appName = grails.util.Metadata.current.'app.name'
 def ENV_NAME = "${appName.toUpperCase()}_CONFIG"
 default_config = "/data/${appName}/config/${appName}-config.properties"
 if(!grails.config.locations || !(grails.config.locations instanceof List)) {
@@ -99,8 +99,6 @@ if (!bie.nameIndexLocation) {
 
 /******* End of ALA standard config ************/
 /*** Config specific for species list ***/
-grails.project.groupId = au.org.ala // change this to alter the default package name and Maven publishing destination
-appContext = grails.util.Metadata.current.'app.name'
 
  //the number of species to limit downloads to
 /*** End config specific for species list ***/
@@ -134,7 +132,7 @@ grails.views.gsp.sitemesh.preprocess = true
 grails.scaffolding.templates.domainSuffix = 'Instance'
 
 // Set to false to use the new Grails 1.2 JSONBuilder in the render method
-grails.json.legacy.builder = true
+grails.json.legacy.builder = false
 // enabled native2ascii conversion of i18n properties files
 grails.enable.native2ascii = true
 // packages to include in Spring bean scanning
