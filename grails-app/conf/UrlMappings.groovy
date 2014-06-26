@@ -33,6 +33,8 @@ class UrlMappings {
 
         "/ws"(view:'/webService/ws')
 
+        "/ws/checkEmailExists" (controller: 'webService' , action: 'checkEmailExists')
+
 //        "/"(view:"/index")
 
 		"/"(controller: 'public' ,action:  'index')

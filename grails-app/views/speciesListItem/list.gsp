@@ -1,4 +1,4 @@
-<%@ page import="au.org.ala.specieslist.AuthService" %>
+
 %{--
   - Copyright (C) 2012 Atlas of Living Australia
   - All Rights Reserved.

@@ -19,14 +19,16 @@ class BieService {
         log.debug(jsonBody)
         try{
             def jsonResponse =  http.post(body: jsonBody, requestContentType:groovyx.net.http.ContentType.JSON)
-            log.debug(jsonResponse)
-            jsonResponse.getJSONArray("searchDTOList").toArray().each{
-                def guid = it.guid
-                def image = it.smallImageUrl
-                def commonName = it.commonNameSingle
-                def scientificName = it.name
-                def author = it.author
-                map.put(guid, [image,commonName, scientificName,author])
+            log.debug "jsonResponse = ${jsonResponse}"
+            jsonResponse.get("searchDTOList").toArray().each{
+                if (it && it.guid) {
+                    def guid = it.guid
+                    def image = it.smallImageUrl
+                    def commonName = it.commonNameSingle
+                    def scientificName = it.name
+                    def author = it.author
+                    map.put(guid, [image,commonName, scientificName,author])
+                }
             }
             log.debug(map)
             map

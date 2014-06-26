@@ -20,7 +20,7 @@ in turn, allows those <strong>editors</strong> to edit and delete entries in thi
 <div>&nbsp;</div>
 <form class="form-inline" id="userEditForm">
     <label class="control-label" for="search">User's email address </label>
-    <input id="search" type="text" class="input-xlarge" data-provide="typeahead" placeholder="Start typing a user's name or email address..." autocomplete="off">
+    <input id="search" type="text" class="input-xlarge" data-provide="typeahead" placeholder="Enter user's email address" autocomplete="off">
     <button type="submit" class="btn">Add</button>
 </form>
 <table id="userTable" class="table table-bordered" style="margin-top: 10px;">
@@ -46,14 +46,6 @@ in turn, allows those <strong>editors</strong> to edit and delete entries in thi
     </tbody>
 </table>
 <script type="text/javascript">
-    // user id map and list
-    <g:set var="lastEl" value="${mapOfUserNamesById.keySet().size() - 1}"/>
-    var mapOfUserNamesById = {
-        <g:each in="${mapOfUserNamesById.keySet()}" var="userId" status="i">"${userId.trim()}": "${mapOfUserNamesById[userId]}"<g:if test="${i < lastEl}">,</g:if></g:each>
-    };
-    var ListOfUserNames = [
-        <g:each in="${mapOfUserNamesById.keySet()}" var="userId" status="j">"${mapOfUserNamesById[userId]} -- ${userId.trim()}"<g:if test="${j < lastEl}">,</g:if></g:each>
-    ];
 
     /**
     * Delete a row from the table
@@ -63,31 +55,26 @@ in turn, allows those <strong>editors</strong> to edit and delete entries in thi
     }
 
     $(document).ready(function() {
-        /**
-        * Autocomplete for user id
-        */
-        $("#search").typeahead({
-            source: ListOfUserNames,
-            minLength: 2,
-            updater: function(item) {
-                //console.log("email", item.split(" -- ")[1]);
-                return item.split(" -- ")[1];
-            }
-        });
 
         /**
          * Add button for user id input - adds ID to the table
          */
         $("#userEditForm").submit(function() {
             var userId = $("#search").val().trim();
-            if (mapOfUserNamesById[userId]) {
-                //insert row into table
-                $("#userTable tbody").append("<tr class='editor'><td>"+mapOfUserNamesById[userId]+"</td><td class='userId'>"+userId+"</td><td>editor</td><td>${removeLink}</td></tr>");
-                $("#search").val("");
-            } else {
-                alert("The user id " + userId + " was not found");
-            }
-
+            var url = "${g.createLink(controller:'webService', action:'checkEmailExists')}?email=" + userId;
+            $.getJSON(url, function(data) {
+                if (data && data.userId) {
+                    console.log('data', data);
+                    $("#userTable tbody").append("<tr class='editor'><td>"+ data.displayName +"</td><td class='userId'>"+data.userName+"</td><td>editor</td><td>${removeLink}</td></tr>");
+                    $("#search").val("");
+                } else {
+                    alert("The user id " + userId + " was not found");
+                }
+            }).fail(function(jqxhr, textStatus, error) {
+                alert('Error checking email address: ' + textStatus + ', ' + error);
+            }).always(function() {
+                //$('#gallerySpinner').hide();
+            });
             return false;
         });
 

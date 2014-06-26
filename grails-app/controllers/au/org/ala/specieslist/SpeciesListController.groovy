@@ -30,6 +30,8 @@ class SpeciesListController {
 
     def noOfRowsToDisplay = 5
 
+    static allowedMethods = [uploadList:'POST']
+
     def index() { redirect(action: 'upload')}
 
     def upload(){ /*maps to the upload.gsp */
@@ -37,7 +39,7 @@ class SpeciesListController {
         if(params.id){
             //get the list if it exists and ensure that the user is an admin or the owner
             def list = SpeciesList.findByDataResourceUid(params.id)
-            if(list?.username == authService.email() || authService.userInRole("ROLE_ADMIN")){
+            if(list?.username == authService.getEmail() || authService.userInRole("ROLE_ADMIN")){
                 render(view: "upload", model: [resourceUid:params.id, list:  list, listTypes:ListType.values()])
             } else {
                 flash.message = "${message(code: 'error.message.reloadListPermission', args: [params.id])}"
@@ -133,7 +135,7 @@ class SpeciesListController {
                         [
                          pubDescription: formParams.description,
                          websiteUrl: grailsApplication.config.serverName + url,
-                         techDescription: "This list was first uploaded by " + authService.username() + " on the " + (new Date()) + "." + "It contains " + itemCount + " taxa.",
+                         techDescription: "This list was first uploaded by " + authService.userDetails()?.userDisplayName + " on the " + (new Date()) + "." + "It contains " + itemCount + " taxa.",
                          resourceType : "species-list",
                          status : "dataAvailable",
                          contentTypes : '["species list"]'
@@ -196,7 +198,7 @@ class SpeciesListController {
 
     def list(){
         //list should be based on the user that is logged in so add the filter condition
-        def username = authService.email()
+        def username = authService.getEmail()
         if (username){
             params['username'] = "eq:"+username
         }
@@ -219,7 +221,7 @@ class SpeciesListController {
 
     def test(){
         log.debug(helperService.addDataResourceForList("My test List"))
-        log.debug(authService.email())
+        log.debug(authService.getEmail())
         //bieService.bulkLookupSpecies(["urn:lsid:biodiversity.org.au:afd.taxon:31a9b8b8-4e8f-4343-a15f-2ed24e0bf1ae"])
         log.debug(loggerService.getReasons())
     }

@@ -12,21 +12,23 @@ grails.war.resources = { stagingDir ->
     delete(file:"${stagingDir}/WEB-INF/lib/groovy-1.7.11.jar")
     delete(file:"${stagingDir}/WEB-INF/lib/groovy-all-2.0.5.jar")
 }
-
+grails.project.dependency.resolver = "maven" // or ivy
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
-        // uncomment to disable ehcache
+        // specify dependency exclusions here; for example, uncomment this to disable ehcache:
         // excludes 'ehcache'
     }
-    log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
-    checksums false // Whether to verify checksums on resolve
+    log "error" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+    checksums true // Whether to verify checksums on resolve
+    legacyResolve false // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
 
     repositories {
         inherits true // Whether to inherit repository definitions from plugins
         grailsHome()
         mavenLocal()
         mavenRepo "http://maven.ala.org.au/repository/"
+        mavenRepo "http://maven.tmatesoft.com/content/repositories/releases/"
         mavenRepo "http://repository.gbif.org/content/repositories/gbif/"
         mavenRepo "http://repository.codehaus.org"
         mavenCentral()
@@ -43,22 +45,18 @@ grails.project.dependency.resolution = {
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-        compile group:'au.org.ala',
-                name:'ala-name-matching',
-                version:'1.2-SNAPSHOT',
-                transitive:true
+        compile("au.org.ala:ala-name-matching:1.2-SNAPSHOT") {
+            transitive: true
+            //excludes "lucene-core, lucene-analyzers-common, lucene-queryparser"
+        }
 
-        compile group: 'org.codehaus.groovy.modules.http-builder',
-                name: 'http-builder',
-                version: '0.5.2'
+        //compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.2'
 
 //        compile group:'org.gbif',
 //                name:'ecat-common',
 //                version:'1.5.1-SNAPSHOT'
 //
-        compile group:'org.gbif',
-                name:'gbif-common',
-                version:'0.7'
+        compile 'org.gbif:gbif-common:0.7'
 
         // runtime 'mysql:mysql-connector-java:5.1.16'
         //build 'au.org.ala:ala-cas-client:1.0-SNAPSHOT'
@@ -67,11 +65,12 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        runtime ":hibernate:$grailsVersion"
+        runtime ":hibernate:3.6.10.15"
         runtime ":jquery:1.7.1"
         runtime ":resources:1.2"
-        compile(":ala-web-theme:0.1.12") {
-            excludes "jquery","resources","servlet-api"
+
+        compile(":ala-web-theme:[0.1,]") {
+            excludes "jquery","resources","cache","servlet-api"
         }
 //        runtime ":yui:2.8.2"
 //        runtime (":grails-ui:1.2.3"){
@@ -81,12 +80,13 @@ grails.project.dependency.resolution = {
         //compile ":springcache:1.3.1"
         compile ':cache:1.0.1'
         compile ":jsonp:0.2"
+        compile ":rest:0.8"
 
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0"
         //runtime ":cached-resources:1.0"
         //runtime ":yui-minify-resources:0.1.4"
 
-        build ":tomcat:$grailsVersion"
+        build ":tomcat:7.0.53"
     }
 }

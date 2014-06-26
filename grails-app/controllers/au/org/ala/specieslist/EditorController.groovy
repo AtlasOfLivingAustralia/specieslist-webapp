@@ -3,7 +3,7 @@ package au.org.ala.specieslist
 import java.text.SimpleDateFormat
 
 class EditorController {
-    def authService
+    def localAuthService
     def helperService
 
     /**
@@ -11,7 +11,7 @@ class EditorController {
      */
     def editPermissions() {
         def speciesList = SpeciesList.findByDataResourceUid(params.id)
-        log.debug "logged in user: " + authService.email()
+        log.debug "logged in user: " + localAuthService.email()
         if (!speciesList) {
             def message = "${message(code: 'default.not.found.message', args: [message(code: 'speciesList.label', default: 'Species List'), params.id])}"
             //redirect(controller: "public", action: "speciesLists")
@@ -23,7 +23,7 @@ class EditorController {
         } else {
             if (params.message)
                 flash.message = params.message
-            render(view: "permissions", model: [speciesList: speciesList, mapOfUserNamesById: authService.getMapOFAllUserNamesById()])
+            render(view: "permissions", model: [speciesList: speciesList, mapOfUserNamesById: localAuthService.getMapOFAllUserNamesById()])
         }
     }
 
@@ -259,14 +259,10 @@ class EditorController {
         def speciesList = SpeciesList.findByDataResourceUid(params.id)
         if (!speciesList) {
             render(text: "Requested list with ID " + params.id + " was not found", status: 404);
-        } else if (!authService.isAdmin() && speciesList.username != authService.email()) {
+        } else if (!localAuthService.isAdmin() && speciesList.username != localAuthService.getEmail()) {
             render(text: "You are not authorised to modify permissions", status: 403 )
         } else {
-            def editorsList = []
-            editorsList.addAll(params.'editors[]')
-            log.debug "params.editors[] = " + params.'editors[]'
-            log.debug "editorsList = " + editorsList
-            speciesList.editors = editorsList
+            speciesList.editors = params.list('editors[]')
             log.debug("editors = " + speciesList.editors);
             if (!speciesList.save(flush: true)) {
                 def errors = []
@@ -286,7 +282,7 @@ class EditorController {
         def speciesList = SpeciesList.get(params.id)
         if (!speciesList) {
             render(text: "Requested list with ID " + params.id + " was not found", status: 404);
-        } else if (!authService.isAdmin() && speciesList.username != authService.email()) {
+        } else if (!localAuthService.isAdmin() && speciesList.username != localAuthService.getEmail()) {
             render(text: "You are not authorised to modify this list", status: 403 )
         } else {
             // fix date format
@@ -313,7 +309,7 @@ class EditorController {
      */
     private isCurrentUserEditorForList(SpeciesList sl) {
         def isAllowed = false
-        def loggedInUser = authService.email()
+        def loggedInUser = localAuthService.email()
         log.debug "Checking isCurrentUserEditorForList: loggedInUser = " + loggedInUser
         if (!sl) {
             log.debug "speciesList is null"
@@ -321,7 +317,7 @@ class EditorController {
         } else if (sl.username == loggedInUser) {
             log.debug "user is owner"
             isAllowed = true
-        } else if (authService.isAdmin()) {
+        } else if (localAuthService.isAdmin()) {
             log.debug "user is ADMIN"
             isAllowed = true
         } else if (sl.editors.any { it == loggedInUser}) {

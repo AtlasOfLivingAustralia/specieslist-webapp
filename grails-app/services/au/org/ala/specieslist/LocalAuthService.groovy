@@ -6,7 +6,7 @@ import org.springframework.web.context.request.RequestContextHolder
 import groovyx.net.http.HTTPBuilder
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
-class AuthService {
+class LocalAuthService {
 
     private Map<String,String> userNamesById
     private Map<String,String> userNamesByNumericIds
@@ -77,9 +77,9 @@ class AuthService {
     public String getDisplayNameFor(String value){
         String displayName = value;
         if(value != null){
-            if(grailsApplication.mainContext.authService.getMapOFAllUserNamesById()?.containsKey(value)) {
+            if(grailsApplication.mainContext.localAuthService.getMapOFAllUserNamesById()?.containsKey(value)) {
                 displayName = userNamesById.get(value);
-            } else if(grailsApplication.mainContext.authService.getMapOfAllUserNamesByNumericId().containsKey(value)) {
+            } else if(grailsApplication.mainContext.localAuthService.getMapOfAllUserNamesByNumericId().containsKey(value)) {
                 displayName=userNamesByNumericIds.get(value);
             }
             else if(displayName.contains("@")) {

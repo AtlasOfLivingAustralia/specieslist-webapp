@@ -16,7 +16,6 @@ package au.org.ala.specieslist
 
 import grails.converters.*
 import grails.web.JSONBuilder
-import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
 
 /**
  * Provides all the webservices to be used from other sources eg the BIE
@@ -281,4 +280,19 @@ class WebServiceController {
         return '"'+value.replaceAll('"','~"')+'"'
     }
 
+    /**
+     * Check if an email address exists in AUTH and return the userId (number) if true,
+     * otherwise return an empty String
+     *
+     * @return userId
+     */
+    def checkEmailExists() {
+        String email = params.email
+
+        if (email) {
+            render authService.getUserForEmailAddress(email) as JSON
+        } else {
+            render status:400, text: 'Required param not provided: email'
+        }
+    }
 }

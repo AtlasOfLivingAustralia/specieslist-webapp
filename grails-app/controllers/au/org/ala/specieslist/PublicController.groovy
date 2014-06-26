@@ -11,7 +11,7 @@ class PublicController {
     def index() {
         //redirect to the correct type of list based on whether or not the use is logged in
         try{
-            def username = authService.email()
+            def username = authService.email
             log.debug("username: " + username)
             if(username && SpeciesList.countByUsername(username)>0)
                 redirect(controller: 'speciesList',action: 'upload')

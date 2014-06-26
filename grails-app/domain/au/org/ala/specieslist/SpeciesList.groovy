@@ -7,6 +7,7 @@ class SpeciesList {
     String firstName
     String surname
     String username
+    //String userId
     String dataResourceUid
     String description
     String url
@@ -58,6 +59,7 @@ class SpeciesList {
     }
 
     def String getFullName(){
-        authService.getDisplayNameFor(username)
+        def user = authService.getUserForUserId(username)
+        user?.displayName
     }
 }

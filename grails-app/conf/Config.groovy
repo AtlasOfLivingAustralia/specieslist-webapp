@@ -3,7 +3,7 @@
  \******************************************************************************/
 def appName = grails.util.Metadata.current.'app.name'
 def ENV_NAME = "${appName.toUpperCase()}_CONFIG"
-def default_config = "/data/${appName}/config/${appName}-config.properties"
+default_config = "/data/${appName}/config/${appName}-config.properties"
 if(!grails.config.locations || !(grails.config.locations instanceof List)) {
     grails.config.locations = []
 }
@@ -24,6 +24,9 @@ if(System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
 println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
 
 /******* ALA standard config ************/
+if(!runWithNoExternalConfig){
+    //runWithNoExternalConfig = true
+}
 if(!serverName){
     serverName = 'http://lists.ala.org.au'
 }
@@ -144,7 +147,7 @@ grails.exceptionresolver.params.exclude = ['password']
 // enable query caching by default
 grails.hibernate.cache.queries = true
 
-//authService properties
+//localAuthService properties
 auth.userDetailsUrl='http://auth.ala.org.au/userdetails/userDetails/'
 auth.userNamesForIdPath='getUserList'
 auth.userNamesForNumericIdPath='getUserListWithIds'
@@ -230,7 +233,7 @@ log4j = {
             'au.org.ala.cas.client',
             'grails.spring.BeanBuilder',
             'grails.plugin.webxml'
-    debug  'grails.app.domain',
+    debug   'grails.app.domain',
             'grails.app.controller',
             'grails.app.service',
             'grails.app.tagLib',

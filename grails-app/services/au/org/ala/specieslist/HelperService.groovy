@@ -17,12 +17,11 @@ package au.org.ala.specieslist
 
 import au.com.bytecode.opencsv.CSVReader
 import au.org.ala.checklist.lucene.model.NameSearchResult
-import au.org.ala.specieslist.SpeciesListItem
 import au.org.ala.checklist.lucene.CBIndexSearch
 import groovy.json.JsonOutput
 import groovyx.net.http.HTTPBuilder
 import static groovyx.net.http.ContentType.JSON
-import grails.web.JSONBuilder
+
 import au.org.ala.data.model.LinnaeanRankClassification
 /**
  * Provides all the services for the species list webapp.  It may be necessary to break this into
@@ -32,7 +31,7 @@ class HelperService {
 
     def grailsApplication
 
-    def authService
+    def localAuthService
 
     def sessionFactory
 
@@ -101,8 +100,8 @@ class HelperService {
         map.api_key = collectoryKey
         map.resourceType = "species-list"
         map.user = 'Species list upload'
-        map.firstName = authService.firstname()?:""
-        map.lastName = authService.surname()?:""
+        map.firstName = localAuthService.firstname()?:""
+        map.lastName = localAuthService.surname()?:""
         JsonOutput jo = new JsonOutput()
         jo.toJson(map)
     }
@@ -283,9 +282,9 @@ class HelperService {
         }
         sl.listName = listname
         sl.dataResourceUid=druid
-        sl.username = authService.email()
-        sl.firstName = authService.firstname()
-        sl.surname = authService.surname()
+        sl.username = localAuthService.email()
+        sl.firstName = localAuthService.firstname()
+        sl.surname = localAuthService.surname()
         sl.description = description
         sl.url = listUrl
         sl.wkt = listWkt
@@ -336,9 +335,9 @@ class HelperService {
         SpeciesList sl = new SpeciesList()
         sl.listName = listname
         sl.dataResourceUid=druid
-        sl.username = authService.email()
-        sl.firstName = authService.firstname()
-        sl.surname = authService.surname()
+        sl.username = localAuthService.email()
+        sl.firstName = localAuthService.firstname()
+        sl.surname = localAuthService.surname()
         while ((nextLine = reader.readNext()) != null) {
             if(org.apache.commons.lang.StringUtils.isNotBlank(nextLine)){
                 sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap))

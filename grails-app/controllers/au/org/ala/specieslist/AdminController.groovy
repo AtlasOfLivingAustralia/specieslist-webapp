@@ -2,7 +2,7 @@ package au.org.ala.specieslist
 
 class AdminController {
 
-    def authService
+    def localAuthService
     def queryService
     def helperService
     def beforeInterceptor = [action:this.&auth]
@@ -10,7 +10,7 @@ class AdminController {
     def index() { redirect(action: 'speciesLists')}
 
     private auth() {
-        if (!authService.isAdmin()) {
+        if (!localAuthService.isAdmin()) {
             flash.message = "You are not authorised to access this page."
             redirect(controller: "public", action: "speciesLists")
             false
