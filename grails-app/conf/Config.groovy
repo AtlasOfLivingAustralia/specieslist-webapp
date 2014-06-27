@@ -96,6 +96,10 @@ if (!bie.download) {
 if (!bie.nameIndexLocation) {
     bie.nameIndexLocation = "/data/lucene/namematching_v13"
 }
+if (!skin.fluidLayout) {
+    skin.fluidLayout = true
+}
+
 
 /******* End of ALA standard config ************/
 /*** Config specific for species list ***/

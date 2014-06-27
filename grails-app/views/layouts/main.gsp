@@ -8,6 +8,7 @@
     <meta name="description" content="Atlas of Living Australia"/>
     <meta name="author" content="Atlas of Living Australia">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="http://www.ala.org.au/wp-content/themes/ala2011/images/favicon.ico" rel="shortcut icon"  type="image/x-icon"/>
 
     <title><g:layoutTitle /></title>
 
@@ -67,18 +68,18 @@
 </head>
 <body class="${pageProperty(name:'body.class')?:'nav-species'}" id="${pageProperty(name:'body.id')}" onload="${pageProperty(name:'body.onload')}">
 
-<hf:banner logoutUrl="${grailsApplication.config.grails.serverURL}/logout/logout"/>
+<g:set var="fluidLayout" value="${grailsApplication.config.skin?.fluidLayout}"/>
+<hf:banner logoutUrl="${g.createLink(controller:"logout", action:"logout", absolute: true)}" fluidLayout="${fluidLayout}"/>
 
-<hf:menu/>
+<hf:menu fluidLayout="${fluidLayout}"/>
 
-<div class="container" id="main-content">
+<div class="${fluidLayout?'container-fluid':'container'}" id="main-content">
     <g:layoutBody />
 </div><!--/.container-->
 
-<div class="container hidden-desktop">
+<div class="${fluidLayout?'container-fluid':'container'} hidden-desktop">
     <%-- Borrowed from http://marcusasplund.com/optout/ --%>
     <a class="btn btn-small toggleResponsive"><i class="icon-resize-full"></i> <span>Desktop</span> version</a>
-    %{--<a class="btn btn-small toggleResponsive"><i class="icon-resize-full"></i> Desktop version</a>--}%
 </div>
 
 <hf:footer/>
