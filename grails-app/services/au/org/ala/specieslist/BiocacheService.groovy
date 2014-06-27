@@ -67,7 +67,7 @@ class BiocacheService {
                     break
                 case "Download":
                     returnUrl += "/ws/occurrences/index/download?q=qid:" + qid + "&file=" + downloadDto.file
-                    returnUrl += "&reason=" + downloadDto.reasonTypeId + "&email=" + downloadDto.email
+                    returnUrl += "&reasonTypeId=" + downloadDto.reasonTypeId + "&email=" + downloadDto.email
                     break
             }
             returnUrl
