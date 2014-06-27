@@ -5,7 +5,7 @@ import groovyx.net.http.HTTPBuilder
 
 class LoggerService {
 
-    @Cacheable("loggerCache")
+    //@Cacheable("loggerCache")
     def getReasons() {
         log.info("Refreshing the download reasons")
          def http = new HTTPBuilder("http://logger.ala.org.au")
@@ -15,12 +15,13 @@ class LoggerService {
 
             def map = [:]
             result.toArray().each{
-                map.put(it.getInt("id"),it.getString("name"))
+                map.put(it.getAt("id"),it.getAt("name"))
             }
-            log.debug(map)
+            log.info "download reasons map = ${map}"
             return map;
         } catch(ex) {
             //TODO return a default list
+            log.error "Error loading download reasons: ${ex}", ex
             return null;
         }
     }

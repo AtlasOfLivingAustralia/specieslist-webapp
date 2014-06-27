@@ -60,7 +60,7 @@
 
                 if (validateForm()) {
                     downloadURL = "${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Download&email="+$("#email").val()+"&reasonTypeId="+$("#reasonTypeId").val()+"&file="+$("#filename").val();
-                    window.location.href =  downloadURL//"${request.contextPath}/speciesList/occurrences/${params.id}?type=Download&email=$('#email').val()&reasonTypeId=$(#reasonTypeId).val()&file=$('#filename').val()"
+                    window.location.href = downloadURL;
                     notifyDownloadStarted()
                 }
             });
