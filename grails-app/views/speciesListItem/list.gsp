@@ -33,7 +33,7 @@
     %{--<gui:resources components="['dialog']"/>--}%
     <r:require modules="fancybox"/>
     <meta name="layout" content="main"/>
-    <link rel="stylesheet" href="${resource(dir:'css',file:'scrollableTable.css')}"/>
+    %{--<link rel="stylesheet" href="${resource(dir:'css',file:'scrollableTable.css')}"/>--}%
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'getQueryParam.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery-ui-1.8.17.custom.min.js')}"></script>
@@ -622,9 +622,7 @@
                                         <ul>
                                             <g:set var="i" value="${0}" />
                                             <g:set var="values" value="${value.getValue()}" />
-                                        %{--<g:each in="${value.getValue()}" var="arr">--}%
                                             <g:while test="${i < 4 && i<values.size()}">
-
                                                 <g:set var="arr" value="${values.get(i)}" />
                                                 <li>
                                                     <a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]}</a>  (${arr[3]})
@@ -633,46 +631,36 @@
                                             </g:while>
                                             <g:if test="${values.size()>4}">
                                                 <div class="showHide">
-                                                    <i class="icon icon-hand-right"></i> <a href="#div${value.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLink" id="multi-${value.getKey()}"
-                                                                                            title="See full list of values">choose more...</a>
-                                                    <div style="display:none">
-                                                        <div id="div${value.getKey().replaceAll(" " ,"_")}">
-
-                                                            %{--<a class="multipleFacetsLink" title="See more options." id="options${value.getKey()}">choose more...</a>--}%
-                                                            %{--<gui:dialog--}%
-                                                            %{--title="Refine List"--}%
-                                                            %{--draggable="true"--}%
-                                                            %{--id="dialog_${value.getKey().replaceAll(" " ,"_")}"--}%
-
-                                                            %{--buttons="[--}%
-
-                                                            %{--[text:'Close', handler: 'function() {this.cancel();}', isDefault: true]--}%
-                                                            %{--]"--}%
-                                                            %{--triggers="[show:[id:'options'+value.getKey(), on:'click']]"--}%
-                                                            %{-->--}%
-
-                                                            <h3>Refine your search</h3>
-                                                            <table class='table table-striped compact scrollTable'>
-                                                                <thead class='fixedHeader'>
-                                                                <tr class='tableHead'>
-                                                                    <th>&nbsp;</th>
-                                                                    <th>${value.getKey()}</th>
-                                                                    <th>Count</th>
+                                                    <i class="icon icon-hand-right"></i>
+                                                    <a href="#div${value.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLinkZ" id="multi-${value.getKey()}"
+                                                       role="button" data-toggle="modal"  title="See full list of values">choose more...</a>
+                                                    <!-- modal popup for "choose more" link -->
+                                                    <div id="div${value.getKey().replaceAll(" " ,"_")}" class="modal hide " tabindex="-1" role="dialog" aria-labelledby="multipleFacetsLabel" aria-hidden="true"><!-- BS modal div -->
+                                                        <div class="modal-header">
+                                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                                            <h3 class="multipleFacetsLabel">Refine your search</h3>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <table class="table table-bordered table-condensed table-striped scrollTable" style="width:100%;">
+                                                                <thead class="fixedHeader">
+                                                                <tr class="tableHead">
+                                                                    <th class="indexCol" width="80%">${value.getKey()}</th>
+                                                                    <th style="border-right-style: none;text-align: right;">Count</th>
                                                                 </tr>
                                                                 </thead>
-                                                                <tbody class='scrollContent'>
+                                                                <tbody class="scrollContent">
                                                                 <g:each in="${value.getValue()}" var="arr">
                                                                     <tr>
-                                                                        <td>&nbsp</td>
                                                                         <td><a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]} </a></td>
-                                                                        <td>${arr[3]}</td>
+                                                                        <td style="text-align: right; border-right-style: none;">${arr[3]}</td>
                                                                     </tr>
                                                                 </g:each>
                                                                 </tbody>
                                                             </table>
-                                                            %{--</gui:dialog>--}%
                                                         </div>
-
+                                                        <div class="modal-footer" style="text-align: left;">
+                                                            <button class="btn btn-small" data-dismiss="modal" aria-hidden="true" style="float:right;">Close</button>
+                                                        </div>
                                                     </div>
                                                 </div><!-- invisible content div for facets -->
                                             </g:if>
@@ -702,9 +690,7 @@
                                     <ul>
                                         <g:set var="i" value="${0}" />
                                         <g:set var="values" value="${entry.value}" />
-                                    %{--<g:each in="${value.getValue()}" var="arr">--}%
                                         <g:while test="${i < 4 && i<values.size()}">
-
                                             <g:set var="arr" value="${values.get(i)}" />
                                             <li>
                                                 <a href="?fq=${entry.key}:${arr[0]}${queryParams}">${arr[0]}</a>  (${arr[1]})
@@ -713,50 +699,46 @@
                                         </g:while>
                                         <g:if test="${values.size()>4}">
                                             <div class="showHide">
-                                                <i class="icon icon-hand-right"></i> <a href="#div${entry.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLink" id="multi-${entry.getKey()}"
-                                                                                        title="See full list of values">choose more...</a>
-                                                <div style="display:none">
-                                                    <div id="div${entry.key.replaceAll(" " ,"_")}">
-
-                                                        <h3>Refine your search</h3>
-                                                        <table class='table table-striped compact scrollTable'>
-                                                            <thead class='fixedHeader'>
-                                                            <tr class='tableHead'>
-                                                                <th>&nbsp;</th>
-                                                                <th>${entry.getKey()}</th>
-                                                                <th>Count</th>
+                                                <i class="icon icon-hand-right"></i> <a href="#div${entry.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLinkZ" id="multi-${entry.getKey()}"
+                                                        role="button" data-toggle="modal" title="See full list of values">choose more...</a>
+                                                <!-- modal popup for "choose more" link -->
+                                                <div id="div${entry.getKey().replaceAll(" " ,"_")}" class="modal hide " tabindex="-1" role="dialog" aria-labelledby="multipleFacetsLabel2" aria-hidden="true"><!-- BS modal div -->
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                                        <h3 class="multipleFacetsLabel2">Refine your search</h3>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <table class="table table-bordered table-condensed table-striped scrollTable" style="width:100%;">
+                                                            <thead class="fixedHeader">
+                                                            <tr class="tableHead">
+                                                                <th width="80%">${entry.getKey()}</th>
+                                                                <th style="border-right-style: none;text-align: right;">Count</th>
                                                             </tr>
                                                             </thead>
-                                                            <tbody class='scrollContent'>
+                                                            <tbody class="scrollContent">
                                                             <g:each in="${entry.getValue()}" var="arr">
                                                                 <tr>
-                                                                    <td>&nbsp</td>
                                                                     <td><a href="?fq=${entry.key}:${arr[0]}${queryParams}">${arr[0]} </a></td>
-                                                                    <td>${arr[1]}</td>
+                                                                    <td style="border-right-style: none;text-align: right;">${arr[1]}</td>
                                                                 </tr>
                                                             </g:each>
                                                             </tbody>
                                                         </table>
-                                                        %{--</gui:dialog>--}%
                                                     </div>
-
+                                                    <div class="modal-footer" style="text-align: left;">
+                                                        <button class="btn btn-small" data-dismiss="modal" aria-hidden="true" style="float:right;">Close</button>
+                                                    </div>
                                                 </div>
                                             </div><!-- invisible content div for facets -->
                                         </g:if>
-
                                     </ul>
                                 </div>
-
-
-
                             </g:else>
                         </g:each>
                     </g:if>
-
                 </section>
             </div><!-- boxed attached -->
         </div> <!-- col narrow -->
-
         <div class="span9">
             <div class="">
                 <section class="double">
