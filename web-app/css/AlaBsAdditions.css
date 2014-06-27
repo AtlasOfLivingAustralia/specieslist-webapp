@@ -307,3 +307,14 @@ img.smallSpeciesImage {
 #listActionButtons {
     display: inline-block;
 }
+
+#searchLists {
+    margin-bottom: 5px;
+}
+
+.listSearchForm {
+    display: inline-block;
+    float: left;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}

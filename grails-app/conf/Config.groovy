@@ -234,11 +234,13 @@ log4j = {
             'au.org.ala.cas.client',
             'grails.spring.BeanBuilder',
             'grails.plugin.webxml'
+    info    'grails.app',
+            'au.org.ala.specieslist'
     debug   'grails.app.domain',
             'grails.app.controller',
             'grails.app.service',
             'grails.app.tagLib',
-            'au.org.ala'
+            'au.org.ala.specieslist'
 }
 
 //springcache configuration

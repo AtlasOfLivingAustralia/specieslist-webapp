@@ -47,48 +47,39 @@
                 <b>Alert:</b> ${flash.message}
             </div>
         </g:if>
-
             <p>
                 This tool allows you to upload a list of species, and work with that list within the Atlas.
                 <br/>
                 Click "Upload a list" to upload your own list of taxa.
             </p>
-
-            %{--<a class="button orange" title="Add Species List" href="${request.contextPath}/speciesList/upload">Add Species List</a>--}%
-            %{--<a class="button orange" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>--}%
-
         <g:if test="${lists && total>0}">
             <p>
                 Below is a listing of user provided species lists. You can use these lists to work
                 with parts of the Atlas.
             </p>
+            <form class="listSearchForm" >
+                <div class="input-append" id="searchLists">
+                    <input class="span4" id="appendedInputButton" name="q" type="text" value="${params.q}" placeholder="Search in list name, description or owner">
+                    <button class="btn" type="submit">Search</button>
+                </div>
+            </form>
+            <form class="listSearchForm" >
+                <g:if test="${params.q}">
+                %{--<input type="hidden" name="q" value=""/>--}%
+                    <button class="btn btn-primary" type="submit">Clear search</button>
+                </g:if>
+            </form>
             <g:render template="/speciesList"/>
-            %{--<table>--}%
-                %{--<thead>--}%
-                %{--<tr>--}%
-                    %{--<td>List Name</td>--}%
-                    %{--<td>Owner</td>--}%
-                    %{--<td>Number of Items</td>--}%
-                %{--</tr>--}%
-                %{--</thead>--}%
-                %{--<tbody>--}%
-                    %{--<g:each in="${lists}" var="list" status="i">--}%
-                        %{--<tr class="${(i % 2) == 0 ? 'odd' : 'even'}">--}%
-                            %{--<td>${fieldValue(bean: list, field: "listName")}</td>--}%
-                            %{--<td>${fieldValue(bean: list, field: "firstName")} ${fieldValue(bean: list, field: "surname")}</td>--}%
-                            %{--<td>${list.items.size()}</td>--}%
-                        %{--</tr>--}%
-                    %{--</g:each>--}%
-                %{--</tbody>--}%
-            %{--</table>--}%
-            %{--<div class="pagination">--}%
-                %{--<g:paginate total="${total}" action="showList"  />--}%
-            %{--</div>--}%
         </g:if>
+        <g:elseif test="${params.q}">
+            <form class="listSearchForm" >
+                <p>No Species Lists found for: <b>${params.q}</b></p>
+                <button class="btn btn-primary" type="submit">Clear search</button>
+            </form>
+        </g:elseif>
         <g:else>
             <p>There are no Species Lists available</p>
         </g:else>
-        %{--</div> <!-- results -->--}%
     </div>
 </div> <!-- content div -->
 </body>
