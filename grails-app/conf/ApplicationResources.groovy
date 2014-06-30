@@ -14,4 +14,13 @@ modules = {
 //        resource url:'/fancybox/fancybox_sprite.png'
     }
 
+    baHashchange {
+        dependsOn "jquery"
+        resource url:[dir:'js', file:'jquery.ba-hashchange.min.js'], disposition: 'head'
+    }
+
+    amplify {
+        resource url:[dir:'js', file:'amplify.js'], disposition: 'head'
+    }
+
 }

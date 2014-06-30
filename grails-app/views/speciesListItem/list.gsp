@@ -31,7 +31,7 @@
 <html>
 <head>
     %{--<gui:resources components="['dialog']"/>--}%
-    <r:require modules="fancybox"/>
+    <r:require modules="fancybox, baHashchange, amplify"/>
     <meta name="layout" content="main"/>
     %{--<link rel="stylesheet" href="${resource(dir:'css',file:'scrollableTable.css')}"/>--}%
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
@@ -51,6 +51,32 @@
     }
     $(document).ready(function(){
         init();
+
+        // ba-hashchange plugin
+        $(window).hashchange( function() {
+            var hash = location.hash;
+            var storedView = amplify.store('view-state');
+            amplify.store('view-state', hash); // store current hash in local storage (for pagination links)
+
+            if (hash == '#grid') {
+                $('#listView').hide();
+                $('#gridView').show();
+                $('#listItemView .grid').addClass('disabled');
+                $('#listItemView .list').removeClass('disabled');
+            } else if (hash == '#list') {
+                $('#gridView').hide();
+                $('#listView').show();
+                $('#listItemView .list').addClass('disabled');
+                $('#listItemView .grid').removeClass('disabled');
+            } else if (storedView) {
+                // no hash but stored value - use this
+                location.hash = storedView;
+            }
+        });
+
+        // Since the event is only triggered when the hash changes, we need to trigger
+        // the event now, to handle the hash the page may have loaded with.
+        $(window).hashchange();
 
         // download link
         $("#downloadLink").fancybox({
@@ -92,7 +118,7 @@
         $('.fwtable').doubleScroll();
 
         // Tooltip for link title
-        $('#content a').tooltip({placement: "bottom", html: true, delay: 200, container: "body"});
+        $('#content a').not('.thumbImage').tooltip({placement: "bottom", html: true, delay: 200, container: "body"});
 
         // submit edit record changes via POST
         $("button.saveRecord").click(function() {
@@ -205,6 +231,11 @@
             viewRecordForId(recordId);
         });
 
+        // mouse over affect on thumbnail images
+        $('.imgCon').on('hover', function() {
+            $(this).find('.brief, .detail').toggleClass('hide');
+        });
+
     }); // end document ready
 
     function toggleEditMeta(showHide) {
@@ -231,6 +262,7 @@
             values.push(val);
         });
         //console.log("values", values.length, "headers", headers.length);
+        //console.log("values & headers", headers, values);
         $("#viewRecord p.spinner").hide();
         $("#viewRecord tbody").html(""); // clear values
         $.each(headers, function(i, el) {
@@ -238,7 +270,7 @@
             $("#viewRecord tbody").append(row);
         });
         $("#viewRecord table").show();
-        $('#viewRecord').modal();
+        $('#viewRecord').modal("show");
     }
 
 //    function loadMultiFacets(facetName, displayName) {
@@ -740,7 +772,52 @@
             </div><!-- boxed attached -->
         </div> <!-- col narrow -->
         <div class="span9">
-            <div class="">
+            <div id="listItemView" class="btn-group">
+                <a class="btn btn-small list disabled" title="View as detailed list" href="#list"><i class="icon icon-th-list"></i> list</a>
+                <a class="btn btn-small grid" title="View as thumbnail image grid" href="#grid"><i class="icon icon-th"></i> grid</a>
+            </div>
+            <div id="gridView" class="hide">
+                <g:each var="result" in="${results}" status="i">
+                    <g:set var="recId" value="${result.id}"/>
+                    <g:set var="bieSpecies" value="${bieItems?.get(result.guid)}"/>
+                    <g:set var="bieTitle">species page for <i>${result.rawScientificName}</i></g:set>
+                    <div class="imgCon">
+                        <a class="thumbImage viewRecordButton" rel="thumbs" title="click to view details" href="#viewRecord"
+                                    data-id="${recId}"><img src="${bieSpecies?.get(0)?:g.createLink(uri:'/images/infobox_info_icon.png\" style=\"opacity:0.5')}" alt="thumbnail species image"/>
+                            </a>
+                            <g:if test="${true}">
+                                <g:set var="displayName">
+                                    <i><g:if test="${result.guid == null}">
+                                        ${fieldValue(bean: result, field: "rawScientificName")}
+                                    </g:if>
+                                    <g:else>
+                                        ${bieSpecies?.get(2)}
+                                    </g:else></i>
+                                </g:set>
+                                <div class="meta brief">
+                                    ${displayName}
+                                </div>
+                                <div class="meta detail hide">
+                                    ${displayName}
+                                    <g:if test="${bieSpecies?.get(3)}"> ${bieSpecies?.get(3)}</g:if>
+                                    <g:if test="${bieSpecies?.get(1)}"><br>${bieSpecies?.get(1)}</g:if>
+                                    <br>
+                                    <div class="btn-group btn-group">
+                                        <a class="btn btn-small viewRecordButton" href="#viewRecord" title="view record" data-id="${recId}"><i class="icon-info-sign"></i></a>
+                                        <g:if test="${userCanEditData}">
+                                            <a class="btn btn-small" href="#" title="edit" data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
+                                               data-target="#editRecord_${recId}" data-toggle="modal" ><i class="icon-pencil"></i></a>
+                                            <a class="btn btn-small" href="#" title="delete" data-target="#deleteRecord_${recId}" data-toggle="modal"><i class="icon-trash"></i></a>
+                                        </g:if>
+                                    </div>
+                                </div>
+                            </g:if>
+                        </a>
+                    </div>
+
+                </g:each>
+            </div><!-- /#iconView -->
+            <div id="listView">
                 <section class="double">
                     <div class="fwtable table-bordered" style="overflow:auto;width:100%;">
                         <table class="tableList table table-bordered table-striped" id="speciesListTable">
@@ -765,40 +842,14 @@
                                 <tr class="${(i % 2) == 0 ? 'odd' : 'even'}" id="row_${recId}">
                                     <td class="action">
                                         <div class="btn-group btn-group">
-                                            <a class="btn btn-small viewRecordButton" href="#viewRecord" title="view record" data-id="${recId}"><i class="icon-list"></i></a>
+                                            <a class="btn btn-small viewRecordButton" href="#viewRecord" title="view record" data-id="${recId}"><i class="icon-info-sign"></i></a>
                                             <g:if test="${userCanEditData}">
                                             <a class="btn btn-small" href="#" title="edit" data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
                                                    data-target="#editRecord_${recId}" data-toggle="modal" ><i class="icon-pencil"></i></a>
                                                 <a class="btn btn-small" href="#" title="delete" data-target="#deleteRecord_${recId}" data-toggle="modal"><i class="icon-trash"></i></a>
                                             </g:if>
                                         </div>
-                                        <g:if test="${userCanEditData}">
-                                            <div class="modal hide fade" id="editRecord_${recId}">
-                                                <div class="modal-header">
-                                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                                                    <h3>Edit record values</h3>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <p><img src="${resource(dir:'images',file:'spinner.gif')}" alt="spinner icon"/></p>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-                                                    <button class="btn btn-primary saveRecord" data-modal="#editRecord_${recId}" data-id="${recId}">Save changes</button>
-                                                </div>
-                                            </div>
-                                            <div class="modal hide fade" id="deleteRecord_${recId}">
-                                                <div class="modal-header">
-                                                    <h3>Are you sure you want to delete this species record?</h3>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <p>This will permanently delete the data for species <i>${result.rawScientificName}</i></p>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-                                                    <button class="btn btn-primary deleteSpecies" data-modal="#deleteRecord_${recId}" data-id="${recId}">Delete</button>
-                                                </div>
-                                            </div>
-                                        </g:if>
+
                                     </td>
                                     <td>
                                         %{--[${fieldValue(bean: result, field: "itemOrder")}] --}%
@@ -825,46 +876,80 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="modal hide fade" id="viewRecord">
+
+
+
+                </section>
+            </div> <!-- /#listView -->
+            <g:if test="${params.max<totalCount}">
+                <div class="searchWidgets">
+                    Items per page:
+                    <select id="maxItems" class="input-mini" onchange="reloadWithMax(this)">
+                        <g:each in="${[10,25,50,100]}" var="max">
+                            <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
+                        </g:each>
+                    </select>
+                </div>
+
+                <div class="pagination listPagination" id="searchNavBar">
+                    <g:if test="${params.fq}">
+                        <g:paginate total="${totalCount}" action="list" id="${params.id}" params="${[fq: params.fq]}"/>
+                    </g:if>
+                    <g:else>
+                        <g:paginate total="${totalCount}" action="list" id="${params.id}" />
+                    </g:else>
+                </div>
+            </g:if>
+            <g:each var="result" in="${results}" status="i">
+                <g:set var="recId" value="${result.id}"/>
+                <div class="modal hide fade" id="viewRecord">
+                    <div class="modal-header">
+                        <button type="button" class="close" onclick="$('#viewRecord .modal-body').scrollTop(0);" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h3>View record details</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p class="spinner"><img src="${resource(dir:'images',file:'spinner.gif')}" alt="spinner icon"/></p>
+                        <table class="table table-bordered table-condensed table-striped hide">
+                            <thead><th>Field</th><th>Value</th></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+
+
+                        <button class="btn btn-primary hide" data-id="${recId}">Previous</button>
+                        <button class="btn btn-primary hide" data-id="${recId}">Next</button>
+                        <button class="btn" onclick="$('#viewRecord .modal-body').scrollTop(0);" data-dismiss="modal" aria-hidden="true">Close</button>
+                    </div>
+                </div>
+                <g:if test="${userCanEditData}">
+                    <div class="modal hide fade" id="editRecord_${recId}">
                         <div class="modal-header">
-                            <button type="button" class="close" onclick="$('#viewRecord .modal-body').scrollTop(0);" data-dismiss="modal" aria-hidden="true">×</button>
-                            <h3>View record details</h3>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                            <h3>Edit record values</h3>
                         </div>
                         <div class="modal-body">
-                            <p class="spinner"><img src="${resource(dir:'images',file:'spinner.gif')}" alt="spinner icon"/></p>
-                            <table class="table table-bordered table-condensed table-striped hide">
-                                <thead><th>Field</th><th>Value</th></thead>
-                                <tbody></tbody>
-                            </table>
+                            <p><img src="${resource(dir:'images',file:'spinner.gif')}" alt="spinner icon"/></p>
                         </div>
                         <div class="modal-footer">
-                            <button class="btn btn-primary hide" data-id="${recId}">Previous</button>
-                            <button class="btn btn-primary hide" data-id="${recId}">Next</button>
-                            <button class="btn" onclick="$('#viewRecord .modal-body').scrollTop(0);" data-dismiss="modal" aria-hidden="true">Close</button>
+                            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                            <button class="btn btn-primary saveRecord" data-modal="#editRecord_${recId}" data-id="${recId}">Save changes</button>
                         </div>
                     </div>
-
-                    <g:if test="${params.max<totalCount}">
-                        <div class="searchWidgets">
-                            Items per page:
-                            <select id="maxItems" class="input-mini" onchange="reloadWithMax(this)">
-                                <g:each in="${[10,25,50,100]}" var="max">
-                                    <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
-                                </g:each>
-                            </select>
+                    <div class="modal hide fade" id="deleteRecord_${recId}">
+                        <div class="modal-header">
+                            <h3>Are you sure you want to delete this species record?</h3>
                         </div>
-
-                        <div class="pagination listPagination" id="searchNavBar">
-                            <g:if test="${params.fq}">
-                                <g:paginate total="${totalCount}" action="list" id="${params.id}" params="${[fq: params.fq]}"/>
-                            </g:if>
-                            <g:else>
-                                <g:paginate total="${totalCount}" action="list" id="${params.id}" />
-                            </g:else>
+                        <div class="modal-body">
+                            <p>This will permanently delete the data for species <i>${result.rawScientificName}</i></p>
                         </div>
-                    </g:if>
-                </section>
-            </div> <!-- tabs-panes-noborder -->
+                        <div class="modal-footer">
+                            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                            <button class="btn btn-primary deleteSpecies" data-modal="#deleteRecord_${recId}" data-id="${recId}">Delete</button>
+                        </div>
+                    </div>
+                </g:if>
+            </g:each>
         </div> <!-- .span9 -->
         %{--</div> <!-- results -->--}%
     </div>

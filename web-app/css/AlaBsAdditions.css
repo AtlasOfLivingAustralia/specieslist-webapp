@@ -71,7 +71,7 @@ p span.count {
 }
 
 #facets-column {
-    margin-top: 5px;
+    /*margin-top: 5px;*/
 }
 
 #refine {
@@ -195,7 +195,7 @@ td.dataValue > input[type="text"] {
 }
 
 #list-meta-data {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     padding: 0;
     color: #000;
     background-color: #f9f9f9;/*#EBF9FF;  #EBF8FF; */
@@ -317,4 +317,53 @@ img.smallSpeciesImage {
     float: left;
     margin-right: 10px;
     margin-bottom: 10px;
+}
+
+#listItemView {
+    /*float: right;*/
+}
+#listItemView .btn {
+    font-weight: bold;
+}
+
+#gridView {
+    margin-top: 15px;
+}
+
+/* Grid view */
+.imgCon {
+    display: inline-block;
+    /* margin-right: 8px; */
+    text-align: center;
+    line-height: 1.3em;
+    background-color: #DDD;
+    color: #DDD;
+    font-size: 12px;
+    /*text-shadow: 2px 2px 6px rgba(255, 255, 255, 1);*/
+    /* padding: 5px; */
+    /* margin-bottom: 8px; */
+    margin: 2px 0 2px 0;
+    position: relative;
+}
+.imgCon img {
+    height: 150px;
+}
+.imgCon .meta {
+    opacity: 0.8;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    text-align: left;
+    padding: 4px 5px 2px 5px;
+}
+.imgCon .brief {
+    color: black;
+    background-color: white;
+}
+.imgCon .detail {
+    color: white;
+    background-color: black;
+    opacity: 0.7;
 }
