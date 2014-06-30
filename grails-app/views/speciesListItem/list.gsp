@@ -631,7 +631,7 @@
                                         <g:each in="${fqs}" var="fq">
                                             <g:if test="${fq.length() >0}">
                                                 <li>
-                                                    <a href="#" class="removeLink " title="Uncheck (remove filter)" onclick="removeFacet('${fq}')"><i class="icon-check"></i></a>
+                                                    <a href="${sl.removeFqHref(fqs: fqs, fq: fq)}" class="removeLink " title="Uncheck (remove filter)"><i class="icon-check"></i></a>
                                                     <g:message code="facet.${fq.replaceFirst("kvp ","")}" default="${fq.replaceFirst("kvp ","")}"/>
                                                     %{--<a class="removeLink" onclick="removeFacet('family:ACANTHASPIDIIDAE'); return false;" href="#" oldtitle="remove filter" aria-describedby="ui-tooltip-1">X</a>--}%
                                                     %{--[<b><a href="#" class="removeLink" title="Remove Filter" onclick="removeFacet('${fq}')">X</a></b>]--}%
