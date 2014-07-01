@@ -63,6 +63,7 @@ class WebServiceController {
     def getListItemsForSpecies(){
         def guid = params.guid
         def lists = params.dr?.split(",")
+        def isBIE = params.boolean('isBIE')
         def props = [fetch:[kvpValues: 'join', mylist: 'join']]
 
         def results = queryService.getFilterListItemResult(props, params, guid, lists,null)
@@ -73,7 +74,14 @@ class WebServiceController {
 
         log.debug("RESULTS: " + results)
 
-        def listOfRecordMaps = results.findAll{ !it.mylist.isPrivate }.collect{ li -> // don't output private lists
+        def filteredRecords = results.findAll{ !it.mylist.isPrivate }
+
+        if (isBIE) {
+            // BIE only want lists with isBIE == true
+            filteredRecords = filteredRecords.findAll{ it.mylist.isBIE }
+        }
+
+        def listOfRecordMaps = filteredRecords.collect{ li -> // don't output private lists
             [
                 dataResourceUid:li.dataResourceUid,
                 guid: li.guid,
