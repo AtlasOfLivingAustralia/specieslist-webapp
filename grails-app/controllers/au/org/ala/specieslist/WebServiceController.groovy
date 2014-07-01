@@ -73,16 +73,23 @@ class WebServiceController {
 
         log.debug("RESULTS: " + results)
 
-        def listOfRecordMaps = results.collect{li ->
-            [ dataResourceUid:li.dataResourceUid,
-              guid: li.guid,
-              list:[username:li.mylist.username,listName:li.mylist.listName,sds: li.mylist.isSDS?:false],
-              kvpValues: li.kvpValues.collect{kvp->
-                  [ key:kvp.key,
-                    value:kvp.value,
-                    vocabValue:kvp.vocabValue
-                  ]
-              }
+        def listOfRecordMaps = results.findAll{ !it.mylist.isPrivate }.collect{ li -> // don't output private lists
+            [
+                dataResourceUid:li.dataResourceUid,
+                guid: li.guid,
+                list: [
+                        username: li.mylist.username,
+                        listName: li.mylist.listName,
+                        sds: li.mylist.isSDS?:false,
+                        isBIE: li.mylist.isBIE?:false
+                ],
+                kvpValues: li.kvpValues.collect{ kvp ->
+                    [
+                        key:kvp.key,
+                        value:kvp.value,
+                        vocabValue:kvp.vocabValue
+                    ]
+                }
             ]
         }
         render builder.build{listOfRecordMaps}
