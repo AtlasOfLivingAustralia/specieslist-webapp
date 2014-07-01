@@ -817,7 +817,7 @@
 
                 </g:each>
             </div><!-- /#iconView -->
-            <div id="listView">
+            <div id="listView" class="hide">
                 <section class="double">
                     <div class="fwtable table-bordered" style="overflow:auto;width:100%;">
                         <table class="tableList table table-bordered table-striped" id="speciesListTable">
