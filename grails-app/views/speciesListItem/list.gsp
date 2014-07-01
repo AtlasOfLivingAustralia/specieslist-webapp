@@ -802,12 +802,12 @@
                                     <g:if test="${bieSpecies?.get(3)}"> ${bieSpecies?.get(3)}</g:if>
                                     <g:if test="${bieSpecies?.get(1)}"><br>${bieSpecies?.get(1)}</g:if>
                                     <br>
-                                    <div class="btn-group btn-group">
-                                        <a class="btn btn-small viewRecordButton" href="#viewRecord" title="view record" data-id="${recId}"><i class="icon-info-sign"></i></a>
+                                    <div class="btn-group btn-group pull-right">
+                                        <a class="btn btn-mini viewRecordButton" href="#viewRecord" title="view record" data-id="${recId}"><i class="icon-info-sign"></i></a>
                                         <g:if test="${userCanEditData}">
-                                            <a class="btn btn-small" href="#" title="edit" data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
+                                            <a class="btn btn-mini" href="#" title="edit" data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
                                                data-target="#editRecord_${recId}" data-toggle="modal" ><i class="icon-pencil"></i></a>
-                                            <a class="btn btn-small" href="#" title="delete" data-target="#deleteRecord_${recId}" data-toggle="modal"><i class="icon-trash"></i></a>
+                                            <a class="btn btn-mini" href="#" title="delete" data-target="#deleteRecord_${recId}" data-toggle="modal"><i class="icon-trash"></i></a>
                                         </g:if>
                                     </div>
                                 </div>
@@ -876,9 +876,6 @@
                             </tbody>
                         </table>
                     </div>
-
-
-
                 </section>
             </div> <!-- /#listView -->
             <g:if test="${params.max<totalCount}">
@@ -900,6 +897,7 @@
                     </g:else>
                 </div>
             </g:if>
+            %{-- Output the BS modal divs (hidden until called) --}%
             <g:each var="result" in="${results}" status="i">
                 <g:set var="recId" value="${result.id}"/>
                 <div class="modal hide fade" id="viewRecord">
@@ -915,8 +913,6 @@
                         </table>
                     </div>
                     <div class="modal-footer">
-
-
                         <button class="btn btn-primary hide" data-id="${recId}">Previous</button>
                         <button class="btn btn-primary hide" data-id="${recId}">Next</button>
                         <button class="btn" onclick="$('#viewRecord .modal-body').scrollTop(0);" data-dismiss="modal" aria-hidden="true">Close</button>
