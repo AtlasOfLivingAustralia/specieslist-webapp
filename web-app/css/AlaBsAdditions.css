@@ -176,14 +176,14 @@ td.dataValue > input[type="text"] {
     min-height: 28px;
 }
 
-.tableList .sortable {
+.speciesList .sortable {
     background: url('../images/sort_both.png') no-repeat center right;
     padding-right: 18px;
  }
-.tableList .sorted, .tableList .sorted.asc {
+.speciesList .sorted, .tableList .sorted.asc {
     background: url('../images/sort_asc.png') no-repeat center right;
 }
-.tableList .sorted.desc {
+.speciesList .sorted.desc {
     background: url('../images/sort_desc.png') no-repeat center right;
 }
 
@@ -346,7 +346,7 @@ img.smallSpeciesImage {
     position: relative;
 }
 .imgCon img {
-    height: 150px;
+    height: 180px;
 }
 .imgCon .meta {
     opacity: 0.8;
