@@ -31,7 +31,7 @@ class HelperService {
 
     def grailsApplication
 
-    def localAuthService
+    def localAuthService, authService, userDetailsService
 
     def sessionFactory
 
@@ -255,6 +255,17 @@ class HelperService {
             sl.setDataResourceUid(druid)
         }
 
+        if (sl.username && !sl.userId) {
+            // lookup userId for username
+            def emailLC = sl.username?.toLowerCase()
+            Map userNameMap = userDetailsService.getFullListOfUserDetailsByUsername()
+
+            if (userNameMap.containsKey(emailLC)) {
+                def user = userNameMap.get(emailLC)
+                sl.userId = user.userId
+            }
+        }
+
         items.eachWithIndex { item, i ->
             //look it up
             SpeciesListItem sli = new SpeciesListItem()
@@ -283,6 +294,7 @@ class HelperService {
         sl.listName = listname
         sl.dataResourceUid=druid
         sl.username = localAuthService.email()
+        sl.userId = authService.userId
         sl.firstName = localAuthService.firstname()
         sl.surname = localAuthService.surname()
         sl.description = description

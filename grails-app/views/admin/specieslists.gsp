@@ -40,6 +40,7 @@
         </g:if>
 
         <g:if test="${lists && total>0}">
+            <a href="${g.createLink(action: 'updateListsWithUserIds')}" class="btn btn-primary">Update List user details (name & email address)</a>
             <p>
                 Below is a listing of all species lists that can be administered.
             </p>

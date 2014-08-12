@@ -24,6 +24,7 @@ class WebServiceController {
 
     def helperService
     def authService
+    def localAuthService
     def queryService
     def beforeInterceptor = [action:this.&prevalidate,only:['getListDetails','saveList']]
 
@@ -200,7 +201,7 @@ class WebServiceController {
             if(userCookie){
                 String username = java.net.URLDecoder.decode(userCookie.getValue(),'utf-8')
                 //test to see that the user is valid
-                if(authService.isValidUserName(username)){
+                if(localAuthService.isValidUserName(username)){
                     if (jsonBody.listItems && jsonBody.listName){
                         jsonBody.username = username
                         log.warn(jsonBody)

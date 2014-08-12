@@ -43,13 +43,13 @@ if (!security.cas.uriFilterPattern ) {
     security.cas.uriFilterPattern  = '/speciesList, /speciesList/.*, /admin, /admin/.*, /speciesListItem/listAuth/.*, /editor, /editor/.*'
 }
 if (!security.cas.authenticateOnlyIfLoggedInPattern) {
-    security.cas.authenticateOnlyIfLoggedInPattern = "/speciesListItem/list,/speciesListItem/list/.*,/ws/speciesList"
+    security.cas.authenticateOnlyIfLoggedInPattern = "/speciesListItem/list,/speciesListItem/list/.*"
 }
 if (!security.cas.casServerName) {
     security.cas.casServerName = 'https://auth.ala.org.au'
 }
 if (!security.cas.uriExclusionFilterPattern) {
-    ssecurity.cas.uriExclusionFilterPattern = '/images.*,/css.*,/js.*,/speciesList/occurrences/.*,/speciesList/fieldGuide/.*'
+    ssecurity.cas.uriExclusionFilterPattern = '/images.*,/css.*,/js.*,/speciesList/occurrences/.*,/speciesList/fieldGuide/.*,/ws/speciesList'
 }
 if (!security.cas.loginUrl) {
     security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
@@ -99,6 +99,8 @@ if (!bie.nameIndexLocation) {
 if (!skin.fluidLayout) {
     skin.fluidLayout = true
 }
+
+updateUserDetailsOnStartup = false
 
 
 /******* End of ALA standard config ************/
@@ -240,7 +242,8 @@ log4j = {
             'grails.plugin.webxml'
     info    'grails.app',
             'au.org.ala.specieslist'
-    debug   'grails.app.domain',
+    debug   'grails.app',
+            'grails.app.domain',
             'grails.app.controller',
             'grails.app.service',
             'grails.app.tagLib',
@@ -265,6 +268,26 @@ springcache {
             timeToLive="600"
         }
     }
+}
+
+grails.cache.config = {
+
+    defaults {
+        eternal false
+        overflowToDisk false
+        maxElementsInMemory 20000
+        timeToLiveSeconds 3600
+    }
+    cache {
+        name 'userListCache'
+    }
+    cache {
+        name 'userMapCache'
+    }
+    cache {
+        name 'userDetailsCache'
+    }
+
 }
 // Uncomment and edit the following lines to start using Grails encoding & escaping improvements
 

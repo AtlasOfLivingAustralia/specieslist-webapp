@@ -7,7 +7,7 @@ class SpeciesList {
     String firstName
     String surname
     String username
-    //String userId
+    String userId
     String dataResourceUid
     String description
     String url
@@ -45,6 +45,7 @@ class SpeciesList {
         generalisation(nullable: true)
         authority(nullable:  true)
         sdsType nullable:  true
+        userId nullable: true
     }
 
     static mapping = {

@@ -29,16 +29,17 @@ in turn, allows those <strong>editors</strong> to edit and delete entries in thi
     </thead>
     <tbody>
         <tr>
-            <td>${speciesList.firstName} ${speciesList.surname}</td>
+            <td>${speciesList.getFullName()}</td>
             <td>${speciesList.username}</td>
             <td>owner</td>
             <td></td>
         </tr>
         <g:set var="removeLink"><a href='#' onclick='removeRow(this)'>remove</a></g:set>
-        <g:each in="${speciesList.editors}" var="editor">
+        %{--<g:each in="${speciesList.editors}" var="editor">--}%
+        <g:each in="${editorsWithDetails}" var="editor">
             <tr class='editor'>
-                <td>${mapOfUserNamesById[editor]}</td>
-                <td class='userId'>${editor}</td>
+                <td>${editor.displayName}</td>
+                <td class='userId' data-userid='${editor.userId}'>${editor.userName}</td>
                 <td>editor</td>
                 <td>${removeLink}</td>
             </tr>
@@ -65,7 +66,7 @@ in turn, allows those <strong>editors</strong> to edit and delete entries in thi
             $.getJSON(url, function(data) {
                 if (data && data.userId) {
                     console.log('data', data);
-                    $("#userTable tbody").append("<tr class='editor'><td>"+ data.displayName +"</td><td class='userId'>"+data.userName+"</td><td>editor</td><td>${removeLink}</td></tr>");
+                    $("#userTable tbody").append("<tr class='editor'><td>"+ data.displayName +"</td><td class='userId' data-userid='"+data.userId+"'>"+data.userName+"</td><td>editor</td><td>${removeLink}</td></tr>");
                     $("#search").val("");
                 } else {
                     alert("The user id " + userId + " was not found");
@@ -85,7 +86,8 @@ in turn, allows those <strong>editors</strong> to edit and delete entries in thi
             el.preventDefault();
             var editors = [];
             $("#userTable tr.editor").each(function() {
-                editors.push($(this).find("td.userId").html());
+                //editors.push($(this).find("td.userId").html());
+                editors.push($(this).find("td.userId").data('userid'));
             });
             //console.log("editors", editors);
             var params = {

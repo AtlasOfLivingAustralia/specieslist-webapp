@@ -39,7 +39,8 @@ class SpeciesListController {
         if(params.id){
             //get the list if it exists and ensure that the user is an admin or the owner
             def list = SpeciesList.findByDataResourceUid(params.id)
-            if(list?.username == authService.getEmail() || authService.userInRole("ROLE_ADMIN")){
+            //if(list?.username == authService.getEmail() || authService.userInRole("ROLE_ADMIN")){
+            if(list?.userId == authService.getUserId() || authService.userInRole("ROLE_ADMIN")){
                 render(view: "upload", model: [resourceUid:params.id, list:  list, listTypes:ListType.values()])
             } else {
                 flash.message = "${message(code: 'error.message.reloadListPermission', args: [params.id])}"
@@ -198,17 +199,19 @@ class SpeciesListController {
 
     def list(){
         //list should be based on the user that is logged in so add the filter condition
-        def username = authService.getEmail()
+        //def username = authService.getEmail()
+        def userId = authService.getUserId()
         if (username){
-            params['username'] = "eq:"+username
+            //params['username'] = "eq:"+username
+            params['userId'] = "eq:"+userId
         }
 
         try {
             def lists = queryService.getFilterListResult(params)
 
             //now remove the params that were added
-            params.remove('username')
-
+            //params.remove('username')
+            params.remove('userId')
             log.debug("lists:" + lists)
 
             render(view: "list", model: [lists:lists, total:lists.totalCount])

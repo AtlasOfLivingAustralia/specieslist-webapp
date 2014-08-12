@@ -1,4 +1,3 @@
-
 %{--
   - Copyright (C) 2012 Atlas of Living Australia
   - All Rights Reserved.
@@ -59,13 +58,13 @@
             amplify.store('view-state', hash); // store current hash in local storage (for pagination links)
 
             if (hash == '#grid') {
-                $('#listView').hide();
-                $('#gridView').show();
+                $('#listView').slideUp();
+                $('#gridView').slideDown();
                 $('#listItemView .grid').addClass('disabled');
                 $('#listItemView .list').removeClass('disabled');
             } else if (hash == '#list') {
-                $('#gridView').hide();
-                $('#listView').show();
+                $('#gridView').slideUp();
+                $('#listView').slideDown();
                 $('#listItemView .list').addClass('disabled');
                 $('#listItemView .grid').removeClass('disabled');
             } else if (storedView) {
@@ -414,7 +413,7 @@
             <dt>${message(code: 'speciesList.listName.label', default: 'List name')}</dt>
             <dd>${speciesList.listName?:'&nbsp;'}</dd>
             <dt>${message(code: 'speciesList.username.label', default: 'Owner')}</dt>
-            <dd>${speciesList.fullName?:'&nbsp;'}</dd>
+            <dd>${speciesList.fullName?:speciesList.username?:'&nbsp;'}</dd>
             <dt>${message(code: 'speciesList.listType.label', default: 'List type')}</dt>
             <dd>${speciesList.listType?.displayValue}</dd>
             <g:if test="${speciesList.description}">
@@ -801,13 +800,13 @@
                                     ${displayName}
                                     <g:if test="${bieSpecies?.get(3)}"> ${bieSpecies?.get(3)}</g:if>
                                     <g:if test="${bieSpecies?.get(1)}"><br>${bieSpecies?.get(1)}</g:if>
-                                    <br>
-                                    <div class="btn-group btn-group pull-right">
-                                        <a class="btn btn-mini viewRecordButton" href="#viewRecord" title="view record" data-id="${recId}"><i class="icon-info-sign"></i></a>
+                                    %{--<div class="btn-group btn-group pull-right">--}%
+                                    <div class="pull-right" style="display:inline-block; padding: 5px;">
+                                        <a href="#viewRecord" class="viewRecordButton" title="view record" data-id="${recId}"><i class="icon-info-sign icon-white"></i></a>&nbsp;
                                         <g:if test="${userCanEditData}">
-                                            <a class="btn btn-mini" href="#" title="edit" data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
-                                               data-target="#editRecord_${recId}" data-toggle="modal" ><i class="icon-pencil"></i></a>
-                                            <a class="btn btn-mini" href="#" title="delete" data-target="#deleteRecord_${recId}" data-toggle="modal"><i class="icon-trash"></i></a>
+                                            <a href="#" title="edit" data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
+                                               data-target="#editRecord_${recId}" data-toggle="modal" ><i class="icon-pencil icon-white"></i></a>&nbsp;
+                                            <a href="#" title="delete" data-target="#deleteRecord_${recId}" data-toggle="modal"><i class="icon-trash icon-white"></i></a>&nbsp;
                                         </g:if>
                                     </div>
                                 </div>

@@ -1,6 +1,9 @@
+import au.org.ala.specieslist.SpeciesList
 import org.apache.commons.lang.WordUtils
 
 class BootStrap {
+
+    def authService, userDetailsService, grailsApplication
 
     def init = { servletContext ->
         Object.metaClass.trimLength = {Integer stringLength ->
@@ -24,6 +27,12 @@ class BootStrap {
             String inputString = delegate?.toString()
             WordUtils.wrap(inputString, stringLength, "<br/>\n", true)
         }
+
+        if (grailsApplication.config.updateUserDetailsOnStartup) {
+            userDetailsService.updateSpeciesListUserDetails()
+            userDetailsService.updateEditorsList()
+        }
+
     }
     def destroy = {
     }

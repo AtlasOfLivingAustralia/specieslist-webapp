@@ -85,7 +85,7 @@ class SpeciesListItemController {
                     log.debug("Checking speciesList: " + speciesList)
                     log.debug("Checking editors: " + speciesList.editors)
                     render(view: 'list', model: [
-                            speciesList: SpeciesList.findByDataResourceUid(requestParams.id),
+                            speciesList: speciesList,
                             queryParams: queryParams,
                             results: speciesListItems,
                             totalCount: totalCount,

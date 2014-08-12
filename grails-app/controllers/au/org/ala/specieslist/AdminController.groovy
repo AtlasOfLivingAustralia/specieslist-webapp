@@ -5,6 +5,7 @@ class AdminController {
     def localAuthService
     def queryService
     def helperService
+    def userDetailsService
     def beforeInterceptor = [action:this.&auth]
 
     def index() { redirect(action: 'speciesLists')}
@@ -47,5 +48,10 @@ class AdminController {
             response.status = 404
             render(view: '../error', model: [message: "Unable to retrieve species lists. Please let us know if this error persists. <br>Error:<br>" + e.getMessage()])
         }
+    }
+
+    def updateListsWithUserIds() {
+        Boolean successful = userDetailsService.updateSpeciesListUserDetails()
+        render(status: successful ? 200 : 404, text: "Update of editors was ${(successful)?'':'not'} successful")
     }
 }

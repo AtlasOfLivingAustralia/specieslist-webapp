@@ -5,7 +5,8 @@ class SpeciesListTagLib {
     def authService
 
     def getFullNameForUserId = { attrs, body ->
-        out << authService.getUserForUserId(attrs.userId)?.displayName
+        def displayName = authService.getUserForUserId(attrs.userId)?.displayName
+        out << "${displayName?:attrs.userId}"
     }
 
     /**
