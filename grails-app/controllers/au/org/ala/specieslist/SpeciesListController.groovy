@@ -201,7 +201,7 @@ class SpeciesListController {
         //list should be based on the user that is logged in so add the filter condition
         //def username = authService.getEmail()
         def userId = authService.getUserId()
-        if (username){
+        if (userId){
             //params['username'] = "eq:"+username
             params['userId'] = "eq:"+userId
         }

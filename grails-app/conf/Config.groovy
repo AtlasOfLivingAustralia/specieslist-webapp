@@ -162,25 +162,25 @@ auth.userNamesForNumericIdPath='getUserListWithIds'
 // set per-environment serverURL stem for creating absolute links
 environments {
     development {
-        grails.logging.jul.usebridge = true
-        grails.serverURL = 'http://dev.ala.org.au:8080/' + appName
-        collectory.baseURL ='http://testweb1.ala.org.au/collectory'
-//        collectory.baseURL = 'http://dev.ala.org.au:8080/collectory'
-        serverName='http://dev.ala.org.au:8080'
-        security.cas.appServerName = serverName
-        security.cas.contextPath = "/${appName}"
-        contextPath = "/specieslist-webapp"
-        collectory.enableSync = false
+//        grails.logging.jul.usebridge = true
+//        grails.serverURL = 'http://dev.ala.org.au:8080/' + appName
+//        collectory.baseURL ='http://testweb1.ala.org.au/collectory'
+////        collectory.baseURL = 'http://dev.ala.org.au:8080/collectory'
+//        serverName='http://dev.ala.org.au:8080'
+//        security.cas.appServerName = serverName
+//        security.cas.contextPath = "/${appName}"
+//        contextPath = "/specieslist-webapp"
+//        collectory.enableSync = false
     }
     production {
-        grails.logging.jul.usebridge = false
-        grails.serverURL = 'http://lists.ala.org.au'
-        collectory.baseURL='http://collections.ala.org.au'
-        collectory.enableSync = true
-        contextPath = ""
-        security.cas.appServerName = grails.serverURL
-        security.cas.contextPath = contextPath
-        collectory.enableSync = true
+//        grails.logging.jul.usebridge = false
+//        grails.serverURL = 'http://lists.ala.org.au'
+//        collectory.baseURL='http://collections.ala.org.au'
+//        collectory.enableSync = true
+//        contextPath = ""
+//        security.cas.appServerName = grails.serverURL
+//        security.cas.contextPath = contextPath
+//        collectory.enableSync = true
     }
 }
 
