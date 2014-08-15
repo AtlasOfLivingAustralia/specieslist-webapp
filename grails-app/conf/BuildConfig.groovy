@@ -60,7 +60,7 @@ grails.project.dependency.resolution = {
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-        compile("au.org.ala:ala-name-matching:1.2-SNAPSHOT") {
+        compile("au.org.ala:ala-name-matching:1.4-SNAPSHOT") {
             //transitive: true
             excludes "simmetrics"
         }
