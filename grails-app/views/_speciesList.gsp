@@ -66,8 +66,8 @@
     function reloadWithMax(el) {
         var max = $(el).find(":selected").val();
         //collect all the params that are applicable for the a page resizing
-        var paramStr = "${params.findAll {key, value -> key != 'max' && key != 'offset'}.collect { it }.join('&')}" + "&max="+max
-        //console.log(paramStr)
+        var paramStr = "${raw(params.findAll {key, value -> key != 'max' && key != 'offset' && key != 'controller' && key != 'action'}.collect { it }.join('&'))}" + "&max="+max
+        //alert(paramStr)
         window.location.href = window.location.pathname + '?' + paramStr;
     }
 </script>

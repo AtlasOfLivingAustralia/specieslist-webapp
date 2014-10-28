@@ -56,4 +56,18 @@ class PublicController {
         }
     }
 
+    def sdsLists() {
+        params.isSDS = "eq:true"
+        try {
+            def lists = queryService.getFilterListResult(params)
+            log.debug("Lists: " + lists)
+            render (view:'specieslists', model:[lists:lists, total:lists.totalCount])
+        }
+        catch(Exception e){
+            log.error "Error requesting species Lists: " ,e
+            response.status = 404
+            render(view: '../error', model: [message: "Unable to retrieve species lists. Please let us know if this error persists. <br>Error:<br>" + e.getMessage()])
+        }
+    }
+
 }
