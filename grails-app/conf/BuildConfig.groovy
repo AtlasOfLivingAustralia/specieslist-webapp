@@ -39,25 +39,12 @@ grails.project.dependency.resolution = {
     legacyResolve false // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
 
     repositories {
-        inherits true // Whether to inherit repository definitions from plugins
-        grailsHome()
         mavenLocal()
-        mavenRepo "http://maven.ala.org.au/repository/"
-        mavenRepo "http://maven.tmatesoft.com/content/repositories/releases/"
-        mavenRepo "http://repository.gbif.org/content/repositories/gbif/"
-        mavenRepo "http://repository.codehaus.org"
-        mavenCentral()
-        grailsPlugins()
-        grailsCentral()
-
-        // uncomment these to enable remote dependency resolution from public Maven repositories
-        //mavenCentral()
-        //mavenLocal()
-        //mavenRepo "http://snapshots.repository.codehaus.org"
-        //mavenRepo "http://repository.codehaus.org"
-        //mavenRepo "http://download.java.net/maven/2/"
-        //mavenRepo "http://repository.jboss.com/maven2/"
+        mavenRepo("http://nexus.ala.org.au/content/groups/public/") {
+            updatePolicy 'always'
+        }
     }
+
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         compile("au.org.ala:ala-name-matching:1.3") {
