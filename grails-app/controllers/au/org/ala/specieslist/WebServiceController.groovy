@@ -141,12 +141,12 @@ class WebServiceController {
 
             //def allLists = params.user? SpeciesList.findAll("from SpeciesList sl order by case username when '" + params.user +"' then 0 else 1 end, listName"):SpeciesList.list([sort: 'listName',fetch: [items: 'lazy']])
             //When no extra sort field is provided with a params.user this represents a special case for the initial spatial portal
-            String query = params.user ? "from SpeciesList sl order by case username when ? then 0 else 1 end, lastUpdated desc":null
-            log.debug("Query : " + query)
+            //String query = params.user ? "from SpeciesList sl order by case username when ? then 0 else 1 end, lastUpdated desc":null
+            //log.debug("Query : " + query)
            // def ids = params.sort =="count" ? SpeciesList.executeQuery("SELECT sl.id FROM SpeciesList sl join sl.items AS item GROUP BY sl.id ORDER BY COUNT(item) " + params.order,[], params) :null
             //def allLists = params.sort == "count"?SpeciesList.getAll(ids):params.user? SpeciesList.findAll(query,[params.user], params):SpeciesList.list(params)
-            def allLists = query?SpeciesList.findAll(query,[params.user], params):queryService.getFilterListResult(params)
-            def listCounts = query?SpeciesList.count:allLists.totalCount
+            def allLists = queryService.getFilterListResult(params)
+            def listCounts = allLists.totalCount
             def retValue =[listCount:listCounts, sort:  params.sort, order: params.order, max: params.max, offset:  params.offset,
                     lists:allLists.collect{[dataResourceUid: it.dataResourceUid,
                                             listName: it.listName,
