@@ -371,7 +371,7 @@ class HelperService {
         matchNameToSpeciesListItem(sli.rawScientificName, sli)
         int i = 0
         header.each {
-            if(i != speciesIdx && values.length > i && values[i]){
+            if(i != speciesIdx && values.length > i && values[i]?.trim()){
                 //check to see if the common name is already an "accepted" name for the species
                 String testLsid = commonValues.contains(it.toLowerCase().replaceAll(" ",""))?findAcceptedLsidByCommonName(values[i]):""
                 if(!testLsid.equals(sli.guid)) {
