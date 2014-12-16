@@ -18,7 +18,7 @@ class HelperServiceTest extends Specification {
         helperService.grailsApplication = grailsApplication
     }
 
-    def "addDataResourceForList should return a dummy url when collectory.enableSync"() {
+    def "addDataResourceForList should return a dummy url when collectory.enableSync is not true"() {
         when:
         grailsApplication.config.collectory.enableSync = item
         grailsApplication.config.collectory.baseURL = "http://blabla.com"
@@ -31,7 +31,7 @@ class HelperServiceTest extends Specification {
         item << [false, "false", " ", "", null]
     }
 
-    def "updateDataResourceForList should return a dummy url when collectory.enableSync"() {
+    def "updateDataResourceForList should return a dummy url when collectory.enableSync is not true"() {
         when:
         grailsApplication.config.collectory.enableSync = item
         grailsApplication.config.collectory.baseURL = "http://blabla.com"
