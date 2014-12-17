@@ -176,8 +176,11 @@
                 data: JSON.stringify(map),//.val().substring(0,$('#copyPasteData').val().indexOf('\n')),
                 success: function(response){
                     //console.log(response, response.url)
-                    if(response.url != null)
+                    if(response.url != null && response.error == null) {
                         window.location.href = response.url;
+                    } else {
+                        reportError(response.error)
+                    }
 
                 },
                 error: function(xhr, textStatus, errorThrown) {
