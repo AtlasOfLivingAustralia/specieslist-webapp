@@ -20,6 +20,8 @@ import au.org.ala.checklist.lucene.model.NameSearchResult
 import au.org.ala.checklist.lucene.CBIndexSearch
 import groovy.json.JsonOutput
 import groovyx.net.http.HTTPBuilder
+import org.apache.commons.lang.StringUtils
+
 import static groovyx.net.http.ContentType.JSON
 
 import au.org.ala.data.model.LinnaeanRankClassification
@@ -181,7 +183,7 @@ class HelperService {
                 "UNKNOWN" + (unknowni++)
             }
         }
-        headerResponse
+        [header: headerResponse, nameFound: hasName]
     }
 
     def parseHeader(String[] header){
@@ -215,7 +217,7 @@ class HelperService {
     def getSpeciesIndex(Object[] header){
         int idx =header.findIndexOf { speciesValue.contains(it.toString().toLowerCase().replaceAll(" ","")) }
         if(idx <0)
-            idx =header.findIndexOf { commonValues.contains(it.toLowerCase().replaceAll(" ",""))}
+            idx =header.findIndexOf { commonValues.contains(it.toString().toLowerCase().replaceAll(" ",""))}
         return idx
     }
 
@@ -311,27 +313,29 @@ class HelperService {
         String [] nextLine
         boolean checkedHeader = false
         int speciesValueIdx = getSpeciesIndex(header)
-        int count = 0
+        int itemCount = 0
+        int totalCount = 0
         while ((nextLine = reader.readNext()) != null) {
+            totalCount++
             if(!checkedHeader){
                 checkedHeader = true
                 if(getSpeciesIndex(nextLine)>-1)
                     nextLine = reader.readNext()
             }
-            if(nextLine.length > 0 && org.apache.commons.lang.StringUtils.isNotBlank(nextLine[speciesValueIdx])){
-                count+=1;
-                sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap, count))
+            if(nextLine.length > 0 && speciesValueIdx > -1 && StringUtils.isNotBlank(nextLine[speciesValueIdx])){
+                itemCount++
+                sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap, itemCount))
             }
 
         }
         if(!sl.validate()){
             log.error(sl.errors.allErrors)
         }
-        if(sl.items.size()>0){
+        if(sl.items && sl.items.size() > 0){
             sl.save()
         }
 
-        count
+        [totalRecords: totalCount, successfulItems: itemCount]
     }
 
     def loadSpeciesList(listname,druid, filename, boolean useHeader, header,vocabs){
@@ -364,7 +368,7 @@ class HelperService {
         log.debug("Inserting " + values.toArrayString())
         SpeciesListItem sli = new SpeciesListItem()
         sli.dataResourceUid =druid
-        sli.rawScientificName = values[speciesIdx]
+        sli.rawScientificName = speciesIdx > -1 ? values[speciesIdx] : null
         sli.itemOrder = order
         //lookup the raw
         //sli.guid = findAcceptedLsidByScientificName(sli.rawScientificName)?: findAcceptedLsidByCommonName(sli.rawScientificName)

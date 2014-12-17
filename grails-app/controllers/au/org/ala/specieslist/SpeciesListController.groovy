@@ -17,6 +17,7 @@ package au.org.ala.specieslist
 import au.com.bytecode.opencsv.CSVReader
 import au.org.ala.checklist.lucene.model.NameSearchResult
 import grails.converters.*
+import org.springframework.http.HttpStatus
 
 
 class SpeciesListController {
@@ -142,8 +143,19 @@ class SpeciesListController {
                          contentTypes : '["species list"]'
                         ]
                 )
-                def map = [url:url]
+
+                if (itemCount.successfulItems == itemCount.totalRecords) {
+                    flash.message = "All items have been successfully uploaded."
+                }
+                else {
+                    flash.message = "${itemCount.successfulItems} out of ${itemCount.totalRecords} items have been " +
+                            "successfully uploaded."
+                }
+
+                def map = [url: url, error: itemCount.successfulItems > 0 ? null : "Unable to upload species data. " +
+                        "Please ensure the column containing the species name has been identified."]
                 render map as JSON
+
             } else {
                 response.outputStream.write("Unable to add species list at this time. If this problem persists please report it.".getBytes())
                 response.setStatus(500)
@@ -339,7 +351,8 @@ class SpeciesListController {
         CSVReader csvReader = helperService.getCSVReaderForText(rawData, separator)
         def rawHeader =  csvReader.readNext()
         log.debug(rawHeader.toList())
-        def processedHeader = helperService.parseHeader(rawHeader)?:helperService.parseData(rawHeader)
+        def parsedHeader = helperService.parseHeader(rawHeader)?:helperService.parseData(rawHeader)
+        def processedHeader = parsedHeader.header
         log.debug(processedHeader)
         def dataRows = new ArrayList<String[]>()
         def currentLine = csvReader.readNext()
@@ -358,7 +371,8 @@ class SpeciesListController {
                 render(view: 'parsedData',model:[error: e.getMessage()])
             }
         } else {
-            render(view: 'parsedData', model: [columnHeaders:processedHeader, dataRows:dataRows, listTypes:ListType.values()])
+            render(view: 'parsedData', model: [columnHeaders: processedHeader, dataRows: dataRows, listTypes: ListType
+                    .values(), nameFound: parsedHeader.nameFound])
         }
     }
 
