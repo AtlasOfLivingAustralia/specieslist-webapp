@@ -98,7 +98,7 @@
             </g:if>
             <g:sortableColumn property="isAuthoritative"
                               title="${message(code: 'speciesList.isAuthoritative.label', default: 'Authoritative')}"/>
-            <g:sortableColumn property="username"
+            <g:sortableColumn property="ownerFullName"
                               title="${message(code: 'speciesList.username.label', default: 'Owner')}"/>
             <g:sortableColumn property="dateCreated"
                               title="${message(code: 'speciesList.name.dateCreated', default: 'Date Submitted')}"/>
