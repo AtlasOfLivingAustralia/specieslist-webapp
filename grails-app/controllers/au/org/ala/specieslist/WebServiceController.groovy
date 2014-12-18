@@ -173,7 +173,15 @@ class WebServiceController {
             def list = params.nonulls ?
                       SpeciesListItem.findAllByDataResourceUidAndGuidIsNotNull(params.druid, params)
                     : SpeciesListItem.findAllByDataResourceUid(params.druid, params)
-            def newList= list.collect{[id:it.id,name:it.rawScientificName, lsid: it.guid]}
+
+            List newList
+            if (params.includeKVP?.toBoolean()) {
+                newList = list.collect({[id: it.id, name: it.rawScientificName, lsid: it.guid,
+                                        kvpValues: it.kvpValues.collect({[key: it.key, value: it.value]})]})
+            }
+            else {
+                newList= list.collect{[id:it.id,name:it.rawScientificName, lsid: it.guid]}
+            }
             render newList as JSON
         } else {
             //no data resource uid was supplied.
