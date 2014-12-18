@@ -56,7 +56,7 @@
         </ul>
         <h3>Species List Item Services</h3>
         <ul>
-            <li>Retrieve the items from the supplied list - GET to <code>/ws/speciesListItems/{dataResourceUid}</code>.  At the moment this service only returns the id, name and lsid for the item.</li>
+            <li>Retrieve the items from the supplied list - GET to <code>/ws/speciesListItems/{dataResourceUid}</code>.  Add<code>?includeKVP=true</code> to retrieve the KVP details as well as the id, name and lsid for the item.</li>
         </ul>
         <h3>Species based services</h3>
         <ul>
