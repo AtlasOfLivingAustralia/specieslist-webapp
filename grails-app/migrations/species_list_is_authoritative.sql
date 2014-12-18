@@ -1,0 +1,1 @@
+alter table species_list add is_authoritative bit;

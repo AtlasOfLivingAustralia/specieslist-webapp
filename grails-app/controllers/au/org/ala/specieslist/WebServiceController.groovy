@@ -125,6 +125,7 @@ class WebServiceController {
                 username =  sl.username
                 fullName = sl.getFullName()
                 itemCount=sl.itemsCount//SpeciesListItem.countByList(sl)
+                isAuthoritative=sl.isAuthoritative?:false
             }
             log.debug(" The retvalue: " + retValue)
             render retValue
@@ -160,7 +161,8 @@ class WebServiceController {
                                             category:it.category,
                                             generalisation:it.generalisation,
                                             authority:it.authority,
-                                            sdsType:it.sdsType]}]
+                                            sdsType:it.sdsType,
+                                            isAuthoritative: it.isAuthoritative?:false]}]
 
             render retValue as JSON
         }
