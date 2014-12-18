@@ -18,6 +18,7 @@ class SpeciesList {
     Boolean isPrivate
     Boolean isSDS
     Boolean isBIE
+    Boolean isAuthoritative
     Long itemsCount = 0
     String region
     String authority
@@ -37,6 +38,7 @@ class SpeciesList {
         isPrivate nullable:true, index: 'idx_listprivate'
         isSDS nullable:true
         isBIE nullable:true
+        isAuthoritative nullable: true
         firstName nullable: true
         surname nullable: true
         editors nullable: true

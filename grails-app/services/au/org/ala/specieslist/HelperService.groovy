@@ -310,6 +310,7 @@ class HelperService {
         sl.sdsType = sdsType
         if(isBIE)sl.isBIE=true
         if(isSDS)sl.isSDS=true
+        sl.isAuthoritative=false // default all new lists to isAuthoritative = false: it is an admin task to determine whether a list is authoritative or not
         String [] nextLine
         boolean checkedHeader = false
         int speciesValueIdx = getSpeciesIndex(header)
