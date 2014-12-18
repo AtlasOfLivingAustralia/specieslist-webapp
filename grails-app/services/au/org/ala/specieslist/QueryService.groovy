@@ -21,6 +21,10 @@ class QueryService {
      * retrieves the lists that obey the supplied filters
      *
      * Filters are supplied in the Criteria specific manner- eg eq:
+     *
+     * AC 20141218: Moved sorting rules into setSortOrder
+     * AC 20141218: Added support for params.q search term so as to be consistent with PublicController.speciesLists()
+     *
      * @param params
      */
     def getFilterListResult(params){
@@ -57,16 +61,9 @@ class QueryService {
                                 Object[] args = [getValueBasedOnType(speciesListProperties[key], fvalue)]
                                 if (method.getParameterTypes().size() > 1)
                                     args = [key] + args[0]
-                                //log.debug("ARGS : " + args + " method : " + method)
+
                                 method.invoke(c, args)
                             }
-                            //handle the situation where the enum needs to be replaced
-//                        if (key == 'listType')
-//                            fvalue = ListType.valueOf(fvalue)
-//                        //now handle the supported filter conditions
-//                        switch(matcher[0][1]){
-//                            case "eq":eq(key,fvalue)
-//                        }
                         }
                     }
                 }
@@ -78,6 +75,25 @@ class QueryService {
         lists
     }
 
+    /**
+     * A merging of sort ordering rules. This function adds Order terms to a Criteria.
+     *
+     * 1. special case: 'user' present, 'sort' absent.
+     *      first order: 'username'='user' records first
+     *      second order: 'lastUpdated' descending
+     *      third order: 'listName' ascending
+     * 2. no parameters case: 'both 'sort' and 'user' absent.
+     *      first order: 'listName' ascending
+     * 3. general case: 'sort' present.
+     *      first order: 'sort' 'order' ('order' defaults to ascending if absent)
+     *
+     *
+     * @param sort SpeciesList field or null
+     * @param order "asc" or "desc" or null
+     * @param user SpeciesList.username or null
+     * @param c Criteria
+     * @return
+     */
     private def setSortOrder(sort, order, user, c) {
         //Bring user's lists to the front if no sort order is defined
         //countBy does 'user' param validation
