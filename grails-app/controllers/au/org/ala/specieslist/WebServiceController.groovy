@@ -199,36 +199,41 @@ class WebServiceController {
      * Saves the details of the species list when no druid is provided in the JSON body
      * a new list is inserted.  Inserting a new list will fail if there are no items to be
      * included on the list.
+     *
+     * Two JSON structures are supported:
+     * - v1 (unstructured list items): {"listName": "list1",  "listType": "TEST", "listItems": "item1,item2,item3"}
+     * - v2 (structured list items with KVP): { "listName": "list1", "listType": "TEST", "listItems": [ { "itemName":
+     * "item1", "kvpValues": [ { "key": "key1", "value": "value1" }, { "key": "key2", "value": "value2" } ] } ] }
      */
     def saveList = {
         log.debug("Saving a user list")
         //create a new list
 
-        try{
+        try {
             def jsonBody = request.JSON
-            def userCookie = request.cookies.find{it.name == 'ALA-Auth'}
+            def userCookie = request.cookies.find { it.name == 'ALA-Auth' }
 
-            if(userCookie){
-                String username = java.net.URLDecoder.decode(userCookie.getValue(),'utf-8')
+            if (userCookie) {
+                String username = java.net.URLDecoder.decode(userCookie.getValue(), 'utf-8')
                 //test to see that the user is valid
-                if(localAuthService.isValidUserName(username)){
-                    if (jsonBody.listItems && jsonBody.listName){
+                if (localAuthService.isValidUserName(username)) {
+                    if (jsonBody.listItems && jsonBody.listName) {
                         jsonBody.username = username
                         log.warn(jsonBody)
-                        def druid = params.druid //= helperService.addDataResourceForList([name:jsonBody.listName, username:username])
+                        def druid = params.druid
+                        //= helperService.addDataResourceForList([name:jsonBody.listName, username:username])
 
                         if (!druid) {
-                            def drURL = helperService.addDataResourceForList([name:jsonBody.listName, username:username])
+                            def drURL = helperService.addDataResourceForList([name: jsonBody.listName, username: username])
 
                             if (drURL) {
-                                druid = drURL.toString().substring(drURL.lastIndexOf('/') +1)
+                                druid = drURL.toString().substring(drURL.lastIndexOf('/') + 1)
                             } else {
                                 badRequest "Unable to generate collectory entry."
                             }
                         }
 
-                        List<String> list = jsonBody.listItems.split(",")
-                        helperService.loadSpeciesList(jsonBody,druid,list)
+                        helperService.loadSpeciesListFromJSON(jsonBody, druid)
                         created druid
                     } else {
                         badRequest "Missing compulsory mandatory properties."
@@ -239,9 +244,9 @@ class WebServiceController {
             } else {
                 badRequest "User has not logged in or cookies are disabled"
             }
-        } catch (Exception e){
-            log.error(e.getMessage(),e)
-            render(status:  404, text: "Unable to parse JSON body")
+        } catch (Exception e) {
+            log.error(e.getMessage(), e)
+            render(status: 404, text: "Unable to parse JSON body")
         }
     }
 

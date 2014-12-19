@@ -15,10 +15,7 @@
 package au.org.ala.specieslist
 
 import au.com.bytecode.opencsv.CSVReader
-import au.org.ala.checklist.lucene.model.NameSearchResult
 import grails.converters.*
-import org.springframework.http.HttpStatus
-
 
 class SpeciesListController {
 
@@ -116,7 +113,7 @@ class SpeciesListController {
                 def header = formParams.headers
 
                 log.debug("Header: " +header)
-                def itemCount = helperService.loadSpeciesList(reader,druid,formParams.speciesListName,
+                def itemCount = helperService.loadSpeciesListFromCSV(reader,druid,formParams.speciesListName,
                         ListType.valueOf(formParams.get("listType")),
                         formParams.description,
                         formParams.listUrl,
@@ -198,7 +195,7 @@ class SpeciesListController {
                 vocabMap.put(header[i] , it.value)
             }
             log.debug(vocabMap)
-            helperService.loadSpeciesList(params.speciesListTitle,druid,localFilePath,params.containsKey('rowIndicatesMapping'),header,vocabMap)
+            helperService.loadSpeciesListFromFile(params.speciesListTitle,druid,localFilePath,params.containsKey('rowIndicatesMapping'),header,vocabMap)
             //redirect the use to a summary of the records that they submitted - include links to BIE species page
             //also mention that the list will be loaded into BIE overnight.
             //def speciesListItems =  au.org.ala.specieslist.SpeciesListItem.findAllByDataResourceUid(druid)
