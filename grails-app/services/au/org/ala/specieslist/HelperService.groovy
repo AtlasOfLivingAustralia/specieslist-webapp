@@ -210,7 +210,7 @@ class HelperService {
         }
 
         if(hasName)
-            headerResponse
+            [header: headerResponse, nameFound: hasName]
         else
             null
     }
