@@ -1,7 +1,7 @@
 dataSource {
     pooled = true
     logSql = false
-    driverClassName = "com.mysql.jdbc.Driver"
+//    driverClassName = "com.mysql.jdbc.Driver"
     username = ""
     password = ""
     properties {
@@ -30,9 +30,15 @@ environments {
 //        }
     }
     test {
-
+        dataSource {
+            dialect = "org.hibernate.dialect.H2Dialect"
+            dbCreate = "create-drop"
+            driverClassName = "org.h2.Driver"
+            url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;MODE=MYSQL;DB_CLOSE_ON_EXIT=FALSE;"
+        }
     }
     production {
+        dbCreate = "update"
         // must be set via external config
     }
 }

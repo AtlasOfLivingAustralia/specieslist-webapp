@@ -21,6 +21,7 @@ import au.org.ala.checklist.lucene.CBIndexSearch
 import groovy.json.JsonOutput
 import groovyx.net.http.HTTPBuilder
 import org.apache.commons.lang.StringUtils
+import org.codehaus.groovy.grails.web.json.JSONArray
 
 import static groovyx.net.http.ContentType.JSON
 
@@ -238,53 +239,99 @@ class HelperService {
         }
     }
 
-    def loadSpeciesList(Map json, String druid, List<String> items){
-        SpeciesList sl = SpeciesList.findByDataResourceUid(druid) ?: new SpeciesList(json)
+    def loadSpeciesListFromJSON(Map json, String druid) {
+        SpeciesList speciesList = SpeciesList.findByDataResourceUid(druid) ?: new SpeciesList(json)
 
-        if (sl.dataResourceUid) {
-            // updating an existing list
-            sl.items.clear() // assume new list of species will replace existing one (no updates allowed for now)
+        // updating an existing list
+        if (speciesList.dataResourceUid) {
+            // assume new list of species will replace existing one (no updates allowed for now)
+            speciesList.items.clear()
+
+            // update the list of editors (comma separated list of email addresses)
             if (json?.editors) {
-                // update the list of editors (comma separated list of email addresses)
-                sl.editors = (sl.editors + json.editors.tokenize(',')).unique() // merge lists and remove duplicates
+                // merge lists and remove duplicates
+                speciesList.editors = (speciesList.editors + json.editors.tokenize(',')).unique()
             }
             if (json?.listName) {
-                sl.listName = json.listName // always update the list name
+                speciesList.listName = json.listName // always update the list name
             }
-            // consider simply doing a `sl.properties = json` instead ?? Will blat any properties added via the SL webapp though
         } else {
             // create a new list
-            sl.setDataResourceUid(druid)
+            speciesList.setDataResourceUid(druid)
         }
 
-        if (sl.username && !sl.userId) {
+        if (speciesList.username && !speciesList.userId) {
             // lookup userId for username
-            def emailLC = sl.username?.toLowerCase()
+            def emailLC = speciesList.username?.toLowerCase()
             Map userNameMap = userDetailsService.getFullListOfUserDetailsByUsername()
 
             if (userNameMap.containsKey(emailLC)) {
                 def user = userNameMap.get(emailLC)
-                sl.userId = user.userId
+                speciesList.userId = user.userId
             }
         }
 
-        items.eachWithIndex { item, i ->
-            //look it up
-            SpeciesListItem sli = new SpeciesListItem()
-            sli.dataResourceUid =druid
-            sli.rawScientificName = item
-            sli.itemOrder = i
-            //sli.guid = findAcceptedLsidByScientificName(sli.rawScientificName)?: findAcceptedLsidByCommonName(sli.rawScientificName)
-            matchNameToSpeciesListItem(sli.rawScientificName, sli)
-            sl.addToItems(sli)
+        // version 1 of this operation supports list items as a comma-separated string
+        // version 2 of this operation supports list items as structured JSON elements with KVPs
+        if (isSpeciesListJsonVersion1(json)) {
+            loadSpeciesListItemsFromJsonV1(json, speciesList, druid)
+        } else if (isSpeciesListJsonVersion2(json)) {
+            loadSpeciesListItemsFromJsonV2(json, speciesList, druid)
+        } else {
+            throw new UnsupportedOperationException("Unsupported data structure")
         }
-        if(!sl.validate()){
-            log.error(sl.errors.allErrors)
+
+        if (!speciesList.validate()) {
+            log.error(speciesList.errors.allErrors)
         }
-        sl.save()
+
+        speciesList.save()
     }
 
-    def loadSpeciesList(CSVReader reader,druid,listname,ListType listType,description, listUrl, listWkt, Boolean isBIE, Boolean isSDS, String region, String authority, String category, String generalisation, String sdsType, String[] header, Map vocabs){
+    private static boolean isSpeciesListJsonVersion1(Map json) {
+        // version 1 of this operation supports list items as a comma-separated string
+        json.listItems in String
+    }
+
+    private loadSpeciesListItemsFromJsonV1(Map json, SpeciesList speciesList, String druid) {
+        assert json.listItems, "Cannot create a Species List with no items"
+
+        List items = json.listItems.split(",")
+
+        items.eachWithIndex { item, i ->
+            SpeciesListItem sli = new SpeciesListItem(dataResourceUid: druid, rawScientificName: item, itemOrder: i)
+            matchNameToSpeciesListItem(sli.rawScientificName, sli)
+            speciesList.addToItems(sli)
+        }
+    }
+
+    private static boolean isSpeciesListJsonVersion2(Map json) {
+        // version 2 of this operation supports list items as structured JSON elements with KVPs - i.e. a JSON Array
+        json.listItems in JSONArray
+    }
+
+    private loadSpeciesListItemsFromJsonV2(Map json, SpeciesList speciesList, String druid) {
+        assert json.listItems, "Cannot create a Species List with no items"
+
+        List items = json.listItems
+        items.eachWithIndex { item, i ->
+            SpeciesListItem sli = new SpeciesListItem(dataResourceUid: druid, rawScientificName: item.itemName,
+                    itemOrder: i)
+            matchNameToSpeciesListItem(sli.rawScientificName, sli)
+
+            item.kvpValues?.eachWithIndex { k, j ->
+                SpeciesListKVP kvp = new SpeciesListKVP(value: k.value, key: k.key, itemOrder: j, dataResourceUid:
+                        druid)
+                sli.addToKvpValues(kvp)
+            }
+
+            speciesList.addToItems(sli)
+        }
+    }
+
+    def loadSpeciesListFromCSV(CSVReader reader, druid, listname, ListType listType, description, listUrl, listWkt,
+                               Boolean isBIE, Boolean isSDS, String region, String authority, String category,
+                               String generalisation, String sdsType, String[] header, Map vocabs) {
         log.debug("Loading species list " + druid + " " + listname + " " + description + " " + listUrl + " " + header + " " + vocabs)
         def kvpmap = [:]
         addVocab(druid,vocabs,kvpmap)
@@ -339,7 +386,7 @@ class HelperService {
         [totalRecords: totalCount, successfulItems: itemCount]
     }
 
-    def loadSpeciesList(listname,druid, filename, boolean useHeader, header,vocabs){
+    def loadSpeciesListFromFile(listname, druid, filename, boolean useHeader, header,vocabs){
 
         CSVReader reader = new CSVReader(new FileReader(filename),',' as char)
         header = header ?: reader.readNext()
