@@ -22,10 +22,6 @@ class SpeciesListControllerTests {
     }
 
     void testUserDetailsJson() {
-        def ud = new UserDetailsCommand()
-        ud.setName("Test List")
-        println(new JSON(ud).toString(true))
-
         fail "Implement me"
     }
 }

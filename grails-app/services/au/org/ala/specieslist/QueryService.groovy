@@ -1,6 +1,12 @@
 package au.org.ala.specieslist
 
 import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
+import org.hibernate.Criteria
+import org.hibernate.HibernateException
+import org.hibernate.criterion.CriteriaQuery
+import org.hibernate.criterion.Order
+import org.hibernate.validator.constraints.Email
+import org.hibernate.validator.constraints.impl.EmailValidator
 
 class QueryService {
     def authService
@@ -15,47 +21,106 @@ class QueryService {
      * retrieves the lists that obey the supplied filters
      *
      * Filters are supplied in the Criteria specific manner- eg eq:
+     *
+     * AC 20141218: Moved sorting rules into setSortOrder
+     * AC 20141218: Added support for params.q search term so as to be consistent with PublicController.speciesLists()
+     *
      * @param params
      */
     def getFilterListResult(params){
         //list should be based on the user that is logged in
         params.max = Math.min(params.max ? params.int('max') : 25, 1000)
-        params.sort = params.sort ?: "listName"
+
+        //remove sort from params
+        def sort = params.sort
+        def order = params.order
+        params.remove("sort")
+        params.remove("order")
+
         params.fetch = [items: 'lazy']
 
         def c = SpeciesList.createCriteria()
-
         def lists =c.list(params){
             and{
                 params.each {key, value ->
                     //the value suffix tells us which filter operation to perform
-                    def matcher = (value =~ filterRegEx)
-                    if(matcher.matches()){
-                        def fvalue = matcher[0][2]
-                        //now handle the supported filter conditions by gaining access to the criteria methods using reflection
-                        def method =criteriaMethods.get(matcher[0][1])
-                        if(method){
-                            Object[] args =[getValueBasedOnType(speciesListProperties[key],fvalue)]
-                            if(method.getParameterTypes().size()>1)
-                                args = [key] +args[0]
-                            //log.debug("ARGS : " +args + " method : " + method)
-                            method.invoke(c, args)
+                    if ('q'.equals(key)) {
+                        or {
+                            ilike('listName', '%' + value + '%')
+                            ilike('firstName', '%' + value + '%')
+                            ilike('surname', '%' + value + '%')
+                            ilike('description', '%' + value + '%')
                         }
-                        //handle the situation where the enum needs to be replaced
-//                        if (key == 'listType')
-//                            fvalue = ListType.valueOf(fvalue)
-//                        //now handle the supported filter conditions
-//                        switch(matcher[0][1]){
-//                            case "eq":eq(key,fvalue)
-//                        }
+                    } else {
+                        def matcher = (value =~ filterRegEx)
+                        if (matcher.matches()) {
+                            def fvalue = matcher[0][2]
+                            //now handle the supported filter conditions by gaining access to the criteria methods using reflection
+                            def method = criteriaMethods.get(matcher[0][1])
+                            if (method) {
+                                Object[] args = [getValueBasedOnType(speciesListProperties[key], fvalue)]
+                                if (method.getParameterTypes().size() > 1)
+                                    args = [key] + args[0]
+
+                                method.invoke(c, args)
+                            }
+                        }
                     }
                 }
             }
+            setSortOrder(sort, order, params.user, c)
         }
         //remove the extra condition "fetch" condition
         params.remove('fetch')
         lists
     }
+
+    /**
+     * A merging of sort ordering rules. This function adds Order terms to a Criteria.
+     *
+     * 1. special case: 'user' present, 'sort' absent.
+     *      first order: 'username'='user' records first
+     *      second order: 'lastUpdated' descending
+     *      third order: 'listName' ascending
+     * 2. no parameters case: 'both 'sort' and 'user' absent.
+     *      first order: 'listName' ascending
+     * 3. general case: 'sort' present.
+     *      first order: 'sort' 'order' ('order' defaults to ascending if absent)
+     *
+     *
+     * @param sort SpeciesList field or null
+     * @param order "asc" or "desc" or null
+     * @param user SpeciesList.username or null
+     * @param c Criteria
+     * @return
+     */
+    private def setSortOrder(sort, order, user, c) {
+        //Bring user's lists to the front if no sort order is defined
+        //countBy does 'user' param validation
+        if (sort == null && user != null && SpeciesList.countByUsername(user) > 0) {
+            def userSortSql = "case username when '" + user + "' then 0 else 1 end"
+            def orderUser = new Order(userSortSql, true) {
+                @Override
+                public String toString() {
+                    return userSortSql
+                }
+
+                @Override
+                public String toSqlString(Criteria criteria, CriteriaQuery criteriaQuery) {
+                    return userSortSql
+                }
+            }
+
+            c.order(orderUser)
+            c.order(Order.desc("lastUpdated"))
+        }
+
+        //append default sorting
+        sort = sort?:"listName"
+        order = order?:"asc"
+        c.order(new Order(sort, "asc".equalsIgnoreCase(order)))
+    }
+
     /**
      * retrieves the species list items that obey the supplied filters.
      *
@@ -179,3 +244,4 @@ class QueryService {
 
     }
 }
+
