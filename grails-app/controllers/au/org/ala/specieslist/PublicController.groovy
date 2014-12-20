@@ -24,8 +24,6 @@ class PublicController {
     }
 
     def speciesLists(){
-//        if (params.message)
-//            flash.message = params.message
         if (params.isSDS) {
             // work around for SDS sub-list
             redirect(action:'sdsLists')
@@ -33,28 +31,25 @@ class PublicController {
         }
         params.max = Math.min(params.max ? params.int('max') : 25, 100)
         params.sort = params.sort ?: "listName"
-        //params.fetch = [items: 'lazy']
+
         log.info "params = " + params
-        //println("Returning the species list for render")
+
         try{
-            //def lists = queryService.getFilterListResult(params)
-            def q = "%" + params.q + "%"
             def lists, count
 
             if (params.q) {
-                lists = SpeciesList.findAllByListNameIlikeOrDescriptionIlikeOrSurnameIlikeOrFirstNameIlike(q,q,q,q, params)
-                count = SpeciesList.countByListNameIlikeOrDescriptionIlikeOrSurnameIlikeOrFirstNameIlike(q,q,q,q)
+                lists = queryService.getFilterListResult(params)
+                count = lists.totalCount
             } else {
-                lists = SpeciesList.list(params)
-                count = SpeciesList.count
+                // the public listing should not include any private lists
+                lists = SpeciesList.findAllByIsPrivateIsNullOrIsPrivate(false, params)
+                count = SpeciesList.countByIsPrivateIsNullOrIsPrivate(false)
             }
 
-//            def lists=SpeciesList.list(params)
-//            def total = SpeciesList.count
             log.info "lists = ${lists.size()} || count = ${count}"
             render (view:'specieslists', model:[lists:lists, total:count])
         }
-        catch(Exception e){
+        catch(Exception e) {
             log.error "Error requesting species Lists: " ,e
             response.status = 404
             render(view: '../error', model: [message: "Unable to retrieve species lists. Please let us know if this error persists. <br>Error:<br>" + e.getMessage()])

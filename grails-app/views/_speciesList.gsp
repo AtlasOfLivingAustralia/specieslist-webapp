@@ -96,7 +96,9 @@
                 <g:sortableColumn property="isSDS"
                                   title="${message(code: 'speciesList.isSDS.label', default: 'Part of the SDS')}"/>
             </g:if>
-            <g:sortableColumn property="username"
+            <g:sortableColumn property="isAuthoritative"
+                              title="${message(code: 'speciesList.isAuthoritative.label', default: 'Authoritative')}"/>
+            <g:sortableColumn property="ownerFullName"
                               title="${message(code: 'speciesList.username.label', default: 'Owner')}"/>
             <g:sortableColumn property="dateCreated"
                               title="${message(code: 'speciesList.name.dateCreated', default: 'Date Submitted')}"/>
@@ -117,6 +119,7 @@
                     <td><g:formatBoolean boolean="${list.isBIE ?: false}" true="Yes" false="No"/></td>
                     <td><g:formatBoolean boolean="${list.isSDS ?: false}" true="Yes" false="No"/></td>
                 </g:if>
+                <td><g:formatBoolean boolean="${list.isAuthoritative ?: false}" true="Yes" false="No"/></td>
             %{--<td>${fieldValue(bean: list, field: "firstName")} ${fieldValue(bean: list, field: "surname")}</td>--}%
                 <td>${list.fullName}</td>
                 <td><g:formatDate format="yyyy-MM-dd" date="${list.dateCreated}"/></td>

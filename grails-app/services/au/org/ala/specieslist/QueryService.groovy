@@ -2,14 +2,14 @@ package au.org.ala.specieslist
 
 import org.codehaus.groovy.grails.commons.DefaultGrailsDomainClass
 import org.hibernate.Criteria
-import org.hibernate.HibernateException
 import org.hibernate.criterion.CriteriaQuery
 import org.hibernate.criterion.Order
-import org.hibernate.validator.constraints.Email
-import org.hibernate.validator.constraints.impl.EmailValidator
 
 class QueryService {
+    public static final String EDITOR_SQL_RESTRICTION = "id in (select species_list_id from species_list_editors e where e.editors_string = ?)"
+
     def authService
+    def localAuthService
 
     /** A regular expression to split the  */
     public final def filterRegEx = /([a-zA-Z]+):([\x00-\x7F\s]*)/
@@ -41,7 +41,7 @@ class QueryService {
 
         def c = SpeciesList.createCriteria()
         def lists =c.list(params){
-            and{
+            and {
                 params.each {key, value ->
                     //the value suffix tells us which filter operation to perform
                     if ('q'.equals(key)) {
@@ -65,6 +65,26 @@ class QueryService {
                                 method.invoke(c, args)
                             }
                         }
+                    }
+                }
+            }
+            and {
+                if (authService.getUserId()) {
+                    if (!localAuthService.isAdmin()) {
+                        // the user is not an admin, so only show lists that are not private OR are owned by the user
+                        // OR where the user is an editor
+                        or {
+                            isNull("isPrivate")
+                            eq("isPrivate", false)
+                            eq("userId", authService.getUserId())
+                            sqlRestriction(EDITOR_SQL_RESTRICTION, [authService.getUserId()])
+                        }
+                    }
+                } else {
+                    // if there is no user, do no show any private records
+                    or {
+                        isNull("isPrivate")
+                        eq("isPrivate", false)
                     }
                 }
             }

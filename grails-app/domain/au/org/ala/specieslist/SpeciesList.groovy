@@ -18,12 +18,14 @@ class SpeciesList {
     Boolean isPrivate
     Boolean isSDS
     Boolean isBIE
+    Boolean isAuthoritative
     Long itemsCount = 0
     String region
     String authority
     String generalisation
     String category
     String sdsType
+    String ownerFullName // derived by concatenating the firstName and surname fields
 
     static transients = [ "fullName" ]
 
@@ -37,6 +39,7 @@ class SpeciesList {
         isPrivate nullable:true, index: 'idx_listprivate'
         isSDS nullable:true
         isBIE nullable:true
+        isAuthoritative nullable: true
         firstName nullable: true
         surname nullable: true
         editors nullable: true
@@ -46,6 +49,7 @@ class SpeciesList {
         authority(nullable:  true)
         sdsType nullable:  true
         userId nullable: true
+        ownerFullName nullable: true // derived
     }
 
     static mapping = {
@@ -57,6 +61,7 @@ class SpeciesList {
         wkt type: 'text'
         description type:  'text'
         itemsCount formula: "(select count(*) from species_list_item sli where sli.list_id = id)"
+        ownerFullName formula: "concat(first_name, ' ', surname)" // derived to allow easier sorting by owner name
     }
 
     def String getFullName(){

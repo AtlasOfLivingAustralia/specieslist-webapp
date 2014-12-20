@@ -15,9 +15,7 @@
 package au.org.ala.specieslist
 
 import au.com.bytecode.opencsv.CSVReader
-import au.org.ala.checklist.lucene.model.NameSearchResult
 import grails.converters.*
-
 
 class SpeciesListController {
 
@@ -115,7 +113,7 @@ class SpeciesListController {
                 def header = formParams.headers
 
                 log.debug("Header: " +header)
-                def itemCount = helperService.loadSpeciesList(reader,druid,formParams.speciesListName,
+                def itemCount = helperService.loadSpeciesListFromCSV(reader,druid,formParams.speciesListName,
                         ListType.valueOf(formParams.get("listType")),
                         formParams.description,
                         formParams.listUrl,
@@ -142,8 +140,19 @@ class SpeciesListController {
                          contentTypes : '["species list"]'
                         ]
                 )
-                def map = [url:url]
+
+                if (itemCount.successfulItems == itemCount.totalRecords) {
+                    flash.message = "All items have been successfully uploaded."
+                }
+                else {
+                    flash.message = "${itemCount.successfulItems} out of ${itemCount.totalRecords} items have been " +
+                            "successfully uploaded."
+                }
+
+                def map = [url: url, error: itemCount.successfulItems > 0 ? null : "Unable to upload species data. " +
+                        "Please ensure the column containing the species name has been identified."]
                 render map as JSON
+
             } else {
                 response.outputStream.write("Unable to add species list at this time. If this problem persists please report it.".getBytes())
                 response.setStatus(500)
@@ -186,7 +195,7 @@ class SpeciesListController {
                 vocabMap.put(header[i] , it.value)
             }
             log.debug(vocabMap)
-            helperService.loadSpeciesList(params.speciesListTitle,druid,localFilePath,params.containsKey('rowIndicatesMapping'),header,vocabMap)
+            helperService.loadSpeciesListFromFile(params.speciesListTitle,druid,localFilePath,params.containsKey('rowIndicatesMapping'),header,vocabMap)
             //redirect the use to a summary of the records that they submitted - include links to BIE species page
             //also mention that the list will be loaded into BIE overnight.
             //def speciesListItems =  au.org.ala.specieslist.SpeciesListItem.findAllByDataResourceUid(druid)
@@ -339,7 +348,8 @@ class SpeciesListController {
         CSVReader csvReader = helperService.getCSVReaderForText(rawData, separator)
         def rawHeader =  csvReader.readNext()
         log.debug(rawHeader.toList())
-        def processedHeader = helperService.parseHeader(rawHeader)?:helperService.parseData(rawHeader)
+        def parsedHeader = helperService.parseHeader(rawHeader)?:helperService.parseData(rawHeader)
+        def processedHeader = parsedHeader.header
         log.debug(processedHeader)
         def dataRows = new ArrayList<String[]>()
         def currentLine = csvReader.readNext()
@@ -358,7 +368,8 @@ class SpeciesListController {
                 render(view: 'parsedData',model:[error: e.getMessage()])
             }
         } else {
-            render(view: 'parsedData', model: [columnHeaders:processedHeader, dataRows:dataRows, listTypes:ListType.values()])
+            render(view: 'parsedData', model: [columnHeaders: processedHeader, dataRows: dataRows, listTypes: ListType
+                    .values(), nameFound: parsedHeader.nameFound])
         }
     }
 

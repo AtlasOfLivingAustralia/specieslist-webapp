@@ -51,8 +51,8 @@ class QueryServiceTests extends GroovyTestCase {
         //user ordering
         def list = queryService.getFilterListResult([user: 'a'])
         assertTrue list[0].dataResourceUid == '3'
-        assertTrue list[1].dataResourceUid == '1'
-        assertTrue list[2].dataResourceUid == '2'
+        assertTrue list[1].dataResourceUid == '2'
+        assertTrue list[2].dataResourceUid == '1'
     }
 
     @Test

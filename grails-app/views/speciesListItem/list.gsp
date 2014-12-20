@@ -53,7 +53,7 @@
 
         // ba-hashchange plugin
         $(window).hashchange( function() {
-            var hash = location.hash;
+            var hash = location.hash ? location.hash : "#list";
             var storedView = amplify.store('view-state');
             amplify.store('view-state', hash); // store current hash in local storage (for pagination links)
 
@@ -434,6 +434,8 @@
             <dd><g:formatBoolean boolean="${speciesList.isPrivate?:false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.isBIE.label', default: 'Included in BIE')}</dt>
             <dd><g:formatBoolean boolean="${speciesList.isBIE?:false}" true="Yes" false="No"/></dd>
+            <dt>${message(code: 'speciesList.isAuthoritative.label', default: 'Authoritative')}</dt>
+            <dd><g:formatBoolean boolean="${speciesList.isAuthoritative?:false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.isSDS.label', default: 'Part of the SDS')}</dt>
             <dd><g:formatBoolean boolean="${speciesList.isSDS?:false}" true="Yes" false="No"/></dd>
             <g:if test="${speciesList.isSDS}">
@@ -527,6 +529,12 @@
                             <label class="control-label" for="isBIE">${message(code: 'speciesList.isBIE.label', default: 'Included in BIE')}</label>
                             <div class="controls">
                                 <input type="checkbox" id="isBIE" name="isBIE" class="input-xlarge" value="true" data-value="${speciesList.isBIE}" ${(speciesList.isBIE == true) ? 'checked="checked"':''} />
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="isAuthoritative">${message(code:'speciesList.isAuthoritative.label', default: 'Authoritative')}</label>
+                            <div class="controls">
+                                <input type="checkbox" id="isAuthoritative" name="isAuthoritative" class="input-xlarge" value="true" data-value="${speciesList.isAuthoritative}" ${(speciesList.isAuthoritative == true) ? 'checked="checked"':''} />
                             </div>
                         </div>
                         <div class="control-group">

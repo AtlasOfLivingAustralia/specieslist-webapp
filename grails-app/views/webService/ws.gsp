@@ -46,17 +46,65 @@
             <li>Create a new Species list - POST to <code>/ws/speciesList</code> with the following information in a JSON body:
                 <ul>
                        <li><b>listName</b> - The name for the list</li>
-                       <li><b>listItems</b> - A comma separated list of species names.</li>
+                       <li><b>listItems</b> - either a comma separated list of species names, or a JSON structure
+                       containing species names and KVP values (example below).</li>
                        <li><b>listType</b> - The type of list: <code>SPECIES_CHARACTERS, CONSERVATION_LIST, SENSITIVE_LIST, LOCAL_LIST, COMMON_TRAIT,
                        COMMON_HABITAT, SPATIAL_PORTAL, TEST, OTHER</code></li>
                        <li><b>description</b> - A description for the list.</li>
                 </ul>
-                At the moment this service does not accept properties for list items.  This will probably need to be implement as a different service.
+                This service supports 2 formats:
+                <ol>
+                <li>Unstructured list items with no KVPs. E.g.:
+                    <code>
+                        <pre>
+                            {"listName": "list1",  "listType": "TEST", "listItems": "item1,item2,item3"}
+                        </pre>
+                    </code>
+                </li>
+                <li>Structured list items with KVPs. E.g.:
+                <code>
+                    <pre>
+                        {
+                            "listName": "list1",
+                            "listType": "TEST",
+                            "listItems": [
+                                {
+                                    "itemName": "item1",
+                                    "kvpValues": [
+                                        {
+                                            "key": "key1",
+                                            "value": "value1"
+                                        },
+                                        {
+                                            "key": "key2",
+                                            "value": "value2"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "itemName": "item2",
+                                    "kvpValues": [
+                                        {
+                                            "key": "key3",
+                                            "value": "value3"
+                                        },
+                                        {
+                                            "key": "key4",
+                                            "value": "value4"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    </pre>
+                </code>
+                </li>
+                </ol>
             </li>
         </ul>
         <h3>Species List Item Services</h3>
         <ul>
-            <li>Retrieve the items from the supplied list - GET to <code>/ws/speciesListItems/{dataResourceUid}</code>.  At the moment this service only returns the id, name and lsid for the item.</li>
+            <li>Retrieve the items from the supplied list - GET to <code>/ws/speciesListItems/{dataResourceUid}</code>.  Add<code>?includeKVP=true</code> to retrieve the KVP details as well as the id, name and lsid for the item.</li>
         </ul>
         <h3>Species based services</h3>
         <ul>
