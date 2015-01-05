@@ -15,12 +15,13 @@ class QueryServiceTests extends GroovyTestCase {
         }
 
         super.setUp()
-        def list1 = new SpeciesList(dateCreated: new Date(), lastUpdated: new Date(), dataResourceUid: "1",
+        def list1 = new SpeciesList(dateCreated: new Date(), lastUpdated: new Date(), dataResourceUid: "1", userId: 1,
                 username: "b", description: "1", firstName: "first user", listName: "list a one", surname: "xyz")
-        def list2 = new SpeciesList(dateCreated: new Date(), lastUpdated: new Date(), dataResourceUid: "2",
+        def list2 = new SpeciesList(dateCreated: new Date(), lastUpdated: new Date(), dataResourceUid: "2", userId: 2,
                 username: "c", description: "2", firstName: "first user", listName: "list b two", surname: "surname")
-        def list3 = new SpeciesList(dateCreated: new Date(), lastUpdated: new Date(), dataResourceUid: "3",
+        def list3 = new SpeciesList(dateCreated: new Date(), lastUpdated: new Date(), dataResourceUid: "3", userId: 3,
                 username: "a", description: "3", firstName: "second user", listName: "list c three", surname: "xyz")
+        list3.addToEditors("1") // user 1 can edit list 3
         list1.save(flush: true, failOnError: true)
         list2.save(flush: true, failOnError: true)
         list3.save(flush: true, failOnError: true)
@@ -89,5 +90,23 @@ class QueryServiceTests extends GroovyTestCase {
         def list = queryService.getFilterListResult([surname:"eq:xyz", q: 'list c'])
         assertTrue list.size() == 1
         assertTrue list[0].dataResourceUid == '3'
+    }
+
+    @Test
+    void "test getFilterListResult searching by userId exact match should also match associated editors"() {
+        def list = queryService.getFilterListResult([userId:"eq:1"])
+
+        assertTrue list.size() == 2
+        assertTrue list[0].dataResourceUid == "1"
+        assertTrue list[1].dataResourceUid == "3"
+    }
+
+    @Test
+    void "test getFilterListResult searching by userId should not match associated editors if not searching with eq"() {
+        def list = queryService.getFilterListResult([userId:"ne:3"])
+
+        assertTrue list.size() == 2
+        assertTrue list[0].dataResourceUid == "1"
+        assertTrue list[1].dataResourceUid == "2"
     }
 }
