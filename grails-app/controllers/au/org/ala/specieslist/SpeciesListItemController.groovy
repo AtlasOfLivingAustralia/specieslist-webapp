@@ -2,13 +2,23 @@ package au.org.ala.specieslist
 
 import grails.converters.*
 import au.com.bytecode.opencsv.CSVWriter
+import org.apache.http.HttpStatus
+
+import javax.annotation.PostConstruct
 
 class SpeciesListItemController {
     def bieService
     def loggerService
     def queryService
     def localAuthService
+    def authService
     def maxLengthForFacet = 15
+    private SecurityUtil securityUtil
+
+    @PostConstruct
+    def init() {
+        securityUtil = new SecurityUtil(authService: authService, localAuthService: localAuthService)
+    }
 
     def index() { }
 
@@ -42,6 +52,12 @@ class SpeciesListItemController {
                     flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'speciesList.label', default: 'Species List'), requestParams.id])}"
                     redirect(controller: "public", action: "speciesLists")
                 } else {
+                    if (!securityUtil.checkListAccess(params.id)) {
+                        response.status = HttpStatus.SC_UNAUTHORIZED
+                        render(view: '../error', model: [message: "You do not have permission to view this list"])
+                        return
+                    }
+
                     if (requestParams.message)
                         flash.message = requestParams.message
                     requestParams.max = Math.min(requestParams.max ? requestParams.int('max') : 10, 100)
