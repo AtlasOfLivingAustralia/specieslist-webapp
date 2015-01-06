@@ -43,7 +43,7 @@ if (!security.cas.uriFilterPattern ) {
     security.cas.uriFilterPattern  = '/speciesList, /speciesList/.*, /admin, /admin/.*, /editor, /editor/.*'
 }
 if (!security.cas.authenticateOnlyIfLoggedInPattern) {
-    security.cas.authenticateOnlyIfLoggedInPattern = "/speciesListItem/list,/speciesListItem/list/.*"
+    security.cas.authenticateOnlyIfLoggedInPattern = "/speciesListItem/list,/speciesListItem/list/.*,/speciesListItem/listAuth,/speciesListItem/listAuth/.*"
 }
 if (!security.cas.casServerName) {
     security.cas.casServerName = 'https://auth.ala.org.au'

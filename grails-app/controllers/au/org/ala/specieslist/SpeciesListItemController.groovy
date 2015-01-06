@@ -29,6 +29,15 @@ class SpeciesListItemController {
         doListDisplay(params)
     }
 
+    /**
+     * There is no functional difference between listAuth and list. This method has been retained to support existing
+     * links/bookmarks/etc that may refer to it. Both URLs are in the authenticateOnlyIfLoggedInFilterPattern list
+     * for CAS authentication.
+     */
+    def listAuth() {
+        doListDisplay(params)
+    }
+
     private doListDisplay(requestParams) {
         if (requestParams.id) {
             try {
