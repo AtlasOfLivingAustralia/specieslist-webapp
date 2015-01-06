@@ -26,20 +26,6 @@ class SpeciesListItemController {
      * Public display of a species list
      */
     def list(){
-        //can only show the list items for a specific list id.  List items do not make sense out of the context if their list
-        if (localAuthService.isUserLoggedInViaCookie()) {
-            // Logged-in users go to different URL, which is under auth check, so we can show edit
-            // buttons if they have correct permissions.
-            redirect(action: "listAuth", params: params)
-        }
-
-        doListDisplay(params)
-    }
-
-    /**
-     *
-     */
-    def listAuth() {
         doListDisplay(params)
     }
 

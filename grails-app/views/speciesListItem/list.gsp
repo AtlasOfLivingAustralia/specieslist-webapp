@@ -17,11 +17,9 @@
 <g:set var="collectoryUrl" value="${grailsApplication.config.collectory.baseURL}" />
 <g:set var="maxDownload" value="${grailsApplication.config.downloadLimit}" />
 <g:set var="userCanEditPermissions" value="${
-    params.action == 'listAuth' &&
     (speciesList.username == request.getUserPrincipal()?.attributes?.email || request.isUserInRole("ROLE_ADMIN"))
 }" />
 <g:set var="userCanEditData" value="${
-    params.action == 'listAuth' &&
     (   speciesList.username == request.getUserPrincipal()?.attributes?.email ||
         request.isUserInRole("ROLE_ADMIN") ||
         request.getUserPrincipal()?.attributes?.email in speciesList.editors

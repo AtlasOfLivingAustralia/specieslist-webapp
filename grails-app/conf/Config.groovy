@@ -40,7 +40,7 @@ if (!collectory.baseURL) {
     collectory.baseURL="http://collections.ala.org.au"
 }
 if (!security.cas.uriFilterPattern ) {
-    security.cas.uriFilterPattern  = '/speciesList, /speciesList/.*, /admin, /admin/.*, /speciesListItem/listAuth/.*, /editor, /editor/.*'
+    security.cas.uriFilterPattern  = '/speciesList, /speciesList/.*, /admin, /admin/.*, /editor, /editor/.*'
 }
 if (!security.cas.authenticateOnlyIfLoggedInPattern) {
     security.cas.authenticateOnlyIfLoggedInPattern = "/speciesListItem/list,/speciesListItem/list/.*"
