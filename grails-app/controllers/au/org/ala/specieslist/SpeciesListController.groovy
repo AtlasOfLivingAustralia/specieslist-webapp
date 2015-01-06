@@ -16,8 +16,15 @@ package au.org.ala.specieslist
 
 import au.com.bytecode.opencsv.CSVReader
 import grails.converters.*
+import org.codehaus.groovy.grails.web.json.JSONObject
+import org.springframework.web.multipart.MultipartHttpServletRequest
+import org.springframework.web.multipart.commons.CommonsMultipartFile
 
 class SpeciesListController {
+
+    public static final String CSV_UPLOAD_FILE_NAME = "csvFile"
+    public static final String INVALID_FILE_TYPE_MESSAGE = "Invalid file type: must be a tab or comma separated text file."
+    private static final String[] ACCEPTED_CONTENT_TYPES = ["text/plain", "text/csv"]
 
     def helperService
     def authService
@@ -89,69 +96,85 @@ class SpeciesListController {
         }
     }
 
-    def uploadList(){
+    def uploadList() {
         //the raw data and list name must exist
         log.debug("upload the list....")
         log.debug(params)
-        org.codehaus.groovy.grails.web.json.JSONObject formParams = JSON.parse(request.getReader())
+
+        def file = isMultipartRequest() ? request.getFile(CSV_UPLOAD_FILE_NAME) : null
+
+        JSONObject formParams = file ? JSON.parse(request.getParameter("formParams")) : JSON.parse(request.getReader())
         log.debug(formParams.toString() + " class : " + formParams.getClass())
 
-        if(formParams.speciesListName && formParams.headers && formParams.rawData){
+        if(formParams.speciesListName && formParams.headers && (file || formParams.rawData)) {
 
             def druid = createOrRetrieveDataResourceUid(
                     formParams.id,
                     formParams.speciesListName
             )
 
-            if(druid){
-
+            if(druid) {
                 log.debug("Loading species list " + formParams.speciesListName)
                 def vocabs = formParams.findAll { it.key.startsWith("vocab") && it.value } //map of vocabs
 
                 log.debug("Vocabs: " +vocabs)
-                CSVReader reader = helperService.getCSVReaderForText(formParams.rawData, helperService.getSeparator(formParams.rawData))
-                def header = formParams.headers
+                CSVReader reader
 
-                log.debug("Header: " +header)
-                def itemCount = helperService.loadSpeciesListFromCSV(reader,druid,formParams.speciesListName,
-                        ListType.valueOf(formParams.get("listType")),
-                        formParams.description,
-                        formParams.listUrl,
-                        formParams.listWkt,
-                        formParams.isBIE,
-                        formParams.isSDS,
-                        formParams.region,
-                        formParams.authority,
-                        formParams.category,
-                        formParams.generalisation,
-                        formParams.sdsType,
-                        header.split(","),
-                        vocabs)
+                try {
+                    if (file) {
+                        reader = helperService.getCSVReaderForCSVFileUpload(file, detectSeparator(file) as char)
+                    }
+                    else {
+                        reader = helperService.getCSVReaderForText(formParams.rawData, helperService.getSeparator(formParams.rawData))
+                    }
+                    def header = formParams.headers
 
-                def url = createLink(controller:'speciesListItem', action:'list', id: druid) +"?max=15"
-                //update the URL for the list
-                helperService.updateDataResourceForList(druid,
-                        [
-                         pubDescription: formParams.description,
-                         websiteUrl: grailsApplication.config.serverName + url,
-                         techDescription: "This list was first uploaded by " + authService.userDetails()?.userDisplayName + " on the " + (new Date()) + "." + "It contains " + itemCount + " taxa.",
-                         resourceType : "species-list",
-                         status : "dataAvailable",
-                         contentTypes : '["species list"]'
-                        ]
-                )
+                    log.debug("Header: " +header)
+                    def itemCount = helperService.loadSpeciesListFromCSV(reader,
+                            druid,
+                            formParams.speciesListName,
+                            ListType.valueOf(formParams.get("listType")),
+                            formParams.description,
+                            formParams.listUrl,
+                            formParams.listWkt,
+                            formParams.isBIE,
+                            formParams.isSDS,
+                            formParams.region,
+                            formParams.authority,
+                            formParams.category,
+                            formParams.generalisation,
+                            formParams.sdsType,
+                            header.split(","),
+                            vocabs)
 
-                if (itemCount.successfulItems == itemCount.totalRecords) {
-                    flash.message = "All items have been successfully uploaded."
+                    def url = createLink(controller:'speciesListItem', action:'list', id: druid) +"?max=15"
+                    //update the URL for the list
+                    helperService.updateDataResourceForList(druid,
+                            [
+                             pubDescription: formParams.description,
+                             websiteUrl: grailsApplication.config.serverName + url,
+                             techDescription: "This list was first uploaded by " + authService.userDetails()?.userDisplayName + " on the " + (new Date()) + "." + "It contains " + itemCount + " taxa.",
+                             resourceType : "species-list",
+                             status : "dataAvailable",
+                             contentTypes : '["species list"]'
+                            ]
+                    )
+
+                    if (itemCount.successfulItems == itemCount.totalRecords) {
+                        flash.message = "All items have been successfully uploaded."
+                    }
+                    else {
+                        flash.message = "${itemCount.successfulItems} out of ${itemCount.totalRecords} items have been " +
+                                "successfully uploaded."
+                    }
+
+                    def map = [url: url, error: itemCount.successfulItems > 0 ? null : "Unable to upload species data. " +
+                            "Please ensure the column containing the species name has been identified."]
+                    render map as JSON
                 }
-                else {
-                    flash.message = "${itemCount.successfulItems} out of ${itemCount.totalRecords} items have been " +
-                            "successfully uploaded."
+                finally {
+                    reader?.close()
                 }
-
-                def map = [url: url, error: itemCount.successfulItems > 0 ? null : "Unable to upload species data. " +
-                        "Please ensure the column containing the species name has been identified."]
-                render map as JSON
 
             } else {
                 response.outputStream.write("Unable to add species list at this time. If this problem persists please report it.".getBytes())
@@ -340,32 +363,77 @@ class SpeciesListController {
     /**
      * Performs an initial parse of the species list to provide feedback on values. Allowing
      * users to supply vocabs etc.
+     *
+     * Data can be submitted either via a file upload or as copy and paste text
      */
-    def parseData(){
+    def parseData() {
         log.debug("Parsing for header")
-        def rawData = request.getReader().readLines().join("\n").trim()
-        String separator = helperService.getSeparator(rawData)
-        CSVReader csvReader = helperService.getCSVReaderForText(rawData, separator)
-        def rawHeader =  csvReader.readNext()
+
+        String separator
+        CSVReader csvReader
+        CommonsMultipartFile file = isMultipartRequest() ? request.getFile(CSV_UPLOAD_FILE_NAME) : null
+
+        if (file) {
+            if (ACCEPTED_CONTENT_TYPES.contains(file.getContentType())) {
+                separator = detectSeparator(file);
+                csvReader = helperService.getCSVReaderForCSVFileUpload(file, separator as char)
+            } else {
+                render(view: 'parsedData', model: [error: INVALID_FILE_TYPE_MESSAGE])
+                return
+            }
+        } else {
+            def rawData = request.getReader().readLines().join("\n").trim()
+            separator = helperService.getSeparator(rawData)
+            csvReader = helperService.getCSVReaderForText(rawData, separator)
+        }
+
+        try {
+            parseDataFromCSV(csvReader, separator)
+        }
+        finally {
+            csvReader?.close()
+        }
+    }
+
+    private String detectSeparator(CommonsMultipartFile file) {
+        String separator
+        def reader
+        try {
+            reader = new BufferedReader(new InputStreamReader(file.getInputStream()))
+            separator = helperService.getSeparator(reader.readLine())
+        }
+        finally {
+            reader?.close()
+            // reset the uploaded file's input stream so that it can be read from again (by the CSV reader)
+            file.getInputStream().reset()
+        }
+
+        separator
+    }
+
+    private parseDataFromCSV(CSVReader csvReader, String separator) {
+        def rawHeader = csvReader.readNext()
         log.debug(rawHeader.toList())
-        def parsedHeader = helperService.parseHeader(rawHeader)?:helperService.parseData(rawHeader)
+        def parsedHeader = helperService.parseHeader(rawHeader) ?: helperService.parseData(rawHeader)
         def processedHeader = parsedHeader.header
         log.debug(processedHeader)
         def dataRows = new ArrayList<String[]>()
         def currentLine = csvReader.readNext()
-        for(int i = 0; i < noOfRowsToDisplay && currentLine != null; i++){
+        for (int i = 0; i < noOfRowsToDisplay && currentLine != null; i++) {
             dataRows.add(currentLine)
             currentLine = csvReader.readNext()
         }
-        if (processedHeader.find{it == "scientific name" || it == "vernacular name" ||  it == "common name" || it == "ambiguous name"} && processedHeader.size()>0){
+        if (processedHeader.find {
+            it == "scientific name" || it == "vernacular name" || it == "common name" || it == "ambiguous name"
+        } && processedHeader.size() > 0) {
             //grab all the unique values for the none scientific name fields to supply for potential vocabularies
             try {
-                def listProperties = helperService.parseValues(processedHeader as String[],helperService.getCSVReaderForText(rawData, separator), separator)
+                def listProperties = helperService.parseValues(processedHeader as String[], csvReader, separator)
                 log.debug("names - " + listProperties)
-                render(view: 'parsedData', model: [columnHeaders:processedHeader, dataRows:dataRows, listProperties:listProperties, listTypes:ListType.values()])
-            } catch(Exception e){
+                render(view: 'parsedData', model: [columnHeaders: processedHeader, dataRows: dataRows, listProperties: listProperties, listTypes: ListType.values()])
+            } catch (Exception e) {
                 log.debug(e.getMessage())
-                render(view: 'parsedData',model:[error: e.getMessage()])
+                render(view: 'parsedData', model: [error: e.getMessage()])
             }
         } else {
             render(view: 'parsedData', model: [columnHeaders: processedHeader, dataRows: dataRows, listTypes: ListType
@@ -399,6 +467,10 @@ class SpeciesListController {
             }
         }
         render(text: "Rematch complete")
+    }
+
+    private boolean isMultipartRequest() {
+        request instanceof MultipartHttpServletRequest
     }
 }
 

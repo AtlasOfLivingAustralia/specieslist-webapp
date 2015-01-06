@@ -49,8 +49,10 @@
     }
 
     function parseColumns(){
-        if($('#copyPasteData').val().trim() == ""){
+        if ($('#copyPasteData').val().trim() == "" && $('#csvFileUpload').val().trim() == "") {
             reset();
+        } else if ($('#copyPasteData').val().trim() != "" && $('#csvFileUpload').val().trim() != "") {
+            reportError("<b>Error:</b> You must either upload a file <i>or</i> copy and paste the list into the provided field, not both.");
         } else {
             //console.log($('#copyPasteData').val())
             $.ajaxSetup({
@@ -58,13 +60,17 @@
                 contentType: "text/html; charset=utf-8"
             });
             var url = "${createLink(controller:'speciesList', action:'parseData')}";
+            var isFileUpload = $('#csvFileUpload').val().trim() != "";
             $.ajax({
                 type: "POST",
                 url: url,
-                data: $('#copyPasteData').val(),//.val().substring(0,$('#copyPasteData').val().indexOf('\n')),
-                success: function(data){
+                processData: !isFileUpload,
+                contentType: !isFileUpload,
+                data: isFileUpload ? new FormData(document.forms.namedItem("csvUploadForm")) : $('#copyPasteData').val(),
+                success: function(data) {
                     $('#recognisedDataDiv').show();
                     $('#recognisedData').html(data);
+                    if (isFileUpload) $('#recognisedData input:first').focus();
                     $('#uploadDiv').show();
                     $('#listvocab').hide();
                 },
@@ -135,13 +141,17 @@
 
     function uploadSpeciesList(){
         if(validateForm()){
+            var isFileUpload = $('#csvFileUpload').val().trim() != "";
+
             var map =getVocabularies();
             map['headers'] = getColumnHeaders();
             map['speciesListName'] = $('#listTitle').val();
             map['description'] = $('#listDesc').val();
             map['listUrl'] = $('#listURL').val();
             map['listWkt'] = $('#listWkt').val();
-            map['rawData']  =$('#copyPasteData').val();
+            if (!isFileUpload) {
+                map['rawData']  =$('#copyPasteData').val();
+            }
             map['listType'] =$('#listTypeId').val();
             //add the existing data resource uid if it is provided to handle a resubmit
             if("${resourceUid}")
@@ -169,11 +179,22 @@
             $('#uploadDiv').hide();
             $('#statusMsgDiv').show();
             var url = "${createLink(controller:'speciesList', action:'uploadList')}";
+
+            var data
+            if (isFileUpload) {
+                data = new FormData(document.forms.namedItem("csvUploadForm"))
+                data.append("formParams", JSON.stringify(map))
+            }
+            else {
+                data = JSON.stringify(map)
+            }
             $.ajax({
                 type: "POST",
                 url: url,
                 dataType:"json",
-                data: JSON.stringify(map),//.val().substring(0,$('#copyPasteData').val().indexOf('\n')),
+                processData: !isFileUpload,
+                contentType: !isFileUpload,
+                data: data,
                 success: function(response){
                     //console.log(response, response.url)
                     if(response.url != null && response.error == null) {
@@ -190,19 +211,6 @@
 
             });
         }
-//            else{
-//                $('#listTitle').focus()
-//                alert("You must supply a species list title")
-//            }
-        //dataType: "json",
-
-//            $.post(url, $.param(map),
-//                    function(data){
-//                        //alert('Value returned from service: '  + data.uid);
-//                        console.log("DATA" ,data)
-//                    } );
-
-
     }
 
     function getVocabularies(){
@@ -306,11 +314,23 @@
                 <div class="message alert alert-info"><g:message code="upload.instructions.hasList" default="Upload a list"/></div>
             </g:if>
 
-            A species list can consist of a list of scientific or common names and optionally associated properties. When
-            a CSV list is supplied we will attempt to use the first line to determine mappings.
+            <p>
+                A species list can consist of a list of scientific or common names and optionally associated properties. When
+                a CSV list is supplied we will attempt to use the first line to determine mappings.
+            </p>
+            <p>
+                A species list can be uploaded either as a CSV file upload, or as copy and pasted text.
+            </p>
 
             <div id="initialPaste">
-                <h2>1. Paste your species list here</h2>
+                <h3>Option 1: Select a CSV file to upload here</h3>
+                <g:uploadForm name="csvUploadForm" id="csvUploadForm" action="parseData">
+                    <input id="csvFileUpload" type="file" name="csvFile" />
+                </g:uploadForm>
+                <g:submitButton id="checkData2" class="actionButton btn" name="checkData" value="Check Data"
+                                onclick="javascript:parseColumns();"/>
+
+                <h3>Option 2: Paste your species list here</h3>
                 <p>To paste your data, click the rectangle below, and type <strong>control-V (Windows)</strong>
                     or <strong>command-V (Macintosh)</strong>.
                 </p>
@@ -319,13 +339,14 @@
                         id="copyPasteData"
                         name="copyPasteData" rows="15" cols="120" style="width:100%;"
                         onkeyup="javascript:window.setTimeout('parseColumns()', 500, true);"></g:textArea>
+
                 <g:submitButton id="checkData" class="actionButton btn" name="checkData" value="Check Data"
                                 onclick="javascript:parseColumns();"/>
                 <p id="processingInfo"></p>
 
             </div>
 
-            <div id="recognisedData"></div>
+            <div id="recognisedData" tabindex="-1"></div>
 
             <!-- Moved the upload div to here so that the values can be remembered to support a reload of the species list-->
 

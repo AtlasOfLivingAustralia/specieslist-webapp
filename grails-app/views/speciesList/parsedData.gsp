@@ -28,7 +28,7 @@
 
         <h1></h1>
         <g:if test="${error}">
-            <div class="message alert alert-info">${error}</div>
+            <div class="message alert alert-error">${error}</div>
         </g:if>
         <g:else>
             <div id="recognisedDataDiv">

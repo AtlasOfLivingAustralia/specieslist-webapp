@@ -22,6 +22,7 @@ import groovy.json.JsonOutput
 import groovyx.net.http.HTTPBuilder
 import org.apache.commons.lang.StringUtils
 import org.codehaus.groovy.grails.web.json.JSONArray
+import org.springframework.web.multipart.commons.CommonsMultipartFile
 
 import static groovyx.net.http.ContentType.JSON
 
@@ -123,20 +124,17 @@ class HelperService {
         new CSVReader(new StringReader(raw), separator.charAt(0))
     }
 
+    def getCSVReaderForCSVFileUpload(CommonsMultipartFile file, char separator) {
+        new CSVReader(new InputStreamReader(file.getInputStream()), separator)
+    }
+
     def getSeparator(String raw) {
-        def firstline = ""
-        if(raw.indexOf("\n")>0){
-            firstline = raw.substring(0, raw.indexOf("\n"))
-        } else {
-            firstline = raw
-        }
-        int tabs = firstline.count("\t")
-        int commas = firstline.count(",")
-        if(tabs > commas) {
-            '\t'
-        } else {
-            ','
-        }
+        String firstLine = raw.indexOf("\n") > 0 ? raw.substring(0, raw.indexOf("\n")) : raw
+
+        int tabs = firstLine.count("\t")
+        int commas = firstLine.count(",")
+
+        tabs > commas ? '\t' : ','
     }
 
     def parseValues(String[] processedHeader, CSVReader reader, String sep)throws Exception{
