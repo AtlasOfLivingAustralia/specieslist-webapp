@@ -281,6 +281,7 @@
     });
 
 </script>
+    <r:require modules="fileupload"/>
 </head>
 
 <body class="">
@@ -324,9 +325,28 @@
 
             <div id="initialPaste">
                 <h3>Option 1: Select a CSV file to upload here</h3>
+                Please note that the file upload feature requires a modern browser (such as Chrome, Firefox, or Internet
+                Explorer 10)
+
                 <g:uploadForm name="csvUploadForm" id="csvUploadForm" action="parseData">
-                    <input id="csvFileUpload" type="file" name="csvFile" />
+                    <div class="fileupload fileupload-new span9" data-provides="fileupload">
+                        <div class="input-append">
+                            <div class="uneditable-input span3">
+                                <i class="icon-file fileupload-exists"></i>
+                                <span class="fileupload-preview"></span>
+                            </div>
+                            <span class="btn btn-file">
+                                <span class="fileupload-new">Select file</span>
+                                <span class="fileupload-exists">Change</span>
+                                <input type="file" name="csvFile" id="csvFileUpload"/>
+                            </span>
+                            <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
+                        </div>
+                    </div>
                 </g:uploadForm>
+
+                <div style="clear: both"/>
+
                 <g:submitButton id="checkData2" class="actionButton btn" name="checkData" value="Check Data"
                                 onclick="javascript:parseColumns();"/>
 

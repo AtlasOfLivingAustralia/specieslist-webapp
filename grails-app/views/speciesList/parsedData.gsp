@@ -36,7 +36,7 @@
 
                 <p>Adjust headings that have been incorrectly matched using the text boxes.
 
-                <div class="fwtable">
+                <div class="fwtable well">
                     <table id="initialParse">
                         <thead>
                         <g:if test="${columnHeaders}">

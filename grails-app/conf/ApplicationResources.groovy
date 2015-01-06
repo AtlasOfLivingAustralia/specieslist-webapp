@@ -23,4 +23,8 @@ modules = {
         resource url:[dir:'js', file:'amplify.js'], disposition: 'head'
     }
 
+    fileupload {
+        resource url:[dir:'js', file:'bootstrap-fileupload.min.js']
+        resource url:[dir:'css', file:'bootstrap-fileupload.min.css']
+    }
 }
