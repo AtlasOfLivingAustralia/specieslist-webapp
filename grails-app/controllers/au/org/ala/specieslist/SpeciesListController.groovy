@@ -15,6 +15,7 @@
 package au.org.ala.specieslist
 
 import au.com.bytecode.opencsv.CSVReader
+import au.org.ala.web.AuthService
 import grails.converters.*
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.springframework.web.multipart.MultipartHttpServletRequest
@@ -26,14 +27,14 @@ class SpeciesListController {
     public static final String INVALID_FILE_TYPE_MESSAGE = "Invalid file type: must be a tab or comma separated text file."
     private static final String[] ACCEPTED_CONTENT_TYPES = ["text/plain", "text/csv"]
 
-    def helperService
-    def authService
-    def bieService
-    def biocacheService
-    def loggerService
-    def queryService
+    HelperService helperService
+    AuthService authService
+    BieService bieService
+    BiocacheService biocacheService
+    LoggerService loggerService
+    QueryService queryService
 
-    def noOfRowsToDisplay = 5
+    int noOfRowsToDisplay = 5
 
     static allowedMethods = [uploadList:'POST']
 
@@ -123,8 +124,7 @@ class SpeciesListController {
                 try {
                     if (file) {
                         reader = helperService.getCSVReaderForCSVFileUpload(file, detectSeparator(file) as char)
-                    }
-                    else {
+                    } else {
                         reader = helperService.getCSVReaderForText(formParams.rawData, helperService.getSeparator(formParams.rawData))
                     }
                     def header = formParams.headers
