@@ -54,15 +54,32 @@ class QueryService {
                     } else {
                         def matcher = (value =~ filterRegEx)
                         if (matcher.matches()) {
-                            def fvalue = matcher[0][2]
+                            def filterMethod = matcher[0][1]
+                            def filterValue = matcher[0][2]
                             //now handle the supported filter conditions by gaining access to the criteria methods using reflection
-                            def method = criteriaMethods.get(matcher[0][1])
+                            def method = criteriaMethods.get(filterMethod)
+                            Object[] args = null
                             if (method) {
-                                Object[] args = [getValueBasedOnType(speciesListProperties[key], fvalue)]
-                                if (method.getParameterTypes().size() > 1)
+                                args = [getValueBasedOnType(speciesListProperties[key], filterValue)]
+                                if (method.getParameterTypes().size() > 1) {
                                     args = [key] + args[0]
+                                }
+                            }
 
-                                method.invoke(c, args)
+                            // special case for searching by userId: we need to find lists where the user is the
+                            // owner OR lists where they are the editor
+                            if ("userId".equals(key) && "eq".equals(filterMethod)) {
+                                or {
+                                    if (method) {
+                                        method.invoke(c, args)
+                                    }
+                                    sqlRestriction(EDITOR_SQL_RESTRICTION, [filterValue])
+                                }
+                            }
+                            else {
+                                if (method) {
+                                    method.invoke(c, args)
+                                }
                             }
                         }
                     }
@@ -92,6 +109,7 @@ class QueryService {
         }
         //remove the extra condition "fetch" condition
         params.remove('fetch')
+        println lists.size()
         lists
     }
 

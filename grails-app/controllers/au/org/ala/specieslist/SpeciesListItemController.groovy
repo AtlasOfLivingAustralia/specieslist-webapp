@@ -1,14 +1,16 @@
 package au.org.ala.specieslist
 
+import au.org.ala.web.AuthService
 import grails.converters.*
 import au.com.bytecode.opencsv.CSVWriter
 
 class SpeciesListItemController {
-    def bieService
-    def loggerService
-    def queryService
-    def localAuthService
-    def maxLengthForFacet = 15
+    BieService bieService
+    LoggerService loggerService
+    QueryService queryService
+    LocalAuthService localAuthService
+    AuthService authService
+    int maxLengthForFacet = 15
 
     def index() { }
 
@@ -16,18 +18,13 @@ class SpeciesListItemController {
      * Public display of a species list
      */
     def list(){
-        //can only show the list items for a specific list id.  List items do not make sense out of the context if their list
-        if (localAuthService.isUserLoggedInViaCookie()) {
-            // Logged-in users go to different URL, which is under auth check, so we can show edit
-            // buttons if they have correct permissions.
-            redirect(action: "listAuth", params: params)
-        }
-
         doListDisplay(params)
     }
 
     /**
-     *
+     * There is no functional difference between listAuth and list. This method has been retained to support existing
+     * links/bookmarks/etc that may refer to it. Both URLs are in the authenticateOnlyIfLoggedInFilterPattern list
+     * for CAS authentication.
      */
     def listAuth() {
         doListDisplay(params)

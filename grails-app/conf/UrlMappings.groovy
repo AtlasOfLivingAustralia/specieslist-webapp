@@ -39,5 +39,6 @@ class UrlMappings {
 
 		"/"(controller: 'public' ,action:  'index')
 		"500"(view:'/error')
+		"401"(view:'/notAuthorised')
 	}
 }

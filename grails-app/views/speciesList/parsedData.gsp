@@ -28,7 +28,7 @@
 
         <h1></h1>
         <g:if test="${error}">
-            <div class="message alert alert-info">${error}</div>
+            <div class="message alert alert-error">${error}</div>
         </g:if>
         <g:else>
             <div id="recognisedDataDiv">
@@ -36,7 +36,7 @@
 
                 <p>Adjust headings that have been incorrectly matched using the text boxes.
 
-                <div class="fwtable">
+                <div class="fwtable well">
                     <table id="initialParse">
                         <thead>
                         <g:if test="${columnHeaders}">
