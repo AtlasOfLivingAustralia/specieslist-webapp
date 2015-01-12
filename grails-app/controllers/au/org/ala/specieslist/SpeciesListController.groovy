@@ -372,23 +372,26 @@ class SpeciesListController {
         String separator
         CSVReader csvReader
         CommonsMultipartFile file = isMultipartRequest() ? request.getFile(CSV_UPLOAD_FILE_NAME) : null
-
-        if (file) {
-            if (ACCEPTED_CONTENT_TYPES.contains(file.getContentType())) {
-                separator = detectSeparator(file);
-                csvReader = helperService.getCSVReaderForCSVFileUpload(file, separator as char)
-            } else {
-                render(view: 'parsedData', model: [error: INVALID_FILE_TYPE_MESSAGE])
-                return
-            }
-        } else {
-            def rawData = request.getReader().readLines().join("\n").trim()
-            separator = helperService.getSeparator(rawData)
-            csvReader = helperService.getCSVReaderForText(rawData, separator)
-        }
-
         try {
+            if (file) {
+                if (ACCEPTED_CONTENT_TYPES.contains(file.getContentType())) {
+                    separator = detectSeparator(file);
+                    csvReader = helperService.getCSVReaderForCSVFileUpload(file, separator as char)
+                } else {
+                    render(view: 'parsedData', model: [error: INVALID_FILE_TYPE_MESSAGE])
+                    return
+                }
+            } else {
+                def rawData = request.getReader().readLines().join("\n").trim()
+                separator = helperService.getSeparator(rawData)
+                csvReader = helperService.getCSVReaderForText(rawData, separator)
+            }
+
             parseDataFromCSV(csvReader, separator)
+        }
+        catch (e) {
+            log.error("Failed to parse data", e)
+            render(view: 'parsedData', model: [error: "Unable to parse species list data: ${e.getMessage()}"])
         }
         finally {
             csvReader?.close()
@@ -396,19 +399,7 @@ class SpeciesListController {
     }
 
     private String detectSeparator(CommonsMultipartFile file) {
-        String separator
-        def reader
-        try {
-            reader = new BufferedReader(new InputStreamReader(file.getInputStream()))
-            separator = helperService.getSeparator(reader.readLine())
-        }
-        finally {
-            reader?.close()
-            // reset the uploaded file's input stream so that it can be read from again (by the CSV reader)
-            file.getInputStream().reset()
-        }
-
-        separator
+        file.getInputStream().withReader { r -> helperService.getSeparator(r.readLine()) }
     }
 
     private parseDataFromCSV(CSVReader csvReader, String separator) {
