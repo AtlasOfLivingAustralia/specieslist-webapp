@@ -396,19 +396,7 @@ class SpeciesListController {
     }
 
     private String detectSeparator(CommonsMultipartFile file) {
-        String separator
-        def reader
-        try {
-            reader = new BufferedReader(new InputStreamReader(file.getInputStream()))
-            separator = helperService.getSeparator(reader.readLine())
-        }
-        finally {
-            reader?.close()
-            // reset the uploaded file's input stream so that it can be read from again (by the CSV reader)
-            file.getInputStream().reset()
-        }
-
-        separator
+        file.getInputStream().withReader { r -> helperService.getSeparator(r.readLine()) }
     }
 
     private parseDataFromCSV(CSVReader csvReader, String separator) {

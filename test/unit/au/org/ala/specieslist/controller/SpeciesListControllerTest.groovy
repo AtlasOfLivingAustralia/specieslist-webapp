@@ -35,7 +35,8 @@ class SpeciesListControllerTest extends Specification {
     def "parseData should detect multi-part requests and read data from a file upload"() {
         setup:
         mockFile.getContentType() >> contentType
-        mockFile.getInputStream() >> new ByteArrayInputStream(fileContent.getBytes())
+        // need to return a closure here so that a new stream is created each time the method is invoked
+        mockFile.getInputStream() >> { new ByteArrayInputStream(fileContent.getBytes()) }
         controller.metaClass.request = mockMultipartRequest
 
         when:
@@ -53,7 +54,8 @@ class SpeciesListControllerTest extends Specification {
 
     def "parseData should only accept valid content types for file uploads"() {
         setup:
-        mockFile.getInputStream() >> new ByteArrayInputStream(CSV_CONTENT.getBytes())
+        // need to return a closure here so that a new stream is created each time the method is invoked
+        mockFile.getInputStream() >> { new ByteArrayInputStream(CSV_CONTENT.getBytes()) }
         mockFile.getContentType() >> contentType
         controller.metaClass.request = mockMultipartRequest
 
