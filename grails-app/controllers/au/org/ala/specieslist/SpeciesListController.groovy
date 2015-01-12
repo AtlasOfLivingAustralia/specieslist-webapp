@@ -372,23 +372,26 @@ class SpeciesListController {
         String separator
         CSVReader csvReader
         CommonsMultipartFile file = isMultipartRequest() ? request.getFile(CSV_UPLOAD_FILE_NAME) : null
-
-        if (file) {
-            if (ACCEPTED_CONTENT_TYPES.contains(file.getContentType())) {
-                separator = detectSeparator(file);
-                csvReader = helperService.getCSVReaderForCSVFileUpload(file, separator as char)
-            } else {
-                render(view: 'parsedData', model: [error: INVALID_FILE_TYPE_MESSAGE])
-                return
-            }
-        } else {
-            def rawData = request.getReader().readLines().join("\n").trim()
-            separator = helperService.getSeparator(rawData)
-            csvReader = helperService.getCSVReaderForText(rawData, separator)
-        }
-
         try {
+            if (file) {
+                if (ACCEPTED_CONTENT_TYPES.contains(file.getContentType())) {
+                    separator = detectSeparator(file);
+                    csvReader = helperService.getCSVReaderForCSVFileUpload(file, separator as char)
+                } else {
+                    render(view: 'parsedData', model: [error: INVALID_FILE_TYPE_MESSAGE])
+                    return
+                }
+            } else {
+                def rawData = request.getReader().readLines().join("\n").trim()
+                separator = helperService.getSeparator(rawData)
+                csvReader = helperService.getCSVReaderForText(rawData, separator)
+            }
+
             parseDataFromCSV(csvReader, separator)
+        }
+        catch (e) {
+            log.error("Failed to parse data", e)
+            render(view: 'parsedData', model: [error: "Unable to parse species list data: ${e.getMessage()}"])
         }
         finally {
             csvReader?.close()
