@@ -25,6 +25,7 @@
         request.getUserPrincipal()?.attributes?.email in speciesList.editors
     )
 }" />
+<r:require module="application"/>
 <html>
 <head>
     %{--<gui:resources components="['dialog']"/>--}%
