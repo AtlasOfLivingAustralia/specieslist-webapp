@@ -285,7 +285,7 @@
 </head>
 
 <body class="">
-<div id="content">
+<div id="content" class="container">
     <header id="page-header">
         <div class="inner">
             <div class="inner row-fluid">
@@ -467,7 +467,7 @@
                     </table>
                     %{--<label for="speciesListName" class="datasetName"><strong>Your species list name</strong></label>--}%
                     %{--<input id="speciesListName" class="datasetName" name="datasetName" type="text" value="My test species list" style="width:350px; margin-bottom:5px;"/>--}%
-                    <input id="uploadButton" class="datasetName actionButton btn" type="button" value="Upload"
+                    <input id="uploadButton" class="datasetName actionButton btn btn-primary" type="button" value="Upload"
                            onclick="javascript:uploadSpeciesList();"/>
                     %{--</p>--}%
                 </div>
