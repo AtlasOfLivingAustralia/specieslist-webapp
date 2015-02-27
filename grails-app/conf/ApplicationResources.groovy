@@ -4,8 +4,8 @@ modules = {
         resource url:'css/AlaBsAdditions.css'
     }
     fancybox {
-        resource url:'/fancybox/jquery.fancybox-1.3.4.css'
-        resource url:'fancybox/jquery.fancybox-1.3.4.pack.js'
+        resource url:'js/fancybox/jquery.fancybox-1.3.4.css'
+        resource url:'js/fancybox/jquery.fancybox-1.3.4.pack.js'
 //        resource url:'/fancybox/jquery.fancybox.css'
 //        resource url:'/fancybox/jquery.fancybox.pack.js'
 //        resource url:'/fancybox/blank.gif'
@@ -16,11 +16,11 @@ modules = {
 
     baHashchange {
         dependsOn "jquery"
-        resource url:[dir:'js', file:'jquery.ba-hashchange.min.js'], disposition: 'head'
+        resource url:[dir:'js', file:'jquery.ba-hashchange.min.js']
     }
 
     amplify {
-        resource url:[dir:'js', file:'amplify.js'], disposition: 'head'
+        resource url:[dir:'js', file:'amplify.js']
     }
 
     fileupload {

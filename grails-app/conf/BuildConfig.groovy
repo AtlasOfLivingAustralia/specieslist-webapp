@@ -51,11 +51,10 @@ grails.project.dependency.resolution = {
     plugins {
         build ":release:3.0.1"
         runtime ":hibernate:3.6.10.15"
-        runtime ":jquery:1.7.1"
-        runtime ":resources:1.2"
 
-        compile(":ala-web-theme:0.8.1") {
-            excludes "jquery","resources","cache","servlet-api"
+        runtime ":ala-bootstrap2:2.0"
+        runtime (":ala-auth:1.0") {
+            exclude "servlet-api"
         }
         compile ':cache:1.0.1'
         compile ':cache-ehcache:1.0.0'
