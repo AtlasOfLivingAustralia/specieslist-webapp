@@ -4,7 +4,6 @@ jdk:
 branches:
   only:
   - master
-  - 2015-design
 before_install:
 - rm -rf ~/.gvm
 - curl -s get.gvmtool.net > ~/install_gvm.sh
