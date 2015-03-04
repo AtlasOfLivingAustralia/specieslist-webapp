@@ -19,13 +19,13 @@
     <title>Species lists | Atlas of Living Australia</title>
 </head>
 <body class="">
-<div id="content">
+<div id="content" class="container">
     <header id="page-header">
-        <div class="inner row-fluid" style="display: block;">
+        <div class="inner row" style="display: block;">
             <div id="breadcrumb" class="span12">
                 <ol class="breadcrumb">
                     <li><a href="http://www.ala.org.au">Home</a> <span class=" icon icon-arrow-right"></span></li>
-                    <li class="active"><a class="current" href="${request.contextPath}/admin/speciesLists">Species lists</a></li>
+                    <li><a class="current" href="${request.contextPath}/admin/speciesLists">Species lists</a></li>
                 </ol>
             </div>
         </div>
@@ -34,8 +34,10 @@
                 <h1>Species lists</h1>
             </hgroup>
             <div class="span4 header-btns">
-                <a class="btn btn-ala" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
-                <a class="btn btn-ala" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
+                <span class="pull-right">
+                    <a class="btn btn-ala" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
+                    <a class="btn btn-ala" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
+                </span>
             </div>
         </div><!--.row-fluid-->
 

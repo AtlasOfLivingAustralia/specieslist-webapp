@@ -31,7 +31,7 @@
             document.getElementById("speciesList").style.display = "block";
     }
 </script>
-<div id="content">
+<div id="content" class="container">
     <header id="page-header2">
         <div class="innerZ row-fluid">
             <div id="breadcrumb" class="span12">
@@ -47,7 +47,7 @@
                 <h1>My species lists</h1>
             </hgroup>
             <div class="span4 header-btns">
-                <a class="btn btn-ala" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
+                <a class="btn btn-ala pull-right" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
             </div>
         </div><!--inner-->
     </header>

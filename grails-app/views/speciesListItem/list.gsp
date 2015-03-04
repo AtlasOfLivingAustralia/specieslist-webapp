@@ -25,6 +25,7 @@
         request.getUserPrincipal()?.attributes?.email in speciesList.editors
     )
 }" />
+<r:require module="application"/>
 <html>
 <head>
     %{--<gui:resources components="['dialog']"/>--}%
@@ -327,7 +328,7 @@
 </script>
 </head>
 <body class="yui-skin-sam nav-species">
-<div id="content" >
+<div id="content" class="container">
     <header id="page-header">
 
         <div class="inner row-fluid">
@@ -388,13 +389,14 @@
                 </div>
             </g:if>
             <div class="span5 header-btns" id="buttonDiv">
-                %{--<div id="buttonDiv" class="buttonDiv">--}%
-                <a href="#download" class="btn btn-ala" title="View the download options for this species list." id="downloadLink">Download</a>
+                <span class="pull-right">
+                    <a href="#download" class="btn btn-ala" title="View the download options for this species list." id="downloadLink">Download</a>
 
-                <a class="btn btn-ala" title="View occurrences for up to ${maxDownload} species on the list"
-                   href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">View occurrences records</a>
+                    <a class="btn btn-ala" title="View occurrences for up to ${maxDownload} species on the list"
+                       href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">View occurrences records</a>
 
-                <a href="${request.contextPath}/speciesList/spatialPortal/${params.id}${params.toQueryString()}&type=Search" class="btn btn-ala" title="View the spatial portal." id="downloadLink">View in spatial portal</a>
+                    <a href="${request.contextPath}/speciesList/spatialPortal/${params.id}${params.toQueryString()}&type=Search" class="btn btn-ala" title="View the spatial portal." id="downloadLink">View in spatial portal</a>
+                </span>
             </div>  <!-- rightfloat -->
 
             <div style="display:none">

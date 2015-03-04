@@ -26,85 +26,9 @@ if(System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
 
 println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
 
-/******* ALA standard config ************/
-if(!runWithNoExternalConfig){
-    //runWithNoExternalConfig = true
-}
-if(!serverName){
-    serverName = 'http://lists.ala.org.au'
-}
-if (!collectory.enableSync) {
-    collectory.enableSync = false
-}
-if (!collectory.baseURL) {
-    collectory.baseURL="http://collections.ala.org.au"
-}
-if (!security.cas.uriFilterPattern ) {
-    security.cas.uriFilterPattern  = '/speciesList, /speciesList/.*, /admin, /admin/.*, /editor, /editor/.*'
-}
-if (!security.cas.authenticateOnlyIfLoggedInPattern) {
-    security.cas.authenticateOnlyIfLoggedInPattern = "/speciesListItem/list,/speciesListItem/list/.*,/speciesListItem/listAuth,/speciesListItem/listAuth/.*"
-}
-if (!security.cas.casServerName) {
-    security.cas.casServerName = 'https://auth.ala.org.au'
-}
-if (!security.cas.uriExclusionFilterPattern) {
-    ssecurity.cas.uriExclusionFilterPattern = '/images.*,/css.*,/js.*,/speciesList/occurrences/.*,/speciesList/fieldGuide/.*,/ws/speciesList'
-}
-if (!security.cas.loginUrl) {
-    security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
-}
-if (!security.cas.logoutUrl) {
-    security.cas.logoutUrl = 'https://auth.ala.org.au/cas/logout'
-}
-if (!security.cas.casServerUrlPrefix) {
-    security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
-}
-if (!security.cas.bypass) {
-    security.cas.bypass = false
-}
-if (!downloadLimit) {
-    downloadLimit = "200"
-}
-if (!biocacheService.baseURL) {
-    biocacheService.baseURL = "http://biocache.ala.org.au/ws"
-}
-if (!headerAndFooter.baseURL ) {
-    headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
-}
-if (!ala.baseURL) {
-    ala.baseURL = "http://www.ala.org.au"
-}
-if (!bie.baseURL) {
-    bie.baseURL = "http://bie.ala.org.au"
-}
-if (!bieService.baseURL) {
-    bieService.baseURL = "http://bie.ala.org.au/ws"
-}
-if (!biocache.baseURL) {
-    biocache.baseURL = "http://biocache.ala.org.au"
-}
-if (!fieldGuide.baseURL) {
-    fieldGuide.baseURL = "http://fieldguide.ala.org.au"
-}
-if (!bie.searchPath) {
-    bie.searchPath = "/search"
-}
-if (!bie.download) {
-    bie.download = "/data/bie-staging/species-list"
-}
-if (!bie.nameIndexLocation) {
-    bie.nameIndexLocation = "/data/lucene/namematching_v13"
-}
-if (!skin.fluidLayout) {
-    skin.fluidLayout = true
-}
 
-updateUserDetailsOnStartup = false
-
-
-/******* End of ALA standard config ************/
 /*** Config specific for species list ***/
+updateUserDetailsOnStartup = false
 
  //the number of species to limit downloads to
 /*** End config specific for species list ***/
