@@ -31,7 +31,7 @@
             document.getElementById("speciesList").style.display = "block";
     }
 </script>
-<div id="content" class="container">
+<div id="content" class="container-fluid">
     <header id="page-header2">
         <div class="innerZ row-fluid">
             <div id="breadcrumb" class="span12">

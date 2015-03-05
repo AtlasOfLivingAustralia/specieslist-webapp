@@ -13,7 +13,7 @@
     <r:require module="fancybox"/>
 </head>
 <body class="">
-<div id="content" class="container">
+<div id="content" class="container-fluid">
     <header id="page-header">
         <div class="inner row-fluid">
             <div id="breadcrumb" class="span12">

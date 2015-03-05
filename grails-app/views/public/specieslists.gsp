@@ -19,7 +19,7 @@
     <title>Species lists | Atlas of Living Australia</title>
 </head>
 <body class="">
-<div id="content" class="container">
+<div id="content" class="container-fluid">
     <header id="page-header">
         <div class="inner row-fluid" style="display: block;">
             <div id="breadcrumb" class="span12">
@@ -61,7 +61,7 @@
             </p>
             <form class="listSearchForm" >
                 <div class="input-append" id="searchLists">
-                    <input class="span4" id="appendedInputButton" name="q" type="text" value="${params.q}" placeholder="Search in list name, description or owner">
+                    <input class="input-xlarge" id="appendedInputButton" name="q" type="text" value="${params.q}" placeholder="Search in list name, description or owner">
                     <button class="btn" type="submit">Search</button>
                 </div>
             </form>

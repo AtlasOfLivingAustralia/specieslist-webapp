@@ -21,7 +21,7 @@
     </style>
 </head>
 <body class="">
-    <div id="content" class="container">
+    <div id="content" class="container-fluid">
         <div class="inner">
         <h2>Species List Web Services</h2>
         <p>

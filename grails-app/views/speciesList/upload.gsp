@@ -285,7 +285,7 @@
 </head>
 
 <body class="">
-<div id="content" class="container">
+<div id="content" class="container-fluid">
     <header id="page-header">
         <div class="inner">
             <div class="inner row-fluid">
