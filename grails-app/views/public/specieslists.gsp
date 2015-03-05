@@ -21,10 +21,10 @@
 <body class="">
 <div id="content" class="container">
     <header id="page-header">
-        <div class="inner row" style="display: block;">
+        <div class="inner row-fluid" style="display: block;">
             <div id="breadcrumb" class="span12">
                 <ol class="breadcrumb">
-                    <li><a href="http://www.ala.org.au">Home</a> <span class=" icon icon-arrow-right"></span></li>
+                    <li><a href="http://www.ala.org.au">Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
                     <li><a class="current" href="${request.contextPath}/admin/speciesLists">Species lists</a></li>
                 </ol>
             </div>
@@ -42,7 +42,7 @@
         </div><!--.row-fluid-->
 
     </header>
-    <div class="inner" id="public-specieslist">
+    <div class="inner row-fluid" id="public-specieslist">
         <g:if test="${flash.message}">
             <div class="message alert alert-info">
                 <button type="button" class="close" onclick="$(this).parent().hide()">×</button>

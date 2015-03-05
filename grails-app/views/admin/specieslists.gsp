@@ -13,13 +13,13 @@
     <r:require module="fancybox"/>
 </head>
 <body class="">
-<div id="content">
+<div id="content" class="container">
     <header id="page-header">
         <div class="inner row-fluid">
             <div id="breadcrumb" class="span12">
                 <ol class="breadcrumb">
-                    <li><a href="http://www.ala.org.au">Home</a> <span class=" icon icon-arrow-right"></span></li>
-                    <li class="active"><a class="current" href="${request.contextPath}/admin/speciesLists">Species lists</a></li>
+                    <li><a href="http://www.ala.org.au">Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+                    <li class="current"><a class="current" href="${request.contextPath}/public/speciesLists">Species lists</a></li>
                 </ol>
             </div>
         </div>
@@ -28,9 +28,11 @@
                 <h1>Species lists</h1>
             </hgroup>
             <div class="span4 header-btns">
-                <a class="btn btn-ala" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
-                <a class="btn btn-ala" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
-                <a class="btn btn-ala" title="Rematch" href="${request.contextPath}/speciesList/rematch">Rematch All</a>
+                <span class="pull-right">
+                    <a class="btn btn-ala" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
+                    <a class="btn btn-ala" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
+                    <a class="btn btn-ala" title="Rematch" href="${request.contextPath}/speciesList/rematch">Rematch All</a>
+                </span>
             </div>
         </div><!--inner-->
     </header>
