@@ -50,6 +50,16 @@
     $(document).ready(function(){
         init();
 
+        // in mobile view toggle display of facets
+        $('#toggleFacetDisplay').click(function() {
+            $(this).find('i').toggleClass('icon-chevron-right icon-chevron-down');
+            if ($('#accordion').is(':visible')) {
+                $('#accordion').removeClass('overrideHide');
+            } else {
+                $('#accordion').addClass('overrideHide');
+            }
+        });
+
         // ba-hashchange plugin
         $(window).hashchange( function() {
             var hash = location.hash ? location.hash : "#list";
@@ -626,72 +636,144 @@
                 </section>
                 <section class="refine" id="refine">
                     <g:if test="${facets.size()>0 || params.fq}">
-                        <h4>Refine results</h4>
-                        <g:set var="fqs" value="${params.list('fq')}" />
-                        <g:if test="${fqs.size()>0&& fqs.get(0).length()>0}">
-                            <div id="currentFilter">
-                                <p>
-                                    <span class="FieldName">Current Filters</span>
-                                </p>
-                                <div id="currentFilters" class="subnavlist">
-                                    <ul>
-                                        <g:each in="${fqs}" var="fq">
-                                            <g:if test="${fq.length() >0}">
-                                                <li>
-                                                    <a href="${sl.removeFqHref(fqs: fqs, fq: fq)}" class="removeLink " title="Uncheck (remove filter)"><i class="icon-check"></i></a>
-                                                    <g:message code="facet.${fq.replaceFirst("kvp ","")}" default="${fq.replaceFirst("kvp ","")}"/>
-                                                    %{--<a class="removeLink" onclick="removeFacet('family:ACANTHASPIDIIDAE'); return false;" href="#" oldtitle="remove filter" aria-describedby="ui-tooltip-1">X</a>--}%
-                                                    %{--[<b><a href="#" class="removeLink" title="Remove Filter" onclick="removeFacet('${fq}')">X</a></b>]--}%
-                                                </li>
-                                            </g:if>
-                                        </g:each>
-                                    </ul>
-                                </div>
-                            </div>
-                        </g:if>
-
-                        <g:each in="${facets}" var="entry">
-                            <g:if test="${entry.key == "listProperties"}">
-                            %{--<g:if test="${facets.containsKey("listProperties")}">--}%
-                                <g:each in="${facets.get("listProperties")}" var="value">
+                        <h4 class="hidden-phone">Refine results</h4>
+                        <h4 class="visible-phone">
+                            <a href="#" id="toggleFacetDisplay"><i class="icon-chevron-right" id="facetIcon"></i>
+                                Refine results</a>
+                        </h4>
+                        <div class="hidden-phone" id="accordion">
+                            <g:set var="fqs" value="${params.list('fq')}" />
+                            <g:if test="${fqs.size()>0&& fqs.get(0).length()>0}">
+                                <div id="currentFilter">
                                     <p>
-                                        <span class="FieldName">${value.getKey()}</span>
+                                        <span class="FieldName">Current Filters</span>
                                     </p>
-                                    <div id="facet-${value.getKey()}" class="subnavlist">
+                                    <div id="currentFilters" class="subnavlist">
+                                        <ul>
+                                            <g:each in="${fqs}" var="fq">
+                                                <g:if test="${fq.length() >0}">
+                                                    <li>
+                                                        <a href="${sl.removeFqHref(fqs: fqs, fq: fq)}" class="removeLink " title="Uncheck (remove filter)"><i class="icon-check"></i></a>
+                                                        <g:message code="facet.${fq.replaceFirst("kvp ","")}" default="${fq.replaceFirst("kvp ","")}"/>
+                                                        %{--<a class="removeLink" onclick="removeFacet('family:ACANTHASPIDIIDAE'); return false;" href="#" oldtitle="remove filter" aria-describedby="ui-tooltip-1">X</a>--}%
+                                                        %{--[<b><a href="#" class="removeLink" title="Remove Filter" onclick="removeFacet('${fq}')">X</a></b>]--}%
+                                                    </li>
+                                                </g:if>
+                                            </g:each>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </g:if>
+
+                            <g:each in="${facets}" var="entry">
+                                <g:if test="${entry.key == "listProperties"}">
+                                %{--<g:if test="${facets.containsKey("listProperties")}">--}%
+                                    <g:each in="${facets.get("listProperties")}" var="value">
+                                        <p>
+                                            <span class="FieldName">${value.getKey()}</span>
+                                        </p>
+                                        <div id="facet-${value.getKey()}" class="subnavlist">
+                                            <ul>
+                                                <g:set var="i" value="${0}" />
+                                                <g:set var="values" value="${value.getValue()}" />
+                                                <g:while test="${i < 4 && i<values.size()}">
+                                                    <g:set var="arr" value="${values.get(i)}" />
+                                                    <li>
+                                                        <a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]}</a>  (${arr[3]})
+                                                    </li>
+                                                    <%i++%>
+                                                </g:while>
+                                                <g:if test="${values.size()>4}">
+                                                    <div class="showHide">
+                                                        <i class="icon icon-hand-right"></i>
+                                                        <a href="#div${value.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLinkZ" id="multi-${value.getKey()}"
+                                                           role="button" data-toggle="modal"  title="See full list of values">choose more...</a>
+                                                        <!-- modal popup for "choose more" link -->
+                                                        <div id="div${value.getKey().replaceAll(" " ,"_")}" class="modal hide " tabindex="-1" role="dialog" aria-labelledby="multipleFacetsLabel" aria-hidden="true"><!-- BS modal div -->
+                                                            <div class="modal-header">
+                                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                                                <h3 class="multipleFacetsLabel">Refine your search</h3>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <table class="table table-bordered table-condensed table-striped scrollTable" style="width:100%;">
+                                                                    <thead class="fixedHeader">
+                                                                    <tr class="tableHead">
+                                                                        <th class="indexCol" width="80%">${value.getKey()}</th>
+                                                                        <th style="border-right-style: none;text-align: right;">Count</th>
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody class="scrollContent">
+                                                                    <g:each in="${value.getValue()}" var="arr">
+                                                                        <tr>
+                                                                            <td><a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]} </a></td>
+                                                                            <td style="text-align: right; border-right-style: none;">${arr[3]}</td>
+                                                                        </tr>
+                                                                    </g:each>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            <div class="modal-footer" style="text-align: left;">
+                                                                <button class="btn btn-small" data-dismiss="modal" aria-hidden="true" style="float:right;">Close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div><!-- invisible content div for facets -->
+                                                </g:if>
+                                            %{--</g:each>--}%
+                                            </ul>
+                                        </div>
+
+                                    </g:each>
+                                    <div style="display:none"><!-- fancybox popup div -->
+                                        <div id="multipleFacets">
+                                            <p>Refine your search</p>
+                                            <div id="dynamic" class="tableContainer"></div>
+                                            %{--<div id='submitFacets'>--}%
+                                            %{--<input type='submit' class='submit' id="include" value="INCLUDE selected items in search"/>--}%
+                                            %{--&nbsp;--}%
+                                            %{--<input type='submit' class='submit' id="exclude" value="EXCLUDE selected items from search"/>--}%
+                                            %{--</div>--}%
+                                        </div>
+                                    </div>
+                                </g:if>
+                                <g:else>
+                                    <p>
+                                        <span class="FieldName">${entry.key}</span>
+                                    </p>
+
+                                    <div id="facet-${entry.key}" class="subnavlist">
                                         <ul>
                                             <g:set var="i" value="${0}" />
-                                            <g:set var="values" value="${value.getValue()}" />
+                                            <g:set var="values" value="${entry.value}" />
                                             <g:while test="${i < 4 && i<values.size()}">
                                                 <g:set var="arr" value="${values.get(i)}" />
                                                 <li>
-                                                    <a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]}</a>  (${arr[3]})
+                                                    <a href="?fq=${entry.key}:${arr[0]}${queryParams}">${arr[0]}</a>  (${arr[1]})
                                                 </li>
                                                 <%i++%>
                                             </g:while>
                                             <g:if test="${values.size()>4}">
                                                 <div class="showHide">
-                                                    <i class="icon icon-hand-right"></i>
-                                                    <a href="#div${value.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLinkZ" id="multi-${value.getKey()}"
-                                                       role="button" data-toggle="modal"  title="See full list of values">choose more...</a>
+                                                    <i class="icon icon-hand-right"></i> <a href="#div${entry.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLinkZ" id="multi-${entry.getKey()}"
+                                                            role="button" data-toggle="modal" title="See full list of values">choose more...</a>
                                                     <!-- modal popup for "choose more" link -->
-                                                    <div id="div${value.getKey().replaceAll(" " ,"_")}" class="modal hide " tabindex="-1" role="dialog" aria-labelledby="multipleFacetsLabel" aria-hidden="true"><!-- BS modal div -->
+                                                    <div id="div${entry.getKey().replaceAll(" " ,"_")}" class="modal hide " tabindex="-1" role="dialog" aria-labelledby="multipleFacetsLabel2" aria-hidden="true"><!-- BS modal div -->
                                                         <div class="modal-header">
                                                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                                                            <h3 class="multipleFacetsLabel">Refine your search</h3>
+                                                            <h3 class="multipleFacetsLabel2">Refine your search</h3>
                                                         </div>
                                                         <div class="modal-body">
                                                             <table class="table table-bordered table-condensed table-striped scrollTable" style="width:100%;">
                                                                 <thead class="fixedHeader">
                                                                 <tr class="tableHead">
-                                                                    <th class="indexCol" width="80%">${value.getKey()}</th>
+                                                                    <th width="80%">${entry.getKey()}</th>
                                                                     <th style="border-right-style: none;text-align: right;">Count</th>
                                                                 </tr>
                                                                 </thead>
                                                                 <tbody class="scrollContent">
-                                                                <g:each in="${value.getValue()}" var="arr">
+                                                                <g:each in="${entry.getValue()}" var="arr">
                                                                     <tr>
-                                                                        <td><a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]} </a></td>
-                                                                        <td style="text-align: right; border-right-style: none;">${arr[3]}</td>
+                                                                        <td><a href="?fq=${entry.key}:${arr[0]}${queryParams}">${arr[0]} </a></td>
+                                                                        <td style="border-right-style: none;text-align: right;">${arr[1]}</td>
                                                                     </tr>
                                                                 </g:each>
                                                                 </tbody>
@@ -703,77 +785,11 @@
                                                     </div>
                                                 </div><!-- invisible content div for facets -->
                                             </g:if>
-                                        %{--</g:each>--}%
                                         </ul>
                                     </div>
-
-                                </g:each>
-                                <div style="display:none"><!-- fancybox popup div -->
-                                    <div id="multipleFacets">
-                                        <p>Refine your search</p>
-                                        <div id="dynamic" class="tableContainer"></div>
-                                        %{--<div id='submitFacets'>--}%
-                                        %{--<input type='submit' class='submit' id="include" value="INCLUDE selected items in search"/>--}%
-                                        %{--&nbsp;--}%
-                                        %{--<input type='submit' class='submit' id="exclude" value="EXCLUDE selected items from search"/>--}%
-                                        %{--</div>--}%
-                                    </div>
-                                </div>
-                            </g:if>
-                            <g:else>
-                                <p>
-                                    <span class="FieldName">${entry.key}</span>
-                                </p>
-
-                                <div id="facet-${entry.key}" class="subnavlist">
-                                    <ul>
-                                        <g:set var="i" value="${0}" />
-                                        <g:set var="values" value="${entry.value}" />
-                                        <g:while test="${i < 4 && i<values.size()}">
-                                            <g:set var="arr" value="${values.get(i)}" />
-                                            <li>
-                                                <a href="?fq=${entry.key}:${arr[0]}${queryParams}">${arr[0]}</a>  (${arr[1]})
-                                            </li>
-                                            <%i++%>
-                                        </g:while>
-                                        <g:if test="${values.size()>4}">
-                                            <div class="showHide">
-                                                <i class="icon icon-hand-right"></i> <a href="#div${entry.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLinkZ" id="multi-${entry.getKey()}"
-                                                        role="button" data-toggle="modal" title="See full list of values">choose more...</a>
-                                                <!-- modal popup for "choose more" link -->
-                                                <div id="div${entry.getKey().replaceAll(" " ,"_")}" class="modal hide " tabindex="-1" role="dialog" aria-labelledby="multipleFacetsLabel2" aria-hidden="true"><!-- BS modal div -->
-                                                    <div class="modal-header">
-                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                                                        <h3 class="multipleFacetsLabel2">Refine your search</h3>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <table class="table table-bordered table-condensed table-striped scrollTable" style="width:100%;">
-                                                            <thead class="fixedHeader">
-                                                            <tr class="tableHead">
-                                                                <th width="80%">${entry.getKey()}</th>
-                                                                <th style="border-right-style: none;text-align: right;">Count</th>
-                                                            </tr>
-                                                            </thead>
-                                                            <tbody class="scrollContent">
-                                                            <g:each in="${entry.getValue()}" var="arr">
-                                                                <tr>
-                                                                    <td><a href="?fq=${entry.key}:${arr[0]}${queryParams}">${arr[0]} </a></td>
-                                                                    <td style="border-right-style: none;text-align: right;">${arr[1]}</td>
-                                                                </tr>
-                                                            </g:each>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                    <div class="modal-footer" style="text-align: left;">
-                                                        <button class="btn btn-small" data-dismiss="modal" aria-hidden="true" style="float:right;">Close</button>
-                                                    </div>
-                                                </div>
-                                            </div><!-- invisible content div for facets -->
-                                        </g:if>
-                                    </ul>
-                                </div>
-                            </g:else>
-                        </g:each>
+                                </g:else>
+                            </g:each>
+                        </div>
                     </g:if>
                 </section>
             </div><!-- boxed attached -->

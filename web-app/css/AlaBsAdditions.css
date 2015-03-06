@@ -367,3 +367,6 @@ img.smallSpeciesImage {
     background-color: black;
     opacity: 0.7;
 }
+.overrideHide {
+   display: block !important;
+}
