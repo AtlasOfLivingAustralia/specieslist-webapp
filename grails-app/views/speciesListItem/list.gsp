@@ -62,8 +62,8 @@
 
         // ba-hashchange plugin
         $(window).hashchange( function() {
-            var hash = location.hash ? location.hash : "#list";
             var storedView = amplify.store('view-state');
+            var hash = location.hash ? location.hash : storedView ? storedView : "#list";
             amplify.store('view-state', hash); // store current hash in local storage (for pagination links)
 
             if (hash == '#grid') {
