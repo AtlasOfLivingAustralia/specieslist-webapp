@@ -330,8 +330,10 @@ class SpeciesListController {
             def title = "Species List: " + splist.listName
             log.debug "unMatchedNames = " + unMatchedNames
             def qid = biocacheService.getQid(guids, unMatchedNames, title, splist.wkt)
-            if(qid.status == 200){
+            if(qid?.status == 200){
                 redirect(url:"http://spatial.ala.org.au/?q=qid:"+qid.result)
+            } else {
+                render(view: '../error', model: [message: "Unable to view occurrences records. Please let us know if this error persists."])
             }
         }
     }

@@ -47,8 +47,8 @@ class BiocacheService {
 
     def getTimeout() {
         int timeout = DEFAULT_TIMEOUT_MILLIS
-        String timeoutFromConfig = grailsApplication.config.httpTimeoutMillis
-        if (timeout) {
+        def timeoutFromConfig = grailsApplication.config.httpTimeoutMillis
+        if (timeoutFromConfig?.size() > 0) {
             timeout = timeoutFromConfig as int
         }
         timeout
@@ -66,9 +66,9 @@ class BiocacheService {
     def performBatchSearchOrDownload(guids, unMatchedNames, downloadDto, title, wkt) {
 
         def resp = getQid(guids, unMatchedNames, title, wkt)
-        if(resp.status == 302){
+        if(resp?.status == 302){
             resp.result
-        } else if (resp.status == 200) {
+        } else if (resp?.status == 200) {
             log.debug "200 OK response"
             def qid = resp.result
             def returnUrl = grailsApplication.config.biocache.baseURL
