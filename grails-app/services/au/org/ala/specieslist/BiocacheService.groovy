@@ -4,12 +4,14 @@ import groovyx.net.http.HTTPBuilder
 import grails.web.JSONBuilder
 
 class BiocacheService {
+    static final int DEFAULT_TIMEOUT_MILLIS = 60000
 
     def grailsApplication
 
     def getQid(guids, unMatchedNames, title, wkt){
         def http = new HTTPBuilder(grailsApplication.config.biocacheService.baseURL +"/webportal/params")
-        http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
+
+        http.getClient().getParams().setParameter("http.socket.timeout", getTimeout())
         def query = ""
 
         if (guids) {
@@ -41,6 +43,15 @@ class BiocacheService {
             log.error("Unable to get occurrences: " ,ex)
             return null;
         }
+    }
+
+    def getTimeout() {
+        int timeout = DEFAULT_TIMEOUT_MILLIS
+        String timeoutFromConfig = grailsApplication.config.httpTimeoutMillis
+        if (timeout) {
+            timeout = timeoutFromConfig as int
+        }
+        timeout
     }
 
     /**
