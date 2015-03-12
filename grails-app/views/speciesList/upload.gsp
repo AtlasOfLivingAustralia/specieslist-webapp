@@ -191,7 +191,6 @@
             $.ajax({
                 type: "POST",
                 url: url,
-                dataType:"json",
                 processData: !isFileUpload,
                 contentType: !isFileUpload,
                 data: data,
