@@ -126,6 +126,8 @@ class WebServiceController {
                 fullName = sl.getFullName()
                 itemCount=sl.itemsCount//SpeciesListItem.countByList(sl)
                 isAuthoritative=sl.isAuthoritative?:false
+                isInvasive=sl.isInvasive?:false
+                isThreatened=sl.isThreatened?:false
             }
             log.debug(" The retvalue: " + retValue)
             render retValue
@@ -160,7 +162,9 @@ class WebServiceController {
                                             generalisation:it.generalisation,
                                             authority:it.authority,
                                             sdsType:it.sdsType,
-                                            isAuthoritative: it.isAuthoritative?:false]}]
+                                            isAuthoritative: it.isAuthoritative?:false,
+                                            isInvasive: it.isInvasive?:false,
+                                            isThreatened: it.isThreatened?:false]}]
 
             render retValue as JSON
         }

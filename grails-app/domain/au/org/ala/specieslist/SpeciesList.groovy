@@ -19,6 +19,8 @@ class SpeciesList {
     Boolean isSDS
     Boolean isBIE
     Boolean isAuthoritative
+    Boolean isInvasive
+    Boolean isThreatened
     Long itemsCount = 0
     String region
     String authority
@@ -40,6 +42,8 @@ class SpeciesList {
         isSDS nullable:true
         isBIE nullable:true
         isAuthoritative nullable: true
+        isInvasive nullable: true
+        isThreatened nullable: true
         firstName nullable: true
         surname nullable: true
         editors nullable: true

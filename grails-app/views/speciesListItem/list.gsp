@@ -446,6 +446,10 @@
             <dd><g:formatBoolean boolean="${speciesList.isBIE?:false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.isAuthoritative.label', default: 'Authoritative')}</dt>
             <dd><g:formatBoolean boolean="${speciesList.isAuthoritative?:false}" true="Yes" false="No"/></dd>
+            <dt>${message(code: 'speciesList.isInvasive.label', default: 'Invasive')}</dt>
+            <dd><g:formatBoolean boolean="${speciesList.isInvasive?:false}" true="Yes" false="No"/></dd>
+            <dt>${message(code: 'speciesList.isThreatened.label', default: 'Threatened')}</dt>
+            <dd><g:formatBoolean boolean="${speciesList.isThreatened?:false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.isSDS.label', default: 'Part of the SDS')}</dt>
             <dd><g:formatBoolean boolean="${speciesList.isSDS?:false}" true="Yes" false="No"/></dd>
             <g:if test="${speciesList.isSDS}">
@@ -545,6 +549,18 @@
                             <label class="control-label" for="isAuthoritative">${message(code:'speciesList.isAuthoritative.label', default: 'Authoritative')}</label>
                             <div class="controls">
                                 <input type="checkbox" id="isAuthoritative" name="isAuthoritative" class="input-xlarge" value="true" data-value="${speciesList.isAuthoritative}" ${(speciesList.isAuthoritative == true) ? 'checked="checked"':''} />
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="isInvasive">${message(code:'speciesList.isInvasive.label', default: 'Invasive')}</label>
+                            <div class="controls">
+                                <input type="checkbox" id="isInvasive" name="isInvasive" class="input-xlarge" value="true" data-value="${speciesList.isInvasive}" ${(speciesList.isInvasive == true) ? 'checked="checked"':''} />
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="isThreatened">${message(code:'speciesList.isThreatened.label', default: 'Threatened')}</label>
+                            <div class="controls">
+                                <input type="checkbox" id="isThreatened" name="isThreatened" class="input-xlarge" value="true" data-value="${speciesList.isThreatened}" ${(speciesList.isThreatened == true) ? 'checked="checked"':''} />
                             </div>
                         </div>
                         <div class="control-group">
