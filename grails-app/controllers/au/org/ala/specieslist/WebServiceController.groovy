@@ -387,13 +387,12 @@ class WebServiceController {
                 if (!results[it.rawScientificName]) {
                     results[it.rawScientificName] = []
                 }
-                List kvps = []
+                List kvps = results[it.rawScientificName]
                 it.kvpValues.each {
                     if (keys.contains(it.key)) {
                         kvps << [key: it.key, value: it.value]
                     }
                 }
-                results[it.rawScientificName] = kvps
             }
 
             if (!params.format || params.format.toLowerCase() == "json") {

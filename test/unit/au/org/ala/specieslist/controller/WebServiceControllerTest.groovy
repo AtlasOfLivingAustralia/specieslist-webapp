@@ -152,13 +152,6 @@ class WebServiceControllerTest extends Specification {
             item.save(flush: true, failOnError: true)
         }
 
-        SpeciesListItem.list().each {
-            println "${it.rawScientificName} - druid ${it.dataResourceUid}"
-            it.kvpValues.each {
-                println "\t${it.key} = ${it.value}"
-            }
-        }
-
         when:
         params.keys = "key1"
         params.druid = "dr2"
