@@ -14,8 +14,11 @@
  */
 package au.org.ala.specieslist
 
+import au.com.bytecode.opencsv.CSVWriter
 import grails.converters.*
 import grails.web.JSONBuilder
+import org.apache.http.HttpStatus
+import org.hibernate.criterion.Order
 
 /**
  * Provides all the webservices to be used from other sources eg the BIE
@@ -322,6 +325,97 @@ class WebServiceController {
             render authService.getUserForEmailAddress(email) as JSON
         } else {
             render status:400, text: 'Required param not provided: email'
+        }
+    }
+
+    /**
+     * Lists all unique keys from the key value pairs of all records owned by the requested data resource(s)
+     *
+     * @param druid one or more DR UIDs (comma-separated if there are more than 1)
+     * @return JSON list of unique key names
+     */
+    def listKeys() {
+        if (!params.druid) {
+            response.status = HttpStatus.SC_BAD_REQUEST
+            response.sendError(HttpStatus.SC_BAD_REQUEST, "Must provide a comma-separated list of druid value(s).")
+        } else {
+            List<String> druids = params.druid.split(",")
+
+            def kvps = SpeciesListKVP.withCriteria {
+                'in'("dataResourceUid", druids)
+
+                projections {
+                    distinct("key")
+                }
+
+                order("key")
+            }
+
+            render kvps as JSON
+        }
+    }
+
+    /**
+     * Finds species list items that contains specific keys
+     *
+     * @param druid one or more DR UIDs (comma-separated if there are more than 1). Mandatory.
+     * @param keys one or more KVP keys (comma-separated if there are more than 1). Mandatory.
+     * @param format either 'json' or 'csv'. Optional - defaults to json. Controls the output format.
+     *
+     * @return if format = json, {scientificName1: [{key: key1, value: value1}, ...], scientificName2: [{key: key1, value: value1}, ...]}. If format = csv, returns a CSV download with columns [ScientificName,Key1,Key2...].
+     */
+    def listItemsByKeys() {
+        if (!params.druid || !params.keys) {
+            response.status = HttpStatus.SC_BAD_REQUEST
+            response.sendError(HttpStatus.SC_BAD_REQUEST, "Must provide a comma-separated list of druid value(s) and a comma-separated list of key(s). Parameter 'format' is optional ('json' or 'csv').")
+        } else {
+            List<String> druids = params.druid.split(",")
+            List<String> keys = params.keys.split(",")
+
+            def listItems = SpeciesListItem.withCriteria {
+                'in'("dataResourceUid", druids)
+                kvpValues {
+                    'in'("key", keys)
+                }
+
+                order("rawScientificName")
+            }
+
+            Map<String, List> results = [:]
+
+            listItems.each {
+                if (!results[it.rawScientificName]) {
+                    results[it.rawScientificName] = []
+                }
+                List kvps = results[it.rawScientificName]
+                it.kvpValues.each {
+                    if (keys.contains(it.key)) {
+                        kvps << [key: it.key, value: it.value]
+                    }
+                }
+            }
+
+            if (!params.format || params.format.toLowerCase() == "json") {
+                render results as JSON
+            } else if (params.format.toLowerCase() == "csv") {
+                StringWriter out = new StringWriter();
+                CSVWriter csv = new CSVWriter(out)
+
+                csv.writeNext((["ScientificName"] << keys.sort()).flatten() as String[])
+
+                results.each { key, value ->
+                    List line = []
+
+                    line << key
+                    results[key].each {
+                        line << it.value
+                    }
+
+                    csv.writeNext(line as String[])
+                }
+
+                render(contentType: 'text/csv', text:out.toString())
+            }
         }
     }
 }
