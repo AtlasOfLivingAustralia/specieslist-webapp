@@ -98,6 +98,10 @@
             </g:if>
             <g:sortableColumn property="isAuthoritative"
                               title="${message(code: 'speciesList.isAuthoritative.label', default: 'Authoritative')}"/>
+            <g:sortableColumn property="isInvasive"
+                              title="${message(code: 'speciesList.isInvasive.label', default: 'Invasive')}"/>
+            <g:sortableColumn property="isThreatened"
+                              title="${message(code: 'speciesList.isThreatened.label', default: 'Threatened')}"/>
             <g:sortableColumn property="ownerFullName"
                               title="${message(code: 'speciesList.username.label', default: 'Owner')}"/>
             <g:sortableColumn property="dateCreated"
@@ -120,6 +124,8 @@
                     <td><g:formatBoolean boolean="${list.isSDS ?: false}" true="Yes" false="No"/></td>
                 </g:if>
                 <td><g:formatBoolean boolean="${list.isAuthoritative ?: false}" true="Yes" false="No"/></td>
+                <td><g:formatBoolean boolean="${list.isInvasive ?: false}" true="Yes" false="No"/></td>
+                <td><g:formatBoolean boolean="${list.isThreatened ?: false}" true="Yes" false="No"/></td>
             %{--<td>${fieldValue(bean: list, field: "firstName")} ${fieldValue(bean: list, field: "surname")}</td>--}%
                 <td>${list.fullName}</td>
                 <td><g:formatDate format="yyyy-MM-dd" date="${list.dateCreated}"/></td>

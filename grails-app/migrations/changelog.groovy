@@ -4,4 +4,6 @@ databaseChangeLog = {
     }
 
     include file: species_list_is_authoritative.sql
+
+    include file: species_list_is_invasive_threatened.sql
 }
