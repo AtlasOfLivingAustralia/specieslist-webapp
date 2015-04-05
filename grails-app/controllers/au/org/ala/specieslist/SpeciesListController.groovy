@@ -62,11 +62,11 @@ class SpeciesListController {
      * @return
      */
     def delete(){
-        //println("DELETING " + params)
+        log.debug("Deleting from collectory...")
         def sl = SpeciesList.get(params.id)
         if(sl){
+            helperService.deleteDataResourceForList(sl.dataResourceUid)
             sl.delete()
-            //TODO remove the items from the collectory
         }
         redirect(action: 'list')
     }
@@ -76,13 +76,17 @@ class SpeciesListController {
      * @return
      */
     def deleteList(){
+
+        log.debug("Deleting from collectory...")
+        helperService.deleteDataResourceForList(params.id)
+
         //delete all the items that belong to the specified list
         //SpeciesListItem.where {dataResourceUid == params.id}.deleteAll()
         log.debug(params)
         //performs the cascade delete that is required.
         SpeciesListItem.findAllByDataResourceUid(params.id)*.delete()
         SpeciesListKVP.findAllByDataResourceUid(params.id)*.delete()
-        //TODO should the the dr be deleted from the collectory??
+
         flash.message = "Deleted Species List " + params.id
         redirect(action:  'upload')
     }

@@ -452,11 +452,9 @@
             <dd><g:formatBoolean boolean="${speciesList.isThreatened?:false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.isSDS.label', default: 'Part of the SDS')}</dt>
             <dd><g:formatBoolean boolean="${speciesList.isSDS?:false}" true="Yes" false="No"/></dd>
+            <dt>${message(code: 'speciesList.region.label', default: 'Region')}</dt>
+            <dd>${speciesList.region?:'Not provided'}</dd>
             <g:if test="${speciesList.isSDS}">
-                <g:if test="${speciesList.region}">
-                    <dt>${message(code: 'speciesList.region.label', default: 'SDS Region')}</dt>
-                    <dd>${speciesList.region}</dd>
-                </g:if>
                 <g:if test="${speciesList.authority}">
                     <dt>${message(code: 'speciesList.authority.label', default: 'SDS Authority')}</dt>
                     <dd>${speciesList.authority}</dd>
@@ -569,13 +567,13 @@
                                 <input type="checkbox" id="isSDS" name="isSDS" class="input-xlarge" value="true" data-value="${speciesList.isSDS}" ${(speciesList.isSDS == true) ? 'checked="checked"':''} />
                             </div>
                         </div>
-                        <g:if test="${speciesList.isSDS}">
-                            <div class="control-group">
-                                <label class="control-label" for="region">${message(code: 'speciesList.region.label', default: 'SDS Region')}</label>
-                                <div class="controls">
-                                    <input type="text" name="region" id="region" class="input-xlarge" value="${speciesList.region}" />
-                                </div>
+                        <div class="control-group">
+                            <label class="control-label" for="region">${message(code: 'speciesList.region.label', default: 'Region')}</label>
+                            <div class="controls">
+                                <input type="text" name="region" id="region" class="input-xlarge" value="${speciesList.region}" />
                             </div>
+                        </div>
+                        <g:if test="${speciesList.isSDS}">
                             <div class="control-group">
                                 <label class="control-label" for="authority">${message(code: 'speciesList.authority.label', default: 'SDS Authority')}</label>
                                 <div class="controls">
@@ -613,35 +611,27 @@
         </g:if>
     </div>
 
-<div class="inner row-fluid">
-    <g:if test="${flash.message}">
+<g:if test="${flash.message}">
+    <div class="inner row-fluid">
         <div class="message alert alert-info"><b>Alert:</b> ${flash.message}</div>
-    </g:if>
+    <div>
+</g:if>
 
+<div class="inner row-fluid">
     <div class="span3 well" id="facets-column">
         <div class="boxedZ attachedZ">
-                %{--<div id="customiseList" >--}%
-
-                    %{--<a id="customiseListButton" class="buttonDiv">Customise</a>--}%
-                %{--</div>--}%
                 <section class="meta">
                     <div class="matchStats">
-                        %{--<p>--}%
-                            %{--<span class="count">${speciesList.firstName} ${speciesList.surname}</span>--}%
-                            %{--Owner--}%
-                        %{--</p>--}%
                         <p>
                             <span class="count">${totalCount}</span>
                             Number of Taxa
                         </p>
-                        %{--<br/>--}%
                         <p>
                             <span class="count">${distinctCount}</span>
                             Distinct Species
                         </p>
 
                         <g:if test="${noMatchCount>0 && noMatchCount!=totalCount}">
-                        %{--<br/>--}%
                             <p>
                                 <span class="count">${noMatchCount}</span>
                                 <a href="?fq=guid:null${queryParams}" title="View unrecognised taxa">Unrecognised Taxa </a>
@@ -671,8 +661,6 @@
                                                     <li>
                                                         <a href="${sl.removeFqHref(fqs: fqs, fq: fq)}" class="removeLink " title="Uncheck (remove filter)"><i class="icon-check"></i></a>
                                                         <g:message code="facet.${fq.replaceFirst("kvp ","")}" default="${fq.replaceFirst("kvp ","")}"/>
-                                                        %{--<a class="removeLink" onclick="removeFacet('family:ACANTHASPIDIIDAE'); return false;" href="#" oldtitle="remove filter" aria-describedby="ui-tooltip-1">X</a>--}%
-                                                        %{--[<b><a href="#" class="removeLink" title="Remove Filter" onclick="removeFacet('${fq}')">X</a></b>]--}%
                                                     </li>
                                                 </g:if>
                                             </g:each>
@@ -683,7 +671,6 @@
 
                             <g:each in="${facets}" var="entry">
                                 <g:if test="${entry.key == "listProperties"}">
-                                %{--<g:if test="${facets.containsKey("listProperties")}">--}%
                                     <g:each in="${facets.get("listProperties")}" var="value">
                                         <p>
                                             <span class="FieldName">${value.getKey()}</span>
@@ -743,11 +730,6 @@
                                         <div id="multipleFacets">
                                             <p>Refine your search</p>
                                             <div id="dynamic" class="tableContainer"></div>
-                                            %{--<div id='submitFacets'>--}%
-                                            %{--<input type='submit' class='submit' id="include" value="INCLUDE selected items in search"/>--}%
-                                            %{--&nbsp;--}%
-                                            %{--<input type='submit' class='submit' id="exclude" value="EXCLUDE selected items from search"/>--}%
-                                            %{--</div>--}%
                                         </div>
                                     </div>
                                 </g:if>

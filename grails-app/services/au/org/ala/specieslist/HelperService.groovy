@@ -19,7 +19,9 @@ import au.com.bytecode.opencsv.CSVReader
 import au.org.ala.checklist.lucene.model.NameSearchResult
 import au.org.ala.checklist.lucene.CBIndexSearch
 import groovy.json.JsonOutput
+import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
+import groovyx.net.http.Method
 import org.apache.commons.lang.StringUtils
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.springframework.web.multipart.commons.CommonsMultipartFile
@@ -59,7 +61,7 @@ class HelperService {
      */
     def addDataResourceForList(map) {
         if(grailsApplication.config.collectory.enableSync?.toBoolean()){
-            def postUrl = grailsApplication.config.collectory.baseURL +"/ws/dataResource"
+            def postUrl = grailsApplication.config.collectory.baseURL + "/ws/dataResource"
             def http = new HTTPBuilder(postUrl)
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
             def jsonBody = createJsonForNewDataResource(map)
@@ -70,13 +72,38 @@ class HelperService {
                  return resp.headers['location'].getValue()
                }
             } catch(ex){
-                log.error("Unable to create a collectory entry for the species list.", ex)
+                log.error("Unable to create a collectory entry for the species list. ", ex)
                 return null
             }
 
         } else {
            //return a dummy URL
           grailsApplication.config.collectory.baseURL + "/tmp/drt" + System.currentTimeMillis()
+        }
+    }
+
+    def deleteDataResourceForList(drId) {
+        if(grailsApplication.config.collectory.enableSync?.toBoolean()){
+            def deleteUrl = grailsApplication.config.collectory.baseURL +"/ws/dataResource/" + drId
+            def http = new HTTPBuilder(deleteUrl)
+            http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
+            try {
+//                JsonOutput jo = new JsonOutput()
+//                def body = jo.toJson([api_key: collectoryKey])
+
+                http.request(Method.DELETE) {
+                    requestContentType = ContentType.JSON
+                    headers."Authorization" = "${collectoryKey}"
+                    response.success = { resp ->
+                        println resp
+                    }
+                    response.failure = { resp ->
+                        println "Request failed with status ${resp.status}"
+                    }
+                }
+            } catch (ex){
+                log.error("Unable to delete a collectory entry for the species list.", ex)
+            }
         }
     }
 
@@ -438,30 +465,6 @@ class HelperService {
         }
 
         sli
-        //sli.save()
-    }
-
-    def createOrRetrieveSpeciesListKVP(String key, String value, String dataResourceUid){
-//        SpeciesListKVP kvp =
-       SpeciesListKVP.findByKeyAndValueAndDataResourceUid(key,value,dataResourceUid) ?: new SpeciesListKVP(key: key, value: value, dataResourceUid: dataResourceUid)
-//        SpeciesListKVP test = kvp ?: new SpeciesListKVP(key: key, value: value, dataResourceUid: dataResourceUid)
-//        if(kvp?.id != null)
-//            return kvp
-//        else
-//            return new SpeciesListKVP(key: key, value: value, dataResourceUid: dataResourceUid)
-    }
-
-    def withSessionCleaner(def items, Closure c){
-        items.eachWithIndex { obj, index ->
-            c(obj)
-
-            if (index % 100 == 0) {
-                def session = sessionFactory.currentSession
-                session.flush()
-                session.clear()
-                propertyInstanceMap.get().clear()
-            }
-        }
     }
 
     def matchNameToSpeciesListItem(String name, SpeciesListItem sli){
@@ -495,13 +498,6 @@ class HelperService {
             def cl = new LinnaeanRankClassification()
             cl.setScientificName(scientificName)
             lsid = getNameSearcher().searchForAcceptedLsidDefaultHandling(cl, true);
-//            def cl = new LinnaeanRankClassification()
-//            cl.setScientificName(scientificName)
-//            def metric = getNameSearcher().searchForRecordMetrics(cl, false,true);
-//            if(metric && metric.getResult()){
-//                def result = metric.getResult()
-//                lsid = result.isSynonym()? getNameSearcher().searchForRecordByLsid(result.getAcceptedLsid())?.getLsid():result.getLsid()
-//            }
         } catch(Exception e){
              log.error(e.getMessage())
         }
@@ -539,5 +535,4 @@ class HelperService {
         response.setContentType("application/json")
         model
     }
-
 }
