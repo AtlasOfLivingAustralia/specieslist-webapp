@@ -11,7 +11,7 @@ import org.apache.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Unroll
 
-@TestFor(SecurityFilters)
+@TestFor(au.org.ala.specieslist.SecurityFilters)
 @TestMixin([FiltersUnitTestMixin])
 @Unroll
 @Mock([SpeciesListItem, SpeciesList, SpeciesListKVP, SpeciesListItemController, AuthService, LocalAuthService])
