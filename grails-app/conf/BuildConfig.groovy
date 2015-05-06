@@ -40,10 +40,14 @@ grails.project.dependency.resolution = {
 
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-        compile 'au.org.ala:ala-name-matching:2.1'
+        compile("au.org.ala:ala-name-matching:1.3") {
+            excludes "simmetrics"
+        }
         compile 'org.gbif:gbif-common:0.7'
+
         runtime 'mysql:mysql-connector-java:5.1.18'
     }
+
 
     plugins {
         build ":release:3.0.1"
