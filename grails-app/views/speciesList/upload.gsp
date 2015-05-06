@@ -463,11 +463,8 @@
                         </tr>
                         </tbody>
                     </table>
-                    %{--<label for="speciesListName" class="datasetName"><strong>Your species list name</strong></label>--}%
-                    %{--<input id="speciesListName" class="datasetName" name="datasetName" type="text" value="My test species list" style="width:350px; margin-bottom:5px;"/>--}%
                     <input id="uploadButton" class="datasetName actionButton btn btn-primary" type="button" value="Upload"
                            onclick="javascript:uploadSpeciesList();"/>
-                    %{--</p>--}%
                 </div>
             </div>
 
@@ -480,7 +477,7 @@
         </div>
     </div>
     <div id="statusMsgDiv">
-        <h3>Uploading your list...</h3>
+        <h3><img src='${resource(dir:'images',file:'spinner.gif')}' id='spinner'/>&nbsp;&nbsp;<span>Uploading your list...</span></h3>
     </div>
 </div> <!-- content div -->
 </body>

@@ -16,8 +16,9 @@
 package au.org.ala.specieslist
 
 import au.com.bytecode.opencsv.CSVReader
-import au.org.ala.checklist.lucene.model.NameSearchResult
-import au.org.ala.checklist.lucene.CBIndexSearch
+import au.org.ala.names.model.LinnaeanRankClassification
+import au.org.ala.names.model.NameSearchResult
+import au.org.ala.names.search.ALANameSearcher
 import groovy.json.JsonOutput
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
@@ -28,7 +29,6 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile
 
 import static groovyx.net.http.ContentType.JSON
 
-import au.org.ala.data.model.LinnaeanRankClassification
 /**
  * Provides all the services for the species list webapp.  It may be necessary to break this into
  * multiple services if it grows too large
@@ -40,8 +40,6 @@ class HelperService {
     def localAuthService, authService, userDetailsService
 
     def sessionFactory
-
-    def propertyInstanceMap = org.codehaus.groovy.grails.plugins.DomainClassGrailsPlugin.PROPERTY_INSTANCE_MAP
 
     def cbIdxSearcher = null
 
@@ -88,8 +86,6 @@ class HelperService {
             def http = new HTTPBuilder(deleteUrl)
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
             try {
-//                JsonOutput jo = new JsonOutput()
-//                def body = jo.toJson([api_key: collectoryKey])
 
                 http.request(Method.DELETE) {
                     requestContentType = ContentType.JSON
@@ -478,7 +474,7 @@ class HelperService {
 
     def getNameSearcher(){
         if(!cbIdxSearcher)
-            cbIdxSearcher = new CBIndexSearch(grailsApplication.config.bie.nameIndexLocation)
+            cbIdxSearcher = new ALANameSearcher(grailsApplication.config.bie.nameIndexLocation)
         cbIdxSearcher
     }
 
