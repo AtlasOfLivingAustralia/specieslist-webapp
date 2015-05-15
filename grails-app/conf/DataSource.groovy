@@ -1,7 +1,7 @@
 dataSource {
     pooled = true
     logSql = false
-    //driverClassName = "com.mysql.jdbc.Driver"
+    driverClassName = "com.mysql.jdbc.Driver"
     username = ""
     password = ""
     properties {
