@@ -40,7 +40,9 @@ grails.project.dependency.resolution = {
 
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-        compile 'au.org.ala:ala-name-matching:2.1'
+        compile ('au.org.ala:ala-name-matching:2.1') {
+            excludes "log4j","slf4j-log4j12"
+        }
         compile 'org.gbif:gbif-common:0.17'
         runtime 'mysql:mysql-connector-java:5.1.18'
     }
