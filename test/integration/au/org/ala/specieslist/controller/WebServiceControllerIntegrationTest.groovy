@@ -1,6 +1,6 @@
 package au.org.ala.specieslist.controller
 
-import au.org.ala.checklist.lucene.CBIndexSearch
+import au.org.ala.names.search.ALANameSearcher
 import au.org.ala.specieslist.HelperService
 import au.org.ala.specieslist.LocalAuthService
 import au.org.ala.specieslist.SpeciesList
@@ -20,7 +20,7 @@ class WebServiceControllerIntegrationTest extends IntegrationSpec {
         String version1Json = "{\"listName\": \"list1\",  \"listType\": \"TEST\", \"listItems\": \"item1,item2,item3\"}"
         setup:
         HelperService helperService = new HelperService()
-        helperService.cbIdxSearcher = Mock(CBIndexSearch)
+        helperService.cbIdxSearcher = Mock(ALANameSearcher)
 
         helperService.setUserDetailsService([getFullListOfUserDetailsByUsername : {return [a:"a"]}]
                 as UserDetailsService)
@@ -74,7 +74,7 @@ class WebServiceControllerIntegrationTest extends IntegrationSpec {
                                 }"""
         setup:
         HelperService helperService = new HelperService()
-        helperService.cbIdxSearcher = Mock(CBIndexSearch)
+        helperService.cbIdxSearcher = Mock(ALANameSearcher)
 
         helperService.setUserDetailsService([getFullListOfUserDetailsByUsername : {return [a:"a"]}]
                 as UserDetailsService)
