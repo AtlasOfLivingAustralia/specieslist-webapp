@@ -22,14 +22,13 @@
 <g:set var="userCanEditData" value="${
     (   speciesList.username == request.getUserPrincipal()?.attributes?.email ||
         request.isUserInRole("ROLE_ADMIN") ||
-        request.getUserPrincipal()?.attributes?.email in speciesList.editors
+        request.getUserPrincipal()?.attributes?.userid in speciesList.editors
     )
 }" />
-<r:require module="application"/>
 <html>
 <head>
     %{--<gui:resources components="['dialog']"/>--}%
-    <r:require modules="fancybox, baHashchange, amplify"/>
+    <r:require modules="application, fancybox, baHashchange, amplify"/>
     <meta name="layout" content="main"/>
     %{--<link rel="stylesheet" href="${resource(dir:'css',file:'scrollableTable.css')}"/>--}%
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
