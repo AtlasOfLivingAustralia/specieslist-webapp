@@ -425,4 +425,16 @@ class WebServiceController {
             }
         }
     }
+
+    def filterLists() {
+        def json = request.getJSON()
+        if (!json.scientificNames) {
+            response.status = HttpStatus.SC_BAD_REQUEST
+            response.sendError(HttpStatus.SC_BAD_REQUEST, "Must provide a JSON body with a mandatory list of scientific names to filter on. An optional list of data resource ids (drIds) can also be provided.")
+        } else {
+            List<String> results = queryService.filterLists(json.scientificNames, json.drIds ?: null)
+
+            render results as JSON
+        }
+    }
 }
