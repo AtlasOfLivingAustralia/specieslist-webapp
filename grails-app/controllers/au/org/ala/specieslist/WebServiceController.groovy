@@ -18,7 +18,6 @@ import au.com.bytecode.opencsv.CSVWriter
 import grails.converters.*
 import grails.web.JSONBuilder
 import org.apache.http.HttpStatus
-import org.hibernate.criterion.Order
 
 /**
  * Provides all the webservices to be used from other sources eg the BIE
@@ -377,7 +376,16 @@ class WebServiceController {
             List<String> keys = params.keys.split(",")
 
             def listItems = SpeciesListItem.withCriteria {
+                projections {
+                    property "rawScientificName"
+                    kvpValues {
+                        property "key"
+                        property "value"
+                    }
+                }
+
                 'in'("dataResourceUid", druids)
+
                 kvpValues {
                     'in'("key", keys)
                 }
@@ -388,15 +396,10 @@ class WebServiceController {
             Map<String, List> results = [:]
 
             listItems.each {
-                if (!results[it.rawScientificName]) {
-                    results[it.rawScientificName] = []
+                if (!results.containsKey(it[0])) {
+                    results[it[0]] = []
                 }
-                List kvps = results[it.rawScientificName]
-                it.kvpValues.each {
-                    if (keys.contains(it.key)) {
-                        kvps << [key: it.key, value: it.value]
-                    }
-                }
+                results[it[0]] << [key: it[1], value: it[2]]
             }
 
             if (!params.format || params.format.toLowerCase() == "json") {
