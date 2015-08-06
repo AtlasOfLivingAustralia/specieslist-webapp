@@ -14,7 +14,7 @@
   - rights and limitations under the License.
   --}%
 <!doctype html>
-<g:set var="bieUrl" value="${grailsApplication.config.bie.baseURL}"/>
+<g:set var="bieUrl" value="${grailsApplication.config.bie.baseURL?:'http://bie.ala.org.au'}"/>
 <g:set var="collectoryUrl" value="${grailsApplication.config.collectory.baseURL}" />
 <g:set var="maxDownload" value="${grailsApplication.config.downloadLimit}" />
 
