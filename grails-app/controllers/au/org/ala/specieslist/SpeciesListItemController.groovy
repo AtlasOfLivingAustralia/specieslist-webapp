@@ -10,7 +10,7 @@ class SpeciesListItemController {
     QueryService queryService
     LocalAuthService localAuthService
     AuthService authService
-    int maxLengthForFacet = 15
+    int maxLengthForFacet = 30 // Note: is length of _name_ of the facet category/field
 
     def index() { }
 
