@@ -279,7 +279,35 @@ class QueryService {
         log.debug(println(query.toString()))
          //println(queryparams)
         [query.toString(), queryparams]
+    }
 
+    /**
+     * Find all lists that contain any of the specified scientific names (matching against either the matchedName OR the
+     * rawScientificName). A list of data resource ids can be provided, in which case the method will return a subset of that list.
+     *
+     * @param scientificNames Mandatory list of at least 1 scientific name to search for
+     * @param drIds Optional list of data resource ids to filter
+     * @return List of data resource ids for lists which contain at least 1 of the specified scientific names
+     */
+    List<String> filterLists(List scientificNames, List drIds = null) {
+        if (!scientificNames) {
+            throw new IllegalArgumentException("At least 1 scientific name is required")
+        }
+
+        SpeciesListItem.withCriteria {
+            if (drIds) {
+                'in' "dataResourceUid", drIds
+            }
+
+            or {
+                'in' "matchedName", scientificNames
+                'in' "rawScientificName", scientificNames
+            }
+
+            projections {
+                distinct "dataResourceUid"
+            }
+        }
     }
 }
 

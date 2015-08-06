@@ -111,6 +111,17 @@
             <li>Retrieve all lists on which the supplied guid appears - GET call to <code>/ws/species/{guid}</code>.  This service will also return all the properties
             associated with the species.</li>
         </ul>
+
+        <h3>Filter lists</h3>
+        <ul>
+            <li>
+                Find all lists containing any of a set of scientific names. Optionally filter a provided list of drIds. POST to <code>/ws/speciesList</code>with the following JSON:
+                <pre>
+                {scientificNames: ["name1", "name2", "..."], drIds: ["dr1", "dr2", "..."]}
+            </pre>
+                The service returns a set of drIds of lists containing the specified names.
+            </li>
+        </ul>
      </div>
     </div>
 </body>

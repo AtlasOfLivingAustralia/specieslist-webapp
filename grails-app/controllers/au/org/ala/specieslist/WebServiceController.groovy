@@ -18,7 +18,6 @@ import au.com.bytecode.opencsv.CSVWriter
 import grails.converters.*
 import grails.web.JSONBuilder
 import org.apache.http.HttpStatus
-import org.hibernate.criterion.Order
 
 /**
  * Provides all the webservices to be used from other sources eg the BIE
@@ -377,7 +376,16 @@ class WebServiceController {
             List<String> keys = params.keys.split(",")
 
             def listItems = SpeciesListItem.withCriteria {
+                projections {
+                    property "rawScientificName"
+                    kvpValues {
+                        property "key"
+                        property "value"
+                    }
+                }
+
                 'in'("dataResourceUid", druids)
+
                 kvpValues {
                     'in'("key", keys)
                 }
@@ -388,15 +396,10 @@ class WebServiceController {
             Map<String, List> results = [:]
 
             listItems.each {
-                if (!results[it.rawScientificName]) {
-                    results[it.rawScientificName] = []
+                if (!results.containsKey(it[0])) {
+                    results[it[0]] = []
                 }
-                List kvps = results[it.rawScientificName]
-                it.kvpValues.each {
-                    if (keys.contains(it.key)) {
-                        kvps << [key: it.key, value: it.value]
-                    }
-                }
+                results[it[0]] << [key: it[1], value: it[2]]
             }
 
             if (!params.format || params.format.toLowerCase() == "json") {
@@ -420,6 +423,18 @@ class WebServiceController {
 
                 render(contentType: 'text/csv', text:out.toString())
             }
+        }
+    }
+
+    def filterLists() {
+        def json = request.getJSON()
+        if (!json.scientificNames) {
+            response.status = HttpStatus.SC_BAD_REQUEST
+            response.sendError(HttpStatus.SC_BAD_REQUEST, "Must provide a JSON body with a mandatory list of scientific names to filter on. An optional list of data resource ids (drIds) can also be provided.")
+        } else {
+            List<String> results = queryService.filterLists(json.scientificNames, json.drIds ?: null)
+
+            render results as JSON
         }
     }
 }

@@ -23,6 +23,8 @@ class UrlMappings {
         "/ws/speciesListItems/keys?" controller: "webService", action: "listKeys"
         "/ws/speciesListItems/byKeys?" controller: "webService", action: "listItemsByKeys"
 
+        "/ws/speciesList/filter" controller: "webService", action: [POST: "filterLists"]
+
         //ws to obtain values for a specified species guid
         "/ws/species/$guid?" (controller: 'webService',action: 'getListItemsForSpecies')
 
