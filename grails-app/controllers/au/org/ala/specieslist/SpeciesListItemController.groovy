@@ -30,6 +30,51 @@ class SpeciesListItemController {
         doListDisplay(params)
     }
 
+    /**
+     * Special (simple) page for displaying "Australia's Species", linked from homepage.
+     *
+     * @return
+     */
+    def iconicSpecies() {
+        params.id = params.id?:grailsApplication.config.iconicSpecies?.uid?:""
+        params.max = params.max?:25
+
+        if (!params.fq) {
+            redirect(action: 'iconicSpecies', params: [fq:'kvp group:Birds'])
+        }
+        try {
+            def speciesList = SpeciesList.findByDataResourceUid(params.id)
+            if (!speciesList) {
+                flash.message = "${message(code: 'default.not.found.message', args: [message(code: 'speciesList.label', default: 'Species List'), params.id])}"
+                render(view: "iconic-list")
+            } else {
+                params.max = Math.min(params.max ? params.int('max') : 25, 100)
+                params.sort = params.sort ?: "itemOrder"
+                params.fetch = [kvpValues: 'select']
+                def fqs = params.fq ? [params.fq].flatten().findAll { it != null } : null
+                def baseQueryAndParams = params.fq ? queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id) : null
+                //need to get all keys to be included in the table so no need to add the filter.
+                def speciesListItems = params.fq ? SpeciesListItem.executeQuery("select sli " + baseQueryAndParams[0], baseQueryAndParams[1], params) : SpeciesListItem.findAllByDataResourceUid(params.id, params)
+                def totalCount = params.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0], baseQueryAndParams[1]).head() : SpeciesListItem.countByDataResourceUid(params.id)
+                def guids = speciesListItems.collect { it.guid }
+                def bieItems = bieService.bulkLookupSpecies(guids)
+                def facets = generateFacetValues(null, baseQueryAndParams)
+                log.debug "speciesListItems = ${speciesListItems as JSON}"
+                render(view: 'iconic-list', model: [
+                        results: speciesListItems,
+                        totalCount: totalCount,
+                        bieItems: bieItems,
+                        facets: facets
+                ])
+            }
+        }  catch (Exception e) {
+            def msg = "Unable to retrieve species list items. Please let us know if this error persists. <br>Error:<br>" + e.getMessage()
+            log.error(msg, e)
+            flash.message = msg
+            render(view: 'iconic-list')
+        }
+    }
+
     private doListDisplay(requestParams) {
         if (requestParams.id) {
             try {

@@ -6,7 +6,7 @@ class UrlMappings {
 				// apply constraints here
 			}
 		}
-
+        "/iconic-species" controller: "speciesListItem", action: "iconicSpecies"
         //ws to support CRUD operations on lists
         "/ws/speciesList/${druid}?" (controller: 'webService'){
             action = [GET:'getListDetails',POST:'saveList']

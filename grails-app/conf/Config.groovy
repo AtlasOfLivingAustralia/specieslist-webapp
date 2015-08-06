@@ -29,6 +29,7 @@ println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
 
 /*** Config specific for species list ***/
 updateUserDetailsOnStartup = false
+iconicSpecies.uid="dr781"
 
  //the number of species to limit downloads to
 /*** End config specific for species list ***/
