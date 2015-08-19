@@ -39,8 +39,6 @@ class HelperService {
 
     def localAuthService, authService, userDetailsService
 
-    def sessionFactory
-
     def cbIdxSearcher = null
 
     def speciesValue = ["species", "scientificname", "taxonname"]
@@ -48,8 +46,6 @@ class HelperService {
     def commonValues = ["commonname","vernacularname"]
 
     def ambiguousValues = ["name"]
-
-    def collectoryKey = "Venezuela"
 
     /**
      * Adds a data resource to the collectory for this species list
@@ -89,7 +85,7 @@ class HelperService {
 
                 http.request(Method.DELETE) {
                     requestContentType = ContentType.JSON
-                    headers."Authorization" = "${collectoryKey}"
+                    headers."Authorization" = "${grailsApplication.config.registryApiKey}"
                     response.success = { resp ->
                         println resp
                     }
@@ -124,7 +120,7 @@ class HelperService {
     }
 
     def createJsonForNewDataResource(map){
-        map.api_key = collectoryKey
+        map.api_key = grailsApplication.config.registryApiKey
         map.resourceType = "species-list"
         map.user = 'Species list upload'
         map.firstName = localAuthService.firstname()?:""
@@ -376,8 +372,8 @@ class HelperService {
         sl.category = category
         sl.generalisation = generalisation
         sl.sdsType = sdsType
-        if(isBIE)sl.isBIE=true
-        if(isSDS)sl.isSDS=true
+        sl.isBIE = isBIE
+        sl.isSDS = isSDS
         sl.isAuthoritative=false // default all new lists to isAuthoritative = false: it is an admin task to determine whether a list is authoritative or not
         sl.isInvasive=false
         sl.isThreatened=false
@@ -390,8 +386,9 @@ class HelperService {
             totalCount++
             if(!checkedHeader){
                 checkedHeader = true
-                if(getSpeciesIndex(nextLine)>-1)
+                if(getSpeciesIndex(nextLine) > -1) {
                     nextLine = reader.readNext()
+                }
             }
             if(nextLine.length > 0 && speciesValueIdx > -1 && StringUtils.isNotBlank(nextLine[speciesValueIdx])){
                 itemCount++
@@ -463,8 +460,8 @@ class HelperService {
         sli
     }
 
-    def matchNameToSpeciesListItem(String name, SpeciesListItem sli){
-        NameSearchResult nsr = findAcceptedConceptByScientificName(sli.rawScientificName)?: findAcceptedConceptByCommonName(sli.rawScientificName)
+    def  matchNameToSpeciesListItem(String name, SpeciesListItem sli){
+        NameSearchResult nsr = findAcceptedConceptByScientificName(sli.rawScientificName) ?: findAcceptedConceptByCommonName(sli.rawScientificName)
         if(nsr){
             sli.guid = nsr.getLsid()
             sli.family = nsr.getRankClassification().getFamily()
@@ -473,8 +470,9 @@ class HelperService {
     }
 
     def getNameSearcher(){
-        if(!cbIdxSearcher)
+        if(!cbIdxSearcher) {
             cbIdxSearcher = new ALANameSearcher(grailsApplication.config.bie.nameIndexLocation)
+        }
         cbIdxSearcher
     }
 
@@ -483,7 +481,7 @@ class HelperService {
         try {
             lsid = getNameSearcher().searchForLSIDCommonName(commonName)
         } catch(e){
-            log.error(e.getMessage())
+            log.error("findAcceptedLsidByCommonName -  " + e.getMessage())
         }
         lsid
     }

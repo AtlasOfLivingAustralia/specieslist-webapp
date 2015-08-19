@@ -10,17 +10,17 @@ class BieService {
     def grailsApplication
 
     def bulkLookupSpecies(list) {
-        def http = new HTTPBuilder(grailsApplication.config.bieService.baseURL +"/species/guids/bulklookup.json")
+
+        def http = new HTTPBuilder(grailsApplication.config.bieService.baseURL + "/species/guids/bulklookup")
         http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
-        def map =[:]
-        def jsonBody = "[\""
-        jsonBody +=list.join("\",\"")//each{jsonBody += "\""+it+"\""}
-                jsonBody += "\"]"
+        def map = [:]
+        def jsonBody = (list as JSON).toString()
+
         log.debug(jsonBody)
-        try{
+        try {
             def jsonResponse =  http.post(body: jsonBody, requestContentType:groovyx.net.http.ContentType.JSON)
             log.debug "jsonResponse = ${jsonResponse}"
-            jsonResponse.get("searchDTOList").toArray().each{
+            jsonResponse.searchDTOList.each {
                 if (it && it.guid) {
                     def guid = it.guid
                     def image = it.smallImageUrl
@@ -40,7 +40,7 @@ class BieService {
 
     def generateFieldGuide(druid,guids){
         def title = "The field guide for " + druid
-        def link = grailsApplication.config.grails.serverURL + "/speciesListItems/list/"+druid//"http://natasha.ala.org.au:8080/specieslist-webapp/speciesListItems/list/"+druid
+        def link = grailsApplication.config.grails.serverURL + "/speciesListItems/list/" + druid
         try {
             def http = new HTTPBuilder(grailsApplication.config.fieldGuide.baseURL+"/generate")
             def response = http.post(body:  createJsonForFieldGuide(title, link, guids), requestContentType:groovyx.net.http.ContentType.JSON){ resp ->
@@ -56,15 +56,11 @@ class BieService {
 
     def createJsonForFieldGuide(t, l, g){
         def builder = new JSONBuilder()
-
-        def result = builder.build{
+        def result = builder.build {
             title = t
             link = l
             guids = g
-
         }
         result.toString(false)
     }
 }
-
-

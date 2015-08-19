@@ -872,7 +872,6 @@
 
                                     </td>
                                     <td>
-                                        %{--[${fieldValue(bean: result, field: "itemOrder")}] --}%
                                         ${fieldValue(bean: result, field: "rawScientificName")}
                                         <g:if test="${result.guid == null}">
                                             <br/>(unmatched - try <a href="http://google.com/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="google" clas="btn btn-primary btn-mini">Google</a>,
@@ -888,9 +887,6 @@
                                         <g:set var="val" value="${kvp?.vocabValue?:kvp?.value}" />
                                         <td class="kvp ${val?.length() > 35 ? 'scrollWidth':''}"><div>${val}</div></td>
                                     </g:each>
-                                %{--<p>--}%
-                                %{--${result.guid} ${result.rawScientificName}--}%
-                                %{--</p>--}%
                                 </tr>
                             </g:each>
                             </tbody>

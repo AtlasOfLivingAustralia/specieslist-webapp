@@ -26,6 +26,8 @@ if(System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
 
 println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
 
+bie.nameIndexLocation = "/data/lucene/namematching"
+registryApiKey = "xxxxxxxxxxxxxxxxxx"
 
 /*** Config specific for species list ***/
 updateUserDetailsOnStartup = false
@@ -86,27 +88,8 @@ auth.userNamesForNumericIdPath='getUserListWithIds'
 
 // set per-environment serverURL stem for creating absolute links
 environments {
-    development {
-//        grails.logging.jul.usebridge = true
-//        grails.serverURL = 'http://dev.ala.org.au:8080/' + appName
-//        collectory.baseURL ='http://testweb1.ala.org.au/collectory'
-////        collectory.baseURL = 'http://dev.ala.org.au:8080/collectory'
-//        serverName='http://dev.ala.org.au:8080'
-//        security.cas.appServerName = serverName
-//        security.cas.contextPath = "/${appName}"
-//        contextPath = "/specieslist-webapp"
-//        collectory.enableSync = false
-    }
-    production {
-//        grails.logging.jul.usebridge = false
-//        grails.serverURL = 'http://lists.ala.org.au'
-//        collectory.baseURL='http://collections.ala.org.au'
-//        collectory.enableSync = true
-//        contextPath = ""
-//        security.cas.appServerName = grails.serverURL
-//        security.cas.contextPath = contextPath
-//        collectory.enableSync = true
-    }
+    development {}
+    production {}
 }
 
 logging.dir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs'  : '/var/log/tomcat6')
