@@ -154,14 +154,14 @@ class SpeciesListController {
                     def url = createLink(controller:'speciesListItem', action:'list', id: druid) +"?max=15"
                     //update the URL for the list
                     helperService.updateDataResourceForList(druid,
-                            [
+                        [
                              pubDescription: formParams.description,
                              websiteUrl: grailsApplication.config.serverName + url,
                              techDescription: "This list was first uploaded by " + authService.userDetails()?.userDisplayName + " on the " + (new Date()) + "." + "It contains " + itemCount + " taxa.",
                              resourceType : "species-list",
                              status : "dataAvailable",
                              contentTypes : '["species list"]'
-                            ]
+                        ]
                     )
 
                     if (itemCount.successfulItems == itemCount.totalRecords) {
@@ -198,8 +198,6 @@ class SpeciesListController {
         def uploadedFile = request.getFile('species_list')
         if(!uploadedFile.empty){
             //create a new temp data resource in the collectory for this species list
-            //def udetails = new UserDetailsCommand()
-            //udetails.name = params.speciesListTitle
             def drURL = helperService.addDataResourceForList(params.speciesListTitle)
             def druid = drURL.toString().substring(drURL.lastIndexOf('/') +1)
             //download the supplied file to the local files system
@@ -208,7 +206,7 @@ class SpeciesListController {
             //create a new species list item for each line of the file
             log.debug(params)
             //set of the columns if necessary
-            def columns = params.findAll { it.key.startsWith("column") && it.value }.sort{it.key.replaceAll("column","") as int}
+            def columns = params.findAll { it.key.startsWith("column") && it.value }.sort{it.key.replaceAll("column","") as int }
             log.debug(columns.toString() + " " + columns.size())
 
             def header = (columns.size() > 0 && !params.containsKey('rowIndicatesMapping')) ? columns.values().toArray(["",""]) : null

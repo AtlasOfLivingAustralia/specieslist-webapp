@@ -8,7 +8,7 @@ class AdminController {
     def userDetailsService
     def beforeInterceptor = [action:this.&auth]
 
-    def index() { redirect(action: 'speciesLists')}
+    def index() { redirect(action: 'speciesLists') }
 
     private auth() {
         if (!localAuthService.isAdmin()) {

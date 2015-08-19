@@ -24,7 +24,7 @@
         <div class="inner row-fluid" style="display: block;">
             <div id="breadcrumb" class="span12">
                 <ol class="breadcrumb">
-                    <li><a href="http://www.ala.org.au">Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+                    <li><a href="${request.contextPath}">Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
                     <li><a class="current" href="${request.contextPath}/admin/speciesLists">Species lists</a></li>
                 </ol>
             </div>
