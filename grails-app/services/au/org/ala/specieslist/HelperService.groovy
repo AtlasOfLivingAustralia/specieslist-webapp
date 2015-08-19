@@ -87,10 +87,10 @@ class HelperService {
                     requestContentType = ContentType.JSON
                     headers."Authorization" = "${grailsApplication.config.registryApiKey}"
                     response.success = { resp ->
-                        println resp
+                        log.info(resp)
                     }
                     response.failure = { resp ->
-                        println "Request failed with status ${resp.status}"
+                        log.error("Delete request for ${drId} failed with status ${resp.status}")
                     }
                 }
             } catch (ex){

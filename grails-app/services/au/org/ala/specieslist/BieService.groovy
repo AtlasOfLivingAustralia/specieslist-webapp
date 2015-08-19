@@ -27,13 +27,13 @@ class BieService {
                     def commonName = it.commonNameSingle
                     def scientificName = it.name
                     def author = it.author
-                    map.put(guid, [image,commonName, scientificName,author])
+                    map.put(guid, [image, commonName, scientificName, author])
                 }
             }
             log.debug(map)
             map
         } catch(ex) {
-            log.error("Unable to obtain species details from BIE", ex)
+            log.error("Unable to obtain species details from BIE - " + ex.getMessage(), ex)
             map
         }
     }

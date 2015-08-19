@@ -6,6 +6,7 @@ import org.hibernate.criterion.CriteriaQuery
 import org.hibernate.criterion.Order
 
 class QueryService {
+
     public static final String EDITOR_SQL_RESTRICTION = "id in (select species_list_id from species_list_editors e where e.editors_string = ?)"
 
     def authService
@@ -17,6 +18,7 @@ class QueryService {
     def speciesListProperties= new DefaultGrailsDomainClass(SpeciesList.class).persistentProperties.collectEntries{[it.name, it.type]}
     /** A map of criteria method names to Methods - allow the use of reflection to gain the criteria method to use */
     def criteriaMethods = grails.orm.HibernateCriteriaBuilder.class.getMethods().findAll{it.getParameterTypes().length<3}.collectEntries{[it.name, it]}
+
     /**
      * retrieves the lists that obey the supplied filters
      *
@@ -109,7 +111,6 @@ class QueryService {
         }
         //remove the extra condition "fetch" condition
         params.remove('fetch')
-        println lists.size()
         lists
     }
 
@@ -206,8 +207,7 @@ class QueryService {
                                 }
                             }
                         }
-                    }
-                    else{
+                    } else {
                         //the value suffix tells us which filter operation to perform
                         def matcher = (value =~ filterRegEx)
                         if(matcher.matches()){
@@ -235,6 +235,7 @@ class QueryService {
             default:value; break;
         }
     }
+    
     /**
      * Constructs a query based on the filters that have been applied in the KVPs etc.
      * @param base
@@ -248,36 +249,32 @@ class QueryService {
         //query.append(" from SpeciesListItem sli join sli.kvpValues kvp where sli.dataResourceUid=? ")
         def queryparams = [dataResourceUid]
         if(facets){
-
-        facets.eachWithIndex { facet, index ->
-            if(facet.startsWith("kvp")){
-                String sindex = index.toString();
-                facet = facet.replaceFirst("kvp ","")
-                String key = facet.substring(0,facet.indexOf(":"))
-                String value = facet.substring(facet.indexOf(":")+1)
-                query.append(" join sli.kvpValues kvp").append(sindex)
-                whereBuilder.append(" AND kvp").append(sindex).append(".key=? AND kvp").append(sindex).append(".value=?")
-                queryparams.addAll([key, value])
-                //println queryparams
-            }
-            else{
-                //must be a facet with the same table
-                String key = facet.substring(0,facet.indexOf(":"))
-                String value = facet.substring(facet.indexOf(":")+1)
-                whereBuilder.append( "AND sli.").append(key)
-                if(value.equalsIgnoreCase("null")){
-                    whereBuilder.append(" is null")
-                }
-                else{
-                    whereBuilder.append("=?")
-                    queryparams.add(value)
+            facets.eachWithIndex { facet, index ->
+                if(facet.startsWith("kvp")){
+                    String sindex = index.toString();
+                    facet = facet.replaceFirst("kvp ","")
+                    String key = facet.substring(0,facet.indexOf(":"))
+                    String value = facet.substring(facet.indexOf(":")+1)
+                    query.append(" join sli.kvpValues kvp").append(sindex)
+                    whereBuilder.append(" AND kvp").append(sindex).append(".key=? AND kvp").append(sindex).append(".value=?")
+                    queryparams.addAll([key, value])
+                    //println queryparams
+                } else {
+                    //must be a facet with the same table
+                    String key = facet.substring(0,facet.indexOf(":"))
+                    String value = facet.substring(facet.indexOf(":")+1)
+                    whereBuilder.append( "AND sli.").append(key)
+                    if(value.equalsIgnoreCase("null")){
+                        whereBuilder.append(" is null")
+                    } else {
+                        whereBuilder.append("=?")
+                        queryparams.add(value)
+                    }
                 }
             }
-        }
         }
         query.append(whereBuilder.toString())
-        log.debug(println(query.toString()))
-         //println(queryparams)
+        log.debug(query.toString())
         [query.toString(), queryparams]
     }
 
