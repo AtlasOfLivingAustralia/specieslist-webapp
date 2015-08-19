@@ -17,7 +17,9 @@ class QueryService {
     /** A map of domain property names to data types */
     def speciesListProperties= new DefaultGrailsDomainClass(SpeciesList.class).persistentProperties.collectEntries{[it.name, it.type]}
     /** A map of criteria method names to Methods - allow the use of reflection to gain the criteria method to use */
-    def criteriaMethods = grails.orm.HibernateCriteriaBuilder.class.getMethods().findAll{it.getParameterTypes().length<3}.collectEntries{[it.name, it]}
+    def criteriaMethods = grails.orm.HibernateCriteriaBuilder.class.getMethods().findAll {
+        it.getParameterTypes().length < 3
+    }.collectEntries{ [it.name, it] }
 
     /**
      * retrieves the lists that obey the supplied filters
@@ -36,13 +38,13 @@ class QueryService {
         //remove sort from params
         def sort = params.sort
         def order = params.order
+
         params.remove("sort")
         params.remove("order")
-
         params.fetch = [items: 'lazy']
 
         def c = SpeciesList.createCriteria()
-        def lists =c.list(params){
+        def lists = c.list(params){
             and {
                 params.each {key, value ->
                     //the value suffix tells us which filter operation to perform
@@ -77,8 +79,7 @@ class QueryService {
                                     }
                                     sqlRestriction(EDITOR_SQL_RESTRICTION, [filterValue])
                                 }
-                            }
-                            else {
+                            } else {
                                 if (method) {
                                     method.invoke(c, args)
                                 }
@@ -155,8 +156,8 @@ class QueryService {
         }
 
         //append default sorting
-        sort = sort?:"listName"
-        order = order?:"asc"
+        sort = sort ?: "listName"
+        order = order ?: "asc"
         c.order(new Order(sort, "asc".equalsIgnoreCase(order)))
     }
 
@@ -176,9 +177,10 @@ class QueryService {
 
         //log.debug("CRITERIA METHODS: " +criteriaMethods)
         c.list(props += params){
-            //set the results transformer so that we don't get duplicate records because of the 1:many relationship between a list item and KVP
+            //set the results transformer so that we don't get duplicate records because of
+            // the 1:many relationship between a list item and KVP
             setResultTransformer(org.hibernate.criterion.CriteriaSpecification.DISTINCT_ROOT_ENTITY)
-            and{
+            and {
                 if(distinctField){
                     distinct(distinctField)
                     isNotNull(distinctField)
@@ -188,10 +190,10 @@ class QueryService {
                     'in'('dataResourceUid', lists)
                 }
 
-                params.each {key, value ->
+                params.each { key, value ->
                     log.debug("KEYS: " +key+" " + speciesListProperties.containsKey(key))
                     if(speciesListProperties.containsKey(key)){
-                        mylist{
+                        mylist {
                             //the value suffix tells us which filter operation to perform
                             def matcher = (value =~ filterRegEx)
                             if(matcher.matches()){
@@ -214,11 +216,12 @@ class QueryService {
                             def fvalue = matcher[0][2]
 
                             //now handle the supported filter conditions by gaining access to the criteria methods using reflection
-                            def method =criteriaMethods.get(matcher[0][1])
+                            def method = criteriaMethods.get(matcher[0][1])
                             if(method){
-                                Object[] args =[getValueBasedOnType(speciesListProperties[key],fvalue)]
-                                if(method.getParameterTypes().size()>1)
-                                     args = [key] +args
+                                Object[] args =[getValueBasedOnType(speciesListProperties[key], fvalue)]
+                                if(method.getParameterTypes().size() > 1) {
+                                    args = [key] + args
+                                }
                                 method.invoke(c, args)
                             }
                         }
