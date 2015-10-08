@@ -29,13 +29,13 @@
 <head>
     %{--<gui:resources components="['dialog']"/>--}%
     <r:require modules="application, fancybox, baHashchange, amplify"/>
-    <meta name="layout" content="main"/>
+    <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     %{--<link rel="stylesheet" href="${resource(dir:'css',file:'scrollableTable.css')}"/>--}%
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'getQueryParam.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery-ui-1.8.17.custom.min.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery.doubleScroll.js')}"></script>
-    <title>Species list items | Atlas of Living Australia</title>
+    <title>Species list items | ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">
     #buttonDiv {display: none;}
     #refine {display:none;}
@@ -337,7 +337,7 @@
 </script>
 </head>
 <body class="yui-skin-sam nav-species">
-<div id="content" class="container-fluid">
+<div id="content" class="container">
     <header id="page-header">
 
         <div class="inner row-fluid">

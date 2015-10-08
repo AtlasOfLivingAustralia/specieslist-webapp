@@ -16,8 +16,8 @@
 <html>
 <head>
     <r:require modules="fancybox"/>
-    <meta name="layout" content="main"/>
-    <title>My Species lists | Atlas of Living Australia</title>
+    <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
+    <title>My Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">
         #speciesList {display: none;}
     </style>
@@ -31,7 +31,7 @@
             document.getElementById("speciesList").style.display = "block";
     }
 </script>
-<div id="content" class="container-fluid">
+<div id="content" class="container">
     <header id="page-header2">
         <div class="innerZ row-fluid">
             <div id="breadcrumb" class="span12">

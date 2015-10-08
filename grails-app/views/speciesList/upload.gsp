@@ -15,8 +15,8 @@
 <!doctype html>
 <html>
 <head>
-<meta name="layout" content="main"/>
-<title>Upload a list | Species lists | Atlas of Living Australia</title>
+<meta name="layout" content="${grailsApplication.config.skin.layout}"/>
+<title>Upload a list | Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
 <script type="text/javascript">
     function init(){
         //hide('manualMapping')

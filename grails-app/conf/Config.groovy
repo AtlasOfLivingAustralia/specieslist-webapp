@@ -31,7 +31,10 @@ registryApiKey = "xxxxxxxxxxxxxxxxxx"
 
 /*** Config specific for species list ***/
 updateUserDetailsOnStartup = false
-iconicSpecies.uid="dr781"
+iconicSpecies.uid = "dr781"
+
+skin.orgNameLong = "Atlas of Living Australia"
+skin.layout = "main"
 
  //the number of species to limit downloads to
 /*** End config specific for species list ***/
