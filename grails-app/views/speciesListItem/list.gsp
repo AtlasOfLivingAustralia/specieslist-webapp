@@ -337,7 +337,7 @@
 </script>
 </head>
 <body class="yui-skin-sam nav-species">
-<div id="content" class="container">
+<div id="content" class="container  ">
     <header id="page-header">
 
         <div class="inner row-fluid">
@@ -875,11 +875,22 @@
                                         ${fieldValue(bean: result, field: "rawScientificName")}
                                         <g:if test="${result.guid == null}">
                                             <br/>(unmatched - try <a href="http://google.com/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="google" clas="btn btn-primary btn-mini">Google</a>,
-                                            <a href="http://biocache.ala.org.au/occurrences/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="biocache" clas="btn btn-success btn-mini">Occurrences</a>)
+                                            <a href="${grailsApplication.config.biocache.baseURL}/occurrences/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="biocache" clas="btn btn-success btn-mini">Occurrences</a>)
                                         </g:if>
                                     </td>
-                                    <td><a href="${bieUrl}/species/${result.guid}" title="${bieTitle}">${bieSpecies?.get(2)}</a></td>
-                                    <td id="img_${result.guid}"><a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img src="${bieSpecies?.get(0)}" class="smallSpeciesImage"/></a></td>
+                                    <td>
+                                        <g:if test="${bieSpecies}">
+                                            <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}">${bieSpecies?.get(2)}</a>
+                                        </g:if>
+                                        <g:else>
+                                            ${result.matchedName}
+                                        </g:else>
+                                    </td>
+                                    <td id="img_${result.guid}">
+                                        <g:if test="${bieSpecies && bieSpecies.get(0)}">
+                                        <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img src="${bieSpecies?.get(0)}" class="smallSpeciesImage"/></a>
+                                        </g:if>
+                                    </td>
                                     <td>${bieSpecies?.get(3)}</td>
                                     <td id="cn_${result.guid}">${bieSpecies?.get(1)}</td>
                                     <g:each in="${keys}" var="key">
