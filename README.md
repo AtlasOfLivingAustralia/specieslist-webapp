@@ -1,4 +1,4 @@
-### specieslist-webapp   [![Build Status](https://travis-ci.org/AtlasOfLivingAustralia/specieslist-webapp.svg?branch=master)](https://travis-ci.org/AtlasOfLivingAustralia/specieslist-webapp)
+# specieslist-webapp   [![Build Status](https://travis-ci.org/AtlasOfLivingAustralia/specieslist-webapp.svg?branch=master)](https://travis-ci.org/AtlasOfLivingAustralia/specieslist-webapp)
 
 This is a  grails application for managing species lists. It supports:
 
@@ -15,13 +15,13 @@ This is a  grails application for managing species lists. It supports:
  * Supports sensitive species lists
 
  
-## Architecture 
+### Architecture 
 
  * Grails web application
  * MySQL database
 
 
-## Installation
+### Installation
 
 There is an Ansible playbook for this application here [ala-install/ansible/species-list-standalone.yml](https://github.com/AtlasOfLivingAustralia/ala-install/blob/master/ansible/species-list-standalone.yml)
 See example inventory
