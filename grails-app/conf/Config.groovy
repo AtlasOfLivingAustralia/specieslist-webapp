@@ -31,7 +31,10 @@ registryApiKey = "xxxxxxxxxxxxxxxxxx"
 
 /*** Config specific for species list ***/
 updateUserDetailsOnStartup = false
-iconicSpecies.uid="dr781"
+iconicSpecies.uid = "dr781"
+
+skin.orgNameLong = "Atlas of Living Australia"
+skin.layout = "main"
 
  //the number of species to limit downloads to
 /*** End config specific for species list ***/
@@ -92,7 +95,12 @@ environments {
     production {}
 }
 
-logging.dir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs'  : '/var/log/tomcat6')
+logging_dir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs'  : '/var/log/tomcat6')
+if(!new File(logging_dir).exists()){
+    logging_dir = '/tmp'
+}
+
+
 // log4j configuration
 log4j = {
     // Example of changing the log pattern for the default console
@@ -100,7 +108,7 @@ log4j = {
     appenders {
         environments {
             production {
-                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: logging.dir + "/specieslist.log", threshold: org.apache.log4j.Level.ERROR, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
+                rollingFile name: "tomcatLog", maxFileSize: 102400000, file: logging_dir + "/specieslist.log", threshold: org.apache.log4j.Level.ERROR, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
                 'null' name: "stacktrace"
             }
             development {

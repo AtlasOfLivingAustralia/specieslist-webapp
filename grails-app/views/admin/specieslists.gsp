@@ -8,8 +8,8 @@
 <!doctype html>
 <html>
 <head>
-    <meta name="layout" content="main"/>
-    <title>Species lists | Atlas of Living Australia</title>
+    <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
+    <title>Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
     <r:require module="fancybox"/>
 </head>
 <body class="">

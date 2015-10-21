@@ -101,7 +101,7 @@ class HelperService {
 
     def updateDataResourceForList(drId, map) {
         if(grailsApplication.config.collectory.enableSync?.toBoolean()){
-            def postUrl = grailsApplication.config.collectory.baseURL +"/ws/dataResource/" + drId
+            def postUrl = grailsApplication.config.collectory.baseURL + "/ws/dataResource/" + drId
             def http = new HTTPBuilder(postUrl)
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
             def jsonBody = createJsonForNewDataResource(map)

@@ -9,8 +9,8 @@
 <!doctype html>
 <html>
 <head>
-    <meta name="layout" content="main"/>
-    <title>Species lists Webservices| Atlas of Living Australia</title>
+    <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
+    <title>Species lists Webservices| ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">
         code {
             color: #df4a21;

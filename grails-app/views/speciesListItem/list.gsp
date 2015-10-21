@@ -29,13 +29,13 @@
 <head>
     %{--<gui:resources components="['dialog']"/>--}%
     <r:require modules="application, fancybox, baHashchange, amplify"/>
-    <meta name="layout" content="main"/>
+    <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     %{--<link rel="stylesheet" href="${resource(dir:'css',file:'scrollableTable.css')}"/>--}%
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'getQueryParam.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery-ui-1.8.17.custom.min.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery.doubleScroll.js')}"></script>
-    <title>Species list items | Atlas of Living Australia</title>
+    <title>Species list items | ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">
     #buttonDiv {display: none;}
     #refine {display:none;}
@@ -337,7 +337,7 @@
 </script>
 </head>
 <body class="yui-skin-sam nav-species">
-<div id="content" class="container-fluid">
+<div id="content" class="container  ">
     <header id="page-header">
 
         <div class="inner row-fluid">
@@ -875,11 +875,22 @@
                                         ${fieldValue(bean: result, field: "rawScientificName")}
                                         <g:if test="${result.guid == null}">
                                             <br/>(unmatched - try <a href="http://google.com/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="google" clas="btn btn-primary btn-mini">Google</a>,
-                                            <a href="http://biocache.ala.org.au/occurrences/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="biocache" clas="btn btn-success btn-mini">Occurrences</a>)
+                                            <a href="${grailsApplication.config.biocache.baseURL}/occurrences/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="biocache" clas="btn btn-success btn-mini">Occurrences</a>)
                                         </g:if>
                                     </td>
-                                    <td><a href="${bieUrl}/species/${result.guid}" title="${bieTitle}">${bieSpecies?.get(2)}</a></td>
-                                    <td id="img_${result.guid}"><a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img src="${bieSpecies?.get(0)}" class="smallSpeciesImage"/></a></td>
+                                    <td>
+                                        <g:if test="${bieSpecies}">
+                                            <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}">${bieSpecies?.get(2)}</a>
+                                        </g:if>
+                                        <g:else>
+                                            ${result.matchedName}
+                                        </g:else>
+                                    </td>
+                                    <td id="img_${result.guid}">
+                                        <g:if test="${bieSpecies && bieSpecies.get(0)}">
+                                        <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img src="${bieSpecies?.get(0)}" class="smallSpeciesImage"/></a>
+                                        </g:if>
+                                    </td>
                                     <td>${bieSpecies?.get(3)}</td>
                                     <td id="cn_${result.guid}">${bieSpecies?.get(1)}</td>
                                     <g:each in="${keys}" var="key">

@@ -15,16 +15,16 @@
 <!doctype html>
 <html>
 <head>
-    <meta name="layout" content="main"/>
-    <title>Species lists | Atlas of Living Australia</title>
+    <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
+    <title>Species lists |${grailsApplication.config.skin.orgNameLong}</title>
 </head>
 <body class="">
-<div id="content" class="container-fluid">
+<div id="content" class="container">
     <header id="page-header">
         <div class="inner row-fluid" style="display: block;">
             <div id="breadcrumb" class="span12">
                 <ol class="breadcrumb">
-                    <li><a href="http://www.ala.org.au">Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+                    <li><a href="${request.contextPath}">Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
                     <li><a class="current" href="${request.contextPath}/admin/speciesLists">Species lists</a></li>
                 </ol>
             </div>

@@ -1,5 +1,6 @@
 package au.org.ala.specieslist
 
+import groovy.json.JsonSlurper
 import groovyx.net.http.HTTPBuilder
 import grails.web.JSONBuilder
 
@@ -52,6 +53,34 @@ class BiocacheService {
             timeout = timeoutFromConfig as int
         }
         timeout
+    }
+
+    /**
+     * Create a URL for search with this list
+     * @param drUid
+     * @return
+     */
+    String getQueryUrlForList(drUid){
+        grailsApplication.config.biocache.baseURL + "/occurrences/search?q=species_list_uid:" + drUid
+    }
+
+    /**
+     * Checks to see if a list is indexed against in the biocache.
+     *
+     * @param drUid
+     * @return
+     */
+    Boolean isListIndexed(drUid){
+        try {
+            def url = grailsApplication.config.biocacheService.baseURL +"/occurrences/search?pageSize=0&facet=off&q=species_list_uid:" + drUid
+            def jsonText = new URL(url).getText("UTF-8")
+            def jsSlurper = new JsonSlurper()
+            def json = jsSlurper.parseText(jsonText)
+            json.totalRecords > 0
+        } catch (Exception e){
+            log.error("Problem checking if list is indexed against: " + e.getMessage(), e)
+            false
+        }
     }
 
     /**
