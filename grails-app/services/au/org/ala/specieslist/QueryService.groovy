@@ -7,7 +7,7 @@ import org.hibernate.criterion.Order
 
 class QueryService {
 
-    public static final String EDITOR_SQL_RESTRICTION = "id in (select species_list_id from species_list_editors e where e.editors_string = ?)"
+    public static final String EDITOR_SQL_RESTRICTION = "this_.id in (select species_list_id from species_list_editors e where e.editors_string = ?)"
 
     def authService
     def localAuthService
