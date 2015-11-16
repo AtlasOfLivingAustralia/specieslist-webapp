@@ -30,7 +30,6 @@
     %{--<gui:resources components="['dialog']"/>--}%
     <r:require modules="application, fancybox, baHashchange, amplify"/>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
-    %{--<link rel="stylesheet" href="${resource(dir:'css',file:'scrollableTable.css')}"/>--}%
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'getQueryParam.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery-ui-1.8.17.custom.min.js')}"></script>
@@ -888,7 +887,7 @@
                                     </td>
                                     <td id="img_${result.guid}">
                                         <g:if test="${bieSpecies && bieSpecies.get(0)}">
-                                        <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img src="${bieSpecies?.get(0)}" class="smallSpeciesImage"/></a>
+                                        <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img style="max-width: 400px;" src="${bieSpecies?.get(0)}" class="smallSpeciesImage"/></a>
                                         </g:if>
                                     </td>
                                     <td>${bieSpecies?.get(3)}</td>
@@ -974,15 +973,7 @@
                 </g:if>
             </g:each>
         </div> <!-- .span9 -->
-        %{--</div> <!-- results -->--}%
     </div>
 </div> <!-- content div -->
-%{--<script type="text/javascript">--}%
-    %{--function loadMultiFacets(facetName, displayName) {--}%
-        %{--console.log(facetName, displayName)--}%
-        %{--console.log("#div"+facetName,$("#div"+facetName),$("#div"+facetName).innerHTML)--}%
-        %{--$("div#dynamic").innerHTML=$("#div"+facetName).innerHTML;--}%
-    %{--}--}%
-%{--</script>--}%
 </body>
 </html>

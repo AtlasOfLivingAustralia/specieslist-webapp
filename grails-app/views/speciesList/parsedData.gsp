@@ -21,9 +21,9 @@
                 border-collapse: collapse;
                 margin-bottom: 0px;
             }
-
-            /*th { font-size: 12px; border-collapse: collapse; border: 1px solid #000000; padding:2px; background-color: #000000; color: #ffffff;}*/
-            /*td { font-size: 11px; border-collapse: collapse; border: 1px solid #000000; padding: 2px;}*/
+            .fwtable {
+                overflow-y: hidden; overflow-x: auto; width: 100%;
+            }
         </style>
 
         <h1></h1>
@@ -37,7 +37,7 @@
                 <p>Adjust headings that have been incorrectly matched using the text boxes.
 
                 <div class="fwtable well">
-                    <table id="initialParse">
+                    <table id="initialParse" class="table table-striped table-bordered">
                         <thead>
                         <g:if test="${columnHeaders}">
                             <g:each in="${columnHeaders}" var="hdr">
@@ -63,12 +63,17 @@
             </div><!-- #recognisedDataDiv -->
             <g:if test="${listProperties}">
                 <p>
-                    We have detected species properties within the list. It is possible to map your properties to a controlled vocabulary.
+                    We have detected species properties within the list. <br/>
+                    It is possible to map your properties to a controlled vocabulary.<br/>
+                    This step is <strong>optional</strong>.
                     <input id="viewVocabButton" class="datasetName actionButton btn" type="button"
                            value="Click here to map..." onclick="javascript:viewVocab();"/>
                 </p>
 
-                <div class="allVocabs" id="listvocab">
+                <div class="allVocabs well" id="listvocab">
+
+                    <div class="pull-right"><button class="btn" onclick="javascript:hideVocab();">Close</button></div>
+
                     <g:each in="${listProperties.keySet()}" var="key">
                         <div class="vocabDiv">
                             <h3 class="vocabHeader" for="Head_${key}">${key}</h3>
@@ -91,85 +96,10 @@
                             </div> <!-- fhtable -->
                         </div><!-- #vocabDiv -->
                     </g:each>
+
+                    <div class="pull-right"><button class="btn" onclick="javascript:hideVocab();">Close</button></div>
                 </div><!-- #listvocab -->
             </g:if>
-
-            %{--<div id="recognisedData"></div>--}%
-
-            %{--</div>--}%
-            %{--<div id="uploadDiv">--}%
-                %{--<h2>3. Upload Species List</h2>--}%
-                %{--Please supply a title for your list.  You can optionally supply a description, an external URL as a reference to the list and a geospatial bounds for the list (in WKT format).--}%
-                %{--<div id="processSampleUpload">--}%
-                    %{--<p style="padding-bottom:0px;">--}%
-                    %{--<table>--}%
-                    %{--<tbody>--}%
-                    %{--<tr>--}%
-                       %{--<td>--}%
-                           %{--<label for="listTitle"><g:message code="upload.listname.label" default="Title*"/></label>--}%
-                                                    %{--</td>--}%
-                        %{--<td>--}%
-                            %{--<g:textField name="listTitle" style="width:99%"/>--}%
-                        %{--</td>--}%
-                        %{--</tr>--}%
-                        %{--<tr>--}%
-                            %{--<td><label for="listTypeId"><g:message code="upload.listtype.label" default="List Type*"/></label></td>--}%
-                            %{--<td>--}%
-                                %{--<select name="listTypeId" id="listTypeId">--}%
-                                    %{--<option value="">-- select a type --</option>--}%
-                                    %{--<g:each in="${listTypes}" var="listType">--}%
-                                        %{--<option value="${listType}">${listType.getDisplayValue()}</option>--}%
-                                    %{--</g:each>--}%
-                                %{--</select>--}%
-                            %{--</td>--}%
-
-                        %{--</tr>--}%
-                        %{--<g:if test="${request.isUserInRole("ROLE_ADMIN")}">--}%
-                            %{--<tr>--}%
-                                %{--<td><label for="isBIE"><g:message code= "speciesList.isBIE.label" default= "Included in BIE"/></label> </td>--}%
-                                %{--<td><g:checkBox name="isBIE" id="isBIE"/></td>--}%
-                            %{--</tr>--}%
-                            %{--<tr>--}%
-                                %{--<td><label for="isSDS"><g:message code= "speciesList.isSDS.label" default= "Part of the SDS"/></label> </td>--}%
-                                %{--<td><g:checkBox name="isSDS" id="isSDS"/></td>--}%
-                            %{--</tr>--}%
-                        %{--</g:if>--}%
-                        %{--<tr>--}%
-                            %{--<td>--}%
-                                %{--<label for="listDesc"><g:message code="upload.listdesc.label" default="Description"/></label>--}%
-                            %{--</td>--}%
-                            %{--<td>--}%
-                                %{--<g:textArea cols="100" rows="5" name="listDesc"/>--}%
-                            %{--</td>--}%
-
-                        %{--</tr>--}%
-                        %{--<tr>--}%
-                            %{--<td>--}%
-                                %{--<label for="listURL"><g:message code="upload.listlink.label" default="URL"/></label>--}%
-                            %{--</td>--}%
-                            %{--<td>--}%
-                                %{--<g:textField name="listURL" style="width:99%"/>--}%
-                            %{--</td>--}%
-
-                        %{--</tr>--}%
-                        %{--<tr>--}%
-                            %{--<td>--}%
-                                %{--<label for="listWkt"><g:message code="upload.listWkt.label" default="Spatial bounds for data (WKT)"/></label>--}%
-                            %{--</td>--}%
-                            %{--<td>--}%
-                                %{--<g:textArea cols="100" rows="5" name="listWkt"/>--}%
-                            %{--</td>--}%
-
-                        %{--</tr>--}%
-                        %{--</tbody>--}%
-                        %{--</table>--}%
-                    %{--<label for="speciesListName" class="datasetName"><strong>Your species list name</strong></label>--}%
-                    %{--<input id="speciesListName" class="datasetName" name="datasetName" type="text" value="My test species list" style="width:350px; margin-bottom:5px;"/>--}%
-                        %{--<input id="uploadButton" class="datasetName actionButton btn" type="button" value="Upload"--}%
-                               %{--onclick="javascript:uploadSpeciesList();"/>--}%
-                    %{--</p>--}%
-                %{--</div>--}%
-            %{--</div>--}%
         </g:else>
     </div>
 </div>

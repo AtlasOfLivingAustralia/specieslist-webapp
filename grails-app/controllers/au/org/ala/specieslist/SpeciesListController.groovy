@@ -95,7 +95,12 @@ class SpeciesListController {
         if(!dataResourceUid){
             def drURL = helperService.addDataResourceForList([name:speciesListName])
             log.debug(drURL)
-            drURL.toString().substring(drURL.lastIndexOf('/') +1)
+            if(!drURL){
+                log.error("Unable to create entry in collectory....")
+                throw new Exception("Problem communicating with collectory. Unable to create resource.")
+            } else {
+                drURL.toString().substring(drURL.lastIndexOf('/') +1)
+            }
         } else {
             dataResourceUid
         }

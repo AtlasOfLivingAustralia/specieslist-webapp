@@ -19,7 +19,6 @@
 <title>Upload a list | Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
 <script type="text/javascript">
     function init(){
-        //hide('manualMapping')
         reset();
     }
 
@@ -38,12 +37,8 @@
         var ischecked=$('#isSDS').is(':checked');
         var rows = $('table.listDetailTable tr');
         if(ischecked) {
-            //$("#SDSOnly").fadeIn(200);
             rows.filter('.SDSOnly').show();
-
-
         } else {
-            //$("#SDSOnly").fadeOut(200);
             rows.filter('.SDSOnly').hide();
         }
     }
@@ -84,12 +79,9 @@
     }
 
     function updateCustom(checked){
-//            alert("Here... " + checked)
-        if (checked)
-        {
+        if (checked) {
             hide('manualMapping');
-        }
-        else{
+        } else {
             show('manualMapping');
         }
     }
@@ -107,6 +99,11 @@
     function viewVocab(){
         $('#listvocab').show();
         $('#viewVocabButton').hide();
+    }
+
+    function hideVocab(){
+        $('#listvocab').hide();
+        $('#viewVocabButton').show();
     }
 
     function validateForm(){
@@ -143,7 +140,7 @@
         if(validateForm()){
             var isFileUpload = $('#csvFileUpload').val().trim() != "";
 
-            var map =getVocabularies();
+            var map = getVocabularies();
             map['headers'] = getColumnHeaders();
             map['speciesListName'] = $('#listTitle').val();
             map['description'] = $('#listDesc').val();
@@ -173,8 +170,7 @@
                     map['sdsType'] = $('#sdsType').val();
                 }
             }
-            //console.log($.param(map))
-            console.log("The map: ",map)
+            console.log("The map: ",map);
             $('#recognisedDataDiv').hide();
             $('#uploadDiv').hide();
             $('#statusMsgDiv').show();
@@ -219,7 +215,6 @@
             var value = "";
             var h3value = "vocab_"+$(vdiv).find('h3:first').text();
 
-            //console.log("tbody",$("table[for='"+header3.for+"']"))
             $(vdiv).find('table').find('tbody').find('tr').each(function(index2,vrow){
 
                 if(value.length>0)
@@ -234,9 +229,7 @@
 
             vocabMap[h3value] = value;
         })
-        //console.log("vocabMap: ",vocabMap)
-        return vocabMap
-
+        return vocabMap;
     }
 
     function getColumnHeaders(){
@@ -256,27 +249,18 @@
     }
 
     function updateH3(column){
-        //console.log("H3: " , column)
-        //$("h3[for='"+column.id+"']").html(column.value)
         var columnHeaderInputs = $('input.columnHeaderInput');
-        var test =""
         $.each(columnHeaderInputs, function(index, input){
-            //console.log("updateTables", index, input.id);
-
             $("h3[for='"+input.id+"']").html($(input).val());
-            //console.log("h3 for",$("h3[for='"+input.id+"']"));
         })
     }
 
-    //        //setup the page
+    //setup the page
     $(document).ready(function(){
-
         init();
-
         $("#isSDS").change(function(){
             refreshSDSRows();
       });
-
     });
 
 </script>
@@ -284,28 +268,24 @@
 </head>
 
 <body class="">
-<div id="content" class="container-fluid">
+<div id="content" class="container">
     <header id="page-header">
-        <div class="inner">
-            <div class="inner row-fluid">
-                <div id="breadcrumb" class="span12">
-                    <ol class="breadcrumb">
-                        <li><a href="${request.contextPath}/public/speciesLists">Species lists</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
-                        <li class="current">Upload a list</li>
-                    </ol>
-                </div>
-            </div>
-            <hgroup>
-                <g:if test="${list}">
-                    <h1><g:message code="upload.heading.hasList" default="Upload a list"/></h1>
-                </g:if>
-                <g:else>
-                    <h1><g:message code="upload.heading" default="Upload a list"/></h1>
-                </g:else>
-            </hgroup>
-        </div><!--inner-->
+        <div id="breadcrumb" >
+            <ol class="breadcrumb">
+                <li><a href="${request.contextPath}/public/speciesLists">Species lists</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+                <li class="current">Upload a list</li>
+            </ol>
+        </div>
+        <hgroup>
+            <g:if test="${list}">
+                <h1><g:message code="upload.heading.hasList" default="Upload a list"/></h1>
+            </g:if>
+            <g:else>
+                <h1><g:message code="upload.heading" default="Upload a list"/></h1>
+            </g:else>
+        </hgroup>
     </header>
-    <div class="inner">
+    <div>
         <div class="message alert alert-info" id="uploadmsg" style="clear:right;">${flash.message}</div>
         <div id="section" class="col-wide">
 
@@ -333,7 +313,7 @@
                                 <i class="icon-file fileupload-exists"></i>
                                 <span class="fileupload-preview"></span>
                             </div>
-                            <span class="btn btn-file">
+                            <span class="btn btn-default btn-file">
                                 <span class="fileupload-new">Select file</span>
                                 <span class="fileupload-exists">Change</span>
                                 <input type="file" name="csvFile" id="csvFileUpload"/>
@@ -355,7 +335,7 @@
 
                 <g:textArea
                         id="copyPasteData"
-                        name="copyPasteData" rows="15" cols="120" style="width:100%;"
+                        name="copyPasteData" rows="10" cols="120" style="width:100%;"
                         onkeyup="javascript:window.setTimeout('parseColumns()', 500, true);"></g:textArea>
 
                 <g:submitButton id="checkData" class="actionButton btn" name="checkData" value="Check Data"
@@ -372,8 +352,7 @@
                 <h2>3. Upload Species List</h2>
                 Please supply a title for your list.  You can optionally supply a description, an external URL as a reference to the list and a geospatial bounds for the list (in WKT format).
                 <div id="processSampleUpload">
-                    %{--<p style="padding-bottom:0px;">--}%
-                    <table class="listDetailTable">
+                    <table class="listDetailTable tableContainer">
                         <tbody>
                         <tr>
                             <td>
@@ -477,7 +456,10 @@
         </div>
     </div>
     <div id="statusMsgDiv">
-        <h3><img src='${resource(dir:'images',file:'spinner.gif')}' id='spinner'/>&nbsp;&nbsp;<span>Uploading your list...</span></h3>
+        <div class="well">
+            <h3><img src='${resource(dir:'images',file:'spinner.gif')}' id='spinner'/>&nbsp;&nbsp;<span>Uploading your list...</span></h3>
+            <p>This will take a few moments depending on the size of the list.</p>
+        </div>
     </div>
 </div> <!-- content div -->
 </body>
