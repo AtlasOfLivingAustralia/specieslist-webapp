@@ -45,7 +45,6 @@ class SpeciesListController {
         if(params.id){
             //get the list if it exists and ensure that the user is an admin or the owner
             def list = SpeciesList.findByDataResourceUid(params.id)
-            //if(list?.username == authService.getEmail() || authService.userInRole("ROLE_ADMIN")){
             if(list?.userId == authService.getUserId() || authService.userInRole("ROLE_ADMIN")){
                 render(view: "upload", model: [resourceUid:params.id, list:  list, listTypes:ListType.values()])
             } else {

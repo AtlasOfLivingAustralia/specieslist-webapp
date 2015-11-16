@@ -79,7 +79,7 @@
                             <h3 class="vocabHeader" for="Head_${key}">${key}</h3>
 
                             <div class="fhtable">
-                                <table class="vocabularyTable" id="Voc_${key}" for="Head_${key}">
+                                <table class="vocabularyTable table table-condensed" id="Voc_${key}" for="Head_${key}">
                                     <thead>
                                     <th class="parse">Value</th>
                                     <th class="parse">Maps To</th>
