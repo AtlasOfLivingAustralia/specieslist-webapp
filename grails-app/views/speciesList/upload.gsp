@@ -264,10 +264,10 @@
     });
 
 </script>
-    <r:require modules="fileupload"/>
+    <r:require modules="application, fileupload"/>
 </head>
 
-<body class="">
+<body class="upload">
 <div id="content" class="container">
     <header id="page-header">
         <div id="breadcrumb" >
@@ -350,9 +350,11 @@
 
             <div id="uploadDiv">
                 <h2>3. Upload Species List</h2>
-                Please supply a title for your list.  You can optionally supply a description, an external URL as a reference to the list and a geospatial bounds for the list (in WKT format).
-                <div id="processSampleUpload">
-                    <table class="listDetailTable tableContainer">
+                <p>Please supply a title for your list, and indicate the type of list you are uploading from the options provided.<br/>
+                You can optionally supply a description, an external URL as a reference to the list and a geospatial bounds for the list (in WKT format).
+                </p>
+                <div id="processSampleUpload" class="well">
+                    <table class="listDetailTable table table-condensed borderless">
                         <tbody>
                         <tr>
                             <td>
@@ -374,20 +376,20 @@
                         </tr>
                         <g:if test="${request.isUserInRole("ROLE_ADMIN")}">
                             <tr>
-                                <td><label for="isBIE"><g:message code= "speciesList.isBIE.label" default= "Included in BIE"/></label> </td>
+                                <td><label for="isBIE"><g:message code= "speciesList.isBIE.label" default= "Included in species pages"/></label> </td>
                                 <td><g:checkBox name="isBIE" id="isBIE" checked="${list?.isBIE}"/></td>
                             </tr>
                             <tr>
-                                <td><label for="isSDS"><g:message code= "speciesList.isSDS.label" default= "Part of the SDS"/></label> </td>
+                                <td><label for="isSDS"><g:message code= "speciesList.isSDS.label" default= "Part of the Sensitive Data Service"/></label> </td>
                                 <td><g:checkBox name="isSDS" id="isSDS" checked="${list?.isSDS}"/></td>
                             </tr>
                         </g:if>
-                         <tr class="SDSOnly" >
-                             <td><label>Region</label></td>
-                             <td>
-                                 <g:textField name="sdsRegion" style="width:99%" value="${list?.region}"/>
-                             </td>
-                         </tr>
+                        <tr class="SDSOnly">
+                            <td><label>Region</label></td>
+                            <td>
+                                <g:textField name="sdsRegion" style="width:99%" value="${list?.region}"/>
+                            </td>
+                        </tr>
                         <tr class="SDSOnly">
                             <td><label>Authority</label></td>
                             <td>
@@ -417,17 +419,15 @@
                                 <label for="listDesc"><g:message code="upload.listdesc.label" default="Description"/></label>
                             </td>
                             <td>
-                                <g:textArea cols="100" rows="5" name="listDesc">${list?.description}</g:textArea>
-
+                                <g:textArea cols="100" class="input-xxlarge" rows="5" name="listDesc">${list?.description}</g:textArea>
                             </td>
-
                         </tr>
                         <tr>
                             <td>
                                 <label for="listURL"><g:message code="upload.listlink.label" default="URL"/></label>
                             </td>
                             <td>
-                                <g:textField name="listURL" style="width:99%">${list?.url}</g:textField>
+                                <g:textField name="listURL" class="input-xxlarge">${list?.url}</g:textField>
                             </td>
 
                         </tr>
@@ -436,7 +436,7 @@
                                 <label for="listWkt"><g:message code="upload.listWkt.label" default="Spatial bounds for data (WKT)"/></label>
                             </td>
                             <td>
-                                <g:textArea cols="100" rows="5" name="listWkt">${list?.wkt}</g:textArea>
+                                <g:textArea cols="100" rows="5" class="input-xxlarge" name="listWkt">${list?.wkt}</g:textArea>
                             </td>
 
                         </tr>
