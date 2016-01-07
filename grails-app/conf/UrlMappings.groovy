@@ -20,10 +20,11 @@ class UrlMappings {
             action = [GET:'getListItemDetails']
         }
 
-        "/ws/speciesListItems/keys?" controller: "webService", action: "listKeys"
-        "/ws/speciesListItems/byKeys?" controller: "webService", action: "listItemsByKeys"
+        //"/ws/speciesListItems" (controller: "webService", action: "getListItemDetails")
+        "/ws/speciesListItems/keys" (controller: "webService", action: "listKeys")
+        "/ws/speciesListItems/byKeys" (controller: "webService", action: "listItemsByKeys")
 
-        "/ws/speciesList/filter" controller: "webService", action: [POST: "filterLists"]
+        "/ws/speciesList/filter" (controller: "webService", action: [POST: "filterLists"])
 
         //ws to obtain values for a specified species guid
         "/ws/species/$guid?" (controller: 'webService',action: 'getListItemsForSpecies')
