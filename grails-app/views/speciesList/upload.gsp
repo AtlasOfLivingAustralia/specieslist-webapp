@@ -411,7 +411,7 @@
                         <tr class="SDSOnly">
                             <td><label>SDS Type</label></td>
                             <td>
-                                <g:textField name="sdsType" style="width:99%" value="${list?.sdsType}"/>
+                                <g:select from="['CONSERVATION', 'BIOSECURITY']" name="sdsType" style="width:99%" value="${list?.sdsType}" />
                             </td>
                         </tr>
                         <tr>
