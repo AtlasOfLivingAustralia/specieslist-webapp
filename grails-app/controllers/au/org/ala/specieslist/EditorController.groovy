@@ -175,6 +175,8 @@ class EditorController {
                 sli.removeFromKvpValues(it)
             }
 
+            sli.preferredImageUrl = params.preferredImageUrl?.trim()
+
             //check if rawScientificName has changed
             if (params.rawScientificName.trim() != sli.rawScientificName.trim()) {
                 log.debug "rawScientificName is different: " + params.rawScientificName + " VS " + sli.rawScientificName
@@ -234,8 +236,8 @@ class EditorController {
                 }
             }
 
+            sli.preferredImageUrl = params.preferredImageUrl?.trim()
             sl.addToItems(sli)
-
             if (!sl.validate()) {
                 def message = "Could not update SpeciesList with new item: ${sli.rawScientificName} - " + sl.errors.allErrors
                 log.error message

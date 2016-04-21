@@ -23,6 +23,7 @@ class SpeciesListItem {
     String matchedName
     String kingdom
     String family
+    String preferredImageUrl
     Boolean isPublished //stores whether or not the species list for this item has been published to the BIE
     Date dateCreated
     Date lastUpdated
@@ -42,6 +43,7 @@ class SpeciesListItem {
         matchedName(nullable: true)
         kingdom(nullable:  true)
         family(nullable:  true)
+        preferredImageUrl(nullable: true, url: true)
         //kvpValues(nullable: true)
     }
 
