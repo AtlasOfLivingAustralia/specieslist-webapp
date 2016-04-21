@@ -33,12 +33,12 @@
             </tr>
             </thead>
             <tbody>
-            <tr class=''>
+            <tr>
                 <td class="dataField">Supplied Name</td>
                 <td class='dataValue'><input name="rawScientificName" id="rawScientificName" type="text" class="input-block-level" value="${record?.rawScientificName?.trim()}"/></td>
                 <td>&nbsp;</td>
             </tr>
-            <tr class=''>
+            <tr>
                 <td class="dataField">Preferred image url</td>
                 <td class='dataValue'><input name="preferredImageUrl" id="rawPreferredImageUrl" type="text" class="input-block-level" value="${record?.preferredImageUrl?.trim()}"/></td>
                 <td>&nbsp;</td>
