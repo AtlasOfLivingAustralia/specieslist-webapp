@@ -891,7 +891,7 @@
                                         </g:if>
                                     </td>
                                     <td>${bieSpecies?.get(3)}</td>
-                                    <td id="cn_${result.guid}">${bieSpecies?.get(1)}</td>
+                                    <td id="cn_${result.guid}">${result.commonName}</td>
                                     <g:each in="${keys}" var="key">
                                         <g:set var="kvp" value="${result.kvpValues.find {it.key == key}}" />
                                         <g:set var="val" value="${kvp?.vocabValue?:kvp?.value}" />

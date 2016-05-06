@@ -27,6 +27,7 @@ class SpeciesListItem {
     Date dateCreated
     Date lastUpdated
     Integer itemOrder
+    String commonName
 
     static hasMany = [kvpValues: SpeciesListKVP]
     //allows the items to be sorted before they are extracted.
@@ -42,6 +43,7 @@ class SpeciesListItem {
         matchedName(nullable: true)
         kingdom(nullable:  true)
         family(nullable:  true)
+        commonName(nullable:  true)
         //kvpValues(nullable: true)
     }
 

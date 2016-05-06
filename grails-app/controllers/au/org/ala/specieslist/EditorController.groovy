@@ -242,6 +242,8 @@ class EditorController {
                 render(text: message, status: 500)
             }
             else if (sl.save(flush: true)) {
+                // find common name and save it
+                helperService.matchCommonNamesForSpeciesListItems([sli])
                 render(text: "Record successfully created", status: 200)
             }
             else {

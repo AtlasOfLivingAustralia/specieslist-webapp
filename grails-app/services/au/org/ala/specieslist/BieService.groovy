@@ -1,40 +1,38 @@
 package au.org.ala.specieslist
-
-import groovyx.net.http.HTTPBuilder
-
 import grails.converters.JSON
 import grails.web.JSONBuilder
+import groovyx.net.http.HTTPBuilder
 
 class BieService {
 
     def grailsApplication
 
     def bulkLookupSpecies(list) {
+        Map map = [:]
+        List jsonResponse = bulkSpeciesLookupWithGuids(list)
+        jsonResponse.each {
+            if (it && it.guid) {
+                def guid = it.guid
+                def image = it.smallImageUrl
+                def commonName = it.commonNameSingle
+                def scientificName = it.name
+                def author = it.author
+                map.put(guid, [image, commonName, scientificName, author])
+            }
+        }
+        map
+    }
 
+    public List bulkSpeciesLookupWithGuids(list) {
         def http = new HTTPBuilder(grailsApplication.config.bieService.baseURL + "/species/guids/bulklookup.json")
         http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
-        def map = [:]
         def jsonBody = (list as JSON).toString()
-
-        log.debug(jsonBody)
         try {
-            def jsonResponse =  http.post(body: jsonBody, requestContentType:groovyx.net.http.ContentType.JSON)
-            log.debug "jsonResponse = ${jsonResponse}"
-            jsonResponse.searchDTOList.each {
-                if (it && it.guid) {
-                    def guid = it.guid
-                    def image = it.smallImageUrl
-                    def commonName = it.commonNameSingle
-                    def scientificName = it.name
-                    def author = it.author
-                    map.put(guid, [image, commonName, scientificName, author])
-                }
-            }
-            log.debug(map)
-            map
+            Map jsonResponse =  http.post(body: jsonBody, requestContentType:groovyx.net.http.ContentType.JSON)
+            jsonResponse?.searchDTOList
         } catch(ex) {
             log.error("Unable to obtain species details from BIE - " + ex.getMessage(), ex)
-            map
+            []
         }
     }
 

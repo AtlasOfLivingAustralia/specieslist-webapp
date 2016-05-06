@@ -178,17 +178,47 @@ class WebServiceController {
     def getListItemDetails ={
         if(params.druid) {
             params.sort = params.sort ?: "itemOrder" // default to order the items were imported in
-            def list = params.nonulls ?
-                      SpeciesListItem.findAllByDataResourceUidAndGuidIsNotNull(params.druid, params)
-                    : SpeciesListItem.findAllByDataResourceUid(params.druid, params)
+            def list
+            if(!params.q){
+                list = params.nonulls ?
+                        SpeciesListItem.findAllByDataResourceUidAndGuidIsNotNull(params.druid, params)
+                        : SpeciesListItem.findAllByDataResourceUid(params.druid, params)
+            } else {
+                // if query parameter is passed, search in common name, supplied name and scientific name
+                String query = "%${params.q}%"
+                String druid = params.druid
+                def criteria = SpeciesListItem.createCriteria()
+                if(params.nonulls){
+                    // search among SpeciesListItem that has matched ALA taxonomy
+                    list = criteria {
+                        isNotNull("guid")
+                        eq("dataResourceUid", druid)
+                        or {
+                            ilike("commonName", query)
+                            ilike("matchedName", query)
+                            ilike("rawScientificName", query)
+                        }
+                    }
+                } else {
+                    // search all SpeciesListItem
+                    list = criteria {
+                        eq("dataResourceUid", druid)
+                        or {
+                            ilike("commonName", query)
+                            ilike("matchedName", query)
+                            ilike("rawScientificName", query)
+                        }
+                    }
+                }
+            }
 
             List newList
             if (params.includeKVP?.toBoolean()) {
-                newList = list.collect({[id: it.id, name: it.rawScientificName, lsid: it.guid,
+                newList = list.collect({[id: it.id, name: it.rawScientificName, commonName: it.commonName, scientificName: it.matchedName, lsid: it.guid,
                                         kvpValues: it.kvpValues.collect({[key: it.key, value: it.value]})]})
             }
             else {
-                newList= list.collect{[id:it.id,name:it.rawScientificName, lsid: it.guid]}
+                newList= list.collect{[id:it.id,name:it.rawScientificName, commonName: it.commonName, scientificName: it.matchedName, lsid: it.guid]}
             }
             render newList as JSON
         } else {

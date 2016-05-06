@@ -468,6 +468,8 @@ class SpeciesListController {
                 }
             }
         }
+
+        helperService.matchCommonNamesForSpeciesListItems(items);
         render(text: "Rematch complete")
     }
 

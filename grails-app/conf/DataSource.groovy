@@ -4,6 +4,7 @@ dataSource {
     driverClassName = "com.mysql.jdbc.Driver"
     username = ""
     password = ""
+    dialect = org.hibernate.dialect.MySQL5Dialect
     properties {
         maxActive = -1
         minEvictableIdleTimeMillis=1800000

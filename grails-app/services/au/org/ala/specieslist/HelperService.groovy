@@ -27,6 +27,8 @@ import org.apache.commons.lang.StringUtils
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
+import javax.annotation.PostConstruct
+
 import static groovyx.net.http.ContentType.JSON
 
 /**
@@ -39,6 +41,8 @@ class HelperService {
 
     def localAuthService, authService, userDetailsService
 
+    BieService bieService
+
     def cbIdxSearcher = null
 
     def speciesValue = ["species", "scientificname", "taxonname"]
@@ -46,6 +50,13 @@ class HelperService {
     def commonValues = ["commonname","vernacularname"]
 
     def ambiguousValues = ["name"]
+
+    Integer BATCH_SIZE
+
+    @PostConstruct
+    init(){
+        BATCH_SIZE = Integer.parseInt((grailsApplication.config.batchSize?:1000).toString())
+    }
 
     /**
      * Adds a data resource to the collectory for this species list
@@ -302,7 +313,10 @@ class HelperService {
             log.error(speciesList.errors.allErrors)
         }
 
-        speciesList.save()
+        speciesList.save(flush: true)
+
+        List sli = speciesList.getItems().toList()
+        matchCommonNamesForSpeciesListItems(sli)
     }
 
     private static boolean isSpeciesListJsonVersion1(Map json) {
@@ -403,6 +417,9 @@ class HelperService {
             sl.save()
         }
 
+        List sli = sl.getItems().toList()
+        matchCommonNamesForSpeciesListItems(sli)
+
         [totalRecords: totalCount, successfulItems: itemCount]
     }
 
@@ -430,6 +447,9 @@ class HelperService {
 
         }
         sl.save()
+
+        List sli = sl.getItems().toList()
+        matchCommonNamesForSpeciesListItems(sli)
     }
 
     def insertSpeciesItem(String[] values, druid, int speciesIdx, Object[] header,map, int order){
@@ -528,5 +548,49 @@ class HelperService {
     def asJson(model, response)  {
         response.setContentType("application/json")
         model
+    }
+
+    /**
+     * finds common name for a guid and saves it to the database. This is done in batches.
+     * @param slItems
+     */
+    void matchCommonNamesForSpeciesListItems(List slItems){
+        Integer batchSize = BATCH_SIZE;
+        List guidBatch = [], sliBatch = []
+        slItems?.each{ SpeciesListItem sli ->
+            if(guidBatch.size() < batchSize){
+                if(sli.guid){
+                    guidBatch.push(sli.guid)
+                    sliBatch.push(sli)
+                }
+            } else {
+                getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
+
+                guidBatch = []
+                sliBatch = []
+            }
+        }
+
+        if(guidBatch.size()){
+            getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
+        }
+    }
+
+    /**
+     * This function finds common name for a guid and updates the corresponding SpeciesListItem record
+     * @param sliBatch - list of SpeciesListItems
+     * @param guidBatch - list of GUID strings
+     */
+    private void getCommonNamesAndUpdateRecords(List sliBatch, List guidBatch) {
+        List speciesProfiles = bieService.bulkSpeciesLookupWithGuids(guidBatch)
+        speciesProfiles?.eachWithIndex { Map profile, index ->
+            SpeciesListItem slItem = sliBatch[index]
+            if (profile) {
+                slItem.commonName = profile.commonNameSingle
+                if (!slItem.save(flush: true)) {
+                    log.error("Unable to save SpeciesListItem for ${slItem.guid}: ${slItem.dataResourceUid}")
+                }
+            }
+        }
     }
 }
