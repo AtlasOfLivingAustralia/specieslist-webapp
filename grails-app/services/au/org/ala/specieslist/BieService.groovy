@@ -25,7 +25,7 @@ class BieService {
 
     public List bulkSpeciesLookupWithGuids(list) {
         def http = new HTTPBuilder(grailsApplication.config.bieService.baseURL + "/species/guids/bulklookup.json")
-        http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
+        http.getClient().getParams().setParameter("http.socket.timeout", new Integer(8000))
         def jsonBody = (list as JSON).toString()
         try {
             Map jsonResponse =  http.post(body: jsonBody, requestContentType:groovyx.net.http.ContentType.JSON)

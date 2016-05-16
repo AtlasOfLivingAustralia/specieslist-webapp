@@ -21,6 +21,8 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 import org.springframework.web.multipart.MultipartHttpServletRequest
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
+import javax.annotation.PostConstruct
+
 class SpeciesListController {
 
     public static final String CSV_UPLOAD_FILE_NAME = "csvFile"
@@ -35,6 +37,13 @@ class SpeciesListController {
     QueryService queryService
 
     int noOfRowsToDisplay = 5
+
+    Integer BATCH_SIZE
+
+    @PostConstruct
+    init(){
+        BATCH_SIZE = Integer.parseInt((grailsApplication.config.batchSize?:200).toString())
+    }
 
     static allowedMethods = [uploadList:'POST']
 
@@ -413,6 +422,62 @@ class SpeciesListController {
         file.getInputStream().withReader { r -> helperService.getSeparator(r.readLine()) }
     }
 
+    /**
+     * Rematches the scientific names in the supplied list
+     */
+    def rematch(){
+        log.debug("Rematching for " + params.id)
+        if (params.id && !params.id.startsWith("dr"))
+            params.id = SpeciesList.get(params.id)?.dataResourceUid
+        Integer totalRows, offset = 0;
+        String id = params.id
+        if(id){
+            totalRows = SpeciesListItem.countByDataResourceUid(id)
+        } else {
+            totalRows = SpeciesListItem.count();
+        }
+
+        while ( offset < totalRows){
+            log.debug("fetchign from ${offset + 1}")
+            List items
+            List guidBatch = [], sliBatch = []
+            if (id) {
+                items = SpeciesListItem.findAllByDataResourceUid(id, [max: BATCH_SIZE, offset: offset])
+            } else {
+                items = SpeciesListItem.list(max: BATCH_SIZE, offset: offset)
+            }
+
+            SpeciesListItem.withSession { session->
+                session.clear()
+            }
+
+            SpeciesListItem.withNewSession {
+                items.eachWithIndex { item, i ->
+                    String rawName = item.rawScientificName
+                    log.debug i + ". Rematching: " + rawName
+                    if (rawName && rawName.length() > 0) {
+                        helperService.matchNameToSpeciesListItem(rawName, item)
+                        if(item.guid){
+                            guidBatch.push(item.guid)
+                            sliBatch.push(item)
+                        }
+                        // do not save sli here since matchCommonNamesForSpeciesListItems function below will save again.
+                    } else {
+                        item.guid = null
+                        if (!item.save(flush: true)) {
+                            log.error "Error saving item (" + rawName + "): " + item.errors()
+                        }
+                    }
+                }
+            }
+
+            helperService.getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
+            offset += BATCH_SIZE;
+        }
+
+        render(text: "Rematch complete")
+    }
+
     private parseDataFromCSV(CSVReader csvReader, String separator) {
         def rawHeader = csvReader.readNext()
         log.debug(rawHeader.toList())
@@ -441,36 +506,6 @@ class SpeciesListController {
             render(view: 'parsedData', model: [columnHeaders: processedHeader, dataRows: dataRows, listTypes: ListType
                     .values(), nameFound: parsedHeader.nameFound])
         }
-    }
-
-    /**
-     * Rematches the scientific names in the supplied list
-     */
-    def rematch(){
-        log.debug("Rematching for " + params.id)
-        if (params.id && !params.id.startsWith("dr"))
-            params.id = SpeciesList.get(params.id)?.dataResourceUid
-        def items = params.id?SpeciesListItem.findAllByDataResourceUid(params.id):SpeciesListItem.list()
-        //now for each item returned peform
-        log.debug("total items = "+items.size)
-        items.eachWithIndex { it, i ->
-            String rawName = it.rawScientificName
-            log.debug i + ". Rematching: " + rawName
-            if(rawName && rawName.length()>0){
-                helperService.matchNameToSpeciesListItem(rawName, it)
-                if (!it.save(flush: true)) {
-                        log.error "Error saving item (" + rawName +"): " + it.errors()
-                }
-            } else {
-                it.guid = null
-                if (!it.save(flush: true)) {
-                    log.error "Error saving item (" + rawName +"): " + it.errors()
-                }
-            }
-        }
-
-        helperService.matchCommonNamesForSpeciesListItems(items);
-        render(text: "Rematch complete")
     }
 
     private boolean isMultipartRequest() {
