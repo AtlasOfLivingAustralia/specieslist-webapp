@@ -237,6 +237,10 @@ class SpeciesListItemController {
             }
             csvWriter.close()
             def filename = params.file?:"list.csv"
+            if(!filename.toLowerCase().contains('.csv')){
+                filename += '.csv'
+            }
+
             response.addHeader("Content-Disposition", "attachment;filename="+filename);
             render(contentType: 'text/csv', text:out.toString())
         }
