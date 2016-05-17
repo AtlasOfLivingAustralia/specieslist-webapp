@@ -475,6 +475,7 @@ class HelperService {
             sli.guid = nsr.getLsid()
             sli.family = nsr.getRankClassification().getFamily()
             sli.matchedName = nsr.getRankClassification().getScientificName()
+            sli.author = nsr.getRankClassification().getAuthorship();
         }
     }
 
@@ -566,6 +567,7 @@ class HelperService {
             SpeciesListItem slItem = sliBatch[index]
             if (profile) {
                 slItem.commonName = profile.commonNameSingle
+                slItem.imageUrl = profile.smallImageUrl
                 if (!slItem.save()) {
                     log.error("Unable to save SpeciesListItem for ${slItem.guid}: ${slItem.dataResourceUid}")
                 }

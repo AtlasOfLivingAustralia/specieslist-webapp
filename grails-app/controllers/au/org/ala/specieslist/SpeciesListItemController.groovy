@@ -99,12 +99,21 @@ class SpeciesListItemController {
 
                     def baseQueryAndParams = requestParams.fq ? queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, requestParams.id) : null
                     log.debug(baseQueryAndParams)
+
+                    // to sort on a column 'order by' clause has to be added explicitly since executeQuery function does
+                    // not accept sort and order as named parameters. Named parameters accepted by executeQuery includes
+                    // max and offset. check documentation for more details.
+                    List baseQueryAndParamsForListingSLI = baseQueryAndParams?.clone()
+                    if(requestParams.sort && baseQueryAndParams){
+                        baseQueryAndParamsForListingSLI[0] +=" order by sli.${requestParams.sort} ${requestParams.order?:'asc'}"
+                    }
+
                     //This is used for the stats - should these be for the whole list or just the fq-ed version?
                     def distinctCount = requestParams.fq ? SpeciesList.executeQuery("select count(distinct guid) " + baseQueryAndParams[0], baseQueryAndParams[1]).head() : SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid=?", requestParams.id).head()//SpeciesListItem.executeQuery(queryparams[0],[queryparams[1]]).head()
                     //need to get all keys to be included in the table so no need to add the filter.
                     def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=? order by itemOrder", requestParams.id)
 
-                    def speciesListItems = requestParams.fq ? SpeciesListItem.executeQuery("select sli " + baseQueryAndParams[0], baseQueryAndParams[1], requestParams) : SpeciesListItem.findAllByDataResourceUid(requestParams.id, requestParams)
+                    def speciesListItems = requestParams.fq ? SpeciesListItem.executeQuery("select sli " + baseQueryAndParamsForListingSLI[0], baseQueryAndParamsForListingSLI[1], requestParams) : SpeciesListItem.findAllByDataResourceUid(requestParams.id, requestParams)
 
                     def totalCount = requestParams.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0], baseQueryAndParams[1]).head() : SpeciesListItem.countByDataResourceUid(requestParams.id)
 
@@ -116,8 +125,6 @@ class SpeciesListItemController {
                     //log.debug("KEYS: " + keys)
                     def guids = speciesListItems.collect { it.guid }
                     log.debug("guids " + guids)
-                    def bieItems = bieService.bulkLookupSpecies(guids)
-                    log.debug("Retrieved BIE Items")
                     def downloadReasons = loggerService.getReasons()
                     log.debug("Retrieved Logger Reasons")
                     def facets = generateFacetValues(fqs, baseQueryAndParams)
@@ -132,10 +139,10 @@ class SpeciesListItemController {
                             noMatchCount: noMatchCount,
                             distinctCount: distinctCount,
                             keys: keys,
-                            bieItems: bieItems,
                             downloadReasons: downloadReasons,
                             users: users,
-                            facets: facets
+                            facets: facets,
+                            fqs : fqs
                     ])
                 }
             } catch (Exception e) {

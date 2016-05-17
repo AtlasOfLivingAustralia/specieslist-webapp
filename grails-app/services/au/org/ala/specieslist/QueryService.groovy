@@ -112,6 +112,10 @@ class QueryService {
         }
         //remove the extra condition "fetch" condition
         params.remove('fetch')
+
+        // these parameters are needed in the gsp page
+        params.sort = sort
+        params.order = order
         lists
     }
 

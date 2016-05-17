@@ -127,7 +127,7 @@
                 <td><g:formatBoolean boolean="${list.isInvasive ?: false}" true="Yes" false="No"/></td>
                 <td><g:formatBoolean boolean="${list.isThreatened ?: false}" true="Yes" false="No"/></td>
             %{--<td>${fieldValue(bean: list, field: "firstName")} ${fieldValue(bean: list, field: "surname")}</td>--}%
-                <td>${list.fullName}</td>
+                <td>${list.ownerFullName}</td>
                 <td><g:formatDate format="yyyy-MM-dd" date="${list.dateCreated}"/></td>
                 <td>${list.itemsCount}</td>
                 <g:if test="${list.username == request.getUserPrincipal()?.attributes?.email || request.isUserInRole("ROLE_ADMIN")}">
