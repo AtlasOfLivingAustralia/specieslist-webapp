@@ -562,16 +562,21 @@ class HelperService {
      * @param guidBatch - list of GUID strings
      */
     void getCommonNamesAndUpdateRecords(List sliBatch, List guidBatch) {
-        List speciesProfiles = bieService.bulkSpeciesLookupWithGuids(guidBatch)
-        speciesProfiles?.eachWithIndex { Map profile, index ->
-            SpeciesListItem slItem = sliBatch[index]
-            if (profile) {
-                slItem.commonName = profile.commonNameSingle
-                slItem.imageUrl = profile.smallImageUrl
-                if (!slItem.save()) {
-                    log.error("Unable to save SpeciesListItem for ${slItem.guid}: ${slItem.dataResourceUid}")
+        try{
+            List speciesProfiles = bieService.bulkSpeciesLookupWithGuids(guidBatch)
+            speciesProfiles?.eachWithIndex { Map profile, index ->
+                SpeciesListItem slItem = sliBatch[index]
+                if (profile) {
+                    slItem.commonName = profile.commonNameSingle
+                    slItem.imageUrl = profile.smallImageUrl
+                    if (!slItem.save()) {
+                        log.error("Unable to save SpeciesListItem for ${slItem.guid}: ${slItem.dataResourceUid}")
+                    }
                 }
             }
+        } catch (Exception e){
+            log.error("an exception occurred during rematching: ${e.message}");
+            log.error(e.stackTrace)
         }
     }
 }
