@@ -244,7 +244,7 @@ class SpeciesListItemController {
             }
             csvWriter.close()
             def filename = params.file?:"list.csv"
-            if(!filename.toLowerCase().contains('.csv')){
+            if(!filename.toLowerCase().endsWith('.csv')){
                 filename += '.csv'
             }
 
