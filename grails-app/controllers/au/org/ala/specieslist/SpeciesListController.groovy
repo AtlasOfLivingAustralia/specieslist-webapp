@@ -438,7 +438,7 @@ class SpeciesListController {
         }
 
         while ( offset < totalRows){
-            log.debug("fetchign from ${offset + 1}")
+            log.debug("fetching from ${offset + 1}")
             List items
             List guidBatch = [], sliBatch = []
             if (id) {
