@@ -15,7 +15,7 @@
 <!doctype html>
 <html>
 <head>
-    <r:require modules="fancybox"/>
+    <r:require modules="fancybox,application"/>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     <title>My Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">

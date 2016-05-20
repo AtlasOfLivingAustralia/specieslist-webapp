@@ -10,7 +10,7 @@
 <head>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     <title>Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
-    <r:require module="fancybox"/>
+    <r:require modules="fancybox,application"/>
 </head>
 <body class="">
 <div id="content" class="container">
