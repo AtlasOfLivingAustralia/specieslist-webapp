@@ -612,7 +612,7 @@
 <g:if test="${flash.message}">
     <div class="inner row-fluid">
         <div class="message alert alert-info"><b>Alert:</b> ${flash.message}</div>
-    <div>
+    </div>
 </g:if>
 
 <div class="inner row-fluid">
@@ -973,5 +973,19 @@
         </div> <!-- .span9 -->
     </div>
 </div> <!-- content div -->
+<r:script>
+
+    $(document).ready(function(){
+        // make table header cells clickable
+        $("table .sortable").each(function(i){
+            var href = $(this).find("a").attr("href");
+            $(this).css("cursor", "pointer");
+            $(this).click(function(){
+                window.location.href = href;
+            });
+        });
+
+    });
+</r:script>
 </body>
 </html>
