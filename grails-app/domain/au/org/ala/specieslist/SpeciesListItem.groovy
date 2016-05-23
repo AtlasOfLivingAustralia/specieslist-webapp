@@ -21,6 +21,8 @@ class SpeciesListItem {
     String dataResourceUid
     String guid
     String matchedName
+    String author
+    String imageUrl
     String kingdom
     String family
     Boolean isPublished //stores whether or not the species list for this item has been published to the BIE
@@ -44,7 +46,8 @@ class SpeciesListItem {
         kingdom(nullable:  true)
         family(nullable:  true)
         commonName(nullable:  true)
-        //kvpValues(nullable: true)
+        imageUrl(nullable: true)
+        author(nullable: true)
     }
 
     static mapping ={

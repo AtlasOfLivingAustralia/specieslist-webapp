@@ -26,6 +26,8 @@ import org.apache.commons.lang.StringUtils
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
+import javax.annotation.PostConstruct
+
 import static groovyx.net.http.ContentType.JSON
 /**
  * Provides all the services for the species list webapp.  It may be necessary to break this into
@@ -46,6 +48,13 @@ class HelperService {
     def commonValues = ["commonname","vernacularname"]
 
     def ambiguousValues = ["name"]
+
+    Integer BATCH_SIZE
+
+    @PostConstruct
+    init(){
+        BATCH_SIZE = Integer.parseInt((grailsApplication.config.batchSize?:200).toString())
+    }
 
     /**
      * Adds a data resource to the collectory for this species list
@@ -475,6 +484,7 @@ class HelperService {
             sli.guid = nsr.getLsid()
             sli.family = nsr.getRankClassification().getFamily()
             sli.matchedName = nsr.getRankClassification().getScientificName()
+            sli.author = nsr.getRankClassification().getAuthorship();
         }
     }
 
@@ -544,15 +554,25 @@ class HelperService {
      * @param slItems
      */
     void matchCommonNamesForSpeciesListItems(List slItems){
+        Integer batchSize = BATCH_SIZE;
         List guidBatch = [], sliBatch = []
         slItems?.each{ SpeciesListItem sli ->
-            if(sli.guid){
-                guidBatch.push(sli.guid)
-                sliBatch.push(sli)
+            if(guidBatch.size() < batchSize){
+                if(sli.guid){
+                    guidBatch.push(sli.guid)
+                    sliBatch.push(sli)
+                }
+            } else {
+                getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
+
+                guidBatch = []
+                sliBatch = []
             }
         }
 
-        getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
+        if(guidBatch.size()){
+            getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
+        }
     }
 
     /**
@@ -561,15 +581,21 @@ class HelperService {
      * @param guidBatch - list of GUID strings
      */
     void getCommonNamesAndUpdateRecords(List sliBatch, List guidBatch) {
-        List speciesProfiles = bieService.bulkSpeciesLookupWithGuids(guidBatch)
-        speciesProfiles?.eachWithIndex { Map profile, index ->
-            SpeciesListItem slItem = sliBatch[index]
-            if (profile) {
-                slItem.commonName = profile.commonNameSingle
-                if (!slItem.save()) {
-                    log.error("Unable to save SpeciesListItem for ${slItem.guid}: ${slItem.dataResourceUid}")
+        try{
+            List speciesProfiles = bieService.bulkSpeciesLookupWithGuids(guidBatch)
+            speciesProfiles?.eachWithIndex { Map profile, index ->
+                SpeciesListItem slItem = sliBatch[index]
+                if (profile) {
+                    slItem.commonName = profile.commonNameSingle
+                    slItem.imageUrl = profile.smallImageUrl
+                    if (!slItem.save()) {
+                        log.error("Unable to save SpeciesListItem for ${slItem.guid}: ${slItem.dataResourceUid}")
+                    }
                 }
             }
+        } catch (Exception e){
+            log.error("an exception occurred during rematching: ${e.message}");
+            log.error(e.stackTrace)
         }
     }
 }

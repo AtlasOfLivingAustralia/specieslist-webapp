@@ -164,7 +164,7 @@ class SpeciesListController {
                             header.split(","),
                             vocabs)
 
-                    def url = createLink(controller:'speciesListItem', action:'list', id: druid) +"?max=15"
+                    def url = createLink(controller:'speciesListItem', action:'list', id: druid) +"?max=10"
                     //update the URL for the list
                     helperService.updateDataResourceForList(druid,
                         [
@@ -240,7 +240,7 @@ class SpeciesListController {
             flash.params
             //[max:10, sort:"title", order:"desc", offset:100]
             //render(view:'list', model:[results: speciesListItems])
-            redirect(controller: "speciesListItem",action: "list",id: druid,params: [max: 15, sort:"id"])//,id: druid, max: 10, sort:"id")
+            redirect(controller: "speciesListItem",action: "list",id: druid,params: [max: 10, sort:"id"])//,id: druid, max: 10, sort:"id")
         }
     }
 
@@ -438,7 +438,7 @@ class SpeciesListController {
         }
 
         while ( offset < totalRows){
-            log.debug("fetchign from ${offset + 1}")
+            log.debug("fetching from ${offset + 1}")
             List items
             List guidBatch = [], sliBatch = []
             if (id) {

@@ -17,22 +17,21 @@ package au.org.ala.specieslist
 
 public enum ListType {
 
-    SPECIES_CHARACTERS("list of species with characters"),
-    CONSERVATION_LIST("conservation list"),
-    SENSITIVE_LIST("sensitive species list"),
-    LOCAL_LIST("checklist for local"),
-    COMMON_TRAIT("species with common trait"),
-    COMMON_HABITAT("species with common habitat"),
-    SPATIAL_PORTAL("A list that has been defined from the spatial portal"),
-    TEST("test list"),
-    OTHER("other")
+    SPECIES_CHARACTERS("Species characters list"),
+    CONSERVATION_LIST("Conservation list"),
+    SENSITIVE_LIST("Sensitive list of species"),
+    LOCAL_LIST("Local checklist"),
+    COMMON_TRAIT("Common trait of species"),
+    COMMON_HABITAT("Common habitat of species"),
+    SPATIAL_PORTAL("Spatial portal defined list"),
+    TEST("Test list"),
+    OTHER("Other")
 
 
   String displayValue
   ListType(String displayValue){
 
      this.displayValue = displayValue
-     //println(this.values())
   }
 
 }

@@ -331,7 +331,7 @@
             offset: "${params.offset?:0}"
         }
         var paramStr = jQuery.param(params);
-        window.location.href = window.location.pathname + '?' + paramStr;
+        window.location.href = window.location.pathname + '?' + paramStr + "${queryParams}";
     }
 </script>
 </head>
@@ -612,7 +612,7 @@
 <g:if test="${flash.message}">
     <div class="inner row-fluid">
         <div class="message alert alert-info"><b>Alert:</b> ${flash.message}</div>
-    <div>
+    </div>
 </g:if>
 
 <div class="inner row-fluid">
@@ -680,7 +680,7 @@
                                                 <g:while test="${i < 4 && i<values.size()}">
                                                     <g:set var="arr" value="${values.get(i)}" />
                                                     <li>
-                                                        <a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]}</a>  (${arr[3]})
+                                                        <a href="?fq=kvp ${arr[0]}:${arr[1]?.encodeAsURL()}${queryParams}">${arr[2]?:arr[1]}</a>  (${arr[3]})
                                                     </li>
                                                     <%i++%>
                                                 </g:while>
@@ -798,11 +798,10 @@
             <div id="gridView" class="hide">
                 <g:each var="result" in="${results}" status="i">
                     <g:set var="recId" value="${result.id}"/>
-                    <g:set var="bieSpecies" value="${bieItems?.get(result.guid)}"/>
                     <g:set var="bieTitle">species page for <i>${result.rawScientificName}</i></g:set>
                     <div class="imgCon">
                         <a class="thumbImage viewRecordButton" rel="thumbs" title="click to view details" href="#viewRecord"
-                                    data-id="${recId}"><img src="${bieSpecies?.get(0)?:g.createLink(uri:'/images/infobox_info_icon.png\" style=\"opacity:0.5')}" alt="thumbnail species image"/>
+                                    data-id="${recId}"><img src="${result.imageUrl?:g.createLink(uri:'/images/infobox_info_icon.png\" style=\"opacity:0.5')}" alt="thumbnail species image"/>
                             </a>
                             <g:if test="${true}">
                                 <g:set var="displayName">
@@ -810,7 +809,7 @@
                                         ${fieldValue(bean: result, field: "rawScientificName")}
                                     </g:if>
                                     <g:else>
-                                        ${bieSpecies?.get(2)}
+                                        ${result.matchedName}
                                     </g:else></i>
                                 </g:set>
                                 <div class="meta brief">
@@ -818,8 +817,8 @@
                                 </div>
                                 <div class="meta detail hide">
                                     ${displayName}
-                                    <g:if test="${bieSpecies?.get(3)}"> ${bieSpecies?.get(3)}</g:if>
-                                    <g:if test="${bieSpecies?.get(1)}"><br>${bieSpecies?.get(1)}</g:if>
+                                    <g:if test="${result.author}"> ${result.author}</g:if>
+                                    <g:if test="${result.commonName}"><br>${result.commonName}</g:if>
                                     %{--<div class="btn-group btn-group pull-right">--}%
                                     <div class="pull-right" style="display:inline-block; padding: 5px;">
                                         <a href="#viewRecord" class="viewRecordButton" title="view record" data-id="${recId}"><i class="icon-info-sign icon-white"></i></a>&nbsp;
@@ -843,11 +842,11 @@
                             <thead>
                             <tr>
                                 <th class="action">Action</th>
-                                <th>Supplied Name</th>
-                                <th>Scientific Name (matched)</th>
+                                <g:sortableColumn property="rawScientificName" title="Supplied Name" params="${[fq: fqs]}"></g:sortableColumn>
+                                <g:sortableColumn property="matchedName" title="Scientific Name (matched)" params="${[fq: fqs]}"></g:sortableColumn>
                                 <th>Image</th>
-                                <th>Author (matched)</th>
-                                <th>Common Name (matched)</th>
+                                <g:sortableColumn property="author" title="Author (matched)" params="${[fq: fqs]}"></g:sortableColumn>
+                                <g:sortableColumn property="commonName" title="Common Name (matched)" params="${[fq: fqs]}"></g:sortableColumn>
                                 <g:each in="${keys}" var="key">
                                     <th>${key}</th>
                                 </g:each>
@@ -856,7 +855,6 @@
                             <tbody>
                             <g:each var="result" in="${results}" status="i">
                                 <g:set var="recId" value="${result.id}"/>
-                                <g:set var="bieSpecies" value="${bieItems?.get(result.guid)}"/>
                                 <g:set var="bieTitle">species page for <i>${result.rawScientificName}</i></g:set>
                                 <tr class="${(i % 2) == 0 ? 'odd' : 'even'}" id="row_${recId}">
                                     <td class="action">
@@ -878,19 +876,19 @@
                                         </g:if>
                                     </td>
                                     <td>
-                                        <g:if test="${bieSpecies}">
-                                            <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}">${bieSpecies?.get(2)}</a>
+                                        <g:if test="${result.guid}">
+                                            <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}">${result.matchedName}</a>
                                         </g:if>
                                         <g:else>
                                             ${result.matchedName}
                                         </g:else>
                                     </td>
                                     <td id="img_${result.guid}">
-                                        <g:if test="${bieSpecies && bieSpecies.get(0)}">
-                                        <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img style="max-width: 400px;" src="${bieSpecies?.get(0)}" class="smallSpeciesImage"/></a>
+                                        <g:if test="${result.imageUrl}">
+                                        <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img style="max-width: 400px;" src="${result.imageUrl}" class="smallSpeciesImage"/></a>
                                         </g:if>
                                     </td>
-                                    <td>${bieSpecies?.get(3)}</td>
+                                    <td>${result.author}</td>
                                     <td id="cn_${result.guid}">${result.commonName}</td>
                                     <g:each in="${keys}" var="key">
                                         <g:set var="kvp" value="${result.kvpValues.find {it.key == key}}" />
@@ -975,5 +973,19 @@
         </div> <!-- .span9 -->
     </div>
 </div> <!-- content div -->
+<r:script>
+
+    $(document).ready(function(){
+        // make table header cells clickable
+        $("table .sortable").each(function(i){
+            var href = $(this).find("a").attr("href");
+            $(this).css("cursor", "pointer");
+            $(this).click(function(){
+                window.location.href = href;
+            });
+        });
+
+    });
+</r:script>
 </body>
 </html>

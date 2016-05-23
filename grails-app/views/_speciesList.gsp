@@ -86,27 +86,27 @@
 
         <thead>
         <tr>
-            <g:sortableColumn property="listName"
+            <g:sortableColumn property="listName" params="${[q:params.q]}"
                               title="${message(code: 'speciesList.listName.label', default: 'List Name')}"/>
-            <g:sortableColumn property="listType"
+            <g:sortableColumn property="listType" params="${[q:params.q]}"
                               title="${message(code: 'speciesList.listType.label', default: 'List Type')}"/>
             <g:if test="${request.isUserInRole("ROLE_ADMIN")}">
-                <g:sortableColumn property="isBIE"
+                <g:sortableColumn property="isBIE" params="${[q:params.q]}"
                                   title="${message(code: 'speciesList.isBIE.label', default: 'Included in BIE')}"/>
-                <g:sortableColumn property="isSDS"
+                <g:sortableColumn property="isSDS" params="${[q:params.q]}"
                                   title="${message(code: 'speciesList.isSDS.label', default: 'Part of the SDS')}"/>
             </g:if>
-            <g:sortableColumn property="isAuthoritative"
+            <g:sortableColumn property="isAuthoritative" params="${[q:params.q]}"
                               title="${message(code: 'speciesList.isAuthoritative.label', default: 'Authoritative')}"/>
-            <g:sortableColumn property="isInvasive"
+            <g:sortableColumn property="isInvasive" params="${[q:params.q]}"
                               title="${message(code: 'speciesList.isInvasive.label', default: 'Invasive')}"/>
-            <g:sortableColumn property="isThreatened"
+            <g:sortableColumn property="isThreatened" params="${[q:params.q]}"
                               title="${message(code: 'speciesList.isThreatened.label', default: 'Threatened')}"/>
-            <g:sortableColumn property="ownerFullName"
+            <g:sortableColumn property="ownerFullName" params="${[q:params.q]}"
                               title="${message(code: 'speciesList.username.label', default: 'Owner')}"/>
-            <g:sortableColumn property="dateCreated"
+            <g:sortableColumn property="dateCreated" params="${[q:params.q]}"
                               title="${message(code: 'speciesList.name.dateCreated', default: 'Date Submitted')}"/>
-            <g:sortableColumn property="itemsCount"
+            <g:sortableColumn property="itemsCount" params="${[q:params.q]}"
                               title="${message(code: 'speciesList.name.count', default: 'Item Count')}"/>
             <g:if test="${request.getUserPrincipal()}">
                 <th colspan="2">Actions</th>
@@ -127,7 +127,7 @@
                 <td><g:formatBoolean boolean="${list.isInvasive ?: false}" true="Yes" false="No"/></td>
                 <td><g:formatBoolean boolean="${list.isThreatened ?: false}" true="Yes" false="No"/></td>
             %{--<td>${fieldValue(bean: list, field: "firstName")} ${fieldValue(bean: list, field: "surname")}</td>--}%
-                <td>${list.fullName}</td>
+                <td>${list.ownerFullName}</td>
                 <td><g:formatDate format="yyyy-MM-dd" date="${list.dateCreated}"/></td>
                 <td>${list.itemsCount}</td>
                 <g:if test="${list.username == request.getUserPrincipal()?.attributes?.email || request.isUserInRole("ROLE_ADMIN")}">
