@@ -27,7 +27,7 @@ class UrlMappings {
         "/ws/speciesList/filter" (controller: "webService", action: [POST: "filterLists"])
 
         //ws to obtain values for a specified species guid
-        "/ws/species/$guid?" (controller: 'webService',action: 'getListItemsForSpecies')
+        "/ws/species/$guid**?" (controller: 'webService',action: 'getListItemsForSpecies')
 
         "/ws/speciesList/unpublished" (controller: 'webService', action: 'getBieUpdates')
 
