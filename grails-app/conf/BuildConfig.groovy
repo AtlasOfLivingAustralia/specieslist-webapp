@@ -40,7 +40,7 @@ grails.project.dependency.resolution = {
 
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-        compile ('au.org.ala:ala-name-matching:2.3.1') {
+        compile ('au.org.ala:ala-name-matching:2.4.0') {
             excludes "log4j","slf4j-log4j12"
         }
         compile 'org.gbif:gbif-common:0.17'
@@ -54,8 +54,8 @@ grails.project.dependency.resolution = {
 
         runtime ":cors:1.1.8"
 
-        runtime ":ala-bootstrap2:2.4"
-        runtime (":ala-auth:1.3.1") {
+        runtime ":ala-bootstrap2:2.4.2"
+        runtime (":ala-auth:1.3.2") {
             exclude "servlet-api"
         }
         compile ':cache:1.0.1'

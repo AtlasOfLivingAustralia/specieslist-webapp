@@ -66,7 +66,7 @@ class SpeciesListController {
     }
 
     /**
-     * Current mechnism for deleting a species list
+     * Current mechanism for deleting a species list
      * @return
      */
     def delete(){
