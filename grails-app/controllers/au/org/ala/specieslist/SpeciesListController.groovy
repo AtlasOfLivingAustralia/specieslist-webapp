@@ -55,13 +55,13 @@ class SpeciesListController {
             //get the list if it exists and ensure that the user is an admin or the owner
             def list = SpeciesList.findByDataResourceUid(params.id)
             if(list?.userId == authService.getUserId() || authService.userInRole("ROLE_ADMIN")){
-                render(view: "upload", model: [resourceUid:params.id, list:  list, listTypes:ListType.values()])
+                render(view: "upload", model: [resourceUid: params.id, list: list, listTypes: ListType.values()])
             } else {
                 flash.message = "${message(code: 'error.message.reloadListPermission', args: [params.id])}"
                 redirect(controller: "public", action:"speciesLists")
             }
         } else {
-            render(view:"upload",model:  [listTypes:ListType.values()])
+            render(view: "upload", model: [listTypes: ListType.values()])
         }
     }
 
@@ -497,14 +497,17 @@ class SpeciesListController {
             try {
                 def listProperties = helperService.parseValues(processedHeader as String[], csvReader, separator)
                 log.debug("names - " + listProperties)
-                render(view: 'parsedData', model: [columnHeaders: processedHeader, dataRows: dataRows, listProperties: listProperties, listTypes: ListType.values()])
+                render(view: 'parsedData', model: [columnHeaders: processedHeader, dataRows: dataRows,
+                                                   listProperties: listProperties, listTypes: ListType.values()])
             } catch (Exception e) {
                 log.debug(e.getMessage())
                 render(view: 'parsedData', model: [error: e.getMessage()])
             }
         } else {
-            render(view: 'parsedData', model: [columnHeaders: processedHeader, dataRows: dataRows, listTypes: ListType
-                    .values(), nameFound: parsedHeader.nameFound])
+            def nameColumns = helperService.speciesNameColumns + helperService.commonNameColumns
+            render(view: 'parsedData', model: [columnHeaders: processedHeader, dataRows: dataRows,
+                                               listTypes: ListType.values(), nameFound: parsedHeader.nameFound,
+                                               nameColumns: nameColumns])
         }
     }
 

@@ -43,17 +43,21 @@ class HelperService {
 
     def cbIdxSearcher = null
 
-    def speciesValue = ["species", "scientificname", "taxonname"]
-
-    def commonValues = ["commonname","vernacularname"]
-
-    def ambiguousValues = ["name"]
-
     Integer BATCH_SIZE
+
+    String[] speciesNameColumns = []
+    String[] commonNameColumns = []
+    String[] ambiguousNameColumns = []
 
     @PostConstruct
     init(){
         BATCH_SIZE = Integer.parseInt((grailsApplication.config.batchSize?:200).toString())
+        speciesNameColumns = grailsApplication.config.speciesNameColumns ?
+                grailsApplication.config.speciesNameColumns.split(',') : []
+        commonNameColumns = grailsApplication.config.commonNameColumns ?
+                grailsApplication.config.commonNameColumns.split(',') : []
+        ambiguousNameColumns = grailsApplication.config.ambiguousNameColumns ?
+                grailsApplication.config.ambiguousNameColumns.split(',') : []
     }
 
     /**
@@ -218,16 +222,16 @@ class HelperService {
         //first step check to see if scientificname or common name is provided as a header
         def hasName = false;
         def headerResponse =header.collect{
-            if(speciesValue.contains(it.toLowerCase().replaceAll(" ",""))){
+            if(speciesNameColumns.contains(it.toLowerCase().replaceAll(" ",""))){
                 hasName = true
                 "scientific name"
-            } else if(commonValues.contains(it.toLowerCase().replaceAll(" ",""))){
+            } else if(commonNameColumns.contains(it.toLowerCase().replaceAll(" ",""))){
                 hasName = true
                 "vernacular name"
-            } else if(commonValues.contains(it.toLowerCase().replaceAll(" ",""))){
+            } else if(commonNameColumns.contains(it.toLowerCase().replaceAll(" ",""))){
                 hasName = true
                 "vernacular name"
-            } else if(ambiguousValues.contains(it.toLowerCase().replaceAll(" ",""))){
+            } else if(ambiguousNameColumns.contains(it.toLowerCase().replaceAll(" ",""))){
                 hasName = true
                 "ambiguous name"
             } else {
@@ -242,9 +246,9 @@ class HelperService {
     }
 
     def getSpeciesIndex(Object[] header){
-        int idx =header.findIndexOf { speciesValue.contains(it.toString().toLowerCase().replaceAll(" ","")) }
+        int idx =header.findIndexOf { speciesNameColumns.contains(it.toString().toLowerCase().replaceAll(" ","")) }
         if(idx <0)
-            idx =header.findIndexOf { commonValues.contains(it.toString().toLowerCase().replaceAll(" ",""))}
+            idx =header.findIndexOf { commonNameColumns.contains(it.toString().toLowerCase().replaceAll(" ",""))}
         return idx
     }
 
@@ -463,7 +467,7 @@ class HelperService {
         header.each {
             if(i != speciesIdx && values.length > i && values[i]?.trim()){
                 //check to see if the common name is already an "accepted" name for the species
-                String testLsid = commonValues.contains(it.toLowerCase().replaceAll(" ",""))?findAcceptedLsidByCommonName(values[i]):""
+                String testLsid = commonNameColumns.contains(it.toLowerCase().replaceAll(" ",""))?findAcceptedLsidByCommonName(values[i]):""
                 if(!testLsid.equals(sli.guid)) {
                     SpeciesListKVP kvp =map.get(it.toString()+"|"+values[i], new SpeciesListKVP(key: it.toString(), value: values[i], dataResourceUid: druid))
                     if  (kvp.itemOrder == null) {
