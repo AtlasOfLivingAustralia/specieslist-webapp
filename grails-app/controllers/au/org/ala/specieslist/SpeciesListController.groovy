@@ -487,7 +487,7 @@ class SpeciesListController {
         def dataRows = new ArrayList<String[]>()
         def currentLine = csvReader.readNext()
         for (int i = 0; i < noOfRowsToDisplay && currentLine != null; i++) {
-            dataRows.add(currentLine)
+            dataRows.add(helperService.parseRow(currentLine.toList()))
             currentLine = csvReader.readNext()
         }
         if (processedHeader.find {

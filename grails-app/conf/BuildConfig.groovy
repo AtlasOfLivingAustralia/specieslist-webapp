@@ -44,6 +44,7 @@ grails.project.dependency.resolution = {
             excludes "log4j","slf4j-log4j12"
         }
         compile 'org.gbif:gbif-common:0.17'
+        compile "org.nibor.autolink:autolink:0.5.0"
         runtime 'mysql:mysql-connector-java:5.1.18'
     }
 

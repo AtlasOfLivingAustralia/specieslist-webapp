@@ -24,6 +24,11 @@ import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
 import org.apache.commons.lang.StringUtils
 import org.codehaus.groovy.grails.web.json.JSONArray
+import org.nibor.autolink.Autolink
+import org.nibor.autolink.LinkExtractor
+import org.nibor.autolink.LinkRenderer
+import org.nibor.autolink.LinkSpan
+import org.nibor.autolink.LinkType
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
 import javax.annotation.PostConstruct
@@ -48,6 +53,9 @@ class HelperService {
     String[] speciesNameColumns = []
     String[] commonNameColumns = []
     String[] ambiguousNameColumns = []
+
+    // Only permit URLs for added safety
+    private final LinkExtractor extractor = LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build()
 
     @PostConstruct
     init(){
@@ -270,6 +278,39 @@ class HelperService {
         ret
     }
 
+    def parseRow(List row) {
+        def ret = []
+
+        String item
+        row.each {String it ->
+            item = parseUrls(it)
+
+            ret << item
+        }
+
+        ret
+    }
+
+    private String parseUrls(String item) {
+        String ret = null
+
+        Iterable<LinkSpan> links = extractor.extractLinks(item)
+        if (links) {
+            ret = Autolink.renderLinks(item, links, {LinkSpan ls, CharSequence text, StringBuilder sb ->
+                sb.append("<a href=\"")
+                sb.append(text, ls.beginIndex, ls.endIndex);
+                sb.append("\">")
+                sb.append(text, ls.beginIndex, ls.endIndex)
+                sb.append("</a>")
+            } as LinkRenderer)
+        }
+        else {
+            ret = item
+        }
+
+        ret
+    }
+
     def getSpeciesIndex(Object[] header){
         int idx =header.findIndexOf { speciesNameColumns.contains(it.toString().toLowerCase().replaceAll(" ","")) }
         if(idx <0)
@@ -482,7 +523,9 @@ class HelperService {
     }
 
     def insertSpeciesItem(String[] values, druid, int speciesIdx, Object[] header,map, int order){
+        values = parseRow(values as List)
         log.debug("Inserting " + values.toArrayString())
+
         SpeciesListItem sli = new SpeciesListItem()
         sli.dataResourceUid =druid
         sli.rawScientificName = speciesIdx > -1 ? values[speciesIdx] : null
