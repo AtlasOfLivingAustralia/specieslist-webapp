@@ -28,6 +28,7 @@ class HelperServiceTest extends Specification {
 
     def setup() {
         helperService.grailsApplication = grailsApplication
+        helperService.init()
     }
 
     def "addDataResourceForList should return a dummy url when collectory.enableSync is not true"() {
@@ -280,5 +281,17 @@ class HelperServiceTest extends Specification {
 
         then:
         thrown AssertionError
+    }
+
+    def "camel case column names should be split by spaces before each uppercase character"() {
+        when:
+        def result = helperService.parseHeader(
+                ["species", "AnyReallyLongCamelCaseHeaderName", "ÖsterreichName", "conservationCode"] as String[])
+
+        then:
+        assert result?.header?.contains("scientific name")
+        assert result?.header?.contains("Any Really Long Camel Case Header Name")
+        assert result?.header?.contains("Österreich Name");
+        assert result?.header?.contains("conservationCode")
     }
 }

@@ -217,21 +217,21 @@ class HelperService {
         [header: headerResponse, nameFound: hasName]
     }
 
-    def parseHeader(String[] header){
+    def parseHeader(String[] header) {
 
         //first step check to see if scientificname or common name is provided as a header
         def hasName = false;
-        def headerResponse =header.collect{
-            if(speciesNameColumns.contains(it.toLowerCase().replaceAll(" ",""))){
+        def headerResponse = header.collect {
+            if (speciesNameColumns.contains(it.toLowerCase().replaceAll(" ", ""))) {
                 hasName = true
                 "scientific name"
-            } else if(commonNameColumns.contains(it.toLowerCase().replaceAll(" ",""))){
+            } else if (commonNameColumns.contains(it.toLowerCase().replaceAll(" ", ""))) {
                 hasName = true
                 "vernacular name"
-            } else if(commonNameColumns.contains(it.toLowerCase().replaceAll(" ",""))){
+            } else if (commonNameColumns.contains(it.toLowerCase().replaceAll(" ", ""))) {
                 hasName = true
                 "vernacular name"
-            } else if(ambiguousNameColumns.contains(it.toLowerCase().replaceAll(" ",""))){
+            } else if (ambiguousNameColumns.contains(it.toLowerCase().replaceAll(" ", ""))) {
                 hasName = true
                 "ambiguous name"
             } else {
@@ -239,10 +239,35 @@ class HelperService {
             }
         }
 
-        if(hasName)
+        headerResponse = parseHeadersCamelCase(headerResponse)
+
+        if (hasName)
             [header: headerResponse, nameFound: hasName]
         else
             null
+    }
+
+    // specieslist-webapp#50
+    def parseHeadersCamelCase(List header) {
+        def ret = []
+        header.each {String it ->
+            StringBuilder word = new StringBuilder()
+            if (Character.isUpperCase(it.codePointAt(0))) {
+                for (int i = 0; i < it.size(); i++) {
+                    if (Character.isUpperCase(it[i] as char) && i != 0) {
+                        word << " "
+                    }
+                    word << it[i]
+                }
+
+                ret << word.toString()
+            }
+            else {
+                ret << it
+            }
+        }
+
+        ret
     }
 
     def getSpeciesIndex(Object[] header){
