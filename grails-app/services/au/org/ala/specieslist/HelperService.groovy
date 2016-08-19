@@ -344,6 +344,8 @@ class HelperService {
 
         List sli = speciesList.getItems().toList()
         matchCommonNamesForSpeciesListItems(sli)
+
+        speciesList
     }
 
     private static boolean isSpeciesListJsonVersion1(Map json) {
@@ -444,7 +446,7 @@ class HelperService {
             sl.save()
         }
 
-        List sli = sl.getItems().toList()
+        List sli = sl.getItems()?.toList()
         matchCommonNamesForSpeciesListItems(sli)
 
         [totalRecords: totalCount, successfulItems: itemCount]
