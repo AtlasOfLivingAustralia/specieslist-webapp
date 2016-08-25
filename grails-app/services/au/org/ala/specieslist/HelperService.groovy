@@ -371,8 +371,8 @@ class HelperService {
         }
         sl.listName = listname
         sl.dataResourceUid=druid
-        sl.username = localAuthService.email()
-        sl.userId = authService.userId
+        sl.username = localAuthService.email() ?: "info@ala.org.au"
+        sl.userId = authService.userId ?: 2729
         sl.firstName = localAuthService.firstname()
         sl.surname = localAuthService.surname()
         sl.description = description

@@ -426,7 +426,7 @@ class SpeciesListController {
      * Rematches the scientific names in the supplied list
      */
     def rematch(){
-        log.debug("Rematching for " + params.id)
+        log.info("Rematching for " + params.id)
         if (params.id && !params.id.startsWith("dr"))
             params.id = SpeciesList.get(params.id)?.dataResourceUid
         Integer totalRows, offset = 0;
@@ -438,7 +438,6 @@ class SpeciesListController {
         }
 
         while ( offset < totalRows){
-            log.debug("fetching from ${offset + 1}")
             List items
             List guidBatch = [], sliBatch = []
             if (id) {
@@ -473,6 +472,7 @@ class SpeciesListController {
 
             helperService.getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
             offset += BATCH_SIZE;
+            log.info("Rematched ${offset} of ${totalRows} - ${Math.round(offset * 100 / totalRows)}% complete")
         }
 
         render(text: "Rematch complete")
