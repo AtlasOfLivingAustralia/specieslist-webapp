@@ -317,7 +317,7 @@
                     </div>
                 </g:uploadForm>
 
-                <div style="clear: both"/>
+                <div style="clear: both"></div>
 
                 <g:submitButton id="checkData2" class="actionButton btn" name="checkData" value="Check Data"
                                 onclick="javascript:parseColumns();"/>
