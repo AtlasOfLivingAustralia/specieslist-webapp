@@ -2,8 +2,8 @@ grails.servlet.version = "2.5" // Change depending on target container complianc
 grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
-grails.project.target.level = 1.6
-grails.project.source.level = 1.6
+grails.project.target.level = 1.7
+grails.project.source.level = 1.7
 grails.project.work.dir = "target/work"
 
 grails.project.fork = [
@@ -59,12 +59,12 @@ grails.project.dependency.resolution = {
         runtime (":ala-auth:1.3.2") {
             exclude "servlet-api"
         }
-        compile ':cache:1.0.1'
+        compile ':cache:1.1.8'
         compile ':cache-ehcache:1.0.0'
         compile ":jsonp:0.2"
         compile ":rest:0.8"
 
-        build(":tomcat:7.0.53",
+        build(":tomcat:7.0.55",
                 ":release:3.0.1") {
             export = false
         }

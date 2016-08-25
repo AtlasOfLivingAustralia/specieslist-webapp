@@ -4,7 +4,6 @@ import au.org.ala.cas.util.AuthenticationCookieUtils
 import grails.plugin.cache.Cacheable
 import org.springframework.web.context.request.RequestContextHolder
 import groovyx.net.http.HTTPBuilder
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
 class LocalAuthService {
 
@@ -42,12 +41,12 @@ class LocalAuthService {
     }
 
     def isAdmin() {
-        return ConfigurationHolder.config.security.cas.bypass ||
+        return grailsApplication.config.security.cas.bypass ||
                 RequestContextHolder.currentRequestAttributes()?.isUserInRole(ROLE_ADMIN)
     }
 
     protected boolean userInRole(role) {
-        return ConfigurationHolder.config.security.cas.bypass ||
+        return grailsApplication.config.security.cas.bypass ||
                 RequestContextHolder.currentRequestAttributes()?.isUserInRole(role) ||
                 isAdmin()
     }
