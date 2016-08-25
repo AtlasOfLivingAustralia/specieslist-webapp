@@ -229,6 +229,83 @@ class WebServiceController {
         }
     }
 
+    def getALAPreferredSpeciesListItem() {
+        def preferredSpeciesListDruid = grailsApplication.config.ala.preferred.species.dr
+
+        def speciesList = SpeciesListItem.findAllByDataResourceUid (preferredSpeciesListDruid)
+
+        def newList = []
+
+        if (speciesList.size() > 0) {
+            newList = speciesList.collect({
+                [name: it.rawScientificName, imageId: it.kvpValues.first().grep { it.value }.value.get(0)]
+            })
+        }
+        render newList as JSON
+
+    }
+
+    def saveALAPreferredSpeciesListItem () {
+        def json = request.getJSON()
+
+        def imageId = json.imageId
+        def scientificName = json.scientificName
+        if(imageId && scientificName){
+
+            log.info("Saving List Item image id: " + imageId + " ScientificName = " + scientificName)
+
+            def preferredSpeciesListDruid = grailsApplication.config.ala.preferred.species.dr
+
+            def idArr = []
+            def id = 0
+
+            if (preferredSpeciesListDruid) {
+                idArr = SpeciesList.executeQuery("select distinct id from SpeciesList where dataResourceUid=?", preferredSpeciesListDruid)
+            } else {
+                idArr = SpeciesList.executeQuery("select distinct id from SpeciesList where listName=?", "ALA Preferred Species Images")
+            }
+
+            if (idArr.size() > 0) {
+                id = idArr.get(0)
+            }
+
+            log.debug "Extracting id = " + id + " for dataResourceUid = " + preferredSpeciesListDruid
+
+            forward controller: 'editor',  action: 'createRecord', params: [id: id, imageId: imageId, rawScientificName: scientificName]
+
+            def forwardedResponse = response.getStatus()
+
+            def message = ""
+            switch (forwardedResponse) {
+                case 200:
+                    message = "Record successfully created"
+                    break
+                case 400:
+                    message = "Missing required field: rawScientificName"
+                    break
+                case 404:
+                    message = "Species could not be found"
+                    break
+                case 500:
+                    message = "Could not create SpeciesListItem"
+                    break
+            }
+
+            def responseData = [
+                'message': message
+            ]
+            render responseData as JSON
+
+        } else {
+            log.info("Species Preferred list item cannot not created. Missing required field imageId or scientificName")
+            response.setStatus(400)
+            def responseData = [
+                'message': "Species Preferred list item cannot not created. Missing required field imageId or scientificName"
+            ]
+            render responseData as JSON
+        }
+    }
+
     /**
      * Saves the details of the species list when no druid is provided in the JSON body
      * a new list is inserted.  Inserting a new list will fail if there are no items to be
