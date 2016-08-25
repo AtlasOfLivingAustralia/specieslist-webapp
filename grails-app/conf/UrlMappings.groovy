@@ -41,6 +41,14 @@ class UrlMappings {
 
         "/ws/checkEmailExists" (controller: 'webService' , action: 'checkEmailExists')
 
+        "/ws/speciesListItem/preferredSpeciesImage" (controller: 'webService'){
+            action = [POST:'saveALAPreferredSpeciesListItem']
+        }
+
+        "/ws/speciesListItem/getPreferredSpeciesImage" (controller: 'webService'){
+            action = [GET: 'getALAPreferredSpeciesListItem']
+        }
+
 //        "/"(view:"/index")
 
 		"/"(controller: 'public' ,action:  'index')
