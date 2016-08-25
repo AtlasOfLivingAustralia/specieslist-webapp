@@ -490,6 +490,7 @@ class SpeciesListController {
             dataRows.add(helperService.parseRow(currentLine.toList()))
             currentLine = csvReader.readNext()
         }
+        def nameColumns = helperService.speciesNameColumns + helperService.commonNameColumns
         if (processedHeader.find {
             it == "scientific name" || it == "vernacular name" || it == "common name" || it == "ambiguous name"
         } && processedHeader.size() > 0) {
@@ -498,13 +499,13 @@ class SpeciesListController {
                 def listProperties = helperService.parseValues(processedHeader as String[], csvReader, separator)
                 log.debug("names - " + listProperties)
                 render(view: 'parsedData', model: [columnHeaders: processedHeader, dataRows: dataRows,
-                                                   listProperties: listProperties, listTypes: ListType.values()])
+                                                   listProperties: listProperties, listTypes: ListType.values(),
+                                                   nameFound: parsedHeader.nameFound, nameColumns: nameColumns])
             } catch (Exception e) {
                 log.debug(e.getMessage())
                 render(view: 'parsedData', model: [error: e.getMessage()])
             }
         } else {
-            def nameColumns = helperService.speciesNameColumns + helperService.commonNameColumns
             render(view: 'parsedData', model: [columnHeaders: processedHeader, dataRows: dataRows,
                                                listTypes: ListType.values(), nameFound: parsedHeader.nameFound,
                                                nameColumns: nameColumns])
