@@ -55,18 +55,18 @@ class SpeciesListController {
             //get the list if it exists and ensure that the user is an admin or the owner
             def list = SpeciesList.findByDataResourceUid(params.id)
             if(list?.userId == authService.getUserId() || authService.userInRole("ROLE_ADMIN")){
-                render(view: "upload", model: [resourceUid:params.id, list:  list, listTypes:ListType.values()])
+                render(view: "upload", model: [resourceUid: params.id, list: list, listTypes: ListType.values()])
             } else {
                 flash.message = "${message(code: 'error.message.reloadListPermission', args: [params.id])}"
                 redirect(controller: "public", action:"speciesLists")
             }
         } else {
-            render(view:"upload",model:  [listTypes:ListType.values()])
+            render(view: "upload", model: [listTypes: ListType.values()])
         }
     }
 
     /**
-     * Current mechnism for deleting a species list
+     * Current mechanism for deleting a species list
      * @return
      */
     def delete(){
@@ -487,9 +487,10 @@ class SpeciesListController {
         def dataRows = new ArrayList<String[]>()
         def currentLine = csvReader.readNext()
         for (int i = 0; i < noOfRowsToDisplay && currentLine != null; i++) {
-            dataRows.add(currentLine)
+            dataRows.add(helperService.parseRow(currentLine.toList()))
             currentLine = csvReader.readNext()
         }
+        def nameColumns = helperService.speciesNameColumns + helperService.commonNameColumns
         if (processedHeader.find {
             it == "scientific name" || it == "vernacular name" || it == "common name" || it == "ambiguous name"
         } && processedHeader.size() > 0) {
@@ -497,14 +498,17 @@ class SpeciesListController {
             try {
                 def listProperties = helperService.parseValues(processedHeader as String[], csvReader, separator)
                 log.debug("names - " + listProperties)
-                render(view: 'parsedData', model: [columnHeaders: processedHeader, dataRows: dataRows, listProperties: listProperties, listTypes: ListType.values()])
+                render(view: 'parsedData', model: [columnHeaders: processedHeader, dataRows: dataRows,
+                                                   listProperties: listProperties, listTypes: ListType.values(),
+                                                   nameFound: parsedHeader.nameFound, nameColumns: nameColumns])
             } catch (Exception e) {
                 log.debug(e.getMessage())
                 render(view: 'parsedData', model: [error: e.getMessage()])
             }
         } else {
-            render(view: 'parsedData', model: [columnHeaders: processedHeader, dataRows: dataRows, listTypes: ListType
-                    .values(), nameFound: parsedHeader.nameFound])
+            render(view: 'parsedData', model: [columnHeaders: processedHeader, dataRows: dataRows,
+                                               listTypes: ListType.values(), nameFound: parsedHeader.nameFound,
+                                               nameColumns: nameColumns])
         }
     }
 

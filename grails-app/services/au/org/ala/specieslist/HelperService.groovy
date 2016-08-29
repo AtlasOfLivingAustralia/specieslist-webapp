@@ -24,6 +24,11 @@ import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
 import org.apache.commons.lang.StringUtils
 import org.codehaus.groovy.grails.web.json.JSONArray
+import org.nibor.autolink.Autolink
+import org.nibor.autolink.LinkExtractor
+import org.nibor.autolink.LinkRenderer
+import org.nibor.autolink.LinkSpan
+import org.nibor.autolink.LinkType
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
 import javax.annotation.PostConstruct
@@ -43,17 +48,24 @@ class HelperService {
 
     def cbIdxSearcher = null
 
-    def speciesValue = ["species", "scientificname", "taxonname"]
-
-    def commonValues = ["commonname","vernacularname"]
-
-    def ambiguousValues = ["name"]
-
     Integer BATCH_SIZE
+
+    String[] speciesNameColumns = []
+    String[] commonNameColumns = []
+    String[] ambiguousNameColumns = []
+
+    // Only permit URLs for added safety
+    private final LinkExtractor extractor = LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build()
 
     @PostConstruct
     init(){
         BATCH_SIZE = Integer.parseInt((grailsApplication.config.batchSize?:200).toString())
+        speciesNameColumns = grailsApplication.config.speciesNameColumns ?
+                grailsApplication.config.speciesNameColumns.split(',') : []
+        commonNameColumns = grailsApplication.config.commonNameColumns ?
+                grailsApplication.config.commonNameColumns.split(',') : []
+        ambiguousNameColumns = grailsApplication.config.ambiguousNameColumns ?
+                grailsApplication.config.ambiguousNameColumns.split(',') : []
     }
 
     /**
@@ -213,21 +225,21 @@ class HelperService {
         [header: headerResponse, nameFound: hasName]
     }
 
-    def parseHeader(String[] header){
+    def parseHeader(String[] header) {
 
         //first step check to see if scientificname or common name is provided as a header
         def hasName = false;
-        def headerResponse =header.collect{
-            if(speciesValue.contains(it.toLowerCase().replaceAll(" ",""))){
+        def headerResponse = header.collect {
+            if (speciesNameColumns.contains(it.toLowerCase().replaceAll(" ", ""))) {
                 hasName = true
                 "scientific name"
-            } else if(commonValues.contains(it.toLowerCase().replaceAll(" ",""))){
+            } else if (commonNameColumns.contains(it.toLowerCase().replaceAll(" ", ""))) {
                 hasName = true
                 "vernacular name"
-            } else if(commonValues.contains(it.toLowerCase().replaceAll(" ",""))){
+            } else if (commonNameColumns.contains(it.toLowerCase().replaceAll(" ", ""))) {
                 hasName = true
                 "vernacular name"
-            } else if(ambiguousValues.contains(it.toLowerCase().replaceAll(" ",""))){
+            } else if (ambiguousNameColumns.contains(it.toLowerCase().replaceAll(" ", ""))) {
                 hasName = true
                 "ambiguous name"
             } else {
@@ -235,16 +247,74 @@ class HelperService {
             }
         }
 
-        if(hasName)
+        headerResponse = parseHeadersCamelCase(headerResponse)
+
+        if (hasName)
             [header: headerResponse, nameFound: hasName]
         else
             null
     }
 
+    // specieslist-webapp#50
+    def parseHeadersCamelCase(List header) {
+        def ret = []
+        header.each {String it ->
+            StringBuilder word = new StringBuilder()
+            if (Character.isUpperCase(it.codePointAt(0))) {
+                for (int i = 0; i < it.size(); i++) {
+                    if (Character.isUpperCase(it[i] as char) && i != 0) {
+                        word << " "
+                    }
+                    word << it[i]
+                }
+
+                ret << word.toString()
+            }
+            else {
+                ret << it
+            }
+        }
+
+        ret
+    }
+
+    def parseRow(List row) {
+        def ret = []
+
+        String item
+        row.each {String it ->
+            item = parseUrls(it)
+
+            ret << item
+        }
+
+        ret
+    }
+
+    private String parseUrls(String item) {
+        String ret = null
+
+        Iterable<LinkSpan> links = extractor.extractLinks(item)
+        if (links) {
+            ret = Autolink.renderLinks(item, links, {LinkSpan ls, CharSequence text, StringBuilder sb ->
+                sb.append("<a href=\"")
+                sb.append(text, ls.beginIndex, ls.endIndex);
+                sb.append("\">")
+                sb.append(text, ls.beginIndex, ls.endIndex)
+                sb.append("</a>")
+            } as LinkRenderer)
+        }
+        else {
+            ret = item
+        }
+
+        ret
+    }
+
     def getSpeciesIndex(Object[] header){
-        int idx =header.findIndexOf { speciesValue.contains(it.toString().toLowerCase().replaceAll(" ","")) }
+        int idx =header.findIndexOf { speciesNameColumns.contains(it.toString().toLowerCase().replaceAll(" ","")) }
         if(idx <0)
-            idx =header.findIndexOf { commonValues.contains(it.toString().toLowerCase().replaceAll(" ",""))}
+            idx =header.findIndexOf { commonNameColumns.contains(it.toString().toLowerCase().replaceAll(" ",""))}
         return idx
     }
 
@@ -315,6 +385,8 @@ class HelperService {
 
         List sli = speciesList.getItems().toList()
         matchCommonNamesForSpeciesListItems(sli)
+
+        speciesList
     }
 
     private static boolean isSpeciesListJsonVersion1(Map json) {
@@ -415,7 +487,7 @@ class HelperService {
             sl.save()
         }
 
-        List sli = sl.getItems().toList()
+        List sli = sl.getItems()?.toList()
         matchCommonNamesForSpeciesListItems(sli)
 
         [totalRecords: totalCount, successfulItems: itemCount]
@@ -451,7 +523,9 @@ class HelperService {
     }
 
     def insertSpeciesItem(String[] values, druid, int speciesIdx, Object[] header,map, int order){
+        values = parseRow(values as List)
         log.debug("Inserting " + values.toArrayString())
+
         SpeciesListItem sli = new SpeciesListItem()
         sli.dataResourceUid =druid
         sli.rawScientificName = speciesIdx > -1 ? values[speciesIdx] : null
@@ -463,7 +537,7 @@ class HelperService {
         header.each {
             if(i != speciesIdx && values.length > i && values[i]?.trim()){
                 //check to see if the common name is already an "accepted" name for the species
-                String testLsid = commonValues.contains(it.toLowerCase().replaceAll(" ",""))?findAcceptedLsidByCommonName(values[i]):""
+                String testLsid = commonNameColumns.contains(it.toLowerCase().replaceAll(" ",""))?findAcceptedLsidByCommonName(values[i]):""
                 if(!testLsid.equals(sli.guid)) {
                     SpeciesListKVP kvp =map.get(it.toString()+"|"+values[i], new SpeciesListKVP(key: it.toString(), value: values[i], dataResourceUid: druid))
                     if  (kvp.itemOrder == null) {

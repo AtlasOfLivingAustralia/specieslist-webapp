@@ -401,7 +401,7 @@
                     <a href="#download" class="btn btn-ala" title="View the download options for this species list." id="downloadLink">Download</a>
 
                     <a class="btn btn-ala" title="View occurrences for up to ${maxDownload} species on the list"
-                       href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">View occurrences records</a>
+                       href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">View occurrence records</a>
 
                     <a href="${request.contextPath}/speciesList/spatialPortal/${params.id}${params.toQueryString()}&type=Search" class="btn btn-ala" title="View the spatial portal." id="downloadLink">View in spatial portal</a>
                 </span>
@@ -628,14 +628,13 @@
                             <span class="count">${distinctCount}</span>
                             Distinct Species
                         </p>
-
                         <g:if test="${noMatchCount>0 && noMatchCount!=totalCount}">
                             <p>
                                 <span class="count">${noMatchCount}</span>
                                 <a href="?fq=guid:null${queryParams}" title="View unrecognised taxa">Unrecognised Taxa </a>
                             </p>
                         </g:if>
-
+                        <p><a class="btn btn-ala" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a></p>
                     </div>
                 </section>
                 <section class="refine" id="refine">
@@ -866,7 +865,6 @@
                                                 <a class="btn btn-small" href="#" title="delete" data-target="#deleteRecord_${recId}" data-toggle="modal"><i class="icon-trash"></i></a>
                                             </g:if>
                                         </div>
-
                                     </td>
                                     <td>
                                         ${fieldValue(bean: result, field: "rawScientificName")}

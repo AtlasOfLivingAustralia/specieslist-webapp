@@ -293,13 +293,7 @@
                 <div class="message alert alert-info"><g:message code="upload.instructions.hasList" default="Upload a list"/></div>
             </g:if>
 
-            <p>
-                A species list can consist of a list of scientific or common names and optionally associated properties. When
-                a CSV list is supplied we will attempt to use the first line to determine mappings.
-            </p>
-            <p>
-                A species list can be uploaded either as a CSV file upload, or as copy and pasted text.
-            </p>
+            <p>A species list should consist of a list of scientific or common names and some optional associated properties. Provide input consisting of a header line and some rows of data and we will attempt to map your list to taxon names known to the ALA system. A species list can be uploaded either as a CSV file, or as copy and pasted text.</p>
 
             <div id="initialPaste">
                 <h3>Option 1: Select a CSV file to upload here</h3>
@@ -323,7 +317,7 @@
                     </div>
                 </g:uploadForm>
 
-                <div style="clear: both"/>
+                <div style="clear: both"></div>
 
                 <g:submitButton id="checkData2" class="actionButton btn" name="checkData" value="Check Data"
                                 onclick="javascript:parseColumns();"/>

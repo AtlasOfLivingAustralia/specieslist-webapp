@@ -33,8 +33,15 @@
         <g:else>
             <div id="recognisedDataDiv">
                 <h2>2. Check our initial interpretation</h2>
+                <g:if test="${!nameFound}">
+                    <div class="alert alert-error">
+                        <strong>Warning</strong> No species name column could be found, please add one. Any of the following column names will do:
+                        <g:each in="${nameColumns}" var="nc" status="i">
+                            <g:if test="${i == nameColumns.size() - 1}">, or </g:if><g:elseif test="${i != 0}">, </g:elseif>“${nc}”</g:each>
+                    </div>
+                </g:if>
 
-                <p>Adjust headings that have been incorrectly matched using the text boxes.
+                <p>Adjust headings that have been incorrectly matched using the text boxes.</p>
 
                 <div class="fwtable well">
                     <table id="initialParse" class="table table-striped table-bordered">
