@@ -229,17 +229,31 @@ class WebServiceController {
         }
     }
 
-    def getALAPreferredSpeciesListItem() {
-        def preferredSpeciesListDruid = grailsApplication.config.ala.preferred.species.dr
+    def getALAPreferredSpeciesImageListName() {
+        def preferredSpeciesImageListName = grailsApplication.config.ala.preferred.species.name?:"ALA Preferred Species Images"
+        def drtUidArr = SpeciesList.executeQuery("select distinct dataResourceUid from SpeciesList where listName=?", preferredSpeciesImageListName)
+        def drUid = ""
+        if (drtUidArr.size() > 0) {
+            drUid = drtUidArr.get(0)
+            log.debug "Extracted drUid = " + drUid + " for List Name = " + preferredSpeciesImageListName
+        } else {
+            log.debug "No Data Resource Uid found for List Name = " + preferredSpeciesImageListName
+        }
+        return drUid
+    }
 
-        def speciesList = SpeciesListItem.findAllByDataResourceUid (preferredSpeciesListDruid)
+
+    def getALAPreferredSpeciesListItem() {
+        def preferredSpeciesListDruid = getALAPreferredSpeciesImageListName()
 
         def newList = []
-
-        if (speciesList.size() > 0) {
-            newList = speciesList.collect({
-                [name: it.rawScientificName, imageId: it.kvpValues.first().grep { it.value }.value.get(0)]
-            })
+        if (preferredSpeciesListDruid) {
+            def speciesList = SpeciesListItem.findAllByDataResourceUid(preferredSpeciesListDruid)
+            if (speciesList.size() > 0) {
+                newList = speciesList.collect({
+                    [name: it.rawScientificName, imageId: it.kvpValues.first().grep { it.value }.value.get(0)]
+                })
+            }
         }
         render newList as JSON
 
@@ -252,57 +266,46 @@ class WebServiceController {
         def scientificName = json.scientificName
         if(imageId && scientificName){
 
-            log.info("Saving List Item image id: " + imageId + " ScientificName = " + scientificName)
+            log.info("Trying to Save List Item image id: " + imageId + " ScientificName = " + scientificName)
 
-            def preferredSpeciesListDruid = grailsApplication.config.ala.preferred.species.dr
-
-            def idArr = []
-            def id = 0
+            def preferredSpeciesListDruid = getALAPreferredSpeciesImageListName()
+            def message = ""
+            def status
 
             if (preferredSpeciesListDruid) {
-                idArr = SpeciesList.executeQuery("select distinct id from SpeciesList where dataResourceUid=?", preferredSpeciesListDruid)
+
+                def idArr = SpeciesList.executeQuery("select distinct id from SpeciesList where dataResourceUid=?", preferredSpeciesListDruid)
+                def id = idArr.get(0)
+
+                forward controller: 'editor',  action: 'createRecord', params: [id: id, imageId: imageId, rawScientificName: scientificName]
+
+                status = response.getStatus()
+
+                switch (status) {
+                    case 200:
+                        message = "Record successfully created"
+                        break
+                    case 400:
+                        message = "Missing required field: rawScientificName"
+                        break
+                    case 404:
+                        message = "Species could not be found"
+                        break
+                    case 500:
+                        message = "Could not create SpeciesListItem"
+                        break
+                }
+
             } else {
-                idArr = SpeciesList.executeQuery("select distinct id from SpeciesList where listName=?", "ALA Preferred Species Images")
+                status = 412
+                message = "ALA Preferred Image Species List has not been setup"
             }
-
-            if (idArr.size() > 0) {
-                id = idArr.get(0)
-            }
-
-            log.debug "Extracting id = " + id + " for dataResourceUid = " + preferredSpeciesListDruid
-
-            forward controller: 'editor',  action: 'createRecord', params: [id: id, imageId: imageId, rawScientificName: scientificName]
-
-            def forwardedResponse = response.getStatus()
-
-            def message = ""
-            switch (forwardedResponse) {
-                case 200:
-                    message = "Record successfully created"
-                    break
-                case 400:
-                    message = "Missing required field: rawScientificName"
-                    break
-                case 404:
-                    message = "Species could not be found"
-                    break
-                case 500:
-                    message = "Could not create SpeciesListItem"
-                    break
-            }
-
-            def responseData = [
-                'message': message
-            ]
-            render responseData as JSON
+            log.info("Save status: " + message + " Response code:" + status)
+            render status: status, text: message
 
         } else {
             log.info("Species Preferred list item cannot not created. Missing required field imageId or scientificName")
-            response.setStatus(400)
-            def responseData = [
-                'message': "Species Preferred list item cannot not created. Missing required field imageId or scientificName"
-            ]
-            render responseData as JSON
+            render status: 400, text: "Species Preferred list item cannot not created. Missing required field imageId or scientificName"
         }
     }
 
