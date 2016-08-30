@@ -89,12 +89,12 @@ class SpeciesListItemController {
                         flash.message = requestParams.message
                     requestParams.max = Math.min(requestParams.max ? requestParams.int('max') : 10, 100)
                     requestParams.sort = requestParams.sort ?: "itemOrder"
+                    requestParams.offset = requestParams.int('offset') ?: 0
                     requestParams.fetch = [kvpValues: 'select']
 
                     log.debug(requestParams.toQueryString())
                     //println(params.facets)
                     def fqs = requestParams.fq ? [requestParams.fq].flatten().findAll { it != null } : null
-                    def queryParams = requestParams.fq ? "&fq=" + fqs.join("&fq=") : ""
                     //println(queryService.constructWithFacets("select count(distinct guid)",facets, params.id))
 
                     def baseQueryAndParams = requestParams.fq ? queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, requestParams.id) : null
@@ -133,11 +133,12 @@ class SpeciesListItemController {
                     log.debug("Checking editors: " + speciesList.editors)
                     render(view: 'list', model: [
                             speciesList: speciesList,
-                            queryParams: queryParams,
+                            params: requestParams,
                             results: speciesListItems,
                             totalCount: totalCount,
                             noMatchCount: noMatchCount,
                             distinctCount: distinctCount,
+                            hasUnrecognised: noMatchCount > 0,
                             keys: keys,
                             downloadReasons: downloadReasons,
                             users: users,

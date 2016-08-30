@@ -325,13 +325,14 @@
     function reloadWithMax(el) {
         var max = $(el).find(":selected").val();
         var params = {
+            fq: [ ${"\"" + (fqs ? fqs.join("\", \"") : "") + "\""} ],
             max: max,
             sort: "${params.sort}",
             order: "${params.order}",
             offset: "${params.offset?:0}"
-        }
-        var paramStr = jQuery.param(params);
-        window.location.href = window.location.pathname + '?' + paramStr + "${queryParams}";
+        };
+        var paramStr = jQuery.param(params, true);
+        window.location.href = window.location.pathname + '?' + paramStr;
     }
 </script>
 </head>
@@ -628,13 +629,13 @@
                             <span class="count">${distinctCount}</span>
                             Distinct Species
                         </p>
-                        <g:if test="${noMatchCount>0 && noMatchCount!=totalCount}">
+                        <g:if test="${hasUnrecognised && noMatchCount!=totalCount}">
                             <p>
                                 <span class="count">${noMatchCount}</span>
-                                <a href="?fq=guid:null${queryParams}" title="View unrecognised taxa">Unrecognised Taxa </a>
+                                <g:link action="list" id="${params.id}" title="View unrecognised taxa" params="${[fq:sl.buildFqList(fqs:fqs, fq:"guid:null"), max:params.max]}">Unrecognised Taxa</g:link>
                             </p>
                         </g:if>
-                        <p><a class="btn btn-ala" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a></p>
+                        <p><g:link controller="speciesList" action="list" class="btn btn-ala" title="My Lists">My Lists</g:link></p>
                     </div>
                 </section>
                 <section class="refine" id="refine">
@@ -656,9 +657,8 @@
                                             <g:each in="${fqs}" var="fq">
                                                 <g:if test="${fq.length() >0}">
                                                     <li>
-                                                        <a href="${sl.removeFqHref(fqs: fqs, fq: fq)}" class="removeLink " title="Uncheck (remove filter)"><i class="icon-check"></i></a>
-                                                        <g:message code="facet.${fq.replaceFirst("kvp ","")}" default="${fq.replaceFirst("kvp ","")}"/>
-                                                    </li>
+                                                        <g:link action="list" id="${params.id}" params="${[fq:sl.excludedFqList(fqs:fqs, fq:fq), max:params.max]}" class="removeLink" title="Uncheck (remove filter)"><i class="icon-check"></i></g:link>
+                                                        <g:message code="facet.${fq.replaceFirst("kvp ","")}" default="${fq.replaceFirst("kvp ","")}"/></li>
                                                 </g:if>
                                             </g:each>
                                         </ul>
@@ -669,60 +669,8 @@
                             <g:each in="${facets}" var="entry">
                                 <g:if test="${entry.key == "listProperties"}">
                                     <g:each in="${facets.get("listProperties")}" var="value">
-                                        <p>
-                                            <span class="FieldName">${value.getKey()}</span>
-                                        </p>
-                                        <div id="facet-${value.getKey()}" class="subnavlist">
-                                            <ul>
-                                                <g:set var="i" value="${0}" />
-                                                <g:set var="values" value="${value.getValue()}" />
-                                                <g:while test="${i < 4 && i<values.size()}">
-                                                    <g:set var="arr" value="${values.get(i)}" />
-                                                    <li>
-                                                        <a href="?fq=kvp ${arr[0]}:${arr[1]?.encodeAsURL()}${queryParams}">${arr[2]?:arr[1]}</a>  (${arr[3]})
-                                                    </li>
-                                                    <%i++%>
-                                                </g:while>
-                                                <g:if test="${values.size()>4}">
-                                                    <div class="showHide">
-                                                        <i class="icon icon-hand-right"></i>
-                                                        <a href="#div${value.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLinkZ" id="multi-${value.getKey()}"
-                                                           role="button" data-toggle="modal"  title="See full list of values">choose more...</a>
-                                                        <!-- modal popup for "choose more" link -->
-                                                        <div id="div${value.getKey().replaceAll(" " ,"_")}" class="modal hide " tabindex="-1" role="dialog" aria-labelledby="multipleFacetsLabel" aria-hidden="true"><!-- BS modal div -->
-                                                            <div class="modal-header">
-                                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                                                                <h3 class="multipleFacetsLabel">Refine your search</h3>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <table class="table table-bordered table-condensed table-striped scrollTable" style="width:100%;">
-                                                                    <thead class="fixedHeader">
-                                                                    <tr class="tableHead">
-                                                                        <th class="indexCol" width="80%">${value.getKey()}</th>
-                                                                        <th style="border-right-style: none;text-align: right;">Count</th>
-                                                                    </tr>
-                                                                    </thead>
-                                                                    <tbody class="scrollContent">
-                                                                    <g:each in="${value.getValue()}" var="arr">
-                                                                        <tr>
-                                                                            <td><a href="?fq=kvp ${arr[0]}:${arr[1]}${queryParams}">${arr[2]?:arr[1]} </a></td>
-                                                                            <td style="text-align: right; border-right-style: none;">${arr[3]}</td>
-                                                                        </tr>
-                                                                    </g:each>
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                            <div class="modal-footer" style="text-align: left;">
-                                                                <button class="btn btn-small" data-dismiss="modal" aria-hidden="true" style="float:right;">Close</button>
-                                                            </div>
-                                                        </div>
-                                                    </div><!-- invisible content div for facets -->
-                                                </g:if>
-                                            %{--</g:each>--}%
-                                            </ul>
-                                        </div>
-
-                                    </g:each>
+                                        <g:render template="facet" model="${[key:value.getKey(), values:value.getValue(), isProperty:true]}"/>
+                                   </g:each>
                                     <div style="display:none"><!-- fancybox popup div -->
                                         <div id="multipleFacets">
                                             <p>Refine your search</p>
@@ -731,57 +679,7 @@
                                     </div>
                                 </g:if>
                                 <g:else>
-                                    <p>
-                                        <span class="FieldName">${entry.key}</span>
-                                    </p>
-
-                                    <div id="facet-${entry.key}" class="subnavlist">
-                                        <ul>
-                                            <g:set var="i" value="${0}" />
-                                            <g:set var="values" value="${entry.value}" />
-                                            <g:while test="${i < 4 && i<values.size()}">
-                                                <g:set var="arr" value="${values.get(i)}" />
-                                                <li>
-                                                    <a href="?fq=${entry.key}:${arr[0]}${queryParams}">${arr[0]}</a>  (${arr[1]})
-                                                </li>
-                                                <%i++%>
-                                            </g:while>
-                                            <g:if test="${values.size()>4}">
-                                                <div class="showHide">
-                                                    <i class="icon icon-hand-right"></i> <a href="#div${entry.getKey().replaceAll(" " ,"_")}" class="multipleFacetsLinkZ" id="multi-${entry.getKey()}"
-                                                            role="button" data-toggle="modal" title="See full list of values">choose more...</a>
-                                                    <!-- modal popup for "choose more" link -->
-                                                    <div id="div${entry.getKey().replaceAll(" " ,"_")}" class="modal hide " tabindex="-1" role="dialog" aria-labelledby="multipleFacetsLabel2" aria-hidden="true"><!-- BS modal div -->
-                                                        <div class="modal-header">
-                                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                                                            <h3 class="multipleFacetsLabel2">Refine your search</h3>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <table class="table table-bordered table-condensed table-striped scrollTable" style="width:100%;">
-                                                                <thead class="fixedHeader">
-                                                                <tr class="tableHead">
-                                                                    <th width="80%">${entry.getKey()}</th>
-                                                                    <th style="border-right-style: none;text-align: right;">Count</th>
-                                                                </tr>
-                                                                </thead>
-                                                                <tbody class="scrollContent">
-                                                                <g:each in="${entry.getValue()}" var="arr">
-                                                                    <tr>
-                                                                        <td><a href="?fq=${entry.key}:${arr[0]}${queryParams}">${arr[0]} </a></td>
-                                                                        <td style="border-right-style: none;text-align: right;">${arr[1]}</td>
-                                                                    </tr>
-                                                                </g:each>
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                        <div class="modal-footer" style="text-align: left;">
-                                                            <button class="btn btn-small" data-dismiss="modal" aria-hidden="true" style="float:right;">Close</button>
-                                                        </div>
-                                                    </div>
-                                                </div><!-- invisible content div for facets -->
-                                            </g:if>
-                                        </ul>
-                                    </div>
+                                    <g:render template="facet" model="${[key:entry.key, values:entry.value, isProperty:false]}"/>
                                 </g:else>
                             </g:each>
                         </div>
@@ -900,25 +798,23 @@
                     </div>
                 </section>
             </div> <!-- /#listView -->
-            <g:if test="${params.max<totalCount}">
-                <div class="searchWidgets">
-                    Items per page:
-                    <select id="maxItems" class="input-mini" onchange="reloadWithMax(this)">
-                        <g:each in="${[10,25,50,100]}" var="max">
-                            <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
-                        </g:each>
-                    </select>
-                </div>
+            <div class="searchWidgets">
+                Items per page:
+                <select id="maxItems" class="input-mini" onchange="reloadWithMax(this)">
+                    <g:each in="${[10,25,50,100]}" var="max">
+                        <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
+                    </g:each>
+                </select>
+            </div>
 
-                <div class="pagination listPagination" id="searchNavBar">
-                    <g:if test="${params.fq}">
-                        <g:paginate total="${totalCount}" action="list" id="${params.id}" params="${[fq: params.fq]}"/>
-                    </g:if>
-                    <g:else>
-                        <g:paginate total="${totalCount}" action="list" id="${params.id}" />
-                    </g:else>
-                </div>
-            </g:if>
+            <div class="pagination listPagination" id="searchNavBar">
+                <g:if test="${params.fq}">
+                    <g:paginate total="${totalCount}" action="list" id="${params.id}" params="${[fq: params.fq]}"/>
+                </g:if>
+                <g:else>
+                    <g:paginate total="${totalCount}" action="list" id="${params.id}" />
+                </g:else>
+            </div>
             %{-- Output the BS modal divs (hidden until called) --}%
             <g:each var="result" in="${results}" status="i">
                 <g:set var="recId" value="${result.id}"/>

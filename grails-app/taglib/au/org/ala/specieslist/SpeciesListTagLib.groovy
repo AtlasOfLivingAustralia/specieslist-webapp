@@ -2,6 +2,7 @@ package au.org.ala.specieslist
 
 class SpeciesListTagLib {
     static namespace = 'sl'
+    static returnObjectForTags = ['buildFqList', 'excludedFqList']
     def authService
 
     def getFullNameForUserId = { attrs, body ->
@@ -10,15 +11,51 @@ class SpeciesListTagLib {
     }
 
     /**
-     * Generate the URL to the current page minus the fq param specified
+     * Generates a list of filter query strings including that identified by the fq parameter, if supplied.
+     *
+     * @attr fqs REQUIRED the current list of filter query strings
+     * @attr fq the additional filter query string to be added
+     */
+    def buildFqList = { attrs, body ->
+        ArrayList ret = []
+        def fq = attrs.fq
+        if (attrs.fqs) {
+            attrs.fqs.each {
+                if (!ret.contains(it) && it != "") {
+                    ret << it
+                }
+            }
+        }
+        if (fq && !ret.contains(fq)) {
+            ret << fq
+        }
+        ret
+    }
+
+    /**
+     * Generates a list of filter query strings without that identified by the fq parameter
      *
      * @attr fqs REQUIRED
      * @attr fq REQUIRED
      */
-    def removeFqHref = { attrs, body ->
-        def fqList = attrs.fqs
+    def excludedFqList = { attrs, body ->
         def fq = attrs.fq
-        def remainingFq = fqList - fq
-        out << "?fq=" + remainingFq.join("&fq=")
+        def remainingFq = attrs.fqs - fq
+        remainingFq
+    }
+
+    /**
+     * Generates an HTML id from a string
+     *
+     * @attr key REQUIRED the value to use as id;
+     * spaces will be replaced with hyphens, brackets will be removed
+     * @attr prefix a prefix to use in the returned value;
+     * a hyphen will be used to separate the prefix from the key, if provided
+     */
+    def facetAsId = { attrs, body ->
+        def prefix = attrs.prefix ? attrs.prefix + "-" : ""
+        out << prefix + attrs.key.replaceAll(" ", "-")
+                .replaceAll("\\(", "").replaceAll("\\)", "")
+                .toLowerCase()
     }
 }

@@ -47,7 +47,7 @@
                 <h1>My species lists</h1>
             </hgroup>
             <div class="span4 header-btns">
-                <a class="btn btn-ala pull-right" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
+                <g:link controller="speciesList" action="upload" class="btn btn-ala pull-right" title="Add Species List">Upload a list</g:link>
             </div>
         </div><!--inner-->
     </header>
