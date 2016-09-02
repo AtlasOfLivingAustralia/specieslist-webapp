@@ -61,23 +61,25 @@
         // ba-hashchange plugin
         $(window).hashchange( function() {
             var storedView = amplify.store('view-state');
-            var hash = location.hash ? location.hash : storedView ? storedView : "#list";
-            amplify.store('view-state', hash); // store current hash in local storage (for pagination links)
+            var hash = location.hash ? location.hash : "";
 
             if (hash == '#grid') {
-                $('#listView').slideUp();
-                $('#gridView').slideDown();
-                $('#listItemView .grid').addClass('disabled');
-                $('#listItemView .list').removeClass('disabled');
+                enableGrid()
             } else if (hash == '#list') {
-                $('#gridView').slideUp();
-                $('#listView').slideDown();
-                $('#listItemView .list').addClass('disabled');
-                $('#listItemView .grid').removeClass('disabled');
+                enableList();
+            } else if (hash.indexOf("#") != -1) {
+                if (storedView == '#grid') enableGrid();
+                if (storedView == '#list') enableList();
+                getAndViewRecordId(hash);
+                hash = storedView;
             } else if (storedView) {
                 // no hash but stored value - use this
                 location.hash = storedView;
+                hash = storedView;
             }
+
+            // store current hash (or previous view) in local storage (for pagination links)
+            amplify.store('view-state', hash);
         });
 
         // Since the event is only triggered when the hash changes, we need to trigger
@@ -243,6 +245,40 @@
         });
 
     }); // end document ready
+
+    function getAndViewRecordId(hash) {
+        var prefix = "row_";
+        var h = decodeURIComponent(hash.substring(1)).replace("+", " ");
+        var d = $("tr[id^=" + prefix + "] > td.matchedName");
+        var e = $("tr[id^=" + prefix + "] > td.rawScientificName");
+        var data = d.add(e);
+        $(data).each(function(i, el) {
+            // Handle case insensitively: http://stackoverflow.com/a/2140644/2495717
+            var hashVal = h.toLocaleUpperCase();
+            var cell = $(el).text().trim().toLocaleUpperCase();
+            if (hashVal === cell) {
+                var id = $(el).parent().attr("id").substring(prefix.length);
+                viewRecordForId(id);
+                return false;
+            }
+        });
+    }
+
+    function enableGrid() {
+        $('#listView').slideUp();
+        $('#gridView').slideDown();
+        $('#listItemView .grid').addClass('disabled');
+        $('#listItemView .list').removeClass('disabled');
+        $('#viewRecord').modal("hide");
+    }
+
+    function enableList() {
+        $('#gridView').slideUp();
+        $('#listView').slideDown();
+        $('#listItemView .list').addClass('disabled');
+        $('#listItemView .grid').removeClass('disabled');
+        $('#viewRecord').modal("hide");
+    }
 
     function toggleEditMeta(showHide) {
         $("#edit-meta-div").slideToggle(showHide);
@@ -764,14 +800,14 @@
                                             </g:if>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="rawScientificName">
                                         ${fieldValue(bean: result, field: "rawScientificName")}
                                         <g:if test="${result.guid == null}">
                                             <br/>(unmatched - try <a href="http://google.com/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="google" clas="btn btn-primary btn-mini">Google</a>,
                                             <a href="${grailsApplication.config.biocache.baseURL}/occurrences/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="biocache" clas="btn btn-success btn-mini">Occurrences</a>)
                                         </g:if>
                                     </td>
-                                    <td>
+                                    <td class="matchedName">
                                         <g:if test="${result.guid}">
                                             <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}">${result.matchedName}</a>
                                         </g:if>
