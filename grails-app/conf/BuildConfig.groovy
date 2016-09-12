@@ -45,6 +45,8 @@ grails.project.dependency.resolution = {
         }
         compile 'org.gbif:gbif-common:0.17'
         compile "org.nibor.autolink:autolink:0.5.0"
+        compile 'com.squareup.retrofit2:retrofit:2.1.0'
+        compile 'com.squareup.retrofit2:converter-jackson:2.1.0'
         runtime 'mysql:mysql-connector-java:5.1.18'
     }
 

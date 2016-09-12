@@ -7,6 +7,7 @@ import au.com.bytecode.opencsv.CSVWriter
 class SpeciesListItemController {
 
     BieService bieService
+    BiocacheService biocacheService
     LoggerService loggerService
     QueryService queryService
     LocalAuthService localAuthService
@@ -125,6 +126,7 @@ class SpeciesListItemController {
                     //log.debug("KEYS: " + keys)
                     def guids = speciesListItems.collect { it.guid }
                     log.debug("guids " + guids)
+                    def occurrenceCounts = biocacheService.getTaxonOccurrenceCounts(guids)
                     def downloadReasons = loggerService.getReasons()
                     log.debug("Retrieved Logger Reasons")
                     def facets = generateFacetValues(fqs, baseQueryAndParams)
@@ -135,6 +137,7 @@ class SpeciesListItemController {
                             speciesList: speciesList,
                             params: requestParams,
                             results: speciesListItems,
+                            occurrenceCounts: occurrenceCounts,
                             totalCount: totalCount,
                             noMatchCount: noMatchCount,
                             distinctCount: distinctCount,

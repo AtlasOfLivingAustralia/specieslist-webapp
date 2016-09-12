@@ -777,6 +777,7 @@
                                 <th class="action">Action</th>
                                 <g:sortableColumn property="rawScientificName" title="Supplied Name" params="${[fq: fqs]}"></g:sortableColumn>
                                 <g:sortableColumn property="matchedName" title="Scientific Name (matched)" params="${[fq: fqs]}"></g:sortableColumn>
+                                <th>Occurrence Count</th>
                                 <th>Image</th>
                                 <g:sortableColumn property="author" title="Author (matched)" params="${[fq: fqs]}"></g:sortableColumn>
                                 <g:sortableColumn property="commonName" title="Common Name (matched)" params="${[fq: fqs]}"></g:sortableColumn>
@@ -814,6 +815,11 @@
                                         <g:else>
                                             ${result.matchedName}
                                         </g:else>
+                                    </td>
+                                    <td class="occurrenceCount">
+                                        <g:each in="${occurrenceCounts}" var="oc">
+                                            <g:if test="${oc.key == result.guid}">${oc.value}</g:if>
+                                        </g:each>
                                     </td>
                                     <td id="img_${result.guid}">
                                         <g:if test="${result.imageUrl}">
