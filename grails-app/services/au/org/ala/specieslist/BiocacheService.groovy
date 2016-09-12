@@ -1,31 +1,13 @@
 package au.org.ala.specieslist
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.json.JsonSlurper
 import groovyx.net.http.HTTPBuilder
 import grails.web.JSONBuilder
-import retrofit2.Call
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.jackson.JacksonConverterFactory
-
-import javax.annotation.PostConstruct
 
 class BiocacheService {
     static final int DEFAULT_TIMEOUT_MILLIS = 60000
 
     def grailsApplication
-    BiocacheServiceURL service
-
-    @PostConstruct
-    def init() {
-        Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("${grailsApplication.config.biocacheService.baseURL}/")
-            .addConverterFactory(JacksonConverterFactory.create())
-            .build()
-        service = retrofit.create(BiocacheServiceURL)
-    }
 
     def getQid(guids, unMatchedNames, title, wkt){
         def http = new HTTPBuilder(grailsApplication.config.biocacheService.baseURL +"/webportal/params")
@@ -135,11 +117,12 @@ class BiocacheService {
     }
 
     def getTaxonOccurrenceCounts(List<String> guids) {
-        Call<JsonNode> call = service.occurrenceCounts(",", guids.join(","))
-        Response<JsonNode> response = call.execute()
-        if (response.isSuccessful()) {
-            new ObjectMapper().convertValue(response.body(), Map.class)
-        } else {
+        String url = "${grailsApplication.config.biocacheService.baseURL}/occurrences/taxaCount?separator=,&guids=" + guids.join(",")
+        try {
+            def result = new URL(url).getText("UTF-8")
+            new JsonSlurper().parseText(result)
+        } catch (Exception e) {
+            log.error("Problem checking if list is indexed against: " + e.getMessage(), e)
             [:]
         }
     }
