@@ -269,7 +269,7 @@
         $('#gridView').slideDown();
         $('#listItemView .grid').addClass('disabled');
         $('#listItemView .list').removeClass('disabled');
-        $('#viewRecord').modal("hide");
+        if (($("#viewRecord").data('bs.modal') || {}).isShown) $('#viewRecord').modal("hide");
     }
 
     function enableList() {
@@ -277,7 +277,7 @@
         $('#listView').slideDown();
         $('#listItemView .list').addClass('disabled');
         $('#listItemView .grid').removeClass('disabled');
-        $('#viewRecord').modal("hide");
+        if (($("#viewRecord").data('bs.modal') || {}).isShown) $('#viewRecord').modal("hide");
     }
 
     function toggleEditMeta(showHide) {
