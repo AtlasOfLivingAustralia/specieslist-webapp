@@ -36,6 +36,21 @@ class BieService {
         }
     }
 
+    def updateBieIndex(List<Map> guidImageList) {
+        def response
+        //"http://dev.ala.org.au:8089/bie-index/updateImages"
+        def http = new HTTPBuilder(grailsApplication.config.bieService.baseURL + "/updateImages")
+        http.setHeaders(["Authorization": grailsApplication.config.bieApiKey])
+        def jsonBody = (guidImageList as JSON).toString()
+        try {
+            response =  http.post(body: jsonBody, requestContentType:groovyx.net.http.ContentType.JSON)
+        } catch(ex) {
+            log.error("Unable to obtain species details from BIE - " + ex.getMessage(), ex)
+
+        }
+        response
+    }
+
     def generateFieldGuide(druid,guids){
         def title = "The field guide for " + druid
         def link = grailsApplication.config.grails.serverURL + "/speciesListItems/list/" + druid

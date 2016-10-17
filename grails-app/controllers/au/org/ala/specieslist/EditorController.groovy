@@ -7,6 +7,7 @@ class EditorController {
     def authService // from ala-web-theme
     def helperService
     def userDetailsService
+    def bieService
 
     /**
      * Provides (ajax) content for the edit permissions modal popup
@@ -244,6 +245,11 @@ class EditorController {
             else if (sl.save(flush: true)) {
                 // find common name and save it
                 helperService.matchCommonNamesForSpeciesListItems([sli])
+
+                def preferredSpeciesImageListName = grailsApplication.config.ala.preferred.species.name
+                if (sl.listName == preferredSpeciesImageListName) {
+                    helperService.syncBieImage (sli, params.imageId)
+                }
                 render(text: "Record successfully created", status: 200)
             }
             else {
