@@ -553,7 +553,11 @@ class HelperService {
     }
 
     def  matchNameToSpeciesListItem(String name, SpeciesListItem sli){
-        NameSearchResult nsr = findAcceptedConceptByScientificName(sli.rawScientificName) ?: findAcceptedConceptByCommonName(sli.rawScientificName)
+        //includes matchedName search for rematching if nameSearcher lsids change.
+        NameSearchResult nsr = findAcceptedConceptByScientificName(sli.rawScientificName) ?:
+                findAcceptedConceptByCommonName(sli.rawScientificName) ?:
+                        findAcceptedConceptByLSID(sli.rawScientificName) ?:
+                                findAcceptedConceptByNameFamily(sli.matchedName, sli.family)
         if(nsr){
             sli.guid = nsr.getLsid()
             sli.family = nsr.getRankClassification().getFamily()
@@ -589,6 +593,31 @@ class HelperService {
              log.error(e.getMessage())
         }
         lsid
+    }
+
+    def findAcceptedConceptByLSID(lsid){
+        NameSearchResult nameSearchRecord
+        try{
+            nameSearchRecord = getNameSearcher().searchForRecordByLsid(lsid)
+        }
+        catch(Exception e){
+            log.error(e.getMessage())
+        }
+        nameSearchRecord
+    }
+
+    def findAcceptedConceptByNameFamily(String scientificName, String family) {
+        NameSearchResult nameSearchRecord
+        try{
+            def cl = new LinnaeanRankClassification()
+            cl.setScientificName(scientificName)
+            cl.setFamily(family)
+            nameSearchRecord = getNameSearcher().searchForAcceptedRecordDefaultHandling(cl, true)
+        }
+        catch(Exception e){
+            log.error(e.getMessage())
+        }
+        nameSearchRecord
     }
 
     def findAcceptedConceptByScientificName(scientificName){
