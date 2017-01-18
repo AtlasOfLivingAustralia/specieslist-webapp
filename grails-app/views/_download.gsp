@@ -35,7 +35,9 @@
             <br/>
             %{--<input type="hidden" name="sourceTypeId" id="sourceTypeId" value="${sourceId}"/>--}%
             <input type="submit" value="Download All Records" class="actionButton btn btn-small" id="downloadSubmitButton" onclick="return downloadOccurrences()"/>
-            <input type="submit" value="Download Species Field Guide" class="actionButton btn btn-small" id="downloadFieldGuideSubmitButton"/>
+            <g:if test="${grailsApplication.config.fieldGuide.baseURL}">
+                <input type="submit" value="Download Species Field Guide" class="actionButton btn btn-small" id="downloadFieldGuideSubmitButton"/>
+            </g:if>
             <input type="submit" value="Download Species List" class="actionButton btn btn-small" id="downloadSpeciesListSubmitButton"/>
             %{--<c:if test="${skin != 'avh'}">--}%
             %{--<input type="submit" value="Download Species Field Guide" id="downloadFieldGuideSubmitButton"/>&nbsp;--}%
