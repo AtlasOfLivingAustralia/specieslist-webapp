@@ -246,10 +246,11 @@ class EditorController {
                 // find common name and save it
                 helperService.matchCommonNamesForSpeciesListItems([sli])
 
-                def preferredSpeciesImageListName = grailsApplication.config.ala.preferred.species.name
+                // Commented out as we would like to keep species list generic
+             /*   def preferredSpeciesImageListName = grailsApplication.config.ala.preferred.species.name
                 if (sl.listName == preferredSpeciesImageListName) {
                     helperService.syncBieImage (sli, params.imageId)
-                }
+                }*/
                 render(text: "Record successfully created", status: 200)
             }
             else {

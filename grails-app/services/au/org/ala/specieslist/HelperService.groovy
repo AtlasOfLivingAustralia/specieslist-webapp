@@ -678,6 +678,7 @@ class HelperService {
         }
     }
 
+/*  Commented out to keep species list from updating Bie
     def syncBieImage (sli, imageId) {
         boolean updateBieImage = false
         int imageIdPos = sli.getImageUrl()? sli.getImageUrl().toLowerCase().indexOf("?imageid=") : 0
@@ -703,6 +704,7 @@ class HelperService {
             }
         }
     }
+*/
 
 
     /**

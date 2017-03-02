@@ -250,8 +250,15 @@ class WebServiceController {
         if (preferredSpeciesListDruid) {
             def speciesList = SpeciesListItem.findAllByDataResourceUid(preferredSpeciesListDruid)
             if (speciesList.size() > 0) {
-                newList = speciesList.collect({
-                    [name: it.rawScientificName, imageId: it.kvpValues.first().grep { it.value }.value.get(0)]
+                speciesList.each({
+                    def scientificName = it.rawScientificName
+                    if (it.kvpValues) {
+                        it.kvpValues.each {
+                            if (it.key == 'imageId' && it.value != "") {
+                                newList.push(name: scientificName, imageId: it.getValue())
+                            }
+                        }
+                    }
                 })
             }
         }
