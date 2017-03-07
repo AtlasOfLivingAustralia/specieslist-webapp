@@ -207,61 +207,8 @@ class EditorController {
      * Create a new SpeciesListItem
      */
     def createRecord() {
-        def sl = SpeciesList.get(params.id)
-        log.debug "params = " + params
-
-        if (!params.rawScientificName) {
-            render(text: "Missing required field: rawScientificName", status: 400)
-        }
-        else if (sl) {
-            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?", sl.dataResourceUid)
-            log.debug "keys = " + keys
-            def sli = new SpeciesListItem(dataResourceUid: sl.dataResourceUid, rawScientificName: params.rawScientificName, itemOrder: sl.items.size() + 1)
-            //sli.guid = helperService.findAcceptedLsidByScientificName(sli.rawScientificName)?: helperService.findAcceptedLsidByCommonName(sli.rawScientificName)
-            helperService.matchNameToSpeciesListItem(sli.rawScientificName, sli)
-
-            keys.each { key ->
-                log.debug "key: " + key + " has value: " + params[key]
-                def value = params[key]
-                def itemOrder = params["itemOrder_${key}"]
-                if (value) {
-                    def newKvp = SpeciesListKVP.findByDataResourceUidAndKeyAndValue(sl.dataResourceUid, key, value)
-                    if (!newKvp) {
-                        log.debug "Couldn't find an existing KVP, so creating a new one..."
-                        newKvp = new SpeciesListKVP(dataResourceUid: sli.dataResourceUid, key: key, value: params[key], SpeciesListItem: sli, itemOrder: itemOrder );
-                    }
-
-                    sli.addToKvpValues(newKvp)
-                }
-            }
-
-            sl.addToItems(sli)
-
-            if (!sl.validate()) {
-                def message = "Could not update SpeciesList with new item: ${sli.rawScientificName} - " + sl.errors.allErrors
-                log.error message
-                render(text: message, status: 500)
-            }
-            else if (sl.save(flush: true)) {
-                // find common name and save it
-                helperService.matchCommonNamesForSpeciesListItems([sli])
-
-                // Commented out as we would like to keep species list generic
-             /*   def preferredSpeciesImageListName = grailsApplication.config.ala.preferred.species.name
-                if (sl.listName == preferredSpeciesImageListName) {
-                    helperService.syncBieImage (sli, params.imageId)
-                }*/
-                render(text: "Record successfully created", status: 200)
-            }
-            else {
-                def message = "Could not create SpeciesListItem: ${sli.rawScientificName} - " + sl.errors.allErrors
-                render(text: message, status: 500)
-            }
-        }
-        else {
-            def message = "${message(code: 'default.not.found.message', args: [message(code: 'speciesList.label', default: 'Species List'), params.id])}"
-            render(text: message, status: 404)
-        }
+        def response = helperService.createRecord(params)
+        render(text: response.text, status: response.status)
     }
 
     def deleteRecord() {

@@ -271,48 +271,34 @@ class WebServiceController {
 
         def imageId = json.imageId
         def scientificName = json.scientificName
+
+        def result
         if(imageId && scientificName){
 
             log.info("Trying to Save List Item image id: " + imageId + " ScientificName = " + scientificName)
 
             def preferredSpeciesListDruid = getALAPreferredSpeciesImageListName()
-            def message = ""
-            def status
 
             if (preferredSpeciesListDruid) {
 
                 def idArr = SpeciesList.executeQuery("select distinct id from SpeciesList where dataResourceUid=?", preferredSpeciesListDruid)
                 def id = idArr.get(0)
 
-                forward controller: 'editor',  action: 'createRecord', params: [id: id, imageId: imageId, rawScientificName: scientificName]
-
-                status = response.getStatus()
-
-                switch (status) {
-                    case 200:
-                        message = "Record successfully created"
-                        break
-                    case 400:
-                        message = "Missing required field: rawScientificName"
-                        break
-                    case 404:
-                        message = "Species could not be found"
-                        break
-                    case 500:
-                        message = "Could not create SpeciesListItem"
-                        break
-                }
+                result = helperService.createRecord([id: id, imageId: imageId, rawScientificName: scientificName])
+                log.info("Save species status: " + result.text + " Response code:" + result.status)
 
             } else {
-                status = 412
-                message = "ALA Preferred Image Species List has not been setup"
+                result = [status: 412, text: "ALA Preferred Image Species List has not been setup"]
+                log.info("Save species failed: ALA Preferred Image Species List has not been setup.")
             }
-            log.info("Save status: " + message + " Response code:" + status)
-            render status: status, text: message
 
         } else {
             log.info("Species Preferred list item cannot not created. Missing required field imageId or scientificName")
-            render status: 400, text: "Species Preferred list item cannot not created. Missing required field imageId or scientificName"
+            result = [text: "Species Preferred list item cannot not created. Missing required field imageId or scientificName", status: 400]
+        }
+
+        render(contentType: 'text/json') {
+            result
         }
     }
 
