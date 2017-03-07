@@ -76,6 +76,9 @@
                 // no hash but stored value - use this
                 location.hash = storedView;
                 hash = storedView;
+            } else {
+                //if nothing else selected, default to list
+                enableList();
             }
 
             // store current hash (or previous view) in local storage (for pagination links)
