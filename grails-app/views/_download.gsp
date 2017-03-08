@@ -16,7 +16,7 @@
     <form id="downloadForm">
 
 
-        <fieldset>
+        <g:if>
             <p><label for="email">Email</label>
                 <input type="text" name="email" id="email" value="${request.remoteUser}" size="30"  />
             </p>
@@ -45,9 +45,11 @@
             <!--
             <input type="reset" value="Cancel" onClick="$.fancybox.close();"/>
             -->
-            <p style="margin-top:10px;">
-                <strong>Note</strong>: The field guide may take several minutes to prepare and download.
-            </p>
+            <g:if test="${grailsApplication.config.fieldGuide.baseURL}">
+                <p style="margin-top:10px;">
+                    <strong>Note</strong>: The field guide may take several minutes to prepare and download.
+                </p>
+            </g:if>
             <div id="statusMsg" style="text-align: center; font-weight: bold; "></div>
         </fieldset>
     </form>
