@@ -272,7 +272,7 @@ class WebServiceController {
         def imageId = json.imageId
         def scientificName = json.scientificName
 
-        def result
+        def result = [:]
         if(imageId && scientificName){
 
             log.info("Trying to Save List Item image id: " + imageId + " ScientificName = " + scientificName)
@@ -284,7 +284,7 @@ class WebServiceController {
                 def idArr = SpeciesList.executeQuery("select distinct id from SpeciesList where dataResourceUid=?", preferredSpeciesListDruid)
                 def id = idArr.get(0)
 
-                result = helperService.createRecord([id: id, imageId: imageId, rawScientificName: scientificName])
+                result = helperService.createRecord([id: id, imageId: imageId, rawScientificName: scientificName, itemOrder_imageId: 1])
                 log.info("Save species status: " + result.text + " Response code:" + result.status)
 
             } else {
