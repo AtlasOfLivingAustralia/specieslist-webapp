@@ -335,44 +335,47 @@ class HelperService {
         }
     }
 
-    def loadSpeciesListFromJSON(Map json, String druid) {
+    def loadSpeciesListFromJSON(Map json, String druid, replace = true) {
         SpeciesList speciesList = SpeciesList.findByDataResourceUid(druid) ?: new SpeciesList(json)
 
-        // updating an existing list
-        if (speciesList.dataResourceUid) {
-            // assume new list of species will replace existing one (no updates allowed for now)
-            speciesList.items.clear()
+        if (replace) {
+            // updating an existing list
+            if (speciesList.dataResourceUid) {
+                // assume new list of species will replace existing one (no updates allowed for now)
+                speciesList.items.clear()
 
-            // update the list of editors (comma separated list of email addresses)
-            if (json?.editors) {
-                // merge lists and remove duplicates
-                speciesList.editors = (speciesList.editors + json.editors.tokenize(',')).unique()
+                // update the list of editors (comma separated list of email addresses)
+                if (json?.editors) {
+                    // merge lists and remove duplicates
+                    speciesList.editors = (speciesList.editors + json.editors.tokenize(',')).unique()
+                }
+                if (json?.listName) {
+                    speciesList.listName = json.listName // always update the list name
+                }
+            } else {
+                // create a new list
+                speciesList.setDataResourceUid(druid)
             }
-            if (json?.listName) {
-                speciesList.listName = json.listName // always update the list name
+
+            if (speciesList.username && !speciesList.userId) {
+                // lookup userId for username
+                def emailLC = speciesList.username?.toLowerCase()
+                Map userNameMap = userDetailsService.getFullListOfUserDetailsByUsername()
+
+                if (userNameMap.containsKey(emailLC)) {
+                    def user = userNameMap.get(emailLC)
+                    speciesList.userId = user.userId
+                }
             }
-        } else {
-            // create a new list
-            speciesList.setDataResourceUid(druid)
         }
 
-        if (speciesList.username && !speciesList.userId) {
-            // lookup userId for username
-            def emailLC = speciesList.username?.toLowerCase()
-            Map userNameMap = userDetailsService.getFullListOfUserDetailsByUsername()
-
-            if (userNameMap.containsKey(emailLC)) {
-                def user = userNameMap.get(emailLC)
-                speciesList.userId = user.userId
-            }
-        }
-
+        def guidList = [:]
         // version 1 of this operation supports list items as a comma-separated string
         // version 2 of this operation supports list items as structured JSON elements with KVPs
         if (isSpeciesListJsonVersion1(json)) {
-            loadSpeciesListItemsFromJsonV1(json, speciesList, druid)
+            guidList = loadSpeciesListItemsFromJsonV1(json, speciesList, druid)
         } else if (isSpeciesListJsonVersion2(json)) {
-            loadSpeciesListItemsFromJsonV2(json, speciesList, druid)
+            guidList = loadSpeciesListItemsFromJsonV2(json, speciesList, druid)
         } else {
             throw new UnsupportedOperationException("Unsupported data structure")
         }
@@ -386,7 +389,7 @@ class HelperService {
         List sli = speciesList.getItems().toList()
         matchCommonNamesForSpeciesListItems(sli)
 
-        speciesList
+        [speciesList: speciesList, speciesGuids: guidList]
     }
 
     private static boolean isSpeciesListJsonVersion1(Map json) {
@@ -399,11 +402,14 @@ class HelperService {
 
         List items = json.listItems.split(",")
 
+        def guidList = [:]
         items.eachWithIndex { item, i ->
             SpeciesListItem sli = new SpeciesListItem(dataResourceUid: druid, rawScientificName: item, itemOrder: i)
             matchNameToSpeciesListItem(sli.rawScientificName, sli)
             speciesList.addToItems(sli)
+            guidList.push (sli.guid)
         }
+        ["guids": guidList]
     }
 
     private static boolean isSpeciesListJsonVersion2(Map json) {
@@ -414,6 +420,8 @@ class HelperService {
     private loadSpeciesListItemsFromJsonV2(Map json, SpeciesList speciesList, String druid) {
         assert json.listItems, "Cannot create a Species List with no items"
 
+        def speciesGuidKvp = []
+        def kvpList = [:]
         List items = json.listItems
         items.eachWithIndex { item, i ->
             SpeciesListItem sli = new SpeciesListItem(dataResourceUid: druid, rawScientificName: item.itemName,
@@ -424,10 +432,16 @@ class HelperService {
                 SpeciesListKVP kvp = new SpeciesListKVP(value: k.value, key: k.key, itemOrder: j, dataResourceUid:
                         druid)
                 sli.addToKvpValues(kvp)
+                kvpList[k.key] = k.value
             }
 
             speciesList.addToItems(sli)
+
+            //def kvps = item.kvpValues? item.kvpValues : []
+           // speciesGuidKvp.push (["guids": sli.guid, "kvps": json.listItems.kvpValues])
+            speciesGuidKvp.push (["guid": sli.guid, "kvps": kvpList])
         }
+        speciesGuidKvp
     }
 
     def loadSpeciesListFromCSV(CSVReader reader, druid, listname, ListType listType, description, listUrl, listWkt,

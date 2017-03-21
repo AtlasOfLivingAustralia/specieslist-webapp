@@ -16,7 +16,7 @@
     <form id="downloadForm">
 
 
-        <g:if>
+        <fieldset>
             <p><label for="email">Email</label>
                 <input type="text" name="email" id="email" value="${request.remoteUser}" size="30"  />
             </p>

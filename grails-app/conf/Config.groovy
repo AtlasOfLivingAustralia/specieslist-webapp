@@ -31,10 +31,6 @@ registryApiKey = "xxxxxxxxxxxxxxxxxx"
 
 bieApiKey = "xxxxxx"
 
-if (!ala.preferred.species.name) {
-    ala.preferred.species.name = 'ALA Preferred Species Images'
-}
-
 /*** Config specific for species list ***/
 updateUserDetailsOnStartup = false
 iconicSpecies.uid = "dr781"

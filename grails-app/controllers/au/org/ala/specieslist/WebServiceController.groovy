@@ -229,26 +229,12 @@ class WebServiceController {
         }
     }
 
-    def getALAPreferredSpeciesImageListName() {
-        def preferredSpeciesImageListName = grailsApplication.config.ala.preferred.species.name?:"ALA Preferred Species Images"
-        def drtUidArr = SpeciesList.executeQuery("select distinct dataResourceUid from SpeciesList where listName=?", preferredSpeciesImageListName)
-        def drUid = ""
-        if (drtUidArr.size() > 0) {
-            drUid = drtUidArr.get(0)
-            log.debug "Extracted drUid = " + drUid + " for List Name = " + preferredSpeciesImageListName
-        } else {
-            log.debug "No Data Resource Uid found for List Name = " + preferredSpeciesImageListName
-        }
-        return drUid
-    }
-
-
-    def getALAPreferredSpeciesListItem() {
-        def preferredSpeciesListDruid = getALAPreferredSpeciesImageListName()
+    def getSpeciesListItemKvp() {
+        def speciesListDruid = params.druid
 
         def newList = []
-        if (preferredSpeciesListDruid) {
-            def speciesList = SpeciesListItem.findAllByDataResourceUid(preferredSpeciesListDruid)
+        if (speciesListDruid) {
+            def speciesList = SpeciesListItem.findAllByDataResourceUid(speciesListDruid)
             if (speciesList.size() > 0) {
                 speciesList.each({
                     def scientificName = it.rawScientificName
@@ -264,42 +250,6 @@ class WebServiceController {
         }
         render newList as JSON
 
-    }
-
-    def saveALAPreferredSpeciesListItem () {
-        def json = request.getJSON()
-
-        def imageId = json.imageId
-        def scientificName = json.scientificName
-
-        def result = [:]
-        if(imageId && scientificName){
-
-            log.info("Trying to Save List Item image id: " + imageId + " ScientificName = " + scientificName)
-
-            def preferredSpeciesListDruid = getALAPreferredSpeciesImageListName()
-
-            if (preferredSpeciesListDruid) {
-
-                def idArr = SpeciesList.executeQuery("select distinct id from SpeciesList where dataResourceUid=?", preferredSpeciesListDruid)
-                def id = idArr.get(0)
-
-                result = helperService.createRecord([id: id, imageId: imageId, rawScientificName: scientificName, itemOrder_imageId: 1])
-                log.info("Save species status: " + result.text + " Response code:" + result.status)
-
-            } else {
-                result = [status: 412, text: "ALA Preferred Image Species List has not been setup"]
-                log.info("Save species failed: ALA Preferred Image Species List has not been setup.")
-            }
-
-        } else {
-            log.info("Species Preferred list item cannot not created. Missing required field imageId or scientificName")
-            result = [text: "Species Preferred list item cannot not created. Missing required field imageId or scientificName", status: 400]
-        }
-
-        render(contentType: 'text/json') {
-            result
-        }
     }
 
     /**
@@ -322,12 +272,16 @@ class WebServiceController {
 
             if (userCookie) {
                 String username = java.net.URLDecoder.decode(userCookie.getValue(), 'utf-8')
+                def replaceList = true //default behaviour
                 //test to see that the user is valid
                 if (localAuthService.isValidUserName(username)) {
                     if (jsonBody.listItems && jsonBody.listName) {
                         jsonBody.username = username
                         log.warn(jsonBody)
                         def druid = params.druid
+
+                        // This is passed in from web service call to make sure it doesn't replace existing list
+                        replaceList = jsonBody.replaceList != null ? jsonBody.replaceList : true
                         //= helperService.addDataResourceForList([name:jsonBody.listName, username:username])
 
                         if (!druid) {
@@ -340,8 +294,8 @@ class WebServiceController {
                             }
                         }
 
-                        helperService.loadSpeciesListFromJSON(jsonBody, druid)
-                        created druid
+                        def result = helperService.loadSpeciesListFromJSON(jsonBody, druid, replaceList)
+                        created druid, result.speciesGuids
                     } else {
                         badRequest "Missing compulsory mandatory properties."
                     }
@@ -357,10 +311,10 @@ class WebServiceController {
         }
     }
 
-    def created = { uid ->
+    def created = { uid, guids ->
         response.addHeader 'druid', uid
         response.status = 201
-        def outputMap = [message:'added species list', druid: uid]
+        def outputMap = [status:200, message:'added species list', druid: uid, data: guids]
         render outputMap as JSON
     }
 
