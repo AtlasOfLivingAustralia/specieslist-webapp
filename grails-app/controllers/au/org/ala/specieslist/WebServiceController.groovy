@@ -272,7 +272,7 @@ class WebServiceController {
 
             if (userCookie) {
                 String username = java.net.URLDecoder.decode(userCookie.getValue(), 'utf-8')
-                def replaceList = true //default behaviour
+                boolean replaceList = true //default behaviour
                 //test to see that the user is valid
                 if (localAuthService.isValidUserName(username)) {
                     if (jsonBody.listItems && jsonBody.listName) {
@@ -281,7 +281,10 @@ class WebServiceController {
                         def druid = params.druid
 
                         // This is passed in from web service call to make sure it doesn't replace existing list
-                        replaceList = jsonBody.replaceList != null ? jsonBody.replaceList : true
+                        if (!jsonBody.replaceList) {
+                            replaceList = jsonBody.replaceList
+                        }
+
                         //= helperService.addDataResourceForList([name:jsonBody.listName, username:username])
 
                         if (!druid) {

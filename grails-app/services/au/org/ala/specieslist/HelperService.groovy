@@ -335,7 +335,7 @@ class HelperService {
         }
     }
 
-    def loadSpeciesListFromJSON(Map json, String druid, replace = true) {
+    def loadSpeciesListFromJSON(Map json, String druid, boolean replace = true) {
         SpeciesList speciesList = SpeciesList.findByDataResourceUid(druid) ?: new SpeciesList(json)
 
         if (replace) {
@@ -369,7 +369,7 @@ class HelperService {
             }
         }
 
-        def guidList = [:]
+        List guidList = []
         // version 1 of this operation supports list items as a comma-separated string
         // version 2 of this operation supports list items as structured JSON elements with KVPs
         if (isSpeciesListJsonVersion1(json)) {
@@ -402,14 +402,14 @@ class HelperService {
 
         List items = json.listItems.split(",")
 
-        def guidList = [:]
+        List guidList = []
         items.eachWithIndex { item, i ->
             SpeciesListItem sli = new SpeciesListItem(dataResourceUid: druid, rawScientificName: item, itemOrder: i)
             matchNameToSpeciesListItem(sli.rawScientificName, sli)
             speciesList.addToItems(sli)
             guidList.push (sli.guid)
         }
-        ["guids": guidList]
+        guidList
     }
 
     private static boolean isSpeciesListJsonVersion2(Map json) {
@@ -420,8 +420,8 @@ class HelperService {
     private loadSpeciesListItemsFromJsonV2(Map json, SpeciesList speciesList, String druid) {
         assert json.listItems, "Cannot create a Species List with no items"
 
-        def speciesGuidKvp = []
-        def kvpList = [:]
+        List speciesGuidKvp = []
+        Map kvpMap = [:]
         List items = json.listItems
         items.eachWithIndex { item, i ->
             SpeciesListItem sli = new SpeciesListItem(dataResourceUid: druid, rawScientificName: item.itemName,
@@ -432,14 +432,12 @@ class HelperService {
                 SpeciesListKVP kvp = new SpeciesListKVP(value: k.value, key: k.key, itemOrder: j, dataResourceUid:
                         druid)
                 sli.addToKvpValues(kvp)
-                kvpList[k.key] = k.value
+                kvpMap[k.key] = k.value
             }
 
             speciesList.addToItems(sli)
 
-            //def kvps = item.kvpValues? item.kvpValues : []
-           // speciesGuidKvp.push (["guids": sli.guid, "kvps": json.listItems.kvpValues])
-            speciesGuidKvp.push (["guid": sli.guid, "kvps": kvpList])
+            speciesGuidKvp.push (["guid": sli.guid, "kvps": kvpMap])
         }
         speciesGuidKvp
     }
