@@ -17,6 +17,7 @@ package au.org.ala.specieslist
 import au.com.bytecode.opencsv.CSVWriter
 import grails.converters.*
 import grails.web.JSONBuilder
+import net.sf.json.JSONObject
 import org.apache.http.HttpStatus
 
 /**
@@ -232,18 +233,18 @@ class WebServiceController {
     def getSpeciesListItemKvp() {
         def speciesListDruid = params.druid
 
-        def newList = []
+        List newList = []
         if (speciesListDruid) {
             def speciesList = SpeciesListItem.findAllByDataResourceUid(speciesListDruid)
             if (speciesList.size() > 0) {
                 speciesList.each({
                     def scientificName = it.rawScientificName
                     if (it.kvpValues) {
+                        JSONObject kvps = new JSONObject();
                         it.kvpValues.each {
-                            if (it.key == 'imageId' && it.value != "") {
-                                newList.push(name: scientificName, imageId: it.getValue())
-                            }
+                            kvps.put(it.key, it.value)
                         }
+                        newList.push(name: scientificName, kvps: kvps)
                     }
                 })
             }
