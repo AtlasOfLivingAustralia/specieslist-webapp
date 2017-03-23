@@ -240,7 +240,7 @@ class WebServiceController {
                 speciesList.each({
                     def scientificName = it.rawScientificName
                     if (it.kvpValues) {
-                        JSONObject kvps = new JSONObject();
+                        Map kvps = new HashMap();
                         it.kvpValues.each {
                             kvps.put(it.key, it.value)
                         }
