@@ -17,7 +17,6 @@ package au.org.ala.specieslist
 import au.com.bytecode.opencsv.CSVWriter
 import grails.converters.*
 import grails.web.JSONBuilder
-import net.sf.json.JSONObject
 import org.apache.http.HttpStatus
 
 /**
@@ -242,7 +241,12 @@ class WebServiceController {
                     if (it.kvpValues) {
                         Map kvps = new HashMap();
                         it.kvpValues.each {
-                            kvps.put(it.key, it.value)
+                            if (kvps.containsKey(it.key)) {
+                                def val = kvps.get(it.key) + "|" + it.value
+                                kvps.put(it.key, val)
+                            } else {
+                                kvps.put(it.key, it.value)
+                            }
                         }
                         newList.push(name: scientificName, kvps: kvps)
                     }
