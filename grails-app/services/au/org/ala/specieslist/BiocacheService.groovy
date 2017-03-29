@@ -37,6 +37,8 @@ class BiocacheService {
                     log.debug "200 OK response from biocache"
                     return [status:resp.status, result:reader.getText()]
                 } else {
+                    log.warn "$resp.status returned from biocache service"
+
                     return [status:500]
                 }
             }

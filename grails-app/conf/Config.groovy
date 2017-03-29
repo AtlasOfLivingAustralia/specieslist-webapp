@@ -27,6 +27,12 @@ if(System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
 println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
 
 bie.nameIndexLocation = "/data/lucene/namematching"
+
+//boolean that indicates if biocache is configured to index species lists
+biocache.indexAuthoritative = false
+occurrenceDownload.enabled = true
+termsOfUseUrl = "http://www.ala.org.au/about-the-atlas/terms-of-use/#TOUusingcontent"
+
 registryApiKey = "xxxxxxxxxxxxxxxxxx"
 
 bieApiKey = "xxxxxx"

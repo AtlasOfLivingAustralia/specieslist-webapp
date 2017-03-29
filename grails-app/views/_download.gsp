@@ -7,14 +7,13 @@
 %{--<%@page contentType="text/html" pageEncoding="UTF-8"%>--}%
 <div id="download">
     <p id="termsOfUseDownload">
-        By downloading this content you are agreeing to use it in accordance with the Atlas of Living Australia
-        <a href="http://www.ala.org.au/about/terms-of-use/#TOUusingcontent">Terms of Use</a> and any Data Provider
+        By downloading this content you are agreeing to use it in accordance with the
+        <a href="${grailsApplication.config.termsOfUseUrl}">Terms of Use</a> and any Data Provider
     Terms associated with the data download.
         <br/><br/>
         Please provide the following details before downloading (* required):
     </p>
     <form id="downloadForm">
-
 
         <fieldset>
             <p><label for="email">Email</label>
@@ -33,12 +32,16 @@
             </p>
 
             <br/>
-            %{--<input type="hidden" name="sourceTypeId" id="sourceTypeId" value="${sourceId}"/>--}%
-            <input type="submit" value="Download All Records" class="actionButton btn btn-small" id="downloadSubmitButton" onclick="return downloadOccurrences()"/>
-            <g:if test="${grailsApplication.config.fieldGuide.baseURL}">
-                <input type="submit" value="Download Species Field Guide" class="actionButton btn btn-small" id="downloadFieldGuideSubmitButton"/>
+
+            <p style="text-align: center">
+            <g:if test="${grailsApplication.config.occurrenceDownload.enabled.toBoolean()}">
+                <input type="submit" value="Download All Records" class="actionButton btn" id="downloadSubmitButton" onclick="return downloadOccurrences()"/>
             </g:if>
-            <input type="submit" value="Download Species List" class="actionButton btn btn-small" id="downloadSpeciesListSubmitButton"/>
+            <g:if test="${grailsApplication.config.fieldGuide.baseURL}">
+                <input type="submit" value="Download Species Field Guide" class="actionButton btn" id="downloadFieldGuideSubmitButton"/>
+            </g:if>
+            <input type="submit" value="Download Species List" class="actionButton btn" id="downloadSpeciesListSubmitButton"/>
+            </p>
             %{--<c:if test="${skin != 'avh'}">--}%
             %{--<input type="submit" value="Download Species Field Guide" id="downloadFieldGuideSubmitButton"/>&nbsp;--}%
             %{--</c:if>--}%
