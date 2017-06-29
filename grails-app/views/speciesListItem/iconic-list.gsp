@@ -176,6 +176,11 @@
             height: 140px;
         }
 
+        #content p.lead {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
     </style>
 
     <r:script>
@@ -207,13 +212,12 @@
 
     <div class="inner row-fluid">
         <div class="span12">
-            <h2>Australia's Species</h2>
-            <form class="search-form" role="search" action="${bieUrl}/search" method="get" style="margin-bottom: 0">
-                <div class="input-append">
-                    <input class="general-search"  type="text" name="q" placeholder="Search Australia's Species">
-                    <button class="btn btn-primary" type="submit">Search</button>
-                </div>
-            </form>
+            <h2>Australian iconic species</h2>
+            <p class="lead">
+                Below is a listing of some of Australia's most recognisable species. As well as the listing
+                below you can <a href="http://bie.ala.org.au/search?q=&fq=idxtype:%22TAXON%22" class="">search
+                over 100,000 species within the ALA</a>.
+            </p>
         </div>
     </div>
     <g:if test="${flash.message}">
@@ -221,7 +225,7 @@
             <div class="message alert alert-info"><b>Alert:</b> ${flash.message}</div>
         <div>
     </g:if>
-    <h3>Browse Iconic Australian species</h3>
+    %{--<h3>Browse Iconic Australian species</h3>--}%
     <div class="inner row-fluid">
         <div class="span3">
             <ul id="groupsNav" class="nav nav-list bs-docs-sidenav affix-top">
