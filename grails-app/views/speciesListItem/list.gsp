@@ -383,7 +383,7 @@
 </script>
 </head>
 <body class="yui-skin-sam nav-species">
-<div id="content" class="contair  ">
+<div id="content" class="container">
     <header id="page-header">
 
         <div class="inner row-fluid">
