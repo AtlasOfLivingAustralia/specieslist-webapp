@@ -368,15 +368,22 @@
             max: max,
             sort: "${params.sort}",
             order: "${params.order}",
-            offset: "${params.offset?:0}"
+            offset: "${params.offset?:0}",
+            q: "${params.q}",
+            id: "${params.id}"
         };
         var paramStr = jQuery.param(params, true);
         window.location.href = window.location.pathname + '?' + paramStr;
     }
+
+    function resetSearch() {
+        document.getElementById("searchInputButton").value = '';
+    }
+
 </script>
 </head>
 <body class="yui-skin-sam nav-species">
-<div id="content" class="container  ">
+<div id="content" class="contair  ">
     <header id="page-header">
 
         <div class="inner row-fluid">
@@ -697,7 +704,13 @@
                                                 <g:if test="${fq.length() >0}">
                                                     <li>
                                                         <g:link action="list" id="${params.id}" params="${[fq:sl.excludedFqList(fqs:fqs, fq:fq), max:params.max]}" class="removeLink" title="Uncheck (remove filter)"><i class="icon-check"></i></g:link>
-                                                        <g:message code="facet.${fq.replaceFirst("kvp ","")}" default="${fq.replaceFirst("kvp ","")}"/></li>
+                                                        <g:if test="${fq.startsWith("Search-")}">
+                                                            <g:message code="facet.${fq.replaceFirst("Search- ","")}" default="${fq.replaceFirst("Search-","")}"/>
+                                                        </g:if>
+                                                        <g:else>
+                                                            <g:message code="facet.${fq.replaceFirst("kvp ","")}" default="${fq.replaceFirst("kvp ","")}"/>
+                                                        </g:else>
+                                                    </li>
                                                 </g:if>
                                             </g:each>
                                         </ul>
@@ -731,6 +744,19 @@
                 <a class="btn btn-small list disabled" title="View as detailed list" href="#list"><i class="icon icon-th-list"></i> list</a>
                 <a class="btn btn-small grid" title="View as thumbnail image grid" href="#grid"><i class="icon icon-th"></i> grid</a>
             </div>
+            <div id="searchView" class="form-inline searchItemForm">
+                <g:form class="searchItemForm" controller="speciesListItem" action="list">
+                    <input type="hidden" name="id" value="${speciesList.dataResourceUid}" />
+                    <div class="input-append" id="searchListItem">
+                        <input class="input-xlarge" id="searchInputButton" name="q" type="text" value="${params.q}" placeholder="Search by Supplied Name">
+                        <button class="btn" type="submit">Search</button>
+                        <g:if test="${params.q}">
+                            <button class="btn btn-primary" onclick="resetSearch()">Clear search</button>
+                        </g:if>
+                    </div>
+                </g:form>
+            </div>
+
             <div id="gridView" class="hide">
                 <g:each var="result" in="${results}" status="i">
                     <g:set var="recId" value="${result.id}"/>
@@ -851,7 +877,7 @@
                     <g:paginate total="${totalCount}" action="list" id="${params.id}" params="${[fq: params.fq]}"/>
                 </g:if>
                 <g:else>
-                    <g:paginate total="${totalCount}" action="list" id="${params.id}" />
+                    <g:paginate total="${totalCount}" action="list" id="${params.id}"/>
                 </g:else>
             </div>
             %{-- Output the BS modal divs (hidden until called) --}%

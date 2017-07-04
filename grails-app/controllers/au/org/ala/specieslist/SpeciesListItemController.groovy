@@ -93,9 +93,21 @@ class SpeciesListItemController {
                     requestParams.fetch = [kvpValues: 'select']
 
                     log.debug(requestParams.toQueryString())
+
+                    if(requestParams.q) {
+                        requestParams.fq = "Search-" + "rawScientificName:" + requestParams.q
+                    }
                     //println(params.facets)
                     def fqs = requestParams.fq ? [requestParams.fq].flatten().findAll { it != null } : null
                     //println(queryService.constructWithFacets("select count(distinct guid)",facets, params.id))
+
+                    if(fqs) {
+                        def reqSearchParam = fqs.find { item -> item.startsWith('Search-')}
+                        if(reqSearchParam) {
+                            int index = reqSearchParam.indexOf(":") + 1
+                            params.q = reqSearchParam.substring(index);
+                        }
+                    }
 
                     def baseQueryAndParams = requestParams.fq ? queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, requestParams.id) : null
                     log.debug(baseQueryAndParams)
@@ -108,14 +120,17 @@ class SpeciesListItemController {
                         baseQueryAndParamsForListingSLI[0] +=" order by sli.${requestParams.sort} ${requestParams.order?:'asc'}"
                     }
 
-                    //This is used for the stats - should these be for the whole list or just the fq-ed version?
-                    def distinctCount = requestParams.fq ? SpeciesList.executeQuery("select count(distinct guid) " + baseQueryAndParams[0], baseQueryAndParams[1]).head() : SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid=?", requestParams.id).head()//SpeciesListItem.executeQuery(queryparams[0],[queryparams[1]]).head()
+                    //This will take in to account and search user has done in addition to the filters
+                    def distinctCount = requestParams.fq ? SpeciesList.executeQuery("select count(distinct guid) " + baseQueryAndParams[0], baseQueryAndParams[1]).head(): SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid=?", requestParams.id).head()
+
                     //need to get all keys to be included in the table so no need to add the filter.
                     def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=? order by itemOrder", requestParams.id)
 
-                    def speciesListItems = requestParams.fq ? SpeciesListItem.executeQuery("select sli " + baseQueryAndParamsForListingSLI[0], baseQueryAndParamsForListingSLI[1], requestParams) : SpeciesListItem.findAllByDataResourceUid(requestParams.id, requestParams)
+                    //list of species by search criteria and filters applied
+                    def speciesListItems = requestParams.fq ? SpeciesListItem.executeQuery("select sli " + baseQueryAndParamsForListingSLI[0], baseQueryAndParamsForListingSLI[1], requestParams): SpeciesListItem.findAllByDataResourceUid(requestParams.id, requestParams)
 
-                    def totalCount = requestParams.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0], baseQueryAndParams[1]).head() : SpeciesListItem.countByDataResourceUid(requestParams.id)
+                    //Count of species list item after applying filter and search criteria
+                    def totalCount = requestParams.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0], baseQueryAndParams[1]).head() :SpeciesListItem.countByDataResourceUid(requestParams.id)
 
                     def noMatchCount = requestParams.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0] + " AND sli.guid is null", baseQueryAndParams[1]).head() : SpeciesListItem.countByDataResourceUidAndGuidIsNull(requestParams.id)
 

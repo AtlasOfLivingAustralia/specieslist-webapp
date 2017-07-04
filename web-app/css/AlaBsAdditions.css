@@ -376,3 +376,7 @@ img.smallSpeciesImage {
 
 h3 { margin-top: 20px; }
 h2 { margin-top: 30px; }
+
+.searchItemForm {
+    display: inline-block;
+}
