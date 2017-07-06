@@ -32,7 +32,7 @@
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'getQueryParam.js')}"></script>
-    <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery-ui-1.8.17.custom.min.js')}"></script>
+    <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery.min.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery.doubleScroll.js')}"></script>
     <title>Species list items | ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">
@@ -83,6 +83,13 @@
 
             // store current hash (or previous view) in local storage (for pagination links)
             amplify.store('view-state', hash);
+
+
+            // Add scroll bar to top and bottom of table
+            //Moving this here as the display of top scroll bar depends on the table content width
+            // and that will only be known after table data is loaded.
+            $('.fwtable').doubleScroll();
+
         });
 
         // Since the event is only triggered when the hash changes, we need to trigger
@@ -124,9 +131,6 @@
             'margin': 10
 
         });
-
-        // Add scroll bar to top and bottom of table
-        $('.fwtable').doubleScroll();
 
         // Tooltip for link title
         $('#content a').not('.thumbImage').tooltip({placement: "bottom", html: true, delay: 200, container: "body"});
