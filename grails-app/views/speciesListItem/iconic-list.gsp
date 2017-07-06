@@ -208,7 +208,7 @@
 
 </head>
 <body class="yui-skin-sam nav-species">
-<div id="content" class="container-fluid">
+<div id="content" class="container">
 
     <div class="inner row-fluid">
         <div class="span12">
