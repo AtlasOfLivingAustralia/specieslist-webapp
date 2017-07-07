@@ -32,7 +32,6 @@
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'getQueryParam.js')}"></script>
-    <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery.min.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery.doubleScroll.js')}"></script>
     <title>Species list items | ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">
