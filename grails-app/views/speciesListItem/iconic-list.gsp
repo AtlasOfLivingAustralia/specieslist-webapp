@@ -23,6 +23,8 @@
     %{--<gui:resources components="['dialog']"/>--}%
     <r:require modules="application, amplify"/>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
+    %{--<meta name="breadcrumb" content="Species"/>--}%
+    <meta name="breadcrumb" content="Australia&apos;s species"/>
     %{--<link rel="stylesheet" href="${resource(dir:'css',file:'scrollableTable.css')}"/>--}%
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'getQueryParam.js')}"></script>
@@ -186,9 +188,13 @@
     <r:script>
         $(document).ready(function(){
             // BS affix plugin for groups menu
-            $('#groupsNav').affix({
-                offset: { top: $('#groupsNav').offset().top }
-            });
+            // var headerHeight = $('.navbar-fixed-top').outerHeight(true);
+            // var footerHeight = $('footer').outerHeight(true);
+            // console.log("headerHeight",headerHeight);
+            // console.log("footerHeight",footerHeight);
+            // $('#groupsNav').affix({
+            //     // offset: { top: $('#groupsNav').offset().top - headerHeight, bottom: footerHeight }
+            // });
 
         }); // end document ready
 
@@ -212,7 +218,7 @@
 
     <div class="inner row-fluid">
         <div class="span12">
-            <h2>Australian iconic species</h2>
+            <h2 class="subject-title">Australian iconic species</h2>
             <p class="lead">
                 Below is a listing of some of Australia's most recognisable species. As well as the listing
                 below you can <a href="http://bie.ala.org.au/search?q=&fq=idxtype:%22TAXON%22" class="">search
@@ -228,7 +234,7 @@
     %{--<h3>Browse Iconic Australian species</h3>--}%
     <div class="inner row-fluid">
         <div class="span3">
-            <ul id="groupsNav" class="nav nav-list bs-docs-sidenav affix-top">
+            <ul id="groupsNav" class="nav nav-list bs-docs-sidenav ">
                 <g:set var="fqs" value="${params.list('fq')}" />
                 <g:each in="${facets.get("listProperties")}" var="group">
                     <g:if test="${group.getKey() == 'group'}">

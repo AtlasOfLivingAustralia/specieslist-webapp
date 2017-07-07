@@ -16,23 +16,24 @@
 <html>
 <head>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
+    <meta name="breadcrumb" content="Species Lists"/>
     <title>Species lists |${grailsApplication.config.skin.orgNameLong}</title>
     <r:require modules="application"/>
 </head>
 <body class="">
 <div id="content" class="container">
     <header id="page-header">
-        <div class="inner row-fluid" style="display: block;">
-            <div id="breadcrumb" class="span12">
-                <ol class="breadcrumb">
-                    <li><a href="${request.contextPath}">Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
-                    <li><a class="current" href="${request.contextPath}/admin/speciesLists">Species lists</a></li>
-                </ol>
-            </div>
-        </div>
+        %{--<div class="inner row-fluid" style="display: block;">--}%
+            %{--<div id="breadcrumb" class="span12">--}%
+                %{--<ol class="breadcrumb">--}%
+                    %{--<li><a href="${request.contextPath}">Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>--}%
+                    %{--<li><a class="current" href="${request.contextPath}/admin/speciesLists">Species lists</a></li>--}%
+                %{--</ol>--}%
+            %{--</div>--}%
+        %{--</div>--}%
         <div class="row-fluid">
             <hgroup class="span8">
-                <h1>Species lists</h1>
+                <h2 class="subject-title">Species lists</h2>
             </hgroup>
             <div class="span4 header-btns">
                 <span class="pull-right">

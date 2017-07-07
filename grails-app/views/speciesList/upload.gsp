@@ -16,6 +16,8 @@
 <html>
 <head>
 <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
+<meta name="breadcrumb" content="Upload a list"/>
+<meta name="breadcrumbParent" content="${request.contextPath},Species Lists"/>
 <title>Upload a list | Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
 <script type="text/javascript">
     function init(){
@@ -270,12 +272,12 @@
 <body class="upload">
 <div id="content" class="container">
     <header id="page-header">
-        <div id="breadcrumb" >
-            <ol class="breadcrumb">
-                <li><a href="${request.contextPath}/public/speciesLists">Species lists</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
-                <li class="current">Upload a list</li>
-            </ol>
-        </div>
+        %{--<div id="breadcrumb" >--}%
+            %{--<ol class="breadcrumb">--}%
+                %{--<li><a href="${request.contextPath}/public/speciesLists">Species lists</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>--}%
+                %{--<li class="current">Upload a list</li>--}%
+            %{--</ol>--}%
+        %{--</div>--}%
         <hgroup>
             <g:if test="${list}">
                 <h1><g:message code="upload.heading.hasList" default="Upload a list"/></h1>
