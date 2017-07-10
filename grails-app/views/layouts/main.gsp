@@ -25,7 +25,6 @@
 <hf:banner logoutUrl="${g.createLink(controller:"logout", action:"logout", absolute: true)}" />
 <!-- End header -->
 <!-- Breadcrumb -->
-<!-- meta.breadcrumb = ${pageProperty(name:'meta.breadcrumb')} -->
 <g:if test="${pageProperty(name:'meta.breadcrumb')}">
     <section id="breadcrumb">
         <div class="container">
