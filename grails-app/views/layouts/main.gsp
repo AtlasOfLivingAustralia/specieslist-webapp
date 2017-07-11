@@ -33,7 +33,7 @@
                     <li><a href="/">Home</a></li>
                     <g:if test="${pageProperty(name:'meta.breadcrumbParent')}">
                         <g:set value="${pageProperty(name:'meta.breadcrumbParent').tokenize(',')}" var="parentArray"/>
-                        <li><i class="icon icon-chevron-right"></i><a href="${parentArray[0]}">${parentArray[1]}</a></li>
+                        <li><i class="icon icon-chevron-right"></i><a href="${parentArray[0]?:'/'}">${parentArray[1]}</a></li>
                     </g:if>
                     <li class="active"><i class="icon icon-chevron-right"></i>${pageProperty(name:'meta.breadcrumb')}</li>
                 </ul>
