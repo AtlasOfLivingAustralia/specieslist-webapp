@@ -268,12 +268,20 @@ class QueryService {
                     //println queryparams
                 } else {
                     //must be a facet with the same table
+                    boolean isSearch = false;
+                    if(facet.startsWith("Search-")) {
+                        isSearch = true;
+                        facet = facet.replaceFirst("Search-","")
+                    }
                     String key = facet.substring(0,facet.indexOf(":"))
                     String value = facet.substring(facet.indexOf(":")+1)
                     whereBuilder.append( "AND sli.").append(key)
                     if(value.equalsIgnoreCase("null")){
                         whereBuilder.append(" is null")
-                    } else {
+                    } else if(isSearch) {
+                        whereBuilder.append(" like ? ")
+                        queryparams.add("%" + value + "%")
+                    }else {
                         whereBuilder.append("=?")
                         queryparams.add(value)
                     }

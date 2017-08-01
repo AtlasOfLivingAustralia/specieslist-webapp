@@ -339,16 +339,21 @@ class SpeciesListController {
 
     def spatialPortal(){
         if (params.id && params.type){
-            def guids = getGuidsForList(params.id, grailsApplication.config.downloadLimit)
-            def unMatchedNames = getUnmatchedNamesForList(params.id, grailsApplication.config.downloadLimit)
-            def splist = SpeciesList.findByDataResourceUid(params.id)
-            def title = "Species List: " + splist.listName
-            log.debug "unMatchedNames = " + unMatchedNames
-            def qid = biocacheService.getQid(guids, unMatchedNames, title, splist.wkt)
-            if(qid?.status == 200){
-                redirect(url:"http://spatial.ala.org.au/?q=qid:"+qid.result)
+            //if the list is authoritative, then just do ?q=species_list_uid:
+            SpeciesList splist = SpeciesList.findByDataResourceUid(params.id)
+            if(grailsApplication.config.biocache.indexAuthoritative.toBoolean() && splist.isAuthoritative){
+                redirect(url: grailsApplication.config.spatial.baseURL + "/?q=species_list_uid:" + splist.dataResourceUid)
             } else {
-                render(view: '../error', model: [message: "Unable to view occurrences records. Please let us know if this error persists."])
+                def guids = getGuidsForList(params.id, grailsApplication.config.downloadLimit)
+                def unMatchedNames = getUnmatchedNamesForList(params.id, grailsApplication.config.downloadLimit)
+                def title = "Species List: " + splist.listName
+                log.debug "unMatchedNames = " + unMatchedNames
+                def qid = biocacheService.getQid(guids, unMatchedNames, title, splist.wkt)
+                if(qid?.status == 200){
+                    redirect(url: grailsApplication.config.spatial.baseURL + "/?q=qid:"+qid.result)
+                } else {
+                    render(view: '../error', model: [message: "Unable to view occurrences records. Please let us know if this error persists."])
+                }
             }
         }
     }

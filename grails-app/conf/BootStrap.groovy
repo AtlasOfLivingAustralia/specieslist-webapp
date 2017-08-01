@@ -28,7 +28,7 @@ class BootStrap {
             WordUtils.wrap(inputString, stringLength, "<br/>\n", true)
         }
 
-        if (grailsApplication.config.updateUserDetailsOnStartup) {
+        if (grailsApplication.config.updateUserDetailsOnStartup.toBoolean()) {
             userDetailsService.updateSpeciesListUserDetails()
             userDetailsService.updateEditorsList()
         }

@@ -24,6 +24,7 @@ public enum ListType {
     COMMON_TRAIT("Common trait of species"),
     COMMON_HABITAT("Common habitat of species"),
     SPATIAL_PORTAL("Spatial portal defined list"),
+    PROFILE("Profile list"),
     TEST("Test list"),
     OTHER("Other")
 

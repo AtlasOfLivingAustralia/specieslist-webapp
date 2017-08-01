@@ -37,6 +37,8 @@ class BiocacheService {
                     log.debug "200 OK response from biocache"
                     return [status:resp.status, result:reader.getText()]
                 } else {
+                    log.warn "$resp.status returned from biocache service"
+
                     return [status:500]
                 }
             }
@@ -72,7 +74,7 @@ class BiocacheService {
      */
     Boolean isListIndexed(drUid){
         try {
-            def url = grailsApplication.config.biocacheService.baseURL +"/occurrences/search?pageSize=0&facet=off&q=species_list_uid:" + drUid
+            def url = grailsApplication.config.biocacheService.baseURL + "/occurrences/search?pageSize=0&facet=off&q=species_list_uid:" + drUid
             def jsonText = new URL(url).getText("UTF-8")
             def jsSlurper = new JsonSlurper()
             def json = jsSlurper.parseText(jsonText)
@@ -100,13 +102,13 @@ class BiocacheService {
         } else if (resp?.status == 200) {
             log.debug "200 OK response"
             def qid = resp.result
-            def returnUrl = grailsApplication.config.biocache.baseURL
+            def returnUrl = ""
             switch ( downloadDto.type ) {
                 case "Search":
-                    returnUrl += "/occurrences/search?q=qid:" + qid
+                    returnUrl = grailsApplication.config.biocache.baseURL + "/occurrences/search?q=qid:" + qid
                     break
                 case "Download":
-                    returnUrl += "/ws/occurrences/index/download?q=qid:" + qid + "&file=" + downloadDto.file
+                    returnUrl = grailsApplication.config.biocacheService.baseURL + "/occurrences/index/download?q=qid:" + qid + "&file=" + downloadDto.file
                     returnUrl += "&reasonTypeId=" + downloadDto.reasonTypeId + "&email=" + downloadDto.email
                     break
             }

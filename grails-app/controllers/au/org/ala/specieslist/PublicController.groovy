@@ -13,8 +13,9 @@ class PublicController {
         try{
             def userId = authService.userId
             log.debug("userId: " + userId)
-            if(userId && SpeciesList.countByUserId(userId)>0)
-                redirect(controller: 'speciesList',action: 'upload')
+            // Commented out to default species app to the list rather than the upload page
+           /* if(userId && SpeciesList.countByUserId(userId)>0)
+                redirect(controller: 'speciesList',action: 'upload')*/
 
             redirect(action: 'speciesLists')
         }

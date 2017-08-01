@@ -7,14 +7,13 @@
 %{--<%@page contentType="text/html" pageEncoding="UTF-8"%>--}%
 <div id="download">
     <p id="termsOfUseDownload">
-        By downloading this content you are agreeing to use it in accordance with the Atlas of Living Australia
-        <a href="http://www.ala.org.au/about/terms-of-use/#TOUusingcontent">Terms of Use</a> and any Data Provider
+        By downloading this content you are agreeing to use it in accordance with the
+        <a href="${grailsApplication.config.termsOfUseUrl}">Terms of Use</a> and any Data Provider
     Terms associated with the data download.
         <br/><br/>
         Please provide the following details before downloading (* required):
     </p>
     <form id="downloadForm">
-
 
         <fieldset>
             <p><label for="email">Email</label>
@@ -33,19 +32,27 @@
             </p>
 
             <br/>
-            %{--<input type="hidden" name="sourceTypeId" id="sourceTypeId" value="${sourceId}"/>--}%
-            <input type="submit" value="Download All Records" class="actionButton btn btn-small" id="downloadSubmitButton" onclick="return downloadOccurrences()"/>
-            <input type="submit" value="Download Species Field Guide" class="actionButton btn btn-small" id="downloadFieldGuideSubmitButton"/>
-            <input type="submit" value="Download Species List" class="actionButton btn btn-small" id="downloadSpeciesListSubmitButton"/>
+
+            <p style="text-align: center">
+            <g:if test="${grailsApplication.config.occurrenceDownload.enabled.toBoolean()}">
+                <input type="submit" value="Download All Records" class="actionButton btn" id="downloadSubmitButton" onclick="return downloadOccurrences()"/>
+            </g:if>
+            <g:if test="${grailsApplication.config.fieldGuide.baseURL}">
+                <input type="submit" value="Download Species Field Guide" class="actionButton btn" id="downloadFieldGuideSubmitButton"/>
+            </g:if>
+            <input type="submit" value="Download Species List" class="actionButton btn" id="downloadSpeciesListSubmitButton"/>
+            </p>
             %{--<c:if test="${skin != 'avh'}">--}%
             %{--<input type="submit" value="Download Species Field Guide" id="downloadFieldGuideSubmitButton"/>&nbsp;--}%
             %{--</c:if>--}%
             <!--
             <input type="reset" value="Cancel" onClick="$.fancybox.close();"/>
             -->
-            <p style="margin-top:10px;">
-                <strong>Note</strong>: The field guide may take several minutes to prepare and download.
-            </p>
+            <g:if test="${grailsApplication.config.fieldGuide.baseURL}">
+                <p style="margin-top:10px;">
+                    <strong>Note</strong>: The field guide may take several minutes to prepare and download.
+                </p>
+            </g:if>
             <div id="statusMsg" style="text-align: center; font-weight: bold; "></div>
         </fieldset>
     </form>

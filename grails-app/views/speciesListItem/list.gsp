@@ -21,8 +21,8 @@
 }" />
 <g:set var="userCanEditData" value="${
     (   speciesList.username == request.getUserPrincipal()?.attributes?.email ||
-        request.isUserInRole("ROLE_ADMIN") ||
-        request.getUserPrincipal()?.attributes?.userid in speciesList.editors
+            request.isUserInRole("ROLE_ADMIN") ||
+            request.getUserPrincipal()?.attributes?.userid in speciesList.editors
     )
 }" />
 <html>
@@ -30,9 +30,10 @@
     %{--<gui:resources components="['dialog']"/>--}%
     <r:require modules="application, fancybox, baHashchange, amplify"/>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
+    <meta name="breadcrumb" content="${speciesList?.listName}"/>
+    <meta name="breadcrumbParent" content="${request.contextPath},Species Lists"/>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'getQueryParam.js')}"></script>
-    <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery-ui-1.8.17.custom.min.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery.doubleScroll.js')}"></script>
     <title>Species list items | ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">
@@ -41,353 +42,367 @@
     </style>
 
     <script type="text/javascript">
-    function init(){
-        document.getElementById("buttonDiv").style.display = "block";
-        document.getElementById("refine").style.display = "block";
-    }
-    $(document).ready(function(){
-        init();
+        function init(){
+            document.getElementById("buttonDiv").style.display = "block";
+            document.getElementById("refine").style.display = "block";
+        }
+        $(document).ready(function(){
+            init();
 
-        // in mobile view toggle display of facets
-        $('#toggleFacetDisplay').click(function() {
-            $(this).find('i').toggleClass('icon-chevron-right icon-chevron-down');
-            if ($('#accordion').is(':visible')) {
-                $('#accordion').removeClass('overrideHide');
+            // in mobile view toggle display of facets
+            $('#toggleFacetDisplay').click(function() {
+                $(this).find('i').toggleClass('icon-chevron-right icon-chevron-down');
+                if ($('#accordion').is(':visible')) {
+                    $('#accordion').removeClass('overrideHide');
+                } else {
+                    $('#accordion').addClass('overrideHide');
+                }
+            });
+
+            // ba-hashchange plugin
+            $(window).hashchange( function() {
+                var storedView = amplify.store('view-state');
+                var hash = location.hash ? location.hash : "";
+
+                if (hash == '#grid') {
+                    enableGrid()
+                } else if (hash == '#list') {
+                    enableList();
+                } else if (hash.indexOf("#") != -1) {
+                    if (storedView == '#grid') enableGrid();
+                    if (storedView == '#list') enableList();
+                    getAndViewRecordId(hash);
+                    hash = storedView;
+                } else if (storedView) {
+                    // no hash but stored value - use this
+                    location.hash = storedView;
+                    hash = storedView;
+                } else {
+                    //if nothing else selected, default to list
+                    enableList();
+                }
+
+                // store current hash (or previous view) in local storage (for pagination links)
+                amplify.store('view-state', hash);
+
+
+                // Add scroll bar to top and bottom of table
+                //Moving this here as the display of top scroll bar depends on the table content width
+                // and that will only be known after table data is loaded.
+                $('.fwtable').doubleScroll();
+
+            });
+
+            // Since the event is only triggered when the hash changes, we need to trigger
+            // the event now, to handle the hash the page may have loaded with.
+            $(window).hashchange();
+
+            // download link
+            $("#downloadLink").fancybox({
+                'hideOnContentClick' : false,
+                'hideOnOverlayClick': true,
+                'showCloseButton': true,
+                'titleShow' : false,
+                'autoDimensions' : false,
+                'width': 520,
+                'height': 400,
+                'padding': 10,
+                'margin': 10,
+                onCleanup: function() {
+                    $("label[for='reasonTypeId']").css("color","#444");
+                }
+            });
+
+            // fancybox div for refining search with multiple facet values
+            $(".multipleFacetsLink").fancybox({
+                'hideOnContentClick' : false,
+                'hideOnOverlayClick': true,
+                'showCloseButton': true,
+                'titleShow' : false,
+                'transitionIn': 'elastic',
+                'transitionOut': 'elastic',
+                'speedIn': 400,
+                'speedOut': 400,
+                'scrolling': 'auto',
+                'centerOnScroll': true,
+                'autoDimensions' : false,
+                'width': 560,
+                'height': 560,
+                'padding': 10,
+                'margin': 10
+
+            });
+
+            // Tooltip for link title
+            $('#content a').not('.thumbImage').tooltip({placement: "bottom", html: true, delay: 200, container: "body"});
+
+            // submit edit record changes via POST
+            $("button.saveRecord").click(function() {
+                var id = $(this).data("id");
+                var modal = $(this).data("modal");
+                var thisFormData = $("form#editForm_" + id).serializeArray();
+
+                if (!$("form#editForm_" + id).find("#rawScientificName").val()) {
+                    alert("Required field: supplied name cannot be blank");
+                    return false;
+                }
+
+                $.post("${createLink(controller: "editor", action: 'editRecord')}", thisFormData, function(data, textStatus, jqXHR) {
+                    //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
+                    $(modal).modal('hide');
+                    alert(jqXHR.responseText);
+                    window.location.reload(true);
+                }).error(function(jqXHR, textStatus, error) {
+                    alert("An error occurred: " + error + " - " + jqXHR.responseText);
+                    $(modal).modal('hide');
+                });
+            });
+
+            // create record via POST
+            $("button#saveNewRecord").click(function() {
+                var id = $(this).data("id");
+                var modal = $(this).data("modal");
+                var thisFormData = $("form#editForm_").serializeArray();
+
+                if (!$("form#editForm_").find("#rawScientificName").val()) {
+                    alert("Required field: supplied name cannot be blank");
+                    return false;
+                }
+                //thisFormData.push({id: id});
+                //console.log("thisFormData", id, thisFormData)
+                $.post("${createLink(controller: "editor", action: 'createRecord')}", thisFormData, function(data, textStatus, jqXHR) {
+                    //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
+                    $(modal).modal('hide');
+                    alert(jqXHR.responseText);
+                    window.location.reload(true);
+                }).error(function(jqXHR, textStatus, error) {
+                    alert("An error occurred: " + error + " - " + jqXHR.responseText);
+                    $(modal).modal('hide');
+                });
+            });
+
+            // submit delete record via GET
+            $("button.deleteSpecies").click(function() {
+                var id = $(this).data("id");
+                var modal = $(this).data("modal");
+
+                $.get("${createLink(controller: "editor", action: 'deleteRecord')}", {id: id}, function(data, textStatus, jqXHR) {
+                    $(modal).modal('hide');
+                    //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
+                    alert(jqXHR.responseText + " - reloading page...");
+                    window.location.reload(true);
+                    //$('#modal').modal('hide');
+                }).error(function(jqXHR, textStatus, error) {
+                    alert("An error occurred: " + error + " - " + jqXHR.responseText);
+                    $(modal).modal('hide');
+                });
+            });
+
+            //console.log("owner = ${speciesList.username}");
+            //console.log("logged in user = ${request.getUserPrincipal()?.attributes?.email}");
+
+            // Toggle display of list meta data editing
+            $("#edit-meta-button").click(function(el) {
+                el.preventDefault();
+                toggleEditMeta(!$("#edit-meta-div").is(':visible'));
+            });
+
+            // submit edit meta data
+            $("#edit-meta-submit").click(function(el) {
+                el.preventDefault();
+                var $form = $(this).parents("form");
+                var thisFormData = $($form).serializeArray();
+                // serializeArray ignores unchecked checkboxes so explicitly send data for these
+                thisFormData = thisFormData.concat(
+                    $($form).find('input[type=checkbox]:not(:checked)').map(
+                        function() {
+                            return {"name": this.name, "value": false}
+                        }
+                    ).get()
+                );
+
+                //console.log("thisFormData", thisFormData);
+
+                $.post("${createLink(controller: "editor", action: 'editSpeciesList')}", thisFormData, function(data, textStatus, jqXHR) {
+                    //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
+                    alert(jqXHR.responseText);
+                    window.location.reload(true);
+                }).error(function(jqXHR, textStatus, error) {
+                    alert("An error occurred: " + error + " - " + jqXHR.responseText);
+                    //$(modal).modal('hide');
+                });
+            });
+
+            // toggle display of list info box
+            $("#toggleListInfo").click(function(el) {
+                el.preventDefault();
+                $("#list-meta-data").slideToggle(!$("#list-meta-data").is(':visible'))
+            });
+
+            // catch click ion view record button (on each row)
+            // extract values from main table and display in table inside modal popup
+            $("a.viewRecordButton").click(function(el) {
+                el.preventDefault();
+                var recordId = $(this).data("id");
+                viewRecordForId(recordId);
+            });
+
+            // mouse over affect on thumbnail images
+            $('.imgCon').on('hover', function() {
+                $(this).find('.brief, .detail').toggleClass('hide');
+            });
+
+        }); // end document ready
+
+        function getAndViewRecordId(hash) {
+            var prefix = "row_";
+            var h = decodeURIComponent(hash.substring(1)).replace("+", " ");
+            var d = $("tr[id^=" + prefix + "] > td.matchedName");
+            var e = $("tr[id^=" + prefix + "] > td.rawScientificName");
+            var data = d.add(e);
+            $(data).each(function(i, el) {
+                // Handle case insensitively: http://stackoverflow.com/a/2140644/2495717
+                var hashVal = h.toLocaleUpperCase();
+                var cell = $(el).text().trim().toLocaleUpperCase();
+                if (hashVal === cell) {
+                    var id = $(el).parent().attr("id").substring(prefix.length);
+                    viewRecordForId(id);
+                    return false;
+                }
+            });
+        }
+
+        function enableGrid() {
+            $('#listView').slideUp();
+            $('#gridView').slideDown();
+            $('#listItemView .grid').addClass('disabled');
+            $('#listItemView .list').removeClass('disabled');
+            $('#viewRecord').modal("hide");
+        }
+
+        function enableList() {
+            $('#gridView').slideUp();
+            $('#listView').slideDown();
+            $('#listItemView .list').addClass('disabled');
+            $('#listItemView .grid').removeClass('disabled');
+            $('#viewRecord').modal("hide");
+        }
+
+        function toggleEditMeta(showHide) {
+            $("#edit-meta-div").slideToggle(showHide);
+            //$("#edit-meta-button").hide();
+            $("#show-meta-dl").slideToggle(!showHide);
+        }
+
+        function viewRecordForId(recordId) {
+            // read header values from the table
+            var headerRow = $("table#speciesListTable > thead th").not(".action");
+            var headers = [];
+            $(headerRow).each(function(i, el) {
+                headers.push($(this).text());
+            });
+            // read species row values from the table
+            var valueTds = $("tr#row_" + recordId + " > td").not(".action");
+            var values = [];
+            $(valueTds).each(function(i, el) {
+                var val = $(this).html();
+                if ($.type(val) === "string") {
+                    val = $.trim(val);
+                }
+                values.push(val);
+            });
+            //console.log("values", values.length, "headers", headers.length);
+            //console.log("values & headers", headers, values);
+            $("#viewRecord p.spinner").hide();
+            $("#viewRecord tbody").html(""); // clear values
+            $.each(headers, function(i, el) {
+                var row = "<tr><td>"+el+"</td><td>"+values[i]+"</td></tr>";
+                $("#viewRecord tbody").append(row);
+            });
+            $("#viewRecord table").show();
+            $('#viewRecord').modal("show");
+        }
+
+        //    function loadMultiFacets(facetName, displayName) {
+        //        console.log(facetName, displayName)
+        //        console.log("#div"+facetName,$("#div"+facetName).innerHTML)
+        //        $("div#dynamic").innerHTML=$("#div"+facetName).innerHTML;
+        //    }
+
+        function downloadOccurrences(o){
+            if(validateForm()){
+                this.cancel();
+                //downloadURL = $("#email").val();
+                downloadURL = "${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Download&email="+$("#email").val()+"&reasonTypeId="+$("#reasonTypeId").val()+"&file="+$("#filename").val();
+                window.location =  downloadURL//"${request.contextPath}/speciesList/occurrences/${params.id}?type=Download&email=$('#email').val()&reasonTypeId=$(#reasonTypeId).val()&file=$('#filename').val()"
+            }
+        }
+        function downloadFieldGuide(o){
+            if(validateForm()){
+                this.cancel();
+                //alert(${params.toQueryString()})
+                window.location = "${request.contextPath}/speciesList/fieldGuide/${params.id}${params.toQueryString()}"
+            }
+
+        }
+        function downloadList(o){
+            if(validateForm()){
+                this.cancel();
+                window.location = "${request.contextPath}/speciesListItem/downloadList/${params.id}${params.toQueryString()}&file="+$("#filename").val()
+            }
+        }
+        function validateForm() {
+            var isValid = false;
+            var reasonId = $("#reasonTypeId option:selected").val();
+
+            if (reasonId) {
+                isValid = true;
             } else {
-                $('#accordion').addClass('overrideHide');
-            }
-        });
-
-        // ba-hashchange plugin
-        $(window).hashchange( function() {
-            var storedView = amplify.store('view-state');
-            var hash = location.hash ? location.hash : "";
-
-            if (hash == '#grid') {
-                enableGrid()
-            } else if (hash == '#list') {
-                enableList();
-            } else if (hash.indexOf("#") != -1) {
-                if (storedView == '#grid') enableGrid();
-                if (storedView == '#list') enableList();
-                getAndViewRecordId(hash);
-                hash = storedView;
-            } else if (storedView) {
-                // no hash but stored value - use this
-                location.hash = storedView;
-                hash = storedView;
+                $("#reasonTypeId").focus();
+                $("label[for='reasonTypeId']").css("color","red");
+                alert("Please select a \"download reason\" from the drop-down list");
             }
 
-            // store current hash (or previous view) in local storage (for pagination links)
-            amplify.store('view-state', hash);
-        });
-
-        // Since the event is only triggered when the hash changes, we need to trigger
-        // the event now, to handle the hash the page may have loaded with.
-        $(window).hashchange();
-
-        // download link
-        $("#downloadLink").fancybox({
-            'hideOnContentClick' : false,
-            'hideOnOverlayClick': true,
-            'showCloseButton': true,
-            'titleShow' : false,
-            'autoDimensions' : false,
-            'width': 520,
-            'height': 400,
-            'padding': 10,
-            'margin': 10,
-            onCleanup: function() {
-                $("label[for='reasonTypeId']").css("color","#444");
-            }
-        });
-
-        // fancybox div for refining search with multiple facet values
-        $(".multipleFacetsLink").fancybox({
-            'hideOnContentClick' : false,
-            'hideOnOverlayClick': true,
-            'showCloseButton': true,
-            'titleShow' : false,
-            'transitionIn': 'elastic',
-            'transitionOut': 'elastic',
-            'speedIn': 400,
-            'speedOut': 400,
-            'scrolling': 'auto',
-            'centerOnScroll': true,
-            'autoDimensions' : false,
-            'width': 560,
-            'height': 560,
-            'padding': 10,
-            'margin': 10
-
-        });
-
-        // Add scroll bar to top and bottom of table
-        $('.fwtable').doubleScroll();
-
-        // Tooltip for link title
-        $('#content a').not('.thumbImage').tooltip({placement: "bottom", html: true, delay: 200, container: "body"});
-
-        // submit edit record changes via POST
-        $("button.saveRecord").click(function() {
-            var id = $(this).data("id");
-            var modal = $(this).data("modal");
-            var thisFormData = $("form#editForm_" + id).serializeArray();
-
-            if (!$("form#editForm_" + id).find("#rawScientificName").val()) {
-                alert("Required field: supplied name cannot be blank");
-                return false;
-            }
-
-            $.post("${createLink(controller: "editor", action: 'editRecord')}", thisFormData, function(data, textStatus, jqXHR) {
-                //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
-                $(modal).modal('hide');
-                alert(jqXHR.responseText);
-                window.location.reload(true);
-            }).error(function(jqXHR, textStatus, error) {
-                alert("An error occurred: " + error + " - " + jqXHR.responseText);
-                $(modal).modal('hide');
-            });
-        });
-
-        // create record via POST
-        $("button#saveNewRecord").click(function() {
-            var id = $(this).data("id");
-            var modal = $(this).data("modal");
-            var thisFormData = $("form#editForm_").serializeArray();
-
-            if (!$("form#editForm_").find("#rawScientificName").val()) {
-                alert("Required field: supplied name cannot be blank");
-                return false;
-            }
-            //thisFormData.push({id: id});
-            //console.log("thisFormData", id, thisFormData)
-            $.post("${createLink(controller: "editor", action: 'createRecord')}", thisFormData, function(data, textStatus, jqXHR) {
-                //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
-                $(modal).modal('hide');
-                alert(jqXHR.responseText);
-                window.location.reload(true);
-            }).error(function(jqXHR, textStatus, error) {
-                alert("An error occurred: " + error + " - " + jqXHR.responseText);
-                $(modal).modal('hide');
-            });
-        });
-
-        // submit delete record via GET
-        $("button.deleteSpecies").click(function() {
-            var id = $(this).data("id");
-            var modal = $(this).data("modal");
-
-            $.get("${createLink(controller: "editor", action: 'deleteRecord')}", {id: id}, function(data, textStatus, jqXHR) {
-                $(modal).modal('hide');
-                //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
-                alert(jqXHR.responseText + " - reloading page...");
-                window.location.reload(true);
-                //$('#modal').modal('hide');
-            }).error(function(jqXHR, textStatus, error) {
-                alert("An error occurred: " + error + " - " + jqXHR.responseText);
-                $(modal).modal('hide');
-            });
-        });
-
-        //console.log("owner = ${speciesList.username}");
-        //console.log("logged in user = ${request.getUserPrincipal()?.attributes?.email}");
-
-        // Toggle display of list meta data editing
-        $("#edit-meta-button").click(function(el) {
-            el.preventDefault();
-            toggleEditMeta(!$("#edit-meta-div").is(':visible'));
-        });
-
-        // submit edit meta data
-        $("#edit-meta-submit").click(function(el) {
-            el.preventDefault();
-            var $form = $(this).parents("form");
-            var thisFormData = $($form).serializeArray();
-            // serializeArray ignores unchecked checkboxes so explicitly send data for these
-            thisFormData = thisFormData.concat(
-                $($form).find('input[type=checkbox]:not(:checked)').map(
-                    function() {
-                        return {"name": this.name, "value": false}
-                    }
-                ).get()
-            );
-
-            //console.log("thisFormData", thisFormData);
-
-            $.post("${createLink(controller: "editor", action: 'editSpeciesList')}", thisFormData, function(data, textStatus, jqXHR) {
-                //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
-                alert(jqXHR.responseText);
-                window.location.reload(true);
-            }).error(function(jqXHR, textStatus, error) {
-                alert("An error occurred: " + error + " - " + jqXHR.responseText);
-                //$(modal).modal('hide');
-            });
-        });
-
-        // toggle display of list info box
-        $("#toggleListInfo").click(function(el) {
-            el.preventDefault();
-            $("#list-meta-data").slideToggle(!$("#list-meta-data").is(':visible'))
-        });
-
-        // catch click ion view record button (on each row)
-        // extract values from main table and display in table inside modal popup
-        $("a.viewRecordButton").click(function(el) {
-            el.preventDefault();
-            var recordId = $(this).data("id");
-            viewRecordForId(recordId);
-        });
-
-        // mouse over affect on thumbnail images
-        $('.imgCon').on('hover', function() {
-            $(this).find('.brief, .detail').toggleClass('hide');
-        });
-
-    }); // end document ready
-
-    function getAndViewRecordId(hash) {
-        var prefix = "row_";
-        var h = decodeURIComponent(hash.substring(1)).replace("+", " ");
-        var d = $("tr[id^=" + prefix + "] > td.matchedName");
-        var e = $("tr[id^=" + prefix + "] > td.rawScientificName");
-        var data = d.add(e);
-        $(data).each(function(i, el) {
-            // Handle case insensitively: http://stackoverflow.com/a/2140644/2495717
-            var hashVal = h.toLocaleUpperCase();
-            var cell = $(el).text().trim().toLocaleUpperCase();
-            if (hashVal === cell) {
-                var id = $(el).parent().attr("id").substring(prefix.length);
-                viewRecordForId(id);
-                return false;
-            }
-        });
-    }
-
-    function enableGrid() {
-        $('#listView').slideUp();
-        $('#gridView').slideDown();
-        $('#listItemView .grid').addClass('disabled');
-        $('#listItemView .list').removeClass('disabled');
-        if (($("#viewRecord").data('bs.modal') || {}).isShown) $('#viewRecord').modal("hide");
-    }
-
-    function enableList() {
-        $('#gridView').slideUp();
-        $('#listView').slideDown();
-        $('#listItemView .list').addClass('disabled');
-        $('#listItemView .grid').removeClass('disabled');
-        if (($("#viewRecord").data('bs.modal') || {}).isShown) $('#viewRecord').modal("hide");
-    }
-
-    function toggleEditMeta(showHide) {
-        $("#edit-meta-div").slideToggle(showHide);
-        //$("#edit-meta-button").hide();
-        $("#show-meta-dl").slideToggle(!showHide);
-    }
-
-    function viewRecordForId(recordId) {
-        // read header values from the table
-        var headerRow = $("table#speciesListTable > thead th").not(".action");
-        var headers = [];
-        $(headerRow).each(function(i, el) {
-            headers.push($(this).text());
-        });
-        // read species row values from the table
-        var valueTds = $("tr#row_" + recordId + " > td").not(".action");
-        var values = [];
-        $(valueTds).each(function(i, el) {
-            var val = $(this).html();
-            if ($.type(val) === "string") {
-                val = $.trim(val);
-            }
-            values.push(val);
-        });
-        //console.log("values", values.length, "headers", headers.length);
-        //console.log("values & headers", headers, values);
-        $("#viewRecord p.spinner").hide();
-        $("#viewRecord tbody").html(""); // clear values
-        $.each(headers, function(i, el) {
-            var row = "<tr><td>"+el+"</td><td>"+values[i]+"</td></tr>";
-            $("#viewRecord tbody").append(row);
-        });
-        $("#viewRecord table").show();
-        $('#viewRecord').modal("show");
-    }
-
-//    function loadMultiFacets(facetName, displayName) {
-//        console.log(facetName, displayName)
-//        console.log("#div"+facetName,$("#div"+facetName).innerHTML)
-//        $("div#dynamic").innerHTML=$("#div"+facetName).innerHTML;
-//    }
-
-    function downloadOccurrences(o){
-        if(validateForm()){
-            this.cancel();
-            //downloadURL = $("#email").val();
-            downloadURL = "${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Download&email="+$("#email").val()+"&reasonTypeId="+$("#reasonTypeId").val()+"&file="+$("#filename").val();
-            window.location =  downloadURL//"${request.contextPath}/speciesList/occurrences/${params.id}?type=Download&email=$('#email').val()&reasonTypeId=$(#reasonTypeId).val()&file=$('#filename').val()"
-        }
-    }
-    function downloadFieldGuide(o){
-        if(validateForm()){
-            this.cancel();
-            //alert(${params.toQueryString()})
-            window.location = "${request.contextPath}/speciesList/fieldGuide/${params.id}${params.toQueryString()}"
+            return isValid;
         }
 
-    }
-    function downloadList(o){
-         if(validateForm()){
-             this.cancel();
-             window.location = "${request.contextPath}/speciesListItem/downloadList/${params.id}${params.toQueryString()}&file="+$("#filename").val()
-         }
-    }
-    function validateForm() {
-        var isValid = false;
-        var reasonId = $("#reasonTypeId option:selected").val();
-
-        if (reasonId) {
-            isValid = true;
-        } else {
-            $("#reasonTypeId").focus();
-            $("label[for='reasonTypeId']").css("color","red");
-            alert("Please select a \"download reason\" from the drop-down list");
+        function reloadWithMax(el) {
+            var max = $(el).find(":selected").val();
+            var params = {
+                fq: [ ${"\"" + (fqs ? fqs.join("\", \"") : "") + "\""} ],
+                max: max,
+                sort: "${params.sort}",
+                order: "${params.order}",
+                offset: "${params.offset?:0}",
+                q: "${params.q}",
+                id: "${params.id}"
+            };
+            var paramStr = jQuery.param(params, true);
+            window.location.href = window.location.pathname + '?' + paramStr;
         }
 
-        return isValid;
-    }
+        function resetSearch() {
+            document.getElementById("searchInputButton").value = '';
+        }
 
-    function reloadWithMax(el) {
-        var max = $(el).find(":selected").val();
-        var params = {
-            fq: [ ${"\"" + (fqs ? fqs.join("\", \"") : "") + "\""} ],
-            max: max,
-            sort: "${params.sort}",
-            order: "${params.order}",
-            offset: "${params.offset?:0}"
-        };
-        var paramStr = jQuery.param(params, true);
-        window.location.href = window.location.pathname + '?' + paramStr;
-    }
-</script>
+    </script>
 </head>
 <body class="yui-skin-sam nav-species">
-<div id="content" class="container  ">
+<div id="content" class="container">
     <header id="page-header">
 
-        <div class="inner row-fluid">
-            <div id="breadcrumb" class="span12">
-                <ol class="breadcrumb">
-                    %{--<li><a href="http://www.ala.org.au">Home</a> <span class=" icon icon-arrow-right"></span></li>--}%
-                    <li><a href="${request.contextPath}/public/speciesLists">Species lists</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
-                    <li class="active">${speciesList?.listName?:"Species list items"}</li>
-                </ol>
-            </div>
-        </div>
+        %{--<div class="inner row-fluid">--}%
+        %{--<div id="breadcrumb" class="span12">--}%
+        %{--<ol class="breadcrumb">--}%
+        %{--<li><a href="http://www.ala.org.au">Home</a> <span class=" icon icon-arrow-right"></span></li>--}%
+        %{--<li><a href="${request.contextPath}/public/speciesLists">Species lists</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>--}%
+        %{--<li class="active">${speciesList?.listName?:"Species list items"}</li>--}%
+        %{--</ol>--}%
+        %{--</div>--}%
+        %{--</div>--}%
         <div class="row-fluid">
             <div class="span7">
-                <h2>
+                <h2 class="subject-subtitle">
                     Species List: <a href="${collectoryUrl}/public/show/${params.id}" title="view Date Resource page">${speciesList?.listName}</a>
                     &nbsp;&nbsp;
                     <div class="btn-group btn-group" id="listActionButtons">
@@ -646,15 +661,15 @@
         </g:if>
     </div>
 
-<g:if test="${flash.message}">
-    <div class="inner row-fluid">
-        <div class="message alert alert-info"><b>Alert:</b> ${flash.message}</div>
-    </div>
-</g:if>
+    <g:if test="${flash.message}">
+        <div class="inner row-fluid">
+            <div class="message alert alert-info"><b>Alert:</b> ${flash.message}</div>
+        </div>
+    </g:if>
 
-<div class="inner row-fluid">
-    <div class="span3 well" id="facets-column">
-        <div class="boxedZ attachedZ">
+    <div class="inner row-fluid">
+        <div class="span3 well" id="facets-column">
+            <div class="boxedZ attachedZ">
                 <section class="meta">
                     <div class="matchStats">
                         <p>
@@ -694,7 +709,13 @@
                                                 <g:if test="${fq.length() >0}">
                                                     <li>
                                                         <g:link action="list" id="${params.id}" params="${[fq:sl.excludedFqList(fqs:fqs, fq:fq), max:params.max]}" class="removeLink" title="Uncheck (remove filter)"><i class="icon-check"></i></g:link>
-                                                        <g:message code="facet.${fq.replaceFirst("kvp ","")}" default="${fq.replaceFirst("kvp ","")}"/></li>
+                                                        <g:if test="${fq.startsWith("Search-")}">
+                                                            <g:message code="facet.${fq.replaceFirst("Search- ","")}" default="${fq.replaceFirst("Search-","")}"/>
+                                                        </g:if>
+                                                        <g:else>
+                                                            <g:message code="facet.${fq.replaceFirst("kvp ","")}" default="${fq.replaceFirst("kvp ","")}"/>
+                                                        </g:else>
+                                                    </li>
                                                 </g:if>
                                             </g:each>
                                         </ul>
@@ -706,7 +727,7 @@
                                 <g:if test="${entry.key == "listProperties"}">
                                     <g:each in="${facets.get("listProperties")}" var="value">
                                         <g:render template="facet" model="${[key:value.getKey(), values:value.getValue(), isProperty:true]}"/>
-                                   </g:each>
+                                    </g:each>
                                     <div style="display:none"><!-- fancybox popup div -->
                                         <div id="multipleFacets">
                                             <p>Refine your search</p>
@@ -728,6 +749,19 @@
                 <a class="btn btn-small list disabled" title="View as detailed list" href="#list"><i class="icon icon-th-list"></i> list</a>
                 <a class="btn btn-small grid" title="View as thumbnail image grid" href="#grid"><i class="icon icon-th"></i> grid</a>
             </div>
+            <div id="searchView" class="form-inline searchItemForm">
+                <g:form class="searchItemForm" controller="speciesListItem" action="list">
+                    <input type="hidden" name="id" value="${speciesList.dataResourceUid}" />
+                    <div class="input-append" id="searchListItem">
+                        <input class="input-xlarge" id="searchInputButton" name="q" type="text" value="${params.q}" placeholder="Search by Supplied Name">
+                        <button class="btn" type="submit">Search</button>
+                        <g:if test="${params.q}">
+                            <button class="btn btn-primary" onclick="resetSearch()">Clear search</button>
+                        </g:if>
+                    </div>
+                </g:form>
+            </div>
+
             <div id="gridView" class="hide">
                 <g:each var="result" in="${results}" status="i">
                     <g:set var="recId" value="${result.id}"/>
@@ -735,36 +769,36 @@
                     <div class="imgCon">
                         <a class="thumbImage viewRecordButton" rel="thumbs" title="click to view details" href="#viewRecord"
                                     data-id="${recId}"><img src="${result.imageUrl?:g.createLink(uri:'/images/infobox_info_icon.png\" style=\"opacity:0.5')}" alt="thumbnail species image"/>
-                            </a>
-                            <g:if test="${true}">
-                                <g:set var="displayName">
-                                    <i><g:if test="${result.guid == null}">
-                                        ${fieldValue(bean: result, field: "rawScientificName")}
-                                    </g:if>
-                                    <g:else>
-                                        ${result.matchedName}
-                                    </g:else></i>
-                                </g:set>
-                                <div class="meta brief">
-                                    ${displayName}
-                                </div>
-                                <div class="meta detail hide">
-                                    ${displayName}
-                                    <g:if test="${result.author}"> ${result.author}</g:if>
-                                    <g:if test="${result.commonName}"><br>${result.commonName}</g:if>
-                                    %{--<div class="btn-group btn-group pull-right">--}%
-                                    <div class="pull-right" style="display:inline-block; padding: 5px;">
-                                        <a href="#viewRecord" class="viewRecordButton" title="view record" data-id="${recId}"><i class="icon-info-sign icon-white"></i></a>&nbsp;
-                                        <g:if test="${userCanEditData}">
-                                            <a href="#" title="edit" data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
-                                               data-target="#editRecord_${recId}" data-toggle="modal" ><i class="icon-pencil icon-white"></i></a>&nbsp;
-                                            <a href="#" title="delete" data-target="#deleteRecord_${recId}" data-toggle="modal"><i class="icon-trash icon-white"></i></a>&nbsp;
-                                        </g:if>
-                                    </div>
-                                </div>
+                    </a>
+                    <g:if test="${true}">
+                        <g:set var="displayName">
+                            <i><g:if test="${result.guid == null}">
+                                ${fieldValue(bean: result, field: "rawScientificName")}
                             </g:if>
-                        </a>
-                    </div>
+                                <g:else>
+                                    ${result.matchedName}
+                                </g:else></i>
+                        </g:set>
+                        <div class="meta brief">
+                            ${displayName}
+                        </div>
+                        <div class="meta detail hide">
+                            ${displayName}
+                            <g:if test="${result.author}"> ${result.author}</g:if>
+                            <g:if test="${result.commonName}"><br>${result.commonName}</g:if>
+                        %{--<div class="btn-group btn-group pull-right">--}%
+                            <div class="pull-right" style="display:inline-block; padding: 5px;">
+                                <a href="#viewRecord" class="viewRecordButton" title="view record" data-id="${recId}"><i class="icon-info-sign icon-white"></i></a>&nbsp;
+                                <g:if test="${userCanEditData}">
+                                    <a href="#" title="edit" data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
+                                       data-target="#editRecord_${recId}" data-toggle="modal" ><i class="icon-pencil icon-white"></i></a>&nbsp;
+                                    <a href="#" title="delete" data-target="#deleteRecord_${recId}" data-toggle="modal"><i class="icon-trash icon-white"></i></a>&nbsp;
+                                </g:if>
+                            </div>
+                        </div>
+                    </g:if>
+                    </a>
+                </div>
 
                 </g:each>
             </div><!-- /#iconView -->
@@ -777,7 +811,6 @@
                                 <th class="action">Action</th>
                                 <g:sortableColumn property="rawScientificName" title="Supplied Name" params="${[fq: fqs]}"></g:sortableColumn>
                                 <g:sortableColumn property="matchedName" title="Scientific Name (matched)" params="${[fq: fqs]}"></g:sortableColumn>
-                                <th>Occurrence Count</th>
                                 <th>Image</th>
                                 <g:sortableColumn property="author" title="Author (matched)" params="${[fq: fqs]}"></g:sortableColumn>
                                 <g:sortableColumn property="commonName" title="Common Name (matched)" params="${[fq: fqs]}"></g:sortableColumn>
@@ -795,7 +828,7 @@
                                         <div class="btn-group btn-group">
                                             <a class="btn btn-small viewRecordButton" href="#viewRecord" title="view record" data-id="${recId}"><i class="icon-info-sign"></i></a>
                                             <g:if test="${userCanEditData}">
-                                            <a class="btn btn-small" href="#" title="edit" data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
+                                                <a class="btn btn-small" href="#" title="edit" data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
                                                    data-target="#editRecord_${recId}" data-toggle="modal" ><i class="icon-pencil"></i></a>
                                                 <a class="btn btn-small" href="#" title="delete" data-target="#deleteRecord_${recId}" data-toggle="modal"><i class="icon-trash"></i></a>
                                             </g:if>
@@ -816,14 +849,9 @@
                                             ${result.matchedName}
                                         </g:else>
                                     </td>
-                                    <td class="occurrenceCount">
-                                        <g:each in="${occurrenceCounts}" var="oc">
-                                            <g:if test="${oc.key == result.guid}">${oc.value}</g:if>
-                                        </g:each>
-                                    </td>
                                     <td id="img_${result.guid}">
                                         <g:if test="${result.imageUrl}">
-                                        <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img style="max-width: 400px;" src="${result.imageUrl}" class="smallSpeciesImage"/></a>
+                                            <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img style="max-width: 400px;" src="${result.imageUrl}" class="smallSpeciesImage"/></a>
                                         </g:if>
                                     </td>
                                     <td>${result.author}</td>
@@ -854,10 +882,10 @@
                     <g:paginate total="${totalCount}" action="list" id="${params.id}" params="${[fq: params.fq]}"/>
                 </g:if>
                 <g:else>
-                    <g:paginate total="${totalCount}" action="list" id="${params.id}" />
+                    <g:paginate total="${totalCount}" action="list" id="${params.id}"/>
                 </g:else>
             </div>
-            %{-- Output the BS modal divs (hidden until called) --}%
+        %{-- Output the BS modal divs (hidden until called) --}%
             <g:each var="result" in="${results}" status="i">
                 <g:set var="recId" value="${result.id}"/>
                 <div class="modal hide fade" id="viewRecord">

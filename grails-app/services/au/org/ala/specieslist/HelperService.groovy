@@ -335,44 +335,47 @@ class HelperService {
         }
     }
 
-    def loadSpeciesListFromJSON(Map json, String druid) {
+    def loadSpeciesListFromJSON(Map json, String druid, boolean replace = true) {
         SpeciesList speciesList = SpeciesList.findByDataResourceUid(druid) ?: new SpeciesList(json)
 
-        // updating an existing list
-        if (speciesList.dataResourceUid) {
-            // assume new list of species will replace existing one (no updates allowed for now)
-            speciesList.items.clear()
+        if (replace) {
+            // updating an existing list
+            if (speciesList.dataResourceUid) {
+                // assume new list of species will replace existing one (no updates allowed for now)
+                speciesList.items.clear()
 
-            // update the list of editors (comma separated list of email addresses)
-            if (json?.editors) {
-                // merge lists and remove duplicates
-                speciesList.editors = (speciesList.editors + json.editors.tokenize(',')).unique()
+                // update the list of editors (comma separated list of email addresses)
+                if (json?.editors) {
+                    // merge lists and remove duplicates
+                    speciesList.editors = (speciesList.editors + json.editors.tokenize(',')).unique()
+                }
+                if (json?.listName) {
+                    speciesList.listName = json.listName // always update the list name
+                }
+            } else {
+                // create a new list
+                speciesList.setDataResourceUid(druid)
             }
-            if (json?.listName) {
-                speciesList.listName = json.listName // always update the list name
+
+            if (speciesList.username && !speciesList.userId) {
+                // lookup userId for username
+                def emailLC = speciesList.username?.toLowerCase()
+                Map userNameMap = userDetailsService.getFullListOfUserDetailsByUsername()
+
+                if (userNameMap.containsKey(emailLC)) {
+                    def user = userNameMap.get(emailLC)
+                    speciesList.userId = user.userId
+                }
             }
-        } else {
-            // create a new list
-            speciesList.setDataResourceUid(druid)
         }
 
-        if (speciesList.username && !speciesList.userId) {
-            // lookup userId for username
-            def emailLC = speciesList.username?.toLowerCase()
-            Map userNameMap = userDetailsService.getFullListOfUserDetailsByUsername()
-
-            if (userNameMap.containsKey(emailLC)) {
-                def user = userNameMap.get(emailLC)
-                speciesList.userId = user.userId
-            }
-        }
-
+        List guidList = []
         // version 1 of this operation supports list items as a comma-separated string
         // version 2 of this operation supports list items as structured JSON elements with KVPs
         if (isSpeciesListJsonVersion1(json)) {
-            loadSpeciesListItemsFromJsonV1(json, speciesList, druid)
+            guidList = loadSpeciesListItemsFromJsonV1(json, speciesList, druid)
         } else if (isSpeciesListJsonVersion2(json)) {
-            loadSpeciesListItemsFromJsonV2(json, speciesList, druid)
+            guidList = loadSpeciesListItemsFromJsonV2(json, speciesList, druid)
         } else {
             throw new UnsupportedOperationException("Unsupported data structure")
         }
@@ -386,7 +389,7 @@ class HelperService {
         List sli = speciesList.getItems().toList()
         matchCommonNamesForSpeciesListItems(sli)
 
-        speciesList
+        [speciesList: speciesList, speciesGuids: guidList]
     }
 
     private static boolean isSpeciesListJsonVersion1(Map json) {
@@ -399,11 +402,14 @@ class HelperService {
 
         List items = json.listItems.split(",")
 
+        List guidList = []
         items.eachWithIndex { item, i ->
             SpeciesListItem sli = new SpeciesListItem(dataResourceUid: druid, rawScientificName: item, itemOrder: i)
             matchNameToSpeciesListItem(sli.rawScientificName, sli)
             speciesList.addToItems(sli)
+            guidList.push (sli.guid)
         }
+        guidList
     }
 
     private static boolean isSpeciesListJsonVersion2(Map json) {
@@ -414,6 +420,8 @@ class HelperService {
     private loadSpeciesListItemsFromJsonV2(Map json, SpeciesList speciesList, String druid) {
         assert json.listItems, "Cannot create a Species List with no items"
 
+        List speciesGuidKvp = []
+        Map kvpMap = [:]
         List items = json.listItems
         items.eachWithIndex { item, i ->
             SpeciesListItem sli = new SpeciesListItem(dataResourceUid: druid, rawScientificName: item.itemName,
@@ -424,10 +432,14 @@ class HelperService {
                 SpeciesListKVP kvp = new SpeciesListKVP(value: k.value, key: k.key, itemOrder: j, dataResourceUid:
                         druid)
                 sli.addToKvpValues(kvp)
+                kvpMap[k.key] = k.value
             }
 
             speciesList.addToItems(sli)
+
+            speciesGuidKvp.push (["guid": sli.guid, "kvps": kvpMap])
         }
+        speciesGuidKvp
     }
 
     def loadSpeciesListFromCSV(CSVReader reader, druid, listname, ListType listType, description, listUrl, listWkt,
@@ -553,7 +565,11 @@ class HelperService {
     }
 
     def  matchNameToSpeciesListItem(String name, SpeciesListItem sli){
-        NameSearchResult nsr = findAcceptedConceptByScientificName(sli.rawScientificName) ?: findAcceptedConceptByCommonName(sli.rawScientificName)
+        //includes matchedName search for rematching if nameSearcher lsids change.
+        NameSearchResult nsr = findAcceptedConceptByScientificName(sli.rawScientificName) ?:
+                findAcceptedConceptByCommonName(sli.rawScientificName) ?:
+                        findAcceptedConceptByLSID(sli.rawScientificName) ?:
+                                findAcceptedConceptByNameFamily(sli.matchedName, sli.family)
         if(nsr){
             sli.guid = nsr.getLsid()
             sli.family = nsr.getRankClassification().getFamily()
@@ -589,6 +605,31 @@ class HelperService {
              log.error(e.getMessage())
         }
         lsid
+    }
+
+    def findAcceptedConceptByLSID(lsid){
+        NameSearchResult nameSearchRecord
+        try{
+            nameSearchRecord = getNameSearcher().searchForRecordByLsid(lsid)
+        }
+        catch(Exception e){
+            log.error(e.getMessage())
+        }
+        nameSearchRecord
+    }
+
+    def findAcceptedConceptByNameFamily(String scientificName, String family) {
+        NameSearchResult nameSearchRecord
+        try{
+            def cl = new LinnaeanRankClassification()
+            cl.setScientificName(scientificName)
+            cl.setFamily(family)
+            nameSearchRecord = getNameSearcher().searchForAcceptedRecordDefaultHandling(cl, true)
+        }
+        catch(Exception e){
+            log.error(e.getMessage())
+        }
+        nameSearchRecord
     }
 
     def findAcceptedConceptByScientificName(scientificName){
@@ -648,6 +689,97 @@ class HelperService {
             getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
         }
     }
+
+    def createRecord (params) {
+        def sl = SpeciesList.get(params.id)
+        log.debug "params = " + params
+
+        if (!params.rawScientificName) {
+            return [text: "Missing required field: rawScientificName", status: 400]
+        }
+        else if (sl) {
+            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?", sl.dataResourceUid)
+            log.debug "keys = " + keys
+            def sli = new SpeciesListItem(dataResourceUid: sl.dataResourceUid, rawScientificName: params.rawScientificName, itemOrder: sl.items.size() + 1)
+            //sli.guid = helperService.findAcceptedLsidByScientificName(sli.rawScientificName)?: helperService.findAcceptedLsidByCommonName(sli.rawScientificName)
+            matchNameToSpeciesListItem(sli.rawScientificName, sli)
+
+            keys.each { key ->
+                log.debug "key: " + key + " has value: " + params[key]
+                def value = params[key]
+                def itemOrder = params["itemOrder_${key}"]
+                if (value) {
+                    def newKvp = SpeciesListKVP.findByDataResourceUidAndKeyAndValue(sl.dataResourceUid, key, value)
+                    if (!newKvp) {
+                        log.debug "Couldn't find an existing KVP, so creating a new one..."
+                        newKvp = new SpeciesListKVP(dataResourceUid: sli.dataResourceUid, key: key, value: params[key], SpeciesListItem: sli, itemOrder: itemOrder );
+                    }
+
+                    sli.addToKvpValues(newKvp)
+                }
+            }
+
+            sl.addToItems(sli)
+
+            if (!sl.validate()) {
+                def message = "Could not update SpeciesList with new item: ${sli.rawScientificName} - " + sl.errors.allErrors
+                log.error message
+                return [text: message, status: 500]
+                //render(text: message, status: 500)
+            }
+            else if (sl.save(flush: true)) {
+                // find common name and save it
+                matchCommonNamesForSpeciesListItems([sli])
+
+                // Commented out as we would like to keep species list generic
+                /*   def preferredSpeciesImageListName = grailsApplication.config.ala.preferred.species.name
+                   if (sl.listName == preferredSpeciesImageListName) {
+                       helperService.syncBieImage (sli, params.imageId)
+                   }*/
+                return[text: "Record successfully created", status: 200, data: ["species_guid": sli.guid]]
+            }
+            else {
+                def message = "Could not create SpeciesListItem: ${sli.rawScientificName} - " + sl.errors.allErrors
+                return [text: message, status: 500]
+                //render(text: message, status: 500)
+            }
+        }
+        else {
+            def message = "${message(code: 'default.not.found.message', args: [message(code: 'speciesList.label', default: 'Species List'), params.id])}"
+            return [text: message, status: 404]
+            //render(text: message, status: 404)
+        }
+
+    }
+
+/*  Commented out to keep species list from updating Bie
+    def syncBieImage (sli, imageId) {
+        boolean updateBieImage = false
+        int imageIdPos = sli.getImageUrl()? sli.getImageUrl().toLowerCase().indexOf("?imageid=") : 0
+        if (imageId && imageIdPos > 0) {
+            String bieImage = sli.getImageUrl().substring(imageIdPos + "?imageId=".length())
+            if (bieImage != imageId) {
+                updateBieImage = true
+            }
+        } else if (imageId) {
+            updateBieImage = true
+        }
+
+        if (updateBieImage) {
+            List<Map> guidImageList = [["guid": sli.guid, "image": imageId]]
+            def resp = bieService.updateBieIndex(guidImageList)
+            resp.updatedTaxa?.each { Map profile ->
+                if (profile && sli.guid == profile.guid) {
+                    sli.imageUrl = profile.smallImageUrl
+                    if (!sli.save()) {
+                        log.error("Unable to save SpeciesListItem for ${sli.guid}: ${sli.dataResourceUid}")
+                    }
+                }
+            }
+        }
+    }
+*/
+
 
     /**
      * This function finds common name for a guid and updates the corresponding SpeciesListItem record
