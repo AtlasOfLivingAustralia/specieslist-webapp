@@ -62,8 +62,10 @@ grails.mime.types = [ html: ['text/html','application/xhtml+xml'],
                       multipartForm: 'multipart/form-data'
                     ]
 
-// What URL patterns should be processed by the resources plugin
-grails.resources.adhoc.patterns = ['/images/*', '/css/*', '/js/*', '/plugins/*']
+// CAS properties moved from external config while migrating to ala-auth:2.x from 1.x
+security.cas.uriFilterPattern='/speciesList,/speciesList/.*,/admin,/admin/.*,/editor,/editor/.*'
+security.cas.authenticateOnlyIfLoggedInFilterPattern='/speciesListItem/list,/speciesListItem/list/.*,/speciesListItem/listAuth,/speciesListItem/listAuth/.*'
+security.cas.uriExclusionFilterPattern='/images.*,/css.*,/js.*,/less.*,/speciesList/occurrences/.*,/speciesList/fieldGuide/.*,/ws/speciesList'
 
 // The default codec used to encode data with ${}
 grails.views.default.codec = "none" // none, html, base64

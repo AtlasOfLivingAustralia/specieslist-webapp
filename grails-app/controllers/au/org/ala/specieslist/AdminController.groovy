@@ -27,7 +27,7 @@ class AdminController {
                     [
                      name: list.listName,
                      pubDescription: list.description,
-                     websiteUrl: grailsApplication.config.serverName + grailsApplication.config.contextPath + '/speciesListItem/list/' + list.dataResourceUid,
+                     websiteUrl: grailsApplication.config.serverName + request.contextPath + '/speciesListItem/list/' + list.dataResourceUid,
                      techDescription: "This list was first uploaded by " + list.firstName
                              + " " +list.surname + " on the " + list.lastUpdated
                              + "." + "It contains " + list.itemsCount + " taxa.",

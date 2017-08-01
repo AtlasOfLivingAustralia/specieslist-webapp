@@ -2,16 +2,12 @@ package au.org.ala.specieslist
 
 import au.org.ala.web.AuthService
 import grails.test.mixin.Mock
-import grails.test.mixin.TestFor
 import grails.test.mixin.TestMixin
-import grails.test.mixin.domain.DomainClassUnitTestMixin
-import grails.test.mixin.support.GrailsUnitTestMixin
 import grails.test.mixin.web.FiltersUnitTestMixin
 import org.apache.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Unroll
-
-@TestFor(au.org.ala.specieslist.SecurityFilters)
+//@TestFor(au.org.ala.specieslist.SecurityFilters)
 @TestMixin([FiltersUnitTestMixin])
 @Unroll
 @Mock([SpeciesListItem, SpeciesList, SpeciesListKVP, SpeciesListItemController, AuthService, LocalAuthService])
