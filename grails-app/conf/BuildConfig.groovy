@@ -61,7 +61,7 @@ grails.project.dependency.resolution = {
         }
         runtime ":ala-admin-plugin:1.2"
 
-        compile ':asset-pipeline:2.14.1'
+//        compile ':asset-pipeline:2.14.1'
         compile ':cache:1.1.8'
         compile ':cache-ehcache:1.0.0'
         compile ":jsonp:0.2"
