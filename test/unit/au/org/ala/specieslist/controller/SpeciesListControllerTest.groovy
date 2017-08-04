@@ -18,7 +18,6 @@ class SpeciesListControllerTest extends Specification {
     static final String CSV_CONTENT = "col1,col2\nval1,val2\n"
     static final String TAB_CONTENT = "col1\tcol2\nval3\tval4\n"
 
-    def controller = new SpeciesListController()
 
     def mockFile
     def mockMultipartRequest

@@ -24,11 +24,6 @@ hibernate {
 // environment specific settings
 environments {
     development {
-//        dataSource {
-//            //dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-//            //dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-//            //url = "jdbc:mysql://localhost/specieslist?autoReconnect=true&connectTimeout=0"
-//        }
     }
     test {
         dataSource {

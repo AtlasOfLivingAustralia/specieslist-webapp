@@ -1,27 +1,30 @@
+import grails.util.Environment
+
 /******************************************************************************\
  *  CONFIG MANAGEMENT
  \******************************************************************************/
 
 grails.project.groupId = "au.org.ala"
 
-//def appName = grails.util.Metadata.current.'app.name'
-def ENV_NAME = "${appName.toUpperCase()}_CONFIG"
-default_config = "/data/${appName}/config/${appName}-config.properties"
-if(!grails.config.locations || !(grails.config.locations instanceof List)) {
-    grails.config.locations = []
-}
+if(Environment.current != Environment.TEST){
+    def ENV_NAME = "${appName.toUpperCase()}_CONFIG"
+    default_config = "/data/${appName}/config/${appName}-config.properties"
+    if(!grails.config.locations || !(grails.config.locations instanceof List)) {
+        grails.config.locations = []
+    }
 
-if(System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
-    println "[${appName}] Including configuration file specified in environment: " + System.getenv(ENV_NAME);
-    grails.config.locations.add "file:" + System.getenv(ENV_NAME)
-} else if(System.getProperty(ENV_NAME) && new File(System.getProperty(ENV_NAME)).exists()) {
-    println "[${appName}] Including configuration file specified on command line: " + System.getProperty(ENV_NAME);
-    grails.config.locations.add "file:" + System.getProperty(ENV_NAME)
-} else if(new File(default_config).exists()) {
-    println "[${appName}] Including default configuration file: " + default_config;
-    grails.config.locations.add "file:" + default_config
-} else {
-    println "[${appName}] No external configuration file defined."
+    if(System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
+        println "[${appName}] Including configuration file specified in environment: " + System.getenv(ENV_NAME);
+        grails.config.locations.add "file:" + System.getenv(ENV_NAME)
+    } else if(System.getProperty(ENV_NAME) && new File(System.getProperty(ENV_NAME)).exists()) {
+        println "[${appName}] Including configuration file specified on command line: " + System.getProperty(ENV_NAME);
+        grails.config.locations.add "file:" + System.getProperty(ENV_NAME)
+    } else if(new File(default_config).exists()) {
+        println "[${appName}] Including default configuration file: " + default_config;
+        grails.config.locations.add "file:" + default_config
+    } else {
+        println "[${appName}] No external configuration file defined."
+    }
 }
 
 println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
@@ -62,6 +65,16 @@ grails.mime.types = [ html: ['text/html','application/xhtml+xml'],
                       multipartForm: 'multipart/form-data'
                     ]
 
+/******************************************************************************\
+ *  CAS SETTINGS
+ *
+ *  NOTE: Some of these will be ignored if default_config exists
+ \******************************************************************************/
+security.cas.appServerName='http://dev.ala.org.au:8082'
+security.cas.casServerName = 'https://auth.ala.org.au'
+security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
+security.cas.logoutUrl = 'https://auth.ala.org.au/cas/logout'
+security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
 // CAS properties moved from external config while migrating to ala-auth:2.x from 1.x
 security.cas.uriFilterPattern='/speciesList,/speciesList/.*,/admin,/admin/.*,/editor,/editor/.*'
 security.cas.authenticateOnlyIfLoggedInFilterPattern='/speciesListItem/list,/speciesListItem/list/.*,/speciesListItem/listAuth,/speciesListItem/listAuth/.*'

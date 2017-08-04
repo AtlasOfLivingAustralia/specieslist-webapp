@@ -14,6 +14,7 @@ before_install:
 - ala_travis_grails_setup_env
 
 script:
+- ala_travis_grails_test
 - ala_travis_grails_build
 
 env:

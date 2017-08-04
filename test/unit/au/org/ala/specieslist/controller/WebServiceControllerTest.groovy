@@ -18,8 +18,6 @@ import spock.lang.Unroll
 @Mock([SpeciesList, SpeciesListItem, SpeciesListKVP])
 class WebServiceControllerTest extends Specification {
 
-    def controller = new WebServiceController()
-
     def "getListItemDetails should retrieve KVP values when includeKVP is true"() {
         setup:
         SpeciesList list = new SpeciesList(listName: "list1", username: "fred", dataResourceUid: "Dr1")
@@ -36,7 +34,7 @@ class WebServiceControllerTest extends Specification {
         controller.getListItemDetails()
 
         then:
-        assert response.text == "[{\"id\":1,\"name\":\"name1\",\"lsid\":\"guid\",\"kvpValues\":[{\"key\":\"key1\",\"value\":\"value1\"}]}]"
+        assert response.text == "[{\"id\":1,\"name\":\"name1\",\"commonName\":null,\"scientificName\":null,\"lsid\":\"guid\",\"kvpValues\":[{\"key\":\"key1\",\"value\":\"value1\"}]}]"
     }
 
     def "getListItemDetails should not retrieve KVP values when includeKVP is false"() {
@@ -55,7 +53,7 @@ class WebServiceControllerTest extends Specification {
         controller.getListItemDetails()
 
         then:
-        assert response.text == "[{\"id\":1,\"name\":\"name1\",\"lsid\":\"guid\"}]"
+        assert response.text == "[{\"id\":1,\"name\":\"name1\",\"commonName\":null,\"scientificName\":null,\"lsid\":\"guid\"}]"
     }
 
     def "getListItemDetails should not retrieve KVP values when includeKVP is not present"() {
@@ -73,6 +71,6 @@ class WebServiceControllerTest extends Specification {
         controller.getListItemDetails()
 
         then:
-        assert response.text == "[{\"id\":1,\"name\":\"name1\",\"lsid\":\"guid\"}]"
+        assert response.text == "[{\"id\":1,\"name\":\"name1\",\"commonName\":null,\"scientificName\":null,\"lsid\":\"guid\"}]"
     }
 }

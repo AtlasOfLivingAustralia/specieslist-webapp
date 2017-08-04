@@ -59,13 +59,13 @@ class HelperService {
 
     @PostConstruct
     init(){
-        BATCH_SIZE = Integer.parseInt((grailsApplication.config.batchSize?:200).toString())
-        speciesNameColumns = grailsApplication.config.speciesNameColumns ?
-                grailsApplication.config.speciesNameColumns.split(',') : []
-        commonNameColumns = grailsApplication.config.commonNameColumns ?
-                grailsApplication.config.commonNameColumns.split(',') : []
-        ambiguousNameColumns = grailsApplication.config.ambiguousNameColumns ?
-                grailsApplication.config.ambiguousNameColumns.split(',') : []
+        BATCH_SIZE = Integer.parseInt((grailsApplication?.config?.batchSize?:200).toString())
+        speciesNameColumns = grailsApplication?.config?.speciesNameColumns ?
+                grailsApplication?.config?.speciesNameColumns?.split(',') : []
+        commonNameColumns = grailsApplication?.config?.commonNameColumns ?
+                grailsApplication?.config?.commonNameColumns?.split(',') : []
+        ambiguousNameColumns = grailsApplication?.config?.ambiguousNameColumns ?
+                grailsApplication?.config?.ambiguousNameColumns?.split(',') : []
     }
 
     /**
@@ -342,7 +342,7 @@ class HelperService {
             // updating an existing list
             if (speciesList.dataResourceUid) {
                 // assume new list of species will replace existing one (no updates allowed for now)
-                speciesList.items.clear()
+                speciesList.items?.clear()
 
                 // update the list of editors (comma separated list of email addresses)
                 if (json?.editors) {
@@ -384,7 +384,7 @@ class HelperService {
             log.error(speciesList.errors.allErrors)
         }
 
-        speciesList.save(flush: true)
+        speciesList.save(flush: true, failOnError: true)
 
         List sli = speciesList.getItems().toList()
         matchCommonNamesForSpeciesListItems(sli)

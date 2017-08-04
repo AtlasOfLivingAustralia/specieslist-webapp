@@ -27,6 +27,9 @@ class HelperServiceTest extends Specification {
     def helperService = new HelperService()
 
     def setup() {
+        grailsApplication.config.commonNameColumns="commonname,vernacularname"
+        grailsApplication.config.ambiguousNameColumns="name"
+        grailsApplication.config.speciesNameColumns = "scientificname,suppliedname,taxonname,species"
         helperService.grailsApplication = grailsApplication
         helperService.init()
     }
@@ -167,11 +170,11 @@ class HelperServiceTest extends Specification {
         json.username = "fred"
 
         when:
-        SpeciesList list = helperService.loadSpeciesListFromJSON(json, "dr1")
+        Map list = helperService.loadSpeciesListFromJSON(json, "dr1")
 
         then:
-        assert list.is(speciesList) // instance equality: the existing entity should be used in this case
-        assert list.items.size() == 2 // there was 1 existing item, but the system REPLACES items rather than adding
+        assert list.speciesList.is(speciesList) // instance equality: the existing entity should be used in this case
+        assert list.speciesList.items.size() == 2 // there was 1 existing item, but the system REPLACES items rather than adding
     }
 
     def "loadSpeciesListFromJSON should create a new list if there is no match on the Data Resource ID"() {
@@ -212,7 +215,7 @@ class HelperServiceTest extends Specification {
         String unknownJson = "{\"listName\": \"list1\",  \"listType\": \"TEST\", \"SomethingNotRecognised\": \"\"}"
 
         when:
-        helperService.loadSpeciesListFromJSON(new JSONObject(unknownJson), "noMatch")
+        helperService.loadSpeciesListFromJSON(new JSONObject(unknownJson), "noMatch", false)
 
         then:
         thrown UnsupportedOperationException
@@ -245,12 +248,12 @@ class HelperServiceTest extends Specification {
         json.username = "fred"
 
         when:
-        SpeciesList list = helperService.loadSpeciesListFromJSON(json, "dr1")
+        Map list = helperService.loadSpeciesListFromJSON(json, "dr1")
 
         then:
-        assert list.items.size() == 2
-        assert list.items[0].kvpValues == null
-        assert list.items[1].kvpValues == null
+        assert list.speciesList.items.size() == 2
+        assert list.speciesList.items[0].kvpValues == null
+        assert list.speciesList.items[1].kvpValues == null
     }
 
     def "loadSpeciesListFromJSON for v1 should throw an exception when there are no list items"() {

@@ -51,7 +51,7 @@ grails.project.dependency.resolution = {
 
     plugins {
         build ":release:3.0.1"
-        runtime ":hibernate:3.6.10.15"
+        runtime ":hibernate:3.6.10.17"
 
         runtime ":cors:1.1.8"
 

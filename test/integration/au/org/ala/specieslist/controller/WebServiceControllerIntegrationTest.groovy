@@ -109,7 +109,7 @@ class WebServiceControllerIntegrationTest extends IntegrationSpec {
         setup:
         (1..2).each {
             (1..5).each {
-                SpeciesListKVP kvp = new SpeciesListKVP(key: "key${it}", value: "value${it}", dataResourceUid: "dr${it < 3 ? '1' : '2'}")
+                SpeciesListKVP kvp = new SpeciesListKVP(key: "key${it}", value: "value${it}", dataResourceUid: "dr${it < 3 ? '1' : '2'}", itemOrder: 1)
                 kvp.save(flush: true)
             }
         }
@@ -126,7 +126,7 @@ class WebServiceControllerIntegrationTest extends IntegrationSpec {
     def "listKeys should return the unique set of keys from requested DRUIDS only in the request"() {
         setup:
         (1..6).each {
-            SpeciesListKVP kvp = new SpeciesListKVP(key: "key${it}", value: "value${it}", dataResourceUid: "dr${it <= 3 ? '1' : '2'}")
+            SpeciesListKVP kvp = new SpeciesListKVP(key: "key${it}", value: "value${it}", dataResourceUid: "dr${it <= 3 ? '1' : '2'}", itemOrder: 1)
             kvp.save(flush: true, failOnError: true)
         }
 
