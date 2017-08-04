@@ -15,23 +15,23 @@
 <!doctype html>
 <html>
 <head>
-    <r:require modules="fancybox,application"/>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     <meta name="breadcrumb" content="My Species Lists"/>
     <title>My Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">
         #speciesList {display: none;}
     </style>
+    <asset:stylesheet src="fancybox.css"/>
 </head>
 
 <body class="yui-skin-sam nav-species">
-<script type="text/javascript">
+<asset:script type="text/javascript">
     window.onload=init
     function init(){
         if(document.getElementById("speciesList") != null)
             document.getElementById("speciesList").style.display = "block";
     }
-</script>
+</asset:script>
 <div id="content" class="container">
     <header id="page-header2">
         %{--<div class="innerZ row-fluid">--}%
@@ -64,5 +64,6 @@
             </g:else>
     </div>
 </div> <!--content-->
+<asset:javascript src="fancybox.js"/>
 </body>
 </html>

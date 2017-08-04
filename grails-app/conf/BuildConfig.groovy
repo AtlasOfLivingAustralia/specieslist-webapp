@@ -59,9 +59,11 @@ grails.project.dependency.resolution = {
         runtime (":ala-auth:2.1.3") {
             exclude "servlet-api"
         }
-        runtime ":ala-admin-plugin:1.2"
+        runtime (":ala-admin-plugin:1.2"){
+            exclude "resources"
+        }
 
-//        compile ':asset-pipeline:2.14.1'
+        compile ':asset-pipeline:2.14.1'
         compile ':cache:1.1.8'
         compile ':cache-ehcache:1.0.0'
         compile ":jsonp:0.2"

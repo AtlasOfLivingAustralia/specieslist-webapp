@@ -19,7 +19,8 @@
 <meta name="breadcrumb" content="Upload a list"/>
 <meta name="breadcrumbParent" content="${request.contextPath},Species Lists"/>
 <title>Upload a list | Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
-<script type="text/javascript">
+    <asset:stylesheet src="fileupload.css"/>
+<asset:script type="text/javascript">
     function init(){
         reset();
     }
@@ -265,8 +266,7 @@
       });
     });
 
-</script>
-    <r:require modules="application, fileupload"/>
+</asset:script>
 </head>
 
 <body class="upload">
@@ -453,10 +453,11 @@
     </div>
     <div id="statusMsgDiv">
         <div class="well">
-            <h3><img src='${resource(dir:'images',file:'spinner.gif')}' id='spinner'/>&nbsp;&nbsp;<span>Uploading your list...</span></h3>
+            <h3><img src='${asset.assetPath(src:'spinner.gif')}' id='spinner'/>&nbsp;&nbsp;<span>Uploading your list...</span></h3>
             <p>This will take a few moments depending on the size of the list.</p>
         </div>
     </div>
 </div> <!-- content div -->
+<asset:javascript src="fileupload.js"/>
 </body>
 </html>

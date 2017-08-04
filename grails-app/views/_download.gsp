@@ -56,7 +56,7 @@
             <div id="statusMsg" style="text-align: center; font-weight: bold; "></div>
         </fieldset>
     </form>
-    <script type="text/javascript">
+    <asset:script type="text/javascript">
 
         $(document).ready(function() {
             // catch download submit button
@@ -130,5 +130,5 @@
             return isValid;
         }
 
-    </script>
+    </asset:script>
 </div>

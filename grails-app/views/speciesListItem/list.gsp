@@ -27,21 +27,20 @@
 }" />
 <html>
 <head>
-    %{--<gui:resources components="['dialog']"/>--}%
-    <r:require modules="application, fancybox, baHashchange, amplify"/>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     <meta name="breadcrumb" content="${speciesList?.listName}"/>
     <meta name="breadcrumbParent" content="${request.contextPath},Species Lists"/>
-    <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
-    <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'getQueryParam.js')}"></script>
-    <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery.doubleScroll.js')}"></script>
+    <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src: 'facets.js')}"></script>
+    <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src: 'getQueryParam.js')}"></script>
+    <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src: 'jquery.doubleScroll.js')}"></script>
     <title>Species list items | ${grailsApplication.config.skin.orgNameLong}</title>
+    <asset:stylesheet src="fancybox.css"/>
     <style type="text/css">
     #buttonDiv {display: none;}
     #refine {display:none;}
     </style>
 
-    <script type="text/javascript">
+    <asset:script type="text/javascript" asset-defer="">
         function init(){
             document.getElementById("buttonDiv").style.display = "block";
             document.getElementById("refine").style.display = "block";
@@ -385,21 +384,11 @@
             document.getElementById("searchInputButton").value = '';
         }
 
-    </script>
+    </asset:script>
 </head>
 <body class="yui-skin-sam nav-species">
 <div id="content" class="container">
     <header id="page-header">
-
-        %{--<div class="inner row-fluid">--}%
-        %{--<div id="breadcrumb" class="span12">--}%
-        %{--<ol class="breadcrumb">--}%
-        %{--<li><a href="http://www.ala.org.au">Home</a> <span class=" icon icon-arrow-right"></span></li>--}%
-        %{--<li><a href="${request.contextPath}/public/speciesLists">Species lists</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>--}%
-        %{--<li class="active">${speciesList?.listName?:"Species list items"}</li>--}%
-        %{--</ol>--}%
-        %{--</div>--}%
-        %{--</div>--}%
         <div class="row-fluid">
             <div class="span7">
                 <h2 class="subject-subtitle">
@@ -425,7 +414,7 @@
                         <h3 id="myModalLabel">Species list permissions</h3>
                     </div>
                     <div class="modal-body">
-                        <p><img src="${resource(dir:'images',file:'spinner.gif')}" alt="spinner icon"/></p>
+                        <p><img src="${asset.assetPath(src:'spinner.gif')}" alt="spinner icon"/></p>
                     </div>
                     <div class="modal-footer">
                         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
@@ -440,7 +429,7 @@
                         <h3>Add record values</h3>
                     </div>
                     <div class="modal-body">
-                        <p><img src="${resource(dir:'images',file:'spinner.gif')}" alt="spinner icon"/></p>
+                        <p><img src="${asset.assetPath(src:'spinner.gif')}" alt="spinner icon"/></p>
                     </div>
                     <div class="modal-footer">
                         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
@@ -455,7 +444,7 @@
                     <a class="btn btn-ala" title="View occurrences for up to ${maxDownload} species on the list"
                        href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">View occurrence records</a>
 
-                    <a href="${request.contextPath}/speciesList/spatialPortal/${params.id}${params.toQueryString()}&type=Search" class="btn btn-ala" title="View the spatial portal." id="downloadLink">View in spatial portal</a>
+                    <a href="${request.contextPath}/speciesList/spatialPortal/${params.id}${params.toQueryString()}&type=Search" class="btn btn-ala" title="View the spatial portal.">View in spatial portal</a>
                 </span>
             </div>  <!-- rightfloat -->
 
@@ -768,7 +757,7 @@
                     <g:set var="bieTitle">species page for <i>${result.rawScientificName}</i></g:set>
                     <div class="imgCon">
                         <a class="thumbImage viewRecordButton" rel="thumbs" title="click to view details" href="#viewRecord"
-                                    data-id="${recId}"><img src="${result.imageUrl?:g.createLink(uri:'/images/infobox_info_icon.png\" style=\"opacity:0.5')}" alt="thumbnail species image"/>
+                                    data-id="${recId}"><img src="${result.imageUrl?:asset.assetPath(src:'infobox_info_icon.png\" style=\"opacity:0.5')}" alt="thumbnail species image"/>
                     </a>
                     <g:if test="${true}">
                         <g:set var="displayName">
@@ -894,7 +883,7 @@
                         <h3>View record details</h3>
                     </div>
                     <div class="modal-body">
-                        <p class="spinner"><img src="${resource(dir:'images',file:'spinner.gif')}" alt="spinner icon"/></p>
+                        <p class="spinner"><img src="${asset.assetPath(src:'spinner.gif')}" alt="spinner icon"/></p>
                         <table class="table table-bordered table-condensed table-striped hide">
                             <thead><th>Field</th><th>Value</th></thead>
                             <tbody></tbody>
@@ -913,7 +902,7 @@
                             <h3>Edit record values</h3>
                         </div>
                         <div class="modal-body">
-                            <p><img src="${resource(dir:'images',file:'spinner.gif')}" alt="spinner icon"/></p>
+                            <p><img src="${asset.assetPath(src:'spinner.gif')}" alt="spinner icon"/></p>
                         </div>
                         <div class="modal-footer">
                             <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
@@ -937,7 +926,10 @@
         </div> <!-- .span9 -->
     </div>
 </div> <!-- content div -->
-<r:script>
+<asset:javascript src="fancybox.js" asset-defer=""/>
+<asset:javascript src="amplify.js" asset-defer=""/>
+<asset:javascript src="baHashchange.js" asset-defer=""/>
+<asset:script type="text/javascript" asset-defer="">
 
     $(document).ready(function(){
         // make table header cells clickable
@@ -950,6 +942,6 @@
         });
 
     });
-</r:script>
+</asset:script>
 </body>
 </html>

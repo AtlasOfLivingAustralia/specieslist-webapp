@@ -1,6 +1,6 @@
 <%@page defaultCodec="html" %>
 <!-- Template for diplaying a list of species list with or without a delete button -->
-<script type="text/javascript">
+<asset:script type="text/javascript">
 
     $(document).ready(function(){
         // make table header cells clickable
@@ -31,7 +31,7 @@
     function fancyConfirm(msg,listId,action,callback){
         //alert("${request.contextPath}"+"/speciesList/"+action+ "/"+listId)
         jQuery.fancybox({
-            'content':"<div style=\"margin:1px;width:240px;text-align:left;\">"+msg+"<div style=\"text-align:right;margin-top:10px;\"><input id=\"fancyConfirm_cancel\" type=\"button\" value=\"No\" class=\"actionButton btn btn-small\">&nbsp;<input id=\"fancyConfirm_ok\" type=\"button\" value=\"Yes\" class=\"actionButton btn btn-small\"><img src='${resource(dir:'images',file:'spinner.gif')}' id='spinner'/></div></div>",
+            'content':"<div style=\"margin:1px;width:240px;text-align:left;\">"+msg+"<div style=\"text-align:right;margin-top:10px;\"><input id=\"fancyConfirm_cancel\" type=\"button\" value=\"No\" class=\"actionButton btn btn-small\">&nbsp;<input id=\"fancyConfirm_ok\" type=\"button\" value=\"Yes\" class=\"actionButton btn btn-small\"><img src='${asset.assetPath(src:'spinner.gif')}' id='spinner'/></div></div>",
             'padding': 10,
             'margin': 20,
             onComplete : function() {
@@ -70,7 +70,7 @@
         //alert(paramStr)
         window.location.href = window.location.pathname + '?' + paramStr;
     }
-</script>
+</asset:script>
 
 <div style="float: right;">
     Items per page:

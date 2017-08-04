@@ -46,7 +46,7 @@ in turn, allows those <strong>editors</strong> to edit and delete entries in thi
         </g:each>
     </tbody>
 </table>
-<script type="text/javascript">
+<asset:script type="text/javascript">
 
     /**
     * Delete a row from the table
@@ -104,6 +104,6 @@ in turn, allows those <strong>editors</strong> to edit and delete entries in thi
             });
         });
     });
-</script>
+</asset:script>
 </body>
 </html>

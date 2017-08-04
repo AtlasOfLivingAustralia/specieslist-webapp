@@ -1,0 +1,1 @@
+//= require jquery.ba-hashchange.min.js

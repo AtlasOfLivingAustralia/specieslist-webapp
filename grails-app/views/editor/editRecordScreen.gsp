@@ -72,7 +72,7 @@
     </form>
 </g:if>
 
-<script type="text/javascript">
+<asset:script type="text/javascript">
 
     $(document).ready(function() {
         // change raw KVP value if vocab drop down is changed
@@ -84,6 +84,6 @@
             $("#" + thisFormId).find(":input[name='"+key+"']").val(value);
         });
     });
-</script>
+</asset:script>
 </body>
 </html>

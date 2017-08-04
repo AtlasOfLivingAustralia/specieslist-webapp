@@ -170,7 +170,7 @@ class SpeciesListController {
                         [
                              pubDescription: formParams.description,
                              websiteUrl: grailsApplication.config.serverName + url,
-                             techDescription: "This list was first uploaded by " + authService.userDetails()?.userDisplayName + " on the " + (new Date()) + "." + "It contains " + itemCount + " taxa.",
+                             techDescription: "This list was first uploaded by " + authService.userDetails()?.getDisplayName() + " on the " + (new Date()) + "." + "It contains " + itemCount + " taxa.",
                              resourceType : "species-list",
                              status : "dataAvailable",
                              contentTypes : '["species list"]'

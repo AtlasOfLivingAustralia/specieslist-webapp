@@ -18,7 +18,6 @@
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     <meta name="breadcrumb" content="Species Lists"/>
     <title>Species lists |${grailsApplication.config.skin.orgNameLong}</title>
-    <r:require modules="application"/>
 </head>
 <body class="">
 <div id="content" class="container">

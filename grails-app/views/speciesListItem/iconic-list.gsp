@@ -20,16 +20,12 @@
 
 <html>
 <head>
-    %{--<gui:resources components="['dialog']"/>--}%
-    <r:require modules="application, amplify"/>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
-    %{--<meta name="breadcrumb" content="Species"/>--}%
     <meta name="breadcrumb" content="Australia&apos;s species"/>
-    %{--<link rel="stylesheet" href="${resource(dir:'css',file:'scrollableTable.css')}"/>--}%
-    <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'facets.js')}"></script>
-    <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'getQueryParam.js')}"></script>
-    <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery-ui-1.8.17.custom.min.js')}"></script>
-    <script language="JavaScript" type="text/javascript" src="${resource(dir:'js',file:'jquery.doubleScroll.js')}"></script>
+    <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src:'facets.js')}"></script>
+    <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src:'getQueryParam.js')}"></script>
+    <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src:'jquery-ui-1.8.17.custom.min.js')}"></script>
+    <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src:'jquery.doubleScroll.js')}"></script>
     <title>Species list items | ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">
         #buttonDiv {display: none;}
@@ -185,19 +181,7 @@
 
     </style>
 
-    <r:script>
-        $(document).ready(function(){
-            // BS affix plugin for groups menu
-            // var headerHeight = $('.navbar-fixed-top').outerHeight(true);
-            // var footerHeight = $('footer').outerHeight(true);
-            // console.log("headerHeight",headerHeight);
-            // console.log("footerHeight",footerHeight);
-            // $('#groupsNav').affix({
-            //     // offset: { top: $('#groupsNav').offset().top - headerHeight, bottom: footerHeight }
-            // });
-
-        }); // end document ready
-
+    <asset:script type="text/javascript">
         function reloadWithMax(el) {
             var max = $(el).find(":selected").val();
             var params = {
@@ -210,7 +194,7 @@
             var paramStr = jQuery.param(params);
             window.location.href =  '?' + paramStr;
         }
-    </r:script>
+    </asset:script>
 
 </head>
 <body class="yui-skin-sam nav-species">
@@ -254,7 +238,7 @@
                     <g:set var="bieTitle">species page for <i>${result.rawScientificName}</i></g:set>
                     <div class="imgCon">
                         <a class="thumbImage viewRecordButton" rel="thumbs" title="click to view detailed page" href="${bieUrl}/species/${result.guid?:bieSpecies?.get(2)}"
-                                    data-id="${recId}"><img src="${bieSpecies?.get(0)?:g.createLink(uri:'/images/infobox_info_icon.png\" style=\"opacity:0.5')}" alt="thumbnail species image"/>
+                                    data-id="${recId}"><img src="${bieSpecies?.get(0)?:asset.assetPath(src:'infobox_info_icon.png" style="opacity:0.5')}" alt="thumbnail species image"/>
                             </a>
                             <g:if test="${true}">
                                 <g:set var="displayName">
@@ -299,6 +283,6 @@
         %{--</div> <!-- results -->--}%
     </div>
 </div> <!-- content div -->
-
+<asset:javascript src="amplify.js"/>
 </body>
 </html>

@@ -1,0 +1,1 @@
+//= require fancybox/jquery.fancybox-1.3.4.pack.js

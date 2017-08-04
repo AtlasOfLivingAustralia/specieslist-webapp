@@ -7,15 +7,23 @@
     <meta name="description" content="Atlas of Living Australia"/>
     <meta name="author" content="Atlas of Living Australia">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/bootstrap.min.css" rel="stylesheet" media="all" />
+    <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/bootstrap-responsive.min.css" rel="stylesheet" media="all" />
+    <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/ala-styles.css" rel="stylesheet" media="all" />
+    <asset:stylesheet src="ala.css" media="all" />
+    <asset:stylesheet src="application.css" media="all" />
     <link href="${grailsApplication.config.skin?.favicon?:'http://www.ala.org.au/wp-content/themes/ala2011/images/favicon.ico'}" rel="shortcut icon"  type="image/x-icon"/>
 
+    <!--[if lt IE 9]>
+    <asset:javascript src="html5.js" />
+    <![endif]-->
+    <asset:javascript src="ala-head.js" />
+    <asset:javascript src="jquery-migration.js" />
+
     <title><g:layoutTitle /></title>
-
-    <%-- Do not include JS & CSS files here - add them to your app's "application" module (in "Configuration/ApplicationResources.groovy") --%>
-    <r:require modules="bootstrap, ala"/>
-
-    <r:layoutResources/>
     <g:layoutHead />
+    <asset:deferredScripts />
 </head>
 <body class="${pageProperty(name:'body.class')}" id="${pageProperty(name:'body.id')}" onload="${pageProperty(name:'body.onload')}">
 <g:set var="fluidLayout" value="${pageProperty(name:'meta.fluidLayout')?:grailsApplication.config.skin?.fluidLayout}"/>
@@ -30,7 +38,7 @@
         <div class="container">
             <div class="row">
                 <ul class="breadcrumb-list">
-                    <li><a href="/">Home</a></li>
+                    <li><a href="https://www.ala.org.au">Home</a></li>
                     <g:if test="${pageProperty(name:'meta.breadcrumbParent')}">
                         <g:set value="${pageProperty(name:'meta.breadcrumbParent').tokenize(',')}" var="parentArray"/>
                         <li><i class="icon icon-chevron-right"></i><a href="${parentArray[0]?:'/'}">${parentArray[1]}</a></li>
@@ -54,8 +62,14 @@
 <hf:footer/>
 <!-- End footer -->
 
-<!-- JS resources-->
-<r:layoutResources/>
+<g:if test="${!grailsApplication.config.headerAndFooter.excludeApplicationJs}">
+    <script type="text/javascript" src="${grailsApplication.config.headerAndFooter.baseURL}/js/application.js"></script>
+</g:if>
+<g:if test="${!grailsApplication.config.headerAndFooter.excludeBootstrapJs}">
+    <script type="text/javascript" src="${grailsApplication.config.headerAndFooter.baseURL}/js/bootstrap.min.js"></script>
+</g:if>
+<asset:javascript src="ala.js" />
+<asset:deferredScripts />
 
 </body>
 </html>
