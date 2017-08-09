@@ -9,8 +9,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/bootstrap.min.css" rel="stylesheet" media="all" />
-    <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/bootstrap-responsive.min.css" rel="stylesheet" media="all" />
     <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/ala-styles.css" rel="stylesheet" media="all" />
+    <asset:stylesheet src="jquery.autocomplete.css" media="all" />
     <asset:stylesheet src="ala.css" media="all" />
     <asset:stylesheet src="application.css" media="all" />
     <link href="${grailsApplication.config.skin?.favicon?:'http://www.ala.org.au/wp-content/themes/ala2011/images/favicon.ico'}" rel="shortcut icon"  type="image/x-icon"/>
@@ -23,7 +23,6 @@
 
     <title><g:layoutTitle /></title>
     <g:layoutHead />
-    <asset:deferredScripts />
 </head>
 <body class="${pageProperty(name:'body.class')}" id="${pageProperty(name:'body.id')}" onload="${pageProperty(name:'body.onload')}">
 <g:set var="fluidLayout" value="${pageProperty(name:'meta.fluidLayout')?:grailsApplication.config.skin?.fluidLayout}"/>
@@ -41,9 +40,9 @@
                     <li><a href="https://www.ala.org.au">Home</a></li>
                     <g:if test="${pageProperty(name:'meta.breadcrumbParent')}">
                         <g:set value="${pageProperty(name:'meta.breadcrumbParent').tokenize(',')}" var="parentArray"/>
-                        <li><i class="icon icon-chevron-right"></i><a href="${parentArray[0]?:'/'}">${parentArray[1]}</a></li>
+                        <li><i class="glyphicon glyphicon-chevron-right"></i><a href="${parentArray[0]?:'/'}">${parentArray[1]}</a></li>
                     </g:if>
-                    <li class="active"><i class="icon icon-chevron-right"></i>${pageProperty(name:'meta.breadcrumb')}</li>
+                    <li class="active"><i class="glyphicon glyphicon-chevron-right"></i>${pageProperty(name:'meta.breadcrumb')}</li>
                 </ul>
             </div>
         </div>

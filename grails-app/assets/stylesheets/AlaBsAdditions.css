@@ -17,7 +17,7 @@ h4 {font-size: 1.4em;}
     padding: 0;
 }
 
-.breadcrumb > li > .icon {
+.breadcrumb > li > .glyphicon {
     color: #555555;
     opacity:0.6;
     filter:alpha(opacity=60);
@@ -112,11 +112,6 @@ div#download {
 #termsOfUseDownload {
     text-align:left; padding-bottom:15px;
 }
-
-/*a.removeLink {*/
-    /*display: inline-block;*/
-    /*float: right;*/
-/*}*/
 
 #currentFilters {
     margin-bottom: 15px;
@@ -230,9 +225,12 @@ td.dataValue > input[type="text"] {
 #edit-meta-div {
     padding-top: 10px;
 }
+#edit-meta-form{
+    margin-top: 30px;
+}
 
 #edit-meta-form input, #edit-meta-form textarea, #edit-meta-form select {
-    height: 16px;
+    height: 28px;
     font-size: 12px;
     line-height: 18px;
     margin-bottom: 2px;
@@ -254,7 +252,7 @@ td.dataValue > input[type="text"] {
     font-weight: bold;
 }
 
-#edit-meta-form .control-group {
+#edit-meta-form .form-group {
     margin-bottom: 6px;
 }
 
@@ -339,9 +337,6 @@ img.smallSpeciesImage {
     background-color: #DDD;
     color: #DDD;
     font-size: 12px;
-    /*text-shadow: 2px 2px 6px rgba(255, 255, 255, 1);*/
-    /* padding: 5px; */
-    /* margin-bottom: 8px; */
     margin: 2px 0 2px 0;
     position: relative;
 }
@@ -370,7 +365,7 @@ img.smallSpeciesImage {
 .overrideHide {
    display: block !important;
 }
-.borderless td, .borderless th {
+.borderless>tbody>tr>td, .borderless>tbody>tr>th {
     border: none;
 }
 
@@ -379,4 +374,11 @@ h2 { margin-top: 30px; }
 
 .searchItemForm {
     display: inline-block;
+}
+
+.full-width {
+    width: 100%;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
 }

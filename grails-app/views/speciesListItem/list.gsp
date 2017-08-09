@@ -14,17 +14,17 @@
   --}%
 <!doctype html>
 <g:set var="bieUrl" value="${grailsApplication.config.bie.baseURL}"/>
-<g:set var="collectoryUrl" value="${grailsApplication.config.collectory.baseURL}" />
-<g:set var="maxDownload" value="${grailsApplication.config.downloadLimit}" />
+<g:set var="collectoryUrl" value="${grailsApplication.config.collectory.baseURL}"/>
+<g:set var="maxDownload" value="${grailsApplication.config.downloadLimit}"/>
 <g:set var="userCanEditPermissions" value="${
     (speciesList.username == request.getUserPrincipal()?.attributes?.email || request.isUserInRole("ROLE_ADMIN"))
-}" />
+}"/>
 <g:set var="userCanEditData" value="${
-    (   speciesList.username == request.getUserPrincipal()?.attributes?.email ||
+    (speciesList.username == request.getUserPrincipal()?.attributes?.email ||
             request.isUserInRole("ROLE_ADMIN") ||
             request.getUserPrincipal()?.attributes?.userid in speciesList.editors
     )
-}" />
+}"/>
 <html>
 <head>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
@@ -32,12 +32,18 @@
     <meta name="breadcrumbParent" content="${request.contextPath},Species Lists"/>
     <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src: 'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src: 'getQueryParam.js')}"></script>
-    <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src: 'jquery.doubleScroll.js')}"></script>
+    <script language="JavaScript" type="text/javascript"
+            src="${asset.assetPath(src: 'jquery.doubleScroll.js')}"></script>
     <title>Species list items | ${grailsApplication.config.skin.orgNameLong}</title>
     <asset:stylesheet src="fancybox.css"/>
     <style type="text/css">
-    #buttonDiv {display: none;}
-    #refine {display:none;}
+    #buttonDiv, #refine, .not-visible {
+        display: none;
+    }
+
+    .action-btn-group-width {
+        width: 100px;
+    }
     </style>
 
     <asset:script type="text/javascript" asset-defer="">
@@ -50,7 +56,7 @@
 
             // in mobile view toggle display of facets
             $('#toggleFacetDisplay').click(function() {
-                $(this).find('i').toggleClass('icon-chevron-right icon-chevron-down');
+                $(this).find('i').toggleClass('glyphicon-chevron-right glyphicon-chevron-down');
                 if ($('#accordion').is(':visible')) {
                     $('#accordion').removeClass('overrideHide');
                 } else {
@@ -103,12 +109,15 @@
                 'showCloseButton': true,
                 'titleShow' : false,
                 'autoDimensions' : false,
-                'width': 520,
+                'width': 600,
                 'height': 400,
-                'padding': 10,
+                'padding': 20,
                 'margin': 10,
                 onCleanup: function() {
                     $("label[for='reasonTypeId']").css("color","#444");
+                },
+                onStart: function() {
+                   $("#fancybox-content").css("borderWidth","0px");
                 }
             });
 
@@ -147,7 +156,6 @@
                 }
 
                 $.post("${createLink(controller: "editor", action: 'editRecord')}", thisFormData, function(data, textStatus, jqXHR) {
-                    //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
                     $(modal).modal('hide');
                     alert(jqXHR.responseText);
                     window.location.reload(true);
@@ -167,10 +175,7 @@
                     alert("Required field: supplied name cannot be blank");
                     return false;
                 }
-                //thisFormData.push({id: id});
-                //console.log("thisFormData", id, thisFormData)
                 $.post("${createLink(controller: "editor", action: 'createRecord')}", thisFormData, function(data, textStatus, jqXHR) {
-                    //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
                     $(modal).modal('hide');
                     alert(jqXHR.responseText);
                     window.location.reload(true);
@@ -196,9 +201,6 @@
                     $(modal).modal('hide');
                 });
             });
-
-            //console.log("owner = ${speciesList.username}");
-            //console.log("logged in user = ${request.getUserPrincipal()?.attributes?.email}");
 
             // Toggle display of list meta data editing
             $("#edit-meta-button").click(function(el) {
@@ -310,8 +312,6 @@
                 }
                 values.push(val);
             });
-            //console.log("values", values.length, "headers", headers.length);
-            //console.log("values & headers", headers, values);
             $("#viewRecord p.spinner").hide();
             $("#viewRecord tbody").html(""); // clear values
             $.each(headers, function(i, el) {
@@ -322,18 +322,11 @@
             $('#viewRecord').modal("show");
         }
 
-        //    function loadMultiFacets(facetName, displayName) {
-        //        console.log(facetName, displayName)
-        //        console.log("#div"+facetName,$("#div"+facetName).innerHTML)
-        //        $("div#dynamic").innerHTML=$("#div"+facetName).innerHTML;
-        //    }
-
         function downloadOccurrences(o){
             if(validateForm()){
                 this.cancel();
-                //downloadURL = $("#email").val();
                 downloadURL = "${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Download&email="+$("#email").val()+"&reasonTypeId="+$("#reasonTypeId").val()+"&file="+$("#filename").val();
-                window.location =  downloadURL//"${request.contextPath}/speciesList/occurrences/${params.id}?type=Download&email=$('#email').val()&reasonTypeId=$(#reasonTypeId).val()&file=$('#filename').val()"
+                window.location =  downloadURL
             }
         }
         function downloadFieldGuide(o){
@@ -372,7 +365,7 @@
                 max: max,
                 sort: "${params.sort}",
                 order: "${params.order}",
-                offset: "${params.offset?:0}",
+                offset: "${params.offset ?: 0}",
                 q: "${params.q}",
                 id: "${params.id}"
             };
@@ -386,65 +379,87 @@
 
     </asset:script>
 </head>
+
 <body class="yui-skin-sam nav-species">
 <div id="content" class="container">
     <header id="page-header">
-        <div class="row-fluid">
-            <div class="span7">
+        <div class="row">
+            <div class="col-md-7">
                 <h2 class="subject-subtitle">
-                    Species List: <a href="${collectoryUrl}/public/show/${params.id}" title="view Date Resource page">${speciesList?.listName}</a>
+                    Species List: <a href="${collectoryUrl}/public/show/${params.id}"
+                                     title="view Date Resource page">${speciesList?.listName}</a>
                     &nbsp;&nbsp;
                     <div class="btn-group btn-group" id="listActionButtons">
-                        <a href="#" id="toggleListInfo" class="btn btn-small"><i class="icon-info-sign "></i> List info</a>
+                        <a href="#" id="toggleListInfo" class="btn btn-default btn-sm"><i
+                                class="glyphicon glyphicon-info-sign "></i> List info</a>
                         <g:if test="${userCanEditPermissions}">
-                            <a href="#" class="btn btn-small" data-remote="${createLink(controller: 'editor', action: 'editPermissions', id: params.id)}"
-                               data-target="#modal" data-toggle="modal"><i class="icon-user "></i> Edit permissions</a>
+                            <a href="#" class="btn btn-default btn-sm" data-target="#modal" data-toggle="modal"><i
+                                    class="glyphicon glyphicon-user "></i> Edit permissions</a>
                         </g:if>
                         <g:if test="${userCanEditData}">
-                            <a href="#" class="btn btn-small" data-remote="${createLink(controller: 'editor', action: 'addRecordScreen', id: params.id)}"
-                               data-target="#addRecord" data-toggle="modal"><i class="icon-plus-sign "></i> Add species</a>
+                            <a href="#" class="btn btn-default btn-sm" data-target="#addRecord" data-toggle="modal"><i
+                                    class="glyphicon glyphicon-plus-sign "></i> Add species</a>
                         </g:if>
                     </div>
                 </h2>
             </div>
             <g:if test="${userCanEditPermissions}">
-                <div class="modal hide fade" id="modal">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h3 id="myModalLabel">Species list permissions</h3>
-                    </div>
-                    <div class="modal-body">
-                        <p><img src="${asset.assetPath(src:'spinner.gif')}" alt="spinner icon"/></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-                        <button class="btn btn-primary" id="saveEditors">Save changes</button>
+                <div class="modal fade" id="modal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+
+                                <h3 id="myModalLabel">Species list permissions</h3>
+                            </div>
+
+                            <div class="modal-body">
+                                <g:include controller="editor" action="editPermissions"
+                                           params="${[id: params.id]}"></g:include>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
+                                <button class="btn btn-primary" id="saveEditors">Save changes</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </g:if>
             <g:if test="${userCanEditData}">
-                <div class="modal hide fade" id="addRecord">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h3>Add record values</h3>
-                    </div>
-                    <div class="modal-body">
-                        <p><img src="${asset.assetPath(src:'spinner.gif')}" alt="spinner icon"/></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-                        <button class="btn btn-primary" id="saveNewRecord" data-id="${speciesList.id}" data-modal="#addRecord">Save changes</button>
+                <div class="modal fade" id="addRecord" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+
+                                <h3>Add record values</h3>
+                            </div>
+
+                            <div class="modal-body">
+                                <g:include controller="editor" action="addRecordScreen"
+                                           params="${[id: params.id, action: 'addRecordScreen']}"></g:include>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
+                                <button class="btn btn-primary" id="saveNewRecord" data-id="${speciesList.id}"
+                                        data-modal="#addRecord">Save changes</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </g:if>
-            <div class="span5 header-btns" id="buttonDiv">
+            <div class="col-md-5 header-btns" id="buttonDiv">
                 <span class="pull-right">
-                    <a href="#download" class="btn btn-ala" title="View the download options for this species list." id="downloadLink">Download</a>
+                    <a href="#download" class="btn btn-ala" title="View the download options for this species list."
+                       id="downloadLink">Download</a>
 
                     <a class="btn btn-ala" title="View occurrences for up to ${maxDownload} species on the list"
                        href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">View occurrence records</a>
 
-                    <a href="${request.contextPath}/speciesList/spatialPortal/${params.id}${params.toQueryString()}&type=Search" class="btn btn-ala" title="View the spatial portal.">View in spatial portal</a>
+                    <a href="${request.contextPath}/speciesList/spatialPortal/${params.id}${params.toQueryString()}&type=Search"
+                       class="btn btn-ala" title="View the spatial portal.">View in spatial portal</a>
                 </span>
             </div>  <!-- rightfloat -->
 
@@ -453,16 +468,18 @@
             </div>
         </div><!--inner-->
     </header>
-    <div class="alert alert-info hide" id="list-meta-data">
+
+    <div class="alert alert-info not-visible" id="list-meta-data">
         <button type="button" class="close" onclick="$(this).parent().slideUp()">&times;</button>
         <g:if test="${userCanEditPermissions}">
-            <a href="#" class="btn btn-small" id="edit-meta-button"><i class="icon-pencil"></i> Edit</a>
+            <a href="#" class="btn btn-default btn-sm" id="edit-meta-button"><i
+                    class="glyphicon glyphicon-pencil"></i> Edit</a>
         </g:if>
         <dl class="dl-horizontal" id="show-meta-dl">
             <dt>${message(code: 'speciesList.listName.label', default: 'List name')}</dt>
-            <dd>${speciesList.listName?:'&nbsp;'}</dd>
+            <dd>${speciesList.listName ?: '&nbsp;'}</dd>
             <dt>${message(code: 'speciesList.username.label', default: 'Owner')}</dt>
-            <dd>${speciesList.fullName?:speciesList.username?:'&nbsp;'}</dd>
+            <dd>${speciesList.fullName ?: speciesList.username ?: '&nbsp;'}</dd>
             <dt>${message(code: 'speciesList.listType.label', default: 'List type')}</dt>
             <dd>${speciesList.listType?.displayValue}</dd>
             <g:if test="${speciesList.description}">
@@ -478,21 +495,22 @@
                 <dd>${speciesList.wkt}</dd>
             </g:if>
             <dt>${message(code: 'speciesList.dateCreated.label', default: 'Date submitted')}</dt>
-            <dd><g:formatDate format="yyyy-MM-dd" date="${speciesList.dateCreated?:0}"/><!-- ${speciesList.lastUpdated} --></dd>
+            <dd><g:formatDate format="yyyy-MM-dd"
+                              date="${speciesList.dateCreated ?: 0}"/><!-- ${speciesList.lastUpdated} --></dd>
             <dt>${message(code: 'speciesList.isPrivate.label', default: 'Is private')}</dt>
-            <dd><g:formatBoolean boolean="${speciesList.isPrivate?:false}" true="Yes" false="No"/></dd>
+            <dd><g:formatBoolean boolean="${speciesList.isPrivate ?: false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.isBIE.label', default: 'Included in BIE')}</dt>
-            <dd><g:formatBoolean boolean="${speciesList.isBIE?:false}" true="Yes" false="No"/></dd>
+            <dd><g:formatBoolean boolean="${speciesList.isBIE ?: false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.isAuthoritative.label', default: 'Authoritative')}</dt>
-            <dd><g:formatBoolean boolean="${speciesList.isAuthoritative?:false}" true="Yes" false="No"/></dd>
+            <dd><g:formatBoolean boolean="${speciesList.isAuthoritative ?: false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.isInvasive.label', default: 'Invasive')}</dt>
-            <dd><g:formatBoolean boolean="${speciesList.isInvasive?:false}" true="Yes" false="No"/></dd>
+            <dd><g:formatBoolean boolean="${speciesList.isInvasive ?: false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.isThreatened.label', default: 'Threatened')}</dt>
-            <dd><g:formatBoolean boolean="${speciesList.isThreatened?:false}" true="Yes" false="No"/></dd>
+            <dd><g:formatBoolean boolean="${speciesList.isThreatened ?: false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.isSDS.label', default: 'Part of the SDS')}</dt>
-            <dd><g:formatBoolean boolean="${speciesList.isSDS?:false}" true="Yes" false="No"/></dd>
+            <dd><g:formatBoolean boolean="${speciesList.isSDS ?: false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.region.label', default: 'Region')}</dt>
-            <dd>${speciesList.region?:'Not provided'}</dd>
+            <dd>${speciesList.region ?: 'Not provided'}</dd>
             <g:if test="${speciesList.isSDS}">
                 <g:if test="${speciesList.authority}">
                     <dt>${message(code: 'speciesList.authority.label', default: 'SDS Authority')}</dt>
@@ -513,136 +531,208 @@
             </g:if>
             <g:if test="${speciesList.editors}">
                 <dt>${message(code: 'speciesList.editors.label', default: 'List editors')}</dt>
-                <dd>${speciesList.editors.collect{ sl.getFullNameForUserId(userId: it) }?.join(", ")}</dd>
+                <dd>${speciesList.editors.collect { sl.getFullNameForUserId(userId: it) }?.join(", ")}</dd>
             </g:if>
             <dt>${message(code: 'speciesList.metadata.label', default: 'Metadata link')}</dt>
-            <dd><a href="${grailsApplication.config.collectory.baseURL}/public/show/${speciesList.dataResourceUid}">${grailsApplication.config.collectory.baseURL}/public/show/${speciesList.dataResourceUid}</a></dd>
+            <dd><a href="${grailsApplication.config.collectory.baseURL}/public/show/${speciesList.dataResourceUid}">${grailsApplication.config.collectory.baseURL}/public/show/${speciesList.dataResourceUid}</a>
+            </dd>
         </dl>
         <g:if test="${userCanEditPermissions}">
-            <div id="edit-meta-div" class="hide">
+            <div id="edit-meta-div" class="not-visible">
                 <form class="form-horizontal" id="edit-meta-form">
-                    <input type="hidden" name="id" value="${speciesList.id}" />
-                    <div class="control-group">
-                        <label class="control-label" for="listName">${message(code: 'speciesList.listName.label', default: 'List name')}</label>
-                        <div class="controls">
-                            <input type="text" name="listName" id="listName" class="input-xlarge" value="${speciesList.listName}" />
+                    <input type="hidden" name="id" value="${speciesList.id}"/>
+
+                    <div class="form-group">
+                        <label class="control-label col-md-2"
+                               for="listName">${message(code: 'speciesList.listName.label', default: 'List name')}</label>
+
+                        <div class="col-md-10">
+                            <input type="text" name="listName" id="listName" class="form-control full-width" value="${speciesList.listName}"/>
                         </div>
                     </div>
-                    <div class="control-group">
-                        <label class="control-label" for="owner">${message(code: 'speciesList.username.label', default: 'Owner')}</label>
-                        <div class="controls">
-                            <select name="owner" id="owner" class="input-xlarge">
-                                <g:each in="${users}" var="userId"><option value="${userId}" ${(speciesList.username == userId) ? 'selected="selected"':''}><sl:getFullNameForUserId userId="${userId}" /></option></g:each>
+
+                    <div class="form-group">
+                        <label class="control-label col-md-2"
+                               for="owner">${message(code: 'speciesList.username.label', default: 'Owner')}</label>
+
+                        <div class="col-md-10">
+                            <select name="owner" id="owner" class="form-control full-width">
+                                <g:each in="${users}" var="userId"><option
+                                        value="${userId}" ${(speciesList.username == userId) ? 'selected="selected"' : ''}><sl:getFullNameForUserId
+                                            userId="${userId}"/></option></g:each>
                             </select>
                         </div>
                     </div>
-                    <div class="control-group">
-                        <label class="control-label" for="listType">${message(code: 'speciesList.listType.label', default: 'List type')}</label>
-                        <div class="controls">
-                            <select name="listType" id="listType" class="input-xlarge">
-                                <g:each in="${au.org.ala.specieslist.ListType.values()}" var="type"><option value="${type.name()}" ${(speciesList.listType == type) ? 'selected="selected"':''}>${type.displayValue}</option></g:each>
+
+                    <div class="form-group">
+                        <label class="control-label col-md-2"
+                               for="listType">${message(code: 'speciesList.listType.label', default: 'List type')}</label>
+
+                        <div class="col-md-10">
+                            <select name="listType" id="listType" class="form-control full-width">
+                                <g:each in="${au.org.ala.specieslist.ListType.values()}" var="type"><option
+                                        value="${type.name()}" ${(speciesList.listType == type) ? 'selected="selected"' : ''}>${type.displayValue}</option></g:each>
                             </select>
                         </div>
                     </div>
-                    <div class="control-group">
-                        <label class="control-label" for="description">${message(code: 'speciesList.description.label', default: 'Description')}</label>
-                        <div class="controls">
-                            <textarea rows="3" name="description" id="description" class="input-block-level">${speciesList.description}</textarea>
+
+                    <div class="form-group">
+                        <label class="control-label col-md-2"
+                               for="description">${message(code: 'speciesList.description.label', default: 'Description')}</label>
+
+                        <div class="col-md-10">
+                            <textarea rows="3" name="description" id="description"
+                                      class="form-control">${speciesList.description}</textarea>
                         </div>
                     </div>
-                    <div class="control-group">
-                        <label class="control-label" for="url">${message(code: 'speciesList.url.label', default: 'URL')}</label>
-                        <div class="controls">
-                            <input type="url" name="url" id="url" class="input-xlarge" value="${speciesList.url}" />
+
+                    <div class="form-group">
+                        <label class="control-label col-md-2"
+                               for="url">${message(code: 'speciesList.url.label', default: 'URL')}</label>
+
+                        <div class="col-md-10">
+                            <input type="url" name="url" id="url" class="form-control full-width" value="${speciesList.url}"/>
                         </div>
                     </div>
-                    <div class="control-group">
-                        <label class="control-label" for="description">${message(code: 'speciesList.wkt.label', default: 'WKT vector')}</label>
-                        <div class="controls">
-                            <textarea rows="3" name="wkt" id="wkt" class="input-block-level">${speciesList.wkt}</textarea>
+
+                    <div class="form-group">
+                        <label class="control-label col-md-2"
+                               for="description">${message(code: 'speciesList.wkt.label', default: 'WKT vector')}</label>
+
+                        <div class="col-md-10">
+                            <textarea rows="3" name="wkt" id="wkt" class="form-control full-width">${speciesList.wkt}</textarea>
                         </div>
                     </div>
-                    <div class="control-group">
-                        <label class="control-label" for="dateCreated">${message(code: 'speciesList.dateCreated.label', default: 'Date submitted')}</label>
-                        <div class="controls">
-                            <input type="date" name="dateCreated" id="dateCreated" data-date-format="yyyy-mm-dd" class="input-xlarge" value="<g:formatDate format="yyyy-MM-dd" date="${speciesList.dateCreated?:0}"/>" />
-                            %{--<g:datePicker name="dateCreated" value="${speciesList.dateCreated}" precision="day" relativeYears="[-2..7]" class="input-small"/>--}%
+
+                    <div class="form-group">
+                        <label class="control-label col-md-2"
+                               for="dateCreated">${message(code: 'speciesList.dateCreated.label', default: 'Date submitted')}</label>
+
+                        <div class="col-md-10">
+                            <input type="date" name="dateCreated" id="dateCreated" data-date-format="yyyy-mm-dd"
+                                   class="form-control full-width"
+                                   value="<g:formatDate format="yyyy-MM-dd" date="${speciesList.dateCreated ?: 0}"/>"/>
                         </div>
                     </div>
-                    <div class="control-group">
-                        <label class="control-label" for="isPrivate">${message(code: 'speciesList.isPrivate.label', default: 'Is private')}</label>
-                        <div class="controls">
-                            <input type="checkbox" id="isPrivate" name="isPrivate" class="input-xlarge" value="true" data-value="${speciesList.isPrivate}" ${(speciesList.isPrivate == true) ? 'checked="checked"':''} />
+
+                    <div class="form-group">
+                        <label class="control-label col-md-2"
+                               for="isPrivate">${message(code: 'speciesList.isPrivate.label', default: 'Is private')}</label>
+
+                        <div class="col-md-10">
+                            <input type="checkbox" id="isPrivate" name="isPrivate" value="true"
+                                   data-value="${speciesList.isPrivate}" ${(speciesList.isPrivate == true) ? 'checked="checked"' : ''}/>
                         </div>
                     </div>
                     <g:if test="${request.isUserInRole("ROLE_ADMIN")}">
-                        <div class="control-group">
-                            <label class="control-label" for="isBIE">${message(code: 'speciesList.isBIE.label', default: 'Included in BIE')}</label>
-                            <div class="controls">
-                                <input type="checkbox" id="isBIE" name="isBIE" class="input-xlarge" value="true" data-value="${speciesList.isBIE}" ${(speciesList.isBIE == true) ? 'checked="checked"':''} />
+                        <div class="form-group">
+                            <label class="control-label col-md-2"
+                                   for="isBIE">${message(code: 'speciesList.isBIE.label', default: 'Included in BIE')}</label>
+
+                            <div class="col-md-10">
+                                <input type="checkbox" id="isBIE" name="isBIE" value="true"
+                                       data-value="${speciesList.isBIE}" ${(speciesList.isBIE == true) ? 'checked="checked"' : ''}/>
                             </div>
                         </div>
-                        <div class="control-group">
-                            <label class="control-label" for="isAuthoritative">${message(code:'speciesList.isAuthoritative.label', default: 'Authoritative')}</label>
-                            <div class="controls">
-                                <input type="checkbox" id="isAuthoritative" name="isAuthoritative" class="input-xlarge" value="true" data-value="${speciesList.isAuthoritative}" ${(speciesList.isAuthoritative == true) ? 'checked="checked"':''} />
+
+                        <div class="form-group">
+                            <label class="control-label col-md-2"
+                                   for="isAuthoritative">${message(code: 'speciesList.isAuthoritative.label', default: 'Authoritative')}</label>
+
+                            <div class="col-md-10">
+                                <input type="checkbox" id="isAuthoritative" name="isAuthoritative"
+                                       value="true"
+                                       data-value="${speciesList.isAuthoritative}" ${(speciesList.isAuthoritative == true) ? 'checked="checked"' : ''}/>
                             </div>
                         </div>
-                        <div class="control-group">
-                            <label class="control-label" for="isInvasive">${message(code:'speciesList.isInvasive.label', default: 'Invasive')}</label>
-                            <div class="controls">
-                                <input type="checkbox" id="isInvasive" name="isInvasive" class="input-xlarge" value="true" data-value="${speciesList.isInvasive}" ${(speciesList.isInvasive == true) ? 'checked="checked"':''} />
+
+                        <div class="form-group">
+                            <label class="control-label col-md-2"
+                                   for="isInvasive">${message(code: 'speciesList.isInvasive.label', default: 'Invasive')}</label>
+
+                            <div class="col-md-10">
+                                <input type="checkbox" id="isInvasive" name="isInvasive" value="true"
+                                       data-value="${speciesList.isInvasive}" ${(speciesList.isInvasive == true) ? 'checked="checked"' : ''}/>
                             </div>
                         </div>
-                        <div class="control-group">
-                            <label class="control-label" for="isThreatened">${message(code:'speciesList.isThreatened.label', default: 'Threatened')}</label>
-                            <div class="controls">
-                                <input type="checkbox" id="isThreatened" name="isThreatened" class="input-xlarge" value="true" data-value="${speciesList.isThreatened}" ${(speciesList.isThreatened == true) ? 'checked="checked"':''} />
+
+                        <div class="form-group">
+                            <label class="control-label col-md-2"
+                                   for="isThreatened">${message(code: 'speciesList.isThreatened.label', default: 'Threatened')}</label>
+
+                            <div class="col-md-10">
+                                <input type="checkbox" id="isThreatened" name="isThreatened"
+                                       value="true"
+                                       data-value="${speciesList.isThreatened}" ${(speciesList.isThreatened == true) ? 'checked="checked"' : ''}/>
                             </div>
                         </div>
-                        <div class="control-group">
-                            <label class="control-label" for="isSDS">${message(code: 'speciesList.isSDS.label', default: 'Part of the SDS')}</label>
-                            <div class="controls">
-                                <input type="checkbox" id="isSDS" name="isSDS" class="input-xlarge" value="true" data-value="${speciesList.isSDS}" ${(speciesList.isSDS == true) ? 'checked="checked"':''} />
+
+                        <div class="form-group">
+                            <label class="control-label col-md-2"
+                                   for="isSDS">${message(code: 'speciesList.isSDS.label', default: 'Part of the SDS')}</label>
+
+                            <div class="col-md-10">
+                                <input type="checkbox" id="isSDS" name="isSDS" value="true"
+                                       data-value="${speciesList.isSDS}" ${(speciesList.isSDS == true) ? 'checked="checked"' : ''}/>
                             </div>
                         </div>
-                        <div class="control-group">
-                            <label class="control-label" for="region">${message(code: 'speciesList.region.label', default: 'Region')}</label>
-                            <div class="controls">
-                                <input type="text" name="region" id="region" class="input-xlarge" value="${speciesList.region}" />
+
+                        <div class="form-group">
+                            <label class="control-label col-md-2"
+                                   for="region">${message(code: 'speciesList.region.label', default: 'Region')}</label>
+
+                            <div class="col-md-10">
+                                <input type="text" name="region" id="region" class="form-control full-width"
+                                       value="${speciesList.region}"/>
                             </div>
                         </div>
                         <g:if test="${speciesList.isSDS}">
-                            <div class="control-group">
-                                <label class="control-label" for="authority">${message(code: 'speciesList.authority.label', default: 'SDS Authority')}</label>
-                                <div class="controls">
-                                    <input type="text" name="authority" id="authority" class="input-xlarge" value="${speciesList.authority}" />
+                            <div class="form-group">
+                                <label class="control-label col-md-2"
+                                       for="authority">${message(code: 'speciesList.authority.label', default: 'SDS Authority')}</label>
+
+                                <div class="col-md-10">
+                                    <input type="text" name="authority" id="authority" class="form-control full-width"
+                                           value="${speciesList.authority}"/>
                                 </div>
                             </div>
-                            <div class="control-group">
-                                <label class="control-label" for="category">${message(code: 'speciesList.category.label', default: 'SDS Category')}</label>
-                                <div class="controls">
-                                    <input type="text" name="category" id="category" class="input-xlarge" value="${speciesList.category}" />
+
+                            <div class="form-group">
+                                <label class="control-label col-md-2"
+                                       for="category">${message(code: 'speciesList.category.label', default: 'SDS Category')}</label>
+
+                                <div class="col-md-10">
+                                    <input type="text" name="category" id="category" class="form-control full-width"
+                                           value="${speciesList.category}"/>
                                 </div>
                             </div>
-                            <div class="control-group">
-                                <label class="control-label" for="generalisation">${message(code: 'speciesList.generalisation.label', default: 'SDS Generalisation')}</label>
-                                <div class="controls">
-                                    <input type="text" name="generalisation" id="generalisation" class="input-xlarge" value="${speciesList.generalisation}" />
+
+                            <div class="form-group">
+                                <label class="control-label col-md-2"
+                                       for="generalisation">${message(code: 'speciesList.generalisation.label', default: 'SDS Generalisation')}</label>
+
+                                <div class="col-md-10">
+                                    <input type="text" name="generalisation" id="generalisation" class="form-control full-width"
+                                           value="${speciesList.generalisation}"/>
                                 </div>
                             </div>
-                            <div class="control-group">
-                                <label class="control-label" for="sdsType">${message(code: 'speciesList.sdsType.label', default: 'SDS Type')}</label>
-                                <div class="controls">
-                                    <input type="text" name="sdsType" id="sdsType" class="input-xlarge" value="${speciesList.sdsType}" />
+
+                            <div class="form-group">
+                                <label class="control-label col-md-2"
+                                       for="sdsType">${message(code: 'speciesList.sdsType.label', default: 'SDS Type')}</label>
+
+                                <div class="col-md-10">
+                                    <input type="text" name="sdsType" id="sdsType" class="form-control full-width"
+                                           value="${speciesList.sdsType}"/>
                                 </div>
                             </div>
                         </g:if>
                     </g:if>
-                    <div class="control-group">
-                        <div class="controls">
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
                             <button type="submit" id="edit-meta-submit" class="btn btn-primary">Save</button>
-                            <button class="btn" onclick="toggleEditMeta(false);return false;">Cancel</button>
+                            <button class="btn btn-default" onclick="toggleEditMeta(false);
+                            return false;">Cancel</button>
                         </div>
                     </div>
                 </form>
@@ -651,13 +741,13 @@
     </div>
 
     <g:if test="${flash.message}">
-        <div class="inner row-fluid">
+        <div class="inner row">
             <div class="message alert alert-info"><b>Alert:</b> ${flash.message}</div>
         </div>
     </g:if>
 
-    <div class="inner row-fluid">
-        <div class="span3 well" id="facets-column">
+    <div class="inner row">
+        <div class="col-md-3 well" id="facets-column">
             <div class="boxedZ attachedZ">
                 <section class="meta">
                     <div class="matchStats">
@@ -665,44 +755,55 @@
                             <span class="count">${totalCount}</span>
                             Number of Taxa
                         </p>
+
                         <p>
                             <span class="count">${distinctCount}</span>
                             Distinct Species
                         </p>
-                        <g:if test="${hasUnrecognised && noMatchCount!=totalCount}">
+                        <g:if test="${hasUnrecognised && noMatchCount != totalCount}">
                             <p>
                                 <span class="count">${noMatchCount}</span>
-                                <g:link action="list" id="${params.id}" title="View unrecognised taxa" params="${[fq:sl.buildFqList(fqs:fqs, fq:"guid:null"), max:params.max]}">Unrecognised Taxa</g:link>
+                                <g:link action="list" id="${params.id}" title="View unrecognised taxa"
+                                        params="${[fq: sl.buildFqList(fqs: fqs, fq: "guid:null"), max: params.max]}">Unrecognised Taxa</g:link>
                             </p>
                         </g:if>
-                        <p><g:link controller="speciesList" action="list" class="btn btn-ala" title="My Lists">My Lists</g:link></p>
+                        <p><g:link controller="speciesList" action="list" class="btn btn-ala"
+                                   title="My Lists">My Lists</g:link></p>
                     </div>
                 </section>
                 <section class="refine" id="refine">
-                    <g:if test="${facets.size()>0 || params.fq}">
-                        <h4 class="hidden-phone">Refine results</h4>
-                        <h4 class="visible-phone">
-                            <a href="#" id="toggleFacetDisplay"><i class="icon-chevron-right" id="facetIcon"></i>
+                    <g:if test="${facets.size() > 0 || params.fq}">
+                        <h4 class="hidden-xs">Refine results</h4>
+                        <h4 class="visible-xs">
+                            <a href="#" id="toggleFacetDisplay"><i class="glyphicon glyphicon-chevron-right"
+                                                                   id="facetIcon"></i>
                                 Refine results</a>
                         </h4>
-                        <div class="hidden-phone" id="accordion">
-                            <g:set var="fqs" value="${params.list('fq')}" />
-                            <g:if test="${fqs.size()>0&& fqs.get(0).length()>0}">
+
+                        <div class="hidden-xs" id="accordion">
+                            <g:set var="fqs" value="${params.list('fq')}"/>
+                            <g:if test="${fqs.size() > 0 && fqs.get(0).length() > 0}">
                                 <div id="currentFilter">
                                     <p>
                                         <span class="FieldName">Current Filters</span>
                                     </p>
+
                                     <div id="currentFilters" class="subnavlist">
                                         <ul>
                                             <g:each in="${fqs}" var="fq">
-                                                <g:if test="${fq.length() >0}">
+                                                <g:if test="${fq.length() > 0}">
                                                     <li>
-                                                        <g:link action="list" id="${params.id}" params="${[fq:sl.excludedFqList(fqs:fqs, fq:fq), max:params.max]}" class="removeLink" title="Uncheck (remove filter)"><i class="icon-check"></i></g:link>
+                                                        <g:link action="list" id="${params.id}"
+                                                                params="${[fq: sl.excludedFqList(fqs: fqs, fq: fq), max: params.max]}"
+                                                                class="removeLink" title="Uncheck (remove filter)"><i
+                                                                class="glyphicon glyphicon-check"></i></g:link>
                                                         <g:if test="${fq.startsWith("Search-")}">
-                                                            <g:message code="facet.${fq.replaceFirst("Search- ","")}" default="${fq.replaceFirst("Search-","")}"/>
+                                                            <g:message code="facet.${fq.replaceFirst("Search- ", "")}"
+                                                                       default="${fq.replaceFirst("Search-", "")}"/>
                                                         </g:if>
                                                         <g:else>
-                                                            <g:message code="facet.${fq.replaceFirst("kvp ","")}" default="${fq.replaceFirst("kvp ","")}"/>
+                                                            <g:message code="facet.${fq.replaceFirst("kvp ", "")}"
+                                                                       default="${fq.replaceFirst("kvp ", "")}"/>
                                                         </g:else>
                                                     </li>
                                                 </g:if>
@@ -715,17 +816,20 @@
                             <g:each in="${facets}" var="entry">
                                 <g:if test="${entry.key == "listProperties"}">
                                     <g:each in="${facets.get("listProperties")}" var="value">
-                                        <g:render template="facet" model="${[key:value.getKey(), values:value.getValue(), isProperty:true]}"/>
+                                        <g:render template="facet"
+                                                  model="${[key: value.getKey(), values: value.getValue(), isProperty: true]}"/>
                                     </g:each>
                                     <div style="display:none"><!-- fancybox popup div -->
                                         <div id="multipleFacets">
                                             <p>Refine your search</p>
+
                                             <div id="dynamic" class="tableContainer"></div>
                                         </div>
                                     </div>
                                 </g:if>
                                 <g:else>
-                                    <g:render template="facet" model="${[key:entry.key, values:entry.value, isProperty:false]}"/>
+                                    <g:render template="facet"
+                                              model="${[key: entry.key, values: entry.value, isProperty: false]}"/>
                                 </g:else>
                             </g:each>
                         </div>
@@ -733,31 +837,46 @@
                 </section>
             </div><!-- boxed attached -->
         </div> <!-- col narrow -->
-        <div class="span9">
-            <div id="listItemView" class="btn-group">
-                <a class="btn btn-small list disabled" title="View as detailed list" href="#list"><i class="icon icon-th-list"></i> list</a>
-                <a class="btn btn-small grid" title="View as thumbnail image grid" href="#grid"><i class="icon icon-th"></i> grid</a>
+        <div class="col-md-9">
+        <div class="row">
+            <div class="col-md-6">
+                <div id="listItemView" class="btn-group">
+                    <a class="btn btn-default btn-sm list disabled" title="View as detailed list" href="#list"><i
+                            class="glyphicon glyphicon-th-list"></i> list</a>
+                    <a class="btn btn-default btn-sm grid" title="View as thumbnail image grid" href="#grid"><i
+                            class="glyphicon glyphicon-th"></i> grid</a>
+                </div>
             </div>
-            <div id="searchView" class="form-inline searchItemForm">
-                <g:form class="searchItemForm" controller="speciesListItem" action="list">
-                    <input type="hidden" name="id" value="${speciesList.dataResourceUid}" />
-                    <div class="input-append" id="searchListItem">
-                        <input class="input-xlarge" id="searchInputButton" name="q" type="text" value="${params.q}" placeholder="Search by Supplied Name">
-                        <button class="btn" type="submit">Search</button>
-                        <g:if test="${params.q}">
-                            <button class="btn btn-primary" onclick="resetSearch()">Clear search</button>
-                        </g:if>
-                    </div>
-                </g:form>
-            </div>
+            <div class="col-md-6">
+                <div id="searchView" class="searchItemForm">
+                    <g:form class="searchItemForm" controller="speciesListItem" action="list">
+                        <input type="hidden" name="id" value="${speciesList.dataResourceUid}"/>
 
-            <div id="gridView" class="hide">
+                        <div class="input-group" id="searchListItem">
+                            <input class="form-control" id="searchInputButton" name="q" type="text" value="${params.q}"
+                                   placeholder="Search by Supplied Name">
+
+                            <div class="input-group-btn">
+                                <button class="btn btn-default" type="submit">Search</button>
+                                <g:if test="${params.q}">
+                                    <button class="btn btn-primary" onclick="resetSearch()">Clear search</button>
+                                </g:if>
+                            </div>
+                        </div>
+                    </g:form>
+                </div>
+            </div>
+        </div>
+
+            <div id="gridView" class="not-visible">
                 <g:each var="result" in="${results}" status="i">
                     <g:set var="recId" value="${result.id}"/>
                     <g:set var="bieTitle">species page for <i>${result.rawScientificName}</i></g:set>
                     <div class="imgCon">
                         <a class="thumbImage viewRecordButton" rel="thumbs" title="click to view details" href="#viewRecord"
-                                    data-id="${recId}"><img src="${result.imageUrl?:asset.assetPath(src:'infobox_info_icon.png\" style=\"opacity:0.5')}" alt="thumbnail species image"/>
+                                    data-id="${recId}"><img
+                        src="${result.imageUrl ?: asset.assetPath(src: 'infobox_info_icon.png\" style=\"opacity:0.5')}"
+                        alt="thumbnail species image"/>
                     </a>
                     <g:if test="${true}">
                         <g:set var="displayName">
@@ -771,17 +890,22 @@
                         <div class="meta brief">
                             ${displayName}
                         </div>
+
                         <div class="meta detail hide">
                             ${displayName}
-                            <g:if test="${result.author}"> ${result.author}</g:if>
+                            <g:if test="${result.author}">${result.author}</g:if>
                             <g:if test="${result.commonName}"><br>${result.commonName}</g:if>
-                        %{--<div class="btn-group btn-group pull-right">--}%
                             <div class="pull-right" style="display:inline-block; padding: 5px;">
-                                <a href="#viewRecord" class="viewRecordButton" title="view record" data-id="${recId}"><i class="icon-info-sign icon-white"></i></a>&nbsp;
+                                <a href="#viewRecord" class="viewRecordButton" title="view record" data-id="${recId}"><i
+                                        class="glyphicon glyphicon-info-sign glyphicon-white"></i></a>&nbsp;
                                 <g:if test="${userCanEditData}">
-                                    <a href="#" title="edit" data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
-                                       data-target="#editRecord_${recId}" data-toggle="modal" ><i class="icon-pencil icon-white"></i></a>&nbsp;
-                                    <a href="#" title="delete" data-target="#deleteRecord_${recId}" data-toggle="modal"><i class="icon-trash icon-white"></i></a>&nbsp;
+                                    <a href="#" title="edit"
+                                       data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
+                                       data-target="#editRecord_${recId}" data-toggle="modal"><i
+                                            class="glyphicon glyphicon-pencil glyphicon-white"></i></a>&nbsp;
+                                    <a href="#" title="delete" data-target="#deleteRecord_${recId}"
+                                       data-toggle="modal"><i class="glyphicon glyphicon-trash glyphicon-white"></i>
+                                    </a>&nbsp;
                                 </g:if>
                             </div>
                         </div>
@@ -791,18 +915,22 @@
 
                 </g:each>
             </div><!-- /#iconView -->
-            <div id="listView" class="hide">
+            <div id="listView" class="not-visible">
                 <section class="double">
                     <div class="fwtable table-bordered" style="overflow:auto;width:100%;">
                         <table class="tableList table table-bordered table-striped" id="speciesListTable">
                             <thead>
                             <tr>
                                 <th class="action">Action</th>
-                                <g:sortableColumn property="rawScientificName" title="Supplied Name" params="${[fq: fqs]}"></g:sortableColumn>
-                                <g:sortableColumn property="matchedName" title="Scientific Name (matched)" params="${[fq: fqs]}"></g:sortableColumn>
+                                <g:sortableColumn property="rawScientificName" title="Supplied Name"
+                                                  params="${[fq: fqs]}"></g:sortableColumn>
+                                <g:sortableColumn property="matchedName" title="Scientific Name (matched)"
+                                                  params="${[fq: fqs]}"></g:sortableColumn>
                                 <th>Image</th>
-                                <g:sortableColumn property="author" title="Author (matched)" params="${[fq: fqs]}"></g:sortableColumn>
-                                <g:sortableColumn property="commonName" title="Common Name (matched)" params="${[fq: fqs]}"></g:sortableColumn>
+                                <g:sortableColumn property="author" title="Author (matched)"
+                                                  params="${[fq: fqs]}"></g:sortableColumn>
+                                <g:sortableColumn property="commonName" title="Common Name (matched)"
+                                                  params="${[fq: fqs]}"></g:sortableColumn>
                                 <g:each in="${keys}" var="key">
                                     <th>${key}</th>
                                 </g:each>
@@ -814,25 +942,35 @@
                                 <g:set var="bieTitle">species page for <i>${result.rawScientificName}</i></g:set>
                                 <tr class="${(i % 2) == 0 ? 'odd' : 'even'}" id="row_${recId}">
                                     <td class="action">
-                                        <div class="btn-group btn-group">
-                                            <a class="btn btn-small viewRecordButton" href="#viewRecord" title="view record" data-id="${recId}"><i class="icon-info-sign"></i></a>
+                                        <div class="btn-group action-btn-group-width" role="group">
+                                            <a class="btn btn-default btn-xs viewRecordButton" href="#viewRecord"
+                                               title="view record" data-id="${recId}"><i
+                                                    class="glyphicon glyphicon-info-sign"></i></a>
                                             <g:if test="${userCanEditData}">
-                                                <a class="btn btn-small" href="#" title="edit" data-remote="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
-                                                   data-target="#editRecord_${recId}" data-toggle="modal" ><i class="icon-pencil"></i></a>
-                                                <a class="btn btn-small" href="#" title="delete" data-target="#deleteRecord_${recId}" data-toggle="modal"><i class="icon-trash"></i></a>
+                                                <a class="btn btn-default btn-xs" href="#" title="edit"
+                                                   data-remote-url="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
+                                                   data-target="#editRecord_${recId}" data-toggle="modal"><i
+                                                        class="glyphicon glyphicon-pencil"></i></a>
+                                                <a class="btn btn-default btn-xs" href="#" title="delete"
+                                                   data-target="#deleteRecord_${recId}" data-toggle="modal"><i
+                                                        class="glyphicon glyphicon-trash"></i></a>
                                             </g:if>
                                         </div>
                                     </td>
                                     <td class="rawScientificName">
                                         ${fieldValue(bean: result, field: "rawScientificName")}
                                         <g:if test="${result.guid == null}">
-                                            <br/>(unmatched - try <a href="http://google.com/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="google" clas="btn btn-primary btn-mini">Google</a>,
-                                            <a href="${grailsApplication.config.biocache.baseURL}/occurrences/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}" target="biocache" clas="btn btn-success btn-mini">Occurrences</a>)
+                                            <br/>(unmatched - try <a
+                                                href="http://google.com/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}"
+                                                target="google" clas="btn btn-primary btn-xs">Google</a>,
+                                            <a href="${grailsApplication.config.biocache.baseURL}/occurrences/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}"
+                                               target="biocache" clas="btn btn-success btn-xs">Occurrences</a>)
                                         </g:if>
                                     </td>
                                     <td class="matchedName">
                                         <g:if test="${result.guid}">
-                                            <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}">${result.matchedName}</a>
+                                            <a href="${bieUrl}/species/${result.guid}"
+                                               title="${bieTitle}">${result.matchedName}</a>
                                         </g:if>
                                         <g:else>
                                             ${result.matchedName}
@@ -840,15 +978,18 @@
                                     </td>
                                     <td id="img_${result.guid}">
                                         <g:if test="${result.imageUrl}">
-                                            <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img style="max-width: 400px;" src="${result.imageUrl}" class="smallSpeciesImage"/></a>
+                                            <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img
+                                                    style="max-width: 400px;" src="${result.imageUrl}"
+                                                    class="smallSpeciesImage"/></a>
                                         </g:if>
                                     </td>
                                     <td>${result.author}</td>
                                     <td id="cn_${result.guid}">${result.commonName}</td>
                                     <g:each in="${keys}" var="key">
-                                        <g:set var="kvp" value="${result.kvpValues.find {it.key == key}}" />
-                                        <g:set var="val" value="${kvp?.vocabValue?:kvp?.value}" />
-                                        <td class="kvp ${val?.length() > 35 ? 'scrollWidth':''}"><div>${val}</div></td>
+                                        <g:set var="kvp" value="${result.kvpValues.find { it.key == key }}"/>
+                                        <g:set var="val" value="${kvp?.vocabValue ?: kvp?.value}"/>
+                                        <td class="kvp ${val?.length() > 35 ? 'scrollWidth' : ''}"><div>${val}</div>
+                                        </td>
                                     </g:each>
                                 </tr>
                             </g:each>
@@ -859,9 +1000,9 @@
             </div> <!-- /#listView -->
             <div class="searchWidgets">
                 Items per page:
-                <select id="maxItems" class="input-mini" onchange="reloadWithMax(this)">
-                    <g:each in="${[10,25,50,100]}" var="max">
-                        <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
+                <select id="maxItems" onchange="reloadWithMax(this)">
+                    <g:each in="${[10, 25, 50, 100]}" var="max">
+                        <option ${(params.max == max) ? 'selected="selected"' : ''}>${max}</option>
                     </g:each>
                 </select>
             </div>
@@ -877,53 +1018,83 @@
         %{-- Output the BS modal divs (hidden until called) --}%
             <g:each var="result" in="${results}" status="i">
                 <g:set var="recId" value="${result.id}"/>
-                <div class="modal hide fade" id="viewRecord">
-                    <div class="modal-header">
-                        <button type="button" class="close" onclick="$('#viewRecord .modal-body').scrollTop(0);" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h3>View record details</h3>
-                    </div>
-                    <div class="modal-body">
-                        <p class="spinner"><img src="${asset.assetPath(src:'spinner.gif')}" alt="spinner icon"/></p>
-                        <table class="table table-bordered table-condensed table-striped hide">
-                            <thead><th>Field</th><th>Value</th></thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-primary hide" data-id="${recId}">Previous</button>
-                        <button class="btn btn-primary hide" data-id="${recId}">Next</button>
-                        <button class="btn" onclick="$('#viewRecord .modal-body').scrollTop(0);" data-dismiss="modal" aria-hidden="true">Close</button>
+                <div class="modal fade" id="viewRecord" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" onclick="$('#viewRecord .modal-body').scrollTop(0);"
+                                        data-dismiss="modal" aria-hidden="true">×</button>
+
+                                <h3>View record details</h3>
+                            </div>
+
+                            <div class="modal-body">
+                                <p class="spinner"><img src="${asset.assetPath(src: 'spinner.gif')}"
+                                                        alt="spinner icon"/></p>
+                                <table class="table table-bordered table-condensed table-striped">
+                                    <thead><th>Field</th><th>Value</th></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-primary hide" data-id="${recId}">Previous</button>
+                                <button class="btn btn-primary hide" data-id="${recId}">Next</button>
+                                <button class="btn btn-default" onclick="$('#viewRecord .modal-body').scrollTop(0);"
+                                        data-dismiss="modal" aria-hidden="true">Close</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <g:if test="${userCanEditData}">
-                    <div class="modal hide fade" id="editRecord_${recId}">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                            <h3>Edit record values</h3>
-                        </div>
-                        <div class="modal-body">
-                            <p><img src="${asset.assetPath(src:'spinner.gif')}" alt="spinner icon"/></p>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-                            <button class="btn btn-primary saveRecord" data-modal="#editRecord_${recId}" data-id="${recId}">Save changes</button>
+                    <div class="modal fade editRecords" id="editRecord_${recId}" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal"
+                                            aria-hidden="true">×</button>
+
+                                    <h3>Edit record values</h3>
+                                </div>
+
+                                <div class="modal-body">
+                                    <p><img src="${asset.assetPath(src: 'spinner.gif')}" alt="spinner icon"/></p>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button class="btn btn-default" data-dismiss="modal"
+                                            aria-hidden="true">Cancel</button>
+                                    <button class="btn btn-primary saveRecord" data-modal="#editRecord_${recId}"
+                                            data-id="${recId}">Save changes</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="modal hide fade" id="deleteRecord_${recId}">
-                        <div class="modal-header">
-                            <h3>Are you sure you want to delete this species record?</h3>
-                        </div>
-                        <div class="modal-body">
-                            <p>This will permanently delete the data for species <i>${result.rawScientificName}</i></p>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-                            <button class="btn btn-primary deleteSpecies" data-modal="#deleteRecord_${recId}" data-id="${recId}">Delete</button>
+
+                    <div class="modal fade" id="deleteRecord_${recId}" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3>Are you sure you want to delete this species record?</h3>
+                                </div>
+
+                                <div class="modal-body">
+                                    <p>This will permanently delete the data for species <i>${result.rawScientificName}</i>
+                                    </p>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button class="btn btn-default" data-dismiss="modal"
+                                            aria-hidden="true">Cancel</button>
+                                    <button class="btn btn-primary deleteSpecies" data-modal="#deleteRecord_${recId}"
+                                            data-id="${recId}">Delete</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </g:if>
             </g:each>
-        </div> <!-- .span9 -->
+        </div> <!-- .col-md-9 -->
     </div>
 </div> <!-- content div -->
 <asset:javascript src="fancybox.js" asset-defer=""/>
@@ -941,6 +1112,20 @@
             });
         });
 
+        $('.editRecords').on('show.bs.modal', function(e) {
+            var $this = $(this);
+            var data = $this.data();
+            if(data["bs.modal"].options.remoteUrl){
+                $.ajax(data["bs.modal"].options.remoteUrl,{
+                    success: function(htmlContent) {
+                        $this.find('.modal-body').html(htmlContent);
+                    },
+                    error: function() {
+                        $this.find('.modal-body').html("An error occurred while loading data.");
+                    }
+                })
+            }
+        });
     });
 </asset:script>
 </body>

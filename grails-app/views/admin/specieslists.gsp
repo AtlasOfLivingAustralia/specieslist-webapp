@@ -11,23 +11,17 @@
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     <title>Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
     <asset:stylesheet src="fancybox.css"/>
+    <meta name="breadcrumbParent" content="${request.contextPath}/public/speciesLists,Species lists"/>
+    <meta name="breadcrumb" content="Admin"/>
 </head>
 <body class="">
 <div id="content" class="container">
     <header id="page-header">
-        <div class="inner row-fluid">
-            <div id="breadcrumb" class="span12">
-                <ol class="breadcrumb">
-                    <li><a href="http://www.ala.org.au">Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
-                    <li class="current"><a class="current" href="${request.contextPath}/public/speciesLists">Species lists</a></li>
-                </ol>
-            </div>
-        </div>
-        <div class="row-fluid">
-            <hgroup class="span8">
+        <div class="row">
+            <hgroup class="col-md-8">
                 <h1>Species lists</h1>
             </hgroup>
-            <div class="span4 header-btns">
+            <div class="col-md-4 header-btns">
                 <span class="pull-right">
                     <a class="btn btn-ala" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
                     <a class="btn btn-ala" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>

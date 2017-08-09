@@ -19,7 +19,7 @@
 <meta name="breadcrumb" content="Upload a list"/>
 <meta name="breadcrumbParent" content="${request.contextPath},Species Lists"/>
 <title>Upload a list | Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
-    <asset:stylesheet src="fileupload.css"/>
+<asset:stylesheet src="fileupload.css"/>
 <asset:script type="text/javascript">
     function init(){
         reset();
@@ -272,12 +272,6 @@
 <body class="upload">
 <div id="content" class="container">
     <header id="page-header">
-        %{--<div id="breadcrumb" >--}%
-            %{--<ol class="breadcrumb">--}%
-                %{--<li><a href="${request.contextPath}/public/speciesLists">Species lists</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>--}%
-                %{--<li class="current">Upload a list</li>--}%
-            %{--</ol>--}%
-        %{--</div>--}%
         <hgroup>
             <g:if test="${list}">
                 <h1><g:message code="upload.heading.hasList" default="Upload a list"/></h1>
@@ -304,24 +298,24 @@
 
                 <g:uploadForm name="csvUploadForm" id="csvUploadForm" action="parseData">
                     <div class="fileupload fileupload-new pull-left" data-provides="fileupload">
-                        <div class="input-append">
-                            <div class="uneditable-input span3">
-                                <i class="icon-file fileupload-exists"></i>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-default disabled fileupload-exists">
+                                <i class="glyphicon glyphicon-file fileupload-exists"></i>
                                 <span class="fileupload-preview"></span>
-                            </div>
-                            <span class="btn btn-default btn-file">
+                            </button>
+                            <button class="btn btn-default btn-file">
                                 <span class="fileupload-new">Select file</span>
                                 <span class="fileupload-exists">Change</span>
                                 <input type="file" name="csvFile" id="csvFileUpload"/>
-                            </span>
-                            <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
+                            </button>
+                            <button href="#" class="btn btn-default fileupload-exists" data-dismiss="fileupload">Remove</button>
                         </div>
                     </div>
                 </g:uploadForm>
 
                 <div style="clear: both"></div>
 
-                <g:submitButton id="checkData2" class="actionButton btn" name="checkData" value="Check Data"
+                <g:submitButton id="checkData2" class="actionButton btn btn-default" name="checkData" value="Check Data"
                                 onclick="javascript:parseColumns();"/>
 
                 <h3>Option 2: Paste your species list here</h3>
@@ -334,7 +328,7 @@
                         name="copyPasteData" rows="10" cols="120" style="width:100%;"
                         onkeyup="javascript:window.setTimeout('parseColumns()', 500, true);"></g:textArea>
 
-                <g:submitButton id="checkData" class="actionButton btn" name="checkData" value="Check Data"
+                <g:submitButton id="checkData" class="actionButton btn btn-default" name="checkData" value="Check Data"
                                 onclick="javascript:parseColumns();"/>
                 <p id="processingInfo"></p>
 
@@ -415,7 +409,7 @@
                                 <label for="listDesc"><g:message code="upload.listdesc.label" default="Description"/></label>
                             </td>
                             <td>
-                                <g:textArea cols="100" class="input-xxlarge" rows="5" name="listDesc">${list?.description}</g:textArea>
+                                <g:textArea cols="100" class="full-width" rows="5" name="listDesc">${list?.description}</g:textArea>
                             </td>
                         </tr>
                         <tr>
@@ -423,7 +417,7 @@
                                 <label for="listURL"><g:message code="upload.listlink.label" default="URL"/></label>
                             </td>
                             <td>
-                                <g:textField name="listURL" class="input-xxlarge">${list?.url}</g:textField>
+                                <g:textField name="listURL" class="full-width">${list?.url}</g:textField>
                             </td>
 
                         </tr>
@@ -432,7 +426,7 @@
                                 <label for="listWkt"><g:message code="upload.listWkt.label" default="Spatial bounds for data (WKT)"/></label>
                             </td>
                             <td>
-                                <g:textArea cols="100" rows="5" class="input-xxlarge" name="listWkt">${list?.wkt}</g:textArea>
+                                <g:textArea cols="100" rows="5" class="full-width" name="listWkt">${list?.wkt}</g:textArea>
                             </td>
 
                         </tr>
@@ -443,7 +437,7 @@
                 </div>
             </div>
 
-            <div id="uploadFeedback" style="clear:right;display:none;" class="alert alert-error">
+            <div id="uploadFeedback" style="clear:right;display:none;" class="alert alert-danger">
                 <button type="button" class="close" onclick="$(this).parent().hide()">×</button>
                 <div></div>
             </div>

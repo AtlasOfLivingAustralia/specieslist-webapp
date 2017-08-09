@@ -13,7 +13,7 @@
 </head>
 <body>
 <g:if test="${flash.message}">
-    <div class="message alert alert-error"><b>Alert:</b> ${flash.message}</div>
+    <div class="message alert alert-danger"><b>Alert:</b> ${flash.message}</div>
 </g:if>
 <g:if test="${record}">
     <div class="hide">
@@ -35,7 +35,7 @@
             <tbody>
             <tr class=''>
                 <td class="dataField">Supplied Name</td>
-                <td class='dataValue'><input name="rawScientificName" id="rawScientificName" type="text" class="input-block-level" value="${record?.rawScientificName?.trim()}"/></td>
+                <td class='dataValue'><input name="rawScientificName" id="rawScientificName" type="text" class="form-control" value="${record?.rawScientificName?.trim()}"/></td>
                 <td>&nbsp;</td>
             </tr>
             %{--<g:each in="${record.kvpValues}" var="field">--}%
@@ -50,15 +50,15 @@
                     </td>
                     <td class='dataValue'>
                         <g:if test="${field?.value?.size() > 50}">
-                            <textarea name="${key}" class="input-block-level" rows="2" ${(hasVocab)?"readonly='readonly'":""}>${field?.value}</textarea>
+                            <textarea name="${key}" class="form-control" rows="2" ${(hasVocab)?"readonly='readonly'":""}>${field?.value}</textarea>
                         </g:if>
                         <g:else>
-                            <input type="text" name="${key}" class="input-block-level" value="${field?.value}" ${(hasVocab)?"readonly='readonly'":""}/>
+                            <input type="text" name="${key}" class="form-control" value="${field?.value}" ${(hasVocab)?"readonly='readonly'":""}/>
                         </g:else>
                     </td>
                     <td>
                         <g:if test="${hasVocab}">%{-- select onChange detected in JS block below --}%
-                            <select name="vocab_${key}" class="input-block-level vocabDropDown" data-key="${key}">
+                            <select name="vocab_${key}" class="form-control vocabDropDown" data-key="${key}">
                                 <g:each in="${keyVocabs[key]}" var="vocab">
                                     <option ${(field?.vocabValue == vocab) ? "selected='selected'": ""} data-value="${kvpMap[key]?.findAll{it.vocabValue == vocab}[0]?.value}">${vocab}</option>
                                 </g:each>

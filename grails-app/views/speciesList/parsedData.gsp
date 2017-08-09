@@ -28,13 +28,13 @@
 
         <h1></h1>
         <g:if test="${error}">
-            <div class="message alert alert-error">${error}</div>
+            <div class="message alert alert-danger">${error}</div>
         </g:if>
         <g:else>
             <div id="recognisedDataDiv">
                 <h2>2. Check our initial interpretation</h2>
                 <g:if test="${!nameFound}">
-                    <div class="alert alert-error">
+                    <div class="alert alert-danger">
                         <strong>Warning</strong> No species name column could be found, please add one. Any of the following column names will do:
                         <g:each in="${nameColumns}" var="nc" status="i">
                             <g:if test="${i == nameColumns.size() - 1}">, or </g:if><g:elseif test="${i != 0}">, </g:elseif>“${nc}”</g:each>
@@ -73,13 +73,13 @@
                     We have detected species properties within the list. <br/>
                     It is possible to map your properties to a controlled vocabulary.<br/>
                     This step is <strong>optional</strong>.
-                    <input id="viewVocabButton" class="datasetName actionButton btn" type="button"
+                    <input id="viewVocabButton" class="datasetName actionButton btn btn-default" type="button"
                            value="Click here to map..." onclick="javascript:viewVocab();"/>
                 </p>
 
                 <div class="allVocabs well" id="listvocab">
 
-                    <div class="pull-right"><button class="btn" onclick="javascript:hideVocab();">Close</button></div>
+                    <div class="pull-right"><button class="btn btn-default" onclick="javascript:hideVocab();">Close</button></div>
 
                     <g:each in="${listProperties.keySet()}" var="key">
                         <div class="vocabDiv">
@@ -104,7 +104,7 @@
                         </div><!-- #vocabDiv -->
                     </g:each>
 
-                    <div class="pull-right"><button class="btn" onclick="javascript:hideVocab();">Close</button></div>
+                    <div class="pull-right"><button class="btn btn-default" onclick="javascript:hideVocab();">Close</button></div>
                 </div><!-- #listvocab -->
             </g:if>
         </g:else>

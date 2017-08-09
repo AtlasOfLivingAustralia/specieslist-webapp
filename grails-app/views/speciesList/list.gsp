@@ -16,6 +16,7 @@
 <html>
 <head>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
+    <meta name="breadcrumbParent" content="${request.contextPath}/public/speciesLists,Species lists"/>
     <meta name="breadcrumb" content="My Species Lists"/>
     <title>My Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">
@@ -34,20 +35,11 @@
 </asset:script>
 <div id="content" class="container">
     <header id="page-header2">
-        %{--<div class="innerZ row-fluid">--}%
-            %{--<div id="breadcrumb" class="span12">--}%
-                %{--<ol class="breadcrumb">--}%
-                    %{--<li><a href="${grailsApplication.config.ala.baseURL}">Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>--}%
-                    %{--<li><a href="${request.contextPath}/public/speciesLists">Species lists</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>--}%
-                    %{--<li class="current">${request.getUserPrincipal()?.attributes?.firstname} ${request.getUserPrincipal()?.attributes?.lastname}&apos;s Species Lists</li>--}%
-                %{--</ol>--}%
-            %{--</div>--}%
-        %{--</div>--}%
-        <div class="row-fluid">
-            <hgroup class="span8">
+        <div class="row">
+            <hgroup class="col-md-8">
                 <h1 class="subject-subtitle">My species lists</h1>
             </hgroup>
-            <div class="span4 header-btns">
+            <div class="col-md-4 header-btns">
                 <g:link controller="speciesList" action="upload" class="btn btn-ala pull-right" title="Add Species List">Upload a list</g:link>
             </div>
         </div><!--inner-->

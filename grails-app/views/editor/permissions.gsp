@@ -18,10 +18,18 @@
 <div>This form allows the list owner (or administrator) to add/remove users as <strong>editors</strong> of this list. This
 in turn, allows those <strong>editors</strong> to edit and delete entries in this list.</div>
 <div>&nbsp;</div>
-<form class="form-inline" id="userEditForm">
-    <label class="control-label" for="search">User's email address </label>
-    <input id="search" type="text" class="input-xlarge" data-provide="typeahead" placeholder="Enter user's email address" autocomplete="off">
-    <button type="submit" class="btn">Add</button>
+<form id="userEditForm" class="form-horizontal">
+    <div class="form-group">
+        <label class="control-label col-md-4" for="search">User's email address </label>
+        <div class="col-md-6">
+            <div class="input-group">
+                <input id="search" type="text" class="form-control" data-provide="typeahead" placeholder="Enter user's email address" autocomplete="off">
+                <div class="input-group-btn">
+                    <button type="submit" class="btn btn-default">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>
 <table id="userTable" class="table table-bordered" style="margin-top: 10px;">
     <thead>
@@ -46,7 +54,7 @@ in turn, allows those <strong>editors</strong> to edit and delete entries in thi
         </g:each>
     </tbody>
 </table>
-<asset:script type="text/javascript">
+<asset:script type="text/javascript" asset-defer="">
 
     /**
     * Delete a row from the table

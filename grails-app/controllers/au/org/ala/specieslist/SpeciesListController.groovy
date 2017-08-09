@@ -249,7 +249,6 @@ class SpeciesListController {
         //def username = authService.getEmail()
         def userId = authService.getUserId()
         if (userId){
-            //params['username'] = "eq:"+username
             params['userId'] = "eq:"+userId
         }
 

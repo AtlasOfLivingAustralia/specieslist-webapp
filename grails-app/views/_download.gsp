@@ -35,19 +35,13 @@
 
             <p style="text-align: center">
             <g:if test="${grailsApplication.config.occurrenceDownload.enabled.toBoolean()}">
-                <input type="submit" value="Download All Records" class="actionButton btn" id="downloadSubmitButton" onclick="return downloadOccurrences()"/>
+                <input type="submit" value="Download All Records" class="actionButton btn btn-default" id="downloadSubmitButton" onclick="return downloadOccurrences()"/>
             </g:if>
             <g:if test="${grailsApplication.config.fieldGuide.baseURL}">
-                <input type="submit" value="Download Species Field Guide" class="actionButton btn" id="downloadFieldGuideSubmitButton"/>
+                <input type="submit" value="Download Species Field Guide" class="actionButton btn btn-default" id="downloadFieldGuideSubmitButton"/>
             </g:if>
-            <input type="submit" value="Download Species List" class="actionButton btn" id="downloadSpeciesListSubmitButton"/>
+            <input type="submit" value="Download Species List" class="actionButton btn btn-default" id="downloadSpeciesListSubmitButton"/>
             </p>
-            %{--<c:if test="${skin != 'avh'}">--}%
-            %{--<input type="submit" value="Download Species Field Guide" id="downloadFieldGuideSubmitButton"/>&nbsp;--}%
-            %{--</c:if>--}%
-            <!--
-            <input type="reset" value="Cancel" onClick="$.fancybox.close();"/>
-            -->
             <g:if test="${grailsApplication.config.fieldGuide.baseURL}">
                 <p style="margin-top:10px;">
                     <strong>Note</strong>: The field guide may take several minutes to prepare and download.

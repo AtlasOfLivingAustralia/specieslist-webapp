@@ -31,7 +31,7 @@
     function fancyConfirm(msg,listId,action,callback){
         //alert("${request.contextPath}"+"/speciesList/"+action+ "/"+listId)
         jQuery.fancybox({
-            'content':"<div style=\"margin:1px;width:240px;text-align:left;\">"+msg+"<div style=\"text-align:right;margin-top:10px;\"><input id=\"fancyConfirm_cancel\" type=\"button\" value=\"No\" class=\"actionButton btn btn-small\">&nbsp;<input id=\"fancyConfirm_ok\" type=\"button\" value=\"Yes\" class=\"actionButton btn btn-small\"><img src='${asset.assetPath(src:'spinner.gif')}' id='spinner'/></div></div>",
+            'content':"<div style=\"margin:1px;width:240px;text-align:left;\">"+msg+"<div style=\"text-align:right;margin-top:10px;\"><input id=\"fancyConfirm_cancel\" type=\"button\" value=\"No\" class=\"actionButton btn btn-default btn-sm\">&nbsp;<input id=\"fancyConfirm_ok\" type=\"button\" value=\"Yes\" class=\"actionButton btn btn-default btn-sm\"><img src='${asset.assetPath(src:'spinner.gif')}' id='spinner'/></div></div>",
             'padding': 10,
             'margin': 20,
             onComplete : function() {
@@ -72,13 +72,15 @@
     }
 </asset:script>
 
-<div style="float: right;">
-    Items per page:
-    <select id="maxItems" class="input-mini" onchange="reloadWithMax(this)">
-        <g:each in="${[10,25,50,100]}" var="max">
-            <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
-        </g:each>
-    </select>
+<div class="form-horizontal pull-right">
+    <div class="form-group">
+        <label class="control-label">Items per page:</label>
+        <select id="maxItems" onchange="reloadWithMax(this)">
+            <g:each in="${[10,25,50,100]}" var="max">
+                <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
+            </g:each>
+        </select>
+    </div>
 </div>
 
 <div id="speciesList" class="speciesList clearfix">
@@ -109,7 +111,7 @@
             <g:sortableColumn property="itemsCount" params="${[q:params.q]}"
                               title="${message(code: 'speciesList.name.count', default: 'Item Count')}"/>
             <g:if test="${request.getUserPrincipal()}">
-                <th colspan="2">Actions</th>
+                <th colspan="3">Actions</th>
             </g:if>
         </tr>
         </thead>

@@ -56,11 +56,11 @@ grails.project.dependency.resolution = {
 
         runtime ":cors:1.1.8"
 
-        runtime ":ala-bootstrap2:2.6.0"
+        runtime ":ala-bootstrap3:2.0.0"
         runtime (":ala-auth:2.1.3") {
             exclude "servlet-api"
         }
-        runtime (":ala-admin-plugin:1.2"){
+        runtime (":ala-admin-plugin:1.3"){
             exclude "resources"
         }
 

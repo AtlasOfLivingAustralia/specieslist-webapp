@@ -22,28 +22,20 @@
 <body class="">
 <div id="content" class="container">
     <header id="page-header">
-        %{--<div class="inner row-fluid" style="display: block;">--}%
-            %{--<div id="breadcrumb" class="span12">--}%
-                %{--<ol class="breadcrumb">--}%
-                    %{--<li><a href="${request.contextPath}">Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>--}%
-                    %{--<li><a class="current" href="${request.contextPath}/admin/speciesLists">Species lists</a></li>--}%
-                %{--</ol>--}%
-            %{--</div>--}%
-        %{--</div>--}%
-        <div class="row-fluid">
-            <hgroup class="span8">
+        <div class="row">
+            <hgroup class="col-md-8">
                 <h2 class="subject-title">Species lists</h2>
             </hgroup>
-            <div class="span4 header-btns">
+            <div class="col-md-4 header-btns">
                 <span class="pull-right">
                     <a class="btn btn-ala" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
                     <a class="btn btn-ala" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
                 </span>
             </div>
-        </div><!--.row-fluid-->
+        </div><!--.row-->
 
     </header>
-    <div class="inner row-fluid" id="public-specieslist">
+    <div class="inner row" id="public-specieslist">
         <g:if test="${flash.message}">
             <div class="message alert alert-info">
                 <button type="button" class="close" onclick="$(this).parent().hide()">×</button>
@@ -60,15 +52,16 @@
                 Below is a listing of user provided species lists. You can use these lists to work
                 with parts of the Atlas.
             </p>
-            <form class="listSearchForm" >
-                <div class="input-append" id="searchLists">
-                    <input class="input-xlarge" id="appendedInputButton" name="q" type="text" value="${params.q}" placeholder="Search in list name, description or owner">
-                    <button class="btn" type="submit">Search</button>
+            <form class="listSearchForm col-md-4" >
+                <div class="input-group" id="searchLists">
+                    <input id="appendedInputButton" class="form-control" name="q" type="text" value="${params.q}" placeholder="Search in list name, description or owner">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="submit">Search</button>
+                    </div>
                 </div>
             </form>
-            <form class="listSearchForm" >
+            <form class="listSearchForm col-md-2" >
                 <g:if test="${params.q}">
-                %{--<input type="hidden" name="q" value=""/>--}%
                     <button class="btn btn-primary" type="submit">Clear search</button>
                 </g:if>
             </form>

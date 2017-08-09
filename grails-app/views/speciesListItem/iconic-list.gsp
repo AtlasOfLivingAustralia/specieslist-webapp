@@ -70,7 +70,7 @@
             box-shadow: inset 1px 0 0 rgba(0,0,0,.1), inset -1px 0 0 rgba(0,0,0,.1);
         }
         /* Chevrons */
-        .bs-docs-sidenav .icon-chevron-right {
+        .bs-docs-sidenav .glyphicon-chevron-right {
             float: right;
             margin-top: 2px;
             margin-right: -6px;
@@ -79,12 +79,11 @@
         .bs-docs-sidenav > li > a:hover {
             background-color: #f5f5f5;
         }
-        .bs-docs-sidenav a:hover .icon-chevron-right {
+        .bs-docs-sidenav a:hover .glyphicon-chevron-right {
             opacity: .5;
         }
-        .bs-docs-sidenav .active .icon-chevron-right,
-        .bs-docs-sidenav .active a:hover .icon-chevron-right {
-            /*background-image: url(../img/glyphicons-halflings-white.png);*/
+        .bs-docs-sidenav .active .glyphicon-chevron-right,
+        .bs-docs-sidenav .active a:hover .glyphicon-chevron-right {
             opacity: 1;
         }
         .bs-docs-sidenav.affix {
@@ -165,7 +164,7 @@
                 width: auto;
                 top: 0;
             }
-            .input-append .general-search {
+            .input-group .general-search {
                 width: 100%;
             }
         }
@@ -200,8 +199,8 @@
 <body class="yui-skin-sam nav-species">
 <div id="content" class="container">
 
-    <div class="inner row-fluid">
-        <div class="span12">
+    <div class="inner row">
+        <div class="col-md-12">
             <h2 class="subject-title">Australian iconic species</h2>
             <p class="lead">
                 Below is a listing of some of Australia's most recognisable species. As well as the listing
@@ -211,26 +210,25 @@
         </div>
     </div>
     <g:if test="${flash.message}">
-        <div class="inner row-fluid">
+        <div class="inner row">
             <div class="message alert alert-info"><b>Alert:</b> ${flash.message}</div>
         <div>
     </g:if>
-    %{--<h3>Browse Iconic Australian species</h3>--}%
-    <div class="inner row-fluid">
-        <div class="span3">
-            <ul id="groupsNav" class="nav nav-list bs-docs-sidenav ">
+    <div class="inner row">
+        <div class="col-md-3">
+            <ul id="groupsNav" class="nav bs-docs-sidenav ">
                 <g:set var="fqs" value="${params.list('fq')}" />
                 <g:each in="${facets.get("listProperties")}" var="group">
                     <g:if test="${group.getKey() == 'group'}">
                         <g:each in="${group.getValue().sort{it[1]}}" var="arr" status="i">
                             <g:set var="active" value="${fqs.any{ it.contains(arr[1])} ? "active" : ""}"/>
-                            <li class="${active}"><a href="?fq=kvp ${arr[0]}:${arr[1]}">${arr[1]} (${arr[3]})<i class="icon-chevron-right"></i> </a></li>
+                            <li class="${active}"><a href="?fq=kvp ${arr[0]}:${arr[1]}">${arr[1]} (${arr[3]})<i class="glyphicon glyphicon-chevron-right"></i> </a></li>
                         </g:each>
                     </g:if>
                 </g:each>
             </ul>
-        </div> <!-- /span3 -->
-        <div class="span9">
+        </div> <!-- /col-md-3 -->
+        <div class="col-md-9">
             <div id="gridView" class="">
                 <g:each var="result" in="${results}" status="i">
                     <g:set var="recId" value="${result.id}"/>
@@ -263,7 +261,7 @@
             <g:if test="${params.max<totalCount}">
                 <div class="searchWidgets">
                     Items per page:
-                    <select id="maxItems" class="input-mini" onchange="reloadWithMax(this)">
+                    <select id="maxItems" onchange="reloadWithMax(this)">
                         <g:each in="${[10,25,50,100]}" var="max">
                             <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
                         </g:each>
@@ -279,7 +277,7 @@
                     </g:else>
                 </div>
             </g:if>
-        </div> <!-- .span9 -->
+        </div> <!-- .col-md-9 -->
         %{--</div> <!-- results -->--}%
     </div>
 </div> <!-- content div -->
