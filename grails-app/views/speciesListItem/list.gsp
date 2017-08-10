@@ -767,8 +767,6 @@
                                         params="${[fq: sl.buildFqList(fqs: fqs, fq: "guid:null"), max: params.max]}">Unrecognised Taxa</g:link>
                             </p>
                         </g:if>
-                        <p><g:link controller="speciesList" action="list" class="btn btn-ala"
-                                   title="My Lists">My Lists</g:link></p>
                     </div>
                 </section>
                 <section class="refine" id="refine">

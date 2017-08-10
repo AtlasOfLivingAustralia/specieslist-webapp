@@ -1,12 +1,3 @@
-body {
-    font-size: 13px;
-}
-
-h1 {font-size: 2.0em;}
-h2 {font-size: 1.8em;}
-h3 {font-size: 1.6em;}
-h4 {font-size: 1.4em;}
-
 #content {
     margin-bottom: 20px;
 }
@@ -381,4 +372,8 @@ h2 { margin-top: 30px; }
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
+}
+
+.input-group input{
+    border-color: black;
 }
