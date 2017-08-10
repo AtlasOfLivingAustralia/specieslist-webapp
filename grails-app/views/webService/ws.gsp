@@ -11,7 +11,7 @@
 <head>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     <meta name="breadcrumb" content="Web services"/>
-    <meta name="breadcrumbParent" content="${request.contextPath},Species Lists"/>
+    <meta name="breadcrumbParent" content="${request.contextPath}/,Species Lists"/>
     <title>Species lists Webservices| ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">
         code {

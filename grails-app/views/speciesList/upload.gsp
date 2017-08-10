@@ -17,7 +17,7 @@
 <head>
 <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
 <meta name="breadcrumb" content="Upload a list"/>
-<meta name="breadcrumbParent" content="${request.contextPath},Species Lists"/>
+<meta name="breadcrumbParent" content="${request.contextPath}/,Species Lists"/>
 <title>Upload a list | Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
 <asset:stylesheet src="fileupload.css"/>
 <asset:script type="text/javascript">
