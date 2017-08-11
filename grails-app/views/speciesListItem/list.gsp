@@ -112,12 +112,9 @@
                 'width': 600,
                 'height': 400,
                 'padding': 20,
-                'margin': 10,
+                'margin': 0,
                 onCleanup: function() {
                     $("label[for='reasonTypeId']").css("color","#444");
-                },
-                onStart: function() {
-                   $("#fancybox-content").css("borderWidth","0px");
                 }
             });
 

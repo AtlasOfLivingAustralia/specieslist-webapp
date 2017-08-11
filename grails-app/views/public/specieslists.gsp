@@ -19,63 +19,57 @@
     <meta name="breadcrumb" content="Species Lists"/>
     <title>Species lists |${grailsApplication.config.skin.orgNameLong}</title>
 </head>
-<body class="">
-<div id="content" class="container">
-    <header id="page-header">
-        <div class="row">
-            <hgroup class="col-md-8">
-                <h2 class="subject-title">Species lists</h2>
-            </hgroup>
-            <div class="col-md-4 header-btns">
-                <span class="pull-right">
-                    <a class="btn btn-ala" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
-                    <a class="btn btn-ala" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
-                </span>
-            </div>
-        </div><!--.row-->
 
-    </header>
-    <div class="inner row" id="public-specieslist">
-        <g:if test="${flash.message}">
-            <div class="message alert alert-info">
-                <button type="button" class="close" onclick="$(this).parent().hide()">×</button>
-                <b>Alert:</b> ${flash.message}
-            </div>
-        </g:if>
-            <p>
-                This tool allows you to upload a list of species, and work with that list within the Atlas.
-                <br/>
-                Click "Upload a list" to upload your own list of taxa.
-            </p>
-        <g:if test="${lists && total>0}">
-            <p>
-                Below is a listing of user provided species lists. You can use these lists to work
-                with parts of the Atlas.
-            </p>
-            <form class="listSearchForm col-md-4" >
-                <div class="input-group" id="searchLists">
-                    <input id="appendedInputButton" class="form-control" name="q" type="text" value="${params.q}" placeholder="Search in list name, description or owner">
-                    <div class="input-group-btn">
-                        <button class="btn btn-default" type="submit">Search</button>
-                    </div>
+<body class="">
+<div id="content" class="row">
+    <div class="col-md-12">
+        <header id="page-header">
+            <div class="row">
+                <hgroup class="col-md-8">
+                    <h2 class="subject-title">Species lists</h2>
+                </hgroup>
+
+                <div class="col-md-4">
+                    <span class="pull-right">
+                        <a class="btn btn-ala" title="Add Species List"
+                           href="${request.contextPath}/speciesList/upload">Upload a list</a>
+                        <a class="btn btn-ala" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
+                    </span>
                 </div>
-            </form>
-            <form class="listSearchForm col-md-2" >
-                <g:if test="${params.q}">
-                    <button class="btn btn-primary" type="submit">Clear search</button>
+            </div><!--.row-->
+
+        </header>
+        <div class="inner row" id="public-specieslist">
+            <div class="col-md-12">
+                <g:if test="${flash.message}">
+                    <div class="message alert alert-info">
+                        <button type="button" class="close" onclick="$(this).parent().hide()">×</button>
+                        <b>Alert:</b> ${flash.message}
+                    </div>
                 </g:if>
-            </form>
-            <g:render template="/speciesList"/>
-        </g:if>
-        <g:elseif test="${params.q}">
-            <form class="listSearchForm" >
-                <p>No Species Lists found for: <b>${params.q}</b></p>
-                <button class="btn btn-primary" type="submit">Clear search</button>
-            </form>
-        </g:elseif>
-        <g:else>
-            <p>There are no Species Lists available</p>
-        </g:else>
+                <p>
+                    This tool allows you to upload a list of species, and work with that list within the Atlas.
+                    <br/>
+                    Click "Upload a list" to upload your own list of taxa.
+                </p>
+                <g:if test="${lists && total > 0}">
+                    <p>
+                        Below is a listing of user provided species lists. You can use these lists to work
+                        with parts of the Atlas.
+                    </p>
+                    <g:render template="/speciesList"/>
+                </g:if>
+                <g:elseif test="${params.q}">
+                    <form class="listSearchForm">
+                        <p>No Species Lists found for: <b>${params.q}</b></p>
+                        <button class="btn btn-primary" type="submit">Clear search</button>
+                    </form>
+                </g:elseif>
+                <g:else>
+                    <p>There are no Species Lists available</p>
+                </g:else>
+            </div>
+        </div>
     </div>
 </div> <!-- content div -->
 </body>

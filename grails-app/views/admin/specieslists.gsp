@@ -15,37 +15,39 @@
     <meta name="breadcrumb" content="Admin"/>
 </head>
 <body class="">
-<div id="content" class="container">
-    <header id="page-header">
-        <div class="row">
-            <hgroup class="col-md-8">
-                <h1>Species lists</h1>
-            </hgroup>
-            <div class="col-md-4 header-btns">
-                <span class="pull-right">
-                    <a class="btn btn-ala" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
-                    <a class="btn btn-ala" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
-                    <a class="btn btn-ala" title="Rematch" href="${request.contextPath}/speciesList/rematch">Rematch All</a>
-                </span>
-            </div>
-        </div><!--inner-->
-    </header>
-    <div class="inner">
-        <g:if test="${flash.message}">
-            <div class="message alert alert-info">${flash.message}</div>
-        </g:if>
+<div id="content" class="row">
+    <div class="col-md-12">
+        <header id="page-header">
+            <div class="row">
+                <hgroup class="col-md-8">
+                    <h1>Species lists</h1>
+                </hgroup>
+                <div class="col-md-4">
+                    <span class="pull-right">
+                        <a class="btn btn-ala" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
+                        <a class="btn btn-ala" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
+                        <a class="btn btn-ala" title="Rematch" href="${request.contextPath}/speciesList/rematch">Rematch All</a>
+                    </span>
+                </div>
+            </div><!--inner-->
+        </header>
+        <div class="inner">
+            <g:if test="${flash.message}">
+                <div class="message alert alert-info">${flash.message}</div>
+            </g:if>
 
-        <g:if test="${lists && total>0}">
-            <a href="${g.createLink(action: 'updateListsWithUserIds')}" class="btn btn-primary">Update List user details (name & email address)</a>
-            <p>
-                Below is a listing of all species lists that can be administered.
-            </p>
-            <g:render template="/speciesList"/>
-        </g:if>
-        <g:else>
-            <p>There are no Species Lists available</p>
-        </g:else>
+            <g:if test="${lists && total>0}">
+                <p>
+                    Below is a listing of all species lists that can be administered.
+                </p>
+                <a href="${g.createLink(action: 'updateListsWithUserIds')}" class="btn btn-primary margin-bottom-5px">Update List user details (name & email address)</a>
+                <g:render template="/speciesList"/>
+            </g:if>
+            <g:else>
+                <p>There are no Species Lists available</p>
+            </g:else>
 
+        </div>
     </div>
 </div>
 <asset:javascript src="fancybox.js"/>

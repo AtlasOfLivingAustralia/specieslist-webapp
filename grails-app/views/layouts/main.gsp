@@ -26,7 +26,7 @@
 </head>
 <body class="${pageProperty(name:'body.class')}" id="${pageProperty(name:'body.id')}" onload="${pageProperty(name:'body.onload')}">
 <g:set var="fluidLayout" value="${pageProperty(name:'meta.fluidLayout')?:grailsApplication.config.skin?.fluidLayout}"/>
-<g:set var="containerType" value="${fluidLayout ? 'container-fluid' : 'container'}"/>
+<g:set var="containerType" value="${fluidLayout?.toBoolean() ? 'container-fluid' : 'container'}"/>
 
 <!-- Header -->
 <hf:banner logoutUrl="${g.createLink(controller:"logout", action:"logout", absolute: true)}" />

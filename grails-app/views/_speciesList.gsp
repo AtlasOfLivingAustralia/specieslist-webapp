@@ -15,13 +15,10 @@
     });
 
     function deleteAction(){
-        //console.log(this)
         var listId = this.id.replace("dialog_","");
         var url = "${createLink(controller:'speciesList', action:'delete')}" + "/"+listId;
-        //console.log("DELETE ITEMS",listId, url)
         $.post(url,
                 function(data){
-                    //alert('Value returned from service: '  + data.uid);
                     window.location.reload()
                 } );
         this.cancel();
@@ -31,9 +28,11 @@
     function fancyConfirm(msg,listId,action,callback){
         //alert("${request.contextPath}"+"/speciesList/"+action+ "/"+listId)
         jQuery.fancybox({
-            'content':"<div style=\"margin:1px;width:240px;text-align:left;\">"+msg+"<div style=\"text-align:right;margin-top:10px;\"><input id=\"fancyConfirm_cancel\" type=\"button\" value=\"No\" class=\"actionButton btn btn-default btn-sm\">&nbsp;<input id=\"fancyConfirm_ok\" type=\"button\" value=\"Yes\" class=\"actionButton btn btn-default btn-sm\"><img src='${asset.assetPath(src:'spinner.gif')}' id='spinner'/></div></div>",
-            'padding': 10,
-            'margin': 20,
+            'content':"<div style=\"padding:20px;width:400px;text-align:center;\">"+msg+"<div style=\"text-align:center;margin-top:10px;\"><input id=\"fancyConfirm_cancel\" type=\"button\" value=\"No\" class=\"actionButton btn btn-default btn-sm\">&nbsp;<input id=\"fancyConfirm_ok\" type=\"button\" value=\"Yes\" class=\"actionButton btn btn-default btn-sm\"><img src='${asset.assetPath(src:'spinner.gif')}' id='spinner'/></div></div>",
+            'padding': 0,
+            'margin': 0,
+            'width' : 'auto',
+            'height': 'auto',
             onComplete : function() {
                 jQuery("#fancyConfirm_cancel").click(function() {
                     ret = false;
@@ -59,30 +58,48 @@
                     });
                 })
             }
-
         })
     }
 
     function reloadWithMax(el) {
         var max = $(el).find(":selected").val();
         //collect all the params that are applicable for the a page resizing
-        var paramStr = "${raw(params.findAll {key, value -> key != 'max' && key != 'offset' && key != 'controller' && key != 'action'}.collect { it }.join('&'))}" + "&max="+max
+        var paramStr = "${raw(params.findAll {key, value -> key != 'max' && key != 'offset' && key != 'controller' && key != 'action' && !!value}.collect { it }.join('&'))}" + "&max="+max
         //alert(paramStr)
         window.location.href = window.location.pathname + '?' + paramStr;
     }
 </asset:script>
+<div class="row">
+    <div class="col-md-5">
+    <form class="listSearchForm">
+        <div class="input-group" id="searchLists">
+            <input id="appendedInputButton" class="form-control" name="q" type="text" value="${params.q}"
+                   placeholder="Search in list name, description or owner">
 
-<div class="form-horizontal pull-right">
-    <div class="form-group">
-        <label class="control-label">Items per page:</label>
-        <select id="maxItems" onchange="reloadWithMax(this)">
-            <g:each in="${[10,25,50,100]}" var="max">
-                <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
-            </g:each>
-        </select>
+            <div class="input-group-btn">
+                <button class="btn btn-default" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+    </div>
+<div class="col-md-3">
+    <form class="listSearchForm">
+        <g:if test="${params.q}">
+            <button class="btn btn-primary" type="submit">Clear search</button>
+        </g:if>
+    </form>
+</div>
+    <div class="col-md-4">
+        <div class="form-group pull-right">
+            <label class="control-label">Items per page:</label>
+            <select id="maxItems" onchange="reloadWithMax(this)">
+                <g:each in="${[10,25,50,100]}" var="max">
+                    <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
+                </g:each>
+            </select>
+        </div>
     </div>
 </div>
-
 <div id="speciesList" class="speciesList clearfix">
     <table class="table table-bordered table-striped">
 

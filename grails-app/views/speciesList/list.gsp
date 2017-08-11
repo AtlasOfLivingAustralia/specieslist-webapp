@@ -33,27 +33,29 @@
             document.getElementById("speciesList").style.display = "block";
     }
 </asset:script>
-<div id="content" class="container">
-    <header id="page-header2">
-        <div class="row">
-            <hgroup class="col-md-8">
-                <h1 class="subject-subtitle">My species lists</h1>
-            </hgroup>
-            <div class="col-md-4 header-btns">
-                <g:link controller="speciesList" action="upload" class="btn btn-ala pull-right" title="Add Species List">Upload a list</g:link>
-            </div>
-        </div><!--inner-->
-    </header>
+<div id="content" class="row">
+    <div class="col-md-12">
+        <header id="page-header2">
+            <div class="row">
+                <hgroup class="col-md-8">
+                    <h1 class="subject-subtitle">My species lists</h1>
+                </hgroup>
+                <div class="col-md-4">
+                    <g:link controller="speciesList" action="upload" class="btn btn-ala pull-right" title="Add Species List">Upload a list</g:link>
+                </div>
+            </div><!--inner-->
+        </header>
 
-    <div class="inner">
+        <div class="inner">
             <g:if test="${lists && total > 0}">
                 <p>Below is a listing of species lists that you have provided. You can use these lists to work with parts of the Atlas.
-                    Click on the "delete" button next to a list to remove it from the Atlas.</p>
+                Click on the "delete" button next to a list to remove it from the Atlas.</p>
                 <g:render template="/speciesList"/>
             </g:if>
             <g:else>
                 <p>You do not have any available species lists.</p>
             </g:else>
+        </div>
     </div>
 </div> <!--content-->
 <asset:javascript src="fancybox.js"/>
