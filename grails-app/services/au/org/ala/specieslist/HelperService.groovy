@@ -791,9 +791,6 @@ class HelperService {
                 if (profile) {
                     slItem.commonName = profile.commonNameSingle
                     slItem.imageUrl = profile.smallImageUrl
-                    if (!slItem.save()) {
-                        log.error("Unable to save SpeciesListItem for ${slItem.guid}: ${slItem.dataResourceUid}")
-                    }
                 }
             }
         } catch (Exception e){
