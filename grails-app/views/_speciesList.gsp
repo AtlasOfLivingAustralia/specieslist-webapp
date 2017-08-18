@@ -173,7 +173,7 @@
     </table>
     <g:if test="${params.max < total}">
         <div class="pagination" id="searchNavBar" data-total="${total}" data-max="${params.max}">
-            <g:paginate total="${total}" params="${params}"/>
+            <hf:paginate total="${total}" params="${params}"/>
         </div>
     </g:if>
 </div>

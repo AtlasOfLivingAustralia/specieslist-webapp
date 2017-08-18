@@ -69,7 +69,7 @@ class SpeciesList {
     }
 
     def String getFullName(){
-        def user = authService.getUserForUserId(username)
+        def user = authService?.getUserForUserId(username)
         user?.displayName
     }
 }

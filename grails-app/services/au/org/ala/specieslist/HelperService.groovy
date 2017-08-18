@@ -14,22 +14,19 @@
  */
 
 package au.org.ala.specieslist
+
 import au.com.bytecode.opencsv.CSVReader
 import au.org.ala.names.model.LinnaeanRankClassification
 import au.org.ala.names.model.NameSearchResult
 import au.org.ala.names.search.ALANameSearcher
+import grails.transaction.Transactional
 import groovy.json.JsonOutput
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
 import org.apache.commons.lang.StringUtils
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.nibor.autolink.Autolink
-import org.nibor.autolink.LinkExtractor
-import org.nibor.autolink.LinkRenderer
-import org.nibor.autolink.LinkSpan
-import org.nibor.autolink.LinkType
-import org.springframework.web.multipart.commons.CommonsMultipartFile
+import org.grails.web.json.JSONArray
+import org.nibor.autolink.*
 
 import javax.annotation.PostConstruct
 
@@ -38,6 +35,7 @@ import static groovyx.net.http.ContentType.JSON
  * Provides all the services for the species list webapp.  It may be necessary to break this into
  * multiple services if it grows too large
  */
+@Transactional
 class HelperService {
 
     def grailsApplication
@@ -75,12 +73,12 @@ class HelperService {
      * @return
      */
     def addDataResourceForList(map) {
-        if(grailsApplication.config.collectory.enableSync?.toBoolean()){
+        if(grailsApplication.config.collectory.enableSync?.toString()?.toBoolean()){
             def postUrl = grailsApplication.config.collectory.baseURL + "/ws/dataResource"
             def http = new HTTPBuilder(postUrl)
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
             def jsonBody = createJsonForNewDataResource(map)
-            log.debug(jsonBody)
+            log.debug(jsonBody?.toString())
             try {
                http.post(body: jsonBody, requestContentType:JSON){ resp ->
                  assert resp.status == 201
@@ -98,7 +96,7 @@ class HelperService {
     }
 
     def deleteDataResourceForList(drId) {
-        if(grailsApplication.config.collectory.enableSync?.toBoolean()){
+        if(grailsApplication.config.collectory.enableSync?.toString()?.toBoolean()){
             def deleteUrl = grailsApplication.config.collectory.baseURL +"/ws/dataResource/" + drId
             def http = new HTTPBuilder(deleteUrl)
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
@@ -108,7 +106,7 @@ class HelperService {
                     requestContentType = ContentType.JSON
                     headers."Authorization" = "${grailsApplication.config.registryApiKey}"
                     response.success = { resp ->
-                        log.info(resp)
+                        log.info(resp?.toString())
                     }
                     response.failure = { resp ->
                         log.error("Delete request for ${drId} failed with status ${resp.status}")
@@ -121,12 +119,12 @@ class HelperService {
     }
 
     def updateDataResourceForList(drId, map) {
-        if(grailsApplication.config.collectory.enableSync?.toBoolean()){
+        if(grailsApplication.config.collectory.enableSync?.toString()?.toBoolean()){
             def postUrl = grailsApplication.config.collectory.baseURL + "/ws/dataResource/" + drId
             def http = new HTTPBuilder(postUrl)
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
             def jsonBody = createJsonForNewDataResource(map)
-            log.debug(jsonBody)
+            log.debug(jsonBody?.toString())
             try {
                http.post(body: jsonBody, requestContentType:JSON){ resp ->
                  log.debug("Response code: " + resp.status)
@@ -164,7 +162,7 @@ class HelperService {
         new CSVReader(new StringReader(raw), separator.charAt(0))
     }
 
-    def getCSVReaderForCSVFileUpload(CommonsMultipartFile file, char separator) {
+    def getCSVReaderForCSVFileUpload(file, char separator) {
         new CSVReader(new InputStreamReader(file.getInputStream()), separator)
     }
 
@@ -381,13 +379,12 @@ class HelperService {
         }
 
         if (!speciesList.validate()) {
-            log.error(speciesList.errors.allErrors)
+            log.error(speciesList.errors.allErrors?.toString())
         }
-
-        speciesList.save(flush: true, failOnError: true)
 
         List sli = speciesList.getItems().toList()
         matchCommonNamesForSpeciesListItems(sli)
+        speciesList.save(flush: true, failOnError: true)
 
         [speciesList: speciesList, speciesGuids: guidList]
     }
@@ -493,14 +490,13 @@ class HelperService {
 
         }
         if(!sl.validate()){
-            log.error(sl.errors.allErrors)
-        }
-        if(sl.items && sl.items.size() > 0){
-            sl.save()
+            log.error(sl.errors.allErrors?.toString())
         }
 
         List sli = sl.getItems()?.toList()
         matchCommonNamesForSpeciesListItems(sli)
+
+        sl.save()
 
         [totalRecords: totalCount, successfulItems: itemCount]
     }
@@ -528,10 +524,11 @@ class HelperService {
             }
 
         }
-        sl.save()
 
         List sli = sl.getItems().toList()
         matchCommonNamesForSpeciesListItems(sli)
+
+        sl.save()
     }
 
     def insertSpeciesItem(String[] values, druid, int speciesIdx, Object[] header,map, int order){
@@ -727,10 +724,10 @@ class HelperService {
                 return [text: message, status: 500]
                 //render(text: message, status: 500)
             }
-            else if (sl.save(flush: true)) {
+            else if (sl.save()) {
                 // find common name and save it
                 matchCommonNamesForSpeciesListItems([sli])
-
+                sl.save(flush: true)
                 // Commented out as we would like to keep species list generic
                 /*   def preferredSpeciesImageListName = grailsApplication.config.ala.preferred.species.name
                    if (sl.listName == preferredSpeciesImageListName) {
@@ -801,7 +798,7 @@ class HelperService {
             }
         } catch (Exception e){
             log.error("an exception occurred during rematching: ${e.message}");
-            log.error(e.stackTrace)
+            log.error(e.stackTrace?.toString())
         }
     }
 }

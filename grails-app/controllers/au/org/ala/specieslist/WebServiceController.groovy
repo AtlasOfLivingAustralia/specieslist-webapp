@@ -282,7 +282,7 @@ class WebServiceController {
                 if (localAuthService.isValidUserName(username)) {
                     if (jsonBody.listItems && jsonBody.listName) {
                         jsonBody.username = username
-                        log.warn(jsonBody)
+                        log.warn(jsonBody?.toString())
                         def druid = params.druid
 
                         // This is passed in from web service call to make sure it doesn't replace existing list

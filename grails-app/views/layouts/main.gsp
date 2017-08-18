@@ -18,8 +18,8 @@
     <!--[if lt IE 9]>
     <asset:javascript src="html5.js" />
     <![endif]-->
-    <asset:javascript src="ala-head.js" />
-    <asset:javascript src="jquery-migration.js" />
+    <asset:javascript src="head.js"/>
+    <asset:javascript src="jquery-extensions.js" />
 
     <title><g:layoutTitle /></title>
     <g:layoutHead />

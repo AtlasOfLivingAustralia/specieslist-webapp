@@ -111,7 +111,7 @@ class SpeciesListItemController {
                     }
 
                     def baseQueryAndParams = requestParams.fq ? queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, requestParams.id) : null
-                    log.debug(baseQueryAndParams)
+                    log.debug(baseQueryAndParams?.toString())
 
                     // to sort on a column 'order by' clause has to be added explicitly since executeQuery function does
                     // not accept sort and order as named parameters. Named parameters accepted by executeQuery includes
@@ -253,7 +253,7 @@ class SpeciesListItemController {
             def csvWriter = new CSVWriter(out)
             def header =  ["Supplied Name","guid","scientificName","family","kingdom"]
             header.addAll(keys)
-            log.debug(header)
+            log.debug(header?.toString())
             csvWriter.writeNext(header as String[])
             sli.each {
                 def values = keys.collect{key->it.kvpValues.find {kvp -> kvp.key == key}}.collect { kvp -> kvp?.vocabValue?:kvp?.value}

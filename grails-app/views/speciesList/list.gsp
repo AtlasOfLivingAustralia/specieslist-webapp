@@ -17,7 +17,7 @@
 <head>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     <meta name="breadcrumbParent" content="${request.contextPath}/public/speciesLists,Species lists"/>
-    <meta name="breadcrumb" content="My Species Lists"/>
+    <meta name="breadcrumb" content="My species lists"/>
     <title>My Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">
         #speciesList {display: none;}

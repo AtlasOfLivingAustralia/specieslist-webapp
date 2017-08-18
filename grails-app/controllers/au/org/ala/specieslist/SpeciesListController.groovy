@@ -16,10 +16,9 @@ package au.org.ala.specieslist
 
 import au.com.bytecode.opencsv.CSVReader
 import au.org.ala.web.AuthService
-import grails.converters.*
-import org.codehaus.groovy.grails.web.json.JSONObject
+import grails.converters.JSON
+import org.grails.web.json.JSONObject
 import org.springframework.web.multipart.MultipartHttpServletRequest
-import org.springframework.web.multipart.commons.CommonsMultipartFile
 
 import javax.annotation.PostConstruct
 
@@ -50,7 +49,7 @@ class SpeciesListController {
     def index() { redirect(action: 'upload')}
 
     def upload(){ /*maps to the upload.gsp */
-        log.debug(ListType.values())
+        log.debug(ListType.values()?.toString())
         if(params.id){
             //get the list if it exists and ensure that the user is an admin or the owner
             def list = SpeciesList.findByDataResourceUid(params.id)
@@ -74,7 +73,7 @@ class SpeciesListController {
         def sl = SpeciesList.get(params.id)
         if(sl){
             helperService.deleteDataResourceForList(sl.dataResourceUid)
-            sl.delete()
+            sl.delete(flush: true)
         }
         redirect(action: 'list')
     }
@@ -90,7 +89,7 @@ class SpeciesListController {
 
         //delete all the items that belong to the specified list
         //SpeciesListItem.where {dataResourceUid == params.id}.deleteAll()
-        log.debug(params)
+        log.debug(params?.toString())
         //performs the cascade delete that is required.
         SpeciesListItem.findAllByDataResourceUid(params.id)*.delete()
         SpeciesListKVP.findAllByDataResourceUid(params.id)*.delete()
@@ -102,7 +101,7 @@ class SpeciesListController {
     def createOrRetrieveDataResourceUid(dataResourceUid, speciesListName){
         if(!dataResourceUid){
             def drURL = helperService.addDataResourceForList([name:speciesListName])
-            log.debug(drURL)
+            log.debug(drURL?.toString())
             if(!drURL){
                 log.error("Unable to create entry in collectory....")
                 throw new Exception("Problem communicating with collectory. Unable to create resource.")
@@ -117,7 +116,7 @@ class SpeciesListController {
     def uploadList() {
         //the raw data and list name must exist
         log.debug("upload the list....")
-        log.debug(params)
+        log.debug(params?.toString())
 
         def file = isMultipartRequest() ? request.getFile(CSV_UPLOAD_FILE_NAME) : null
 
@@ -217,7 +216,7 @@ class SpeciesListController {
             def localFilePath = helperService.uploadFile(druid, uploadedFile)
             log.debug("The local file " + localFilePath)
             //create a new species list item for each line of the file
-            log.debug(params)
+            log.debug(params?.toString())
             //set of the columns if necessary
             def columns = params.findAll { it.key.startsWith("column") && it.value }.sort{it.key.replaceAll("column","") as int }
             log.debug(columns.toString() + " " + columns.size())
@@ -232,7 +231,7 @@ class SpeciesListController {
                 log.debug("header :" + header[i] + " value: "+ it.value)
                 vocabMap.put(header[i] , it.value)
             }
-            log.debug(vocabMap)
+            log.debug(vocabMap?.toString())
             helperService.loadSpeciesListFromFile(params.speciesListTitle,druid,localFilePath,params.containsKey('rowIndicatesMapping'),header,vocabMap)
             //redirect the use to a summary of the records that they submitted - include links to BIE species page
             //also mention that the list will be loaded into BIE overnight.
@@ -269,10 +268,10 @@ class SpeciesListController {
     }
 
     def test(){
-        log.debug(helperService.addDataResourceForList("My test List"))
-        log.debug(authService.getEmail())
+        log.debug(helperService.addDataResourceForList("My test List")?.toString())
+        log.debug(authService.getEmail()?.toString())
         //bieService.bulkLookupSpecies(["urn:lsid:biodiversity.org.au:afd.taxon:31a9b8b8-4e8f-4343-a15f-2ed24e0bf1ae"])
-        log.debug(loggerService.getReasons())
+        log.debug(loggerService.getReasons()?.toString())
     }
 
     def showList(){
@@ -285,7 +284,7 @@ class SpeciesListController {
             //params.fetch = [kvpValues: 'join'] -- doesn't work for a 1 ro many query because it doesn't correctly obey the "max" param
             //params.remove("id")
             params.fetch= [ kvpValues: 'select' ]
-            log.error(params.toQueryString())
+            log.error(params.toQueryString()?.toString())
             def distinctCount = SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid='"+params.id+"'").head()
             def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid='"+params.id+"'")
             def speciesListItems =  SpeciesListItem.findAllByDataResourceUid(params.id,params)
@@ -395,7 +394,7 @@ class SpeciesListController {
 
         String separator
         CSVReader csvReader
-        CommonsMultipartFile file = isMultipartRequest() ? request.getFile(CSV_UPLOAD_FILE_NAME) : null
+        def file = isMultipartRequest() ? request.getFile(CSV_UPLOAD_FILE_NAME) : null
         try {
             if (file) {
                 if (ACCEPTED_CONTENT_TYPES.contains(file.getContentType())) {
@@ -422,8 +421,8 @@ class SpeciesListController {
         }
     }
 
-    private String detectSeparator(CommonsMultipartFile file) {
-        file.getInputStream().withReader { r -> helperService.getSeparator(r.readLine()) }
+    private String detectSeparator(file) {
+        file?.getInputStream().withReader { r -> helperService.getSeparator(r.readLine()) }
     }
 
     /**
@@ -450,11 +449,7 @@ class SpeciesListController {
                 items = SpeciesListItem.list(max: BATCH_SIZE, offset: offset)
             }
 
-            SpeciesListItem.withSession { session->
-                session.clear()
-            }
-
-            SpeciesListItem.withNewSession {
+            SpeciesListItem.withSession {session->
                 items.eachWithIndex { item, i ->
                     String rawName = item.rawScientificName
                     log.debug i + ". Rematching: " + rawName
@@ -472,9 +467,13 @@ class SpeciesListController {
                         }
                     }
                 }
+
+                helperService.getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
+
+                session.flush()
+                session.clear()
             }
 
-            helperService.getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
             offset += BATCH_SIZE;
             log.info("Rematched ${offset} of ${totalRows} - ${Math.round(offset * 100 / totalRows)}% complete")
         }
@@ -484,10 +483,10 @@ class SpeciesListController {
 
     private parseDataFromCSV(CSVReader csvReader, String separator) {
         def rawHeader = csvReader.readNext()
-        log.debug(rawHeader.toList())
+        log.debug(rawHeader.toList()?.toString())
         def parsedHeader = helperService.parseHeader(rawHeader) ?: helperService.parseData(rawHeader)
         def processedHeader = parsedHeader.header
-        log.debug(processedHeader)
+        log.debug(processedHeader?.toString())
         def dataRows = new ArrayList<String[]>()
         def currentLine = csvReader.readNext()
         for (int i = 0; i < noOfRowsToDisplay && currentLine != null; i++) {

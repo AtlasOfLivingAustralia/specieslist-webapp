@@ -1,23 +1,27 @@
+sudo: false
+dist: trusty
 language: groovy
 jdk:
-- oraclejdk7
+- oraclejdk8
 sudo: false
 branches:
   only:
   - master
   - hotfix
   - dev
-before_install:
-- wget -q https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/ala_common.sh
-- chmod +x ala_common.sh
-- source ./ala_common.sh
-
-- ala_travis_grails_setup_env
-
-script:
-- ala_travis_grails_test
-- ala_travis_grails_build
-
+  - grails3
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.m2
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+install:
+  - ./gradlew assemble --refresh-dependencies
+after_success:
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && travis_retry ./gradlew publish'
 env:
   global:
   - secure: IF4jY8XTU5Nmrqs4aja6sIgC93VgBPxw8ylyoMQhePkB35SK2EHZ5cU7Tx3FSvEmDUQk6cq89toZHiiiGCISdCN3lawDpOFIeMZs3g98hc6cMBd4Wx7ncjO3oKDsIn+DFrF11TgMrwtjUUH/4TGpc32kyf0L5J/O+vqUO4vK6gs=

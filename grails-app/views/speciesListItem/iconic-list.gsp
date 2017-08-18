@@ -21,7 +21,7 @@
 <html>
 <head>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
-    <meta name="breadcrumb" content="Australia&apos;s species"/>
+    <meta name="breadcrumb" content="Australia's species"/>
     <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src:'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src:'getQueryParam.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src:'jquery-ui-1.8.17.custom.min.js')}"></script>
@@ -236,7 +236,7 @@
                     <g:set var="bieTitle">species page for <i>${result.rawScientificName}</i></g:set>
                     <div class="imgCon">
                         <a class="thumbImage viewRecordButton" rel="thumbs" title="click to view detailed page" href="${bieUrl}/species/${result.guid?:bieSpecies?.get(2)}"
-                                    data-id="${recId}"><img src="${bieSpecies?.get(0)?:asset.assetPath(src:'infobox_info_icon.png" style="opacity:0.5')}" alt="thumbnail species image"/>
+                                    data-id="${recId}"><img src="${bieSpecies?.get(0)?:asset.assetPath(src:raw('infobox_info_icon.png" style="opacity:0.5'))}" alt="thumbnail species image"/>
                             </a>
                             <g:if test="${true}">
                                 <g:set var="displayName">
@@ -251,7 +251,7 @@
                                     </g:else>
                                 </g:set>
                                 <div class="meta brief">
-                                    ${displayName}
+                                    ${raw(displayName)}
                                 </div>
                             </g:if>
                         </a>
@@ -270,10 +270,10 @@
 
                 <div class="pagination listPagination" id="searchNavBar">
                     <g:if test="${params.fq}">
-                        <g:paginate total="${totalCount}" action="iconicSpecies" id="${params.id}" params="${[fq: params.fq]}"/>
+                        <hf:paginate total="${totalCount}" action="iconicSpecies" id="${params.id}" params="${[fq: params.fq]}"/>
                     </g:if>
                     <g:else>
-                        <g:paginate total="${totalCount}" action="iconicSpecies" id="${params.id}" />
+                        <hf:paginate total="${totalCount}" action="iconicSpecies" id="${params.id}" />
                     </g:else>
                 </div>
             </g:if>

@@ -29,7 +29,7 @@
 <head>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     <meta name="breadcrumb" content="${speciesList?.listName}"/>
-    <meta name="breadcrumbParent" content="${request.contextPath}/,Species Lists"/>
+    <meta name="breadcrumbParent" content="${request.contextPath}/,Species lists"/>
     <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src: 'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src: 'getQueryParam.js')}"></script>
     <script language="JavaScript" type="text/javascript"
@@ -358,7 +358,7 @@
         function reloadWithMax(el) {
             var max = $(el).find(":selected").val();
             var params = {
-                fq: [ ${"\"" + (fqs ? fqs.join("\", \"") : "") + "\""} ],
+                fq: [ "${(fqs ? fqs.join("\", \"") : "")}" ],
                 max: max,
                 sort: "${params.sort}",
                 order: "${params.order}",
@@ -870,7 +870,7 @@
                     <div class="imgCon">
                         <a class="thumbImage viewRecordButton" rel="thumbs" title="click to view details" href="#viewRecord"
                                     data-id="${recId}"><img
-                        src="${result.imageUrl ?: asset.assetPath(src: 'infobox_info_icon.png\" style=\"opacity:0.5')}"
+                        src="${raw(result.imageUrl ?: asset.assetPath(src: 'infobox_info_icon.png\" style=\"opacity:0.5'))}"
                         alt="thumbnail species image"/>
                     </a>
                     <g:if test="${true}">
@@ -883,11 +883,11 @@
                                 </g:else></i>
                         </g:set>
                         <div class="meta brief">
-                            ${displayName}
+                            ${raw(displayName)}
                         </div>
 
                         <div class="meta detail hide">
-                            ${displayName}
+                            ${raw(displayName)}
                             <g:if test="${result.author}">${result.author}</g:if>
                             <g:if test="${result.commonName}"><br>${result.commonName}</g:if>
                             <div class="pull-right" style="display:inline-block; padding: 5px;">
@@ -1004,10 +1004,10 @@
 
             <div class="pagination listPagination" id="searchNavBar">
                 <g:if test="${params.fq}">
-                    <g:paginate total="${totalCount}" action="list" id="${params.id}" params="${[fq: params.fq]}"/>
+                    <hf:paginate total="${totalCount}" action="list" id="${params.id}" params="${[fq: params.fq]}"/>
                 </g:if>
                 <g:else>
-                    <g:paginate total="${totalCount}" action="list" id="${params.id}"/>
+                    <hf:paginate total="${totalCount}" action="list" id="${params.id}"/>
                 </g:else>
             </div>
         %{-- Output the BS modal divs (hidden until called) --}%

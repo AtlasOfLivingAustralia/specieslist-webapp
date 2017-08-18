@@ -1,21 +1,16 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
-    <title>Grails Runtime Exception</title>
+    <title>Not authorised</title>
     <meta name="layout" content="main"/>
-
+    <meta name="breadcrumbParent" content="${request.contextPath}/public/speciesLists,Species lists"/>
+    <meta name="breadcrumb" content="Not authorised"/>
 </head>
 <body>
 <header id="page-header">
     <div class="inner">
-        <div id="breadcrumb" class="">
-            <ol class="breadcrumb">
-                <li><a href="${request.contextPath}/public/speciesLists">Species lists</a> <span class="glyphicon glyphicon-arrow-right"></span></li>
-                <li class="active">Error Page</li>
-            </ol>
-        </div>
         <hgroup>
-            <h1>Error page</h1>
+            <h1>Not authorised</h1>
         </hgroup>
     </div>
 </header>

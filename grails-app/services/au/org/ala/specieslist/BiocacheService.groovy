@@ -29,7 +29,7 @@ class BiocacheService {
         try {
             http.post(body: postBody, requestContentType:groovyx.net.http.ContentType.URLENC){ resp, reader ->
                 //return the location in the header
-                log.debug(resp.headers)
+                log.debug(resp.headers?.toString())
                 if (resp.status == 302) {
                     log.debug "302 redirect response from biocache"
                     return [status:resp.status, result:resp.headers['location'].getValue()]
