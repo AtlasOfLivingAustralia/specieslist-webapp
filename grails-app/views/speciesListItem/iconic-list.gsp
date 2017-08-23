@@ -60,10 +60,7 @@
             border-radius: 0 0 6px 6px;
         }
         .bs-docs-sidenav > .active > a {
-            /*position: relative;*/
-            /*z-index: 2;*/
             padding: 9px 15px;
-            border: 0;
             text-shadow: 0 1px 0 rgba(0,0,0,.15);
             -webkit-box-shadow: inset 1px 0 0 rgba(0,0,0,.1), inset -1px 0 0 rgba(0,0,0,.1);
             -moz-box-shadow: inset 1px 0 0 rgba(0,0,0,.1), inset -1px 0 0 rgba(0,0,0,.1);

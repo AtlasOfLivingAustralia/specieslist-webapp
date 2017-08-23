@@ -38,10 +38,14 @@
         <header id="page-header2">
             <div class="row">
                 <hgroup class="col-md-8">
-                    <h1 class="subject-subtitle">My species lists</h1>
+                    <div class="row">
+                        <h1 class="subject-subtitle">My species lists</h1>
+                    </div>
                 </hgroup>
                 <div class="col-md-4">
-                    <g:link controller="speciesList" action="upload" class="btn btn-ala pull-right" title="Add Species List">Upload a list</g:link>
+                    <div class="row">
+                        <g:link controller="speciesList" action="upload" class="btn btn-ala pull-right" title="Add Species List">Upload a list</g:link>
+                    </div>
                 </div>
             </div><!--inner-->
         </header>

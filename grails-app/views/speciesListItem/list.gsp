@@ -382,83 +382,89 @@
     <header id="page-header">
         <div class="row">
             <div class="col-md-7">
-                <h2 class="subject-subtitle">
-                    Species List: <a href="${collectoryUrl}/public/show/${params.id}"
-                                     title="view Date Resource page">${speciesList?.listName}</a>
-                    &nbsp;&nbsp;
-                    <div class="btn-group btn-group" id="listActionButtons">
-                        <a href="#" id="toggleListInfo" class="btn btn-default btn-sm"><i
-                                class="glyphicon glyphicon-info-sign "></i> List info</a>
-                        <g:if test="${userCanEditPermissions}">
-                            <a href="#" class="btn btn-default btn-sm" data-target="#modal" data-toggle="modal"><i
-                                    class="glyphicon glyphicon-user "></i> Edit permissions</a>
-                        </g:if>
-                        <g:if test="${userCanEditData}">
-                            <a href="#" class="btn btn-default btn-sm" data-target="#addRecord" data-toggle="modal"><i
-                                    class="glyphicon glyphicon-plus-sign "></i> Add species</a>
-                        </g:if>
-                    </div>
-                </h2>
+                <div class="row">
+                    <h2 class="subject-subtitle">
+                        Species List: <a href="${collectoryUrl}/public/show/${params.id}"
+                                         title="view Date Resource page">${speciesList?.listName}</a>
+                        &nbsp;&nbsp;
+                        <div class="btn-group btn-group" id="listActionButtons">
+                            <a href="#" id="toggleListInfo" class="btn btn-default btn-sm"><i
+                                    class="glyphicon glyphicon-info-sign "></i> List info</a>
+                            <g:if test="${userCanEditPermissions}">
+                                <a href="#" class="btn btn-default btn-sm" data-target="#modal" data-toggle="modal"><i
+                                        class="glyphicon glyphicon-user "></i> Edit permissions</a>
+                            </g:if>
+                            <g:if test="${userCanEditData}">
+                                <a href="#" class="btn btn-default btn-sm" data-target="#addRecord" data-toggle="modal"><i
+                                        class="glyphicon glyphicon-plus-sign "></i> Add species</a>
+                            </g:if>
+                        </div>
+                    </h2>
+                    <g:if test="${userCanEditPermissions}">
+                        <div class="modal fade" id="modal" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+
+                                        <h3 id="myModalLabel">Species list permissions</h3>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <g:include controller="editor" action="editPermissions"
+                                                   params="${[id: params.id]}"></g:include>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
+                                        <button class="btn btn-primary" id="saveEditors">Save changes</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </g:if>
+                    <g:if test="${userCanEditData}">
+                        <div class="modal fade" id="addRecord" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+
+                                        <h3>Add record values</h3>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <g:include controller="editor" action="addRecordScreen"
+                                                   params="${[id: params.id, action: 'addRecordScreen']}"></g:include>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
+                                        <button class="btn btn-primary" id="saveNewRecord" data-id="${speciesList.id}"
+                                                data-modal="#addRecord">Save changes</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </g:if>
+                </div>
             </div>
-            <g:if test="${userCanEditPermissions}">
-                <div class="modal fade" id="modal" tabindex="-1" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <div class="col-md-5" id="buttonDiv">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="pull-right margin-top-10">
+                            <a href="#download" class="btn btn-ala" title="View the download options for this species list."
+                               id="downloadLink">Download</a>
 
-                                <h3 id="myModalLabel">Species list permissions</h3>
-                            </div>
+                            <a class="btn btn-ala" title="View occurrences for up to ${maxDownload} species on the list"
+                               href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">View occurrence records</a>
 
-                            <div class="modal-body">
-                                <g:include controller="editor" action="editPermissions"
-                                           params="${[id: params.id]}"></g:include>
-                            </div>
-
-                            <div class="modal-footer">
-                                <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
-                                <button class="btn btn-primary" id="saveEditors">Save changes</button>
-                            </div>
-                        </div>
+                            <a href="${request.contextPath}/speciesList/spatialPortal/${params.id}${params.toQueryString()}&type=Search"
+                               class="btn btn-ala" title="View the spatial portal.">View in spatial portal</a>
+                        </div> <!-- rightfloat -->
                     </div>
                 </div>
-            </g:if>
-            <g:if test="${userCanEditData}">
-                <div class="modal fade" id="addRecord" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-
-                                <h3>Add record values</h3>
-                            </div>
-
-                            <div class="modal-body">
-                                <g:include controller="editor" action="addRecordScreen"
-                                           params="${[id: params.id, action: 'addRecordScreen']}"></g:include>
-                            </div>
-
-                            <div class="modal-footer">
-                                <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
-                                <button class="btn btn-primary" id="saveNewRecord" data-id="${speciesList.id}"
-                                        data-modal="#addRecord">Save changes</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </g:if>
-            <div class="col-md-5 header-btns" id="buttonDiv">
-                <span class="pull-right">
-                    <a href="#download" class="btn btn-ala" title="View the download options for this species list."
-                       id="downloadLink">Download</a>
-
-                    <a class="btn btn-ala" title="View occurrences for up to ${maxDownload} species on the list"
-                       href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">View occurrence records</a>
-
-                    <a href="${request.contextPath}/speciesList/spatialPortal/${params.id}${params.toQueryString()}&type=Search"
-                       class="btn btn-ala" title="View the spatial portal.">View in spatial portal</a>
-                </span>
-            </div>  <!-- rightfloat -->
+            </div>
 
             <div style="display:none">
                 <g:render template="/download"/>
