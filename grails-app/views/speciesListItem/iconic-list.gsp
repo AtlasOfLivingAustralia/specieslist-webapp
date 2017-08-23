@@ -236,7 +236,7 @@
                     <g:set var="bieTitle">species page for <i>${result.rawScientificName}</i></g:set>
                     <div class="imgCon">
                         <a class="thumbImage viewRecordButton" rel="thumbs" title="click to view detailed page" href="${bieUrl}/species/${result.guid?:bieSpecies?.get(2)}"
-                                    data-id="${recId}"><img src="${bieSpecies?.get(0)?:asset.assetPath(src:raw('infobox_info_icon.png" style="opacity:0.5'))}" alt="thumbnail species image"/>
+                                    data-id="${recId}"><img src="${bieSpecies?.get(0)?:raw(asset.assetPath(src:'infobox_info_icon.png\" style=\"opacity:0.5'))}" alt="thumbnail species image"/>
                             </a>
                             <g:if test="${true}">
                                 <g:set var="displayName">
