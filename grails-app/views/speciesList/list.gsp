@@ -20,7 +20,9 @@
     <meta name="breadcrumb" content="My species lists"/>
     <title>My Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">
-        #speciesList {display: none;}
+    #speciesList {
+        display: none;
+    }
     </style>
     <asset:stylesheet src="fancybox.css"/>
 </head>
@@ -35,20 +37,16 @@
 </asset:script>
 <div id="content" class="row">
     <div class="col-md-12">
-        <header id="page-header2">
-            <div class="row">
-                <hgroup class="col-md-8">
-                    <div class="row">
-                        <h1 class="subject-subtitle">My species lists</h1>
-                    </div>
-                </hgroup>
-                <div class="col-md-4">
-                    <div class="row">
-                        <g:link controller="speciesList" action="upload" class="btn btn-ala pull-right" title="Add Species List">Upload a list</g:link>
-                    </div>
-                </div>
-            </div><!--inner-->
-        </header>
+        <div class="row">
+            <div class="col-md-8">
+                <h1 class="subject-subtitle">My species lists</h1>
+            </div>
+
+            <div class="col-md-4">
+                <g:link controller="speciesList" action="upload" class="btn btn-ala pull-right"
+                        title="Add Species List">Upload a list</g:link>
+            </div>
+        </div><!--inner-->
 
         <div class="inner">
             <g:if test="${lists && total > 0}">

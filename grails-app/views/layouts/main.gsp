@@ -10,8 +10,8 @@
 
     <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/bootstrap.min.css" rel="stylesheet" media="all" />
     <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/ala-styles.css" rel="stylesheet" media="all" />
-    <asset:stylesheet src="jquery.autocomplete.css" media="all" />
-    <asset:stylesheet src="ala.css" media="all" />
+    <asset:stylesheet src="core.css" media="all" />
+    <asset:stylesheet src="core-screen-print.css" media="all" />
     <asset:stylesheet src="application.css" media="all" />
     <link href="${grailsApplication.config.skin?.favicon?:'http://www.ala.org.au/wp-content/themes/ala2011/images/favicon.ico'}" rel="shortcut icon"  type="image/x-icon"/>
 
@@ -60,14 +60,13 @@
 <!-- Footer -->
 <hf:footer/>
 <!-- End footer -->
-
+<script type="text/javascript" src="${grailsApplication.config.headerAndFooter.baseURL}/js/jquery.autocomplete.js"></script>
 <g:if test="${!grailsApplication.config.headerAndFooter.excludeApplicationJs}">
     <script type="text/javascript" src="${grailsApplication.config.headerAndFooter.baseURL}/js/application.js"></script>
 </g:if>
 <g:if test="${!grailsApplication.config.headerAndFooter.excludeBootstrapJs}">
     <script type="text/javascript" src="${grailsApplication.config.headerAndFooter.baseURL}/js/bootstrap.min.js"></script>
 </g:if>
-<asset:javascript src="ala.js" />
 <asset:deferredScripts />
 
 </body>

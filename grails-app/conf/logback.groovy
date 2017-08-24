@@ -6,7 +6,7 @@ import org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverte
 conversionRule 'clr', ColorConverter
 conversionRule 'wex', WhitespaceThrowableProxyConverter
 def loggingDir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs' : './logs')
-def appName = 'digivol'
+def appName = 'specieslist-webapp'
 final TOMCAT_LOG = 'TOMCAT_LOG'
 final ACCESS = 'ACCESS'
 final CAS = 'CAS'

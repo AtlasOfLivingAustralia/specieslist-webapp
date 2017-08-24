@@ -125,6 +125,8 @@
                               title="${message(code: 'speciesList.username.label', default: 'Owner')}"/>
             <g:sortableColumn property="dateCreated" params="${[q:params.q]}"
                               title="${message(code: 'speciesList.name.dateCreated', default: 'Date Submitted')}"/>
+            <g:sortableColumn property="lastUpdated" params="${[q:params.q]}"
+                              title="${message(code: 'speciesList.name.lastUpdated', default: 'Date Updated')}"/>
             <g:sortableColumn property="itemsCount" params="${[q:params.q]}"
                               title="${message(code: 'speciesList.name.count', default: 'Item Count')}"/>
             <g:if test="${request.getUserPrincipal()}">
@@ -148,6 +150,7 @@
             %{--<td>${fieldValue(bean: list, field: "firstName")} ${fieldValue(bean: list, field: "surname")}</td>--}%
                 <td>${list.ownerFullName}</td>
                 <td><g:formatDate format="yyyy-MM-dd" date="${list.dateCreated}"/></td>
+                <td><g:formatDate format="yyyy-MM-dd" date="${list.lastUpdated}"/></td>
                 <td>${list.itemsCount}</td>
                 <g:if test="${list.username == request.getUserPrincipal()?.attributes?.email || request.isUserInRole("ROLE_ADMIN")}">
                     <td>

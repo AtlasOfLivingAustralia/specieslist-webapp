@@ -500,6 +500,9 @@
             <dt>${message(code: 'speciesList.dateCreated.label', default: 'Date submitted')}</dt>
             <dd><g:formatDate format="yyyy-MM-dd"
                               date="${speciesList.dateCreated ?: 0}"/><!-- ${speciesList.lastUpdated} --></dd>
+            <dt>${message(code: 'speciesList.lastUpdated.label', default: 'Date updated')}</dt>
+            <dd><g:formatDate format="yyyy-MM-dd"
+                              date="${speciesList.lastUpdated ?: 0}"/></dd>
             <dt>${message(code: 'speciesList.isPrivate.label', default: 'Is private')}</dt>
             <dd><g:formatBoolean boolean="${speciesList.isPrivate ?: false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.isBIE.label', default: 'Included in BIE')}</dt>
