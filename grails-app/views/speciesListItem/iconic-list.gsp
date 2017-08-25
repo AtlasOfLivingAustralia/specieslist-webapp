@@ -194,7 +194,7 @@
 
 </head>
 <body class="yui-skin-sam nav-species">
-<div id="content" class="container">
+<div id="content">
 
     <div class="inner row">
         <div class="col-md-12">

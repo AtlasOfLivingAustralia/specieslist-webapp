@@ -4,7 +4,6 @@
 import grails.util.Environment
 
 def appName = 'specieslist-webapp'
-println("Environment is " + Environment.current)
 if(Environment.current != Environment.TEST){
     def ENV_NAME = "${appName.toUpperCase()}_CONFIG"
     default_config = "/data/${appName}/config/${appName}-config.properties"
