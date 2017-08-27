@@ -13,29 +13,6 @@ final STDOUT = 'STDOUT'
 
 conversionRule 'clr', ColorConverter
 conversionRule 'wex', WhitespaceThrowableProxyConverter
-// See http://logback.qos.ch/manual/groovy.html for details on configuration
-appender(STDOUT, ConsoleAppender) {
-    encoder(PatternLayoutEncoder) {
-        charset = Charset.forName('UTF-8')
-        pattern =
-                '%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} ' + // Date
-                        '%clr(%5p) ' + // Log level
-                        '%clr(---){faint} %clr([%15.15t]){faint} ' + // Thread
-                        '%clr(%-40.40logger{39}){cyan} %clr(:){faint} ' + // Logger
-                        '%m%n%wex' // Message
-    }
-}
-
-if (Environment.isDevelopmentMode()) {
-    appender(FULL_STACKTRACE, FileAppender) {
-        file = "${loggingDir}/stacktrace.log"
-        append = true
-        encoder(PatternLayoutEncoder) {
-            pattern = '%d{yyyy-MM-dd HH:mm:ss.SSS} ' + // Date
-                    "%level %logger - %msg%n"
-        }
-    }
-}
 
 switch (Environment.current) {
     case Environment.PRODUCTION:
@@ -83,6 +60,25 @@ switch (Environment.current) {
         root(WARN, [TOMCAT_LOG])
         break
     case Environment.DEVELOPMENT:
+        appender(STDOUT, ConsoleAppender) {
+            encoder(PatternLayoutEncoder) {
+                charset = Charset.forName('UTF-8')
+                pattern =
+                        '%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} ' + // Date
+                                '%clr(%5p) ' + // Log level
+                                '%clr(---){faint} %clr([%15.15t]){faint} ' + // Thread
+                                '%clr(%-40.40logger{39}){cyan} %clr(:){faint} ' + // Logger
+                                '%m%n%wex' // Message
+            }
+        }
+        appender(FULL_STACKTRACE, FileAppender) {
+            file = "${loggingDir}/stacktrace.log"
+            append = true
+            encoder(PatternLayoutEncoder) {
+                pattern = '%d{yyyy-MM-dd HH:mm:ss.SSS} ' + // Date
+                        "%level %logger - %msg%n"
+            }
+        }
         root(WARN, [FULL_STACKTRACE, STDOUT])
         break
     default:
