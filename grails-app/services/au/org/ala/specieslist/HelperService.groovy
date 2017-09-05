@@ -545,15 +545,11 @@ class HelperService {
         int i = 0
         header.each {
             if(i != speciesIdx && values.length > i && values[i]?.trim()){
-                //check to see if the common name is already an "accepted" name for the species
-                String testLsid = commonNameColumns.contains(it.toLowerCase().replaceAll(" ",""))?findAcceptedLsidByCommonName(values[i]):""
-                if(!testLsid.equals(sli.guid)) {
-                    SpeciesListKVP kvp =map.get(it.toString()+"|"+values[i], new SpeciesListKVP(key: it.toString(), value: values[i], dataResourceUid: druid))
-                    if  (kvp.itemOrder == null) {
-                        kvp.itemOrder = i
-                    }
-                    sli.addToKvpValues(kvp)//createOrRetrieveSpeciesListKVP(it,values[i],druid))
+                SpeciesListKVP kvp =map.get(it.toString()+"|"+values[i], new SpeciesListKVP(key: it.toString(), value: values[i], dataResourceUid: druid))
+                if  (kvp.itemOrder == null) {
+                    kvp.itemOrder = i
                 }
+                sli.addToKvpValues(kvp)
             }
             i++
         }

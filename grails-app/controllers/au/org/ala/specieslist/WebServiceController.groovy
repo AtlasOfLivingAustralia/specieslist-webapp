@@ -229,6 +229,64 @@ class WebServiceController {
         }
     }
 
+    /**
+     * Returns a summary list of items that form part of the supplied species list.
+     */
+    def queryListItemOrKVP () {
+        if(params.druid && params.fields) {
+            List druid = params.druid.split(',')
+            List listItemFields = ['rawScientificName', 'matchedName', 'commonName']
+            List fields = params.fields.split(',')
+            List speciesListItemFields = listItemFields.intersect(fields), kvpFields = fields - speciesListItemFields
+            params.sort = params.sort ?: "itemOrder" // default to order the items were imported in
+            def list
+            if(!params.q){
+                list = params.nonulls ?
+                        SpeciesListItem.findAllByDataResourceUidInListAndGuidIsNotNull(druid, params)
+                        : SpeciesListItem.findAllByDataResourceUidInList(druid, params)
+            } else {
+                // if query parameter is passed, search in common name, supplied name and scientific name
+                String query = "%${params.q}%"
+                def criteria = SpeciesListItem.createCriteria()
+                list = criteria {
+                    isNotNull("guid")
+                    inList("dataResourceUid", druid)
+                    or {
+                        if(speciesListItemFields){
+                            speciesListItemFields.each { field ->
+                                ilike(field, query)
+                            }
+                        }
+
+                        if(kvpFields){
+                            kvpValues {
+                                or {
+                                    kvpFields.each { key ->
+                                        and {
+                                            eq("key", key)
+                                            ilike("value", query)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            List newList
+            if (params.includeKVP?.toBoolean()) {
+                newList = list.collect({[id: it.id, rawScientificName: it.rawScientificName, commonName: it.commonName, matchedName: it.matchedName, lsid: it.guid,
+                                         kvpValues: it.kvpValues.collect({[key: it.key, value: it.value]})]})
+            } else {
+                newList= list.collect{[id:it.id, rawScientificName:it.rawScientificName, commonName: it.commonName, matchedName: it.matchedName, lsid: it.guid]}
+            }
+            render newList as JSON
+        } else {
+            render status: HttpStatus.SC_BAD_REQUEST, text: "druid and fields parameters are required"
+        }
+    }
+
     def getSpeciesListItemKvp() {
         def speciesListDruid = params.druid
 
@@ -422,6 +480,50 @@ class WebServiceController {
             render kvps as JSON
         }
     }
+
+    /**
+     * Lists common keys from a list of data resource ids
+     *
+     * @param druid one or more DR UIDs (comma-separated if there are more than 1)
+     * @return JSON list of unique key names
+     *
+     * @example
+     * if two lists have the following columns
+     * list1 = ['rawScientificName', 'matchedName', 'commonName', 'colour', 'shape']
+     * list1 = ['rawScientificName', 'matchedName', 'commonName', 'colour']
+     * this will return
+     * ['rawScientificName', 'matchedName', 'commonName', 'colour']
+     */
+    def listCommonKeys() {
+        if (!params.druid) {
+            response.status = HttpStatus.SC_BAD_REQUEST
+            response.sendError(HttpStatus.SC_BAD_REQUEST, "Must provide a comma-separated list of druid value(s).")
+        } else {
+            List<String> druids = params.druid.split(",")
+            Set intersection = new HashSet();
+
+            druids?.each{ druid ->
+                def kvps = SpeciesListKVP.withCriteria {
+                    'in'("dataResourceUid", [druid])
+
+                    projections {
+                        distinct("key")
+                    }
+
+                    order("key")
+                }
+
+                if(intersection.isEmpty()){
+                   intersection.addAll(kvps)
+                } else {
+                    intersection = intersection.intersect(kvps)
+                }
+            }
+
+            render intersection as JSON
+        }
+    }
+
 
     /**
      * Finds species list items that contains specific keys

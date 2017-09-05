@@ -9,6 +9,7 @@ import grails.test.mixin.TestFor
 import grails.test.mixin.TestMixin
 import grails.test.mixin.domain.DomainClassUnitTestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
+import org.apache.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -72,5 +73,38 @@ class WebServiceControllerTest extends Specification {
 
         then:
         assert response.text == "[{\"id\":1,\"name\":\"name1\",\"commonName\":null,\"scientificName\":null,\"lsid\":\"guid\"}]"
+    }
+
+    def "listCommonKeys should fail when no druid is provided"(){
+        when:
+        controller.listCommonKeys()
+
+        then:
+        assert response.status ==  HttpStatus.SC_BAD_REQUEST
+    }
+
+    def "listCommonKeys should provide all keys that are common in the list provided"(){
+        setup:
+        SpeciesListKVP kvp1 = new SpeciesListKVP(key: "key 1", value: "value1", dataResourceUid: "Dr1")
+        kvp1.save(failOnError: true)
+        SpeciesListKVP kvp2 = new SpeciesListKVP(key: "key2", value: "value1", dataResourceUid: "Dr1")
+        kvp2.save(failOnError: true)
+        SpeciesListKVP kvp3 = new SpeciesListKVP(key: "key 1", value: "value1", dataResourceUid: "Dr2")
+        kvp3.save(failOnError: true)
+        SpeciesListKVP kvp4 = new SpeciesListKVP(key: "key4", value: "value1", dataResourceUid: "Dr2")
+        kvp4.save(failOnError: true)
+
+        SpeciesList dr1 = new SpeciesList(listName: "list1", username: "fred", dataResourceUid: "Dr1", kvpValues:[kvp1, kvp2])
+        dr1.save(failOnError: true)
+        SpeciesList dr2 = new SpeciesList(listName: "list2", username: "fred", dataResourceUid: "Dr2", kvpValues:[kvp3, kvp4])
+        dr2.save(failOnError: true)
+
+        when:
+        params.druid="Dr1,Dr2"
+        controller.listCommonKeys()
+
+        then:
+        assert response.status == HttpStatus.SC_OK
+        assert response.text ==  "[\"key 1\"]"
     }
 }

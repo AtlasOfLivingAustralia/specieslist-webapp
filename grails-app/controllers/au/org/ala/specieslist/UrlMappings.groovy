@@ -22,9 +22,15 @@ class UrlMappings {
             action = [GET:'getListItemDetails']
         }
 
+        "/ws/queryListItemOrKVP" (controller: 'webService'){
+            action = [GET:'queryListItemOrKVP']
+        }
+
         //"/ws/speciesListItems" (controller: "webService", action: "getListItemDetails")
         "/ws/speciesListItems/keys" (controller: "webService", action: "listKeys")
         "/ws/speciesListItems/byKeys" (controller: "webService", action: "listItemsByKeys")
+
+        "/ws/listCommonKeys" (controller: "webService", action: "listCommonKeys")
 
         "/ws/speciesList/filter" (controller: "webService", action: [POST: "filterLists"])
 
