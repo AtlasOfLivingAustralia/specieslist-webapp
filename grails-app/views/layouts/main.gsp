@@ -40,9 +40,9 @@
                     <li><a href="https://www.ala.org.au">Home</a></li>
                     <g:if test="${pageProperty(name:'meta.breadcrumbParent')}">
                         <g:set value="${pageProperty(name:'meta.breadcrumbParent').tokenize(',')}" var="parentArray"/>
-                        <li><i class="glyphicon glyphicon-chevron-right"></i><a href="${parentArray[0]?:'/'}">${parentArray[1]}</a></li>
+                        <li><a href="${parentArray[0]?:'/'}">${parentArray[1]}</a></li>
                     </g:if>
-                    <li class="active"><i class="glyphicon glyphicon-chevron-right"></i>${pageProperty(name:'meta.breadcrumb')}</li>
+                    <li class="active">${pageProperty(name:'meta.breadcrumb')}</li>
                 </ul>
             </div>
         </div>

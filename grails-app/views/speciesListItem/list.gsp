@@ -381,7 +381,7 @@
 <div id="content" class="container">
     <header id="page-header">
         <div class="row">
-            <div class="col-md-7">
+            <div class="col-md-6">
                 <div class="row">
                     <h2 class="subject-subtitle">
                         Species List: <a href="${collectoryUrl}/public/show/${params.id}"
@@ -449,7 +449,7 @@
                     </g:if>
                 </div>
             </div>
-            <div class="col-md-5" id="buttonDiv">
+            <div class="col-md-6" id="buttonDiv">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="pull-right margin-top-10">
