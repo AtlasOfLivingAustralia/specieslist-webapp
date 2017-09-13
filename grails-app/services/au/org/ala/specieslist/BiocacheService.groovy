@@ -118,17 +118,6 @@ class BiocacheService {
         }
     }
 
-    def getTaxonOccurrenceCounts(List<String> guids) {
-        String url = "${grailsApplication.config.biocacheService.baseURL}/occurrences/taxaCount?separator=,&guids=" + guids.join(",")
-        try {
-            def result = new URL(url).getText("UTF-8")
-            new JsonSlurper().parseText(result)
-        } catch (Exception e) {
-            log.error("Problem checking if list is indexed against: " + e.getMessage(), e)
-            [:]
-        }
-    }
-
     //Location	http://biocache.ala.org.au/occurrences/search?q=qid:1344230443917
     def createJsonForBatch(guids){
         def builder = new JSONBuilder()
