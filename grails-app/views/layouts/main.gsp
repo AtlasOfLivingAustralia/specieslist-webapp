@@ -60,7 +60,6 @@
 <!-- Footer -->
 <hf:footer/>
 <!-- End footer -->
-<script type="text/javascript" src="${grailsApplication.config.headerAndFooter.baseURL}/js/jquery.autocomplete.js"></script>
 <g:if test="${!grailsApplication.config.headerAndFooter.excludeApplicationJs}">
     <script type="text/javascript" src="${grailsApplication.config.headerAndFooter.baseURL}/js/application.js"></script>
 </g:if>

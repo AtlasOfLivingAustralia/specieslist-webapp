@@ -2,6 +2,8 @@ package au.org.ala.specieslist.controller
 
 import au.org.ala.names.search.ALANameSearcher
 import au.org.ala.specieslist.*
+import au.org.ala.web.AuthService
+import au.org.ala.web.UserDetails
 import grails.test.mixin.TestFor
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
@@ -29,7 +31,7 @@ class WebServiceControllerIntegrationTest extends Specification {
 
         helperService.setUserDetailsService([getFullListOfUserDetailsByUsername : {return [a:"a"]}]
                 as UserDetailsService)
-        controller.setLocalAuthService([isValidUserName: {true}] as LocalAuthService)
+        controller.setAuthService([getUserForEmailAddress: {new UserDetails(userName: 'b')}] as AuthService)
         controller.setHelperService(helperService)
 
         when:
@@ -82,7 +84,7 @@ class WebServiceControllerIntegrationTest extends Specification {
 
         helperService.setUserDetailsService([getFullListOfUserDetailsByUsername : {return [a:"a"]}]
                 as UserDetailsService)
-        controller.setLocalAuthService([isValidUserName: {true}] as LocalAuthService)
+        controller.setAuthService([getUserForEmailAddress: {new UserDetails(userName: 'b')}] as AuthService)
         controller.setHelperService(helperService)
 
         when:

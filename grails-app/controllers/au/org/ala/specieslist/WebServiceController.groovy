@@ -15,6 +15,7 @@
 package au.org.ala.specieslist
 
 import au.com.bytecode.opencsv.CSVWriter
+import au.org.ala.web.UserDetails
 import grails.converters.*
 import grails.web.JSONBuilder
 import org.apache.http.HttpStatus
@@ -337,9 +338,10 @@ class WebServiceController {
                 String username = java.net.URLDecoder.decode(userCookie.getValue(), 'utf-8')
                 boolean replaceList = true //default behaviour
                 //test to see that the user is valid
-                if (localAuthService.isValidUserName(username)) {
+                UserDetails user = authService.getUserForEmailAddress(username)
+                if (user) {
                     if (jsonBody.listItems && jsonBody.listName) {
-                        jsonBody.username = username
+                        jsonBody.username = user.userName
                         log.warn(jsonBody?.toString())
                         def druid = params.druid
 

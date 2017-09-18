@@ -363,6 +363,8 @@ class HelperService {
                 if (userNameMap.containsKey(emailLC)) {
                     def user = userNameMap.get(emailLC)
                     speciesList.userId = user.userId
+                    speciesList.firstName = user.firstName
+                    speciesList.surname = user.lastName
                 }
             }
         }
