@@ -26,8 +26,9 @@ class SpeciesListKVP implements Comparable {
         itemOrder(nullable:true)
     }
     static mapping ={
-        key column: 'the_key'
+        key column: 'the_key', index: 'idx_key'
         value column: "value", sqlType: "TEXT"
+        dataResourceUid index: 'idx_data_resource_uid'
     }
 
     public int compareTo(def other){
