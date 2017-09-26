@@ -14,7 +14,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "1.4.17"
 }
 
-version "2.0.1"
+version "2.0.2-SNAPSHOT"
 group "au.org.ala"
 
 apply plugin:"eclipse"
@@ -32,6 +32,8 @@ repositories {
 }
 
 dependencies {
+    compile 'org.springframework.boot:spring-boot-starter-security'
+    compile 'de.codecentric:spring-boot-admin-starter-client:1.5.3'
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.grails:grails-core"

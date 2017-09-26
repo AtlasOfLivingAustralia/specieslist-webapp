@@ -14,6 +14,12 @@ grails:
             # Whether to translate GORM events into Reactor events
             # Disabled by default for performance reasons
             events: false
+    config:
+        locations:
+            - file:/data/specieslist-webapp/config/specieslist-webapp-config.properties
+            - file:/data/specieslist-webapp/config/specieslist-webapp-config.yml
+            - file:/data/specieslist-webapp/config/specieslist-webapp-config.groovy
+
 info:
     app:
         name: '@info.app.name@'
@@ -25,12 +31,52 @@ spring:
     groovy:
         template:
             check-template-location: false
+    boot:
+        admin:
+            client:
+                enabled: true
+                name: specieslist
+                service-base-url: ${grails.serverURL} # app base URL with no context path
+                metadata:
+                    user:
+                        name: ${security.user.name}
+                        password: ${security.user.password}
+            url: ${security.bootadmin.url}
+            username:  ${security.bootadmin.user.name}
+            password: ${security.bootadmin.user.password}
+
+security:
+    filterOrder: 0
+    basic:
+        enabled: true
+        authorizeMode: role
+        realm: species list
+        path:
+        - /status/**
 
 # Spring Actuator Endpoints are Disabled by Default
 endpoints:
     enabled: true
+    sensitive: true
     jmx:
         enabled: true
+        unique-names: true
+    cors:
+            allow-credentials: true
+            allowed-methods:
+            - GET
+            - POST
+            - DELETE
+            - PUT
+            allowed-headers: "*"
+            allowed-origins:
+            - ${spring.boot.admin.url}
+
+management:
+    context-path: /status # moves actuator endpoints from eg /appContext/health to /appContext/status/health so they don't clash with any existing URL mappings
+    security:
+        enabled: true
+        roles: ACTUATOR
 
 ---
 grails:
@@ -84,10 +130,6 @@ grails:
                 scriptlets: html
                 taglib: none
                 staticparts: none
-endpoints:
-    jmx:
-        unique-names: true
-
 ---
 hibernate:
     cache:
