@@ -14,17 +14,28 @@ grails:
             # Whether to translate GORM events into Reactor events
             # Disabled by default for performance reasons
             events: false
-    config:
-        locations:
-            - file:/data/specieslist-webapp/config/specieslist-webapp-config.properties
-            - file:/data/specieslist-webapp/config/specieslist-webapp-config.yml
-            - file:/data/specieslist-webapp/config/specieslist-webapp-config.groovy
+    cors:
+        enabled: true
+        mappings:
+            /ws/**: inherit
 
 info:
     app:
         name: '@info.app.name@'
         version: '@info.app.version@'
         grailsVersion: '@info.app.grailsVersion@'
+---
+security:
+    filterOrder: 0
+    basic:
+        enabled: true
+        authorizeMode: role
+        realm: species list
+        path:
+        - /status/**
+    bootadmin:
+        url: ''
+
 spring:
     main:
         banner-mode: "off"
@@ -36,7 +47,7 @@ spring:
             client:
                 enabled: true
                 name: specieslist
-                service-base-url: ${grails.serverURL} # app base URL with no context path
+                service-base-url: ${grails.serverURL} # app base URL with no context path#
                 metadata:
                     user:
                         name: ${security.user.name}
@@ -44,15 +55,6 @@ spring:
             url: ${security.bootadmin.url}
             username:  ${security.bootadmin.user.name}
             password: ${security.bootadmin.user.password}
-
-security:
-    filterOrder: 0
-    basic:
-        enabled: true
-        authorizeMode: role
-        realm: species list
-        path:
-        - /status/**
 
 # Spring Actuator Endpoints are Disabled by Default
 endpoints:
