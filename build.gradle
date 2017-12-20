@@ -47,7 +47,7 @@ dependencies {
         exclude module: "slf4j-log4j12"
         exclude group: 'org.apache.bval', module: 'org.apache.bval.bundle'
     }
-    compile 'org.gbif:gbif-common:0.34'
+    compile 'org.gbif:gbif-common:0.37'
     compile 'com.google.guava:guava:19.0'
     compile "org.nibor.autolink:autolink:0.5.0"
     compile "org.grails:grails-dependencies"
