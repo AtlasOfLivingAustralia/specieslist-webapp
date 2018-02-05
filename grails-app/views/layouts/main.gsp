@@ -14,13 +14,14 @@
     <asset:stylesheet src="core-screen-print.css" media="all" />
     <asset:stylesheet src="application.css" media="all" />
     <link href="${grailsApplication.config.skin?.favicon?:'http://www.ala.org.au/wp-content/themes/ala2011/images/favicon.ico'}" rel="shortcut icon"  type="image/x-icon"/>
-
     <!--[if lt IE 9]>
     <asset:javascript src="html5.js" />
     <![endif]-->
     <asset:javascript src="head.js"/>
     <asset:javascript src="jquery-extensions.js" />
 
+
+    <hf:head/>
     <title><g:layoutTitle /></title>
     <g:layoutHead />
 </head>
