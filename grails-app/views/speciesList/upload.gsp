@@ -303,11 +303,11 @@
                                 <i class="glyphicon glyphicon-file fileupload-exists"></i>
                                 <span class="fileupload-preview"></span>
                             </button>
-                            <button class="btn btn-default btn-file">
+                            <span class="btn btn-default btn-file">
                                 <span class="fileupload-new">Select file</span>
                                 <span class="fileupload-exists">Change</span>
                                 <input type="file" name="csvFile" id="csvFileUpload"/>
-                            </button>
+                            </span>
                             <button href="#" class="btn btn-default fileupload-exists" data-dismiss="fileupload">Remove</button>
                         </div>
                     </div>
