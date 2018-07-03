@@ -277,10 +277,10 @@ class WebServiceController {
 
             List newList
             if (params.includeKVP?.toBoolean()) {
-                newList = list.collect({[id: it.id, rawScientificName: it.rawScientificName, commonName: it.commonName, matchedName: it.matchedName, lsid: it.guid,
+                newList = list.collect({[id: it.id, rawScientificName: it.rawScientificName, commonName: it.commonName, matchedName: it.matchedName, lsid: it.guid, dataResourceUid: it.dataResourceUid,
                                          kvpValues: it.kvpValues.collect({[key: it.key, value: it.value]})]})
             } else {
-                newList= list.collect{[id:it.id, rawScientificName:it.rawScientificName, commonName: it.commonName, matchedName: it.matchedName, lsid: it.guid]}
+                newList= list.collect{[id:it.id, rawScientificName:it.rawScientificName, commonName: it.commonName, matchedName: it.matchedName, lsid: it.guid, dataResourceUid: it.dataResourceUid]}
             }
             render newList as JSON
         } else {
