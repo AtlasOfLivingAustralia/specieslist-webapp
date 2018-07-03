@@ -333,6 +333,9 @@ class WebServiceController {
         try {
             def jsonBody = request.JSON
             def userCookie = request.cookies.find { it.name == 'ALA-Auth' }
+            request.cookies.each {
+                log.info("${it.name} : ${it.value}")
+            }
 
             if (userCookie) {
                 String username = java.net.URLDecoder.decode(userCookie.getValue(), 'utf-8')
