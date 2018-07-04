@@ -16,10 +16,9 @@ package au.org.ala.specieslist
 
 import au.com.bytecode.opencsv.CSVWriter
 import au.org.ala.web.UserDetails
-import grails.converters.*
+import grails.converters.JSON
 import grails.web.JSONBuilder
 import org.apache.http.HttpStatus
-
 /**
  * Provides all the webservices to be used from other sources eg the BIE
  */
@@ -333,9 +332,6 @@ class WebServiceController {
         try {
             def jsonBody = request.JSON
             def userCookie = request.cookies.find { it.name == 'ALA-Auth' }
-            request.cookies.each {
-                log.info("${it.name} : ${it.value}")
-            }
 
             if (userCookie) {
                 String username = java.net.URLDecoder.decode(userCookie.getValue(), 'utf-8')
