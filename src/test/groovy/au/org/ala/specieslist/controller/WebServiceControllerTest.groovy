@@ -35,7 +35,7 @@ class WebServiceControllerTest extends Specification {
         controller.getListItemDetails()
 
         then:
-        assert response.text == "[{\"id\":1,\"name\":\"name1\",\"commonName\":null,\"scientificName\":null,\"lsid\":\"guid\",\"kvpValues\":[{\"key\":\"key1\",\"value\":\"value1\"}]}]"
+        assert response.text == "[{\"id\":1,\"name\":\"name1\",\"commonName\":null,\"scientificName\":null,\"lsid\":\"guid\",\"dataResourceUid\":\"Dr1\",\"kvpValues\":[{\"key\":\"key1\",\"value\":\"value1\"}]}]"
     }
 
     def "getListItemDetails should not retrieve KVP values when includeKVP is false"() {
@@ -54,7 +54,7 @@ class WebServiceControllerTest extends Specification {
         controller.getListItemDetails()
 
         then:
-        assert response.text == "[{\"id\":1,\"name\":\"name1\",\"commonName\":null,\"scientificName\":null,\"lsid\":\"guid\"}]"
+        assert response.text == "[{\"id\":1,\"name\":\"name1\",\"commonName\":null,\"scientificName\":null,\"lsid\":\"guid\",\"dataResourceUid\":\"Dr1\"}]"
     }
 
     def "getListItemDetails should not retrieve KVP values when includeKVP is not present"() {
@@ -72,7 +72,7 @@ class WebServiceControllerTest extends Specification {
         controller.getListItemDetails()
 
         then:
-        assert response.text == "[{\"id\":1,\"name\":\"name1\",\"commonName\":null,\"scientificName\":null,\"lsid\":\"guid\"}]"
+        assert response.text == "[{\"id\":1,\"name\":\"name1\",\"commonName\":null,\"scientificName\":null,\"lsid\":\"guid\",\"dataResourceUid\":\"Dr1\"}]"
     }
 
     def "listCommonKeys should fail when no druid is provided"(){
