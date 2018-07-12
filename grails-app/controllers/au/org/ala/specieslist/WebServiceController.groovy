@@ -177,22 +177,22 @@ class WebServiceController {
      */
     def getListItemDetails ={
         if(params.druid) {
+            List druid = params.druid.split(',')
             params.sort = params.sort ?: "itemOrder" // default to order the items were imported in
             def list
             if(!params.q){
                 list = params.nonulls ?
-                        SpeciesListItem.findAllByDataResourceUidAndGuidIsNotNull(params.druid, params)
-                        : SpeciesListItem.findAllByDataResourceUid(params.druid, params)
+                        SpeciesListItem.findAllByDataResourceUidInListAndGuidIsNotNull(druid, params)
+                        : SpeciesListItem.findAllByDataResourceUidInList(druid, params)
             } else {
                 // if query parameter is passed, search in common name, supplied name and scientific name
                 String query = "%${params.q}%"
-                String druid = params.druid
                 def criteria = SpeciesListItem.createCriteria()
                 if(params.nonulls){
                     // search among SpeciesListItem that has matched ALA taxonomy
                     list = criteria {
                         isNotNull("guid")
-                        eq("dataResourceUid", druid)
+                        inList("dataResourceUid", druid)
                         or {
                             ilike("commonName", query)
                             ilike("matchedName", query)
@@ -202,7 +202,7 @@ class WebServiceController {
                 } else {
                     // search all SpeciesListItem
                     list = criteria {
-                        eq("dataResourceUid", druid)
+                        inList("dataResourceUid", druid)
                         or {
                             ilike("commonName", query)
                             ilike("matchedName", query)
@@ -214,11 +214,11 @@ class WebServiceController {
 
             List newList
             if (params.includeKVP?.toBoolean()) {
-                newList = list.collect({[id: it.id, name: it.rawScientificName, commonName: it.commonName, scientificName: it.matchedName, lsid: it.guid,
+                newList = list.collect({[id: it.id, name: it.rawScientificName, commonName: it.commonName, scientificName: it.matchedName, lsid: it.guid, dataResourceUid: it.dataResourceUid,
                                         kvpValues: it.kvpValues.collect({[key: it.key, value: it.value]})]})
             }
             else {
-                newList= list.collect{[id:it.id,name:it.rawScientificName, commonName: it.commonName, scientificName: it.matchedName, lsid: it.guid]}
+                newList= list.collect{[id:it.id,name:it.rawScientificName, commonName: it.commonName, scientificName: it.matchedName, lsid: it.guid, dataResourceUid: it.dataResourceUid]}
             }
             render newList as JSON
         } else {
@@ -248,27 +248,15 @@ class WebServiceController {
                 // if query parameter is passed, search in common name, supplied name and scientific name
                 String query = "%${params.q}%"
                 def criteria = SpeciesListItem.createCriteria()
-                list = criteria {
-                    isNotNull("guid")
+                list = criteria.listDistinct {
                     inList("dataResourceUid", druid)
                     or {
-                        if(speciesListItemFields){
-                            speciesListItemFields.each { field ->
-                                ilike(field, query)
-                            }
+                        speciesListItemFields. each { field ->
+                            ilike(field, query)
                         }
-
-                        if(kvpFields){
-                            kvpValues {
-                                or {
-                                    kvpFields.each { key ->
-                                        and {
-                                            eq("key", key)
-                                            ilike("value", query)
-                                        }
-                                    }
-                                }
-                            }
+                        kvpValues {
+                            inList("key", kvpFields)
+                            ilike("value", query)
                         }
                     }
                 }
