@@ -254,9 +254,12 @@ class WebServiceController {
                         speciesListItemFields. each { field ->
                             ilike(field, query)
                         }
-                        kvpValues {
-                            inList("key", kvpFields)
-                            ilike("value", query)
+
+                        if( kvpFields ) {
+                            kvpValues {
+                                inList("key", kvpFields)
+                                ilike("value", query)
+                            }
                         }
                     }
                 }
