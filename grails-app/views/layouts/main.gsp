@@ -38,7 +38,7 @@
         <div class="container">
             <div class="row">
                 <ul class="breadcrumb-list">
-                    <li><a href="https://www.ala.org.au">Home</a></li>
+                    <li><a href="${grailsApplication.config.skin?.homeUrl?:'https://www.ala.org.au'}">Home</a></li>
                     <g:if test="${pageProperty(name:'meta.breadcrumbParent')}">
                         <g:set value="${pageProperty(name:'meta.breadcrumbParent').tokenize(',')}" var="parentArray"/>
                         <li><a href="${parentArray[0]?:'/'}">${parentArray[1]}</a></li>
