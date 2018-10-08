@@ -16,6 +16,7 @@ package au.org.ala.specieslist
 
 import au.com.bytecode.opencsv.CSVWriter
 import au.org.ala.web.UserDetails
+import au.org.ala.ws.service.WebService
 import grails.converters.*
 import grails.web.JSONBuilder
 import org.apache.http.HttpStatus
@@ -29,6 +30,7 @@ class WebServiceController {
     def authService
     def localAuthService
     def queryService
+    def apiKeyService
     def beforeInterceptor = [action:this.&prevalidate,only:['getListDetails','saveList']]
 
     private def prevalidate(){
@@ -322,6 +324,7 @@ class WebServiceController {
      * included on the list.
      *
      * Two JSON structures are supported:
+     *
      * - v1 (unstructured list items): {"listName": "list1",  "listType": "TEST", "listItems": "item1,item2,item3"}
      * - v2 (structured list items with KVP): { "listName": "list1", "listType": "TEST", "listItems": [ { "itemName":
      * "item1", "kvpValues": [ { "key": "key1", "value": "value1" }, { "key": "key2", "value": "value2" } ] } ] }
@@ -332,50 +335,62 @@ class WebServiceController {
 
         try {
             def jsonBody = request.JSON
-            def userCookie = request.cookies.find { it.name == 'ALA-Auth' }
+            def userCookie = null
 
-            if (userCookie) {
+            if(request.cookies) {
+                userCookie = request.cookies.find { it.name == 'ALA-Auth' }
+            }
+
+            def userId = request.getHeader(WebService.DEFAULT_AUTH_HEADER)
+            def apiKey = request.getHeader(WebService.DEFAULT_API_KEY_HEADER)
+
+            UserDetails user = null
+
+            if (userId && apiKey){
+                def apiKeyResponse = apiKeyService.checkApiKey(apiKey)
+                if (apiKeyResponse && apiKeyResponse.valid){
+                    //retrieve user
+                    user = authService.getUserForUserId(userId)
+                }
+            } else if (userCookie) {
                 String username = java.net.URLDecoder.decode(userCookie.getValue(), 'utf-8')
-                boolean replaceList = true //default behaviour
                 //test to see that the user is valid
-                UserDetails user = authService.getUserForEmailAddress(username)
-                if (user) {
-                    if (jsonBody.listItems && jsonBody.listName) {
-                        jsonBody.username = user.userName
-                        log.warn(jsonBody?.toString())
-                        def druid = params.druid
+                user = authService.getUserForEmailAddress(username)
+            }
 
-                        // This is passed in from web service call to make sure it doesn't replace existing list
-                        if (jsonBody.replaceList != null) {
-                            replaceList = jsonBody.replaceList
-                        }
+            boolean replaceList = true //default behaviour
+            if (user) {
+                if (jsonBody.listItems && jsonBody.listName) {
+                    jsonBody.username = user.userName
+                    log.warn(jsonBody?.toString())
+                    def druid = params.druid
 
-                        //= helperService.addDataResourceForList([name:jsonBody.listName, username:username])
-
-                        if (!druid) {
-                            def drURL = helperService.addDataResourceForList([name: jsonBody.listName, username: username])
-
-                            if (drURL) {
-                                druid = drURL.toString().substring(drURL.lastIndexOf('/') + 1)
-                            } else {
-                                badRequest "Unable to generate collectory entry."
-                            }
-                        }
-
-                        def result = helperService.loadSpeciesListFromJSON(jsonBody, druid, replaceList)
-                        created druid, result.speciesGuids
-                    } else {
-                        badRequest "Missing compulsory mandatory properties."
+                    // This is passed in from web service call to make sure it doesn't replace existing list
+                    if (jsonBody.replaceList != null) {
+                        replaceList = jsonBody.replaceList
                     }
+
+                    if (!druid) {
+                        def drURL = helperService.addDataResourceForList([name: jsonBody.listName, username: user.userName])
+
+                        if (drURL) {
+                            druid = drURL.toString().substring(drURL.lastIndexOf('/') + 1)
+                        } else {
+                            badRequest "Unable to generate collectory entry."
+                        }
+                    }
+
+                    def result = helperService.loadSpeciesListFromJSON(jsonBody, druid, replaceList)
+                    created druid, result.speciesGuids
                 } else {
-                    badRequest "Supplied username is invalid"
+                    badRequest "Missing compulsory mandatory properties."
                 }
             } else {
-                badRequest "User has not logged in or cookies are disabled"
+                badRequest "Supplied username is invalid"
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e)
-            render(status: 404, text: "Unable to parse JSON body")
+            render(status: 400, text: "Unable to parse JSON body. " + e.getMessage())
         }
     }
 

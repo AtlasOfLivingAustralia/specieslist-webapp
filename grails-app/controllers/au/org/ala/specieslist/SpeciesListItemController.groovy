@@ -125,7 +125,7 @@ class SpeciesListItemController {
                     def distinctCount = requestParams.fq ? SpeciesList.executeQuery("select count(distinct guid) " + baseQueryAndParams[0], baseQueryAndParams[1]).head(): SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid=?", requestParams.id).head()
 
                     //need to get all keys to be included in the table so no need to add the filter.
-                    def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=? order by itemOrder", requestParams.id)
+                    def keys = SpeciesListKVP.executeQuery("select distinct key, itemOrder from SpeciesListKVP where dataResourceUid=? order by itemOrder", requestParams.id)
 
                     //list of species by search criteria and filters applied
                     def speciesListItems = requestParams.fq ? SpeciesListItem.executeQuery("select sli " + baseQueryAndParamsForListingSLI[0], baseQueryAndParamsForListingSLI[1], requestParams): SpeciesListItem.findAllByDataResourceUid(requestParams.id, requestParams)
@@ -176,7 +176,7 @@ class SpeciesListItemController {
         def map = [:]
 
         //handle the user defined properties -- this will also make up the facets
-        String selectPart = "select distinct kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt";
+        String selectPart = "select distinct kvp.key, kvp.value, kvp.vocabValue, sli.itemOrder, count(sli) as cnt";
         def middlePart = fqs ? queryService.constructWithFacets(" from SpeciesListItem as sli join sli.kvpValues kvp1 join sli.kvpValues kvp", fqs, params.id) : null
         def properties = null
         if(fqs){
@@ -201,9 +201,9 @@ class SpeciesListItemController {
             properties = results.findAll{ it[1].length()<maxLengthForFacet }.groupBy { it[0] }.findAll{ it.value.size()>1}
 
         } else {
-            def result = fqs? SpeciesListItem.executeQuery(selectPart+middlePart[0] +
+            def result = fqs? SpeciesListItem.executeQuery(selectPart + middlePart[0] +
                     " group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc", middlePart[1]):
-                SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt  from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=? group by kvp.key, kvp.value, kvp.vocabValue order by kvp.itemOrder,kvp.key,cnt desc', params.id)
+                SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt  from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=? group by kvp.key, kvp.value, kvp.vocabValue, kvp.itemOrder order by kvp.itemOrder, kvp.key, cnt desc', params.id)
 
             properties = result.findAll{it[1].length()<maxLengthForFacet}.groupBy{it[0]}.findAll{it.value.size()>1 }
 
