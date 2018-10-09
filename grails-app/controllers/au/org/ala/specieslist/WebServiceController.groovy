@@ -180,6 +180,7 @@ class WebServiceController {
      */
     def getListItemDetails ={
         if(params.druid) {
+            List druid = params.druid.split(',')
             params.sort = params.sort ?: "itemOrder" // default to order the items were imported in
             def list
             if(!params.q){
