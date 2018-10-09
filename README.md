@@ -28,6 +28,8 @@ See example inventory
 [ala-install/ansible/inventories/vagrant/species-list-vagrant](https://github.com/AtlasOfLivingAustralia/ala-install/tree/master/ansible/inventories/vagrant)
 
 ### Changelog
+- **Version 3.0**:
+  - Grails 3, Lucene 5 or above
 - **Version 2.0**:
   - upgraded to Grails 3
 - **Version 1.0**:
