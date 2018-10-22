@@ -17,7 +17,7 @@ package au.org.ala.specieslist
 import au.com.bytecode.opencsv.CSVWriter
 import au.org.ala.web.UserDetails
 import au.org.ala.ws.service.WebService
-import grails.converters.*
+import grails.converters.JSON
 import grails.web.JSONBuilder
 import org.apache.http.HttpStatus
 
@@ -31,23 +31,6 @@ class WebServiceController {
     def localAuthService
     def queryService
     def apiKeyService
-    def beforeInterceptor = [action:this.&prevalidate,only:['getListDetails','saveList']]
-
-    private def prevalidate(){
-        //ensure that the supplied druid is valid
-        log.debug("Prevalidating...")
-        if(params.druid){
-            def list = SpeciesList.findByDataResourceUid(params.druid)
-            if (list){
-                params.splist=list
-            }
-            else{
-                notFound "Unable to locate species list ${params.druid}"
-                return false
-            }
-        }
-        return true
-    }
 
     def index() { }
 
