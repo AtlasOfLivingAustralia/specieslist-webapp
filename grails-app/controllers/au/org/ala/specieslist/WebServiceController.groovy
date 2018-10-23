@@ -163,8 +163,14 @@ class WebServiceController {
      */
     def getListItemDetails ={
         if(params.druid) {
+            // This method supports a comma separated list of druid
+            List druid = params.druid.split(',')
             params.sort = params.sort ?: "itemOrder" // default to order the items were imported in
             def list
+
+            if (params.includeKVP) {
+                params.fetch = [kvpValues: 'join']
+            }
             if(!params.q){
                 list = params.nonulls ?
                         SpeciesListItem.findAllByDataResourceUidInListAndGuidIsNotNull(druid, params)
