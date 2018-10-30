@@ -125,7 +125,7 @@ class SpeciesListItemController {
                     def distinctCount = requestParams.fq ? SpeciesList.executeQuery("select count(distinct guid) " + baseQueryAndParams[0], baseQueryAndParams[1]).head(): SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid=?", requestParams.id).head()
 
                     //need to get all keys to be included in the table so no need to add the filter.
-                    def keys = SpeciesListKVP.executeQuery("select distinct key, itemOrder from SpeciesListKVP where dataResourceUid=? order by itemOrder", requestParams.id)
+                    def keys = SpeciesListKVP.executeQuery("select distinct key, itemOrder from SpeciesListKVP where dataResourceUid=? order by itemOrder", requestParams.id).collect { it[0] }
 
                     //list of species by search criteria and filters applied
                     def speciesListItems = requestParams.fq ? SpeciesListItem.executeQuery("select sli " + baseQueryAndParamsForListingSLI[0], baseQueryAndParamsForListingSLI[1], requestParams): SpeciesListItem.findAllByDataResourceUid(requestParams.id, requestParams)
