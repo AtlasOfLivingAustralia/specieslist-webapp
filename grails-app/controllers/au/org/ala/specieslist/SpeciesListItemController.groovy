@@ -1,7 +1,7 @@
 package au.org.ala.specieslist
 
-import au.com.bytecode.opencsv.CSVWriter
 import au.org.ala.web.AuthService
+import com.opencsv.CSVWriter
 import grails.converters.JSON
 
 class SpeciesListItemController {

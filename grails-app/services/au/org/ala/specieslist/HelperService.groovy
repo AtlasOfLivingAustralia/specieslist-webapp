@@ -15,15 +15,16 @@
 
 package au.org.ala.specieslist
 
-import au.com.bytecode.opencsv.CSVReader
 import au.org.ala.names.model.LinnaeanRankClassification
 import au.org.ala.names.model.NameSearchResult
 import au.org.ala.names.search.ALANameSearcher
+import com.opencsv.CSVReader
 import grails.transaction.Transactional
 import groovy.json.JsonOutput
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
+import org.apache.commons.io.input.BOMInputStream
 import org.apache.commons.lang.StringUtils
 import org.grails.web.json.JSONArray
 import org.nibor.autolink.*
@@ -31,6 +32,7 @@ import org.nibor.autolink.*
 import javax.annotation.PostConstruct
 
 import static groovyx.net.http.ContentType.JSON
+
 /**
  * Provides all the services for the species list webapp.  It may be necessary to break this into
  * multiple services if it grows too large
@@ -163,7 +165,7 @@ class HelperService {
     }
 
     def getCSVReaderForCSVFileUpload(file, char separator) {
-        new CSVReader(new InputStreamReader(file.getInputStream()), separator)
+        new CSVReader(new InputStreamReader(new BOMInputStream(file.getInputStream())), separator)
     }
 
     def getSeparator(String raw) {
@@ -228,16 +230,14 @@ class HelperService {
         //first step check to see if scientificname or common name is provided as a header
         def hasName = false;
         def headerResponse = header.collect {
-            if (speciesNameColumns.contains(it.toLowerCase().replaceAll(" ", ""))) {
+            def search = it.toLowerCase().replaceAll(" ", "")
+            if (speciesNameColumns.contains(search)) {
                 hasName = true
                 "scientific name"
-            } else if (commonNameColumns.contains(it.toLowerCase().replaceAll(" ", ""))) {
+            } else if (commonNameColumns.contains(search)) {
                 hasName = true
                 "vernacular name"
-            } else if (commonNameColumns.contains(it.toLowerCase().replaceAll(" ", ""))) {
-                hasName = true
-                "vernacular name"
-            } else if (ambiguousNameColumns.contains(it.toLowerCase().replaceAll(" ", ""))) {
+            } else if (ambiguousNameColumns.contains(search)) {
                 hasName = true
                 "ambiguous name"
             } else {

@@ -14,8 +14,8 @@
  */
 package au.org.ala.specieslist
 
-import au.com.bytecode.opencsv.CSVReader
 import au.org.ala.web.AuthService
+import com.opencsv.CSVReader
 import grails.converters.JSON
 import org.grails.web.json.JSONObject
 import org.springframework.web.multipart.MultipartHttpServletRequest
