@@ -14,9 +14,9 @@
  */
 package au.org.ala.specieslist
 
-import au.com.bytecode.opencsv.CSVWriter
 import au.org.ala.web.UserDetails
 import au.org.ala.ws.service.WebService
+import com.opencsv.CSVWriter
 import grails.converters.JSON
 import grails.web.JSONBuilder
 import org.apache.http.HttpStatus
