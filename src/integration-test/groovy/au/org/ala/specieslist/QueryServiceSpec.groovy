@@ -23,11 +23,14 @@ class QueryServiceSpec extends Specification{
             it.delete(flush: true, failOnError: true)
         }
 
-        def list1 = new SpeciesList(dateCreated: new Date(), lastUpdated: new Date(), dataResourceUid: "1", userId: 1,
+        Calendar calendar = Calendar.getInstance(TimeZone.default) // Ensure sort sequence
+        def list1 = new SpeciesList(dateCreated: calendar.time, lastUpdated: calendar.time, dataResourceUid: "1", userId: 1,
                 username: "b", description: "1", firstName: "first user", listName: "list a one", surname: "xyz")
-        def list2 = new SpeciesList(dateCreated: new Date(), lastUpdated: new Date(), dataResourceUid: "2", userId: 2,
+        calendar.add(Calendar.SECOND, 1)
+        def list2 = new SpeciesList(dateCreated: calendar.time, lastUpdated: calendar.time, dataResourceUid: "2", userId: 2,
                 username: "c", description: "2", firstName: "first user", listName: "list b two", surname: "surname")
-        def list3 = new SpeciesList(dateCreated: new Date(), lastUpdated: new Date(), dataResourceUid: "3", userId: 3,
+        calendar.add(Calendar.SECOND, 1)
+        def list3 = new SpeciesList(dateCreated: calendar.time, lastUpdated: calendar.time, dataResourceUid: "3", userId: 3,
                 username: "a", description: "3", firstName: "second user", listName: "list c three", surname: "xyz")
         list3.addToEditors("1") // user 1 can edit list 3
         list1.save(flush: true, failOnError: true)
