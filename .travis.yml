@@ -18,5 +18,6 @@ after_success:
   - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && travis_retry ./gradlew publish'
 env:
   global:
+    - GRADLE_OPTS: -Dgrails.env=test
   - secure: IF4jY8XTU5Nmrqs4aja6sIgC93VgBPxw8ylyoMQhePkB35SK2EHZ5cU7Tx3FSvEmDUQk6cq89toZHiiiGCISdCN3lawDpOFIeMZs3g98hc6cMBd4Wx7ncjO3oKDsIn+DFrF11TgMrwtjUUH/4TGpc32kyf0L5J/O+vqUO4vK6gs=
   - secure: fRTVEF2L2MOgL1ZSGV2bhclUc+wGyTL7zBwB7qEgMpgXQvQQH8Q869I4G/9sFQdRAhyEYXyEPDtW6eVA93mEAxnelzJ/PbFaaoeRFDdIaqklMkwIaVpuRZiJ7O4dIFAo2Cn4quoJAKez9BPNFpS3h+UpCWdOtaloTTMYKp8YZNU=
