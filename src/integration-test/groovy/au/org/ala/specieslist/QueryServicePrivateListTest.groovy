@@ -1,18 +1,22 @@
 package au.org.ala.specieslist
 
 import au.org.ala.web.AuthService
-import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import spock.lang.Specification
 
 @Integration
 @Rollback
-@TestMixin(ControllerUnitTestMixin)
 class QueryServicePrivateListTest extends Specification {
 
     QueryService service = new QueryService()
+
+
+    void tearDown() {
+        SpeciesList.findAll().each {
+            it.delete(flush: true, failOnError: true)
+        }
+    }
 
     def "only public lists should be returned when there is no user present"() {
         setup:
