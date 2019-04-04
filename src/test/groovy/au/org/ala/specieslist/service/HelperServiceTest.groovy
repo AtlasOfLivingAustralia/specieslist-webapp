@@ -1,9 +1,9 @@
 package au.org.ala.specieslist.service
 
-import au.com.bytecode.opencsv.CSVReader
 import au.org.ala.names.search.ALANameSearcher
 import au.org.ala.specieslist.*
 import au.org.ala.web.AuthService
+import com.opencsv.CSVReader
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import grails.test.mixin.TestMixin

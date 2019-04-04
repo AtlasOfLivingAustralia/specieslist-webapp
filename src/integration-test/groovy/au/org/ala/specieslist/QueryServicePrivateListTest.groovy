@@ -16,6 +16,7 @@ class QueryServicePrivateListTest extends Specification {
         service.setAuthService([getUserId: { null }] as AuthService)
         service.setLocalAuthService([isAdmin: { false }] as LocalAuthService)
 
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
         SpeciesList publicList1 = new SpeciesList(dataResourceUid: "Dr1", username: "bla", listName: "publicList1",
                 isPrivate: false).save(failOnError: true, flush: true)
         SpeciesList publicList2 = new SpeciesList(dataResourceUid: "Dr1", username: "bla", listName: "publicList2",
@@ -37,6 +38,7 @@ class QueryServicePrivateListTest extends Specification {
         service.setAuthService([getUserId: { "fred" }] as AuthService)
         service.setLocalAuthService([isAdmin: { true }] as LocalAuthService)
 
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
         SpeciesList publicList1 = new SpeciesList(dataResourceUid: "Dr1", username: "bla", listName: "publicList1",
                 isPrivate: false).save(failOnError: true, flush: true)
         SpeciesList publicList2 = new SpeciesList(dataResourceUid: "Dr1", username: "bla", listName: "publicList2",
@@ -57,6 +59,7 @@ class QueryServicePrivateListTest extends Specification {
         service.setAuthService([getUserId: { "1234" }] as AuthService)
         service.setLocalAuthService([isAdmin: { false }] as LocalAuthService)
 
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
         SpeciesList publicList1 = new SpeciesList(dataResourceUid: "Dr1", username: "bla", userId: "1234",
                 listName: "publicList1", isPrivate: false).save(failOnError: true, flush: true)
         SpeciesList publicList2 = new SpeciesList(dataResourceUid: "Dr1", username: "bla", userId: "9876",
