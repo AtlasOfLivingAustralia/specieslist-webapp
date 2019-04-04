@@ -19,6 +19,8 @@ class QueryServiceFilterListsTest extends Specification {
 
     def "filterLists should return all lists in the db containing any of the names when the drId list is empty"() {
         setup:
+        SpeciesListItem.findAll().each { it.delete(flush: true, failOnError: true) }
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
         SpeciesList list1 = new SpeciesList(dataResourceUid: "dr1", username: "bla", listName: "list1").save(failOnError: true, flush: true)
         SpeciesList list2 = new SpeciesList(dataResourceUid: "dr2", username: "bla", listName: "list2").save(failOnError: true, flush: true)
         SpeciesList list3 = new SpeciesList(dataResourceUid: "dr3", username: "bla", listName: "list3").save(failOnError: true, flush: true)
@@ -35,14 +37,12 @@ class QueryServiceFilterListsTest extends Specification {
         assert results.size() == 2
         assert results.contains("dr1")
         assert results.contains("dr3")
-
-        cleanup:
-        SpeciesListItem.findAll().each { it.delete(flush: true, failOnError: true) }
-        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
     }
 
     def "filterLists should return only lists from the specified drId set containing any of the names"() {
         setup:
+        SpeciesListItem.findAll().each { it.delete(flush: true, failOnError: true) }
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
         SpeciesList list1 = new SpeciesList(dataResourceUid: "dr1", username: "bla", listName: "list1").save(failOnError: true, flush: true)
         SpeciesList list2 = new SpeciesList(dataResourceUid: "dr2", username: "bla", listName: "list2").save(failOnError: true, flush: true)
         SpeciesList list3 = new SpeciesList(dataResourceUid: "dr3", username: "bla", listName: "list3").save(failOnError: true, flush: true)
@@ -58,14 +58,12 @@ class QueryServiceFilterListsTest extends Specification {
         then:
         assert results.size() == 1
         assert results.contains("dr1")
-
-        cleanup:
-        SpeciesListItem.findAll().each { it.delete(flush: true, failOnError: true) }
-        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
     }
 
     def "filterLists should match on either the matchedName or rawScientificName"() {
         setup:
+        SpeciesListItem.findAll().each { it.delete(flush: true, failOnError: true) }
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
         SpeciesList list1 = new SpeciesList(dataResourceUid: "dr1", username: "bla", listName: "list1").save(failOnError: true, flush: true)
         SpeciesList list2 = new SpeciesList(dataResourceUid: "dr2", username: "bla", listName: "list2").save(failOnError: true, flush: true)
         SpeciesList list3 = new SpeciesList(dataResourceUid: "dr3", username: "bla", listName: "list3").save(failOnError: true, flush: true)

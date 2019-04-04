@@ -16,6 +16,7 @@ class QueryServicePrivateListTest extends Specification {
         service.setAuthService([getUserId: { null }] as AuthService)
         service.setLocalAuthService([isAdmin: { false }] as LocalAuthService)
 
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
         SpeciesList publicList1 = new SpeciesList(dataResourceUid: "Dr1", username: "bla", listName: "publicList1",
                 isPrivate: false).save(failOnError: true, flush: true)
         SpeciesList publicList2 = new SpeciesList(dataResourceUid: "Dr1", username: "bla", listName: "publicList2",
@@ -30,9 +31,6 @@ class QueryServicePrivateListTest extends Specification {
         assert results.size() == 2
         assert results.contains(publicList1) && results.contains(publicList2)
         assert !results.contains(privateList1)
-
-        cleanup:
-        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
     }
 
     def "admin users should see all lists, including private lists"() {
@@ -40,6 +38,7 @@ class QueryServicePrivateListTest extends Specification {
         service.setAuthService([getUserId: { "fred" }] as AuthService)
         service.setLocalAuthService([isAdmin: { true }] as LocalAuthService)
 
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
         SpeciesList publicList1 = new SpeciesList(dataResourceUid: "Dr1", username: "bla", listName: "publicList1",
                 isPrivate: false).save(failOnError: true, flush: true)
         SpeciesList publicList2 = new SpeciesList(dataResourceUid: "Dr1", username: "bla", listName: "publicList2",
@@ -53,9 +52,6 @@ class QueryServicePrivateListTest extends Specification {
         then:
         assert results.size() == 3
         assert results.contains(publicList1) && results.contains(publicList2) && results.contains(privateList1)
-
-        cleanup:
-        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
     }
 
     def "users should only see public lists, lists they own, and lists they can edit"() {
@@ -63,6 +59,7 @@ class QueryServicePrivateListTest extends Specification {
         service.setAuthService([getUserId: { "1234" }] as AuthService)
         service.setLocalAuthService([isAdmin: { false }] as LocalAuthService)
 
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
         SpeciesList publicList1 = new SpeciesList(dataResourceUid: "Dr1", username: "bla", userId: "1234",
                 listName: "publicList1", isPrivate: false).save(failOnError: true, flush: true)
         SpeciesList publicList2 = new SpeciesList(dataResourceUid: "Dr1", username: "bla", userId: "9876",
@@ -86,8 +83,5 @@ class QueryServicePrivateListTest extends Specification {
         assert results.contains(publicList1) && results.contains(publicList2) && results.contains(privateList1) &&
                 results.contains(privateList2), "Should see public lists, lists you own, and lists you can edit"
         assert !results.contains(privateList3), "Should not be able to see a private list you don't own and can't edit"
-
-        cleanup:
-        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
     }
 }
