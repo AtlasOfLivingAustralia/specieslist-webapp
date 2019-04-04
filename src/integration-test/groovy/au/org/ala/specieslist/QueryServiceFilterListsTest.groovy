@@ -35,6 +35,10 @@ class QueryServiceFilterListsTest extends Specification {
         assert results.size() == 2
         assert results.contains("dr1")
         assert results.contains("dr3")
+
+        cleanup:
+        SpeciesListItem.findAll().each { it.delete(flush: true, failOnError: true) }
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
     }
 
     def "filterLists should return only lists from the specified drId set containing any of the names"() {
@@ -54,6 +58,10 @@ class QueryServiceFilterListsTest extends Specification {
         then:
         assert results.size() == 1
         assert results.contains("dr1")
+
+        cleanup:
+        SpeciesListItem.findAll().each { it.delete(flush: true, failOnError: true) }
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
     }
 
     def "filterLists should match on either the matchedName or rawScientificName"() {
@@ -74,6 +82,10 @@ class QueryServiceFilterListsTest extends Specification {
         assert results.size() == 2
         assert results.contains("dr1")
         assert results.contains("dr3")
+
+        cleanup:
+        SpeciesListItem.findAll().each { it.delete(flush: true, failOnError: true) }
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
     }
 
 }

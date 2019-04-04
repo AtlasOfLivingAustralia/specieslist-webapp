@@ -11,13 +11,6 @@ class QueryServicePrivateListTest extends Specification {
 
     QueryService service = new QueryService()
 
-
-    void tearDown() {
-        SpeciesList.findAll().each {
-            it.delete(flush: true, failOnError: true)
-        }
-    }
-
     def "only public lists should be returned when there is no user present"() {
         setup:
         service.setAuthService([getUserId: { null }] as AuthService)
@@ -37,6 +30,9 @@ class QueryServicePrivateListTest extends Specification {
         assert results.size() == 2
         assert results.contains(publicList1) && results.contains(publicList2)
         assert !results.contains(privateList1)
+
+        cleanup:
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
     }
 
     def "admin users should see all lists, including private lists"() {
@@ -57,6 +53,9 @@ class QueryServicePrivateListTest extends Specification {
         then:
         assert results.size() == 3
         assert results.contains(publicList1) && results.contains(publicList2) && results.contains(privateList1)
+
+        cleanup:
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
     }
 
     def "users should only see public lists, lists they own, and lists they can edit"() {
@@ -87,5 +86,8 @@ class QueryServicePrivateListTest extends Specification {
         assert results.contains(publicList1) && results.contains(publicList2) && results.contains(privateList1) &&
                 results.contains(privateList2), "Should see public lists, lists you own, and lists you can edit"
         assert !results.contains(privateList3), "Should not be able to see a private list you don't own and can't edit"
+
+        cleanup:
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
     }
 }
