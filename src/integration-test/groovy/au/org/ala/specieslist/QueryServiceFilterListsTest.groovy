@@ -1,11 +1,14 @@
 package au.org.ala.specieslist
 
+import grails.test.mixin.TestMixin
 import grails.test.mixin.integration.Integration
+import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import spock.lang.Specification
 
 @Integration
 @Rollback
+@TestMixin(ControllerUnitTestMixin)
 class QueryServiceFilterListsTest extends Specification {
 
     QueryService service = new QueryService()

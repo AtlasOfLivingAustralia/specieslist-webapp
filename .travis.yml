@@ -13,6 +13,9 @@ cache:
     - $HOME/.m2
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+install:
+  - ./gradlew assemble
+  - ./gradlew --info check
 after_success:
   - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && travis_retry ./gradlew publish'
 env:
