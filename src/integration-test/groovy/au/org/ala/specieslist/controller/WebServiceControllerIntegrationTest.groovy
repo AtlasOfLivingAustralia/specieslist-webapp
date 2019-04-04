@@ -86,6 +86,8 @@ class WebServiceControllerIntegrationTest extends Specification {
                 as UserDetailsService)
         controller.setAuthService([getUserForEmailAddress: {new UserDetails(userName: 'b')}] as AuthService)
         controller.setHelperService(helperService)
+        SpeciesListItem.findAll().each { it.delete(flush: true, failOnError: true) }
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
 
         when:
         controller.request.cookies = [new Cookie("ALA-Auth", "fred")]
@@ -130,6 +132,7 @@ class WebServiceControllerIntegrationTest extends Specification {
 
     def "listKeys should return the unique set of keys from requested DRUIDS only in the request"() {
         setup:
+        SpeciesListKVP.findAll().each { it.delete(flush: true, failOnError: true) }
         (1..6).each {
             SpeciesListKVP kvp = new SpeciesListKVP(key: "key${it}", value: "value${it}", dataResourceUid: "dr${it <= 3 ? '1' : '2'}", itemOrder: 1)
             kvp.save(flush: true, failOnError: true)
@@ -164,6 +167,9 @@ class WebServiceControllerIntegrationTest extends Specification {
 
     def "listItemsByKeys should only select the specified druids and keys - single values"() {
         setup:
+        SpeciesListKVP.findAll().each { it.delete(flush: true, failOnError: true) }
+        SpeciesListItem.findAll().each { it.delete(flush: true, failOnError: true) }
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
         (1..3).each {
             SpeciesList list = new SpeciesList(listName: "list${it}", username: "fred", dataResourceUid: "dr${it}")
             list.save(flush: true, failOnError: true)
@@ -190,6 +196,9 @@ class WebServiceControllerIntegrationTest extends Specification {
 
     def "listItemsByKeys should only select the specified druids and keys - multiple values"() {
         setup:
+        SpeciesListKVP.findAll().each { it.delete(flush: true, failOnError: true) }
+        SpeciesListItem.findAll().each { it.delete(flush: true, failOnError: true) }
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
         (1..3).each {
             SpeciesList list = new SpeciesList(listName: "list${it}", username: "fred", dataResourceUid: "dr${it}")
             list.save(flush: true, failOnError: true)
@@ -216,6 +225,9 @@ class WebServiceControllerIntegrationTest extends Specification {
 
     def "listItemsByKeys should return CSV if the format parameter = csv"() {
         setup:
+        SpeciesListKVP.findAll().each { it.delete(flush: true, failOnError: true) }
+        SpeciesListItem.findAll().each { it.delete(flush: true, failOnError: true) }
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
         (1..3).each {
             SpeciesList list = new SpeciesList(listName: "list${it}", username: "fred", dataResourceUid: "dr${it}")
             list.save(flush: true, failOnError: true)
