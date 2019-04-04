@@ -33,6 +33,7 @@ class WebServiceControllerIntegrationTest extends Specification {
                 as UserDetailsService)
         controller.setAuthService([getUserForEmailAddress: {new UserDetails(userName: 'b')}] as AuthService)
         controller.setHelperService(helperService)
+        SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
 
         when:
         controller.request.cookies = [new Cookie("ALA-Auth", "fred")]
