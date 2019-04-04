@@ -1,17 +1,21 @@
 package au.org.ala.specieslist
 
-import grails.test.mixin.TestMixin
+
 import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.transaction.Rollback
 import spock.lang.Specification
 
 @Integration
 @Rollback
-@TestMixin(ControllerUnitTestMixin)
 class QueryServiceFilterListsTest extends Specification {
 
     QueryService service = new QueryService()
+
+    void tearDown() {
+        SpeciesList.findAll().each {
+            it.delete(flush: true, failOnError: true)
+        }
+    }
 
     def "filterLists should return all lists in the db containing any of the names when the drId list is empty"() {
         setup:
