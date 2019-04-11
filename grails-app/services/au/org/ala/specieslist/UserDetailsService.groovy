@@ -16,7 +16,7 @@ class UserDetailsService {
             def details = byEmail.get(it)
             //log.debug "details is ${details}"
             if (details && details.hasProperty('userId')) {
-                byId.put(details.userId, details)
+                byIdOrEmail.put(details.userId, details)
             }
         }
 
