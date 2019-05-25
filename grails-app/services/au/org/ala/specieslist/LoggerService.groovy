@@ -7,10 +7,10 @@ class LoggerService {
     //@Cacheable("loggerCache")
     def getReasons() {
         log.info("Refreshing the download reasons")
-         HTTPBuilder http = new HTTPBuilder("http://logger.ala.org.au")
+         HTTPBuilder http = new HTTPBuilder("${grailsApplication.config.logger.baseURL}")
          http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
         try{
-            def result = http.get(path:'/service/logger/reasons')
+            def result = http.get(path:'/logger/reasons')
 
             def map = [:]
             result.toArray().each{
