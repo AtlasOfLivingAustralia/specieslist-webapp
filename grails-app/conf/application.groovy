@@ -35,6 +35,8 @@ biocache.indexAuthoritative = false
 occurrenceDownload.enabled = true
 termsOfUseUrl = "http://www.ala.org.au/about-the-atlas/terms-of-use/#TOUusingcontent"
 
+logger.baseURL = "https://logger.ala.org.au/service"
+
 registryApiKey = "xxxxxxxxxxxxxxxxxx"
 
 bieApiKey = "xxxxxx"
