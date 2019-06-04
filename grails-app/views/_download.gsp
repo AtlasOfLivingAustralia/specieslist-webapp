@@ -35,7 +35,7 @@
 
             <p style="text-align: center">
             <g:if test="${grailsApplication.config.occurrenceDownload.enabled.toBoolean()}">
-                <input type="submit" value="Download All Records" class="actionButton btn btn-default" id="downloadSubmitButton" onclick="return downloadOccurrences()"/>
+                <input type="submit" value="Download All Records" class="actionButton btn btn-default" id="downloadSubmitButton"/>
             </g:if>
             <g:if test="${grailsApplication.config.fieldGuide.baseURL}">
                 <input type="submit" value="Download Species Field Guide" class="actionButton btn btn-default" id="downloadFieldGuideSubmitButton"/>

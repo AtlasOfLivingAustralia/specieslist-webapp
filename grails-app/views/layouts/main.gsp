@@ -7,17 +7,16 @@
     <meta name="author" content="${grailsApplication.config.skin?.orgNameLong?:'Atlas of Living Australia'}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/bootstrap.min.css" rel="stylesheet" media="all" />
-    <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/ala-styles.css" rel="stylesheet" media="all" />
+    <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/ala.min.css" rel="stylesheet" media="screen,print"/>
     <asset:stylesheet src="core.css" media="all" />
     <asset:stylesheet src="core-screen-print.css" media="all" />
     <asset:stylesheet src="application.css" media="all" />
     <link href="${grailsApplication.config.skin?.favicon?:'http://www.ala.org.au/wp-content/themes/ala2011/images/favicon.ico'}" rel="shortcut icon"  type="image/x-icon"/>
+    <script type="text/javascript"
+            src="${grailsApplication.config.headerAndFooter.baseURL}/js/ala.min.js"></script>
     <!--[if lt IE 9]>
     <asset:javascript src="html5.js" />
     <![endif]-->
-    <asset:javascript src="head.js"/>
-    <asset:javascript src="jquery-extensions.js" />
 
 
     <hf:head/>
@@ -60,12 +59,6 @@
 <!-- Footer -->
 <hf:footer/>
 <!-- End footer -->
-<g:if test="${!grailsApplication.config.headerAndFooter.excludeApplicationJs}">
-    <script type="text/javascript" src="${grailsApplication.config.headerAndFooter.baseURL}/js/application.js"></script>
-</g:if>
-<g:if test="${!grailsApplication.config.headerAndFooter.excludeBootstrapJs}">
-    <script type="text/javascript" src="${grailsApplication.config.headerAndFooter.baseURL}/js/bootstrap.min.js"></script>
-</g:if>
 <asset:deferredScripts />
 
 </body>

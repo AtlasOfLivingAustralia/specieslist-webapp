@@ -33,7 +33,7 @@
             'margin': 0,
             'width' : 'auto',
             'height': 'auto',
-            onComplete : function() {
+            afterShow : function() {
                 jQuery("#fancyConfirm_cancel").click(function() {
                     ret = false;
                     jQuery.fancybox.close();
@@ -42,7 +42,7 @@
                     ret = true;
                     $("img#spinner").show(); // show spinning gif
                     $("#fancyConfirm_ok").attr("disabled","disabled"); // disable "Yes" button while processing
-                    //jQuery.fancybox.close();
+
                     var url = "${request.contextPath}"+"/speciesList/"+action+ "/"+listId;
                     //console.log("Dialog ACTION ITEMS",listId, url)
                     $.post(url, function(data){

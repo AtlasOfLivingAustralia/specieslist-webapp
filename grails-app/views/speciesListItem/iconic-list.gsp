@@ -24,8 +24,6 @@
     <meta name="breadcrumb" content="Australia's species"/>
     <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src:'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src:'getQueryParam.js')}"></script>
-    <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src:'jquery-ui-1.8.17.custom.min.js')}"></script>
-    <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src:'jquery.doubleScroll.js')}"></script>
     <title>Species list items | ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">
         #buttonDiv {display: none;}
