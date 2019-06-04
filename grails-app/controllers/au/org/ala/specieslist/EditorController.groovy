@@ -43,7 +43,7 @@ class EditorController {
      */
     private List populateEditorsDetails(editors) {
         List editorsWithDetails = []
-        Map allUsersMap = userDetailsService.getFullListOfUserDetailsById()
+        Map allUsersMap = userDetailsService.getFullListOfUserDetails()
         //log.debug "allUsersMap keys = ${allUsersMap.keySet()}"
         //log.debug "allUsersMap 13 = ${allUsersMap.get('13')}"
 

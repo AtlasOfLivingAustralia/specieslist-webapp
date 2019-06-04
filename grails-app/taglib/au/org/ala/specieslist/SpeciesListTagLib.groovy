@@ -3,10 +3,10 @@ package au.org.ala.specieslist
 class SpeciesListTagLib {
     static namespace = 'sl'
     static returnObjectForTags = ['buildFqList', 'excludedFqList']
-    def authService
+    def userDetailsService
 
     def getFullNameForUserId = { attrs, body ->
-        def displayName = authService.getUserForUserId(attrs.userId)?.displayName
+        def displayName = userDetailsService.getFullListOfUserDetails().get(attrs.userId)?.displayName
         out << "${displayName?:attrs.userId}"
     }
 

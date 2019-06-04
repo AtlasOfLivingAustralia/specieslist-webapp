@@ -35,6 +35,8 @@ biocache.indexAuthoritative = false
 occurrenceDownload.enabled = true
 termsOfUseUrl = "http://www.ala.org.au/about-the-atlas/terms-of-use/#TOUusingcontent"
 
+logger.baseURL = "https://logger.ala.org.au/service"
+
 registryApiKey = "xxxxxxxxxxxxxxxxxx"
 
 bieApiKey = "xxxxxx"
@@ -75,7 +77,7 @@ security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
 security.cas.logoutUrl = 'https://auth.ala.org.au/cas/logout'
 security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
 // CAS properties moved from external config while migrating to ala-auth:2.x from 1.x
-security.cas.uriFilterPattern='/speciesList,/speciesList/.*,/admin,/admin/.*,/editor,/editor/.*'
+security.cas.uriFilterPattern='/speciesList,/speciesList/.*,/admin,/admin/.*,/editor,/editor/.*,/alaAdmin.*'
 security.cas.authenticateOnlyIfLoggedInPattern='/speciesListItem/list,/speciesListItem/list/.*,/speciesListItem/listAuth,/speciesListItem/listAuth/.*'
 security.cas.uriExclusionFilterPattern='/images.*,/css.*,/js.*,/less.*,/speciesList/occurrences/.*,/speciesList/fieldGuide/.*,/ws/speciesList'
 

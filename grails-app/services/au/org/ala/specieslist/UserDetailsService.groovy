@@ -1,26 +1,28 @@
 package au.org.ala.specieslist
 
+import grails.plugin.cache.Cacheable
 import grails.transaction.Transactional
-import org.springframework.cache.annotation.Cacheable
 
 @Transactional
 class UserDetailsService {
     def grailsApplication, authService
 
     @Cacheable("userDetailsCache")
-    def Map getFullListOfUserDetailsById() {
-        def byId = [:]
+    def Map getFullListOfUserDetails() {
+        def byIdOrEmail = [:]
         Map byEmail = authService.getAllUserNameMap()
         byEmail.keySet().each {
             //log.debug "it is ${it}"
             def details = byEmail.get(it)
             //log.debug "details is ${details}"
             if (details && details.hasProperty('userId')) {
-                byId.put(details.userId, details)
+                byIdOrEmail.put(details.userId, details)
             }
         }
 
-        byId
+        byIdOrEmail.putAll(byEmail)
+
+        byIdOrEmail
     }
 
     @Cacheable("userDetailsCache")
