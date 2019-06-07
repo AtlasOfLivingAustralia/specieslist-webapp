@@ -3,6 +3,7 @@ package au.org.ala.specieslist
 import groovyx.net.http.HTTPBuilder
 
 class LoggerService {
+    def grailsApplication
 
     //@Cacheable("loggerCache")
     def getReasons() {
