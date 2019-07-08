@@ -16,6 +16,7 @@
     <g:elseif test="${grailsApplication.config.headerAndFooter.version == '2'}">
         <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/autocomplete.min.css" rel="stylesheet" media="screen,print"/>
         <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/autocomplete-extra.min.css" rel="stylesheet" media="screen,print"/>
+        <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/font-awesome.min.css" rel="stylesheet" media="screen,print"/>
     </g:elseif>
     <asset:stylesheet src="application.css" media="all" />
     <link href="${grailsApplication.config.skin?.favicon?:'http://www.ala.org.au/wp-content/themes/ala2011/images/favicon.ico'}" rel="shortcut icon"  type="image/x-icon"/>
