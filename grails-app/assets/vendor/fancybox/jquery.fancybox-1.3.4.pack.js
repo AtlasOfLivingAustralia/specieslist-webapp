@@ -26,11 +26,11 @@
 
         titleHeight = 0, titleStr = '', start_pos, final_pos, busy = false, fx = $.extend($('<div/>')[0], { prop: 0 }),
 
-        isIE6 = $.browser.msie && $.browser.version < 7 && !window.XMLHttpRequest,
+        isIE6 = navigator.userAgent.match(/msie [6]/i) && !window.XMLHttpRequest,
 
-    /*
-     * Private methods
-     */
+        /*
+         * Private methods
+         */
 
         _abort = function() {
             loading.hide();
@@ -389,7 +389,7 @@
                         content.html( tmp.contents() ).fadeTo(currentOpts.changeFade, 1, _finish);
                     };
 
-                     $('.fancybox-inline-tmp').trigger('fancybox-change');;
+                    $('.fancybox-inline-tmp').trigger('fancybox-change');;
 
                     content
                         .empty()
@@ -612,7 +612,7 @@
             }
 
             if (currentOpts.type == 'iframe') {
-                $('<iframe id="fancybox-frame" name="fancybox-frame' + new Date().getTime() + '" frameborder="0" hspace="0" ' + ($.browser.msie ? 'allowtransparency="true""' : '') + ' scrolling="' + selectedOpts.scrolling + '" src="' + currentOpts.href + '"></iframe>').appendTo(content);
+                $('<iframe id="fancybox-frame" name="fancybox-frame' + new Date().getTime() + '" frameborder="0" hspace="0" ' + (navigator.userAgent.match(/msie [6]/i) ? 'allowtransparency="true""' : '') + ' scrolling="' + selectedOpts.scrolling + '" src="' + currentOpts.href + '"></iframe>').appendTo(content);
             }
 
             wrap.show();
