@@ -43,7 +43,7 @@
             </div>
 
             <div class="col-md-4">
-                <g:link controller="speciesList" action="upload" class="btn btn-ala pull-right"
+                <g:link controller="speciesList" action="upload" class="btn btn-primary pull-right"
                         title="Add Species List">Upload a list</g:link>
             </div>
         </div><!--inner-->

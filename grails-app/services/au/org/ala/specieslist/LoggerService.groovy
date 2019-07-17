@@ -3,14 +3,15 @@ package au.org.ala.specieslist
 import groovyx.net.http.HTTPBuilder
 
 class LoggerService {
+    def grailsApplication
 
     //@Cacheable("loggerCache")
     def getReasons() {
         log.info("Refreshing the download reasons")
-         HTTPBuilder http = new HTTPBuilder("${grailsApplication.config.logger.baseURL}")
+         HTTPBuilder http = new HTTPBuilder("${grailsApplication.config.logger.baseURL}/logger/reasons")
          http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
         try{
-            def result = http.get(path:'/logger/reasons')
+            def result = http.get([:])
 
             def map = [:]
             result.toArray().each{

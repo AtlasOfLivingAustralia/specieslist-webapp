@@ -1,1 +1,1 @@
-//= require fancybox/jquery.fancybox-1.3.4.pack.js
+//= require fancybox-3.5.7/jquery.fancybox.min.js

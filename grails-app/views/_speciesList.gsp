@@ -26,14 +26,12 @@
     }
 
     function fancyConfirm(msg,listId,action,callback){
-        //alert("${request.contextPath}"+"/speciesList/"+action+ "/"+listId)
-        jQuery.fancybox({
-            'content':"<div style=\"padding:20px;width:400px;text-align:center;\">"+msg+"<div style=\"text-align:center;margin-top:10px;\"><input id=\"fancyConfirm_cancel\" type=\"button\" value=\"No\" class=\"actionButton btn btn-default btn-sm\">&nbsp;<input id=\"fancyConfirm_ok\" type=\"button\" value=\"Yes\" class=\"actionButton btn btn-default btn-sm\"><img src='${asset.assetPath(src:'spinner.gif')}' id='spinner'/></div></div>",
+        jQuery.fancybox.open("<div style=\"padding:20px;width:400px;text-align:center;\">"+msg+"<div style=\"text-align:center;margin-top:10px;\"><input id=\"fancyConfirm_cancel\" type=\"button\" value=\"No\" class=\"actionButton btn btn-default btn-sm\">&nbsp;<input id=\"fancyConfirm_ok\" type=\"button\" value=\"Yes\" class=\"actionButton btn btn-default btn-sm\"><img src='${asset.assetPath(src:'spinner.gif')}' id='spinner'/></div></div>", {
             'padding': 0,
             'margin': 0,
             'width' : 'auto',
             'height': 'auto',
-            onComplete : function() {
+            afterShow : function() {
                 jQuery("#fancyConfirm_cancel").click(function() {
                     ret = false;
                     jQuery.fancybox.close();
@@ -42,7 +40,7 @@
                     ret = true;
                     $("img#spinner").show(); // show spinning gif
                     $("#fancyConfirm_ok").attr("disabled","disabled"); // disable "Yes" button while processing
-                    //jQuery.fancybox.close();
+
                     var url = "${request.contextPath}"+"/speciesList/"+action+ "/"+listId;
                     //console.log("Dialog ACTION ITEMS",listId, url)
                     $.post(url, function(data){

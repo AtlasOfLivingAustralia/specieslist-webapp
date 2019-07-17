@@ -9,16 +9,32 @@
 
     <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/bootstrap.min.css" rel="stylesheet" media="all" />
     <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/ala-styles.css" rel="stylesheet" media="all" />
-    <asset:stylesheet src="core.css" media="all" />
-    <asset:stylesheet src="core-screen-print.css" media="all" />
+    <g:if test="${grailsApplication.config.headerAndFooter.version == '1'}">
+        <asset:stylesheet src="core.css"/>
+        <asset:stylesheet src="core-screen-print.css" media="all" />
+    </g:if>
+    <g:elseif test="${grailsApplication.config.headerAndFooter.version == '2'}">
+        <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/autocomplete.min.css" rel="stylesheet" media="screen,print"/>
+        <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/autocomplete-extra.min.css" rel="stylesheet" media="screen,print"/>
+        <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/font-awesome.min.css" rel="stylesheet" media="screen,print"/>
+    </g:elseif>
     <asset:stylesheet src="application.css" media="all" />
     <link href="${grailsApplication.config.skin?.favicon?:'http://www.ala.org.au/wp-content/themes/ala2011/images/favicon.ico'}" rel="shortcut icon"  type="image/x-icon"/>
     <!--[if lt IE 9]>
     <asset:javascript src="html5.js" />
     <![endif]-->
-    <asset:javascript src="head.js"/>
-    <asset:javascript src="jquery-extensions.js" />
-
+    <g:if test="${grailsApplication.config.headerAndFooter.version == '1'}">
+        <asset:javascript src="head.js"/>
+        <asset:javascript src="jquery-extensions.js" />
+    </g:if>
+    <g:elseif test="${grailsApplication.config.headerAndFooter.version == '2'}">
+        <script type="text/javascript"
+                src="${grailsApplication.config.headerAndFooter.baseURL}/js/jquery.min.js"></script>
+        <script type="text/javascript"
+                src="${grailsApplication.config.headerAndFooter.baseURL}/js/jquery-migration.min.js"></script>
+        <script type="text/javascript"
+                src="${grailsApplication.config.headerAndFooter.baseURL}/js/autocomplete.min.js"></script>
+    </g:elseif>
 
     <hf:head/>
     <title><g:layoutTitle /></title>

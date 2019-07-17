@@ -64,8 +64,7 @@
                 }
             });
 
-            // ba-hashchange plugin
-            $(window).hashchange( function() {
+            function loadGridOrList() {
                 var storedView = amplify.store('view-state');
                 var hash = location.hash ? location.hash : "";
 
@@ -96,11 +95,14 @@
                 // and that will only be known after table data is loaded.
                 $('.fwtable').doubleScroll();
 
-            });
+            };
+
+            // register handler for hashchange event
+            window.onhashchange = loadGridOrList;
 
             // Since the event is only triggered when the hash changes, we need to trigger
             // the event now, to handle the hash the page may have loaded with.
-            $(window).hashchange();
+            loadGridOrList();
 
             // download link
             $("#downloadLink").fancybox({
@@ -113,29 +115,9 @@
                 'height': 400,
                 'padding': 20,
                 'margin': 0,
-                onCleanup: function() {
+                afterClose: function() {
                     $("label[for='reasonTypeId']").css("color","#444");
                 }
-            });
-
-            // fancybox div for refining search with multiple facet values
-            $(".multipleFacetsLink").fancybox({
-                'hideOnContentClick' : false,
-                'hideOnOverlayClick': true,
-                'showCloseButton': true,
-                'titleShow' : false,
-                'transitionIn': 'elastic',
-                'transitionOut': 'elastic',
-                'speedIn': 400,
-                'speedOut': 400,
-                'scrolling': 'auto',
-                'centerOnScroll': true,
-                'autoDimensions' : false,
-                'width': 560,
-                'height': 560,
-                'padding': 10,
-                'margin': 10
-
             });
 
             // Tooltip for link title
@@ -319,42 +301,6 @@
             $('#viewRecord').modal("show");
         }
 
-        function downloadOccurrences(o){
-            if(validateForm()){
-                this.cancel();
-                downloadURL = "${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Download&email="+$("#email").val()+"&reasonTypeId="+$("#reasonTypeId").val()+"&file="+$("#filename").val();
-                window.location =  downloadURL
-            }
-        }
-        function downloadFieldGuide(o){
-            if(validateForm()){
-                this.cancel();
-                //alert(${params.toQueryString()})
-                window.location = "${request.contextPath}/speciesList/fieldGuide/${params.id}${params.toQueryString()}"
-            }
-
-        }
-        function downloadList(o){
-            if(validateForm()){
-                this.cancel();
-                window.location = "${request.contextPath}/speciesListItem/downloadList/${params.id}${params.toQueryString()}&file="+$("#filename").val()
-            }
-        }
-        function validateForm() {
-            var isValid = false;
-            var reasonId = $("#reasonTypeId option:selected").val();
-
-            if (reasonId) {
-                isValid = true;
-            } else {
-                $("#reasonTypeId").focus();
-                $("label[for='reasonTypeId']").css("color","red");
-                alert("Please select a \"download reason\" from the drop-down list");
-            }
-
-            return isValid;
-        }
-
         function reloadWithMax(el) {
             var max = $(el).find(":selected").val();
             var params = {
@@ -453,14 +399,14 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="pull-right margin-top-10">
-                            <a href="#download" class="btn btn-ala" title="View the download options for this species list."
+                            <a href="#download" class="btn btn-primary" title="View the download options for this species list."
                                id="downloadLink">Download</a>
 
-                            <a class="btn btn-ala" title="View occurrences for up to ${maxDownload} species on the list"
+                            <a class="btn btn-primary" title="View occurrences for up to ${maxDownload} species on the list"
                                href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">View occurrence records</a>
 
                             <a href="${request.contextPath}/speciesList/spatialPortal/${params.id}${params.toQueryString()}&type=Search"
-                               class="btn btn-ala" title="View the spatial portal.">View in spatial portal</a>
+                               class="btn btn-primary" title="View the spatial portal.">View in spatial portal</a>
                         </div> <!-- rightfloat -->
                     </div>
                 </div>
@@ -1103,7 +1049,6 @@
 </div> <!-- content div -->
 <asset:javascript src="fancybox.js" asset-defer=""/>
 <asset:javascript src="amplify.js" asset-defer=""/>
-<asset:javascript src="baHashchange.js" asset-defer=""/>
 <asset:script type="text/javascript" asset-defer="">
 
     $(document).ready(function(){
