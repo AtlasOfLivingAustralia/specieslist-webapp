@@ -114,6 +114,7 @@ if (Environment.isDevelopmentMode()) {
                     'org.apache.http.headers',
                     'org.apache.http.wire',
                     'org.hibernate.SQL',
+                    'grails.app',
                     'au.org.ala.specieslist'
             ],
             (TRACE): []

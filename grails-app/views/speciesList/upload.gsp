@@ -63,7 +63,7 @@
                 type: "POST",
                 url: url,
                 processData: !isFileUpload,
-                contentType: !isFileUpload,
+                contentType: (isFileUpload ? false : ""),
                 data: isFileUpload ? new FormData(document.forms.namedItem("csvUploadForm")) : $('#copyPasteData').val(),
                 success: function(data) {
                     $('#recognisedDataDiv').show();
@@ -173,7 +173,7 @@
                     map['sdsType'] = $('#sdsType').val();
                 }
             }
-            console.log("The map: ",map);
+            //console.log("The map: ",map);
             $('#recognisedDataDiv').hide();
             $('#uploadDiv').hide();
             $('#statusMsgDiv').show();
@@ -191,7 +191,7 @@
                 type: "POST",
                 url: url,
                 processData: !isFileUpload,
-                contentType: !isFileUpload,
+                contentType: (isFileUpload ? false : ""),
                 data: data,
                 success: function(response){
                     //console.log(response, response.url)
