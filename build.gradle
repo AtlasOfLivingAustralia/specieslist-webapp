@@ -14,7 +14,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "1.4.17"
 }
 
-version "3.4"
+version "3.5-SNAPSHOT"
 group "au.org.ala"
 
 apply plugin:"eclipse"
@@ -66,7 +66,7 @@ dependencies {
     runtime "com.h2database:h2"
     runtime ("org.grails.plugins:ala-bootstrap3:3.2.0")
 
-    runtime ("org.grails.plugins:ala-admin-plugin:2.0") {
+    runtime ("org.grails.plugins:ala-admin-plugin:2.2") {
         exclude module: "cache"
     }
     runtime 'mysql:mysql-connector-java:5.1.44'
