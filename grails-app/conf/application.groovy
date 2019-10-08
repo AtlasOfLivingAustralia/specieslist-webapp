@@ -71,7 +71,7 @@ grails.mime.types = [ html: ['text/html','application/xhtml+xml'],
  *
  *  NOTE: Some of these will be ignored if default_config exists
  \******************************************************************************/
-security.cas.appServerName='http://dev.ala.org.au:8082'
+security.cas.appServerName='http://dev.ala.org.au:8080'
 security.cas.casServerName = 'https://auth.ala.org.au'
 security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
 security.cas.logoutUrl = 'https://auth.ala.org.au/cas/logout'
@@ -185,49 +185,49 @@ grails {
 }
 remove this line */
 
-
-// moved from DataSource.groovy during grails 3 migration
-dataSource {
-    pooled = true
-    logSql = false
-    driverClassName = "com.mysql.jdbc.Driver"
-    username = ""
-    password = ""
-    dialect = org.hibernate.dialect.MySQL5Dialect
-    properties {
-        initialSize = 3
-        maxActive = 6
-        minEvictableIdleTimeMillis=1800000
-        timeBetweenEvictionRunsMillis=600000
-        numTestsPerEvictionRun=3
-        testOnBorrow=true
-        testWhileIdle=true
-        testOnReturn=true
-        removeAbandoned= true
-        removeAbandonedTimeout= 180
-        logAbandoned= false
-        validationQuery="SELECT 1"
-    }
-}
-
-// environment specific settings
-environments {
-    development {
-        println "setting up development datasource"
-        dbCreate = "create"
-    }
-    test {
-        println "setting up test datasource"
-        dataSource {
-            dialect = "org.hibernate.dialect.H2Dialect"
-            dbCreate = "create-drop"
-            driverClassName = "org.h2.Driver"
-            url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;MODE=MYSQL;DB_CLOSE_ON_EXIT=FALSE;"
-        }
-    }
-    production {
-        println "setting up production datasource"
-        dbCreate = "update"
-        // must be set via external config
-    }
-}
+//
+//// moved from DataSource.groovy during grails 3 migration
+//dataSource {
+//    pooled = true
+//    logSql = false
+//    driverClassName = "com.mysql.jdbc.Driver"
+//    username = ""
+//    password = ""
+//    dialect = org.hibernate.dialect.MySQL5Dialect
+//    properties {
+//        initialSize = 3
+//        maxActive = 6
+//        minEvictableIdleTimeMillis=1800000
+//        timeBetweenEvictionRunsMillis=600000
+//        numTestsPerEvictionRun=3
+//        testOnBorrow=true
+//        testWhileIdle=true
+//        testOnReturn=true
+//        removeAbandoned= true
+//        removeAbandonedTimeout= 180
+//        logAbandoned= false
+//        validationQuery="SELECT 1"
+//    }
+//}
+//
+//// environment specific settings
+//environments {
+//    development {
+//        println "setting up development datasource"
+//        dbCreate = "create"
+//    }
+//    test {
+//        println "setting up test datasource"
+//        dataSource {
+//            dialect = "org.hibernate.dialect.H2Dialect"
+//            dbCreate = "create-drop"
+//            driverClassName = "org.h2.Driver"
+//            url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;MODE=MYSQL;DB_CLOSE_ON_EXIT=FALSE;"
+//        }
+//    }
+//    production {
+//        println "setting up production datasource"
+//        dbCreate = "update"
+//        // must be set via external config
+//    }
+//}

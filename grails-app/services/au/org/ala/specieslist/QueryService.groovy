@@ -8,6 +8,8 @@ import org.hibernate.criterion.Order
 class QueryService {
 
     public static final String EDITOR_SQL_RESTRICTION = "this_.id in (select species_list_id from species_list_editors e where e.editors_string = ?)"
+    public static final String USER_ID = "userId"
+    public static final String IS_PRIVATE = "isPrivate"
 
     def authService
     def localAuthService
@@ -46,7 +48,7 @@ class QueryService {
         def c = SpeciesList.createCriteria()
         def lists = c.list(params){
             and {
-                params.each {key, value ->
+                params.each { key, value ->
                     //the value suffix tells us which filter operation to perform
                     if ('q'.equals(key)) {
                         or {
@@ -72,7 +74,7 @@ class QueryService {
 
                             // special case for searching by userId: we need to find lists where the user is the
                             // owner OR lists where they are the editor
-                            if ("userId".equals(key) && "eq".equals(filterMethod)) {
+                            if (USER_ID.equals(key) && "eq".equals(filterMethod)) {
                                 or {
                                     if (method) {
                                         method.invoke(c, args)
@@ -81,7 +83,8 @@ class QueryService {
                                 }
                             } else {
                                 if (method) {
-                                    method.invoke(c, args)
+                                    def result = method.invoke(c, args)
+                                    result
                                 }
                             }
                         }
@@ -94,22 +97,23 @@ class QueryService {
                         // the user is not an admin, so only show lists that are not private OR are owned by the user
                         // OR where the user is an editor
                         or {
-                            isNull("isPrivate")
-                            eq("isPrivate", false)
-                            eq("userId", authService.getUserId())
+                            isNull(IS_PRIVATE)
+                            eq(IS_PRIVATE, false)
+                            eq(USER_ID, authService.getUserId())
                             sqlRestriction(EDITOR_SQL_RESTRICTION, [authService.getUserId()])
                         }
                     }
                 } else {
                     // if there is no user, do no show any private records
                     or {
-                        isNull("isPrivate")
-                        eq("isPrivate", false)
+                        isNull(IS_PRIVATE)
+                        eq(IS_PRIVATE, false)
                     }
                 }
             }
             setSortOrder(sort, order, params.user, c)
         }
+
         //remove the extra condition "fetch" condition
         params.remove('fetch')
 
@@ -118,6 +122,134 @@ class QueryService {
         params.order = order
         lists
     }
+
+    def getSelectedFacets(params){
+
+        def selectedFacets = []
+        params.each { key, value ->
+            def query = booleanQueryFacets.get(key)
+            if (query){
+                selectedFacets << [query: key, facet: query]
+            } else if (key == "listType"){
+                def cleanedVaue = value.replaceAll("eq:", "")
+                query = listTyoeFacets.get(cleanedVaue)
+                selectedFacets << [query: key, facet: query]
+            }
+        }
+        selectedFacets
+    }
+
+    //TODO make this more configurable
+    def booleanQueryFacets = [
+          "isAuthoritative" : [label:'authoritative.list'],
+          "isThreatened": [label:'threatened.list'],
+          "isInvasive": [label:'invasive.list'],
+          "isSDS": [label:'sensitive.list']
+    ]
+
+    //TODO make this more configurable
+    def listTyoeFacets = [
+        (ListType.CONSERVATION_LIST.toString()) : [listType: ListType.CONSERVATION_LIST, label: ListType.CONSERVATION_LIST.i18nValue],
+        (ListType.COMMON_HABITAT.toString()) : [listType: ListType.COMMON_HABITAT, label: ListType.COMMON_HABITAT.i18nValue],
+        (ListType.LOCAL_LIST.toString()) : [listType: ListType.LOCAL_LIST, label: ListType.LOCAL_LIST.i18nValue],
+        (ListType.COMMON_TRAIT.toString()) : [listType: ListType.COMMON_TRAIT, label: ListType.COMMON_TRAIT.i18nValue]
+//        (ListType.PROFILE.toString()) : [listType: ListType.PROFILE, label: ListType.PROFILE.i18nValue]
+    ]
+
+    def getFacetCounts(params){
+        def facets = []
+        booleanQueryFacets.each { key, facet ->
+            facets << [query: key + '=eq:true', label:  facet.label , count:  getFacetCount(params, key, true)]
+        }
+        listTyoeFacets.each { key, facet ->
+            facets <<  [query:'listType=eq:' + facet.listType.toString(), label: facet.label, count: getFacetCount(params, "listType", facet.listType)]
+        }
+        return facets
+    }
+
+    def getFacetCount(params, facetField, facetValue) {
+
+        def c = SpeciesList.createCriteria()
+
+        def facetCount = c.get  {
+
+            projections {
+                count()
+            }
+
+            and {
+                params.each { key, value ->
+                    //the value suffix tells us which filter operation to perform
+                    if ('q'.equals(key)) {
+                        or {
+                            ilike('listName', '%' + value + '%')
+                            ilike('firstName', '%' + value + '%')
+                            ilike('surname', '%' + value + '%')
+                            ilike('description', '%' + value + '%')
+                        }
+                    } else {
+                        def matcher = (value =~ filterRegEx)
+                        if (matcher.matches()) {
+                            def filterMethod = matcher[0][1]
+                            def filterValue = matcher[0][2]
+                            //now handle the supported filter conditions by gaining access to the criteria methods using reflection
+                            def method = criteriaMethods.get(filterMethod)
+                            Object[] args = null
+                            if (method) {
+                                args = [getValueBasedOnType(speciesListProperties[key], filterValue)]
+                                if (method.getParameterTypes().size() > 1) {
+                                    args = [key] + args[0]
+                                }
+                            }
+
+                            // special case for searching by userId: we need to find lists where the user is the
+                            // owner OR lists where they are the editor
+                            if (USER_ID.equals(key) && "eq".equals(filterMethod)) {
+                                or {
+                                    if (method) {
+                                        method.invoke(c, args)
+                                    }
+                                    sqlRestriction(EDITOR_SQL_RESTRICTION, [filterValue])
+                                }
+                            } else {
+                                if (method) {
+                                    def result = method.invoke(c, args)
+                                    result
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            and {
+                if (authService.getUserId()) {
+                    if (!localAuthService.isAdmin()) {
+                        // the user is not an admin, so only show lists that are not private OR are owned by the user
+                        // OR where the user is an editor
+                        or {
+                            isNull(IS_PRIVATE)
+                            eq(IS_PRIVATE, false)
+                            eq(USER_ID, authService.getUserId())
+                            sqlRestriction(EDITOR_SQL_RESTRICTION, [authService.getUserId()])
+                        }
+                    }
+                } else {
+                    // if there is no user, do no show any private records
+                    or {
+                        isNull(IS_PRIVATE)
+                        eq(IS_PRIVATE, false)
+                    }
+                }
+            }
+
+            and {
+                eq(facetField, facetValue)
+            }
+        }
+
+        facetCount
+    }
+
 
     /**
      * A merging of sort ordering rules. This function adds Order terms to a Criteria.

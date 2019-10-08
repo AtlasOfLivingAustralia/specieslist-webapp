@@ -22,30 +22,20 @@ class PublicController {
     }
 
     def speciesLists(){
-        if (params.isSDS) {
-            // work around for SDS sub-list
-            redirect(action:'sdsLists')
-            return
-        }
-        params.max = Math.min(params.max ? params.int('max') : 25, 100)
+        params.max = Math.min(params.max ? params.int('max') : 25, 1000)
         params.sort = params.sort ?: "listName"
-
         log.info "params = " + params
 
         try{
-            def lists, count
-
-            if (params.q) {
-                lists = queryService.getFilterListResult(params)
-                count = lists.totalCount
-            } else {
-                // the public listing should not include any private lists
-                lists = SpeciesList.findAllByIsPrivateIsNullOrIsPrivate(false, params)
-                count = SpeciesList.countByIsPrivateIsNullOrIsPrivate(false)
-            }
-
-            log.info "lists = ${lists.size()} || count = ${count}"
-            render (view:'specieslists', model:[lists:lists, total:count])
+            def lists = queryService.getFilterListResult(params)
+            def facets = queryService.getFacetCounts(params)
+            log.info "lists = ${lists.size()} || count = ${lists.totalCount}"
+            render (view:'specieslists', model:[
+                    lists:lists,
+                    total:lists.totalCount,
+                    facets:facets,
+                    selectedFacets:queryService.getSelectedFacets(params)
+            ])
         }
         catch(Exception e) {
             log.error "Error requesting species Lists: " ,e

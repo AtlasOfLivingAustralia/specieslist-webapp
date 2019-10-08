@@ -58,4 +58,37 @@ class SpeciesListTagLib {
                 .replaceAll("\\(", "").replaceAll("\\)", "")
                 .toLowerCase()
     }
+
+
+    def selectedFacetLink = { attrs ->
+
+        def query = params.q
+        def queryUrl = "?"
+        if (query){
+            queryUrl += "q=" + params.q
+        }
+
+        params.each { key, value ->
+            if (attrs.filter != key) {
+                queryUrl += ("&" + key + "=" + value)
+            }
+        }
+        out << request.getRequestURL().toString() + queryUrl
+    }
+
+    def facetLink = { attrs ->
+
+        def query = params.q
+        def queryUrl = "?"
+        if (query){
+            queryUrl += "q=" + params.q
+        }
+
+        params.each { key, value ->
+            queryUrl += ("&" + key + "=" + value)
+        }
+
+        queryUrl += ("&" + attrs.filter)
+        out << request.getRequestURL().toString() + queryUrl
+    }
 }
