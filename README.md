@@ -6,20 +6,19 @@ This is a  grails application for managing species lists. It supports:
  * UI for viewing and faceting species
  * Supports any number of key/value pairs
  * JSON services used by
-   * BIE - species pages
-   * Biocache - indexing occurrences
+   * BIE - species pages (https://bie.ala.org.au)
+   * Biocache - indexing occurrences (https://biocache.ala.org.au)
  * Supports single owner & multiple editors of a single list
  * Lists can be tagged as:
    * authoritative
    * conservation
+   * sensitive
  * Supports sensitive species lists
-
  
 ### Architecture 
 
  * Grails web application
  * MySQL database
-
 
 ### Installation
 
@@ -27,9 +26,9 @@ There is an Ansible playbook for this application here [ala-install/ansible/spec
 See example inventory
 [ala-install/ansible/inventories/vagrant/species-list-vagrant](https://github.com/AtlasOfLivingAustralia/ala-install/tree/master/ansible/inventories/vagrant)
 
-
 ### Setting up for development
 
+This application only needs a running MySQL instance and the app itself.
 There is a docker compose file that can be used to run a local MySQL instance.
 To use,  install docker and docker compose and run:
 
@@ -38,6 +37,11 @@ docker-compose -f mysql.yml up
 ```
 
 This should setup a running MySQL instance and expose port 3306. This is for development purposes only.
+Once the docker instance is running, the app can be started using 
+
+```$xslt
+grails run-app
+```
 
 
 ### Changelog
