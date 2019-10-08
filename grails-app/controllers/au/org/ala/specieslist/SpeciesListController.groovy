@@ -253,13 +253,18 @@ class SpeciesListController {
 
         try {
             def lists = queryService.getFilterListResult(params)
-
+            def facets = queryService.getFacetCounts(params)
             //now remove the params that were added
             //params.remove('username')
             params.remove('userId')
             log.debug("lists:" + lists)
 
-            render(view: "list", model: [lists:lists, total:lists.totalCount])
+            render(view: "list", model: [
+                    lists:lists,
+                    total:lists.totalCount,
+                    facets:facets,
+                    selectedFacets:queryService.getSelectedFacets(params)]
+            )
         } catch(Exception e) {
             log.error "Error requesting species Lists: " ,e
             response.status = 404
