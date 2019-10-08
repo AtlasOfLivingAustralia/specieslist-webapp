@@ -27,6 +27,19 @@ There is an Ansible playbook for this application here [ala-install/ansible/spec
 See example inventory
 [ala-install/ansible/inventories/vagrant/species-list-vagrant](https://github.com/AtlasOfLivingAustralia/ala-install/tree/master/ansible/inventories/vagrant)
 
+
+### Setting up for development
+
+There is a docker compose file that can be used to run a local MySQL instance.
+To use,  install docker and docker compose and run:
+
+```$xslt
+docker-compose -f mysql.yml up
+```
+
+This should setup a running MySQL instance and expose port 3306. This is for development purposes only.
+
+
 ### Changelog
 - **Version 3.0**:
   - Grails 3, Lucene 5 or above
