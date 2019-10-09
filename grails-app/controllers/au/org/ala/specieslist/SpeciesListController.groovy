@@ -252,7 +252,7 @@ class SpeciesListController {
         }
 
         try {
-            def lists = queryService.getFilterListResult(params)
+            def lists = queryService.getFilterListResult(params, true)
             def facets = queryService.getFacetCounts(params)
             //now remove the params that were added
             //params.remove('username')

@@ -42,8 +42,13 @@ class AdminController {
 
     def speciesLists(){
         try {
-            def lists = queryService.getFilterListResult(params)
-            render (view:'specieslists', model:[lists:lists, total:lists.totalCount])
+            def lists = queryService.getFilterListResult(params, false)
+            def facets = queryService.getFacetCounts(params)
+            render (view:'specieslists', model:[lists:lists,
+                                                total:lists.totalCount,
+                                                facets:facets,
+                                                selectedFacets:queryService.getSelectedFacets(params)
+            ])
         } catch(Exception e) {
             log.error "Error requesting species Lists: " ,e
             response.status = 404

@@ -151,12 +151,6 @@
                     <g:sortableColumn property="isSDS" params="${[q:params.q]}"
                                       title="${message(code: 'speciesList.isSDS.label', default: 'Part of the SDS')}"/>
                 </g:if>
-%{--                <g:sortableColumn property="isAuthoritative" params="${[q:params.q]}"--}%
-%{--                                  title="${message(code: 'speciesList.isAuthoritative.label', default: 'Authoritative')}"/>--}%
-%{--                <g:sortableColumn property="isInvasive" params="${[q:params.q]}"--}%
-%{--                                  title="${message(code: 'speciesList.isInvasive.label', default: 'Invasive')}"/>--}%
-%{--                <g:sortableColumn property="isThreatened" params="${[q:params.q]}"--}%
-%{--                                  title="${message(code: 'speciesList.isThreatened.label', default: 'Threatened')}"/>--}%
                 <g:sortableColumn property="ownerFullName" params="${params}"
                                   title="${message(code: 'speciesList.username.label', default: 'Owner')}"/>
                 <g:sortableColumn property="dateCreated" params="${params}"
@@ -176,20 +170,12 @@
                     <td>
                         <a href="${request.contextPath}/speciesListItem/list/${list.dataResourceUid}">${fieldValue(bean: list, field: "listName")}
                         </a>
-    %{--                    <br/>--}%
-    %{--                    <span class="list-description">--}%
-    %{--                    ${fieldValue(bean: list, field: "description")}--}%
-    %{--                    </span>--}%
                     </td>
                     <td>${list.listType?.getDisplayValue()}</td>
                     <g:if test="${request.isUserInRole("ROLE_ADMIN")}">
                         <td><g:formatBoolean boolean="${list.isBIE ?: false}" true="Yes" false="No"/></td>
                         <td><g:formatBoolean boolean="${list.isSDS ?: false}" true="Yes" false="No"/></td>
                     </g:if>
-%{--                    <td><g:formatBoolean boolean="${list.isAuthoritative ?: false}" true="Yes" false="No"/></td>--}%
-%{--                    <td><g:formatBoolean boolean="${list.isInvasive ?: false}" true="Yes" false="No"/></td>--}%
-%{--                    <td><g:formatBoolean boolean="${list.isThreatened ?: false}" true="Yes" false="No"/></td>--}%
-                %{--<td>${fieldValue(bean: list, field: "firstName")} ${fieldValue(bean: list, field: "surname")}</td>--}%
                     <td>${list.ownerFullName}</td>
                     <td><g:formatDate format="yyyy-MM-dd" date="${list.dateCreated}"/></td>
                     <td><g:formatDate format="yyyy-MM-dd" date="${list.lastUpdated}"/></td>

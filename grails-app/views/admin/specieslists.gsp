@@ -24,6 +24,9 @@
                 </hgroup>
                 <div class="col-md-4">
                     <span class="pull-right">
+                        <g:if test="${isAdmin}">
+                            <a class="btn btn-primary" title="Admin" href="${request.contextPath}/admin">Admin</a>
+                        </g:if>
                         <a class="btn btn-primary" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
                         <a class="btn btn-primary" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
                         <a class="btn btn-primary" title="Rematch" href="${request.contextPath}/speciesList/rematch">Rematch All</a>

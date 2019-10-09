@@ -10,6 +10,9 @@ class QueryService {
     public static final String EDITOR_SQL_RESTRICTION = "this_.id in (select species_list_id from species_list_editors e where e.editors_string = ?)"
     public static final String USER_ID = "userId"
     public static final String IS_PRIVATE = "isPrivate"
+    public static final String LIST_NAME = "listName"
+    public static final String ASC = "asc"
+    public static final String LAST_UPDATED = "lastUpdated"
 
     def authService
     def localAuthService
@@ -23,6 +26,10 @@ class QueryService {
         it.getParameterTypes().length < 3
     }.collectEntries{ [it.name, it] }
 
+    def getFilterListResult(params){
+        getFilterListResult(params, true)
+    }
+
     /**
      * retrieves the lists that obey the supplied filters
      *
@@ -33,16 +40,14 @@ class QueryService {
      *
      * @param params
      */
-    def getFilterListResult(params){
+    def getFilterListResult(params, boolean hidePrivateLists){
         //list should be based on the user that is logged in
         params.max = Math.min(params.max ? params.int('max') : 25, 1000)
 
         //remove sort from params
-        def sort = params.sort
-        def order = params.order
+        def sort = params.sort ?: LIST_NAME
+        def order = params.order ?: ASC
 
-        params.remove("sort")
-        params.remove("order")
         params.fetch = [items: 'lazy']
 
         def c = SpeciesList.createCriteria()
@@ -93,7 +98,7 @@ class QueryService {
             }
             and {
                 if (authService.getUserId()) {
-                    if (!localAuthService.isAdmin()) {
+                    if (hidePrivateLists || !localAuthService.isAdmin()) {
                         // the user is not an admin, so only show lists that are not private OR are owned by the user
                         // OR where the user is an editor
                         or {
@@ -102,6 +107,8 @@ class QueryService {
                             eq(USER_ID, authService.getUserId())
                             sqlRestriction(EDITOR_SQL_RESTRICTION, [authService.getUserId()])
                         }
+                    } else {
+                        log.debug("User is admin, so has visibility og private lists")
                     }
                 } else {
                     // if there is no user, do no show any private records
@@ -153,7 +160,6 @@ class QueryService {
         (ListType.COMMON_HABITAT.toString()) : [listType: ListType.COMMON_HABITAT, label: ListType.COMMON_HABITAT.i18nValue],
         (ListType.LOCAL_LIST.toString()) : [listType: ListType.LOCAL_LIST, label: ListType.LOCAL_LIST.i18nValue],
         (ListType.COMMON_TRAIT.toString()) : [listType: ListType.COMMON_TRAIT, label: ListType.COMMON_TRAIT.i18nValue]
-//        (ListType.PROFILE.toString()) : [listType: ListType.PROFILE, label: ListType.PROFILE.i18nValue]
     ]
 
     def getFacetCounts(params){
@@ -170,7 +176,6 @@ class QueryService {
     def getFacetCount(params, facetField, facetValue) {
 
         def c = SpeciesList.createCriteria()
-
         def facetCount = c.get  {
 
             projections {
@@ -288,13 +293,13 @@ class QueryService {
             }
 
             c.order(orderUser)
-            c.order(Order.desc("lastUpdated"))
+            c.order(Order.desc(LAST_UPDATED))
         }
 
         //append default sorting
-        sort = sort ?: "listName"
-        order = order ?: "asc"
-        c.order(new Order(sort, "asc".equalsIgnoreCase(order)))
+        sort = sort ?: LIST_NAME
+        order = order ?: ASC
+        c.order(new Order(sort, ASC.equalsIgnoreCase(order)))
     }
 
     /**
@@ -335,7 +340,7 @@ class QueryService {
                             if(matcher.matches()){
                                 def fvalue = matcher[0][2] //
                                 //now handle the supported filter conditions by gaining access to the criteria methods using reflection
-                                def method =criteriaMethods.get(matcher[0][1])
+                                def method = criteriaMethods.get(matcher[0][1])
                                 if(method){
                                     Object[] args =[getValueBasedOnType(speciesListProperties[key],fvalue)]
                                     if(method.getParameterTypes().size()>1)
@@ -387,9 +392,9 @@ class QueryService {
         StringBuilder whereBuilder = new StringBuilder(" where sli.dataResourceUid=? ")
         //query.append(" from SpeciesListItem sli join sli.kvpValues kvp where sli.dataResourceUid=? ")
         def queryparams = [dataResourceUid]
-        if(facets){
+        if (facets){
             facets.eachWithIndex { facet, index ->
-                if(facet.startsWith("kvp")){
+                if (facet.startsWith("kvp")){
                     String sindex = index.toString();
                     facet = facet.replaceFirst("kvp ","")
                     String key = facet.substring(0,facet.indexOf(":"))
@@ -401,19 +406,19 @@ class QueryService {
                 } else {
                     //must be a facet with the same table
                     boolean isSearch = false;
-                    if(facet.startsWith("Search-")) {
+                    if (facet.startsWith("Search-")) {
                         isSearch = true;
                         facet = facet.replaceFirst("Search-","")
                     }
                     String key = facet.substring(0,facet.indexOf(":"))
                     String value = facet.substring(facet.indexOf(":")+1)
                     whereBuilder.append( "AND sli.").append(key)
-                    if(value.equalsIgnoreCase("null")){
+                    if (value.equalsIgnoreCase("null")){
                         whereBuilder.append(" is null")
                     } else if(isSearch) {
                         whereBuilder.append(" like ? ")
                         queryparams.add("%" + value + "%")
-                    }else {
+                    } else {
                         whereBuilder.append("=?")
                         queryparams.add(value)
                     }
