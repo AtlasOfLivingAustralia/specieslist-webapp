@@ -27,7 +27,7 @@ class QueryService {
     }.collectEntries{ [it.name, it] }
 
     def getFilterListResult(params){
-        getFilterListResult(params, true)
+        getFilterListResult(params, false)
     }
 
     /**

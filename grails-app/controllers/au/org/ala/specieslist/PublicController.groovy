@@ -21,15 +21,13 @@ class PublicController {
 
         params.max = Math.min(params.max ? params.int('max') : 25, 1000)
         params.sort = params.sort ?: "listName"
-        params.showPrivate = false
-
         if(params.isSDS){
             //to ensure backwards compatibility for a commonly used URL
             params.isSDS = "eq:true"
         }
 
         try {
-            def lists = queryService.getFilterListResult(params, false)
+            def lists = queryService.getFilterListResult(params, true)
             def facets = queryService.getFacetCounts(params)
             log.info "lists = ${lists.size()} || count = ${lists.totalCount}"
             render (view:'specieslists', model:[
