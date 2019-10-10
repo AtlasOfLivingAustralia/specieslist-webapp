@@ -148,8 +148,10 @@
                 <g:if test="${request.isUserInRole("ROLE_ADMIN")}">
                     <g:sortableColumn property="isBIE" params="${params}"
                                       title="${message(code: 'speciesList.isBIE.label', default: 'Included in BIE')}"/>
-                    <g:sortableColumn property="isSDS" params="${[q:params.q]}"
+                    <g:sortableColumn property="isSDS" params="${params}"
                                       title="${message(code: 'speciesList.isSDS.label', default: 'Part of the SDS')}"/>
+                    <g:sortableColumn property="isPrivate" params="${params}"
+                                      title="${message(code: 'speciesList.isPrivate.label', default: 'Private')}"/>
                 </g:if>
                 <g:sortableColumn property="ownerFullName" params="${params}"
                                   title="${message(code: 'speciesList.username.label', default: 'Owner')}"/>
@@ -175,6 +177,7 @@
                     <g:if test="${request.isUserInRole("ROLE_ADMIN")}">
                         <td><g:formatBoolean boolean="${list.isBIE ?: false}" true="Yes" false="No"/></td>
                         <td><g:formatBoolean boolean="${list.isSDS ?: false}" true="Yes" false="No"/></td>
+                        <td><g:formatBoolean boolean="${list.isPrivate ?: false}" true="Yes" false="No"/></td>
                     </g:if>
                     <td>${list.ownerFullName}</td>
                     <td><g:formatDate format="yyyy-MM-dd" date="${list.dateCreated}"/></td>

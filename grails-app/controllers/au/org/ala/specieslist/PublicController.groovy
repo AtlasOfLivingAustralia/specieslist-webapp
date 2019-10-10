@@ -21,14 +21,14 @@ class PublicController {
 
         params.max = Math.min(params.max ? params.int('max') : 25, 1000)
         params.sort = params.sort ?: "listName"
-        if(params.isSDS){
+        if (params.isSDS){
             //to ensure backwards compatibility for a commonly used URL
             params.isSDS = "eq:true"
         }
 
         try {
-            def lists = queryService.getFilterListResult(params, true)
-            def facets = queryService.getFacetCounts(params)
+            def lists = queryService.getFilterListResult(params, grailsApplication.config.publicview.hidePrivateLists.toBoolean())
+            def facets = queryService.getFacetCounts(params, grailsApplication.config.publicview.hidePrivateLists.toBoolean())
             log.info "lists = ${lists.size()} || count = ${lists.totalCount}"
             render (view:'specieslists', model:[
                     isAdmin:localAuthService.isAdmin(),

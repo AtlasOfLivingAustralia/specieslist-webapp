@@ -62,15 +62,13 @@ class SpeciesListTagLib {
 
     def selectedFacetLink = { attrs ->
 
-        def query = params.q
         def queryUrl = "?"
-        if (query){
-            queryUrl += "q=" + params.q
-        }
-
         params.each { key, value ->
             if (attrs.filter != key) {
-                queryUrl += ("&" + key + "=" + value)
+                if (queryUrl.length() > 1){
+                    queryUrl += "&"
+                }
+                queryUrl += ( key + "=" + value)
             }
         }
         out << request.getRequestURL().toString() + queryUrl

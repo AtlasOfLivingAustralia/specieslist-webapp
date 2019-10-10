@@ -17,7 +17,7 @@
 <head>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     <meta name="breadcrumb" content="Species lists"/>
-    <title>Species lists |${grailsApplication.config.skin.orgNameLong}</title>
+    <title>Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
 </head>
 
 <body class="">

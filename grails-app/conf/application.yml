@@ -151,14 +151,19 @@ headerAndFooter:
 skin:
     fluidLayout: true
 
-dataSource:
-    pooled: true
-    jmxExport: true
-    username: specieslist
-    password: 'specieslist'
+publicview:
+    hidePrivateLists: false
+
+#dataSource:
+#    pooled: true
+#    jmxExport: true
+#    username: specieslist
+#    password: 'specieslist'
 
 environments:
     development:
+        hibernate:
+            dialect: org.hibernate.dialect.MySQL5Dialect
         dataSource:
             dbCreate: update
             driverClassName: com.mysql.jdbc.Driver
@@ -174,13 +179,8 @@ environments:
             driverClassName: org.h2.Driver
             username: 'specieslist'
             password: 'specieslist'
-            dbCreate: update
+            dbCreate: create-drop
             url: jdbc:h2:mem:specieslist;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
-        imageservice:
-            imagestore:
-                root: '/tmp/image-service/store'
-                inbox: '/tmp/image-service/incoming'
-            exportDir: '/tmp/image-service/exports'
     production:
         hibernate:
             dialect: org.hibernate.dialect.MySQL5Dialect

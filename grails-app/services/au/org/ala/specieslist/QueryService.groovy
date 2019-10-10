@@ -163,17 +163,21 @@ class QueryService {
     ]
 
     def getFacetCounts(params){
+        getFacetCounts(params, false)
+    }
+
+    def getFacetCounts(params, boolean hidePrivateLists){
         def facets = []
         booleanQueryFacets.each { key, facet ->
-            facets << [query: key + '=eq:true', label:  facet.label , count:  getFacetCount(params, key, true)]
+            facets << [query: key + '=eq:true', label:  facet.label , count:  getFacetCount(params, key, true, hidePrivateLists)]
         }
         listTyoeFacets.each { key, facet ->
-            facets <<  [query:'listType=eq:' + facet.listType.toString(), label: facet.label, count: getFacetCount(params, "listType", facet.listType)]
+            facets <<  [query:'listType=eq:' + facet.listType.toString(), label: facet.label, count: getFacetCount(params, "listType", facet.listType, hidePrivateLists)]
         }
         return facets
     }
 
-    def getFacetCount(params, facetField, facetValue) {
+    def getFacetCount(params, facetField, facetValue, boolean hidePrivateLists) {
 
         def c = SpeciesList.createCriteria()
         def facetCount = c.get  {
@@ -228,7 +232,7 @@ class QueryService {
             }
             and {
                 if (authService.getUserId()) {
-                    if (!localAuthService.isAdmin()) {
+                    if (hidePrivateLists || !localAuthService.isAdmin()) {
                         // the user is not an admin, so only show lists that are not private OR are owned by the user
                         // OR where the user is an editor
                         or {
