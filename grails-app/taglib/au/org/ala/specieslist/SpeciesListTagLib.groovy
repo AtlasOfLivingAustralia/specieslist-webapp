@@ -64,7 +64,7 @@ class SpeciesListTagLib {
 
         def queryUrl = "?"
         params.each { key, value ->
-            if (attrs.filter != key) {
+            if (attrs.filter != key && !(key in ["controller","action"])) {
                 if (queryUrl.length() > 1){
                     queryUrl += "&"
                 }
@@ -83,7 +83,9 @@ class SpeciesListTagLib {
         }
 
         params.each { key, value ->
-            queryUrl += ("&" + key + "=" + value)
+            if(!(key in ["controller","action"])) {
+                queryUrl += ("&" + key + "=" + value)
+            }
         }
 
         queryUrl += ("&" + attrs.filter)
