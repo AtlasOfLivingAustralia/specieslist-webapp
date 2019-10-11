@@ -154,6 +154,10 @@ skin:
 publicview:
     hidePrivateLists: false
 
+outboundhttp:
+    useragent: 'species-lists'
+    timeout: 8000
+
 #dataSource:
 #    pooled: true
 #    jmxExport: true

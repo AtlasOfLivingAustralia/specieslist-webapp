@@ -36,6 +36,7 @@ occurrenceDownload.enabled = true
 termsOfUseUrl = "http://www.ala.org.au/about-the-atlas/terms-of-use/#TOUusingcontent"
 
 logger.baseURL = "https://logger.ala.org.au/service"
+bieService.baseURL = "https://bie-ws.ala.org.au/ws"
 
 registryApiKey = "xxxxxxxxxxxxxxxxxx"
 

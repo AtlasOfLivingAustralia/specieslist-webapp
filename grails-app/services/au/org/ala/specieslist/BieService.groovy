@@ -23,9 +23,15 @@ class BieService {
         map
     }
 
-    public List bulkSpeciesLookupWithGuids(list) {
+    /**
+     * TODO this functionality should use the ala-ws-plugin
+     * @param list
+     * @return
+     */
+    List bulkSpeciesLookupWithGuids(list) {
         def http = new HTTPBuilder(grailsApplication.config.bieService.baseURL + "/species/guids/bulklookup.json")
-        http.getClient().getParams().setParameter("http.socket.timeout", new Integer(8000))
+        http.getClient().getParams().setParameter("http.socket.timeout", grailsApplication.config.outboundhttp.timeout.toInteger())
+        http.setHeaders(['User-Agent': "${grailsApplication.config.outboundhttp.useragent}"])
         def jsonBody = (list as JSON).toString()
         try {
             Map jsonResponse =  http.post(body: jsonBody, requestContentType:groovyx.net.http.ContentType.JSON)
@@ -36,26 +42,12 @@ class BieService {
         }
     }
 
-    def updateBieIndex(List<Map> guidImageList) {
-        def response
-        //"http://dev.ala.org.au:8089/bie-index/updateImages"
-        def http = new HTTPBuilder(grailsApplication.config.bieService.baseURL + "/updateImages")
-        http.setHeaders(["Authorization": grailsApplication.config.bieApiKey])
-        def jsonBody = (guidImageList as JSON).toString()
-        try {
-            response =  http.post(body: jsonBody, requestContentType:groovyx.net.http.ContentType.JSON)
-        } catch(ex) {
-            log.error("Unable to obtain species details from BIE - " + ex.getMessage(), ex)
-
-        }
-        response
-    }
-
     def generateFieldGuide(druid,guids){
         def title = "The field guide for " + druid
         def link = grailsApplication.config.grails.serverURL + "/speciesListItems/list/" + druid
         try {
-            def http = new HTTPBuilder(grailsApplication.config.fieldGuide.baseURL+"/generate")
+            def http = new HTTPBuilder(grailsApplication.config.fieldGuide.baseURL + "/generate")
+            http.setHeaders(['User-Agent': "${grailsApplication.config.outboundhttp.useragent}"])
             def response = http.post(body:  createJsonForFieldGuide(title, link, guids), requestContentType:groovyx.net.http.ContentType.JSON){ resp ->
                 def responseURL = grailsApplication.config.fieldGuide.baseURL +"/guide/"+ resp.headers['fileId'].getValue()
                 log.debug(responseURL)

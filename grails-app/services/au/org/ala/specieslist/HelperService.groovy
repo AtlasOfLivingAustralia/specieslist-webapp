@@ -747,35 +747,6 @@ class HelperService {
 
     }
 
-/*  Commented out to keep species list from updating Bie
-    def syncBieImage (sli, imageId) {
-        boolean updateBieImage = false
-        int imageIdPos = sli.getImageUrl()? sli.getImageUrl().toLowerCase().indexOf("?imageid=") : 0
-        if (imageId && imageIdPos > 0) {
-            String bieImage = sli.getImageUrl().substring(imageIdPos + "?imageId=".length())
-            if (bieImage != imageId) {
-                updateBieImage = true
-            }
-        } else if (imageId) {
-            updateBieImage = true
-        }
-
-        if (updateBieImage) {
-            List<Map> guidImageList = [["guid": sli.guid, "image": imageId]]
-            def resp = bieService.updateBieIndex(guidImageList)
-            resp.updatedTaxa?.each { Map profile ->
-                if (profile && sli.guid == profile.guid) {
-                    sli.imageUrl = profile.smallImageUrl
-                    if (!sli.save()) {
-                        log.error("Unable to save SpeciesListItem for ${sli.guid}: ${sli.dataResourceUid}")
-                    }
-                }
-            }
-        }
-    }
-*/
-
-
     /**
      * This function finds common name for a guid and updates the corresponding SpeciesListItem record
      * @param sliBatch - list of SpeciesListItems

@@ -165,7 +165,7 @@
         }
 
         .imgCon img {
-            height: 140px;
+            height: 300px;
         }
 
         #content p.lead {
@@ -235,7 +235,7 @@
                             </a>
                             <g:if test="${true}">
                                 <g:set var="displayName">
-                                    <g:if test="${bieSpecies?.get(1)}">${bieSpecies?.get(1)}</g:if>
+                                    <g:if test="${bieSpecies?.get(1)}">${bieSpecies?.get(1)} - ${bieSpecies?.get(2)}</g:if>
                                     <g:else>
                                         <i><g:if test="${result.guid == null}">
                                             ${fieldValue(bean: result, field: "rawScientificName")}
