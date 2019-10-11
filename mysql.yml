@@ -1,0 +1,19 @@
+---
+networks:
+  mysql: ~
+services:
+  mysql:
+    container_name: mysql-specieslist
+    image: "mysql:5.7.27"
+    environment:
+      MYSQL_DATABASE: 'specieslist'
+      MYSQL_USER:  'specieslist'
+      MYSQL_PASSWORD: 'specieslist'
+      MYSQL_ROOT_PASSWORD: 'specieslist'
+    networks:
+      - mysql
+    ports:
+      - "3306:3306"
+    expose:
+      - '3306'
+version: "2"

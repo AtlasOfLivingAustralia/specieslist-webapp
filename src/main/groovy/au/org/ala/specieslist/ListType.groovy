@@ -15,24 +15,26 @@ package au.org.ala.specieslist
  * rights and limitations under the License.
  */
 
-public enum ListType {
+enum ListType {
 
-    SPECIES_CHARACTERS("Species characters list"),
-    CONSERVATION_LIST("Conservation list"),
-    SENSITIVE_LIST("Sensitive list of species"),
-    LOCAL_LIST("Local checklist"),
-    COMMON_TRAIT("Common trait of species"),
-    COMMON_HABITAT("Common habitat of species"),
-    SPATIAL_PORTAL("Spatial portal defined list"),
-    PROFILE("Profile list"),
-    TEST("Test list"),
-    OTHER("Other")
+    SPECIES_CHARACTERS("Species characters list", "species.characters.list"),
+    CONSERVATION_LIST("Conservation list", "conservation.list"),
+    SENSITIVE_LIST("Sensitive list of species", "sensitive.list"),
+    LOCAL_LIST("Local checklist", "local.checklist"),
+    COMMON_TRAIT("Common trait of species", "trait.list"),
+    COMMON_HABITAT("Common habitat of species", "habitat.list"),
+    SPATIAL_PORTAL("Spatial portal defined list", "spatial.portal.list"),
+    PROFILE("Profile list", "profile.list"),
+    TEST("Test list","test.list"),
+    OTHER("Other", "other.list")
 
 
   String displayValue
-  ListType(String displayValue){
+  String i18nValue
 
-     this.displayValue = displayValue
+  ListType(String displayValue, String i18nValue){
+    this.i18nValue = i18nValue
+    this.displayValue = displayValue
   }
 
 }

@@ -189,7 +189,7 @@ class SpeciesListItemController {
                 queryParameters.ids = ids
             }
 
-            def results = SpeciesListItem.executeQuery("select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt  from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=:druid ${ids ? 'and sli.id in (:ids)' : ''} group by kvp.key, kvp.value, kvp.vocabValue order by kvp.itemOrder,kvp.key,cnt desc", queryParameters)
+            def results = SpeciesListItem.executeQuery("select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=:druid ${ids ? 'and sli.id in (:ids)' : ''} group by kvp.key, kvp.value, kvp.vocabValue, kvp.itemOrder, kvp.key order by kvp.itemOrder, kvp.key, cnt desc", queryParameters)
 
             //obtain the families from the common list facets
             def commonResults = SpeciesListItem.executeQuery("select sli.family, count(sli) as cnt from SpeciesListItem sli where sli.family is not null AND sli.dataResourceUid=:druid ${ids ? 'and sli.id in (:ids)' : ''} group by sli.family order by cnt desc", queryParameters)

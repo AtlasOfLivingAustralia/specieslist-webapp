@@ -49,8 +49,9 @@ class WebServiceControllerTests extends Specification{
         when:
         controller.params.user = 'a'
         controller.params.q = 'xyz'
-
+        controller.params.sort = 'userId'
         controller.getListDetails()
+
         then:
         assert controller.response.json.lists.size() == 2
         assert controller.response.json.lists[0].dataResourceUid == '3'

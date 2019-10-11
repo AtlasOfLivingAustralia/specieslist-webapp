@@ -324,7 +324,7 @@
 </head>
 
 <body class="yui-skin-sam nav-species">
-<div id="content" class="container">
+<div id="content" class="container-fluid">
     <header id="page-header">
         <div class="row">
             <div class="col-md-6">
@@ -699,7 +699,7 @@
     </g:if>
 
     <div class="inner row">
-        <div class="col-md-3 well" id="facets-column">
+        <div class="col-md-2 well" id="facets-column">
             <div class="boxedZ attachedZ">
                 <section class="meta">
                     <div class="matchStats">
@@ -787,7 +787,7 @@
                 </section>
             </div><!-- boxed attached -->
         </div> <!-- col narrow -->
-        <div class="col-md-9">
+        <div class="col-md-10">
         <div class="row">
             <div class="col-md-6">
                 <div id="listItemView" class="btn-group">

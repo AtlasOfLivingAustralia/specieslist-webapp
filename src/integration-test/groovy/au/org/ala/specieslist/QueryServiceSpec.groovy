@@ -58,12 +58,12 @@ class QueryServiceSpec extends Specification{
     void "test getFilterListResult user ordering"() {
         when:
         //user ordering
-        def list = queryService.getFilterListResult([user: 'a'])
+        def list = queryService.getFilterListResult([user: 'a', sort:'username'])
 
         then:
         assert list[0].dataResourceUid == '3'
-        assert list[1].dataResourceUid == '2'
-        assert list[2].dataResourceUid == '1'
+        assert list[1].dataResourceUid == '1'
+        assert list[2].dataResourceUid == '2'
     }
 
 //    @Test

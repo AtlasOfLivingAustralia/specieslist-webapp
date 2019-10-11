@@ -42,10 +42,6 @@ p span.count {
     padding-right:4px;
 }
 
-#page-header, #page-header2 {
-    /*margin-bottom: 10px;*/
-}
-
 .tableList thead th {
     vertical-align: top;
 }
@@ -59,15 +55,6 @@ p span.count {
 
 #public-specieslist .tableList {
     width: 100%;
-}
-
-#speciesList {
-    margin-top: 20px;
-    clear: both;
-}
-
-#facets-column {
-    /*margin-top: 5px;*/
 }
 
 #refine {
@@ -196,7 +183,6 @@ td.dataValue > input[type="text"] {
 }
 
 #list-meta-data dl {
-    /*clear: both;*/
     margin: 10px 0;
 }
 

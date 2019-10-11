@@ -50,7 +50,7 @@
 <!-- Breadcrumb -->
 <g:if test="${pageProperty(name:'meta.breadcrumb')}">
     <section id="breadcrumb">
-        <div class="container">
+        <div class="container-fluid">
             <div class="row">
                 <ul class="breadcrumb-list">
                     <li><a href="${grailsApplication.config.skin?.homeUrl?:'https://www.ala.org.au'}">Home</a></li>
