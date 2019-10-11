@@ -101,18 +101,18 @@ div#download {
 }
 
 
-#currentFilters > ul {
-    list-style: none;
-    margin-left: 10px;
-    padding-left:15px;
-}
+/*#currentFilters > ul {*/
+/*    list-style: none;*/
+/*    margin-left: 10px;*/
+/*    padding-left:15px;*/
+/*}*/
 
-#currentFilters > ul > li {
-    margin: 0px;
-    padding: 0px;
-    text-indent: -1.3em;
-    margin-left: 0;
-}
+/*#currentFilters > ul > li {*/
+/*    margin: 0px;*/
+/*    padding: 0px;*/
+/*    text-indent: -1.3em;*/
+/*    margin-left: 0;*/
+/*}*/
 
 #currentFilters .tooltip {
     text-indent: 0;
@@ -120,8 +120,15 @@ div#download {
 
 .refine ul {
     list-style: none;
-    margin-left: 10px;
     padding-left: 0px;
+}
+
+.multipleFacetsLinkZ  {
+    margin-left:10px;
+}
+
+span.FieldName {
+    font-weight: bold;
 }
 
 .refine p {
@@ -256,8 +263,8 @@ img#spinner {
 }
 
 img.smallSpeciesImage {
-    max-height: 50px;
-    max-width: 100px;
+    max-height: 100px;
+    max-width: 300px;
 }
 
 #viewRecord img.smallSpeciesImage {
