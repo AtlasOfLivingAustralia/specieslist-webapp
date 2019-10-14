@@ -83,7 +83,7 @@ class SpeciesListTagLib {
         }
 
         params.each { key, value ->
-            if(!(key in ["controller","action"])) {
+            if(!(key in ["controller","action", "q"])) {
                 queryUrl += ("&" + key + "=" + value)
             }
         }
