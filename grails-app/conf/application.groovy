@@ -71,7 +71,7 @@ grails.mime.types = [ html: ['text/html','application/xhtml+xml'],
  *
  *  NOTE: Some of these will be ignored if default_config exists
  \******************************************************************************/
-security.cas.appServerName='http://dev.ala.org.au:8080'
+security.cas.appServerName='http://localhost:8080'
 security.cas.casServerName = 'https://auth.ala.org.au'
 security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
 security.cas.logoutUrl = 'https://auth.ala.org.au/cas/logout'

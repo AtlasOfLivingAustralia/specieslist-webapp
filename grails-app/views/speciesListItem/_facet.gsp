@@ -23,7 +23,7 @@
                 <i class="glyphicon glyphicon-hand-right"></i>
                 <a href="${sl.facetAsId(key: key, prefix: "#div")}" class="multipleFacetsLinkZ"
                    id="${sl.facetAsId(key: key, prefix: "multi")}"
-                   role="button" data-toggle="modal" title="See full list of values">choose more...</a>
+                   role="button" data-toggle="modal" title="${message(code:'public.lists.facets.refine.showhide.tooltip', default:'See full list of values')}">${message(code:'public.lists.facets.refine.showhide.text', default:'choose more...')}</a>
                 <!-- modal popup for "choose more" link -->
                 <div id="${sl.facetAsId(key: key, prefix: "div")}" class="modal fade" tabindex="-1" role="dialog"
                      aria-labelledby="multipleFacetsLabel" aria-hidden="true"><!-- BS modal div -->
@@ -32,7 +32,7 @@
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 
-                                <h3 class="multipleFacetsLabel">Refine your search</h3>
+                                <h3 class="multipleFacetsLabel">${message(code:'public.lists.facets.refine.box.header', default:'Refine your search')}</h3>
                             </div>
 
                             <div class="modal-body">
@@ -41,7 +41,7 @@
                                     <thead class="fixedHeader">
                                     <tr class="tableHead">
                                         <th class="indexCol" width="80%">${key}</th>
-                                        <th style="border-right-style: none;text-align: right;">Count</th>
+                                        <th style="border-right-style: none;text-align: right;">${message(code:'generic.lists.button.Count.label', default:'Count')}</th>
                                     </tr>
                                     </thead>
                                     <tbody class="scrollContent">
@@ -65,7 +65,7 @@
 
                             <div class="modal-footer" style="text-align: left;">
                                 <button class="btn btn-default btn-sm" data-dismiss="modal" aria-hidden="true"
-                                        style="float:right;">Close</button>
+                                        style="float:right;">${message(code:'data-dismiss-close', default: 'Close')}</button>
                             </div>
                         </div>
                     </div>

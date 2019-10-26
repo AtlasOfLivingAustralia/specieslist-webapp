@@ -162,14 +162,17 @@ publicview:
 
 environments:
     development:
+        speciesNameColumns: scientificname,scientific,sciname,sname,latinname,latin,taxon,taxonname,taxonomic name
+        commonNameColumns: commonname,common,vernacular,vernacularname
+        ambiguousNameColumns: name
         hibernate:
             dialect: org.hibernate.dialect.MySQL5Dialect
         dataSource:
             dbCreate: update
             driverClassName: com.mysql.jdbc.Driver
-            url: jdbc:mysql://localhost/specieslist?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8
-            username: specieslist
-            password: "specieslist"
+            url: jdbc:mysql://127.0.0.1:3306/specieslists?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8
+            username: root
+            password:
     test:
         hibernate:
             dialect: org.hibernate.dialect.H2Dialect
