@@ -13,13 +13,13 @@
 </head>
 <body>
 <g:if test="${flash.message}">
-    <div class="message alert alert-danger"><b>Alert:</b> ${flash.message}</div>
+    <div class="message alert alert-danger"><b>${message(code:'generic.lists.button.alert.label', defauilt:'Alert')}:</b> ${flash.message}</div>
 </g:if>
 <g:if test="${record}">
     <div class="hide">
         <dl class="dl-horizontal">
-            <dt>Supplied Name</dt><dd>${record.rawScientificName}</dd>
-            <dt>Scientific Name (matched)</dt><dd>${record.matchedName}</dd>
+            <dt>${message(code:'public.lists.items.header01', default:'Supplied Name')}</dt><dd>${record.rawScientificName}</dd>
+            <dt>${message(code:'public.lists.items.header02', default:'Scientific Name (matched)')}</dt><dd>${record.matchedName}</dd>
         </dl>
     </div>
     <form class="editRecordForm" id="editForm_${record.id}" data-id="${record.id?:record.mylist?.id}">
@@ -27,14 +27,14 @@
         <table id="editRecordTable" class="table table-bordered table-condensed">
             <thead>
             <tr>
-                <th style="width: 20%">Field</th>
-                <th style="width: 60%">Value</th>
-                <th style="width: 20%">Vocab</th>
+                <th style="width: 20%">${message(code:'public.lists.addspecies.table.col01', default:'Field')}</th>
+                <th style="width: 60%">${message(code:'public.lists.addspecies.table.col02', default:'Value')}</th>
+                <th style="width: 20%">${message(code:'public.lists.addspecies.table.col03', default:'Vocab')}</th>
             </tr>
             </thead>
             <tbody>
             <tr class=''>
-                <td class="dataField">Supplied Name</td>
+                <td class="dataField">${message(code:'public.lists.items.header01', default:'Supplied Name')}</td>
                 <td class='dataValue'><input name="rawScientificName" id="rawScientificName" type="text" class="form-control" value="${record?.rawScientificName?.trim()}"/></td>
                 <td>&nbsp;</td>
             </tr>

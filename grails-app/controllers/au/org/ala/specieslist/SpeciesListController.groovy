@@ -25,7 +25,7 @@ import javax.annotation.PostConstruct
 class SpeciesListController {
 
     public static final String CSV_UPLOAD_FILE_NAME = "csvFile"
-    public static final String INVALID_FILE_TYPE_MESSAGE = "Invalid file type: must be a tab or comma separated text file."
+    public static final String INVALID_FILE_TYPE_MESSAGE = "Invalid file type: must be a tab or comma separated text file.!"
     private static final String[] ACCEPTED_CONTENT_TYPES = ["text/plain", "text/csv"]
 
     HelperService helperService
@@ -184,8 +184,9 @@ class SpeciesListController {
                                 "successfully uploaded."
                     }
 
-                    def map = [url: url, error: itemCount.successfulItems > 0 ? null : "Unable to upload species data. " +
-                            "Please ensure the column containing the species name has been identified."]
+                    def msg = message(code:'upload.lists.uploadprocess.errormessage', default:'Unable to upload species data. Please ensure the column containing the species name has been identified.')
+                    //def map = [url: url, error: itemCount.successfulItems > 0 ? null : "Unable to upload species data. Please ensure the column containing the species name has been identified."]
+                    def map = [url: url, error: itemCount.successfulItems > 0 ? null : msg]
                     render map as JSON
                 }
                 finally {
@@ -406,6 +407,7 @@ class SpeciesListController {
                     separator = detectSeparator(file);
                     csvReader = helperService.getCSVReaderForCSVFileUpload(file, separator as char)
                 } else {
+                    log.debug("Wrong File Content type: "+file.getContentType())
                     render(view: 'parsedData', model: [error: INVALID_FILE_TYPE_MESSAGE])
                     return
                 }
@@ -416,6 +418,7 @@ class SpeciesListController {
             }
 
             parseDataFromCSV(csvReader, separator)
+
         }
         catch (e) {
             log.error("Failed to parse data", e)

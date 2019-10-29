@@ -17,11 +17,14 @@
 <g:set var="collectoryUrl" value="${grailsApplication.config.collectory.baseURL}"/>
 <g:set var="maxDownload" value="${grailsApplication.config.downloadLimit}"/>
 <g:set var="userCanEditPermissions" value="${(speciesList.username == request.getUserPrincipal()?.attributes?.email || request.isUserInRole("ROLE_ADMIN"))}"/>
+
 <g:set var="userCanEditData" value="${(speciesList.username == request.getUserPrincipal()?.attributes?.email ||
             request.isUserInRole("ROLE_ADMIN") ||
             request.getUserPrincipal()?.attributes?.userid in speciesList.editors
     )
 }"/>
+
+
 <html>
 <head>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
@@ -127,7 +130,7 @@
                 var thisFormData = $("form#editForm_" + id).serializeArray();
 
                 if (!$("form#editForm_" + id).find("#rawScientificName").val()) {
-                    alert("Required field: supplied name cannot be blank");
+                    alert("${message(code:'public.lists.items.edit.error',default:'Required field: supplied name cannot be blank')}");
                     return false;
                 }
 
@@ -148,7 +151,7 @@
                 var thisFormData = $("form#editForm_").serializeArray();
 
                 if (!$("form#editForm_").find("#rawScientificName").val()) {
-                    alert("Required field: supplied name cannot be blank");
+                    alert("${message(code:'public.lists.items.edit.error',default:'Required field: supplied name cannot be blank')}");
                     return false;
                 }
                 $.post("${createLink(controller: "editor", action: 'createRecord')}", thisFormData, function(data, textStatus, jqXHR) {
@@ -169,7 +172,7 @@
                 $.get("${createLink(controller: "editor", action: 'deleteRecord')}", {id: id}, function(data, textStatus, jqXHR) {
                     $(modal).modal('hide');
                     //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
-                    alert(jqXHR.responseText + " - reloading page...");
+                    alert(jqXHR.responseText + "${message(code:'generic.lists.label.reload', default:' - reloading page...')}");
                     window.location.reload(true);
                     //$('#modal').modal('hide');
                 }).error(function(jqXHR, textStatus, error) {
@@ -321,6 +324,7 @@
 </head>
 
 <body class="yui-skin-sam nav-species">
+
 <div id="content" class="container-fluid">
     <header id="page-header">
         <div class="row">
@@ -396,7 +400,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="pull-right margin-top-10">
-                            <a href="#download" class="btn btn-primary" title="${message(code:'view.lists.dataresource.downloadoptions.tooltip', default:'View the download options for this species list.')}"
+                            <a href="#download" class="btn btn-primary" title="${message(code:'generic.lists.button.download.tooltip', default:'View the download options for this species list.')}"
                                id="downloadLink">${message(code:'generic.lists.button.download.label', default: 'Download')}</a>
 
                             <a class="btn btn-primary" title="${message(code:'generic.lists.button.occurrences.tooltip_1', deafult:'View occurrences for up to')} ${maxDownload} ${message(code:'generic.lists.button.occurrences.tooltip_2', deafult:'species on the list')}"
