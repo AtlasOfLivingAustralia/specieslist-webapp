@@ -26,7 +26,7 @@ class SpeciesListController {
 
     public static final String CSV_UPLOAD_FILE_NAME = "csvFile"
     public static final String INVALID_FILE_TYPE_MESSAGE = "Invalid file type: must be a tab or comma separated text file.!"
-    private static final String[] ACCEPTED_CONTENT_TYPES = ["text/plain", "text/csv"]
+    private static final String[] ACCEPTED_CONTENT_TYPES = ["text/plain", "text/csv", "application/vnd.ms-excel"]
 
     HelperService helperService
     AuthService authService
@@ -177,7 +177,8 @@ class SpeciesListController {
                     )
 
                     if (itemCount.successfulItems == itemCount.totalRecords) {
-                        flash.message = "All items have been successfully uploaded."
+                        flash.message = "${message(code: 'upload.lists.uploadprocess.success.message', default:'All items have been successfully uploaded.')}"
+                        //flash.message = "All items have been successfully uploaded."
                     }
                     else {
                         flash.message = "${itemCount.successfulItems} out of ${itemCount.totalRecords} items have been " +
@@ -408,7 +409,8 @@ class SpeciesListController {
                     csvReader = helperService.getCSVReaderForCSVFileUpload(file, separator as char)
                 } else {
                     log.debug("Wrong File Content type: "+file.getContentType())
-                    render(view: 'parsedData', model: [error: INVALID_FILE_TYPE_MESSAGE])
+                    //render(view: 'parsedData', model: [error: INVALID_FILE_TYPE_MESSAGE])
+                    render(view: 'parsedData', model: [error: "${message(code:'upload.lists.checkdata.errormessage', default:'Invalid file type: must be a tab or comma separated text file.')}"])
                     return
                 }
             } else {
@@ -486,7 +488,7 @@ class SpeciesListController {
             log.info("Rematched ${offset} of ${totalRows} - ${Math.round(offset * 100 / totalRows)}% complete")
         }
 
-        render(text: "Rematch complete")
+        render(text: "${message(code:'admin.lists.page.button.rematch.messages', default:'Rematch complete')}")
     }
 
     private parseDataFromCSV(CSVReader csvReader, String separator) {

@@ -431,7 +431,8 @@
             <dt>${message(code: 'speciesList.username.label', default: 'Owner')}</dt>
             <dd>${speciesList.fullName ?: speciesList.username ?: '&nbsp;'}</dd>
             <dt>${message(code: 'speciesList.listType.label', default: 'List type')}</dt>
-            <dd>${speciesList.listType?.displayValue}</dd>
+            <dd>${speciesList.listType?(message(code:speciesList.listType.i18nValue, default:speciesList.listType.displayValue)):''}</dd>
+            <!--dd>${speciesList.listType?.displayValue}</dd-->
             <g:if test="${speciesList.description}">
                 <dt>${message(code: 'speciesList.description.label', default: 'Description')}</dt>
                 <dd>${speciesList.description}</dd>
@@ -523,8 +524,10 @@
 
                         <div class="col-md-10">
                             <select name="listType" id="listType" class="form-control full-width">
-                                <g:each in="${au.org.ala.specieslist.ListType.values()}" var="type"><option
-                                        value="${type.name()}" ${(speciesList.listType == type) ? 'selected="selected"' : ''}>${type.displayValue}</option></g:each>
+
+
+                                <g:each in="${au.org.ala.specieslist.ListType.values()}" var="type"><option value="${type.name()}" ${(list?.listType == type) ? 'selected="selected"':''}>${message(code:type.i18nValue, default:type.displayValue)}</option></g:each>
+
                             </select>
                         </div>
                     </div>

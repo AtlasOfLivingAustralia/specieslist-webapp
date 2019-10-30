@@ -15,7 +15,8 @@ class LoggerService {
 
             def map = [:]
             result.toArray().each{
-                map.put(it.getAt("id"),it.getAt("name"))
+                //map.put(it.getAt("id"),it.getAt("name"))
+                map.put(it.getAt("id"),it.getAt("rkey"))
             }
             log.info "download reasons map = ${map}"
             return map;

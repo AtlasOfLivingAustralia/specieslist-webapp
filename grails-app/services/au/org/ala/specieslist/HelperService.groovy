@@ -178,8 +178,12 @@ class HelperService {
 
         int tabs = firstLine.count("\t")
         int commas = firstLine.count(",")
+        int semi = firstLine.count(";")
 
-        tabs > commas ? '\t' : ','
+        if(semi == 0)
+            tabs > commas ? '\t' : ','
+        else
+            ';'
     }
 
     def parseValues(String[] processedHeader, CSVReader reader, String sep)throws Exception{

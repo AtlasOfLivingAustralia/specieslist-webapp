@@ -291,7 +291,7 @@ class EditorController {
                 }
                 render(text: "Error occurred while saving species list: " + errors.join("; "), status: 500);
             } else {
-                render(text: "species list successfully updated - reloading page.")
+                render(text: "${message(code:'public.lists.view.listinfo.edit.messages', default:'species list successfully updated - reloading page.')}")
             }
         }
     }

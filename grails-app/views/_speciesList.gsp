@@ -45,7 +45,7 @@
                     //console.log("Dialog ACTION ITEMS",listId, url)
                     $.post(url, function(data){
                         //alert('Value returned from service: '  + data.uid);
-                        alert(action + ' was successful');
+                        alert('${message(code:'admin.lists.actions.button.message.ok', default:'Action was successful!')}');
                         window.location.reload()
                     }).error(function(jqXHR, textStatus, error) {
                         alert("An error occurred: " + error + " - " + jqXHR.responseText);

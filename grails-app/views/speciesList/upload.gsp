@@ -307,7 +307,6 @@
                             </button>
 
                             <span class="btn btn-default btn-file">
-                                <input type="file" name="csvFile" id="csvFileUpload1"/>
                                 <span class="fileupload-new">${message(code:'upload.lists.button01', default:'Select file')}</span>
                                 <span class="fileupload-exists">${message(code:'upload.lists.button03', default:'Change')}</span>
                                 <input type="file" name="csvFile" id="csvFileUpload"/>
@@ -363,7 +362,7 @@
                             <td>
                                 <select name="listTypeId" id="listTypeId">
                                     <option value="">${message(code:'upload.lists.field.listType.select', default:'-- select a type --')}</option>
-                                    <g:each in="${au.org.ala.specieslist.ListType.values()}" var="type"><option value="${type.name()}" ${(list?.listType == type) ? 'selected="selected"':''}>${type.displayValue}</option></g:each>
+                                    <g:each in="${au.org.ala.specieslist.ListType.values()}" var="type"><option value="${type.name()}" ${(list?.listType == type) ? 'selected="selected"':''}>${message(code:type.i18nValue, default:type.displayValue)}</option></g:each>
                                 </select>
                             </td>
 

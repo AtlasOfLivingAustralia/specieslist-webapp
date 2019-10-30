@@ -24,7 +24,7 @@ ${message(code:'download.lists.text02', default:'Please provide the following de
                 <select name="reasonTypeId" id="reasonTypeId">
                     <option value="">${message(code:'download.lists.reason.select', default: '-- select a reason --')}</option>
                     <g:each in="${downloadReasons}" var="reason">
-                        <option value="${reason.key}">${reason.value}</option>
+                        <option value="${reason.key}">${message(code:reason.value, default:'reason not found')}</option>
                     </g:each>
                 </select>
             </p>
