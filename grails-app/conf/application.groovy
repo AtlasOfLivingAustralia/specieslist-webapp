@@ -45,7 +45,7 @@ bieApiKey = "xxxxxx"
 updateUserDetailsOnStartup = false
 iconicSpecies.uid = "dr781"
 
-skin.orgNameLong = "Atlas of Living Australia"
+skin.orgNameLong = "Biodiversitäts-Atlas Österreich"
 skin.layout = "main"
 
  //the number of species to limit downloads to

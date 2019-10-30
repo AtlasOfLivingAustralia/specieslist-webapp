@@ -181,8 +181,7 @@ class SpeciesListController {
                         //flash.message = "All items have been successfully uploaded."
                     }
                     else {
-                        flash.message = "${itemCount.successfulItems} out of ${itemCount.totalRecords} items have been " +
-                                "successfully uploaded."
+                        flash.message = "${itemCount.successfulItems} ${message(code:'upload.lists.uploadprocess.partial01', default:'out of')} ${itemCount.totalRecords} ${message(code:'upload.lists.uploadprocess.partial02', default:'items have been successfully uploaded.')}"
                     }
 
                     def msg = message(code:'upload.lists.uploadprocess.errormessage', default:'Unable to upload species data. Please ensure the column containing the species name has been identified.')
