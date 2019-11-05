@@ -165,7 +165,7 @@
         }
 
         .imgCon img {
-            height: 140px;
+            height: 300px;
         }
 
         #content p.lead {
@@ -196,11 +196,11 @@
 
     <div class="inner row">
         <div class="col-md-12">
-            <h2 class="subject-title">Australian iconic species</h2>
+            <h2 class="subject-title"><g:message code="iconic.species.title" /></h2>
             <p class="lead">
                 Below is a listing of some of Australia's most recognisable species. As well as the listing
-                below you can <a href="http://bie.ala.org.au/search?q=&fq=idxtype:%22TAXON%22" class="">search
-                over 100,000 species within the ALA</a>.
+                below you can
+                <a href="http://bie.ala.org.au/search?q=&fq=idxtype:%22TAXON%22">search over 100,000 species within the ALA</a>.
             </p>
         </div>
     </div>
@@ -210,7 +210,7 @@
         <div>
     </g:if>
     <div class="inner row">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <ul id="groupsNav" class="nav bs-docs-sidenav ">
                 <g:set var="fqs" value="${params.list('fq')}" />
                 <g:each in="${facets.get("listProperties")}" var="group">
@@ -223,7 +223,7 @@
                 </g:each>
             </ul>
         </div> <!-- /col-md-3 -->
-        <div class="col-md-9">
+        <div class="col-md-10">
             <div id="gridView" class="">
                 <g:each var="result" in="${results}" status="i">
                     <g:set var="recId" value="${result.id}"/>
@@ -235,7 +235,7 @@
                             </a>
                             <g:if test="${true}">
                                 <g:set var="displayName">
-                                    <g:if test="${bieSpecies?.get(1)}">${bieSpecies?.get(1)}</g:if>
+                                    <g:if test="${bieSpecies?.get(1)}">${bieSpecies?.get(1)} - ${bieSpecies?.get(2)}</g:if>
                                     <g:else>
                                         <i><g:if test="${result.guid == null}">
                                             ${fieldValue(bean: result, field: "rawScientificName")}

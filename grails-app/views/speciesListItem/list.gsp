@@ -739,22 +739,23 @@
                                     </p>
 
                                     <div id="currentFilters" class="subnavlist">
-                                        <ul>
+                                        <ul class="facets list-unstyled">
                                             <g:each in="${fqs}" var="fq">
                                                 <g:if test="${fq.length() > 0}">
                                                     <li>
                                                         <g:link action="list" id="${params.id}"
                                                                 params="${[fq: sl.excludedFqList(fqs: fqs, fq: fq), max: params.max]}"
-                                                                class="removeLink" title="Uncheck (remove filter)"><i
-                                                                class="glyphicon glyphicon-check"></i></g:link>
-                                                        <g:if test="${fq.startsWith("Search-")}">
-                                                            <g:message code="facet.${fq.replaceFirst("Search- ", "")}"
-                                                                       default="${fq.replaceFirst("Search-", "")}"/>
-                                                        </g:if>
-                                                        <g:else>
-                                                            <g:message code="facet.${fq.replaceFirst("kvp ", "")}"
-                                                                       default="${fq.replaceFirst("kvp ", "")}"/>
-                                                        </g:else>
+                                                                class="removeLink" title="Uncheck (remove filter)">
+                                                            <span class="fa fa-check-square-o">&nbsp;</span>
+                                                            <g:if test="${fq.startsWith("Search-")}">
+                                                                <g:message code="facet.${fq.replaceFirst("Search- ", "")}"
+                                                                           default="${fq.replaceFirst("Search-", "")}"/>
+                                                            </g:if>
+                                                            <g:else>
+                                                                <g:message code="facet.${fq.replaceFirst("kvp ", "")}"
+                                                                           default="${fq.replaceFirst("kvp ", "")}"/>
+                                                            </g:else>
+                                                        </g:link>
                                                     </li>
                                                 </g:if>
                                             </g:each>
@@ -929,7 +930,7 @@
                                     <td id="img_${result.guid}">
                                         <g:if test="${result.imageUrl}">
                                             <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img
-                                                    style="max-width: 400px;" src="${result.imageUrl}"
+                                                    src="${result.imageUrl}"
                                                     class="smallSpeciesImage"/></a>
                                         </g:if>
                                     </td>

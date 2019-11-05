@@ -154,6 +154,15 @@ skin:
 publicview:
     hidePrivateLists: false
 
+outboundhttp:
+    useragent: 'species-lists'
+    timeout: 8000
+
+
+speciesNameColumns: 'scientificname,scientific,sciname,sname,latinname,latin,taxon,taxonname,taxonomic name'
+commonNameColumns: 'commonname,common,vernacular,vernacularname'
+ambiguousNameColumns: 'name'
+
 #dataSource:
 #    pooled: true
 #    jmxExport: true
