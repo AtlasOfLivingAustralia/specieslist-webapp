@@ -4,22 +4,19 @@
     <title>Something went wrong</title>
     <meta name="layout" content="main"/>
     <meta name="breadcrumbParent" content="${request.contextPath}/public/speciesLists,Species lists"/>
-    <meta name="breadcrumb" content="Error"/>
+    <meta name="breadcrumb" content="Page not found"/>
 </head>
 <body>
 <header id="page-header">
     <div class="inner">
-        <hgroup>
-            <h1>Something went wrong!</h1>
-        </hgroup>
+        <h1>Page not found</h1>
     </div>
 </header>
 <div class="inner">
-    <g:if test="${message}">
-        <div><pre>${raw(message)}</pre></div>
-        <div>${exception}</div>
-        <g:renderException exception="${raw(exception)}" />
-    </g:if>
+    <div>
+        Oops! That page can’t be found.
+    It looks like nothing was found at this location.
+    </div>
 </div>
 </body>
 </html>

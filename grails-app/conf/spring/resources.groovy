@@ -5,7 +5,9 @@ beans = {
         basenames = [
                 "file:///var/opt/atlas/i18n/specieslist-webapp/messages",
                 "file:///opt/atlas/i18n/specieslist-webapp/messages",
-                "WEB-INF/grails-app/i18n/messages"
+                "file:grails-app/i18n/messages",
+                "file:WEB-INF/classes/messages",
+                "classpath:messages"
         ] as String[]
         cacheSeconds = (60 * 60 * 6) // 6 hours
         useCodeAsDefaultMessage = false
