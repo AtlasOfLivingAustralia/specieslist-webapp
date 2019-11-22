@@ -53,10 +53,9 @@ class UrlMappings {
             action = [GET: 'getSpeciesListItemKvp']
         }
 
-//        "/"(view:"/index")
-
 		"/"(controller: 'public' ,action:  'index')
 		"500"(view:'/error')
+        "404"(view:'/404')
 		"401"(view:'/notAuthorised')
 	}
 }
