@@ -526,7 +526,7 @@
                             <select name="listType" id="listType" class="form-control full-width">
 
 
-                                <g:each in="${au.org.ala.specieslist.ListType.values()}" var="type"><option value="${type.name()}" ${(list?.listType == type) ? 'selected="selected"':''}>${message(code:type.i18nValue, default:type.displayValue)}</option></g:each>
+                                <g:each in="${au.org.ala.specieslist.ListType.values()}" var="type"><option value="${type.name()}" ${(speciesList.listType == type) ? 'selected="selected"':''}> ${message(code:type.i18nValue, default:type.displayValue)}</option></g:each>
 
                             </select>
                         </div>

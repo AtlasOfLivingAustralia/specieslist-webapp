@@ -150,6 +150,7 @@ headerAndFooter:
 
 skin:
     fluidLayout: true
+    homeUrl: "https://core.biodiversityatlas.at"
 
 publicview:
     hidePrivateLists: false

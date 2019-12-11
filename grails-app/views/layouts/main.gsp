@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="app.version" content="${g.meta(name:'info.app.version')}"/>
     <meta name="description" content="${grailsApplication.config.skin?.orgNameLong?:'Atlas of Living Australia'}"/>
@@ -18,7 +19,7 @@
         <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/autocomplete-extra.min.css" rel="stylesheet" media="screen,print"/>
         <link href="${grailsApplication.config.headerAndFooter.baseURL}/css/font-awesome.min.css" rel="stylesheet" media="screen,print"/>
     </g:elseif>
-    <asset:stylesheet src="application.css" media="all" />
+    <asset:stylesheet src="application.css" media="all"  />
     <link href="${grailsApplication.config.skin?.favicon?:'http://www.ala.org.au/wp-content/themes/ala2011/images/favicon.ico'}" rel="shortcut icon"  type="image/x-icon"/>
     <!--[if lt IE 9]>
     <asset:javascript src="html5.js" />
@@ -72,7 +73,6 @@
     </plugin:isAvailable>
     <g:layoutBody />
 </div><!-- End container #main  -->
-
 <!-- Footer -->
 <hf:footer/>
 <!-- End footer -->
