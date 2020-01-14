@@ -20,16 +20,16 @@
         <header id="page-header">
             <div class="row">
                 <hgroup class="col-md-8">
-                    <h1>Species lists</h1>
+                    <h1>${message(code:'admin.lists.header', default:'Species lists')}</h1>
                 </hgroup>
                 <div class="col-md-4">
                     <span class="pull-right">
                         <g:if test="${isAdmin}">
                             <a class="btn btn-primary" title="Admin" href="${request.contextPath}/admin">Admin</a>
                         </g:if>
-                        <a class="btn btn-primary" title="Add Species List" href="${request.contextPath}/speciesList/upload">Upload a list</a>
-                        <a class="btn btn-primary" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
-                        <a class="btn btn-primary" title="Rematch" href="${request.contextPath}/speciesList/rematch">Rematch All</a>
+                        <a class="btn btn-primary" title="${message(code:'upload.lists.header01', default:'Upload a list')}" href="${request.contextPath}/speciesList/upload">${message(code:'upload.lists.header01', default:'Upload a list')}</a>
+                        <a class="btn btn-primary" title="${message(code:'generic.lists.button.mylist.label', default:'My Lists')}" href="${request.contextPath}/speciesList/list">${message(code:'generic.lists.button.mylist.label', default:'My Lists')}</a>
+                        <a class="btn btn-primary" title="${message(code:'admin.lists.page.button.rematch.tooltip', default:'Rematch')}" href="${request.contextPath}/speciesList/rematch">${message(code:'admin.lists.page.button.rematch.label', default:'Rematch All')}</a>
                     </span>
                 </div>
             </div><!--inner-->
@@ -41,13 +41,14 @@
 
             <g:if test="${lists && total>0}">
                 <p>
-                    Below is a listing of all species lists that can be administered.
+                    ${message(code:'admin.lists.text', default:'Below is a listing of all species lists that can be administered.')}
+
                 </p>
-                <a href="${g.createLink(action: 'updateListsWithUserIds')}" class="btn btn-primary margin-bottom-5px">Update List user details (name & email address)</a>
+                <a href="${g.createLink(action: 'updateListsWithUserIds')}" class="btn btn-primary margin-bottom-5px">${message(code:'admin.lists.button.label', default:'Update List user details (name & email address)')}</a>
                 <g:render template="/speciesList"/>
             </g:if>
             <g:else>
-                <p>There are no Species Lists available</p>
+                <p>${message(code:'public.lists.search.noresult', default:'There are no Species Lists available')}</p>
             </g:else>
 
         </div>

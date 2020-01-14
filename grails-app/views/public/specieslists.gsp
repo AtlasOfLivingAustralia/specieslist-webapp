@@ -16,6 +16,7 @@
 <html>
 <head>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
+
     <meta name="breadcrumb" content="Species lists"/>
     <title>Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
 </head>
@@ -26,14 +27,14 @@
         <header id="page-header">
             <div class="row">
                 <hgroup class="col-md-8">
-                    <h2 class="subject-title">Species lists</h2>
+                    <h2 class="subject-title">${message(code:'public.lists.header', default:'Species lists')}</h2>
                 </hgroup>
 
                 <div class="col-md-4">
                     <span class="pull-right">
-                        <a class="btn btn-primary" title="Add Species List"
-                           href="${request.contextPath}/speciesList/upload">Upload a list</a>
-                        <a class="btn btn-primary" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
+                        <a class="btn btn-primary" title="${message(code:'generic.lists.button.uploadList.tooltip', default:'Add Species List')}"
+                           href="${request.contextPath}/speciesList/upload">${message(code:'generic.lists.button.uploadList.label', default:'Upload a list')}</a>
+                        <a class="btn btn-primary" title="${message(code:'generic.lists.button.mylist.tooltip', default:'My Lists')}" href="${request.contextPath}/speciesList/list">${message(code:'generic.lists.button.mylist.label', default:'My Lists')}</a>
                     </span>
                 </div>
             </div><!--.row-->
@@ -44,29 +45,33 @@
                 <g:if test="${flash.message}">
                     <div class="message alert alert-info">
                         <button type="button" class="close" onclick="$(this).parent().hide()">×</button>
-                        <b>Alert:</b> ${flash.message}
+                        <b>${message(code:'generic.lists.button.alert.label', default:'Alert')}:</b> ${flash.message}
                     </div>
                 </g:if>
                 <p>
-                    This tool allows you to upload a list of species, and work with that list within the Atlas.
+
+                    ${message(code:'public.lists.des01', default:'This tool allows you to upload a list of species, and work with that list within the Atlas.')}
+
                     <br/>
-                    Click "Upload a list" to upload your own list of taxa.
+                    ${message(code:'public.lists.des02', default:'Click "Upload a list" to upload your own list of taxa.')}
+
                 </p>
                 <g:if test="${lists && total > 0}">
                     <p>
-                        Below is a listing of user provided species lists. You can use these lists to work
-                        with parts of the Atlas.
+                        ${message(code:'public.lists.des03', default:'Below is a listing of user provided species lists. You can use these lists to work\n' +
+                                '                        with parts of the Atlas.')}
+
                     </p>
                     <g:render template="/speciesList"/>
                 </g:if>
                 <g:elseif test="${params.q}">
                     <form class="listSearchForm">
-                        <p>No Species Lists found for: <b>${params.q}</b></p>
-                        <button class="btn btn-primary" type="submit">Clear search</button>
+                        <p>${message(code:'public.lists.search.failed.text', default:'No Species Lists found for')}: <b>${params.q}</b></p>
+                        <button class="btn btn-primary" type="submit">${message(code:'public.lists.search.clear', default:'Clear search')}</button>
                     </form>
                 </g:elseif>
                 <g:else>
-                    <p>There are no Species Lists available</p>
+                    <p>${message(code:'public.lists.search.noresult', default:'There are no Species Lists available')}</p>
                 </g:else>
             </div>
         </div>

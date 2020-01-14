@@ -45,7 +45,7 @@
                     //console.log("Dialog ACTION ITEMS",listId, url)
                     $.post(url, function(data){
                         //alert('Value returned from service: '  + data.uid);
-                        alert(action + ' was successful');
+                        alert('${message(code:'admin.lists.actions.button.message.ok', default:'Action was successful!')}');
                         window.location.reload()
                     }).error(function(jqXHR, textStatus, error) {
                         alert("An error occurred: " + error + " - " + jqXHR.responseText);
@@ -77,9 +77,9 @@
                        class="form-control"
                        name="q" type="text"
                        value="${params.q}"
-                       placeholder="Search in list name, description or owner">
+                       placeholder="${message(code:'public.lists.search.text', default:'Search in list name, description or owner')}">
                 <div class="input-group-btn">
-                    <button class="btn btn-default" type="submit">Search</button>
+                    <button class="btn btn-default" type="submit">${message(code:'generic.lists.button.search.label', default:'Search')}</button>
                 </div>
             </div>
         </form>
@@ -87,13 +87,13 @@
     <div class="col-md-3">
         <form class="listSearchForm">
             <g:if test="${params.q}">
-                <button class="btn btn-primary" type="submit">Clear search</button>
+                <button class="btn btn-primary" type="submit">${message(code:'public.lists.search.clear', default:'Clear search')}</button>
             </g:if>
         </form>
     </div>
     <div class="col-md-4">
         <div class="form-group pull-right">
-            <label class="control-label">Items per page:</label>
+            <label class="control-label">${message(code:'public.lists.search.options',default:'Items per page')}:</label>
             <select id="maxItems" class="form-control" onchange="reloadWithMax(this)">
                 <g:each in="${[10,25,50,100,1000]}" var="max">
                     <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
@@ -109,11 +109,11 @@
     <div id="listFacets" class="col-md-2 well">
 
         <g:if test="${selectedFacets}">
-            <h3>Selected filters</h3>
+            <h3>${message(code:'public.lists.search.filter.selected', default:'Selected filters')}</h3>
             <ul class="facets list-unstyled">
             <g:each in="${selectedFacets}" var="selectedFacet">
                 <li>
-                    <a href="${sl.selectedFacetLink([filter:selectedFacet.query])}" title="Click to remove this filter">
+                    <a href="${sl.selectedFacetLink([filter:selectedFacet.query])}" title="${message(code:'public.lists.search.filter.remove', default:'Click to remove this filter')}">
                     <span class="fa fa-check-square-o">&nbsp;</span>
                     <g:message code="${selectedFacet.facet.label}" default="${selectedFacet.facet.label}"/>
                     </a>
@@ -122,7 +122,7 @@
             </ul>
         </g:if>
 
-        <h3>List types</h3>
+        <h3>${message(code:'public.lists.types.headline', default:'List types')}</h3>
         <ul class="facets list-unstyled">
             <g:each in="${facets}" var="facet">
                 <li>
@@ -162,7 +162,7 @@
                 <g:sortableColumn property="itemsCount" params="${params}"
                                   title="${message(code: 'speciesList.name.count', default: 'Item Count')}"/>
                 <g:if test="${request.getUserPrincipal()}">
-                    <th colspan="3">Actions</th>
+                    <th colspan="3">${message(code:'public.lists.view.table.action.label', default:'Action')}</th>
                 </g:if>
             </tr>
             </thead>
@@ -187,17 +187,17 @@
                         <td>
                             <g:set var="test" value="${[id: list.id]}"/>
                             <a href="#"
-                               onclick="fancyConfirm('Are you sure that you would like to delete ${list.listName.encodeAsHTML()}', ${list.id}, 'delete');
-                               return false;" id="delete_${list.id}" class="btn btn-sm btn-primary">Delete</a>
+                               onclick="fancyConfirm('${message(code:"admin.lists.actions.button.delete.messages", default:"Are you sure that you would like to delete")} ${list.listName.encodeAsHTML()}', ${list.id}, 'delete');
+                               return false;" id="delete_${list.id}" class="btn btn-sm btn-primary">${message(code:"admin.lists.actions.button.delete.label", default:"Delete")}</a>
                         </td>
                         <td>
                             <a href="#"
-                               onclick="fancyConfirm('Are you sure that you would like to rematch ${list.listName.encodeAsHTML()}', ${list.id}, 'rematch');
-                               return false;" id="rematch_${list.id}" class="btn btn-sm btn-default">Rematch</a>
+                               onclick="fancyConfirm('${message(code:"admin.lists.actions.button.rematch.messages", default:"Are you sure that you would like to rematch")} ${list.listName.encodeAsHTML()}', ${list.id}, 'rematch');
+                               return false;" id="rematch_${list.id}" class="btn btn-sm btn-default">${message(code:"admin.lists.actions.button.rematch.label", default:"Reload")}</a>
                         </td>
                         <td>
                             <a href="${request.contextPath}/speciesList/upload/${list.dataResourceUid}"
-                               class="btn btn-sm btn-default">Reload</a>
+                               class="btn btn-sm btn-default">${message(code:"admin.lists.actions.button.reload.label", default:"Reload")}</a>
                         </td>
                     </g:if>
                 %{--<g:else><td/></g:else>--}%
