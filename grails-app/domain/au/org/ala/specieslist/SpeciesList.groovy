@@ -57,6 +57,7 @@ class SpeciesList {
     }
 
     static mapping = {
+        dataResourceUid index: 'idx_data_resource_uid'
         items cascade: "all-delete-orphan"
         listType index: 'idx_listtype'
         username index: 'idx_username'
