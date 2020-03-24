@@ -142,10 +142,12 @@ class EditorController {
                 def kvp = sli.kvpValues.find { it.key == key } // existing KVP if any
 
                 if (params[key] != kvp?.value) {
-                    log.debug "KVP has been changed: " + params[key] + " VS " + kvp?.value
-                    def newKvp = SpeciesListKVP.findByDataResourceUidAndKeyAndValue(sli.dataResourceUid, key, params[key])
 
-                    if (kvp) {
+                    log.debug "KVP has been changed: " + params[key] + " VS-old " + kvp?.value
+                    //def newKvp = SpeciesListKVP.findByDataResourceUidAndKeyAndValue(sli.dataResourceUid, key, params[key])
+                    def newKvp = kvp
+                    //if (kvp) {
+                    if (kvp && params[key].toString() == "") {
                         // old value was not empty - remove from this SLI
                         kvpRemoveList.add(kvp)
                     }
@@ -154,16 +156,22 @@ class EditorController {
                         // new value is empty
                         if (!newKvp) {
                             // There is no existing KVP for the new value
-                            log.debug "Couldn't find an existing KVP, so creating a new one..."
+                            log.debug "Couldn't find an existing KVP, so creating a new one..." + key
                             newKvp = new SpeciesListKVP(
                                     dataResourceUid: sli.dataResourceUid,
                                     key: key,
                                     value: params[key],
                                     itemOrder: kvp?.itemOrder?:0,
                                     SpeciesListItem: sli ).save(failOnError: true, flush: true)
+                            // command above updates the sli without reloading, hence the conversion (author,...) is not automatically done
+                            sli.afterLoad()
+                            sli.addToKvpValues(newKvp)
                         }
-
-                        sli.addToKvpValues(newKvp)
+                        else {
+                            log.debug "Hugo_valueChanged" + params[key]
+                            newKvp.value = params[key]
+                        }
+                        //sli.addToKvpValues(newKvp)
                     }
                 } else {
                     log.debug "KVP is unchanged: " + kvp.value

@@ -60,5 +60,33 @@ class SpeciesListItem {
         //kvpValues cascade: "all-delete-orphan"
         //kvpValues lazy: false
     }
+    def beforeInsert() {
+
+        // Conversion because the database column is "Latin1" and has some problems with special characters
+
+        this.author = org.apache.commons.lang.StringEscapeUtils.escapeHtml(this.author)
+        this.matchedName = org.apache.commons.lang.StringEscapeUtils.escapeHtml(this.matchedName)
+        this.commonName = org.apache.commons.lang.StringEscapeUtils.escapeHtml(this.commonName)
+        this.rawScientificName = org.apache.commons.lang.StringEscapeUtils.escapeHtml(this.rawScientificName)
+
+        //log.debug("--------------->beforeInsert")
+    }
+
+    def beforeUpdate() {
+        this.author = org.apache.commons.lang.StringEscapeUtils.escapeHtml(this.author)
+        this.matchedName = org.apache.commons.lang.StringEscapeUtils.escapeHtml(this.matchedName)
+        this.commonName = org.apache.commons.lang.StringEscapeUtils.escapeHtml(this.commonName)
+        this.rawScientificName = org.apache.commons.lang.StringEscapeUtils.escapeHtml(this.rawScientificName)
+        //log.debug("--------------->beforeUpdate")
+    }
+
+    def afterLoad() {
+        this.author = org.apache.commons.lang.StringEscapeUtils.unescapeHtml(this.author)
+        this.matchedName = org.apache.commons.lang.StringEscapeUtils.unescapeHtml(this.matchedName)
+        this.commonName = org.apache.commons.lang.StringEscapeUtils.unescapeHtml(this.commonName)
+        this.rawScientificName = org.apache.commons.lang.StringEscapeUtils.unescapeHtml(this.rawScientificName)
+        //log.debug("--------------->afterLoad")
+    }
+
 
 }
