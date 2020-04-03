@@ -33,7 +33,9 @@
                     <span class="pull-right">
                         <a class="btn btn-primary" title="Add Species List"
                            href="${request.contextPath}/speciesList/upload">Upload a list</a>
-                        <a class="btn btn-primary" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
+                        <g:if test="${isLoggedIn}">
+                            <a class="btn btn-primary" title="My Lists" href="${request.contextPath}/speciesList/list">My Lists</a>
+                        </g:if>
                     </span>
                 </div>
             </div><!--.row-->
