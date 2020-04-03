@@ -50,7 +50,7 @@
                        <li><b>listName</b> - The name for the list</li>
                        <li><b>listItems</b> - either a comma separated list of species names, or a JSON structure
                        containing species names and KVP values (example below).</li>
-                       <li><b>listType</b> - The type of list: <code>SPECIES_CHARACTERS, CONSERVATION_LIST, SENSITIVE_LIST, LOCAL_LIST, COMMON_TRAIT,
+                       <li><b>listType</b> - The type of list: <code>SPECIES_CHARACTERS, CONSERVATION_LIST, SENSITIVE_LIST, SPECIES_LIST, COMMON_TRAIT,
                        COMMON_HABITAT, SPATIAL_PORTAL, TEST, OTHER</code></li>
                        <li><b>description</b> - A description for the list.</li>
                 </ul>

@@ -20,7 +20,7 @@ enum ListType {
     SPECIES_CHARACTERS("Species characters list", "species.characters.list"),
     CONSERVATION_LIST("Conservation list", "conservation.list"),
     SENSITIVE_LIST("Sensitive list of species", "sensitive.list"),
-    LOCAL_LIST("Local checklist", "local.checklist"),
+    SPECIES_LIST("Species checklist", "species.checklist"),
     COMMON_TRAIT("Common trait of species", "trait.list"),
     COMMON_HABITAT("Common habitat of species", "habitat.list"),
     SPATIAL_PORTAL("Spatial portal defined list", "spatial.portal.list"),
