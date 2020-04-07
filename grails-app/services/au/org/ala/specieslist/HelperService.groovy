@@ -367,6 +367,7 @@ class HelperService {
                     speciesList.surname = user.lastName
                 }
             }
+            setiListAsPrivate(speciesList)
         }
 
         List guidList = []
@@ -409,6 +410,18 @@ class HelperService {
             guidList.push (sli.guid)
         }
         guidList
+    }
+
+    /**
+     * Set all new lists submitted via the spatial portal and other tools to private as default
+     * @param list SpeciesList
+     * @return updated SpeciesList
+     */
+    private setiListAsPrivate(SpeciesList list) {
+        if (list.listType == ListType.SPATIAL_PORTAL || list.listType == ListType.OTHER){
+            list.isPrivate = true
+        }
+        list
     }
 
     private static boolean isSpeciesListJsonVersion2(Map json) {
@@ -472,6 +485,7 @@ class HelperService {
         sl.isAuthoritative=false // default all new lists to isAuthoritative = false: it is an admin task to determine whether a list is authoritative or not
         sl.isInvasive=false
         sl.isThreatened=false
+        setiListAsPrivate(sl)
         String [] nextLine
         boolean checkedHeader = false
         int speciesValueIdx = getSpeciesIndex(header)
@@ -519,6 +533,7 @@ class HelperService {
         sl.username = localAuthService.email()
         sl.firstName = localAuthService.firstname()
         sl.surname = localAuthService.surname()
+        setiListAsPrivate(sl)
         while ((nextLine = reader.readNext()) != null) {
             if(org.apache.commons.lang.StringUtils.isNotBlank(nextLine)){
                 sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap))
