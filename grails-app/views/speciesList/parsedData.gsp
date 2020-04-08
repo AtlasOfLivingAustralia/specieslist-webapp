@@ -32,16 +32,16 @@
         </g:if>
         <g:else>
             <div id="recognisedDataDiv">
-                <h2>2. Check our initial interpretation</h2>
+                <h2>${message(code:'upload.lists.checkdata.header', default:'2. Check our initial interpretation')}</h2>
                 <g:if test="${!nameFound}">
                     <div class="alert alert-danger">
-                        <strong>Warning</strong> No species name column could be found, please add one. Any of the following column names will do:
+                        <strong>${message(code:'upload.lists.checkdata.map.warning', default:'Warning')}</strong> ${message(code:'upload.lists.checkdata.map.warning.message01', default:'No species name column could be found, please add one. Any of the following column names will do:')}
                         <g:each in="${nameColumns}" var="nc" status="i">
                             <g:if test="${i == nameColumns.size() - 1}">, or </g:if><g:elseif test="${i != 0}">, </g:elseif>“${nc}”</g:each>
                     </div>
                 </g:if>
 
-                <p>Adjust headings that have been incorrectly matched using the text boxes.</p>
+                <p>${message(code:'upload.lists.checkdata.text01', default:'Adjust headings that have been incorrectly matched using the text boxes.')}</p>
 
                 <div class="fwtable well">
                     <table id="initialParse" class="table table-striped table-bordered">
@@ -70,16 +70,17 @@
             </div><!-- #recognisedDataDiv -->
             <g:if test="${listProperties}">
                 <p>
-                    We have detected species properties within the list. <br/>
-                    It is possible to map your properties to a controlled vocabulary.<br/>
-                    This step is <strong>optional</strong>.
+                    ${message(code:'upload.lists.checkdata.text02', default:'We have detected species properties within the list.')}<br/>
+                    ${message(code:'upload.lists.checkdata.text03', default:'It is possible to map your properties to a controlled vocabulary.')}<br/>
+                    ${message(code:'upload.lists.checkdata.text04', default:'This step is <strong>optional</strong>.')}
+
                     <input id="viewVocabButton" class="datasetName actionButton btn btn-default" type="button"
-                           value="Click here to map..." onclick="javascript:viewVocab();"/>
+                           value="${message(code:'upload.lists.checkdata.map.button', default:'Click here to map...')}" onclick="javascript:viewVocab();"/>
                 </p>
 
                 <div class="allVocabs well" id="listvocab">
 
-                    <div class="pull-right"><button class="btn btn-default" onclick="javascript:hideVocab();">Close</button></div>
+                    <div class="pull-right"><button class="btn btn-default" onclick="javascript:hideVocab();">${message(code:'upload.lists.checkdata.map.text03', default:'Close')}</button></div>
 
                     <g:each in="${listProperties.keySet()}" var="key">
                         <div class="vocabDiv">
@@ -88,8 +89,8 @@
                             <div class="fhtable">
                                 <table class="vocabularyTable table table-condensed" id="Voc_${key}" for="Head_${key}">
                                     <thead>
-                                    <th class="parse">Value</th>
-                                    <th class="parse">Maps To</th>
+                                    <th class="parse">${message(code:'upload.lists.checkdata.map.text01', default:'Value')}</th>
+                                    <th class="parse">${message(code:'upload.lists.checkdata.map.text02', default:'Maps To')}</th>
                                     </thead>
                                     <tbody class="vocabBody">
                                     <g:each in="${listProperties.get(key)}" var="rawKeyVal">
@@ -104,7 +105,7 @@
                         </div><!-- #vocabDiv -->
                     </g:each>
 
-                    <div class="pull-right"><button class="btn btn-default" onclick="javascript:hideVocab();">Close</button></div>
+                    <div class="pull-right"><button class="btn btn-default" onclick="javascript:hideVocab();">${message(code:'upload.lists.checkdata.map.text03', default:'Close')}</button></div>
                 </div><!-- #listvocab -->
             </g:if>
         </g:else>

@@ -9,6 +9,7 @@ beans = {
                 "file:WEB-INF/classes/messages",
                 "classpath:messages"
         ] as String[]
+        defaultEncoding = "UTF-8"
         cacheSeconds = (60 * 60 * 6) // 6 hours
         useCodeAsDefaultMessage = false
     }

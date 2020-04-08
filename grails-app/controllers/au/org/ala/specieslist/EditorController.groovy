@@ -191,7 +191,8 @@ class EditorController {
                 render(text: message, status: 500)
             }
             else if (sli.save(flush: true)) {
-                render(text: "Record successfully created", status: 200)
+                def msg = message(code:'public.lists.view.table.edit.messages', default:'Record successfully created')
+                render(text: msg, status: 200)
             }
             else {
                 def message = "Could not create SpeciesListItem: ${sli.rawScientificName} - " + sli.errors.allErrors
@@ -227,7 +228,8 @@ class EditorController {
 
             try {
                 sli.delete(flush: true)
-                render(text: "Record successfully deleted", status: 200)
+                render(text: message(code:'public.lists.view.table.delete.messages', default:'Record successfully deleted'), status: 200)
+
             }
             catch (org.springframework.dao.DataIntegrityViolationException e) {
                 def message = "Could not delete SpeciesListItem: ${sli.rawScientificName}"
@@ -288,7 +290,7 @@ class EditorController {
                 }
                 render(text: "Error occurred while saving species list: " + errors.join("; "), status: 500);
             } else {
-                render(text: "species list successfully updated - reloading page.")
+                render(text: "${message(code:'public.lists.view.listinfo.edit.messages', default:'species list successfully updated - reloading page.')}")
             }
         }
     }

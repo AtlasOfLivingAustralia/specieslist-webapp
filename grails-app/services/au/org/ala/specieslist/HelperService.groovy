@@ -28,6 +28,9 @@ import org.apache.commons.io.input.BOMInputStream
 import org.apache.commons.lang.StringUtils
 import org.grails.web.json.JSONArray
 import org.nibor.autolink.*
+import org.springframework.context.MessageSource
+import org.springframework.context.i18n.LocaleContextHolder
+
 
 import javax.annotation.PostConstruct
 
@@ -39,6 +42,8 @@ import static groovyx.net.http.ContentType.JSON
  */
 @Transactional
 class HelperService {
+
+    MessageSource messageSource
 
     def grailsApplication
 
@@ -731,7 +736,8 @@ class HelperService {
                    if (sl.listName == preferredSpeciesImageListName) {
                        helperService.syncBieImage (sli, params.imageId)
                    }*/
-                return[text: "Record successfully created", status: 200, data: ["species_guid": sli.guid]]
+                def msg = messageSource.getMessage('public.lists.view.table.edit.messages', [] as Object[], 'Default Message', LocaleContextHolder.locale)
+                return[text: msg, status: 200, data: ["species_guid": sli.guid]]
             }
             else {
                 def message = "Could not create SpeciesListItem: ${sli.rawScientificName} - " + sl.errors.allErrors
