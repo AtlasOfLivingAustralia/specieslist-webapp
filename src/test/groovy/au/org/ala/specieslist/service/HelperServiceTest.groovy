@@ -202,37 +202,6 @@ class HelperServiceTest extends Specification {
         assert !list.is(speciesList) // the existing entity should NOT be used because the DR UIDs don't match
     }
 
-    def "loadSpeciesListFromJSON should create a new private list if submitted via the spatial portal and if there is no match on the Data Resource ID"() {
-        setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
-        helperService.setLocalAuthService(Mock(LocalAuthService))
-        helperService.setAuthService(Mock(AuthService))
-        UserDetailsService userDetailsService = Mock(UserDetailsService)
-        userDetailsService.getFullListOfUserDetailsByUsername() >> [:]
-        helperService.setUserDetailsService(userDetailsService)
-        String version1Json = "{\"listName\": \"list1\",  \"listType\": \"SPATIAL_PORTAL\", \"listItems\": \"item1,item2\"}"
-
-        SpeciesList speciesList = new SpeciesList(dataResourceUid: "dr11", username: "fred", listName: "list1")
-        SpeciesListItem item1 = new SpeciesListItem(itemOrder: 1, rawScientificName: "item1", dataResourceUid: "dr1",
-                mylist: speciesList)
-        item1.save(failOnError: true)
-        speciesList.addToItems(item1)
-        speciesList.save(failOnError: true)
-
-        mockDomain(SpeciesList, [speciesList])
-
-        JSONObject json = new JSONObject(version1Json)
-        json.username = "fred"
-
-        when:
-        def list = helperService.loadSpeciesListFromJSON(json, "noMatch")
-
-        then:
-        assert !list.speciesList.is(speciesList) // the existing entity should NOT be used because the DR UIDs don't match
-        assert list.speciesList.listType == ListType.SPATIAL_PORTAL
-        assert list.speciesList.isPrivate
-    }
-
     def "loadSpeciesListFromJSON should throw an exception when the item list structure is not recognised"() {
         setup:
         helperService.setCbIdxSearcher(Mock(ALANameSearcher))
