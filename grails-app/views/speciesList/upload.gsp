@@ -113,19 +113,25 @@
         var isValid = false;
         var typeId = $("#listTypeId option:selected").val();
         if($('#listTitle').val().length > 0){
-            isValid=true
+            isValid = true
         }
         else{
             $('#listTitle').focus();
             alert("You must supply a species list title");
         }
         if(isValid){
-
             if(typeId){
-                isValid = true
+                if ('LOCAL_LIST' == typeId && $('#listWkt').val().length == 0){
+                    isValid = false;
+                    $('#listWkt').focus();
+                    alert("You must supply a spatial bounds");
+                }
+                else{
+                    isValid = true
+                }
             }
             else{
-                isValid=false
+                isValid = false
                 $("#listTypeId").focus();
                 alert("You must supply a list type");
             }
