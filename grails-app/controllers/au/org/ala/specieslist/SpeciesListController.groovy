@@ -155,6 +155,7 @@ class SpeciesListController {
                             formParams.listWkt,
                             formParams.isBIE,
                             formParams.isSDS,
+                            formParams.isPrivate,
                             formParams.region,
                             formParams.authority,
                             formParams.category,

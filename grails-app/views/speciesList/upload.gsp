@@ -159,6 +159,7 @@
                 map['rawData']  =$('#copyPasteData').val();
             }
             map['listType'] =$('#listTypeId').val();
+            map['isPrivate']=$('#isPrivate').is(':checked');
             //add the existing data resource uid if it is provided to handle a resubmit
             if("${resourceUid}")
                 map['id'] = "${resourceUid}"
@@ -369,6 +370,10 @@
                                 </select>
                             </td>
 
+                        </tr>
+                        <tr>
+                            <td><label for="isPrivate"><g:message code= "speciesList.isPrivate.label" default= "Is private in species list"/></label> </td>
+                            <td><g:checkBox name="isPrivate" id="isPrivate" checked="${list?.isPrivate}"/></td>
                         </tr>
                         <g:if test="${request.isUserInRole("ROLE_ADMIN")}">
                             <tr>
