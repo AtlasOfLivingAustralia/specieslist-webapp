@@ -59,7 +59,8 @@
                         Below is a listing of user provided species lists. You can use these lists to work
                         with parts of the Atlas.
                     </p>
-                    <g:render template="/speciesList"/>
+                    <g:render template="/speciesList" model="[source:'public']"/>
+
                 </g:if>
                 <g:elseif test="${params.q}">
                     <form class="listSearchForm">
