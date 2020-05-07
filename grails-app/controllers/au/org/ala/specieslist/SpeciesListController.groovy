@@ -178,15 +178,14 @@ class SpeciesListController {
                     )
 
                     if (itemCount.successfulItems == itemCount.totalRecords) {
-                        flash.message = "All items have been successfully uploaded."
+                        flash.message = "${message(code: 'upload.lists.uploadprocess.success.message', default:'All items have been successfully uploaded.')}"
                     }
                     else {
-                        flash.message = "${itemCount.successfulItems} out of ${itemCount.totalRecords} items have been " +
-                                "successfully uploaded."
+                        flash.message = "${itemCount.successfulItems} ${message(code:'upload.lists.uploadprocess.partial01', default:'out of')} ${itemCount.totalRecords} ${message(code:'upload.lists.uploadprocess.partial02', default:'items have been successfully uploaded.')}"
                     }
 
-                    def map = [url: url, error: itemCount.successfulItems > 0 ? null : "Unable to upload species data. " +
-                            "Please ensure the column containing the species name has been identified."]
+                    def msg = message(code:'upload.lists.uploadprocess.errormessage', default:'Unable to upload species data. Please ensure the column containing the species name has been identified.')
+                    def map = [url: url, error: itemCount.successfulItems > 0 ? null : msg]
                     render map as JSON
                 }
                 finally {
@@ -407,7 +406,8 @@ class SpeciesListController {
                     separator = detectSeparator(file);
                     csvReader = helperService.getCSVReaderForCSVFileUpload(file, separator as char)
                 } else {
-                    render(view: 'parsedData', model: [error: INVALID_FILE_TYPE_MESSAGE])
+                    log.debug("Wrong File Content type: "+file.getContentType())
+                    render(view: 'parsedData', model: [error: "${message(code:'upload.lists.checkdata.errormessage', default:'Invalid file type: must be a tab or comma separated text file.')}"])
                     return
                 }
             } else {
@@ -484,7 +484,7 @@ class SpeciesListController {
             log.info("Rematched ${offset} of ${totalRows} - ${Math.round(offset * 100 / totalRows)}% complete")
         }
 
-        render(text: "Rematch complete")
+        render(text: "${message(code:'admin.lists.page.button.rematch.messages', default:'Rematch complete')}")
     }
 
     private parseDataFromCSV(CSVReader csvReader, String separator) {
