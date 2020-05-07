@@ -32,6 +32,7 @@ class PublicController {
             log.info "lists = ${lists.size()} || count = ${lists.totalCount}"
             render (view:'specieslists', model:[
                     isAdmin:localAuthService.isAdmin(),
+                    isLoggedIn: (authService.userId) != null,
                     lists:lists,
                     total:lists.totalCount,
                     facets:facets,

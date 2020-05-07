@@ -69,6 +69,8 @@
 </asset:script>
 
 <!-- Search panel -->
+<g:set var="showActions" value="${source != 'public'}"/>
+
 <div id="top-search-panel" class="row">
     <div class="col-md-5">
         <form class="listSearchForm">
@@ -161,7 +163,7 @@
                                   title="${message(code: 'speciesList.name.lastUpdated', default: 'Date Updated')}"/>
                 <g:sortableColumn property="itemsCount" params="${params}"
                                   title="${message(code: 'speciesList.name.count', default: 'Item Count')}"/>
-                <g:if test="${request.getUserPrincipal()}">
+                <g:if test="${showActions && request.getUserPrincipal()}">
                     <th colspan="3">${message(code:'public.lists.view.table.action.label', default:'Action')}</th>
                 </g:if>
             </tr>
@@ -183,7 +185,7 @@
                     <td><g:formatDate format="yyyy-MM-dd" date="${list.dateCreated}"/></td>
                     <td><g:formatDate format="yyyy-MM-dd" date="${list.lastUpdated}"/></td>
                     <td>${list.itemsCount}</td>
-                    <g:if test="${list.username == request.getUserPrincipal()?.attributes?.email || request.isUserInRole("ROLE_ADMIN")}">
+                    <g:if test="${showActions && (list.username == request.getUserPrincipal()?.attributes?.email || request.isUserInRole("ROLE_ADMIN"))}">
                         <td>
                             <g:set var="test" value="${[id: list.id]}"/>
                             <a href="#"

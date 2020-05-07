@@ -50,10 +50,11 @@
                        <li><b>listName</b> - The name for the list</li>
                        <li><b>listItems</b> - either a comma separated list of species names, or a JSON structure
                        containing species names and KVP values (example below).</li>
-                       <li><b>listType</b> - The type of list: <code>SPECIES_CHARACTERS, CONSERVATION_LIST, SENSITIVE_LIST, LOCAL_LIST, COMMON_TRAIT,
+                <li><b>listType</b> - The type of list: <code>SPECIES_CHARACTERS, CONSERVATION_LIST, SENSITIVE_LIST, LOCAL_LIST<sup>*</sup>, COMMON_TRAIT,
                        COMMON_HABITAT, SPATIAL_PORTAL, TEST, OTHER</code></li>
                        <li><b>description</b> - A description for the list.</li>
                 </ul>
+                <b><sup>*</sup> Note:</b> LOCAL_LIST is displayed as "Area checklist" for backward compatibility reason. <br/>
                 This service supports 2 formats:
                 <ol>
                 <li>Unstructured list items with no KVPs. E.g.:

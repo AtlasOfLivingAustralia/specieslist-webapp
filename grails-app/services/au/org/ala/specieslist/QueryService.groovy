@@ -156,10 +156,10 @@ class QueryService {
 
     //TODO make this more configurable
     def listTyoeFacets = [
-        (ListType.CONSERVATION_LIST.toString()) : [listType: ListType.CONSERVATION_LIST, label: ListType.CONSERVATION_LIST.i18nValue],
-        (ListType.COMMON_HABITAT.toString()) : [listType: ListType.COMMON_HABITAT, label: ListType.COMMON_HABITAT.i18nValue],
-        (ListType.LOCAL_LIST.toString()) : [listType: ListType.LOCAL_LIST, label: ListType.LOCAL_LIST.i18nValue],
-        (ListType.COMMON_TRAIT.toString()) : [listType: ListType.COMMON_TRAIT, label: ListType.COMMON_TRAIT.i18nValue]
+        (ListType.CONSERVATION_LIST.toString()): [listType: ListType.CONSERVATION_LIST, label: ListType.CONSERVATION_LIST.i18nValue],
+        (ListType.COMMON_HABITAT.toString())   : [listType: ListType.COMMON_HABITAT, label: ListType.COMMON_HABITAT.i18nValue],
+        (ListType.LOCAL_LIST.toString())     : [listType: ListType.LOCAL_LIST, label: ListType.LOCAL_LIST.i18nValue],
+        (ListType.COMMON_TRAIT.toString())     : [listType: ListType.COMMON_TRAIT, label: ListType.COMMON_TRAIT.i18nValue]
     ]
 
     def getFacetCounts(params){

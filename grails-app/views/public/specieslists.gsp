@@ -34,7 +34,9 @@
                     <span class="pull-right">
                         <a class="btn btn-primary" title="${message(code:'generic.lists.button.uploadList.tooltip', default:'Add Species List')}"
                            href="${request.contextPath}/speciesList/upload">${message(code:'generic.lists.button.uploadList.label', default:'Upload a list')}</a>
-                        <a class="btn btn-primary" title="${message(code:'generic.lists.button.mylist.tooltip', default:'My Lists')}" href="${request.contextPath}/speciesList/list">${message(code:'generic.lists.button.mylist.label', default:'My Lists')}</a>
+                        <g:if test="${isLoggedIn}">
+                            <a class="btn btn-primary" title="${message(code:'generic.lists.button.mylist.tooltip', default:'My Lists')}" href="${request.contextPath}/speciesList/list">${message(code:'generic.lists.button.mylist.label', default:'My Lists')}</a>
+                        </g:if>
                     </span>
                 </div>
             </div><!--.row-->
@@ -62,7 +64,8 @@
                                 '                        with parts of the Atlas.')}
 
                     </p>
-                    <g:render template="/speciesList"/>
+                    <g:render template="/speciesList" model="[source:'public']"/>
+
                 </g:if>
                 <g:elseif test="${params.q}">
                     <form class="listSearchForm">

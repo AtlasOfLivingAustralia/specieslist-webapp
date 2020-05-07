@@ -232,6 +232,20 @@
                 $(this).find('.brief, .detail').toggleClass('hide');
             });
 
+            // catch click of deleting species list
+            $("#deleteSpeciesList").click(function(el) {
+                el.preventDefault();
+                var listId = $(this).data("id");
+                var url = "${request.contextPath}"+"/speciesList/delete/" + listId;
+
+                $.post(url, function(data){
+                    window.location.reload()
+                }).error(function(jqXHR, textStatus, error) {
+                    alert("An error occurred: " + error + " - " + jqXHR.responseText);
+                    $(modal).modal('hide');
+                });
+            });
+
         }); // end document ready
 
         function getAndViewRecordId(hash) {
@@ -338,6 +352,8 @@
                             <a href="#" id="toggleListInfo" class="btn btn-default btn-sm"><i
                                     class="glyphicon glyphicon-info-sign "></i> ${message(code:'public.lists.view.page.button01', default: 'List info')} </a>
                             <g:if test="${userCanEditPermissions}">
+                                <a href="#" class="btn btn-default btn-sm" data-target="#deleteList" data-toggle="modal"><i
+                                        class="glyphicon glyphicon-remove "></i> Delete list</a>
                                 <a href="#" class="btn btn-default btn-sm" data-target="#modal" data-toggle="modal"><i
                                         class="glyphicon glyphicon-user "></i>  ${message(code:'public.lists.view.page.button07', default: 'Edit permissions')}</a>
                             </g:if>
@@ -348,6 +364,32 @@
                         </div>
                     </h2>
                     <g:if test="${userCanEditPermissions}">
+                        <div class="modal fade" id="deleteList" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+
+                                        <h3>Are you sure you want to delete this species list?</h3>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <g:if test="${grailsApplication.config.collectory.enableSync?.toString()?.toBoolean()}">
+                                            <p>This will delete <i>${speciesList.listName}</i> species list and remove it from Collectory.</p>
+                                        </g:if>
+                                        <g:else>
+                                             <p>This will delete <i>${speciesList.listName}</i> species list.</p>
+                                        </g:else>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                                        <button class="btn btn-primary" data-id="${speciesList.id}" id="deleteSpeciesList">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="modal fade" id="modal" tabindex="-1" role="dialog">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">

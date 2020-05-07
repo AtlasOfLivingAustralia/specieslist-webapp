@@ -20,14 +20,13 @@ enum ListType {
     SPECIES_CHARACTERS("Species characters list", "listtype.species.characters.list"),
     CONSERVATION_LIST("Conservation list", "listtype.conservation.list"),
     SENSITIVE_LIST("Sensitive list of species", "listtype.sensitive.list"),
-    LOCAL_LIST("Local checklist", "listtype.local.checklist"),
+    LOCAL_LIST("Area checklist", "listtype.local.checklist"),
     COMMON_TRAIT("Common trait of species", "listtype.trait.list"),
     COMMON_HABITAT("Common habitat of species", "listtype.habitat.list"),
     SPATIAL_PORTAL("Spatial portal defined list", "listtype.spatial.portal.list"),
     PROFILE("Profile list", "listtype.profile.list"),
     TEST("Test list","listtype.test.list"),
     OTHER("Other", "listtype.other.list")
-
 
   String displayValue
   String i18nValue

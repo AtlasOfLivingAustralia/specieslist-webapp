@@ -114,19 +114,25 @@
         var isValid = false;
         var typeId = $("#listTypeId option:selected").val();
         if($('#listTitle').val().length > 0){
-            isValid=true
+            isValid = true
         }
         else{
             $('#listTitle').focus();
             alert("${message(code:'upload.lists.uploadprocess.missingfield.message01', default:'You must supply a species list title')}");
         }
         if(isValid){
-
             if(typeId){
-                isValid = true
+                if ('LOCAL_LIST' == typeId && $('#listWkt').val().length == 0){
+                    isValid = false;
+                    $('#listWkt').focus();
+                    alert("You must supply a spatial bounds");
+                }
+                else{
+                    isValid = true
+                }
             }
             else{
-                isValid=false
+                isValid = false
                 $("#listTypeId").focus();
                 alert("${message(code:'upload.lists.uploadprocess.missingfield.message02', default:'You must supply a list type')}");
             }
@@ -154,6 +160,7 @@
                 map['rawData']  =$('#copyPasteData').val();
             }
             map['listType'] =$('#listTypeId').val();
+            map['isPrivate']=$('#isPrivate').is(':checked');
             //add the existing data resource uid if it is provided to handle a resubmit
             if("${resourceUid}")
                 map['id'] = "${resourceUid}"
@@ -366,6 +373,10 @@
                                 </select>
                             </td>
 
+                        </tr>
+                        <tr>
+                            <td><label for="isPrivate"><g:message code= "speciesList.isPrivate.label" default= "Is private in species list"/></label> </td>
+                            <td><g:checkBox name="isPrivate" id="isPrivate" checked="${list?.isPrivate}"/></td>
                         </tr>
                         <g:if test="${request.isUserInRole("ROLE_ADMIN")}">
                             <tr>
