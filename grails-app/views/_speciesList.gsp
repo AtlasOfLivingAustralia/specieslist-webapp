@@ -1,5 +1,6 @@
 <%@page defaultCodec="html" %>
 <!-- Template for displaying a list of species list with or without a delete button -->
+<asset:stylesheet href="duk.css"/>
 <asset:script type="text/javascript">
 
     $(document).ready(function(){
@@ -110,12 +111,12 @@
 
         <g:if test="${selectedFacets}">
             <h3>${message(code:'public.lists.search.filter.selected', default:'Selected filters')}</h3>
-            <ul class="facets list-unstyled">
+            <ul class="fa-ul" style="margin-left:20px">
             <g:each in="${selectedFacets}" var="selectedFacet">
-                <li>
+                <li class="duk">
                     <a href="${sl.selectedFacetLink([filter:selectedFacet.query])}" title="${message(code:'public.lists.search.filter.remove', default:'Click to remove this filter')}">
-                    <span class="fa fa-check-square-o">&nbsp;</span>
-                    <g:message code="${selectedFacet.facet.label}" default="${selectedFacet.facet.label}"/>
+                        <span class="fa-li"><i class="fa fa-check-square-o"></i></span>
+                        <g:message code="${selectedFacet.facet.label}" default="${selectedFacet.facet.label}"/>
                     </a>
                 </li>
             </g:each>
@@ -123,15 +124,13 @@
         </g:if>
 
         <h3>${message(code:'public.lists.types.headline', default:'List types')}</h3>
-        <ul class="facets list-unstyled">
+        <ul class="fa-ul char" style="margin-left:20px">
             <g:each in="${facets}" var="facet">
-                <li>
+                <li class="duk">
                     <a href="${sl.facetLink([filter:facet.query]) }">
-                        <span class="fa fa-square-o">&nbsp;</span>
-                        <span class="facet-item">
+                        <span class="fa-li"><i class="fa fa-check-square-o"></i></span>
                             <g:message code="${facet.label}" default="${facet.label}"/>
                             <span class="facetCount"> (${facet.count})</span>
-                        </span>
                     </a>
                 </li>
             </g:each>

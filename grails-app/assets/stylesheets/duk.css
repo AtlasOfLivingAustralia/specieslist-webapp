@@ -1,0 +1,8 @@
+li.duk {
+    margin: 0.2em 0;
+}
+
+li.duk > *{
+    display: inline-block;
+    vertical-align: middle;
+}
