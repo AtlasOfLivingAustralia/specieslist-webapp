@@ -65,6 +65,11 @@ class QueryService {
                             ilike('surname', '%' + value + '%')
                             ilike('description', '%' + value + '%')
                         }
+                    } else if (WKT.equals(key)) {
+                        and {
+                            isNotNull(WKT)
+                            ne(WKT, "")
+                        }
                     } else {
                         def matcher = (value =~ filterRegEx)
                         if (matcher.matches()) {
@@ -276,7 +281,10 @@ class QueryService {
             }
             and {
                 if (facetField == WKT){
-                    isNotNull(WKT)
+                    and {
+                        isNotNull(WKT)
+                        ne(WKT, "")
+                    }
                 } else {
                     eq(facetField, facetValue)
                 }
