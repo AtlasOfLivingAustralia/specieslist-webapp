@@ -41,12 +41,12 @@ class LocalAuthService {
     }
 
     def isAdmin() {
-        return grailsApplication.config.security.cas.bypass ||
+        return (grailsApplication.config.security.cas.bypass).toBoolean() ||
                 RequestContextHolder.currentRequestAttributes()?.isUserInRole(ROLE_ADMIN)
     }
 
     protected boolean userInRole(role) {
-        return grailsApplication.config.security.cas.bypass ||
+        return (grailsApplication.config.security.cas.bypass).toBoolean() ||
                 RequestContextHolder.currentRequestAttributes()?.isUserInRole(role) ||
                 isAdmin()
     }

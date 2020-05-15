@@ -13,6 +13,9 @@ class QueryService {
     public static final String LIST_NAME = "listName"
     public static final String ASC = "asc"
     public static final String LAST_UPDATED = "lastUpdated"
+    public static final String LIST_TYPE = "listType"
+    public static final String WKT = "wkt"
+    public static final String WKT_QUERY = "wkt=isNotNull"
 
     def authService
     def localAuthService
@@ -131,35 +134,58 @@ class QueryService {
     }
 
     def getSelectedFacets(params){
-
         def selectedFacets = []
         params.each { key, value ->
-            def query = booleanQueryFacets.get(key)
+            def query = getBooleanQueryFacets().get(key)
             if (query){
                 selectedFacets << [query: key, facet: query]
-            } else if (key == "listType"){
+            } else if (key == LIST_TYPE){
                 def cleanedVaue = value.replaceAll("eq:", "")
                 query = listTyoeFacets.get(cleanedVaue)
                 selectedFacets << [query: key, facet: query]
+            } else if (key == WKT){
+                query = WKT_QUERY
+                selectedFacets << [query: WKT, facet: [label:'spatialBounds.list']]
             }
         }
         selectedFacets
     }
 
+    // get boolean query facets
+    // the user is an admin, show private list filter
+    def getBooleanQueryFacets() {
+        if (localAuthService.isAdmin()) {
+            return booleanQueryFacets + adminBooleanQueryFacets
+        } else {
+            return booleanQueryFacets
+        }
+    }
+
     //TODO make this more configurable
     def booleanQueryFacets = [
-          "isAuthoritative" : [label:'authoritative.list'],
-          "isThreatened": [label:'threatened.list'],
-          "isInvasive": [label:'invasive.list'],
-          "isSDS": [label:'sensitive.list']
+        "isAuthoritative": [label:'authoritative.list'],
+        "isThreatened": [label:'threatened.list'],
+        "isInvasive": [label:'invasive.list'],
+        "isSDS": [label:'sensitive.list'],
+        "isBIE": [label:'speciesPages.list']
+    ]
+
+    def adminBooleanQueryFacets = [
+        "isPrivate": [label:'private.list']
     ]
 
     //TODO make this more configurable
     def listTyoeFacets = [
+        (ListType.SPECIES_CHARACTERS.toString()): [listType: ListType.SPECIES_CHARACTERS, label: ListType.SPECIES_CHARACTERS.i18nValue],
         (ListType.CONSERVATION_LIST.toString()): [listType: ListType.CONSERVATION_LIST, label: ListType.CONSERVATION_LIST.i18nValue],
+        (ListType.SENSITIVE_LIST.toString()): [listType: ListType.SENSITIVE_LIST, label: ListType.SENSITIVE_LIST.i18nValue],
         (ListType.COMMON_HABITAT.toString())   : [listType: ListType.COMMON_HABITAT, label: ListType.COMMON_HABITAT.i18nValue],
         (ListType.LOCAL_LIST.toString())     : [listType: ListType.LOCAL_LIST, label: ListType.LOCAL_LIST.i18nValue],
-        (ListType.COMMON_TRAIT.toString())     : [listType: ListType.COMMON_TRAIT, label: ListType.COMMON_TRAIT.i18nValue]
+        (ListType.COMMON_TRAIT.toString())     : [listType: ListType.COMMON_TRAIT, label: ListType.COMMON_TRAIT.i18nValue],
+        (ListType.SPATIAL_PORTAL.toString()): [listType: ListType.SPATIAL_PORTAL, label: ListType.SPATIAL_PORTAL.i18nValue],
+        (ListType.PROFILE.toString()): [listType: ListType.PROFILE, label: ListType.PROFILE.i18nValue],
+        (ListType.TEST.toString()): [listType: ListType.TEST, label: ListType.TEST.i18nValue],
+        (ListType.OTHER.toString()): [listType: ListType.OTHER, label: ListType.OTHER.i18nValue]
     ]
 
     def getFacetCounts(params){
@@ -168,24 +194,22 @@ class QueryService {
 
     def getFacetCounts(params, boolean hidePrivateLists){
         def facets = []
-        booleanQueryFacets.each { key, facet ->
+        getBooleanQueryFacets().each { key, facet ->
             facets << [query: key + '=eq:true', label:  facet.label , count:  getFacetCount(params, key, true, hidePrivateLists)]
         }
         listTyoeFacets.each { key, facet ->
-            facets <<  [query:'listType=eq:' + facet.listType.toString(), label: facet.label, count: getFacetCount(params, "listType", facet.listType, hidePrivateLists)]
+            facets <<  [query:'listType=eq:' + facet.listType.toString(), label: facet.label, count: getFacetCount(params, LIST_TYPE, facet.listType, hidePrivateLists)]
         }
+        facets << [query: WKT_QUERY, label:  'spatialBounds.list' , count:  getFacetCount(params, WKT, null, hidePrivateLists)]
         return facets
     }
 
     def getFacetCount(params, facetField, facetValue, boolean hidePrivateLists) {
-
         def c = SpeciesList.createCriteria()
         def facetCount = c.get  {
-
             projections {
                 count()
             }
-
             and {
                 params.each { key, value ->
                     //the value suffix tells us which filter operation to perform
@@ -250,15 +274,17 @@ class QueryService {
                     }
                 }
             }
-
             and {
-                eq(facetField, facetValue)
+                if (facetField == WKT){
+                    isNotNull(WKT)
+                } else {
+                    eq(facetField, facetValue)
+                }
             }
         }
 
         facetCount
     }
-
 
     /**
      * A merging of sort ordering rules. This function adds Order terms to a Criteria.

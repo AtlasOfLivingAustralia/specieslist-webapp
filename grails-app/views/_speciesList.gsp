@@ -124,7 +124,7 @@
             </ul>
         </g:if>
 
-        <h3>${message(code:'public.lists.types.headline', default:'List types')}</h3>
+        <h3>${message(code:'public.lists.types.headline', default:'Refine lists')}</h3>
         <ul class="facets list-unstyled">
             <g:each in="${facets}" var="facet">
                 <li>
