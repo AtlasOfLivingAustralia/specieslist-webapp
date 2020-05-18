@@ -17,6 +17,7 @@ import spock.lang.Unroll
 class SecurityInterceptorSpec extends Specification {
 
     def setup(){
+        config.security.cas.bypass = false
         SpeciesListKVP.metaClass.static.executeQuery = { String query ->
             []
         }
