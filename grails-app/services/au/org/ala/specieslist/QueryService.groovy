@@ -171,7 +171,7 @@ class QueryService {
         "isAuthoritative": [label:'authoritative.list'],
         "isThreatened": [label:'threatened.list'],
         "isInvasive": [label:'invasive.list'],
-        "isSDS": [label:'sensitive.list'],
+        "isSDS": [label:'sds.list'],
         "isBIE": [label:'speciesPages.list']
     ]
 
