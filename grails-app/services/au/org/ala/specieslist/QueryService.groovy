@@ -150,7 +150,7 @@ class QueryService {
                 selectedFacets << [query: key, facet: query]
             } else if (key == WKT){
                 query = WKT_QUERY
-                selectedFacets << [query: WKT, facet: [label:'spatialBounds.list']]
+                selectedFacets << [query: WKT, facet: [label:'spatialBounds.list.label']]
             }
         }
         selectedFacets
@@ -168,44 +168,63 @@ class QueryService {
 
     //TODO make this more configurable
     def booleanQueryFacets = [
-        "isAuthoritative": [label:'authoritative.list'],
-        "isThreatened": [label:'threatened.list'],
-        "isInvasive": [label:'invasive.list'],
-        "isSDS": [label:'sds.list'],
-        "isBIE": [label:'speciesPages.list']
+        "isAuthoritative": [label:'authoritative.list.label', tooltip: 'authoritative.list.tooltip'],
+        "isThreatened": [label:'threatened.list.label', tooltip: 'threatened.list.tooltip'],
+        "isInvasive": [label:'invasive.list.label', tooltip: 'invasive.list.tooltip'],
+        "isSDS": [label:'sds.list.label', tooltip: 'sds.list.tooltip'],
+        "isBIE": [label:'speciesPages.list.label', tooltip: 'speciesPages.list.tooltip']
     ]
 
     def adminBooleanQueryFacets = [
-        "isPrivate": [label:'private.list']
+        "isPrivate": [label:'private.list.label', tooltip: 'private.list.tooltip']
     ]
 
     //TODO make this more configurable
     def listTyoeFacets = [
-        (ListType.SPECIES_CHARACTERS.toString()): [listType: ListType.SPECIES_CHARACTERS, label: ListType.SPECIES_CHARACTERS.i18nValue],
-        (ListType.CONSERVATION_LIST.toString()): [listType: ListType.CONSERVATION_LIST, label: ListType.CONSERVATION_LIST.i18nValue],
-        (ListType.SENSITIVE_LIST.toString()): [listType: ListType.SENSITIVE_LIST, label: ListType.SENSITIVE_LIST.i18nValue],
-        (ListType.COMMON_HABITAT.toString())   : [listType: ListType.COMMON_HABITAT, label: ListType.COMMON_HABITAT.i18nValue],
-        (ListType.LOCAL_LIST.toString())     : [listType: ListType.LOCAL_LIST, label: ListType.LOCAL_LIST.i18nValue],
-        (ListType.COMMON_TRAIT.toString())     : [listType: ListType.COMMON_TRAIT, label: ListType.COMMON_TRAIT.i18nValue],
-        (ListType.SPATIAL_PORTAL.toString()): [listType: ListType.SPATIAL_PORTAL, label: ListType.SPATIAL_PORTAL.i18nValue],
-        (ListType.PROFILE.toString()): [listType: ListType.PROFILE, label: ListType.PROFILE.i18nValue],
-        (ListType.TEST.toString()): [listType: ListType.TEST, label: ListType.TEST.i18nValue],
-        (ListType.OTHER.toString()): [listType: ListType.OTHER, label: ListType.OTHER.i18nValue]
+        (ListType.SPECIES_CHARACTERS.toString()): [listType: ListType.SPECIES_CHARACTERS,
+                          label: ListType.SPECIES_CHARACTERS.i18nValue, tooltip: ListType.SPECIES_CHARACTERS.toolTip],
+        (ListType.CONSERVATION_LIST.toString()): [listType: ListType.CONSERVATION_LIST,
+                          label: ListType.CONSERVATION_LIST.i18nValue, tooltip: ListType.CONSERVATION_LIST.toolTip],
+        (ListType.SENSITIVE_LIST.toString()): [listType: ListType.SENSITIVE_LIST,
+                          label: ListType.SENSITIVE_LIST.i18nValue, tooltip: ListType.SENSITIVE_LIST.toolTip],
+        (ListType.COMMON_HABITAT.toString()): [listType: ListType.COMMON_HABITAT,
+                          label: ListType.COMMON_HABITAT.i18nValue, tooltip: ListType.COMMON_HABITAT.toolTip],
+        (ListType.LOCAL_LIST.toString()) : [listType: ListType.LOCAL_LIST,
+                          label: ListType.LOCAL_LIST.i18nValue, tooltip: ListType.LOCAL_LIST.toolTip],
+        (ListType.COMMON_TRAIT.toString()): [listType: ListType.COMMON_TRAIT,
+                          label: ListType.COMMON_TRAIT.i18nValue, tooltip: ListType.COMMON_TRAIT.toolTip],
+        (ListType.SPATIAL_PORTAL.toString()): [listType: ListType.SPATIAL_PORTAL,
+                          label: ListType.SPATIAL_PORTAL.i18nValue, tooltip: ListType.SPATIAL_PORTAL.toolTip],
+        (ListType.PROFILE.toString()): [listType: ListType.PROFILE,
+                          label: ListType.PROFILE.i18nValue, tooltip: ListType.PROFILE.toolTip],
+        (ListType.TEST.toString()): [listType: ListType.TEST,
+                          label: ListType.TEST.i18nValue, tooltip: ListType.TEST.toolTip],
+        (ListType.OTHER.toString()): [listType: ListType.OTHER,
+                          label: ListType.OTHER.i18nValue, tooltip: ListType.OTHER.toolTip]
     ]
 
-    def getFacetCounts(params){
-        getFacetCounts(params, false)
+    def getTypeFacetCounts(params){
+        getTypeFacetCounts(params, false)
     }
 
-    def getFacetCounts(params, boolean hidePrivateLists){
+    def getTagFacetCounts(params){
+        getTypeFacetCounts(params, false)
+    }
+
+    def getTypeFacetCounts(params, boolean hidePrivateLists){
+        def facets = []
+        listTyoeFacets.each { key, facet ->
+            facets <<  [query:'listType=eq:' + facet.listType.toString(), label: facet.label, tooltip: facet.tooltip, count: getFacetCount(params, LIST_TYPE, facet.listType, hidePrivateLists)]
+        }
+        return facets
+    }
+
+    def getTagFacetCounts(params, boolean hidePrivateLists){
         def facets = []
         getBooleanQueryFacets().each { key, facet ->
-            facets << [query: key + '=eq:true', label:  facet.label , count:  getFacetCount(params, key, true, hidePrivateLists)]
+            facets << [query: key + '=eq:true', label: facet.label, tooltip: facet.tooltip, count:  getFacetCount(params, key, true, hidePrivateLists)]
         }
-        listTyoeFacets.each { key, facet ->
-            facets <<  [query:'listType=eq:' + facet.listType.toString(), label: facet.label, count: getFacetCount(params, LIST_TYPE, facet.listType, hidePrivateLists)]
-        }
-        facets << [query: WKT_QUERY, label:  'spatialBounds.list' , count:  getFacetCount(params, WKT, null, hidePrivateLists)]
+        facets << [query: WKT_QUERY, label:'spatialBounds.list.label', tooltip: 'spatialBounds.list.tooltip', count:  getFacetCount(params, WKT, null, hidePrivateLists)]
         return facets
     }
 

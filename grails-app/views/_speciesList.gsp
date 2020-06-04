@@ -126,9 +126,23 @@
 
         <h3>${message(code:'public.lists.types.headline', default:'Refine lists')}</h3>
         <ul class="facets list-unstyled">
-            <g:each in="${facets}" var="facet">
+            <g:each in="${typeFacets}" var="facet">
                 <li>
-                    <a href="${sl.facetLink([filter:facet.query]) }">
+                    <a href="${sl.facetLink([filter:facet.query]) }" title="${message(code:facet.tooltip)}">
+                        <span class="fa fa-square-o">&nbsp;</span>
+                        <span class="facet-item">
+                            <g:message code="${facet.label}" default="${facet.label}"/>
+                            <span class="facetCount"> (${facet.count})</span>
+                        </span>
+                    </a>
+                </li>
+            </g:each>
+        </ul>
+        <br>
+        <ul class="facets list-unstyled">
+            <g:each in="${tagFacets}" var="facet">
+                <li>
+                    <a href="${sl.facetLink([filter:facet.query]) }" title="${message(code:facet.tooltip)}">
                         <span class="fa fa-square-o">&nbsp;</span>
                         <span class="facet-item">
                             <g:message code="${facet.label}" default="${facet.label}"/>

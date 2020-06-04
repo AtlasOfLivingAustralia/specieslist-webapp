@@ -16,24 +16,24 @@ package au.org.ala.specieslist
  */
 
 enum ListType {
-
-    SPECIES_CHARACTERS("Species characters list", "listtype.species.characters.list"),
-    CONSERVATION_LIST("Conservation list", "listtype.conservation.list"),
-    SENSITIVE_LIST("Sensitive list of species", "listtype.sensitive.list"),
-    LOCAL_LIST("Area checklist", "listtype.local.checklist"),
-    COMMON_TRAIT("Common trait of species", "listtype.trait.list"),
-    COMMON_HABITAT("Common habitat of species", "listtype.habitat.list"),
-    SPATIAL_PORTAL("Spatial portal defined list", "listtype.spatial.portal.list"),
-    PROFILE("Profile list", "listtype.profile.list"),
-    TEST("Test list","listtype.test.list"),
-    OTHER("Other", "listtype.other.list")
+    SPECIES_CHARACTERS("Species characters list", "listtype.species.characters.list", "listtooltip.species.characters.list"),
+    CONSERVATION_LIST("Conservation list", "listtype.conservation.list", "listtooltip.conservation.list"),
+    SENSITIVE_LIST("Sensitive list of species", "listtype.sensitive.list", "listtooltip.sensitive.list"),
+    LOCAL_LIST("Area checklist", "listtype.local.checklist", "listtooltip.local.checklist"),
+    COMMON_TRAIT("Common trait of species", "listtype.trait.list", "listtooltip.trait.list"),
+    COMMON_HABITAT("Common habitat of species", "listtype.habitat.list", "listtooltip.habitat.list"),
+    SPATIAL_PORTAL("Spatial portal defined list", "listtype.spatial.portal.list", "listtooltip.spatial.portal.list"),
+    PROFILE("Profile list", "listtype.profile.list", "listtooltip.profile.list"),
+    TEST("Test list","listtype.test.list", "listtooltip.test.list"),
+    OTHER("Other", "listtype.other.list", "listtooltip.other.list")
 
   String displayValue
   String i18nValue
+  String toolTip
 
-  ListType(String displayValue, String i18nValue){
+  ListType(String displayValue, String i18nValue, String toolTip ){
     this.i18nValue = i18nValue
     this.displayValue = displayValue
+    this.toolTip = toolTip
   }
-
 }
