@@ -15,7 +15,7 @@ ${message(code:'download.lists.text02', default:'Please provide the following de
 
         <fieldset>
             <p><label for="email">${message(code:'download.lists.email.label', default:'Email')}: </label>
-                <input type="text" name="email" id="email" value="${request.remoteUser}" size="30"  />
+                <input type="text" name="email" id="email" value="${request.userPrincipal?.attributes?.email ?: request.remoteUser}" size="30"  />
             </p>
             <p><label for="filename">${message(code:'download.lists.filename.label', default:'File Name')}: </label>
                 <input type="text" name="filename" id="filename" value="${speciesList?.listName?.replaceAll(~/\s+/, "_")?:"data"}" size="30"  />
