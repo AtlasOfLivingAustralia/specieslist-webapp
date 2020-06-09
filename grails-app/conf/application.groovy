@@ -80,7 +80,7 @@ security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
 // CAS properties moved from external config while migrating to ala-auth:2.x from 1.x
 // Delete CAS patterns from external properties file to use AUTH 3+
 security.cas.uriFilterPattern=['/speciesList','/speciesList/upload','/speciesList/.*','/admin','/admin/.*','/speciesListItem/listAuth/.*','/editor','/editor/.*','/alaAdmin.*']
-security.cas.authenticateOnlyIfLoggedInFilterPattern=['/public','/public/*','/speciesListItem/list','/speciesListItem/list/.*']
+security.cas.authenticateOnlyIfLoggedInFilterPattern=['/public','/public/*','/speciesListItem/list','/speciesListItem/list/*']
 security.cas.uriExclusionFilterPattern=['/images.*','/css.*','/js.*','/speciesList/occurrences/.*','/speciesList/fieldGuide/.*','/ws/speciesList']
 
 // The default codec used to encode data with ${}
