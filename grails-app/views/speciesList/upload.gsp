@@ -300,7 +300,7 @@
                 <div class="message alert alert-info"><g:message code="upload.instructions.hasList" default="Upload a list"/></div>
             </g:if>
 
-            <p>${message(code:'upload.lists.header01.text01', default:'A species list should consist of a list of scientific or common names and some optional associated properties. Provide input consisting of a header line and some rows of data and we will attempt to map your list to taxon names known to the ALA system. A species list can be uploaded either as a CSV file, or as copy and pasted text.')}</p>
+            <p>${message(code:'upload.lists.header01.text01',  args:[grailsApplication.config.skin.orgNameShort], default:'A species list should consist of a list of scientific or common names and some optional associated properties. Provide input consisting of a header line and some rows of data and we will attempt to map your list to taxon names known to the {0} system. A species list can be uploaded either as a CSV file, or as copy and pasted text.')}</p>
             <div id="initialPaste">
                 <h3>${message(code:'upload.lists.subheader.text01', default:'Option 1: Select a CSV file to upload here')}</h3>
                 ${message(code:'upload.lists.subheader.des01', default:'Please note that the file upload feature requires a modern browser (such as Chrome, Firefox, or Internet Explorer 10)')}

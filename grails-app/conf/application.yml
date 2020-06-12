@@ -150,6 +150,8 @@ headerAndFooter:
 
 skin:
     fluidLayout: true
+    orgNameLong: Atlas of Living Australia
+    orgNameShort: ALA
 
 publicview:
     hidePrivateLists: false
