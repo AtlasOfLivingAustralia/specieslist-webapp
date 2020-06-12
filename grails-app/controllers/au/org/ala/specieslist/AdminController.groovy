@@ -43,12 +43,10 @@ class AdminController {
     def speciesLists(){
         try {
             def lists = queryService.getFilterListResult(params, false)
-            def typeFacets = queryService.getTypeFacetCounts(params)
-            def tagFacets = queryService.getTagFacetCounts(params)
             render (view:'specieslists', model:[lists:lists,
                                                 total:lists.totalCount,
-                                                typeFacets:typeFacets,
-                                                tagFacets: tagFacets,
+                                                typeFacets:queryService.getTypeFacetCounts(params),
+                                                tagFacets: queryService.getTagFacetCounts(params),
                                                 selectedFacets:queryService.getSelectedFacets(params)
             ])
         } catch(Exception e) {
