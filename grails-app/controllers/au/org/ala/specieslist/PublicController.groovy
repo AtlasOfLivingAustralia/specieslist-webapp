@@ -27,15 +27,17 @@ class PublicController {
         }
 
         try {
-            def lists = queryService.getFilterListResult(params, grailsApplication.config.publicview.hidePrivateLists.toBoolean())
-            def facets = queryService.getFacetCounts(params, grailsApplication.config.publicview.hidePrivateLists.toBoolean())
+            def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
+            def lists = queryService.getFilterListResult(params, hidePrivateLists)
+
             log.info "lists = ${lists.size()} || count = ${lists.totalCount}"
             render (view:'specieslists', model:[
                     isAdmin:localAuthService.isAdmin(),
                     isLoggedIn: (authService.userId) != null,
                     lists:lists,
                     total:lists.totalCount,
-                    facets:facets,
+                    typeFacets:queryService.getTypeFacetCounts(params, hidePrivateLists),
+                    tagFacets:queryService.getTagFacetCounts(params, hidePrivateLists),
                     selectedFacets:queryService.getSelectedFacets(params)
             ])
         } catch(Exception e) {
