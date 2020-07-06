@@ -432,27 +432,64 @@ class SpeciesListController {
     }
 
     /**
-     * Rematches the scientific names in the supplied list
+     * Rematches all lists created by the current user
+     */
+    def rematchMyLists() {
+        log.info("Rematching for all my lists")
+
+        def userId = authService.getUserId()
+        if (userId){
+            params['userId'] = "eq:" + userId
+            List myLists = []
+            queryService.getFilterListResult(params, true).each {
+                myLists << it.dataResourceUid
+            }
+            Integer totalRows = SpeciesListItem.countByDataResourceUidInList(myLists)
+
+            rematchListItems(totalRows, myLists)
+        } else {
+            log.error("no current user found to rematch lists.")
+            response.outputStream.write("Unable to rematch your lists.".getBytes())
+            response.setStatus(500)
+            response.sendError(500, "Unable to rematch your lists.")
+        }
+    }
+
+    /**
+     * Rematches one or all lists (by Admin user)
      */
     def rematch(){
         log.info("Rematching for " + params.id)
+
+        Integer totalRows
+        List lists = []
+
         if (params.id && !params.id.startsWith("dr"))
             params.id = SpeciesList.get(params.id)?.dataResourceUid
-        Integer totalRows, offset = 0;
         String id = params.id
-        if(id){
+        if(id) {
             totalRows = SpeciesListItem.countByDataResourceUid(id)
+            lists << id
         } else {
             totalRows = SpeciesListItem.count();
         }
 
-        while ( offset < totalRows){
+        rematchListItems(totalRows, lists)
+    }
+
+    /**
+     * Rematches the scientific names in the supplied list
+     */
+    private rematchListItems(int totalRows, List drLists){
+        Integer offset = 0
+
+        while (offset < totalRows) {
             List items
             List guidBatch = [], sliBatch = []
-            if (id) {
-                items = SpeciesListItem.findAllByDataResourceUid(id, [max: BATCH_SIZE, offset: offset])
-            } else {
+            if (drLists.isEmpty()) {
                 items = SpeciesListItem.list(max: BATCH_SIZE, offset: offset)
+            } else {
+                items = SpeciesListItem.findAllByDataResourceUidInList(drLists, [max: BATCH_SIZE, offset: offset])
             }
 
             SpeciesListItem.withSession {session->

@@ -203,12 +203,12 @@
                         <td>
                             <g:set var="test" value="${[id: list.id]}"/>
                             <a href="#"
-                               onclick="fancyConfirm('${message(code:"admin.lists.actions.button.delete.messages", default:"Are you sure that you would like to delete")} ${list.listName.encodeAsHTML()}', ${list.id}, 'delete');
+                               onclick="fancyConfirm('${message(code:"admin.lists.actions.button.delete.messages", default:"Are you sure that you would like to delete?")} ${list.listName.encodeAsHTML()}', ${list.id}, 'delete');
                                return false;" id="delete_${list.id}" class="btn btn-sm btn-primary">${message(code:"admin.lists.actions.button.delete.label", default:"Delete")}</a>
                         </td>
                         <td>
                             <a href="#"
-                               onclick="fancyConfirm('${message(code:"admin.lists.actions.button.rematch.messages", default:"Are you sure that you would like to rematch")} ${list.listName.encodeAsHTML()}', ${list.id}, 'rematch');
+                               onclick="fancyConfirm('${message(code:"admin.lists.actions.button.rematch.messages", default:"Are you sure that you would like to rematch?")} ${list.listName.encodeAsHTML()}', ${list.id}, 'rematch');
                                return false;" id="rematch_${list.id}" class="btn btn-sm btn-default">${message(code:"admin.lists.actions.button.rematch.label", default:"Reload")}</a>
                         </td>
                         <td>

@@ -13,6 +13,7 @@
     <asset:stylesheet src="fancybox.css"/>
     <meta name="breadcrumbParent" content="${request.contextPath}/public/speciesLists,Species lists"/>
     <meta name="breadcrumb" content="Admin"/>
+    <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src: 'confirmRematch.js')}"></script>
 </head>
 <body class="">
 <div id="content" class="row">
@@ -24,12 +25,13 @@
                 </hgroup>
                 <div class="col-md-4">
                     <span class="pull-right">
-                        <g:if test="${isAdmin}">
-                            <a class="btn btn-primary" title="Admin" href="${request.contextPath}/admin">Admin</a>
-                        </g:if>
                         <a class="btn btn-primary" title="${message(code:'upload.lists.header01', default:'Upload a list')}" href="${request.contextPath}/speciesList/upload">${message(code:'upload.lists.header01', default:'Upload a list')}</a>
                         <a class="btn btn-primary" title="${message(code:'generic.lists.button.mylist.label', default:'My Lists')}" href="${request.contextPath}/speciesList/list">${message(code:'generic.lists.button.mylist.label', default:'My Lists')}</a>
-                        <a class="btn btn-primary" title="${message(code:'admin.lists.page.button.rematch.tooltip', default:'Rematch')}" href="${request.contextPath}/speciesList/rematch">${message(code:'admin.lists.page.button.rematch.label', default:'Rematch All')}</a>
+                        <a href="#" title="${message(code:'admin.lists.page.button.rematch.tooltip', default:'Rematch')}"
+                           onclick="rematchConfirm('${message(code:"admin.lists.actions.button.rematch.messages", default:"Are you sure that you would like to rematch?")}',
+                               '${request.contextPath}/speciesList/rematch',
+                               '${message(code:"admin.lists.page.button.rematch.messages", default:"Rematch complete")}');
+                           return false;" class="btn btn-primary">${message(code:'admin.lists.page.button.rematch.label', default:'Rematch All')}</a>
                     </span>
                 </div>
             </div><!--inner-->

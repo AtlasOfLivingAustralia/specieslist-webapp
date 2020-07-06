@@ -6,19 +6,8 @@ class AdminController {
     def queryService
     def helperService
     def userDetailsService
-    def beforeInterceptor = [action:this.&auth]
 
     def index() { redirect(action: 'speciesLists') }
-
-    private auth() {
-        if (!localAuthService.isAdmin()) {
-            flash.message = "You are not authorised to access this page."
-            redirect(controller: "public", action: "speciesLists")
-            false
-        } else {
-            true
-        }
-    }
 
     def syncMetadataForLists(){
         SpeciesList.all.each { list ->

@@ -32,6 +32,9 @@
 
                 <div class="col-md-4">
                     <span class="pull-right">
+                        <g:if test="${request.isUserInRole("ROLE_ADMIN")}">
+                            <a class="btn btn-primary" title="Admin" href="${request.contextPath}/admin">Admin</a>
+                        </g:if>
                         <a class="btn btn-primary" title="${message(code:'generic.lists.button.uploadList.tooltip', default:'Add Species List')}"
                            href="${request.contextPath}/speciesList/upload">${message(code:'generic.lists.button.uploadList.label', default:'Upload a list')}</a>
                         <g:if test="${isLoggedIn}">
