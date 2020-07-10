@@ -81,7 +81,7 @@
                        value="${params.q}"
                        placeholder="${message(code:'public.lists.search.text', default:'Search in list name, description or owner')}">
                 <div class="input-group-btn">
-                    <button class="btn btn-default" type="submit">${message(code:'generic.lists.button.search.label', default:'Search')}</button>
+                    <button class="btn btn-primary" type="submit">${message(code:'generic.lists.button.search.label', default:'Search')}</button>
                 </div>
             </div>
         </form>
@@ -89,7 +89,7 @@
     <div class="col-md-3">
         <form class="listSearchForm">
             <g:if test="${params.q}">
-                <button class="btn btn-primary" type="submit">${message(code:'public.lists.search.clear', default:'Clear search')}</button>
+                <button class="btn btn-default" type="submit">${message(code:'public.lists.search.clear', default:'Clear search')}</button>
             </g:if>
         </form>
     </div>

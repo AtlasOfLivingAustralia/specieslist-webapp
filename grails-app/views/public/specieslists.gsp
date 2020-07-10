@@ -73,7 +73,7 @@
                 <g:elseif test="${params.q}">
                     <form class="listSearchForm">
                         <p>${message(code:'public.lists.search.failed.text', default:'No Species Lists found for')}: <b>${params.q}</b></p>
-                        <button class="btn btn-primary" type="submit">${message(code:'public.lists.search.clear', default:'Clear search')}</button>
+                        <button class="btn btn-default" type="submit">${message(code:'public.lists.search.clear', default:'Clear search')}</button>
                     </form>
                 </g:elseif>
                 <g:else>
