@@ -1,5 +1,6 @@
 package au.org.ala.specieslist
 
+import grails.gorm.DetachedCriteria
 import org.grails.core.DefaultGrailsDomainClass
 import org.hibernate.Criteria
 import org.hibernate.criterion.CriteriaQuery
@@ -59,11 +60,26 @@ class QueryService {
                 params.each { key, value ->
                     //the value suffix tells us which filter operation to perform
                     if ('q'.equals(key)) {
+                        DetachedCriteria subQuery = SpeciesListItem.where({
+                            or {
+                                ilike('matchedName', '%' + value + '%')
+                                ilike('rawScientificName', '%' + value + '%')
+                                ilike('guid', '%' + value + '%')
+                                ilike('commonName', '%' + value + '%')
+                            }
+                            eqProperty("mylist.id", "this.id")
+                            setAlias "sli"
+
+                            projections {
+                                property "mylist.id"
+                            }
+                        })
                         or {
                             ilike('listName', '%' + value + '%')
                             ilike('firstName', '%' + value + '%')
                             ilike('surname', '%' + value + '%')
                             ilike('description', '%' + value + '%')
+                            'in'('id', subQuery)
                         }
                     } else if (WKT.equals(key)) {
                         and {
@@ -238,11 +254,26 @@ class QueryService {
                 params.each { key, value ->
                     //the value suffix tells us which filter operation to perform
                     if ('q'.equals(key)) {
+                        DetachedCriteria subQuery = SpeciesListItem.where({
+                            or {
+                                ilike('matchedName', '%' + value + '%')
+                                ilike('rawScientificName', '%' + value + '%')
+                                ilike('guid', '%' + value + '%')
+                                ilike('commonName', '%' + value + '%')
+                            }
+                            eqProperty("mylist.id", "this.id")
+                            setAlias "sli"
+
+                            projections {
+                                property "mylist.id"
+                            }
+                        })
                         or {
                             ilike('listName', '%' + value + '%')
                             ilike('firstName', '%' + value + '%')
                             ilike('surname', '%' + value + '%')
                             ilike('description', '%' + value + '%')
+                            'in' ('id', subQuery)
                         }
                     } else {
                         def matcher = (value =~ filterRegEx)
