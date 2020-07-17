@@ -456,6 +456,7 @@ class QueryService {
                     if (facet.startsWith("kvp")){
                         String sindex = index.toString();
                         facet = facet.replaceFirst("kvp ","")
+                        pos = facet.indexOf(":")
                         String key = facet.substring(0, pos)
                         String value = facet.substring(pos + 1)
                         query.append(" join sli.kvpValues kvp").append(sindex)
@@ -467,6 +468,7 @@ class QueryService {
                         if (facet.startsWith("Search-")) {
                             isSearch = true;
                             facet = facet.replaceFirst("Search-","")
+                            pos = facet.indexOf(":")
                         }
                         String key = facet.substring(0, pos)
                         String value = facet.substring(pos + 1)
