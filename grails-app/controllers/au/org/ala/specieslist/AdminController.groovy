@@ -2,7 +2,6 @@ package au.org.ala.specieslist
 
 class AdminController {
 
-    def localAuthService
     def queryService
     def helperService
     def userDetailsService

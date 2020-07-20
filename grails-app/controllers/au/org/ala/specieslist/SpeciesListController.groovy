@@ -432,73 +432,36 @@ class SpeciesListController {
     }
 
     /**
-     * Rematches all lists created by the current user
+     * Rematches the scientific names in the supplied list
      */
-    def rematchMyLists() {
-        log.info("Rematching for all my lists")
-
-        def userId = authService.getUserId()
-        if (userId){
-            params['userId'] = "eq:" + userId
-            List myLists = []
-            queryService.getFilterListResult(params, true).each {
-                myLists << it.dataResourceUid
-            }
-            Integer totalRows = SpeciesListItem.countByDataResourceUidInList(myLists)
-
-            rematchListItems(totalRows, myLists)
-        } else {
-            log.error("no current user found to rematch lists.")
-            response.outputStream.write("Unable to rematch your lists.".getBytes())
-            response.setStatus(500)
-            response.sendError(500, "Unable to rematch your lists.")
-        }
-    }
-
-    /**
-     * Rematches one or all lists (by Admin user)
-     */
-    def rematch(){
+    def rematch() {
         log.info("Rematching for " + params.id)
-
-        Integer totalRows
-        List lists = []
-
         if (params.id && !params.id.startsWith("dr"))
             params.id = SpeciesList.get(params.id)?.dataResourceUid
+        Integer totalRows, offset = 0;
         String id = params.id
-        if(id) {
+        if (id) {
             totalRows = SpeciesListItem.countByDataResourceUid(id)
-            lists << id
         } else {
             totalRows = SpeciesListItem.count();
         }
 
-        rematchListItems(totalRows, lists)
-    }
-
-    /**
-     * Rematches the scientific names in the supplied list
-     */
-    private rematchListItems(int totalRows, List drLists){
-        Integer offset = 0
-
         while (offset < totalRows) {
             List items
             List guidBatch = [], sliBatch = []
-            if (drLists.isEmpty()) {
-                items = SpeciesListItem.list(max: BATCH_SIZE, offset: offset)
+            if (id) {
+                items = SpeciesListItem.findAllByDataResourceUid(id, [max: BATCH_SIZE, offset: offset])
             } else {
-                items = SpeciesListItem.findAllByDataResourceUidInList(drLists, [max: BATCH_SIZE, offset: offset])
+                items = SpeciesListItem.list(max: BATCH_SIZE, offset: offset)
             }
 
-            SpeciesListItem.withSession {session->
+            SpeciesListItem.withSession { session ->
                 items.eachWithIndex { item, i ->
                     String rawName = item.rawScientificName
                     log.debug i + ". Rematching: " + rawName
                     if (rawName && rawName.length() > 0) {
                         helperService.matchNameToSpeciesListItem(rawName, item)
-                        if(item.guid){
+                        if (item.guid) {
                             guidBatch.push(item.guid)
                             sliBatch.push(item)
                         }
@@ -521,7 +484,7 @@ class SpeciesListController {
             log.info("Rematched ${offset} of ${totalRows} - ${Math.round(offset * 100 / totalRows)}% complete")
         }
 
-        render(text: "${message(code:'admin.lists.page.button.rematch.messages', default:'Rematch complete')}")
+        render(text: "${message(code: 'admin.lists.page.button.rematch.messages', default: 'Rematch complete')}")
     }
 
     private parseDataFromCSV(CSVReader csvReader, String separator) {
