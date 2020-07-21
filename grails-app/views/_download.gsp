@@ -42,7 +42,7 @@ ${message(code:'download.lists.text02', default:'Please provide the following de
             </p>
             <g:if test="${grailsApplication.config.fieldGuide.baseURL}">
                 <p style="margin-top:10px;">
-                    ${message(code:'download.lists.fieldguide.info', default:'The field guide may take several minutes to prepare and download.')}
+                    ${message(code:'download.lists.fieldguide.info', default:'<strong>Note</strong>: The field guide may take several minutes to prepare and download.')}
                 </p>
             </g:if>
             <div id="statusMsg" style="text-align: center; font-weight: bold; "></div>
