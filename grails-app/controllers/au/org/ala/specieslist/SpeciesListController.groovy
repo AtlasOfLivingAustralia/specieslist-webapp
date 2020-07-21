@@ -253,6 +253,8 @@ class SpeciesListController {
 
         try {
             def lists = queryService.getFilterListResult(params, true)
+            def typeFacets = queryService.getTypeFacetCounts(params)
+            def tagFacets = queryService.getTagFacetCounts(params)
             //now remove the params that were added
             //params.remove('username')
             params.remove('userId')
@@ -261,8 +263,8 @@ class SpeciesListController {
             render(view: "list", model: [
                     lists:lists,
                     total:lists.totalCount,
-                    typeFacets:queryService.getTypeFacetCounts(params),
-                    tagFacets: queryService.getTagFacetCounts(params),
+                    typeFacets:typeFacets,
+                    tagFacets: tagFacets,
                     selectedFacets:queryService.getSelectedFacets(params)]
             )
         } catch(Exception e) {
