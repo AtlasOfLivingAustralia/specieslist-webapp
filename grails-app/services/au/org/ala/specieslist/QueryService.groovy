@@ -451,33 +451,37 @@ class QueryService {
         def queryparams = [dataResourceUid]
         if (facets){
             facets.eachWithIndex { facet, index ->
-                if (facet.startsWith("kvp")){
-                    String sindex = index.toString();
-                    facet = facet.replaceFirst("kvp ","")
-                    String key = facet.substring(0,facet.indexOf(":"))
-                    String value = facet.substring(facet.indexOf(":")+1)
-                    query.append(" join sli.kvpValues kvp").append(sindex)
-                    whereBuilder.append(" AND kvp").append(sindex).append(".key=? AND kvp").append(sindex).append(".value=?")
-                    queryparams.addAll([key, value])
-                    //println queryparams
-                } else {
-                    //must be a facet with the same table
-                    boolean isSearch = false;
-                    if (facet.startsWith("Search-")) {
-                        isSearch = true;
-                        facet = facet.replaceFirst("Search-","")
-                    }
-                    String key = facet.substring(0,facet.indexOf(":"))
-                    String value = facet.substring(facet.indexOf(":")+1)
-                    whereBuilder.append( "AND sli.").append(key)
-                    if (value.equalsIgnoreCase("null")){
-                        whereBuilder.append(" is null")
-                    } else if(isSearch) {
-                        whereBuilder.append(" like ? ")
-                        queryparams.add("%" + value + "%")
+                int pos = facet.indexOf(":")
+                if (pos != -1) {
+                    if (facet.startsWith("kvp")){
+                        String sindex = index.toString();
+                        facet = facet.replaceFirst("kvp ","")
+                        pos = facet.indexOf(":")
+                        String key = facet.substring(0, pos)
+                        String value = facet.substring(pos + 1)
+                        query.append(" join sli.kvpValues kvp").append(sindex)
+                        whereBuilder.append(" AND kvp").append(sindex).append(".key=? AND kvp").append(sindex).append(".value=?")
+                        queryparams.addAll([key, value])
                     } else {
-                        whereBuilder.append("=?")
-                        queryparams.add(value)
+                        //must be a facet with the same table
+                        boolean isSearch = false;
+                        if (facet.startsWith("Search-")) {
+                            isSearch = true;
+                            facet = facet.replaceFirst("Search-","")
+                            pos = facet.indexOf(":")
+                        }
+                        String key = facet.substring(0, pos)
+                        String value = facet.substring(pos + 1)
+                        whereBuilder.append( "AND sli.").append(key)
+                        if (value.equalsIgnoreCase("null")){
+                            whereBuilder.append(" is null")
+                        } else if(isSearch) {
+                            whereBuilder.append(" like ? ")
+                            queryparams.add("%" + value + "%")
+                        } else {
+                            whereBuilder.append("=?")
+                            queryparams.add(value)
+                        }
                     }
                 }
             }

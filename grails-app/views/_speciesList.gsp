@@ -81,7 +81,7 @@
                        value="${params.q}"
                        placeholder="${message(code:'public.lists.search.text', default:'Search in list name, description or owner')}">
                 <div class="input-group-btn">
-                    <button class="btn btn-default" type="submit">${message(code:'generic.lists.button.search.label', default:'Search')}</button>
+                    <button class="btn btn-primary" type="submit">${message(code:'generic.lists.button.search.label', default:'Search')}</button>
                 </div>
             </div>
         </form>
@@ -89,7 +89,7 @@
     <div class="col-md-3">
         <form class="listSearchForm">
             <g:if test="${params.q}">
-                <button class="btn btn-primary" type="submit">${message(code:'public.lists.search.clear', default:'Clear search')}</button>
+                <button class="btn btn-default" type="submit">${message(code:'public.lists.search.clear', default:'Clear search')}</button>
             </g:if>
         </form>
     </div>
@@ -203,12 +203,12 @@
                         <td>
                             <g:set var="test" value="${[id: list.id]}"/>
                             <a href="#"
-                               onclick="fancyConfirm('${message(code:"admin.lists.actions.button.delete.messages", default:"Are you sure that you would like to delete")} ${list.listName.encodeAsHTML()}', ${list.id}, 'delete');
+                               onclick="fancyConfirm('${message(code:"admin.lists.actions.button.delete.messages", default:"Are you sure that you would like to delete?")} ${list.listName.encodeAsHTML()}', ${list.id}, 'delete');
                                return false;" id="delete_${list.id}" class="btn btn-sm btn-primary">${message(code:"admin.lists.actions.button.delete.label", default:"Delete")}</a>
                         </td>
                         <td>
                             <a href="#"
-                               onclick="fancyConfirm('${message(code:"admin.lists.actions.button.rematch.messages", default:"Are you sure that you would like to rematch")} ${list.listName.encodeAsHTML()}', ${list.id}, 'rematch');
+                               onclick="fancyConfirm('${message(code:"admin.lists.actions.button.rematch.messages", default:"Are you sure that you would like to rematch?")} ${list.listName.encodeAsHTML()}', ${list.id}, 'rematch');
                                return false;" id="rematch_${list.id}" class="btn btn-sm btn-default">${message(code:"admin.lists.actions.button.rematch.label", default:"Reload")}</a>
                         </td>
                         <td>

@@ -854,9 +854,9 @@
                                    placeholder="${message(code:'public.lists.view.search.text', default:'Search by Supplied Name')}">
 
                             <div class="input-group-btn">
-                                <button class="btn btn-default" type="submit">${message(code:'generic.lists.button.search.label', default:'Search')}</button>
+                                <button class="btn btn-primary" type="submit">${message(code:'generic.lists.button.search.label', default:'Search')}</button>
                                 <g:if test="${params.q}">
-                                    <button class="btn btn-primary" onclick="resetSearch()">${message(code:'generic.lists.button.clearSearch.label', default:'Clear search')}</button>
+                                    <button class="btn btn-default" onclick="resetSearch()">${message(code:'generic.lists.button.clearSearch.label', default:'Clear search')}</button>
                                 </g:if>
                             </div>
                         </div>

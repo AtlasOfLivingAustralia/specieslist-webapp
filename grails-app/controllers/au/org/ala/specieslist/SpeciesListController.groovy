@@ -253,6 +253,8 @@ class SpeciesListController {
 
         try {
             def lists = queryService.getFilterListResult(params, true)
+            def typeFacets = queryService.getTypeFacetCounts(params)
+            def tagFacets = queryService.getTagFacetCounts(params)
             //now remove the params that were added
             //params.remove('username')
             params.remove('userId')
@@ -261,8 +263,8 @@ class SpeciesListController {
             render(view: "list", model: [
                     lists:lists,
                     total:lists.totalCount,
-                    typeFacets:queryService.getTypeFacetCounts(params),
-                    tagFacets: queryService.getTagFacetCounts(params),
+                    typeFacets:typeFacets,
+                    tagFacets: tagFacets,
                     selectedFacets:queryService.getSelectedFacets(params)]
             )
         } catch(Exception e) {
@@ -434,19 +436,19 @@ class SpeciesListController {
     /**
      * Rematches the scientific names in the supplied list
      */
-    def rematch(){
+    def rematch() {
         log.info("Rematching for " + params.id)
         if (params.id && !params.id.startsWith("dr"))
             params.id = SpeciesList.get(params.id)?.dataResourceUid
         Integer totalRows, offset = 0;
         String id = params.id
-        if(id){
+        if (id) {
             totalRows = SpeciesListItem.countByDataResourceUid(id)
         } else {
             totalRows = SpeciesListItem.count();
         }
 
-        while ( offset < totalRows){
+        while (offset < totalRows) {
             List items
             List guidBatch = [], sliBatch = []
             if (id) {
@@ -455,13 +457,13 @@ class SpeciesListController {
                 items = SpeciesListItem.list(max: BATCH_SIZE, offset: offset)
             }
 
-            SpeciesListItem.withSession {session->
+            SpeciesListItem.withSession { session ->
                 items.eachWithIndex { item, i ->
                     String rawName = item.rawScientificName
                     log.debug i + ". Rematching: " + rawName
                     if (rawName && rawName.length() > 0) {
                         helperService.matchNameToSpeciesListItem(rawName, item)
-                        if(item.guid){
+                        if (item.guid) {
                             guidBatch.push(item.guid)
                             sliBatch.push(item)
                         }
@@ -484,7 +486,7 @@ class SpeciesListController {
             log.info("Rematched ${offset} of ${totalRows} - ${Math.round(offset * 100 / totalRows)}% complete")
         }
 
-        render(text: "${message(code:'admin.lists.page.button.rematch.messages', default:'Rematch complete')}")
+        render(text: "${message(code: 'admin.lists.page.button.rematch.messages', default: 'Rematch complete')}")
     }
 
     private parseDataFromCSV(CSVReader csvReader, String separator) {
