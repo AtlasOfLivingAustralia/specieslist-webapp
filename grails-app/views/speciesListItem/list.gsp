@@ -789,18 +789,12 @@
                                             <g:each in="${fqs}" var="fq">
                                                 <g:if test="${fq.length() > 0}">
                                                     <li>
+%{--                                                        <g:message code="facet.${fq.replaceFirst("kvp ", "")}"--}%
+%{--                                                                   default="${fq.replaceFirst("kvp ", "")}"/>--}%
                                                         <g:link action="list" id="${params.id}"
-                                                                params="${[fq: sl.excludedFqList(fqs: fqs, fq: fq), max: params.max]}"
+                                                                params="${[fq: sl.excludedFqList(fqs: fqs, fq: fq), max: params.max, q: params.q]}"
                                                                 class="removeLink" title="${message(code:'public.lists.facets.refine.tooltip',default:'Uncheck (remove filter)')}">
                                                             <span class="fa fa-check-square-o">&nbsp;</span>
-                                                            <g:if test="${fq.startsWith("Search-")}">
-                                                                <g:message code="facet.${fq.replaceFirst("Search- ", "")}"
-                                                                           default="${fq.replaceFirst("Search-", "")}"/>
-                                                            </g:if>
-                                                            <g:else>
-                                                                <g:message code="facet.${fq.replaceFirst("kvp ", "")}"
-                                                                           default="${fq.replaceFirst("kvp ", "")}"/>
-                                                            </g:else>
                                                         </g:link>
                                                     </li>
                                                 </g:if>
@@ -845,23 +839,21 @@
                 </div>
             </div>
             <div class="col-md-6">
+                <form class="listSearchForm">
                 <div id="searchView" class="searchItemForm">
-                    <g:form class="searchItemForm" controller="speciesListItem" action="list">
-                        <input type="hidden" name="id" value="${speciesList.dataResourceUid}"/>
-
                         <div class="input-group" id="searchListItem">
                             <input class="form-control" id="searchInputButton" name="q" type="text" value="${params.q}"
-                                   placeholder="${message(code:'public.lists.view.search.text', default:'Search by Supplied Name')}">
+                                   placeholder="${message(code:'public.lists.find.items.text', default:'By Supplied Name, Scientific Name or Common Name')}">
 
                             <div class="input-group-btn">
-                                <button class="btn btn-primary" type="submit">${message(code:'generic.lists.button.search.label', default:'Search')}</button>
+                                <button class="btn btn-primary" type="submit">${message(code:'generic.lists.button.find.items.label', default:'Find species')}</button>
                                 <g:if test="${params.q}">
-                                    <button class="btn btn-default" onclick="resetSearch()">${message(code:'generic.lists.button.clearSearch.label', default:'Clear search')}</button>
+                                    <button class="btn btn-default" onclick="resetSearch()">${message(code:'generic.lists.button.clearSearch.label', default:'Clear find')}</button>
                                 </g:if>
                             </div>
                         </div>
-                    </g:form>
                 </div>
+                </form>
             </div>
         </div>
 

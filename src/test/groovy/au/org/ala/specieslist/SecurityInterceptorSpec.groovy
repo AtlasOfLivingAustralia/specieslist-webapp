@@ -117,7 +117,7 @@ class SecurityInterceptorSpec extends Specification {
 
     public static class MockQueryService extends QueryService {
         @Override
-        def constructWithFacets(String base, List facets, String dataResourceUid) {
+        def constructWithFacets(String base, List facets, String dataResourceUid, String q) {
             [ '', [] ]
         }
     }

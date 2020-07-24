@@ -1,17 +1,21 @@
 package au.org.ala.specieslist
 
-import au.org.ala.web.AuthService
+
 import com.opencsv.CSVWriter
 import grails.converters.JSON
 
 class SpeciesListItemController {
+    public static final String GUID = "guid"
+    public static final String DATA_RESOURCE_UID = "dataResourceUid"
+    public static final String COMMON_NAME = "commonName"
+    public static final String MATCHED_NAME = "matchedName"
+    public static final String RAW_SCIENTIFIC_NAME = "rawScientificName"
 
     BieService bieService
     BiocacheService biocacheService
     LoggerService loggerService
     QueryService queryService
     LocalAuthService localAuthService
-    AuthService authService
     int maxLengthForFacet = 30 // Note: is length of _name_ of the facet category/field
 
     def index() { }
@@ -54,13 +58,13 @@ class SpeciesListItemController {
                     params.sort = params.sort ?: "itemOrder"
                     params.fetch = [kvpValues: 'select']
                     def fqs = params.fq ? [params.fq].flatten().findAll { it != null } : null
-                    def baseQueryAndParams = params.fq ? queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id) : null
+                    def baseQueryAndParams = params.fq ? queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id, null) : null
                     //need to get all keys to be included in the table so no need to add the filter.
                     def speciesListItems = params.fq ? SpeciesListItem.executeQuery("select sli " + baseQueryAndParams[0], baseQueryAndParams[1], params) : SpeciesListItem.findAllByDataResourceUid(params.id, params)
                     def totalCount = params.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0], baseQueryAndParams[1]).head() : SpeciesListItem.countByDataResourceUid(params.id)
                     def guids = speciesListItems.collect { it.guid }
                     def bieItems = bieService.bulkLookupSpecies(guids)
-                    def facets = generateFacetValues(null, baseQueryAndParams)
+                    def facets = generateFacetValues(null, baseQueryAndParams, null)
                     log.debug "speciesListItems = ${speciesListItems as JSON}"
                     render(view: 'iconic-list', model: [
                             results: speciesListItems,
@@ -93,49 +97,99 @@ class SpeciesListItemController {
                     requestParams.sort = requestParams.sort ?: "itemOrder"
                     requestParams.offset = requestParams.int('offset') ?: 0
                     requestParams.fetch = [kvpValues: 'select']
-
                     log.debug(requestParams.toQueryString())
 
-                    if(requestParams.q) {
-                        requestParams.fq = "Search-" + "rawScientificName:" + requestParams.q
-                    }
-                    //println(params.facets)
                     def fqs = requestParams.fq ? [requestParams.fq].flatten().findAll { it != null } : null
-                    //println(queryService.constructWithFacets("select count(distinct guid)",facets, params.id))
 
-                    if(fqs) {
-                        def reqSearchParam = fqs.find { item -> item.startsWith('Search-')}
-                        if(reqSearchParam) {
-                            int index = reqSearchParam.indexOf(":") + 1
-                            params.q = reqSearchParam.substring(index);
-                        }
-                    }
-
-                    def baseQueryAndParams = requestParams.fq ? queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, requestParams.id) : null
+                    def baseQueryAndParams = requestParams.fq ? queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, requestParams.id, requestParams.q) : null
                     log.debug(baseQueryAndParams?.toString())
 
                     // to sort on a column 'order by' clause has to be added explicitly since executeQuery function does
                     // not accept sort and order as named parameters. Named parameters accepted by executeQuery includes
                     // max and offset. check documentation for more details.
                     List baseQueryAndParamsForListingSLI = baseQueryAndParams?.clone()
-                    if(requestParams.sort && baseQueryAndParams){
-                        baseQueryAndParamsForListingSLI[0] +=" order by sli.${requestParams.sort} ${requestParams.order?:'asc'}"
+                    if (requestParams.sort && baseQueryAndParams) {
+                        baseQueryAndParamsForListingSLI[0] += " order by sli.${requestParams.sort} ${requestParams.order ?: 'asc'}"
                     }
 
-                    //This will take in to account and search user has done in addition to the filters
-                    def distinctCount = requestParams.fq ? SpeciesList.executeQuery("select count(distinct guid) " + baseQueryAndParams[0], baseQueryAndParams[1]).head(): SpeciesListItem.executeQuery("select count(distinct guid) from SpeciesListItem where dataResourceUid=?", requestParams.id).head()
+                    def distinctCount
+                    def speciesListItems
+                    def totalCount
+                    def noMatchCount
+
+                    if (requestParams.fq) {
+                        distinctCount = SpeciesList.executeQuery("select count(distinct guid) " + baseQueryAndParams[0], baseQueryAndParams[1]).head()
+                        speciesListItems = SpeciesListItem.executeQuery("select sli " + baseQueryAndParamsForListingSLI[0], baseQueryAndParamsForListingSLI[1], requestParams)
+                        totalCount = SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0], baseQueryAndParams[1]).head()
+                        noMatchCount = SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0] + " AND sli.guid is null", baseQueryAndParams[1]).head()
+                    } else {
+                        def criteria = SpeciesListItem.createCriteria()
+                        def q = requestParams.q
+                        distinctCount = criteria.get {
+                            projections {
+                                countDistinct(GUID)
+                            }
+                            and {
+                                eq(DATA_RESOURCE_UID, requestParams.id)
+                                if (q) {
+                                    or {
+                                        ilike(COMMON_NAME, "%" + q + "%")
+                                        ilike(MATCHED_NAME, "%" + q + "%")
+                                        ilike(RAW_SCIENTIFIC_NAME, "%" + q + "%")
+                                    }
+                                }
+                            }
+                        }
+                        criteria = SpeciesListItem.createCriteria()
+                        speciesListItems = criteria.list (requestParams) {
+                            and {
+                                eq(DATA_RESOURCE_UID, requestParams.id)
+                                if (q) {
+                                    or {
+                                        ilike(COMMON_NAME, "%" + q + "%")
+                                        ilike(MATCHED_NAME, "%" + q + "%")
+                                        ilike(RAW_SCIENTIFIC_NAME, "%" + q + "%")
+                                    }
+                                }
+                            }
+                        }
+                        criteria = SpeciesListItem.createCriteria()
+                        totalCount = criteria.get {
+                            projections {
+                                count()
+                            }
+                            and {
+                                eq(DATA_RESOURCE_UID, requestParams.id)
+                                if (q) {
+                                    or {
+                                        ilike(COMMON_NAME, "%" + q + "%")
+                                        ilike(MATCHED_NAME, "%" + q + "%")
+                                        ilike(RAW_SCIENTIFIC_NAME, "%" + q + "%")
+                                    }
+                                }
+                            }
+                        }
+                        criteria = SpeciesListItem.createCriteria()
+                        noMatchCount = criteria.get {
+                            projections {
+                                count()
+                            }
+                            and {
+                                eq(DATA_RESOURCE_UID, requestParams.id)
+                                isNotNull (GUID)
+                                if (q) {
+                                    or {
+                                        ilike(COMMON_NAME, "%" + q + "%")
+                                        ilike(MATCHED_NAME, "%" + q + "%")
+                                        ilike(RAW_SCIENTIFIC_NAME, "%" + q + "%")
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     //need to get all keys to be included in the table so no need to add the filter.
                     def keys = SpeciesListKVP.executeQuery("select distinct key, itemOrder from SpeciesListKVP where dataResourceUid=? order by itemOrder", requestParams.id).collect { it[0] }
-
-                    //list of species by search criteria and filters applied
-                    def speciesListItems = requestParams.fq ? SpeciesListItem.executeQuery("select sli " + baseQueryAndParamsForListingSLI[0], baseQueryAndParamsForListingSLI[1], requestParams): SpeciesListItem.findAllByDataResourceUid(requestParams.id, requestParams)
-
-                    //Count of species list item after applying filter and search criteria
-                    def totalCount = requestParams.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0], baseQueryAndParams[1]).head() :SpeciesListItem.countByDataResourceUid(requestParams.id)
-
-                    def noMatchCount = requestParams.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0] + " AND sli.guid is null", baseQueryAndParams[1]).head() : SpeciesListItem.countByDataResourceUidAndGuidIsNull(requestParams.id)
-
                     def users = SpeciesList.executeQuery("select distinct sl.username from SpeciesList sl")
 
                     //println(speciesListItems)
@@ -144,7 +198,7 @@ class SpeciesListItemController {
                     log.debug("guids " + guids)
                     def downloadReasons = loggerService.getReasons()
                     log.debug("Retrieved Logger Reasons")
-                    def facets = generateFacetValues(fqs, baseQueryAndParams)
+                    def facets = generateFacetValues(fqs, baseQueryAndParams, requestParams.q)
                     log.debug("Retrieved facets")
                     log.debug("Checking speciesList: " + speciesList)
                     log.debug("Checking editors: " + speciesList.editors)
@@ -173,14 +227,12 @@ class SpeciesListItemController {
         }
     }
 
-    private def generateFacetValues(List fqs, baseQueryParams){
+    private def generateFacetValues(List fqs, baseQueryParams, String q) {
         def map = [:]
 
         //handle the user defined properties -- this will also make up the facets
-        String selectPart = "select distinct kvp.key, kvp.value, kvp.vocabValue, sli.itemOrder, count(sli) as cnt";
-        def middlePart = fqs ? queryService.constructWithFacets(" from SpeciesListItem as sli join sli.kvpValues kvp1 join sli.kvpValues kvp", fqs, params.id) : null
         def properties = null
-        if(fqs){
+        if (fqs) {
             //get the ids for the query -- this allows correct counts when joins are being performed.
             def ids = SpeciesListItem.executeQuery("select distinct sli.id " + baseQueryParams[0], baseQueryParams[1])
 
@@ -189,12 +241,25 @@ class SpeciesListItemController {
             if (ids) {
                 queryParameters.ids = ids
             }
+            if (q) {
+                queryParameters.qMatchedName = '%'+q+'%'
+                queryParameters.qCommonName = '%'+q+'%'
+                queryParameters.qRawScientificName = '%'+q+'%'
+            }
 
-            def results = SpeciesListItem.executeQuery("select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=:druid ${ids ? 'and sli.id in (:ids)' : ''} group by kvp.key, kvp.value, kvp.vocabValue, kvp.itemOrder, kvp.key order by kvp.itemOrder, kvp.key, cnt desc", queryParameters)
+            def results = SpeciesListItem.executeQuery("select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt from SpeciesListItem as sli " +
+                    "join sli.kvpValues  as kvp where sli.dataResourceUid = :druid ${ids ? 'and sli.id in (:ids)' : ''} " +
+                    "${q ? 'and (sli.matchedName like :qMatchedName or sli.commonName like :qCommonName or sli.rawScientificName like :qRawScientificName) ' : ''} " +
+                    "group by kvp.key, kvp.value, kvp.vocabValue, kvp.itemOrder, kvp.key order by kvp.itemOrder, kvp.key, cnt desc",
+                    queryParameters)
 
             //obtain the families from the common list facets
-            def commonResults = SpeciesListItem.executeQuery("select sli.family, count(sli) as cnt from SpeciesListItem sli where sli.family is not null AND sli.dataResourceUid=:druid ${ids ? 'and sli.id in (:ids)' : ''} group by sli.family order by cnt desc", queryParameters)
-            if(commonResults.size() > 1) {
+            def commonResults = SpeciesListItem.executeQuery("select sli.family, count(sli) as cnt from SpeciesListItem sli " +
+                    "where sli.family is not null AND sli.dataResourceUid = :druid ${ids ? 'and sli.id in (:ids)' : ''} " +
+                    "${q ? 'and (sli.matchedName like :qMatchedName or sli.commonName like :qCommonName or sli.rawScientificName like :qRawScientificName) ' : ''} " +
+                    "group by sli.family order by cnt desc",
+                    queryParameters)
+            if (commonResults.size() > 1) {
                 map.family = commonResults
             }
 
@@ -202,14 +267,22 @@ class SpeciesListItemController {
             properties = results.findAll{ it[1].length()<maxLengthForFacet }.groupBy { it[0] }.findAll{ it.value.size()>1}
 
         } else {
-            def result = fqs? SpeciesListItem.executeQuery(selectPart + middlePart[0] +
-                    " group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc", middlePart[1]):
-                SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt  from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=? group by kvp.key, kvp.value, kvp.vocabValue, kvp.itemOrder order by kvp.itemOrder, kvp.key, cnt desc', params.id)
+            def queryParameters = q ? [params.id, '%'+q+'%', '%'+q+'%', '%'+q+'%'] : params.id
 
-            properties = result.findAll{it[1].length()<maxLengthForFacet}.groupBy{it[0]}.findAll{it.value.size()>1 }
+            def results = SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt from SpeciesListItem as sli ' +
+                    'join sli.kvpValues as kvp where sli.dataResourceUid = ? ' +
+                    "${q ? 'and (sli.matchedName like ? or sli.commonName like ? or sli.rawScientificName like ?) ' : ''} " +
+                    'group by kvp.key, kvp.value, kvp.vocabValue, kvp.itemOrder order by kvp.itemOrder, kvp.key, cnt desc',
+                    queryParameters)
+
+            properties = results.findAll{it[1].length()<maxLengthForFacet}.groupBy{it[0]}.findAll{it.value.size()>1 }
 
             //obtain the families from the common list facets
-            def commonResults = SpeciesListItem.executeQuery('select family, count(*) as cnt from SpeciesListItem where family is not null AND dataResourceUid=? group by family order by cnt desc',params.id)
+            def commonResults = SpeciesListItem.executeQuery('select family, count(*) as cnt from SpeciesListItem ' +
+                    'where family is not null AND dataResourceUid = ? ' +
+                    "${q ? 'and (matchedName like ? or commonName like ? or rawScientificName like ?) ' : ''} " +
+                    'group by family order by cnt desc',
+                    queryParameters)
             if(commonResults.size() > 1) {
                 map.family = commonResults
             }
@@ -223,9 +296,12 @@ class SpeciesListItemController {
         map
     }
 
+    //Todo: not used ?
     def facetsvalues(){
         if(params.id){
-          def result = SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=? group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc', params.id)
+          def result = SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt ' +
+                  'from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=? ' +
+                  'group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc', params.id)
           //group the same properties keys together
           def properties = result.groupBy { it[0] }
           def map = [:]
@@ -245,7 +321,7 @@ class SpeciesListItemController {
             log.debug("Downloading Species List")
             def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid='"+params.id+"'")
             def fqs = params.fq?[params.fq].flatten().findAll{ it != null } : null
-            def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ",fqs, params.id)
+            def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id, params.q)
             def sli = SpeciesListItem.executeQuery("Select sli " + baseQueryAndParams[0], baseQueryAndParams[1])
             //def sli =SpeciesListItem.findAllByDataResourceUid(params.id,params)
             def out = new StringWriter()

@@ -473,14 +473,21 @@ class QueryService {
      * @param base
      * @param facets
      * @param dataResourceUid
+     * @param q
      * @return
      */
-    def constructWithFacets(String base, List facets, String dataResourceUid) {
+    def constructWithFacets(String base, List facets, String dataResourceUid, String q) {
         StringBuilder query = new StringBuilder(base)
         StringBuilder whereBuilder = new StringBuilder(" where sli.dataResourceUid=? ")
         //query.append(" from SpeciesListItem sli join sli.kvpValues kvp where sli.dataResourceUid=? ")
         def queryparams = [dataResourceUid]
-        if (facets){
+        if (q) {
+            whereBuilder.append("AND (sli.matchedName like ? or sli.commonName like ? or sli.rawScientificName like ?) ")
+            queryparams.add("%" + q + "%")
+            queryparams.add("%" + q + "%")
+            queryparams.add("%" + q + "%")
+        }
+        if (facets) {
             facets.eachWithIndex { facet, index ->
                 int pos = facet.indexOf(":")
                 if (pos != -1) {
@@ -494,21 +501,11 @@ class QueryService {
                         whereBuilder.append(" AND kvp").append(sindex).append(".key=? AND kvp").append(sindex).append(".value=?")
                         queryparams.addAll([key, value])
                     } else {
-                        //must be a facet with the same table
-                        boolean isSearch = false;
-                        if (facet.startsWith("Search-")) {
-                            isSearch = true;
-                            facet = facet.replaceFirst("Search-","")
-                            pos = facet.indexOf(":")
-                        }
                         String key = facet.substring(0, pos)
                         String value = facet.substring(pos + 1)
-                        whereBuilder.append( "AND sli.").append(key)
-                        if (value.equalsIgnoreCase("null")){
+                        whereBuilder.append("AND sli.").append(key)
+                        if (value.equalsIgnoreCase("null")) {
                             whereBuilder.append(" is null")
-                        } else if(isSearch) {
-                            whereBuilder.append(" like ? ")
-                            queryparams.add("%" + value + "%")
                         } else {
                             whereBuilder.append("=?")
                             queryparams.add(value)
