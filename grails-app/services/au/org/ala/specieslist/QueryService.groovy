@@ -12,6 +12,14 @@ class QueryService {
     public static final String USER_ID = "userId"
     public static final String IS_PRIVATE = "isPrivate"
     public static final String LIST_NAME = "listName"
+    public static final String FIRST_NAME = "firstName"
+    public static final String SURNAME = "surname"
+    public static final String DESCRIPTION = "description"
+    public static final String GUID = "guid"
+    public static final String COMMON_NAME = "commonName"
+    public static final String MATCHED_NAME = "matchedName"
+    public static final String RAW_SCIENTIFIC_NAME = "rawScientificName"
+    public static final String DATA_RESOURCE_UID = "dataResourceUid"
     public static final String ASC = "asc"
     public static final String LAST_UPDATED = "lastUpdated"
     public static final String LIST_TYPE = "listType"
@@ -62,10 +70,10 @@ class QueryService {
                     if ('q'.equals(key)) {
                         DetachedCriteria subQuery = SpeciesListItem.where({
                             or {
-                                ilike('matchedName', '%' + value + '%')
-                                ilike('rawScientificName', '%' + value + '%')
-                                ilike('guid', '%' + value + '%')
-                                ilike('commonName', '%' + value + '%')
+                                ilike(MATCHED_NAME, '%' + value + '%')
+                                ilike(RAW_SCIENTIFIC_NAME, '%' + value + '%')
+                                ilike(GUID, '%' + value + '%')
+                                ilike(COMMON_NAME, '%' + value + '%')
                             }
                             eqProperty("mylist.id", "this.id")
                             setAlias "sli"
@@ -75,10 +83,10 @@ class QueryService {
                             }
                         })
                         or {
-                            ilike('listName', '%' + value + '%')
-                            ilike('firstName', '%' + value + '%')
-                            ilike('surname', '%' + value + '%')
-                            ilike('description', '%' + value + '%')
+                            ilike(LIST_NAME, '%' + value + '%')
+                            ilike(FIRST_NAME, '%' + value + '%')
+                            ilike(SURNAME, '%' + value + '%')
+                            ilike(DESCRIPTION, '%' + value + '%')
                             'in'('id', subQuery)
                         }
                     } else if (WKT.equals(key)) {
@@ -256,10 +264,10 @@ class QueryService {
                     if ('q'.equals(key)) {
                         DetachedCriteria subQuery = SpeciesListItem.where({
                             or {
-                                ilike('matchedName', '%' + value + '%')
-                                ilike('rawScientificName', '%' + value + '%')
-                                ilike('guid', '%' + value + '%')
-                                ilike('commonName', '%' + value + '%')
+                                ilike(MATCHED_NAME, '%' + value + '%')
+                                ilike(RAW_SCIENTIFIC_NAME, '%' + value + '%')
+                                ilike(GUID, '%' + value + '%')
+                                ilike(COMMON_NAME, '%' + value + '%')
                             }
                             eqProperty("mylist.id", "this.id")
                             setAlias "sli"
@@ -269,10 +277,10 @@ class QueryService {
                             }
                         })
                         or {
-                            ilike('listName', '%' + value + '%')
-                            ilike('firstName', '%' + value + '%')
-                            ilike('surname', '%' + value + '%')
-                            ilike('description', '%' + value + '%')
+                            ilike(LIST_NAME, '%' + value + '%')
+                            ilike(FIRST_NAME, '%' + value + '%')
+                            ilike(SURNAME, '%' + value + '%')
+                            ilike(DESCRIPTION, '%' + value + '%')
                             'in' ('id', subQuery)
                         }
                     } else {
@@ -405,34 +413,34 @@ class QueryService {
         def c = SpeciesListItem.createCriteria()
 
         //log.debug("CRITERIA METHODS: " +criteriaMethods)
-        c.list(props += params){
+        c.list(props += params) {
             //set the results transformer so that we don't get duplicate records because of
             // the 1:many relationship between a list item and KVP
             setResultTransformer(org.hibernate.criterion.CriteriaSpecification.DISTINCT_ROOT_ENTITY)
             and {
-                if(distinctField){
+                if (distinctField) {
                     distinct(distinctField)
                     isNotNull(distinctField)
                 }
-                if(guid)eq('guid', guid)
-                if(lists){
-                    'in'('dataResourceUid', lists)
+                if (guid) eq(GUID, guid)
+                if (lists) {
+                    'in'(DATA_RESOURCE_UID, lists)
                 }
 
                 params.each { key, value ->
                     log.debug("KEYS: " +key+" " + speciesListProperties.containsKey(key))
-                    if(speciesListProperties.containsKey(key)){
+                    if (speciesListProperties.containsKey(key)) {
                         mylist {
                             //the value suffix tells us which filter operation to perform
                             def matcher = (value =~ filterRegEx)
-                            if(matcher.matches()){
+                            if (matcher.matches()) {
                                 def fvalue = matcher[0][2] //
                                 //now handle the supported filter conditions by gaining access to the criteria methods using reflection
                                 def method = criteriaMethods.get(matcher[0][1])
-                                if(method){
-                                    Object[] args =[getValueBasedOnType(speciesListProperties[key],fvalue)]
-                                    if(method.getParameterTypes().size()>1)
-                                        args = [key] +args[0]
+                                if (method) {
+                                    Object[] args = [getValueBasedOnType(speciesListProperties[key], fvalue)]
+                                    if (method.getParameterTypes().size() > 1)
+                                        args = [key] + args[0]
                                     //log.debug("ARGS : " +args + " method : " + method)
                                     method.invoke(c, args)
                                 }
@@ -441,14 +449,14 @@ class QueryService {
                     } else {
                         //the value suffix tells us which filter operation to perform
                         def matcher = (value =~ filterRegEx)
-                        if(matcher.matches()){
+                        if (matcher.matches()) {
                             def fvalue = matcher[0][2]
 
                             //now handle the supported filter conditions by gaining access to the criteria methods using reflection
                             def method = criteriaMethods.get(matcher[0][1])
-                            if(method){
-                                Object[] args =[getValueBasedOnType(speciesListProperties[key], fvalue)]
-                                if(method.getParameterTypes().size() > 1) {
+                            if (method) {
+                                Object[] args = [getValueBasedOnType(speciesListProperties[key], fvalue)]
+                                if (method.getParameterTypes().size() > 1) {
                                     args = [key] + args
                                 }
                                 method.invoke(c, args)
@@ -461,10 +469,10 @@ class QueryService {
     }
 
     def getValueBasedOnType(type, value){
-        switch(type){
+        switch (type) {
             case Boolean.class: Boolean.parseBoolean(value); break;
             case ListType.class: ListType.valueOf(value); break;
-            default:value; break;
+            default: value; break;
         }
     }
     
@@ -534,16 +542,16 @@ class QueryService {
 
         SpeciesListItem.withCriteria {
             if (drIds) {
-                'in' "dataResourceUid", drIds
+                'in' DATA_RESOURCE_UID, drIds
             }
 
             or {
-                'in' "matchedName", scientificNames
-                'in' "rawScientificName", scientificNames
+                'in' MATCHED_NAME, scientificNames
+                'in' RAW_SCIENTIFIC_NAME, scientificNames
             }
 
             projections {
-                distinct "dataResourceUid"
+                distinct DATA_RESOURCE_UID
             }
         }
     }
