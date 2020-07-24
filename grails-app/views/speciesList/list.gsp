@@ -18,8 +18,6 @@
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     <meta name="breadcrumbParent" content="${request.contextPath}/public/speciesLists,Species lists"/>
     <meta name="breadcrumb" content="My species lists"/>
-    <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src: 'confirmRematch.js')}"></script>
-
     <title>My Species lists | ${grailsApplication.config.skin.orgNameLong}</title>
     <style type="text/css">
     #speciesList {
@@ -31,11 +29,11 @@
 
 <body class="yui-skin-sam nav-species">
 <asset:script type="text/javascript">
-   window.onload=init
-   function init() {
-       if(document.getElementById("speciesList") != null)
+    window.onload=init
+    function init(){
+        if(document.getElementById("speciesList") != null)
             document.getElementById("speciesList").style.display = "block";
-   }
+    }
 </asset:script>
 <div id="content" class="row">
     <div class="col-md-12">
@@ -43,17 +41,10 @@
             <div class="col-md-8">
                 <h1 class="subject-subtitle">${message(code:'public.lists.mylists.header', default:'My species lists')}</h1>
             </div>
+
             <div class="col-md-4">
-                <span class="pull-right">
-                    <a class="btn btn-primary" title="${message(code:'upload.lists.header01', default:'Upload a list')}" href="${request.contextPath}/speciesList/upload">${message(code:'upload.lists.header01', default:'Upload a list')}</a>
-                    <g:if test="${lists && total > 0}">
-                        <a href="#" title="${message(code:'public.lists.mylists.button.rematch.tooltip', default:'Rematch species lists that you have provided')}"
-                            onclick="rematchConfirm('${message(code:"admin.lists.actions.button.rematch.messages", default:"Are you sure that you would like to rematch?")}',
-                                '${request.contextPath}/speciesList/rematchMyLists',
-                                '${message(code:"public.lists.mylists.button.rematch.messages", default:"Rematch complete")}');
-                               return false;" class="btn btn-primary">${message(code:'public.lists.mylists.button.rematch.label', default:'Rematch my lists')}</a>
-                    </g:if>
-                </span>
+                <g:link controller="speciesList" action="upload" class="btn btn-primary pull-right"
+                        title="Add Species List">${message(code:'upload.lists.header01', default:'Upload a list')}</g:link>
             </div>
         </div><!--inner-->
 
