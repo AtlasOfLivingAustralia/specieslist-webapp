@@ -789,12 +789,12 @@
                                             <g:each in="${fqs}" var="fq">
                                                 <g:if test="${fq.length() > 0}">
                                                     <li>
-%{--                                                        <g:message code="facet.${fq.replaceFirst("kvp ", "")}"--}%
-%{--                                                                   default="${fq.replaceFirst("kvp ", "")}"/>--}%
                                                         <g:link action="list" id="${params.id}"
                                                                 params="${[fq: sl.excludedFqList(fqs: fqs, fq: fq), max: params.max, q: params.q]}"
                                                                 class="removeLink" title="${message(code:'public.lists.facets.refine.tooltip',default:'Uncheck (remove filter)')}">
                                                             <span class="fa fa-check-square-o">&nbsp;</span>
+                                                            <g:message code="facet.${fq.replaceFirst("kvp ", "")}"
+                                                                       default="${fq.replaceFirst("kvp ", "")}"/>
                                                         </g:link>
                                                     </li>
                                                 </g:if>
