@@ -53,7 +53,7 @@ class SpeciesListItemController {
                     params.sort = params.sort ?: "itemOrder"
                     params.fetch = [kvpValues: 'select']
                     def fqs = params.fq ? [params.fq].flatten().findAll { it != null } : null
-                    def baseQueryAndParams = params.fq ? queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id, null) : null
+                    def baseQueryAndParams = params.fq ? queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id) : null
                     //need to get all keys to be included in the table so no need to add the filter.
                     def speciesListItems = params.fq ? SpeciesListItem.executeQuery("select sli " + baseQueryAndParams[0], baseQueryAndParams[1], params) : SpeciesListItem.findAllByDataResourceUid(params.id, params)
                     def totalCount = params.fq ? SpeciesListItem.executeQuery("select count(*) " + baseQueryAndParams[0], baseQueryAndParams[1]).head() : SpeciesListItem.countByDataResourceUid(params.id)

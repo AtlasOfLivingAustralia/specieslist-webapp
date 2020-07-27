@@ -484,7 +484,7 @@ class QueryService {
      * @param q
      * @return
      */
-    def constructWithFacets(String base, List facets, String dataResourceUid, String q) {
+    def constructWithFacets(String base, List facets, String dataResourceUid, String q = null) {
         StringBuilder query = new StringBuilder(base)
         StringBuilder whereBuilder = new StringBuilder(" where sli.dataResourceUid=? ")
         //query.append(" from SpeciesListItem sli join sli.kvpValues kvp where sli.dataResourceUid=? ")

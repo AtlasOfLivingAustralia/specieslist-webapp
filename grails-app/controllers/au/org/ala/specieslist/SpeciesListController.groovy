@@ -329,13 +329,13 @@ class SpeciesListController {
 
     def getGuidsForList(id, limit){
         def fqs = params.fq?[params.fq].flatten().findAll{ it != null }:null
-        def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id, null)
+        def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id)
         SpeciesListItem.executeQuery("select sli.guid  " + baseQueryAndParams[0] + " and sli.guid is not null", baseQueryAndParams[1] ,[max: limit])
     }
 
     def getUnmatchedNamesForList(id, limit) {
         def fqs = params.fq?[params.fq].flatten().findAll{ it != null }:null
-        def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id, null)
+        def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id)
         def isdr =id.startsWith("dr")
         //def where = isdr? "dataResourceUid=?":"id = ?"
         def names = SpeciesListItem.executeQuery("select sli.rawScientificName  " + baseQueryAndParams[0] + " and sli.guid is null", baseQueryAndParams[1] ,[max: limit])

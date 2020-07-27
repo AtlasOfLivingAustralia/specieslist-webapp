@@ -998,10 +998,10 @@
 
             <div class="pagination listPagination" id="searchNavBar">
                 <g:if test="${params.fq}">
-                    <hf:paginate total="${totalCount}" action="list" id="${params.id}" params="${[fq: params.fq]}"/>
+                    <hf:paginate total="${totalCount}" action="list" id="${params.id}" params="${[fq: params.fq, q:params.q]}"/>
                 </g:if>
                 <g:else>
-                    <hf:paginate total="${totalCount}" action="list" id="${params.id}"/>
+                    <hf:paginate total="${totalCount}" action="list" id="${params.id}" params="${[q:params.q]}"/>
                 </g:else>
             </div>
         %{-- Output the BS modal divs (hidden until called) --}%
