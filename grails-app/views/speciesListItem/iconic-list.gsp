@@ -210,7 +210,7 @@
         <div>
     </g:if>
     <div class="inner row">
-        <div class="col-md-2">
+        <div class="col-md-3">
             <ul id="groupsNav" class="nav bs-docs-sidenav ">
                 <g:set var="fqs" value="${params.list('fq')}" />
                 <g:each in="${facets.get("listProperties")}" var="group">
@@ -223,7 +223,7 @@
                 </g:each>
             </ul>
         </div> <!-- /col-md-3 -->
-        <div class="col-md-10">
+        <div class="col-md-9">
             <div id="gridView" class="">
                 <g:each var="result" in="${results}" status="i">
                     <g:set var="recId" value="${result.id}"/>
