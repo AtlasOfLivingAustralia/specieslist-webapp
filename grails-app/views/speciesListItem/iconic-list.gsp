@@ -165,7 +165,7 @@
         }
 
         .imgCon img {
-            height: 140px;
+            height: 200px;
         }
 
         #content p.lead {
