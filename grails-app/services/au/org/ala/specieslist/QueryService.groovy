@@ -39,7 +39,7 @@ class QueryService {
     }.collectEntries{ [it.name, it] }
 
     def getFilterListResult(params){
-        getFilterListResult(params, false, null)
+        getFilterListResult(params, false)
     }
 
     /**
@@ -52,7 +52,7 @@ class QueryService {
      *
      * @param params
      */
-    def getFilterListResult(params, boolean hidePrivateLists, List itemIds){
+    def getFilterListResult(params, boolean hidePrivateLists, List itemIds = null) {
         //list should be based on the user that is logged in
         params.max = Math.min(params.max ? params.int('max') : 25, 1000)
 
