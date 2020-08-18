@@ -18,7 +18,6 @@ class PublicController {
     }
 
     def speciesLists(){
-
         params.max = Math.min(params.max ? params.int('max') : 25, 1000)
         params.sort = params.sort ?: "listName"
         if (params.isSDS){
@@ -28,18 +27,25 @@ class PublicController {
 
         try {
             def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
-            def lists = queryService.getFilterListResult(params, hidePrivateLists)
 
-            log.info "lists = ${lists.size()} || count = ${lists.totalCount}"
+            long now = System.currentTimeMillis()
+
+            // retrieve qualified SpeciesListItems for performance reason
+            def itemsIds = queryService.getFilterSpeciesListItemsIds(params)
+            def lists = queryService.getFilterListResult(params, hidePrivateLists, itemsIds)
+
+//            log.info "lists = ${lists.size()} || count = ${lists.totalCount}"
             render (view:'specieslists', model:[
                     isAdmin:localAuthService.isAdmin(),
                     isLoggedIn: (authService.userId) != null,
                     lists:lists,
                     total:lists.totalCount,
-                    typeFacets:queryService.getTypeFacetCounts(params, hidePrivateLists),
-                    tagFacets:queryService.getTagFacetCounts(params, hidePrivateLists),
+                    typeFacets:queryService.getTypeFacetCounts(params, hidePrivateLists, itemsIds),
+                    tagFacets:queryService.getTagFacetCounts(params, hidePrivateLists, itemsIds),
                     selectedFacets:queryService.getSelectedFacets(params)
             ])
+
+            println("time taken: " + (System.currentTimeMillis() - now) + " ms");
         } catch(Exception e) {
             log.error "Error requesting species Lists: " ,e
             response.status = 404
