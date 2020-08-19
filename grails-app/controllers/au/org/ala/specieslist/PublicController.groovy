@@ -28,8 +28,6 @@ class PublicController {
         try {
             def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
 
-            long now = System.currentTimeMillis()
-
             // retrieve qualified SpeciesListItems for performance reason
             def itemsIds = queryService.getFilterSpeciesListItemsIds(params)
             def lists = queryService.getFilterListResult(params, hidePrivateLists, itemsIds)
@@ -44,8 +42,6 @@ class PublicController {
                     tagFacets:queryService.getTagFacetCounts(params, hidePrivateLists, itemsIds),
                     selectedFacets:queryService.getSelectedFacets(params)
             ])
-
-            println("time taken: " + (System.currentTimeMillis() - now) + " ms");
         } catch(Exception e) {
             log.error "Error requesting species Lists: " ,e
             response.status = 404

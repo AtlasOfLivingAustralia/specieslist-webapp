@@ -68,20 +68,6 @@ class QueryService {
                 params.each { key, value ->
                     //the value suffix tells us which filter operation to perform
                     if ('q'.equals(key)) {
-//                        DetachedCriteria subQuery = SpeciesListItem.where({
-//                            or {
-//                                ilike(MATCHED_NAME, '%' + value + '%')
-//                                ilike(RAW_SCIENTIFIC_NAME, '%' + value + '%')
-//                                ilike(GUID, '%' + value + '%')
-//                                ilike(COMMON_NAME, '%' + value + '%')
-//                            }
-//                            eqProperty("mylist.id", "this.id")
-//                            setAlias "sli"
-//
-//                            projections {
-//                                property "mylist.id"
-//                            }
-//                        })
                         or {
                             ilike(LIST_NAME, '%' + value + '%')
                             ilike(FIRST_NAME, '%' + value + '%')
@@ -90,7 +76,6 @@ class QueryService {
                             if (itemIds) {
                                 'in'('id', itemIds)
                             }
-//                            'in'('id', subQuery)
                         }
                     } else if (WKT.equals(key)) {
                         and {
@@ -265,20 +250,6 @@ class QueryService {
                 params.each { key, value ->
                     //the value suffix tells us which filter operation to perform
                     if ('q'.equals(key)) {
-//                        DetachedCriteria subQuery = SpeciesListItem.where({
-//                            or {
-//                                ilike(MATCHED_NAME, '%' + value + '%')
-//                                ilike(RAW_SCIENTIFIC_NAME, '%' + value + '%')
-//                                ilike(GUID, '%' + value + '%')
-//                                ilike(COMMON_NAME, '%' + value + '%')
-//                            }
-//                            eqProperty("mylist.id", "this.id")
-//                            setAlias "sli"
-//
-//                            projections {
-//                                property "mylist.id"
-//                            }
-//                        })
                         or {
                             ilike(LIST_NAME, '%' + value + '%')
                             ilike(FIRST_NAME, '%' + value + '%')
@@ -287,7 +258,6 @@ class QueryService {
                             if (itemIds) {
                                 'in' ('id', itemIds)
                             }
-//                            'in' ('id', subQuery)
                         }
                     } else {
                         def matcher = (value =~ filterRegEx)
@@ -562,24 +532,8 @@ class QueryService {
         }
     }
 
-    List<Integer> getFilterSpeciesListItemsIdsDynamic(params) {
-        long now = System.currentTimeMillis()
-        def itemIds = null
-
-        def qValue = params.q
-        if (qValue) {
-            String value = '%' + qValue + '%'
-            def speciesListItems = SpeciesListItem.findAllByCommonNameIlikeOrGuidIlikeOrMatchedNameIlikeOrRawScientificNameIlike(value, value, value, value)
-            itemIds = speciesListItems.collect {it.mylist.id}
-            itemIds = itemIds.unique()
-            println(itemIds.unique().join(','))
-        }
-        println("getFilterSpeciesListItemsIdsDynamic time taken: " + (System.currentTimeMillis() - now) + " ms");
-        itemIds
-    }
-
     List<Integer> getFilterSpeciesListItemsIds(params) {
-        long now = System.currentTimeMillis()
+//        long now = System.currentTimeMillis()
         def itemIds = null
 
         def qValue = params.q
@@ -601,7 +555,7 @@ class QueryService {
             itemIds = itemIds.unique()
 //            println(itemIds.unique().join(','))
         }
-        println("itemsIds time taken: " + (System.currentTimeMillis() - now) + " ms");
+//        println("itemsIds time taken: " + (System.currentTimeMillis() - now) + " ms");
         itemIds
     }
 
