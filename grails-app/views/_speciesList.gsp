@@ -70,6 +70,9 @@
 
 <!-- Search panel -->
 <g:set var="showActions" value="${source != 'public'}"/>
+<g:set var="formattedTotal" value="${String.format("%,d", total)}"/>
+<g:set var="searchTerm" value="${params.q ?: 'all records'}"/>
+<g:set var="resultUnit" value="${total == 1 ? 'result' : 'results'}"/>
 
 <div id="top-search-panel" class="row">
     <div class="col-md-5">
@@ -152,6 +155,11 @@
                 </li>
             </g:each>
         </ul>
+    </div>
+    <div class="col-md-10">
+        <div class="form-group pull-left">
+            <span>${formattedTotal} ${resultUnit} for <strong>${searchTerm}</strong></span>
+        </div>
     </div>
     <div id="speciesList" class="col-md-10">
         <table class="table table-bordered table-striped">
