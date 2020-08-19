@@ -1,6 +1,6 @@
 package au.org.ala.specieslist
 
-import grails.gorm.DetachedCriteria
+
 import org.grails.core.DefaultGrailsDomainClass
 import org.hibernate.Criteria
 import org.hibernate.criterion.CriteriaQuery
@@ -52,7 +52,7 @@ class QueryService {
      *
      * @param params
      */
-    def getFilterListResult(params, boolean hidePrivateLists){
+    def getFilterListResult(params, boolean hidePrivateLists, List itemIds = null) {
         //list should be based on the user that is logged in
         params.max = Math.min(params.max ? params.int('max') : 25, 1000)
 
@@ -68,26 +68,14 @@ class QueryService {
                 params.each { key, value ->
                     //the value suffix tells us which filter operation to perform
                     if ('q'.equals(key)) {
-                        DetachedCriteria subQuery = SpeciesListItem.where({
-                            or {
-                                ilike(MATCHED_NAME, '%' + value + '%')
-                                ilike(RAW_SCIENTIFIC_NAME, '%' + value + '%')
-                                ilike(GUID, '%' + value + '%')
-                                ilike(COMMON_NAME, '%' + value + '%')
-                            }
-                            eqProperty("mylist.id", "this.id")
-                            setAlias "sli"
-
-                            projections {
-                                property "mylist.id"
-                            }
-                        })
                         or {
                             ilike(LIST_NAME, '%' + value + '%')
                             ilike(FIRST_NAME, '%' + value + '%')
                             ilike(SURNAME, '%' + value + '%')
                             ilike(DESCRIPTION, '%' + value + '%')
-                            'in'('id', subQuery)
+                            if (itemIds) {
+                                'in'('id', itemIds)
+                            }
                         }
                     } else if (WKT.equals(key)) {
                         and {
@@ -227,32 +215,32 @@ class QueryService {
                           label: ListType.OTHER.i18nValue, tooltip: ListType.OTHER.toolTip]
     ]
 
-    def getTypeFacetCounts(params){
-        getTypeFacetCounts(params, false)
+    def getTypeFacetCounts(params, List itemIds){
+        getTypeFacetCounts(params, false, itemIds)
     }
 
-    def getTagFacetCounts(params){
-        getTypeFacetCounts(params, false)
+    def getTagFacetCounts(params, List itemIds){
+        getTypeFacetCounts(params, false, itemIds)
     }
 
-    def getTypeFacetCounts(params, boolean hidePrivateLists){
+    def getTypeFacetCounts(params, boolean hidePrivateLists, List itemIds) {
         def facets = []
         listTyoeFacets.each { key, facet ->
-            facets <<  [query:'listType=eq:' + facet.listType.toString(), label: facet.label, tooltip: facet.tooltip, count: getFacetCount(params, LIST_TYPE, facet.listType, hidePrivateLists)]
+            facets <<  [query:'listType=eq:' + facet.listType.toString(), label: facet.label, tooltip: facet.tooltip, count: getFacetCount(params, LIST_TYPE, facet.listType, hidePrivateLists, itemIds)]
         }
         return facets
     }
 
-    def getTagFacetCounts(params, boolean hidePrivateLists){
+    def getTagFacetCounts(params, boolean hidePrivateLists, List itemIds) {
         def facets = []
         getBooleanQueryFacets().each { key, facet ->
-            facets << [query: key + '=eq:true', label: facet.label, tooltip: facet.tooltip, count:  getFacetCount(params, key, true, hidePrivateLists)]
+            facets << [query: key + '=eq:true', label: facet.label, tooltip: facet.tooltip, count:  getFacetCount(params, key, true, hidePrivateLists, itemIds)]
         }
-        facets << [query: WKT_QUERY, label:'spatialBounds.list.label', tooltip: 'spatialBounds.list.tooltip', count:  getFacetCount(params, WKT, null, hidePrivateLists)]
+        facets << [query: WKT_QUERY, label:'spatialBounds.list.label', tooltip: 'spatialBounds.list.tooltip', count:  getFacetCount(params, WKT, null, hidePrivateLists, itemIds)]
         return facets
     }
 
-    def getFacetCount(params, facetField, facetValue, boolean hidePrivateLists) {
+    def getFacetCount(params, facetField, facetValue, boolean hidePrivateLists, List itemIds) {
         def c = SpeciesList.createCriteria()
         def facetCount = c.get  {
             projections {
@@ -262,26 +250,14 @@ class QueryService {
                 params.each { key, value ->
                     //the value suffix tells us which filter operation to perform
                     if ('q'.equals(key)) {
-                        DetachedCriteria subQuery = SpeciesListItem.where({
-                            or {
-                                ilike(MATCHED_NAME, '%' + value + '%')
-                                ilike(RAW_SCIENTIFIC_NAME, '%' + value + '%')
-                                ilike(GUID, '%' + value + '%')
-                                ilike(COMMON_NAME, '%' + value + '%')
-                            }
-                            eqProperty("mylist.id", "this.id")
-                            setAlias "sli"
-
-                            projections {
-                                property "mylist.id"
-                            }
-                        })
                         or {
                             ilike(LIST_NAME, '%' + value + '%')
                             ilike(FIRST_NAME, '%' + value + '%')
                             ilike(SURNAME, '%' + value + '%')
                             ilike(DESCRIPTION, '%' + value + '%')
-                            'in' ('id', subQuery)
+                            if (itemIds) {
+                                'in' ('id', itemIds)
+                            }
                         }
                     } else {
                         def matcher = (value =~ filterRegEx)
@@ -554,6 +530,33 @@ class QueryService {
                 distinct DATA_RESOURCE_UID
             }
         }
+    }
+
+    List<Integer> getFilterSpeciesListItemsIds(params) {
+//        long now = System.currentTimeMillis()
+        def itemIds = null
+
+        def qValue = params.q
+        if (qValue) {
+            String value = '%' + qValue + '%'
+            def criteria = SpeciesListItem.createCriteria()
+            itemIds = criteria.list {
+                projections {
+                    property "mylist.id"
+                }
+                or {
+                    ilike(MATCHED_NAME, value)
+                    ilike(RAW_SCIENTIFIC_NAME, value)
+                    ilike(GUID, value)
+                    ilike(COMMON_NAME, value)
+                }
+            }
+
+            itemIds = itemIds.unique()
+//            println(itemIds.unique().join(','))
+        }
+//        println("itemsIds time taken: " + (System.currentTimeMillis() - now) + " ms");
+        itemIds
     }
 
     /**
