@@ -71,8 +71,8 @@
 <!-- Search panel -->
 <g:set var="showActions" value="${source != 'public'}"/>
 <g:set var="formattedTotal" value="${String.format("%,d", total)}"/>
-<g:set var="searchTerm" value="${params.q ?: 'all records'}"/>
-<g:set var="resultUnit" value="${total == 1 ? 'result' : 'results'}"/>
+<g:set var="searchTerm" value="${params.q ?: message(code:'public.lists.search.all.records', default:'all records')}"/>
+<g:set var="resultUnit" value="${total == 1 ? message(code:'public.lists.search.result', default:'result') : message(code:'public.lists.search.results', default:'results')}"/>
 
 <div id="top-search-panel" class="row">
     <div class="col-md-5">
