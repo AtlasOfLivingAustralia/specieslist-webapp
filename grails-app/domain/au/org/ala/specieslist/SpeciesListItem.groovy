@@ -55,8 +55,12 @@ class SpeciesListItem {
         guid index: 'idx_guid'
         itemOrder index:  'idx_item_order'
         family index:  'idx_item_fam'
+        matchedName index:  'idx_matched_name'
+        rawScientificName index:  'idx_raw_scientific_name'
+        commonName index: 'idx_common_name'
         //NC 2013-05-09: Needed to map the old FK column name to the new one
         mylist (column:'list_id', sort:'itemOrder')
+        mylist index: 'idx_list_id'
         //kvpValues cascade: "all-delete-orphan"
         //kvpValues lazy: false
     }

@@ -252,9 +252,12 @@ class SpeciesListController {
         }
 
         try {
-            def lists = queryService.getFilterListResult(params, true)
-            def typeFacets = queryService.getTypeFacetCounts(params)
-            def tagFacets = queryService.getTagFacetCounts(params)
+            // retrieve qualified SpeciesListItems for performance reason
+            def itemsIds = queryService.getFilterSpeciesListItemsIds(params)
+
+            def lists = queryService.getFilterListResult(params, true, itemsIds)
+            def typeFacets = queryService.getTypeFacetCounts(params, itemsIds)
+            def tagFacets = queryService.getTagFacetCounts(params, itemsIds)
             //now remove the params that were added
             //params.remove('username')
             params.remove('userId')
@@ -329,13 +332,13 @@ class SpeciesListController {
 
     def getGuidsForList(id, limit){
         def fqs = params.fq?[params.fq].flatten().findAll{ it != null }:null
-        def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ",fqs, params.id)
+        def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id)
         SpeciesListItem.executeQuery("select sli.guid  " + baseQueryAndParams[0] + " and sli.guid is not null", baseQueryAndParams[1] ,[max: limit])
     }
 
     def getUnmatchedNamesForList(id, limit) {
         def fqs = params.fq?[params.fq].flatten().findAll{ it != null }:null
-        def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ",fqs, params.id)
+        def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id)
         def isdr =id.startsWith("dr")
         //def where = isdr? "dataResourceUid=?":"id = ?"
         def names = SpeciesListItem.executeQuery("select sli.rawScientificName  " + baseQueryAndParams[0] + " and sli.guid is null", baseQueryAndParams[1] ,[max: limit])

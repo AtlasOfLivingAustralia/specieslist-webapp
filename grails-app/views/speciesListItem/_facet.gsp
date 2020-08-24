@@ -10,7 +10,7 @@
             <g:set var="arr" value="${values.get(i)}"/>
             <g:if test="${isProperty}">
                 <li><g:link action="list" id="${params.id}"
-                            params="${[fq: sl.buildFqList(fqs: fqs, fq: "kvp ${arr[0]}:${arr[1]}"), max: params.max]}">
+                            params="${[fq: sl.buildFqList(fqs: fqs, fq: "kvp ${arr[0]}:${arr[1]}"), q: (params.q) ?: null, max: params.max]}">
                     <span class="fa fa-square-o">&nbsp;</span>
                     ${arr[2] ?: arr[1]}
                     (${arr[3]})
@@ -19,7 +19,7 @@
             </g:if>
             <g:else>
                 <li><g:link action="list" id="${params.id}"
-                            params="${[fq: sl.buildFqList(fqs: fqs, fq: "${key}:${arr[0]}"), max: params.max]}">
+                            params="${[fq: sl.buildFqList(fqs: fqs, fq: "${key}:${arr[0]}"), q: (params.q) ?: null, max: params.max]}">
                     <span class="fa fa-square-o">&nbsp;</span>
                     ${arr[0]}
                     (${arr[1]})
@@ -59,12 +59,12 @@
                                         <tr>
                                             <g:if test="${isProperty}">
                                                 <td><g:link action="list" id="${params.id}"
-                                                            params="${[fq: sl.buildFqList(fqs: fqs, fq: "kvp ${arr[0]}:${arr[1]}"), max: params.max]}">${arr[2] ?: arr[1]}</g:link></td>
+                                                            params="${[fq: sl.buildFqList(fqs: fqs, fq: "kvp ${arr[0]}:${arr[1]}"), q: params.q, max: params.max]}">${arr[2] ?: arr[1]}</g:link></td>
                                                 <td style="text-align: right; border-right-style: none;">${arr[3]}</td>
                                             </g:if>
                                             <g:else>
                                                 <td><g:link action="list" id="${params.id}"
-                                                            params="${[fq: sl.buildFqList(fqs: fqs, fq: "${key}:${arr[0]}"), max: params.max]}">${arr[0]}</g:link></td>
+                                                            params="${[fq: sl.buildFqList(fqs: fqs, fq: "${key}:${arr[0]}"), q: params.q, max: params.max]}">${arr[0]}</g:link></td>
                                                 <td style="text-align: right; border-right-style: none;">${arr[1]}</td>
                                             </g:else>
                                         </tr>
