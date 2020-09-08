@@ -650,7 +650,7 @@ class QueryService {
                 }
                 and {
                     eq(DATA_RESOURCE_UID, requestParams.id)
-                    isNotNull(GUID)
+                    isNull(GUID)
                     if (q) {
                         def queryParam = "%" + q + "%"
                         or {
