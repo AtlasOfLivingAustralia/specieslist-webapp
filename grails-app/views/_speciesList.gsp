@@ -82,7 +82,7 @@
                        class="form-control"
                        name="q" type="text"
                        value="${params.q}"
-                       placeholder="${message(code:'public.lists.search.text', default:'Search in list name, description or owner')}">
+                       placeholder="${message(code:'public.lists.search.text', default:'by list name, description, owner, GUID, supplied, scientific or common names')}">
                 <div class="input-group-btn">
                     <button class="btn btn-primary" type="submit">${message(code:'generic.lists.button.search.label', default:'Search')}</button>
                 </div>
