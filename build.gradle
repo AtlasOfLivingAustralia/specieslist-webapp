@@ -65,7 +65,7 @@ dependencies {
 
     runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.14.1"
     runtime "com.h2database:h2"
-    runtime ("org.grails.plugins:ala-bootstrap3:3.2.1")
+    runtime ("org.grails.plugins:ala-bootstrap3:3.2.3-SNAPSHOT")
 
     runtime ("org.grails.plugins:ala-admin-plugin:2.2") {
         exclude module: "cache"
