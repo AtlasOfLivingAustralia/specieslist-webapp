@@ -18,6 +18,11 @@ class PublicController {
     }
 
     def speciesLists(){
+        String searchTerm = null
+        if (params.q && params.q.length() < 3) {
+            searchTerm = params.q
+            params.q = ""
+        }
         params.max = Math.min(params.max ? params.int('max') : 25, 1000)
         params.sort = params.sort ?: "listName"
         if (params.isSDS){
@@ -29,19 +34,28 @@ class PublicController {
             def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
 
             // retrieve qualified SpeciesListItems for performance reason
+//            long now = System.currentTimeMillis()
             def itemsIds = queryService.getFilterSpeciesListItemsIds(params)
+//            println("time taken fro itemsIds: " + (System.currentTimeMillis()- now) + "ms")
+//            now = System.currentTimeMillis()
             def lists = queryService.getFilterListResult(params, hidePrivateLists, itemsIds)
-
+//            println("time taken fro lists: " + (System.currentTimeMillis()-now ) + "ms")
 //            log.info "lists = ${lists.size()} || count = ${lists.totalCount}"
-            render (view:'specieslists', model:[
+
+            def model = [
                     isAdmin:localAuthService.isAdmin(),
                     isLoggedIn: (authService.userId) != null,
                     lists:lists,
                     total:lists.totalCount,
                     typeFacets:queryService.getTypeFacetCounts(params, hidePrivateLists, itemsIds),
                     tagFacets:queryService.getTagFacetCounts(params, hidePrivateLists, itemsIds),
-                    selectedFacets:queryService.getSelectedFacets(params)
-            ])
+                    selectedFacets:queryService.getSelectedFacets(params)]
+            if (searchTerm) {
+                params.q = searchTerm
+                model.errors = "Error: Search terms must contain at least 3 characters"
+            }
+            render(view: 'specieslists', model: model)
+
         } catch(Exception e) {
             log.error "Error requesting species Lists: " ,e
             response.status = 404

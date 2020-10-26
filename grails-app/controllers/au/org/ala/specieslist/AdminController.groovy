@@ -29,16 +29,25 @@ class AdminController {
     }
 
     def speciesLists(){
+        String searchTerm = null
+        if (params.q && params.q.length() < 3) {
+            searchTerm = params.q
+            params.q = ""
+        }
         try {
             // retrieve qualified SpeciesListItems for performance reason
             def itemsIds = queryService.getFilterSpeciesListItemsIds(params)
             def lists = queryService.getFilterListResult(params, false, itemsIds)
-            render (view:'specieslists', model:[lists:lists,
-                                                total:lists.totalCount,
-                                                typeFacets:queryService.getTypeFacetCounts(params, itemsIds),
-                                                tagFacets: queryService.getTagFacetCounts(params, itemsIds),
-                                                selectedFacets:queryService.getSelectedFacets(params)
-            ])
+            def model = [lists:lists,
+                         total:lists.totalCount,
+                         typeFacets:queryService.getTypeFacetCounts(params, itemsIds),
+                         tagFacets: queryService.getTagFacetCounts(params, itemsIds),
+                         selectedFacets:queryService.getSelectedFacets(params)]
+            if (searchTerm) {
+                params.q = searchTerm
+                model.errors = "Error: Search terms must contain at least 3 characters"
+            }
+            render(view: 'specieslists', model: model)
         } catch(Exception e) {
             log.error "Error requesting species Lists: " ,e
             response.status = 404

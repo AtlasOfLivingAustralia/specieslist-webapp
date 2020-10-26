@@ -547,7 +547,7 @@ class QueryService {
                 or {
                     ilike(MATCHED_NAME, value)
                     ilike(RAW_SCIENTIFIC_NAME, value)
-                    ilike(GUID, value)
+                    like(GUID, value)
                     ilike(COMMON_NAME, value)
                 }
             }

@@ -1,8 +1,14 @@
 <%@page defaultCodec="html" %>
 <!-- Template for displaying a list of species list with or without a delete button -->
 <asset:script type="text/javascript">
-
     $(document).ready(function(){
+        if("${errors}"){
+            $('#errorsDiv').show();
+            $('#infoDiv').hide();
+        } else {
+            $('#errorsDiv').hide();
+            $('#infoDiv').show();
+        }
         // make table header cells clickable
         $("table .sortable").each(function(i){
             var href = $(this).find("a").attr("href");
@@ -68,13 +74,21 @@
     }
 </asset:script>
 
-<!-- Search panel -->
 <g:set var="showActions" value="${source != 'public'}"/>
 <g:set var="formattedTotal" value="${String.format("%,d", total)}"/>
-<g:set var="searchTerm" value="${params.q ?: message(code:'public.lists.search.all.records', default:'all records')}"/>
+<g:set var="searchTerm" value="${(params.q && !errors) ? params.q: message(code:'public.lists.search.all.records', default:'all records')}"/>
 <g:set var="resultUnit" value="${total == 1 ? message(code:'public.lists.search.result', default:'result') : message(code:'public.lists.search.results', default:'results')}"/>
 
+<!-- Search panel -->
 <div id="top-search-panel" class="row">
+    <div class="col-md-8">
+        <div id="errorsDiv" class="listSearchForm">
+            <label style="color:red">${message(code:'public.lists.search.error',default:'Error: Search terms must contain at least 3 characters')}</label>
+        </div>
+        <div id="infoDiv" class="listSearchForm">
+            <label>${message(code:'public.lists.search.info',default:'Search terms must contain at least 3 characters')}</label>
+        </div>
+    </div>
     <div class="col-md-5">
         <form class="listSearchForm">
             <div class="input-group" id="searchLists">
@@ -112,7 +126,6 @@
 <!-- Search results -->
 <div id="search-results" class="row">
     <div id="listFacets" class="col-md-2 well">
-
         <g:if test="${selectedFacets}">
             <h3>${message(code:'public.lists.search.filter.selected', default:'Selected filters')}</h3>
             <ul class="facets list-unstyled">

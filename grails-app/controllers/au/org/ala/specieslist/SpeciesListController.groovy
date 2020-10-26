@@ -83,7 +83,6 @@ class SpeciesListController {
      * @return
      */
     def deleteList(){
-
         log.debug("Deleting from collectory...")
         helperService.deleteDataResourceForList(params.id)
 
@@ -250,6 +249,11 @@ class SpeciesListController {
         if (userId){
             params['userId'] = "eq:"+userId
         }
+        String searchTerm = null
+        if (params.q && params.q.length() < 3) {
+            searchTerm = params.q
+            params.q = ""
+        }
 
         try {
             // retrieve qualified SpeciesListItems for performance reason
@@ -263,13 +267,18 @@ class SpeciesListController {
             params.remove('userId')
             log.debug("lists:" + lists)
 
-            render(view: "list", model: [
-                    lists:lists,
-                    total:lists.totalCount,
-                    typeFacets:typeFacets,
-                    tagFacets: tagFacets,
-                    selectedFacets:queryService.getSelectedFacets(params)]
-            )
+            def model = [
+                    lists: lists,
+                    total: lists.totalCount,
+                    typeFacets: typeFacets,
+                    tagFacets : tagFacets,
+                    selectedFacets: queryService.getSelectedFacets(params)]
+            if (searchTerm) {
+                params.q = searchTerm
+                model.errors = "Error: Search terms must contain at least 3 characters"
+            }
+            render(view: "list", model: model)
+
         } catch(Exception e) {
             log.error "Error requesting species Lists: " ,e
             response.status = 404
