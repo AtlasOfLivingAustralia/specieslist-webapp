@@ -67,7 +67,7 @@ class QueryService {
             and {
                 params.each { key, value ->
                     //the value suffix tells us which filter operation to perform
-                    if ('q'.equals(key)) {
+                    if ('q'.equals(key) && value) {
                         or {
                             ilike(LIST_NAME, '%' + value + '%')
                             ilike(FIRST_NAME, '%' + value + '%')
@@ -249,7 +249,7 @@ class QueryService {
             and {
                 params.each { key, value ->
                     //the value suffix tells us which filter operation to perform
-                    if ('q'.equals(key)) {
+                    if ('q'.equals(key) && value) {
                         or {
                             ilike(LIST_NAME, '%' + value + '%')
                             ilike(FIRST_NAME, '%' + value + '%')

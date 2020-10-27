@@ -30,6 +30,7 @@ class AdminController {
 
     def speciesLists(){
         String searchTerm = null
+        params.q = params.q?.trim()
         if (params.q && params.q.length() < 3) {
             searchTerm = params.q
             params.q = ""

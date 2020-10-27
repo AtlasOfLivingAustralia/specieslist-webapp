@@ -19,6 +19,7 @@ class PublicController {
 
     def speciesLists(){
         String searchTerm = null
+        params.q = params.q?.trim()
         if (params.q && params.q.length() < 3) {
             searchTerm = params.q
             params.q = ""
@@ -34,13 +35,8 @@ class PublicController {
             def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
 
             // retrieve qualified SpeciesListItems for performance reason
-//            long now = System.currentTimeMillis()
             def itemsIds = queryService.getFilterSpeciesListItemsIds(params)
-//            println("time taken fro itemsIds: " + (System.currentTimeMillis()- now) + "ms")
-//            now = System.currentTimeMillis()
             def lists = queryService.getFilterListResult(params, hidePrivateLists, itemsIds)
-//            println("time taken fro lists: " + (System.currentTimeMillis()-now ) + "ms")
-//            log.info "lists = ${lists.size()} || count = ${lists.totalCount}"
 
             def model = [
                     isAdmin:localAuthService.isAdmin(),
