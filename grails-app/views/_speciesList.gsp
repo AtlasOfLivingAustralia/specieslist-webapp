@@ -4,10 +4,8 @@
     $(document).ready(function(){
         if("${errors}"){
             $('#errorsDiv').show();
-            $('#infoDiv').hide();
         } else {
             $('#errorsDiv').hide();
-            $('#infoDiv').show();
         }
         // make table header cells clickable
         $("table .sortable").each(function(i){
@@ -82,11 +80,8 @@
 <!-- Search panel -->
 <div id="top-search-panel" class="row">
     <div class="col-md-8">
-        <div id="errorsDiv" class="listSearchForm">
+        <div id="errorsDiv" class="listSearchForm" style="display:none">
             <label style="color:red">${message(code:'public.lists.search.error',default:'Error: Search terms must contain at least 3 characters')}</label>
-        </div>
-        <div id="infoDiv" class="listSearchForm">
-            <label>${message(code:'public.lists.search.info',default:'Search terms must contain at least 3 characters')}</label>
         </div>
     </div>
     <div class="col-md-5">
