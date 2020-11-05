@@ -1,8 +1,12 @@
 <%@page defaultCodec="html" %>
 <!-- Template for displaying a list of species list with or without a delete button -->
 <asset:script type="text/javascript">
-
     $(document).ready(function(){
+        if("${errors}"){
+            $('#errorsDiv').show();
+        } else {
+            $('#errorsDiv').hide();
+        }
         // make table header cells clickable
         $("table .sortable").each(function(i){
             var href = $(this).find("a").attr("href");
@@ -68,13 +72,18 @@
     }
 </asset:script>
 
-<!-- Search panel -->
 <g:set var="showActions" value="${source != 'public'}"/>
 <g:set var="formattedTotal" value="${String.format("%,d", total)}"/>
-<g:set var="searchTerm" value="${params.q ?: message(code:'public.lists.search.all.records', default:'all records')}"/>
+<g:set var="searchTerm" value="${(params.q && !errors) ? params.q: message(code:'public.lists.search.all.records', default:'all records')}"/>
 <g:set var="resultUnit" value="${total == 1 ? message(code:'public.lists.search.result', default:'result') : message(code:'public.lists.search.results', default:'results')}"/>
 
+<!-- Search panel -->
 <div id="top-search-panel" class="row">
+    <div class="col-md-8">
+        <div id="errorsDiv" class="listSearchForm" style="display:none">
+            <label style="color:red">${message(code:'public.lists.search.error',default:'Error: Search terms must contain at least 3 characters')}</label>
+        </div>
+    </div>
     <div class="col-md-5">
         <form class="listSearchForm">
             <div class="input-group" id="searchLists">
@@ -82,7 +91,7 @@
                        class="form-control"
                        name="q" type="text"
                        value="${params.q}"
-                       placeholder="${message(code:'public.lists.search.text', default:'Search in list name, description or owner')}">
+                       placeholder="${message(code:'public.lists.search.text', default:'by list name, description, owner, GUID, supplied, scientific or common names')}">
                 <div class="input-group-btn">
                     <button class="btn btn-primary" type="submit">${message(code:'generic.lists.button.search.label', default:'Search')}</button>
                 </div>
@@ -112,7 +121,6 @@
 <!-- Search results -->
 <div id="search-results" class="row">
     <div id="listFacets" class="col-md-2 well">
-
         <g:if test="${selectedFacets}">
             <h3>${message(code:'public.lists.search.filter.selected', default:'Selected filters')}</h3>
             <ul class="facets list-unstyled">
@@ -211,12 +219,12 @@
                         <td>
                             <g:set var="test" value="${[id: list.id]}"/>
                             <a href="#"
-                               onclick="fancyConfirm('${message(code:"admin.lists.actions.button.delete.messages", default:"Are you sure that you would like to delete?")} ${list.listName.encodeAsHTML()}', ${list.id}, 'delete');
+                               onclick="fancyConfirm('${message(code:"admin.lists.actions.button.delete.messages", default:"Are you sure that you would like to delete")} <b>${list.listName.replace("'", "\\'").encodeAsHTML()}</b>?', ${list.id}, 'delete');
                                return false;" id="delete_${list.id}" class="btn btn-sm btn-primary">${message(code:"admin.lists.actions.button.delete.label", default:"Delete")}</a>
                         </td>
                         <td>
                             <a href="#"
-                               onclick="fancyConfirm('${message(code:"admin.lists.actions.button.rematch.messages", default:"Are you sure that you would like to rematch?")} ${list.listName.encodeAsHTML()}', ${list.id}, 'rematch');
+                               onclick="fancyConfirm('${message(code:"admin.lists.actions.button.rematch.messages", default:"Are you sure that you would like to rematch")} <b>${list.listName.replace("'", "\\'").encodeAsHTML()}</b>?', ${list.id}, 'rematch');
                                return false;" id="rematch_${list.id}" class="btn btn-sm btn-default">${message(code:"admin.lists.actions.button.rematch.label", default:"Reload")}</a>
                         </td>
                         <td>

@@ -92,6 +92,7 @@ class SpeciesListItemController {
                     requestParams.sort = requestParams.sort ?: "itemOrder"
                     requestParams.offset = requestParams.int('offset') ?: 0
                     requestParams.fetch = [kvpValues: 'select']
+                    requestParams.q = requestParams.q?.trim()
                     log.debug(requestParams.toQueryString())
 
                     def fqs = requestParams.fq ? [requestParams.fq].flatten().findAll { it != null } : null

@@ -843,7 +843,7 @@
                 <div id="searchView" class="searchItemForm">
                         <div class="input-group" id="searchListItem">
                             <input class="form-control" id="searchInputButton" name="q" type="text" value="${params.q}"
-                                   placeholder="${message(code:'public.lists.find.items.text', default:'By Supplied Name, Scientific Name or Common Name')}">
+                                   placeholder="${message(code:'public.lists.find.items.text', default:'by supplied, scientific or common names')}">
 
                             <div class="input-group-btn">
                                 <button class="btn btn-primary" type="submit">${message(code:'generic.lists.button.find.items.label', default:'Find species')}</button>

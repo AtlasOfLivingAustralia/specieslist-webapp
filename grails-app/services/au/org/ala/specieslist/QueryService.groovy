@@ -67,7 +67,7 @@ class QueryService {
             and {
                 params.each { key, value ->
                     //the value suffix tells us which filter operation to perform
-                    if ('q'.equals(key)) {
+                    if ('q'.equals(key) && value) {
                         or {
                             ilike(LIST_NAME, '%' + value + '%')
                             ilike(FIRST_NAME, '%' + value + '%')
@@ -249,7 +249,7 @@ class QueryService {
             and {
                 params.each { key, value ->
                     //the value suffix tells us which filter operation to perform
-                    if ('q'.equals(key)) {
+                    if ('q'.equals(key) && value) {
                         or {
                             ilike(LIST_NAME, '%' + value + '%')
                             ilike(FIRST_NAME, '%' + value + '%')
@@ -547,7 +547,7 @@ class QueryService {
                 or {
                     ilike(MATCHED_NAME, value)
                     ilike(RAW_SCIENTIFIC_NAME, value)
-                    ilike(GUID, value)
+                    like(GUID, value)
                     ilike(COMMON_NAME, value)
                 }
             }
@@ -650,7 +650,7 @@ class QueryService {
                 }
                 and {
                     eq(DATA_RESOURCE_UID, requestParams.id)
-                    isNotNull(GUID)
+                    isNull(GUID)
                     if (q) {
                         def queryParam = "%" + q + "%"
                         or {
