@@ -66,42 +66,20 @@
 
             function loadGridOrList() {
                 var storedView = amplify.store('view-state');
-                var hash = location.hash ? location.hash : "";
-
-                if (hash == '#grid') {
+                if (storedView == '#grid') {
                     enableGrid()
-                } else if (hash == '#list') {
+                } else if (storedView == '#list') {
                     enableList();
-                } else if (hash.indexOf("#") != -1) {
-                    if (storedView == '#grid') enableGrid();
-                    if (storedView == '#list') enableList();
-                    getAndViewRecordId(hash);
-                    hash = storedView;
-                } else if (storedView) {
-                    // no hash but stored value - use this
-                    location.hash = storedView;
-                    hash = storedView;
                 } else {
                     //if nothing else selected, default to list
                     enableList();
                 }
-
-                // store current hash (or previous view) in local storage (for pagination links)
-                amplify.store('view-state', hash);
-
-
                 // Add scroll bar to top and bottom of table
                 //Moving this here as the display of top scroll bar depends on the table content width
                 // and that will only be known after table data is loaded.
                 $('.fwtable').doubleScroll();
-
             };
 
-            // register handler for hashchange event
-            window.onhashchange = loadGridOrList;
-
-            // Since the event is only triggered when the hash changes, we need to trigger
-            // the event now, to handle the hash the page may have loaded with.
             loadGridOrList();
 
             // download link
@@ -213,6 +191,16 @@
                 });
             });
 
+            $("#toggleGrid").click(function(el) {
+                el.preventDefault();
+                enableGrid()
+            });
+
+            $("#toggleList").click(function(el) {
+                el.preventDefault();
+                enableList()
+            });
+
             // toggle display of list info box
             $("#toggleListInfo").click(function(el) {
                 el.preventDefault();
@@ -272,6 +260,7 @@
             $('#listItemView .grid').addClass('disabled');
             $('#listItemView .list').removeClass('disabled');
             $('#viewRecord').modal("hide");
+            amplify.store('view-state', '#grid');
         }
 
         function enableList() {
@@ -280,6 +269,7 @@
             $('#listItemView .list').addClass('disabled');
             $('#listItemView .grid').removeClass('disabled');
             $('#viewRecord').modal("hide");
+            amplify.store('view-state', '#list');
         }
 
         function toggleEditMeta(showHide) {
@@ -832,9 +822,9 @@
         <div class="row">
             <div class="col-md-6">
                 <div id="listItemView" class="btn-group">
-                    <a class="btn btn-default btn-sm list disabled" title="${message(code:'public.lists.view.page.tooltip02', default:'View as detailed list')} " href="#list"><i
+                    <a class="btn btn-default btn-sm list disabled" title="${message(code:'public.lists.view.page.tooltip02', default:'View as detailed list')} " id="toggleList" href="#"><i
                             class="glyphicon glyphicon-th-list"></i> ${message(code:'public.lists.view.page.button02', default:'list')}</a>
-                    <a class="btn btn-default btn-sm grid" title="${message(code:'public.lists.view.page.tooltip03', default:'View as thumbnail image grid')}" href="#grid"><i
+                    <a class="btn btn-default btn-sm grid" title="${message(code:'public.lists.view.page.tooltip03', default:'View as thumbnail image grid')}" id="toggleGrid" href="#"><i
                             class="glyphicon glyphicon-th"></i> ${message(code:'public.lists.view.page.button03', default:'grid')}</a>
                 </div>
             </div>

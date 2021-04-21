@@ -48,19 +48,21 @@ class SpeciesListController {
 
     def index() { redirect(action: 'upload')}
 
-    def upload(){ /*maps to the upload.gsp */
+    def upload() { /*maps to the upload.gsp */
         log.debug(ListType.values()?.toString())
-        if(params.id){
+        if (params.id) {
             //get the list if it exists and ensure that the user is an admin or the owner
             def list = SpeciesList.findByDataResourceUid(params.id)
-            if(list?.userId == authService.getUserId() || authService.userInRole("ROLE_ADMIN")){
+            if (list?.userId == authService.getUserId() || authService.userInRole("ROLE_ADMIN")) {
                 render(view: "upload", model: [resourceUid: params.id, list: list, listTypes: ListType.values()])
             } else {
                 flash.message = "${message(code: 'error.message.reloadListPermission', args: [params.id])}"
-                redirect(controller: "public", action:"speciesLists")
+                redirect(controller: "public", action: "speciesLists")
             }
         } else {
-            render(view: "upload", model: [listTypes: ListType.values()])
+            // list is private by default
+            def list = new SpeciesList(isPrivate: true)
+            render(view: "upload", model: [list: list, listTypes: ListType.values()])
         }
     }
 
