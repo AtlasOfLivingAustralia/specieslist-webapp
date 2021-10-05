@@ -140,8 +140,8 @@ class SpeciesListItemController {
     def facetsvalues(){
         if(params.id){
           def result = SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt ' +
-                  'from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=? ' +
-                  'group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc', params.id)
+                  'from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=:dataResourceUid ' +
+                  'group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc', [dataResourceUid: params.id])
           //group the same properties keys together
           def properties = result.groupBy { it[0] }
           def map = [:]

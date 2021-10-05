@@ -102,12 +102,12 @@ class EditorController {
             log.debug "Item's list = " + sl.listName
             log.debug "Item's DRUid = " + sli.dataResourceUid
             log.debug "Item's Size = " + sl.items.size()
-            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?", sl.dataResourceUid)
+            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid= :dataResourceUid", [dataResourceUid: sl.dataResourceUid])
             def keyVocabs = [:]
             def kvpMap = [:]
             def kvpOrder = []
             keys.each { key ->
-                def vocabValues = SpeciesListKVP.executeQuery("select distinct vocabValue from SpeciesListKVP where dataResourceUid=? and key=?", [sl.dataResourceUid, key])
+                def vocabValues = SpeciesListKVP.executeQuery("select distinct vocabValue from SpeciesListKVP where dataResourceUid=: dataResourceUid and key= :key", [dataResourceUid: sl.dataResourceUid, key: key])
                 log.debug "vocabValues = " + vocabValues + " size: " + vocabValues.size()
                 def kvp = SpeciesListKVP.findByDataResourceUidAndKey(sli.dataResourceUid, key)
                 kvpOrder.add(kvp.itemOrder)
@@ -135,7 +135,7 @@ class EditorController {
         log.debug "sli KVPs = " + sli.kvpValues
         if (sli) {
             // check for changed values
-            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?", sli.dataResourceUid)
+            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid= :dataResourceUid", [dataResourceUid: sli.dataResourceUid])
             def kvpRemoveList = [] as Set
 
             keys.each { key ->

@@ -1,7 +1,7 @@
 package au.org.ala.specieslist
 
 import grails.plugin.cache.Cacheable
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 
 @Transactional
 class UserDetailsService {

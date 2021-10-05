@@ -19,7 +19,7 @@ import au.org.ala.names.model.LinnaeanRankClassification
 import au.org.ala.names.model.NameSearchResult
 import au.org.ala.names.search.ALANameSearcher
 import com.opencsv.CSVReader
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import groovy.json.JsonOutput
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
