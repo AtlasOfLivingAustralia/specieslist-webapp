@@ -3,6 +3,12 @@ grails:
     profile: web
     codegen:
         defaultPackage: au.org.ala.specieslist
+    config:
+        locations:
+            #- classpath:plugin.groovy
+            - file:/data/specieslist-webapp/config/specieslist-webapp-config.properties
+            - file:/data/specieslist-webapp/config/specieslist-webapp-config.yml
+            - file:/data/specieslist-webapp/config/specieslist-webapp-config.groovy
     gorm:
         reactor:
             # Whether to translate GORM events into Reactor events
@@ -100,11 +106,13 @@ management:
             unique-names: true
 
 ---
+
 hibernate:
     cache:
         queries: false
-        use_second_level_cache: false
+        use_second_level_cache: true
         use_query_cache: false
+        region.factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
 
 dataSource:
     pooled: true

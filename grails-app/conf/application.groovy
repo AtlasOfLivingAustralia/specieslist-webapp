@@ -141,24 +141,13 @@ springcache {
     }
 }
 
-grails.cache.config = {
-
-    defaults {
-        eternal false
-        overflowToDisk false
-        maxElementsInMemory 20000
-        timeToLiveSeconds 3600
-    }
+grails {
     cache {
-        name 'userListCache'
+        ehcache {
+            ehcacheXmlLocation = 'classpath:lists-ehcache.xml'
+            lockTimeout = 1000
+        }
     }
-    cache {
-        name 'userMapCache'
-    }
-    cache {
-        name 'userDetailsCache'
-    }
-
 }
 
 app.dataDir='/tmp/'
