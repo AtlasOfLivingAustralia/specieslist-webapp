@@ -7,7 +7,7 @@ import org.hibernate.criterion.Order
 
 class QueryService {
 
-    public static final String EDITOR_SQL_RESTRICTION = "this_.id in (select species_list_id from species_list_editors e where e.editors_string = :editors_string)"
+    public static final String EDITOR_SQL_RESTRICTION = "this_.id in (select species_list_id from species_list_editors e where e.editors_string = ?)"
     public static final String USER_ID = "userId"
     public static final String IS_PRIVATE = "isPrivate"
     public static final String LIST_NAME = "listName"
@@ -112,7 +112,7 @@ class QueryService {
                                     if (method) {
                                         method.invoke(c, args)
                                     }
-                                    sqlRestriction(EDITOR_SQL_RESTRICTION, [editors_string: filterValue])
+                                    sqlRestriction(EDITOR_SQL_RESTRICTION, [filterValue])
                                 }
                             } else {
                                 if (method) {
@@ -133,7 +133,7 @@ class QueryService {
                             isNull(IS_PRIVATE)
                             eq(IS_PRIVATE, false)
                             eq(USER_ID, authService.getUserId())
-                            sqlRestriction(EDITOR_SQL_RESTRICTION, [editors_string: authService.getUserId()])
+                            sqlRestriction(EDITOR_SQL_RESTRICTION, [authService.getUserId()])
                         }
                     } else {
                         log.debug("User is admin, so has visibility og private lists")
@@ -290,7 +290,7 @@ class QueryService {
                                     if (method) {
                                         method.invoke(c, args)
                                     }
-                                    sqlRestriction(EDITOR_SQL_RESTRICTION, [editors_string: filterValue])
+                                    sqlRestriction(EDITOR_SQL_RESTRICTION, [filterValue])
                                 }
                             } else {
                                 if (method) {
@@ -311,7 +311,7 @@ class QueryService {
                             isNull(IS_PRIVATE)
                             eq(IS_PRIVATE, false)
                             eq(USER_ID, authService.getUserId())
-                            sqlRestriction(EDITOR_SQL_RESTRICTION, [editors_string: authService.getUserId()])
+                            sqlRestriction(EDITOR_SQL_RESTRICTION, [authService.getUserId()])
                         }
                     }
                 } else {
