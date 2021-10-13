@@ -476,7 +476,7 @@ class QueryService {
         //query.append(" from SpeciesListItem sli join sli.kvpValues kvp where sli.dataResourceUid=? ")
         def queryparams = [dataResourceUid: dataResourceUid]
         if (q) {
-            whereBuilder.append("AND (sli.matchedName like :matchedName or sli.commonName like ?;commonName or sli.rawScientificName like :rawScientificName) ")
+            whereBuilder.append("AND (sli.matchedName like :matchedName or sli.commonName like :commonName or sli.rawScientificName like :rawScientificName) ")
             queryparams << [matchedName: "%" + q + "%"]
             queryparams << [commonName: "%" + q + "%"]
             queryparams << [rawScientificName: "%" + q + "%"]
@@ -486,7 +486,7 @@ class QueryService {
                 int pos = facet.indexOf(":")
                 if (pos != -1) {
                     if (facet.startsWith("kvp")){
-                        String sindex = index.toString();
+                        String sindex = index.toString()
                         facet = facet.replaceFirst("kvp ","")
                         pos = facet.indexOf(":")
                         String key = facet.substring(0, pos)
@@ -497,11 +497,11 @@ class QueryService {
                     } else {
                         String key = facet.substring(0, pos)
                         String value = facet.substring(pos + 1)
-                        whereBuilder.append("AND sli.").append(key)
+                        whereBuilder.append(" AND sli.").append(key)
                         if (value.equalsIgnoreCase("null")) {
                             whereBuilder.append(" is null")
                         } else {
-                            whereBuilder.append("=:value")
+                            whereBuilder.append("=:value ")
                             queryparams << [value: value]
                         }
                     }
