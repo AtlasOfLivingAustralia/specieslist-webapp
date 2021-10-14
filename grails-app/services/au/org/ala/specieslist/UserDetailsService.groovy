@@ -30,6 +30,7 @@ class UserDetailsService {
         authService.getAllUserNameMap()
     }
 
+    @Transactional
     def updateSpeciesListUserDetails() {
         List listsWithoutUserIds = []
         Boolean isSuccessful =  false
@@ -95,6 +96,7 @@ class UserDetailsService {
         isSuccessful
     }
 
+    @Transactional
     def updateEditorsList() {
         def listsEditorsWithoutUserIds
         def returnBool = false

@@ -5,7 +5,6 @@ grails:
         defaultPackage: au.org.ala.specieslist
     config:
         locations:
-            #- classpath:plugin.groovy
             - file:/data/specieslist-webapp/config/specieslist-webapp-config.properties
             - file:/data/specieslist-webapp/config/specieslist-webapp-config.yml
             - file:/data/specieslist-webapp/config/specieslist-webapp-config.groovy

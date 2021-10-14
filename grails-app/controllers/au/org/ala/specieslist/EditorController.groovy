@@ -1,5 +1,7 @@
 package au.org.ala.specieslist
 
+import grails.gorm.transactions.Transactional
+
 import java.text.SimpleDateFormat
 
 class EditorController {
@@ -129,6 +131,7 @@ class EditorController {
     /**
      * Edit a SpeciesListItem
      */
+    @Transactional
     def editRecord() {
         def sli = SpeciesListItem.get(params.id)
         log.debug "editRecord params = " + params
@@ -212,6 +215,7 @@ class EditorController {
         render(text: response.text, status: response.status)
     }
 
+    @Transactional
     def deleteRecord() {
         def sli = SpeciesListItem.get(params.id)
 
@@ -245,6 +249,7 @@ class EditorController {
     /**
      * webservice to update a list of editors for a given list
      */
+    @Transactional
     def updateEditors() {
         log.debug "editors param = " + params.'editors[]'
         def speciesList = SpeciesList.findByDataResourceUid(params.id)
@@ -269,6 +274,7 @@ class EditorController {
         }
     }
 
+    @Transactional
     def editSpeciesList() {
         def speciesList = SpeciesList.get(params.id)
         if (!speciesList) {

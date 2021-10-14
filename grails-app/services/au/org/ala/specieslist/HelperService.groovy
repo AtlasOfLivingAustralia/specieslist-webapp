@@ -691,6 +691,7 @@ class HelperService {
         }
     }
 
+    @Transactional
     def createRecord (params) {
         def sl = SpeciesList.get(params.id)
         log.debug "params = " + params
@@ -699,7 +700,7 @@ class HelperService {
             return [text: "Missing required field: rawScientificName", status: 400]
         }
         else if (sl) {
-            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?", sl.dataResourceUid)
+            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=:dataResourceUid", [dataResourceUid: sl.dataResourceUid])
             log.debug "keys = " + keys
             def sli = new SpeciesListItem(dataResourceUid: sl.dataResourceUid, rawScientificName: params.rawScientificName, itemOrder: sl.items.size() + 1)
             //sli.guid = helperService.findAcceptedLsidByScientificName(sli.rawScientificName)?: helperService.findAcceptedLsidByCommonName(sli.rawScientificName)
