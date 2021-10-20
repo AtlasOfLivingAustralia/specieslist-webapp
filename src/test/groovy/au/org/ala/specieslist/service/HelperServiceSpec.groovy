@@ -4,28 +4,26 @@ import au.org.ala.names.search.ALANameSearcher
 import au.org.ala.specieslist.*
 import au.org.ala.web.AuthService
 import com.opencsv.CSVReader
-import grails.test.mixin.Mock
-import grails.test.mixin.TestFor
-import grails.test.mixin.TestMixin
-import grails.test.mixin.domain.DomainClassUnitTestMixin
-import grails.test.mixin.support.GrailsUnitTestMixin
+import grails.testing.gorm.DataTest
+import grails.testing.services.ServiceUnitTest
 import org.grails.web.json.JSONObject
 import spock.lang.Specification
 import spock.lang.Unroll
 
-@TestFor(HelperService)
-@TestMixin([GrailsUnitTestMixin, DomainClassUnitTestMixin])
 @Unroll
-@Mock([SpeciesListItem, SpeciesList, SpeciesListKVP])
-class HelperServiceTest extends Specification {
+class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperService>, DataTest {
 
     def helperService = new HelperService()
+
+    void setupSpec() {
+        mockDomains(SpeciesListItem, SpeciesList, SpeciesListKVP)
+    }
 
     def setup() {
         grailsApplication.config.commonNameColumns="commonname,vernacularname"
         grailsApplication.config.ambiguousNameColumns="name"
         grailsApplication.config.speciesNameColumns = "scientificname,suppliedname,taxonname,species"
-        helperService.transactionManager = transactionManager
+//        helperService.transactionManager = transactionManager
         helperService.grailsApplication = grailsApplication
         helperService.init()
     }

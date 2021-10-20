@@ -1,23 +1,22 @@
 package au.org.ala.specieslist.controller
 
+
 import au.org.ala.specieslist.SpeciesList
 import au.org.ala.specieslist.SpeciesListItem
 import au.org.ala.specieslist.SpeciesListKVP
 import au.org.ala.specieslist.WebServiceController
-import grails.test.mixin.Mock
-import grails.test.mixin.TestFor
-import grails.test.mixin.TestMixin
-import grails.test.mixin.domain.DomainClassUnitTestMixin
-import grails.test.mixin.support.GrailsUnitTestMixin
+import grails.testing.gorm.DataTest
+import grails.testing.web.controllers.ControllerUnitTest
 import org.apache.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Unroll
 
-@TestFor(WebServiceController)
-@TestMixin([GrailsUnitTestMixin, DomainClassUnitTestMixin])
 @Unroll
-@Mock([SpeciesList, SpeciesListItem, SpeciesListKVP])
-class WebServiceControllerTest extends Specification {
+class WebServiceControllerSpec extends Specification implements ControllerUnitTest<WebServiceController>, DataTest {
+
+    void setupSpec() {
+        mockDomains(SpeciesListItem, SpeciesList, SpeciesListKVP)
+    }
 
     def "getListItemDetails should retrieve KVP values when includeKVP is true"() {
         setup:

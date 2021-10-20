@@ -2,34 +2,26 @@ package au.org.ala.specieslist.controller
 
 import au.org.ala.specieslist.HelperService
 import au.org.ala.specieslist.SpeciesListController
-import grails.test.mixin.TestFor
-import grails.test.mixin.TestMixin
-import grails.test.mixin.domain.DomainClassUnitTestMixin
-import grails.test.mixin.support.GrailsUnitTestMixin
+import grails.testing.gorm.DataTest
+import grails.testing.web.controllers.ControllerUnitTest
+import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.multipart.MultipartHttpServletRequest
-import org.springframework.web.multipart.commons.CommonsMultipartFile
 import spock.lang.Specification
 import spock.lang.Unroll
 
-@TestFor(SpeciesListController)
-@TestMixin([GrailsUnitTestMixin, DomainClassUnitTestMixin])
 @Unroll
-class SpeciesListControllerTest extends Specification {
+class SpeciesListControllerSpec extends Specification implements ControllerUnitTest<SpeciesListController>, DataTest {
 
     static final String CSV_CONTENT = "col1,col2\nval1,val2\n"
     static final String TAB_CONTENT = "col1\tcol2\nval3\tval4\n"
 
-
-    def mockFile
-    def mockMultipartRequest
+    def mockFile = Mock(MultipartFile)
+    def mockMultipartRequest = Mock(MultipartHttpServletRequest)
 
     def setup() {
-        mockFile = Mock(CommonsMultipartFile)
-
-        mockMultipartRequest = Mock(MultipartHttpServletRequest)
         mockMultipartRequest.getFile(_) >> mockFile
         controller.helperService = new HelperService()
-        controller.helperService.transactionManager = transactionManager
+//        controller.helperService.transactionManager = transactionManager
     }
 
     def "parseData should detect multi-part requests and read data from a file upload"() {
