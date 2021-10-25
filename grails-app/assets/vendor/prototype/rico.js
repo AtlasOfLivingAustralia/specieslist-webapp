@@ -159,7 +159,6 @@ Rico.Accordion.prototype = {
          hoverTextColor      : '#ffffff',
          collapsedTextColor  : '#ced7ef',
          collapsedFontWeight : 'normal',
-         hoverTextColor      : '#ffffff',
          borderColor         : '#1f669b',
          panelHeight         : 200,
          onHideTab           : null,
