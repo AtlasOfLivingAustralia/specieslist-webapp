@@ -7,25 +7,25 @@ branches:
   - master
   - develop
   - grails4
-before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-cache:
-  directories:
-#    - $HOME/.m2
-#    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
+
 before_install:
-  - export TZ=Australia/Canberra
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches
   - sudo mkdir -p /data/specieslist-webapp/ehcache
   - sudo chmod o+xw /data
   - sudo chmod o+xw /data/specieslist-webapp
   - sudo chmod o+xw /data/specieslist-webapp/ehcache
 
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches
+
+cache:
+  directories:
+    - $HOME/.m2
+    - $HOME/.gradle/wrapper/
+
 after_success:
   - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && travis_retry ./gradlew publish'
+
 env:
   global:
   - secure: IF4jY8XTU5Nmrqs4aja6sIgC93VgBPxw8ylyoMQhePkB35SK2EHZ5cU7Tx3FSvEmDUQk6cq89toZHiiiGCISdCN3lawDpOFIeMZs3g98hc6cMBd4Wx7ncjO3oKDsIn+DFrF11TgMrwtjUUH/4TGpc32kyf0L5J/O+vqUO4vK6gs=
