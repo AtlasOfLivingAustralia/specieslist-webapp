@@ -15,6 +15,15 @@ cache:
 #    - $HOME/.m2
 #    - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+before_install:
+  - export TZ=Australia/Canberra
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches
+  - sudo mkdir -p /data/specieslist-webapp/ehcache
+  - sudo chmod o+xw /data
+  - sudo chmod o+xw /data/specieslist-webapp
+  - sudo chmod o+xw /data/specieslist-webapp/ehcache
+
 after_success:
   - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && travis_retry ./gradlew publish'
 env:
