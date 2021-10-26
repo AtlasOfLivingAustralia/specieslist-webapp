@@ -4,9 +4,6 @@ import au.org.ala.names.search.ALANameSearcher
 import au.org.ala.web.AuthService
 import au.org.ala.web.UserDetails
 import grails.gorm.transactions.Rollback
-
-//import grails.test.mixin.TestFor
-
 import grails.testing.mixin.integration.Integration
 import grails.util.GrailsWebMockUtil
 import org.grails.plugins.testing.GrailsMockHttpServletRequest
@@ -22,6 +19,7 @@ import javax.servlet.http.Cookie
 @Rollback
 class WebServiceControllerIntegrationSpec extends Specification {
     def helperService
+
     @Autowired
     WebServiceController controller
 

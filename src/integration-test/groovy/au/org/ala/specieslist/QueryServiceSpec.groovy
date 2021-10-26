@@ -1,9 +1,6 @@
 package au.org.ala.specieslist
 
 import au.org.ala.web.AuthService
-//import grails.test.mixin.TestMixin
-//
-//import grails.test.mixin.web.ControllerUnitTestMixin
 import grails.gorm.transactions.Rollback
 import grails.testing.mixin.integration.Integration
 import org.springframework.beans.factory.annotation.Autowired
@@ -114,7 +111,7 @@ class QueryServiceSpec extends Specification {
         assert list[0].dataResourceUid == "1"
         assert list[1].dataResourceUid == "3"
     }
-    
+
     void "test getFilterListResult searching by userId should not match associated editors if not searching with eq"() {
         when:
         def list = queryService.getFilterListResult([userId:"ne:3"])
