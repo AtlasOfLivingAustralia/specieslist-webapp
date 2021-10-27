@@ -265,7 +265,7 @@ class SpeciesListController {
             def itemsIds = queryService.getFilterSpeciesListItemsIds(params)
 
             def lists = queryService.getFilterListResult(params, true, itemsIds)
-            def typeFacets = queryService.getTypeFacetCounts(params, itemsIds)
+            def typeFacets = (params.listType) ? null : queryService.getTypeFacetCounts(params, true, itemsIds)
             def tagFacets = queryService.getTagFacetCounts(params, itemsIds)
             //now remove the params that were added
             //params.remove('username')
