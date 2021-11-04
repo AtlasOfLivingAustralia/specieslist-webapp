@@ -41,7 +41,7 @@ class AdminController {
             def lists = queryService.getFilterListResult(params, false, itemsIds)
             def model = [lists:lists,
                          total:lists.totalCount,
-                         typeFacets: (params.listType) ? null : queryService.getTypeFacetCounts(params, hidePrivateLists, itemsIds),
+                         typeFacets: (params.listType) ? null : queryService.getTypeFacetCounts(params, false, itemsIds),
                          tagFacets: queryService.getTagFacetCounts(params, itemsIds),
                          selectedFacets:queryService.getSelectedFacets(params)]
             if (searchTerm) {
