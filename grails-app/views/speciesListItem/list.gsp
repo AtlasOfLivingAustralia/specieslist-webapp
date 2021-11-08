@@ -99,7 +99,7 @@
             });
 
             // Tooltip for link title
-            $('#content a').not('.thumbImage').tooltip({placement: "bottom", html: true, delay: 200, container: "body"});
+            // $('#content a').not('.thumbImage').tooltip({placement: "bottom", html: true, delay: 200, container: "body"});
 
             // submit edit record changes via POST
             $("button.saveRecord").click(function() {
