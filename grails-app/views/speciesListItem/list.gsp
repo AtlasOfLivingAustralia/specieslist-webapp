@@ -65,7 +65,7 @@
             });
 
             function loadGridOrList() {
-                var storedView = amplify.store('view-state');
+                var storedView = window.localStorage.getItem('view-state');
                 if (storedView == '#grid') {
                     enableGrid()
                 } else if (storedView == '#list') {
@@ -260,7 +260,7 @@
             $('#listItemView .grid').addClass('disabled');
             $('#listItemView .list').removeClass('disabled');
             $('#viewRecord').modal("hide");
-            amplify.store('view-state', '#grid');
+            window.localStorage.setItem('view-state', '#grid');
         }
 
         function enableList() {
@@ -269,7 +269,7 @@
             $('#listItemView .list').addClass('disabled');
             $('#listItemView .grid').removeClass('disabled');
             $('#viewRecord').modal("hide");
-            amplify.store('view-state', '#list');
+            window.localStorage.setItem('view-state', '#list');
         }
 
         function toggleEditMeta(showHide) {
@@ -1077,7 +1077,6 @@
     </div>
 </div> <!-- content div -->
 <asset:javascript src="fancybox.js" asset-defer=""/>
-<asset:javascript src="amplify.js" asset-defer=""/>
 <asset:script type="text/javascript" asset-defer="">
 
     $(document).ready(function(){

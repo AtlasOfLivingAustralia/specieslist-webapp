@@ -276,6 +276,5 @@
         %{--</div> <!-- results -->--}%
     </div>
 </div> <!-- content div -->
-<asset:javascript src="amplify.js"/>
 </body>
 </html>
