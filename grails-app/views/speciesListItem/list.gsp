@@ -958,7 +958,7 @@
                                     <td id="img_${result.guid}">
                                         <g:if test="${result.imageUrl}">
                                             <a href="${bieUrl}/species/${result.guid}" title="click to view species page"><img
-                                                    style="display:block;" width="100%" height="100%" src="${result.imageUrl}"
+                                                    src="${result.imageUrl}"
                                                     class="smallSpeciesImage"/></a>
                                         </g:if>
                                     </td>
