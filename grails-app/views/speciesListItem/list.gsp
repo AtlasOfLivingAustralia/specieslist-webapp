@@ -850,7 +850,7 @@
             <div id="gridView" class="not-visible">
                 <g:each var="result" in="${results}" status="i">
                     <g:set var="recId" value="${result.id}"/>
-                    <g:set var="bieTitle">${message(code:'public.lists.view.table.tooltip03', default:'species page for ')}<i>${result.rawScientificName}</i></g:set>
+%{--                    <g:set var="bieTitle">${message(code:'public.lists.view.table.tooltip03', default:'species page for ')}<i>${result.rawScientificName}</i></g:set>--}%
                     <div class="imgCon">
                         <a class="thumbImage viewRecordButton" rel="thumbs" title="${message(code:'public.lists.view.table.tooltip02', default:'click to view details')}" href="#viewRecord"
                                     data-id="${recId}"><img
@@ -918,7 +918,7 @@
                             <tbody>
                             <g:each var="result" in="${results}" status="i">
                                 <g:set var="recId" value="${result.id}"/>
-                                <g:set var="bieTitle">${message(code:'public.lists.view.table.tooltip03', default:'species page for')} <i>${result.rawScientificName}</i></g:set>
+%{--                                <g:set var="bieTitle">${message(code:'public.lists.view.table.tooltip03', default:'species page for')} <i>${result.rawScientificName}</i></g:set>--}%
                                 <tr class="${(i % 2) == 0 ? 'odd' : 'even'}" id="row_${recId}">
                                     <td class="action">
                                         <div class="btn-group action-btn-group-width" role="group">
@@ -949,7 +949,7 @@
                                     <td class="matchedName">
                                         <g:if test="${result.guid}">
                                             <a href="${bieUrl}/species/${result.guid}"
-                                               title="${bieTitle}">${result.matchedName}</a>
+                                               title="click to view species page">${result.matchedName}</a>
                                         </g:if>
                                         <g:else>
                                             ${result.matchedName}
@@ -957,7 +957,7 @@
                                     </td>
                                     <td id="img_${result.guid}">
                                         <g:if test="${result.imageUrl}">
-                                            <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img
+                                            <a href="${bieUrl}/species/${result.guid}" title="click to view species page"><img
                                                     src="${result.imageUrl}"
                                                     class="smallSpeciesImage"/></a>
                                         </g:if>
