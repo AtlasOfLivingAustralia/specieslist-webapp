@@ -29,7 +29,6 @@ import org.nibor.autolink.*
 import org.springframework.context.MessageSource
 import org.springframework.context.i18n.LocaleContextHolder
 
-
 import javax.annotation.PostConstruct
 
 import static groovyx.net.http.ContentType.JSON
@@ -81,18 +80,31 @@ class HelperService {
         if(grailsApplication.config.collectory.enableSync?.toString()?.toBoolean()){
             def postUrl = grailsApplication.config.collectory.baseURL + "/ws/dataResource"
             def http = new HTTPBuilder(postUrl)
+            http.setHeaders([Authorization: "${grailsApplication.config.registryApiKey}"])
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
-            def jsonBody = createJsonForNewDataResource(map)
+            Map jsonBody = createJsonForNewDataResource(map)
             log.debug(jsonBody?.toString())
+            String newDataResource = null
             try {
-               http.post(body: jsonBody, requestContentType:JSON){ resp ->
-                 assert resp.status == 201
-                 return resp.headers['location'].getValue()
-               }
-            } catch(ex){
+               http.request(Method.POST) {
+                    uri.path = postUrl
+                    body = jsonBody
+                    requestContentType = ContentType.JSON
+                    response.success = { resp ->
+                        println "Success! ${resp.status}"
+                        log.info("Created a collectory entry for the species list.  ${resp.status}")
+                        newDataResource = resp.headers['location'].getValue()
+                    }
+                    response.failure = { resp ->
+                        log.error("Unable to create a collectory entry for the species list.  ${resp.status}")
+                    }
+                }
+
+            } catch (ex){
                 log.error("Unable to create a collectory entry for the species list. ", ex)
-                return null
             }
+
+            newDataResource
 
         } else {
            //return a dummy URL
@@ -124,15 +136,25 @@ class HelperService {
     }
 
     def updateDataResourceForList(drId, map) {
-        if(grailsApplication.config.collectory.enableSync?.toString()?.toBoolean()){
+        if (grailsApplication.config.collectory.enableSync?.toString()?.toBoolean()){
             def postUrl = grailsApplication.config.collectory.baseURL + "/ws/dataResource/" + drId
             def http = new HTTPBuilder(postUrl)
+            http.setHeaders([Authorization: "${grailsApplication.config.registryApiKey}"])
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
             def jsonBody = createJsonForNewDataResource(map)
             log.debug(jsonBody?.toString())
             try {
-               http.post(body: jsonBody, requestContentType:JSON){ resp ->
-                 log.debug("Response code: " + resp.status)
+               http.request(Method.POST) {
+                    uri.path = postUrl
+                    body = jsonBody
+                    requestContentType = ContentType.JSON
+                    response.success = { resp ->
+                        println "Success! ${resp.status}"
+                        log.info("Updatedthe collectory entry for the species list ${drId}.  ${resp.status}")
+                    }
+                    response.failure = { resp ->
+                        log.error("Unable to update the collectory entry for the species list ${drId}.  ${resp.status}")
+                    }
                }
             } catch(ex) {
                 log.error("Unable to create a collectory entry for the species list.",ex)
@@ -143,14 +165,13 @@ class HelperService {
         }
     }
 
-    def createJsonForNewDataResource(map){
+    Map createJsonForNewDataResource(map){
         map.api_key = grailsApplication.config.registryApiKey
         map.resourceType = "species-list"
         map.user = 'Species list upload'
         map.firstName = localAuthService.firstname()?:""
         map.lastName = localAuthService.surname()?:""
-        JsonOutput jo = new JsonOutput()
-        jo.toJson(map)
+        map
     }
 
     def uploadFile(druid, uploadedFile){
