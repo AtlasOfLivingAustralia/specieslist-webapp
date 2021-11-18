@@ -15,9 +15,7 @@
 
 package au.org.ala.specieslist
 
-import au.org.ala.names.model.LinnaeanRankClassification
-import au.org.ala.names.model.NameSearchResult
-import au.org.ala.names.search.ALANameSearcher
+import au.org.ala.names.ws.api.NameUsageMatch
 import com.opencsv.CSVReader
 import grails.gorm.transactions.Transactional
 import groovy.json.JsonOutput
@@ -51,7 +49,7 @@ class HelperService {
 
     BieService bieService
 
-    def cbIdxSearcher = null
+    NameExplorerService nameExplorerService
 
     Integer BATCH_SIZE
 
@@ -567,94 +565,80 @@ class HelperService {
 
     def  matchNameToSpeciesListItem(String name, SpeciesListItem sli){
         //includes matchedName search for rematching if nameSearcher lsids change.
-        NameSearchResult nsr = findAcceptedConceptByScientificName(sli.rawScientificName) ?:
+        NameUsageMatch nameUsageMatch = findAcceptedConceptByScientificName(sli.rawScientificName) ?:
                 findAcceptedConceptByCommonName(sli.rawScientificName) ?:
                         findAcceptedConceptByLSID(sli.rawScientificName) ?:
                                 findAcceptedConceptByNameFamily(sli.matchedName, sli.family)
-        if(nsr){
-            sli.guid = nsr.getLsid()
-            sli.family = nsr.getRankClassification().getFamily()
-            sli.matchedName = nsr.getRankClassification().getScientificName()
-            sli.author = nsr.getRankClassification().getAuthorship();
+        if(nameUsageMatch){
+            sli.guid = nameUsageMatch.getTaxonConceptID()
+            sli.family = nameUsageMatch.getFamily()
+            sli.matchedName = nameUsageMatch.getScientificName()
+            sli.author = nameUsageMatch.getScientificNameAuthorship()
         }
     }
 
-    def getNameSearcher(){
-        if(!cbIdxSearcher) {
-            cbIdxSearcher = new ALANameSearcher(grailsApplication.config.bie.nameIndexLocation)
-        }
-        cbIdxSearcher
-    }
-
-    def findAcceptedLsidByCommonName(commonName){
+    def findAcceptedLsidByCommonName(commonName) {
         String lsid = null
         try {
-            lsid = getNameSearcher().searchForLSIDCommonName(commonName)
-        } catch(e){
+            lsid = nameExplorerService.searchForLsidByCommonName(commonName)
+        } catch (Exception e) {
             log.error("findAcceptedLsidByCommonName -  " + e.getMessage())
         }
         lsid
     }
 
-    def findAcceptedLsidByScientificName(scientificName){
+    def findAcceptedLsidByScientificName(scientificName) {
         String lsid = null
-        try{
-            def cl = new LinnaeanRankClassification()
-            cl.setScientificName(scientificName)
-            lsid = getNameSearcher().searchForAcceptedLsidDefaultHandling(cl, true);
-        } catch(Exception e){
-             log.error(e.getMessage())
+        try {
+            lsid = nameExplorerService.searchForAcceptedLsidByScientificName(scientificName);
+        } catch (Exception e) {
+            log.error(e.getMessage())
         }
         lsid
     }
 
-    def findAcceptedConceptByLSID(lsid){
-        NameSearchResult nameSearchRecord
-        try{
-            nameSearchRecord = getNameSearcher().searchForRecordByLsid(lsid)
+    def findAcceptedConceptByLSID(lsid) {
+        NameUsageMatch record
+        try {
+            record = nameExplorerService.searchForRecordByLsid(lsid)
         }
-        catch(Exception e){
+        catch (Exception e) {
             log.error(e.getMessage())
         }
-        nameSearchRecord
+        record
     }
 
     def findAcceptedConceptByNameFamily(String scientificName, String family) {
-        NameSearchResult nameSearchRecord
-        try{
-            def cl = new LinnaeanRankClassification()
-            cl.setScientificName(scientificName)
-            cl.setFamily(family)
-            nameSearchRecord = getNameSearcher().searchForAcceptedRecordDefaultHandling(cl, true)
+        NameUsageMatch record
+        try {
+            record = nameExplorerService.searchForRecordByNameFamily(scientificName, family)
         }
-        catch(Exception e){
+        catch (Exception e) {
             log.error(e.getMessage())
         }
-        nameSearchRecord
+        record
     }
 
-    def findAcceptedConceptByScientificName(scientificName){
-        NameSearchResult nameSearchRecord
-        try{
-            def cl = new LinnaeanRankClassification()
-            cl.setScientificName(scientificName)
-            nameSearchRecord = getNameSearcher().searchForAcceptedRecordDefaultHandling(cl, true)
+    def findAcceptedConceptByScientificName(scientificName) {
+        NameUsageMatch record
+        try {
+            record = nameExplorerService.searchForRecordByScientificName(scientificName)
         }
-        catch(Exception e){
+        catch (Exception e) {
             log.error(e.getMessage())
         }
-        nameSearchRecord
+        record
     }
 
-    def findAcceptedConceptByCommonName(commonName){
-        NameSearchResult nameSearchRecord
-        try{
-            nameSearchRecord = getNameSearcher().searchForCommonName(commonName)
+    def findAcceptedConceptByCommonName(commonName) {
+        NameUsageMatch record
+        try {
+            record = nameExplorerService.searchForRecordByCommonName(commonName)
         }
-        catch(Exception e){
+        catch (Exception e) {
             log.error(e.getMessage())
         }
-        nameSearchRecord
+        record
     }
 
     // JSON response is returned as the unconverted model with the appropriate

@@ -1,6 +1,5 @@
 package au.org.ala.specieslist
 
-import au.org.ala.names.search.ALANameSearcher
 import au.org.ala.web.AuthService
 import au.org.ala.web.UserDetails
 import grails.gorm.transactions.Rollback
@@ -38,7 +37,7 @@ class WebServiceControllerIntegrationSpec extends Specification {
     def "saveList version 1 should support JSON requests with a comma separated list of item names"() {
         String version1Json = "{\"listName\": \"list1\",  \"listType\": \"TEST\", \"listItems\": \"item1,item2,item3\"}"
         setup:
-        helperService.cbIdxSearcher = Mock(ALANameSearcher)
+        helperService.nameExplorerService = Mock(NameExplorerService)
 
         helperService.setUserDetailsService([getFullListOfUserDetailsByUsername : {return [a:"a"]}]
                 as UserDetailsService)
@@ -92,7 +91,7 @@ class WebServiceControllerIntegrationSpec extends Specification {
                                     ]
                                 }"""
         setup:
-        helperService.cbIdxSearcher = Mock(ALANameSearcher)
+        helperService.nameExplorerService = Mock(NameExplorerService)
 
         helperService.setUserDetailsService([getFullListOfUserDetailsByUsername : {return [a:"a"]}]
                 as UserDetailsService)

@@ -1,6 +1,5 @@
 package au.org.ala.specieslist.service
 
-import au.org.ala.names.search.ALANameSearcher
 import au.org.ala.specieslist.*
 import au.org.ala.web.AuthService
 import com.opencsv.CSVReader
@@ -55,9 +54,6 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
     }
 
     def "insertSpeciesItem should not create a KVP record for a blank value"() {
-        setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
-
         when:
         def speciesItem = helperService.insertSpeciesItem((String[]) [blank], "Dr1", -1, (String[]) ["Header"], [:], 0)
 
@@ -69,9 +65,6 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
     }
 
     def "insertSpeciesItem should create a KVP record for a non-blank value"() {
-        setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
-
         when:
         def speciesItem = helperService.insertSpeciesItem((String[]) ["test"], "Dr1", -1, (String[]) ["Header"], [:], 0)
 
@@ -80,9 +73,6 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
     }
 
     def "insertSpeciesItem should not default the rawScientificName to the last column if the species index is -1"() {
-        setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
-
         when:
         def row = ["Col1", "Col2", "Col3"]
         def header = ["Header1", "Header2", "Header3"]
@@ -93,9 +83,6 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
     }
 
     def "insertSpeciesItem should set the rawScientificName to the specified column if the species index is not -1"() {
-        setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
-
         when:
         def row = ["Col1", "Col2", "Col3"]
         def header = ["Header1", "Header2", "Header3"]
@@ -110,7 +97,6 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
         CSVReader reader = Mock(CSVReader)
         reader.readNext() >>> ["Col1, Col2, Col3", null]
 
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
 
@@ -128,7 +114,6 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
         CSVReader reader = Mock(CSVReader)
         reader.readNext() >>> ["Col1, Col2, Col3", null]
 
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
 
@@ -143,7 +128,6 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "loadSpeciesListFromJSON should update an existing list when matching by Data Resource ID"() {
         setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         UserDetailsService userDetailsService = Mock(UserDetailsService)
@@ -173,7 +157,6 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "loadSpeciesListFromJSON should create a new list if there is no match on the Data Resource ID"() {
         setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         UserDetailsService userDetailsService = Mock(UserDetailsService)
@@ -202,7 +185,6 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "loadSpeciesListFromJSON should throw an exception when the item list structure is not recognised"() {
         setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         helperService.setUserDetailsService(Mock(UserDetailsService))
@@ -217,7 +199,6 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "loadSpeciesListFromJSON for v2 should create list items with no KVP if the JSON request has no KVP details"() {
         setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         UserDetailsService userDetailsService = Mock(UserDetailsService)
@@ -252,7 +233,6 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "loadSpeciesListFromJSON for v1 should throw an exception when there are no list items"() {
         setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         helperService.setUserDetailsService(Mock(UserDetailsService))
@@ -267,7 +247,6 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "loadSpeciesListFromJSON for v2 should throw an exception when there are no list items"() {
         setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         helperService.setUserDetailsService(Mock(UserDetailsService))

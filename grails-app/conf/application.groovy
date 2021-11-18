@@ -28,7 +28,6 @@ if(Environment.current != Environment.TEST){
 println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
 
 println("Current environment ${Environment.current}")
-bie.nameIndexLocation = "/data/lucene/namematching"
 
 //boolean that indicates if biocache is configured to index species lists
 biocache.indexAuthoritative = false

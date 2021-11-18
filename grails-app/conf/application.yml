@@ -194,6 +194,8 @@ outboundhttp:
     useragent: 'species-lists'
     timeout: 8000
 
+namematching:
+    serviceURL: https://namematching-ws.ala.org.au
 
 speciesNameColumns: 'scientificname,scientific,sciname,sname,latinname,latin,taxon,taxonname,taxonomic name'
 commonNameColumns: 'commonname,common,vernacular,vernacularname'
