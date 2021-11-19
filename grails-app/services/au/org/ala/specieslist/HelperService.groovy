@@ -91,7 +91,6 @@ class HelperService {
                     body = jsonBody
                     requestContentType = ContentType.JSON
                     response.success = { resp ->
-                        println "Success! ${resp.status}"
                         log.info("Created a collectory entry for the species list.  ${resp.status}")
                         newDataResource = resp.headers['location'].getValue()
                     }
@@ -149,15 +148,14 @@ class HelperService {
                     body = jsonBody
                     requestContentType = ContentType.JSON
                     response.success = { resp ->
-                        println "Success! ${resp.status}"
-                        log.info("Updatedthe collectory entry for the species list ${drId}.  ${resp.status}")
+                        log.info("Updated the collectory entry for the species list ${drId}.  ${resp.status}")
                     }
                     response.failure = { resp ->
                         log.error("Unable to update the collectory entry for the species list ${drId}.  ${resp.status}")
                     }
                }
             } catch(ex) {
-                log.error("Unable to create a collectory entry for the species list.",ex)
+                log.error("Unable to update a collectory entry for the species list.",ex)
             }
         } else {
            //return a dummy URL
