@@ -38,7 +38,6 @@ class HelperServiceSpec extends Specification {
 
     void "test findAcceptedLsidByCommonName"() {
         when:
-        //default order
         def lsidOld = helperService.findAcceptedLsidByCommonName("Red Kangaroo")
         def lsidNew = helperService.nameExplorerService.searchForLsidByCommonName("Red Kangaroo")
 
@@ -48,7 +47,6 @@ class HelperServiceSpec extends Specification {
 
     void "test findAcceptedLsidByScientificName"() {
         when:
-        //default order
         def lsidOld = helperService.findAcceptedLsidByScientificName("Osphranter rufus")
         def lsidNew = helperService.nameExplorerService.searchForAcceptedLsidByScientificName("Osphranter rufus")
 
