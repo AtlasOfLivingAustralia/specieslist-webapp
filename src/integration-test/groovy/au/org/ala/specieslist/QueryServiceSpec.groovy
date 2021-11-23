@@ -1,24 +1,21 @@
 package au.org.ala.specieslist
 
 import au.org.ala.web.AuthService
-import grails.test.mixin.TestMixin
-import grails.test.mixin.integration.Integration
-import grails.test.mixin.web.ControllerUnitTestMixin
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
+import grails.testing.mixin.integration.Integration
+import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
 @Integration
 @Rollback
-@TestMixin(ControllerUnitTestMixin)
-class QueryServiceSpec extends Specification{
+class QueryServiceSpec extends Specification {
 
-    AuthService authService = Mock(AuthService)
-    LocalAuthService localAuthService = Mock(LocalAuthService)
-    QueryService queryService = Mock(QueryService)
+    @Autowired QueryService queryService
 
-//    @Before
     void setup() {
-        println "In setup"
+        queryService.authService = Mock(AuthService)
+        queryService.localAuthService = Mock(LocalAuthService)
+
         SpeciesList.findAll().each {
             it.delete(flush: true, failOnError: true)
         }
@@ -42,7 +39,6 @@ class QueryServiceSpec extends Specification{
         }
     }
 
-//    @Test
     void "test getFilterListResult ordering"() {
         when:
         //default order
@@ -54,7 +50,6 @@ class QueryServiceSpec extends Specification{
         assert list[2].dataResourceUid == '3'
     }
 
-//    @Test
     void "test getFilterListResult user ordering"() {
         when:
         //user ordering
@@ -66,7 +61,6 @@ class QueryServiceSpec extends Specification{
         assert list[2].dataResourceUid == '2'
     }
 
-//    @Test
     void "test getFilterListResult defined ordering"() {
         when:
         //defined ordering
@@ -78,7 +72,6 @@ class QueryServiceSpec extends Specification{
         assert list[2].dataResourceUid == '1'
     }
 
-//    @Test
     void "test getFilterListResult matcher filtering"() {
         when:
         //matcher filtering
@@ -89,7 +82,6 @@ class QueryServiceSpec extends Specification{
         assert list[0].dataResourceUid == '3'
     }
 
-//    @Test
     void "test getFilterListResult q filtering"() {
         when:
         //q filtering
@@ -100,7 +92,6 @@ class QueryServiceSpec extends Specification{
         assert list[0].dataResourceUid == '1'
     }
 
-//    @Test
     void "test getFilterListResult matcher and q filtering"() {
         when:
         //matcher and q filtering to test 'and' with nested 'or'
@@ -111,7 +102,6 @@ class QueryServiceSpec extends Specification{
         assert list[0].dataResourceUid == '3'
     }
 
-//    @Test
     void "test getFilterListResult searching by userId exact match should also match associated editors"() {
         when:
         def list = queryService.getFilterListResult([userId:"eq:1"])
@@ -122,7 +112,6 @@ class QueryServiceSpec extends Specification{
         assert list[1].dataResourceUid == "3"
     }
 
-//    @Test
     void "test getFilterListResult searching by userId should not match associated editors if not searching with eq"() {
         when:
         def list = queryService.getFilterListResult([userId:"ne:3"])

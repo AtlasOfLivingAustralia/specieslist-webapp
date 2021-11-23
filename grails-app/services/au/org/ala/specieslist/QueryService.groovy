@@ -1,7 +1,6 @@
 package au.org.ala.specieslist
 
 
-import org.grails.core.DefaultGrailsDomainClass
 import org.hibernate.Criteria
 import org.hibernate.criterion.CriteriaQuery
 import org.hibernate.criterion.Order
@@ -28,11 +27,11 @@ class QueryService {
 
     def authService
     def localAuthService
+    def grailsApplication
 
     /** A regular expression to split the  */
     public final def filterRegEx = /([a-zA-Z]+):([\x00-\x7F\s]*)/
-    /** A map of domain property names to data types */
-    def speciesListProperties= new DefaultGrailsDomainClass(SpeciesList.class).persistentProperties.collectEntries{[it.name, it.type]}
+
     /** A map of criteria method names to Methods - allow the use of reflection to gain the criteria method to use */
     def criteriaMethods = grails.orm.HibernateCriteriaBuilder.class.getMethods().findAll {
         it.getParameterTypes().length < 3
@@ -40,6 +39,13 @@ class QueryService {
 
     def getFilterListResult(params){
         getFilterListResult(params, false)
+    }
+
+    /** A map of domain property names to data types */
+    def getSpeciesListProperties() {
+        def entity = grailsApplication.mappingContext.getPersistentEntity(SpeciesList.name)
+        def speciesListProperties= entity.persistentProperties.collectEntries{[it.name, it.type]}
+        speciesListProperties
     }
 
     /**
@@ -61,6 +67,8 @@ class QueryService {
         def order = params.order ?: ASC
 
         params.fetch = [items: 'lazy']
+
+        def speciesListProperties = getSpeciesListProperties()
 
         def c = SpeciesList.createCriteria()
         def lists = c.list(params){
@@ -241,6 +249,7 @@ class QueryService {
     }
 
     def getFacetCount(params, facetField, facetValue, boolean hidePrivateLists, List itemIds) {
+        def speciesListProperties = getSpeciesListProperties()
         def c = SpeciesList.createCriteria()
         def facetCount = c.get  {
             projections {
@@ -386,6 +395,7 @@ class QueryService {
      * @return
      */
     def getFilterListItemResult(props, params, guid, lists, distinctField){
+        def speciesListProperties = getSpeciesListProperties()
         def c = SpeciesListItem.createCriteria()
 
         //log.debug("CRITERIA METHODS: " +criteriaMethods)
@@ -462,37 +472,37 @@ class QueryService {
      */
     def constructWithFacets(String base, List facets, String dataResourceUid, String q = null) {
         StringBuilder query = new StringBuilder(base)
-        StringBuilder whereBuilder = new StringBuilder(" where sli.dataResourceUid=? ")
+        StringBuilder whereBuilder = new StringBuilder(" where sli.dataResourceUid= :dataResourceUid ")
         //query.append(" from SpeciesListItem sli join sli.kvpValues kvp where sli.dataResourceUid=? ")
-        def queryparams = [dataResourceUid]
+        def queryparams = [dataResourceUid: dataResourceUid]
         if (q) {
-            whereBuilder.append("AND (sli.matchedName like ? or sli.commonName like ? or sli.rawScientificName like ?) ")
-            queryparams.add("%" + q + "%")
-            queryparams.add("%" + q + "%")
-            queryparams.add("%" + q + "%")
+            whereBuilder.append("AND (sli.matchedName like :matchedName or sli.commonName like :commonName or sli.rawScientificName like :rawScientificName) ")
+            queryparams << [matchedName: "%" + q + "%"]
+            queryparams << [commonName: "%" + q + "%"]
+            queryparams << [rawScientificName: "%" + q + "%"]
         }
         if (facets) {
             facets.eachWithIndex { facet, index ->
                 int pos = facet.indexOf(":")
                 if (pos != -1) {
                     if (facet.startsWith("kvp")){
-                        String sindex = index.toString();
+                        String sindex = index.toString()
                         facet = facet.replaceFirst("kvp ","")
                         pos = facet.indexOf(":")
                         String key = facet.substring(0, pos)
                         String value = facet.substring(pos + 1)
                         query.append(" join sli.kvpValues kvp").append(sindex)
-                        whereBuilder.append(" AND kvp").append(sindex).append(".key=? AND kvp").append(sindex).append(".value=?")
-                        queryparams.addAll([key, value])
+                        whereBuilder.append(" AND kvp").append(sindex).append(".key=:key AND kvp").append(sindex).append(".value=:value")
+                        queryparams << [key: key, value: value]
                     } else {
                         String key = facet.substring(0, pos)
                         String value = facet.substring(pos + 1)
-                        whereBuilder.append("AND sli.").append(key)
+                        whereBuilder.append(" AND sli.").append(key)
                         if (value.equalsIgnoreCase("null")) {
                             whereBuilder.append(" is null")
                         } else {
-                            whereBuilder.append("=?")
-                            queryparams.add(value)
+                            whereBuilder.append("=:value ")
+                            queryparams << [value: value]
                         }
                     }
                 }
@@ -699,7 +709,7 @@ class QueryService {
     }
 
     def getSpeciesListKVPKeysByDataResourceUid(String id) {
-        SpeciesListKVP.executeQuery("select distinct key, itemOrder from SpeciesListKVP where dataResourceUid=? order by itemOrder", id).collect { it[0] }
+        SpeciesListKVP.executeQuery("select distinct key, itemOrder from SpeciesListKVP where dataResourceUid = :dataResourceUid order by itemOrder", [dataResourceUid: id]).collect { it[0] }
     }
 
     def getUsersForList() {
@@ -745,11 +755,12 @@ class QueryService {
             properties = results.findAll{ it[1].length()<maxLengthForFacet }.groupBy { it[0] }.findAll{ it.value.size()>1}
 
         } else {
-            def queryParameters = q ? [id, '%'+q+'%', '%'+q+'%', '%'+q+'%'] : id
+            def qParam = '%'+q+'%'
+            def queryParameters = q ? [dataResourceUid: id, matchedName: qParam, commonName: qParam, rawScientificName: qParam] : [dataResourceUid: id]
 
             def results = SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt from SpeciesListItem as sli ' +
-                    'join sli.kvpValues as kvp where sli.dataResourceUid = ? ' +
-                    "${q ? 'and (sli.matchedName like ? or sli.commonName like ? or sli.rawScientificName like ?) ' : ''} " +
+                    'join sli.kvpValues as kvp where sli.dataResourceUid = :dataResourceUid ' +
+                    "${q ? 'and (sli.matchedName like :matchedName or sli.commonName like :commonName or sli.rawScientificName like :rawScientificName) ' : ''} " +
                     'group by kvp.key, kvp.value, kvp.vocabValue, kvp.itemOrder order by kvp.itemOrder, kvp.key, cnt desc',
                     queryParameters)
 
@@ -757,8 +768,8 @@ class QueryService {
 
             //obtain the families from the common list facets
             def commonResults = SpeciesListItem.executeQuery('select family, count(*) as cnt from SpeciesListItem ' +
-                    'where family is not null AND dataResourceUid = ? ' +
-                    "${q ? 'and (matchedName like ? or commonName like ? or rawScientificName like ?) ' : ''} " +
+                    'where family is not null AND dataResourceUid = :dataResourceUid ' +
+                    "${q ? 'and (matchedName like :matchedName or commonName like :commonName or rawScientificName like :rawScientificName) ' : ''} " +
                     'group by family order by cnt desc',
                     queryParameters)
             if(commonResults.size() > 1) {

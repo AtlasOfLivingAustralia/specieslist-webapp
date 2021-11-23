@@ -45,7 +45,7 @@ class WebServiceController {
 
     def getTaxaOnList(){
         def druid = params.druid
-        def results = SpeciesListItem.executeQuery("select guid from SpeciesListItem where dataResourceUid=?",[druid])
+        def results = SpeciesListItem.executeQuery("select guid from SpeciesListItem where dataResourceUid=:dataResourceUid",[dataResourceUid: druid])
         render results as JSON
     }
 

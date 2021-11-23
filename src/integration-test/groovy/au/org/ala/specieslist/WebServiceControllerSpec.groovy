@@ -1,21 +1,29 @@
 package au.org.ala.specieslist
 
-import au.org.ala.web.AuthService
-import grails.test.mixin.TestFor
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
+import grails.testing.mixin.integration.Integration
+import grails.util.GrailsWebMockUtil
+import org.grails.plugins.testing.GrailsMockHttpServletRequest
+import org.grails.plugins.testing.GrailsMockHttpServletResponse
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.context.WebApplicationContext
 import spock.lang.Specification
 
-@TestFor(WebServiceController)
 @Integration
 @Rollback
-class WebServiceControllerTests extends Specification{
-    AuthService authService = Mock(AuthService)
-    LocalAuthService localAuthService = Mock(LocalAuthService)
-    QueryService queryService = Mock(QueryService)
+class WebServiceControllerSpec extends Specification {
+
+    @Autowired
+    WebServiceController controller
+
+    @Autowired
+    WebApplicationContext ctx
 
     void setup() {
-        controller.queryService = queryService
+        GrailsMockHttpServletRequest grailsMockHttpServletRequest = new GrailsMockHttpServletRequest()
+        GrailsMockHttpServletResponse grailsMockHttpServletResponse = new GrailsMockHttpServletResponse()
+        GrailsWebMockUtil.bindMockWebRequest(ctx, grailsMockHttpServletRequest, grailsMockHttpServletResponse)
+
         SpeciesList.findAll().each {
             it.delete(flush: true, failOnError: true)
         }

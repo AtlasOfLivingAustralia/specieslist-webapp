@@ -1,7 +1,7 @@
 package au.org.ala.specieslist
 
 import grails.plugin.cache.Cacheable
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 
 @Transactional
 class UserDetailsService {
@@ -30,6 +30,7 @@ class UserDetailsService {
         authService.getAllUserNameMap()
     }
 
+    @Transactional
     def updateSpeciesListUserDetails() {
         List listsWithoutUserIds = []
         Boolean isSuccessful =  false
@@ -95,6 +96,7 @@ class UserDetailsService {
         isSuccessful
     }
 
+    @Transactional
     def updateEditorsList() {
         def listsEditorsWithoutUserIds
         def returnBool = false

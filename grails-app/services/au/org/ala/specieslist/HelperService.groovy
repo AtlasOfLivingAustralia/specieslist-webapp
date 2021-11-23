@@ -15,11 +15,9 @@
 
 package au.org.ala.specieslist
 
-import au.org.ala.names.model.LinnaeanRankClassification
-import au.org.ala.names.model.NameSearchResult
-import au.org.ala.names.search.ALANameSearcher
+import au.org.ala.names.ws.api.NameUsageMatch
 import com.opencsv.CSVReader
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import groovy.json.JsonOutput
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
@@ -30,7 +28,6 @@ import org.grails.web.json.JSONArray
 import org.nibor.autolink.*
 import org.springframework.context.MessageSource
 import org.springframework.context.i18n.LocaleContextHolder
-
 
 import javax.annotation.PostConstruct
 
@@ -51,7 +48,7 @@ class HelperService {
 
     BieService bieService
 
-    def cbIdxSearcher = null
+    NameExplorerService nameExplorerService
 
     Integer BATCH_SIZE
 
@@ -80,21 +77,33 @@ class HelperService {
      * @return
      */
     def addDataResourceForList(map) {
-        if(grailsApplication.config.collectory.enableSync?.toString()?.toBoolean()){
+        if(grailsApplication.config.getProperty('collectory.enableSync', Boolean, false)){
             def postUrl = grailsApplication.config.collectory.baseURL + "/ws/dataResource"
             def http = new HTTPBuilder(postUrl)
+            http.setHeaders([Authorization: "${grailsApplication.config.registryApiKey}"])
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
-            def jsonBody = createJsonForNewDataResource(map)
+            Map jsonBody = createJsonForNewDataResource(map)
             log.debug(jsonBody?.toString())
+            String newDataResource = null
             try {
-               http.post(body: jsonBody, requestContentType:JSON){ resp ->
-                 assert resp.status == 201
-                 return resp.headers['location'].getValue()
-               }
-            } catch(ex){
+               http.request(Method.POST) {
+                    uri.path = postUrl
+                    body = jsonBody
+                    requestContentType = ContentType.JSON
+                    response.success = { resp ->
+                        log.info("Created a collectory entry for the species list.  ${resp.status}")
+                        newDataResource = resp.headers['location'].getValue()
+                    }
+                    response.failure = { resp ->
+                        log.error("Unable to create a collectory entry for the species list.  ${resp.status}")
+                    }
+                }
+
+            } catch (ex){
                 log.error("Unable to create a collectory entry for the species list. ", ex)
-                return null
             }
+
+            newDataResource
 
         } else {
            //return a dummy URL
@@ -103,7 +112,7 @@ class HelperService {
     }
 
     def deleteDataResourceForList(drId) {
-        if(grailsApplication.config.collectory.enableSync?.toString()?.toBoolean()){
+        if(grailsApplication.config.getProperty('collectory.enableSync', Boolean, false)){
             def deleteUrl = grailsApplication.config.collectory.baseURL +"/ws/dataResource/" + drId
             def http = new HTTPBuilder(deleteUrl)
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
@@ -126,18 +135,27 @@ class HelperService {
     }
 
     def updateDataResourceForList(drId, map) {
-        if(grailsApplication.config.collectory.enableSync?.toString()?.toBoolean()){
+        if (grailsApplication.config.getProperty('collectory.enableSync', Boolean, false)){
             def postUrl = grailsApplication.config.collectory.baseURL + "/ws/dataResource/" + drId
             def http = new HTTPBuilder(postUrl)
+            http.setHeaders([Authorization: "${grailsApplication.config.registryApiKey}"])
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
             def jsonBody = createJsonForNewDataResource(map)
             log.debug(jsonBody?.toString())
             try {
-               http.post(body: jsonBody, requestContentType:JSON){ resp ->
-                 log.debug("Response code: " + resp.status)
+               http.request(Method.POST) {
+                    uri.path = postUrl
+                    body = jsonBody
+                    requestContentType = ContentType.JSON
+                    response.success = { resp ->
+                        log.info("Updated the collectory entry for the species list ${drId}.  ${resp.status}")
+                    }
+                    response.failure = { resp ->
+                        log.error("Unable to update the collectory entry for the species list ${drId}.  ${resp.status}")
+                    }
                }
             } catch(ex) {
-                log.error("Unable to create a collectory entry for the species list.",ex)
+                log.error("Unable to update a collectory entry for the species list.",ex)
             }
         } else {
            //return a dummy URL
@@ -145,14 +163,13 @@ class HelperService {
         }
     }
 
-    def createJsonForNewDataResource(map){
+    Map createJsonForNewDataResource(map){
         map.api_key = grailsApplication.config.registryApiKey
         map.resourceType = "species-list"
         map.user = 'Species list upload'
         map.firstName = localAuthService.firstname()?:""
         map.lastName = localAuthService.surname()?:""
-        JsonOutput jo = new JsonOutput()
-        jo.toJson(map)
+        map
     }
 
     def uploadFile(druid, uploadedFile){
@@ -567,94 +584,80 @@ class HelperService {
 
     def  matchNameToSpeciesListItem(String name, SpeciesListItem sli){
         //includes matchedName search for rematching if nameSearcher lsids change.
-        NameSearchResult nsr = findAcceptedConceptByScientificName(sli.rawScientificName) ?:
+        NameUsageMatch nameUsageMatch = findAcceptedConceptByScientificName(sli.rawScientificName) ?:
                 findAcceptedConceptByCommonName(sli.rawScientificName) ?:
                         findAcceptedConceptByLSID(sli.rawScientificName) ?:
                                 findAcceptedConceptByNameFamily(sli.matchedName, sli.family)
-        if(nsr){
-            sli.guid = nsr.getLsid()
-            sli.family = nsr.getRankClassification().getFamily()
-            sli.matchedName = nsr.getRankClassification().getScientificName()
-            sli.author = nsr.getRankClassification().getAuthorship();
+        if(nameUsageMatch){
+            sli.guid = nameUsageMatch.getTaxonConceptID()
+            sli.family = nameUsageMatch.getFamily()
+            sli.matchedName = nameUsageMatch.getScientificName()
+            sli.author = nameUsageMatch.getScientificNameAuthorship()
         }
     }
 
-    def getNameSearcher(){
-        if(!cbIdxSearcher) {
-            cbIdxSearcher = new ALANameSearcher(grailsApplication.config.bie.nameIndexLocation)
-        }
-        cbIdxSearcher
-    }
-
-    def findAcceptedLsidByCommonName(commonName){
+    def findAcceptedLsidByCommonName(commonName) {
         String lsid = null
         try {
-            lsid = getNameSearcher().searchForLSIDCommonName(commonName)
-        } catch(e){
+            lsid = nameExplorerService.searchForLsidByCommonName(commonName)
+        } catch (Exception e) {
             log.error("findAcceptedLsidByCommonName -  " + e.getMessage())
         }
         lsid
     }
 
-    def findAcceptedLsidByScientificName(scientificName){
+    def findAcceptedLsidByScientificName(scientificName) {
         String lsid = null
-        try{
-            def cl = new LinnaeanRankClassification()
-            cl.setScientificName(scientificName)
-            lsid = getNameSearcher().searchForAcceptedLsidDefaultHandling(cl, true);
-        } catch(Exception e){
-             log.error(e.getMessage())
+        try {
+            lsid = nameExplorerService.searchForAcceptedLsidByScientificName(scientificName);
+        } catch (Exception e) {
+            log.error(e.getMessage())
         }
         lsid
     }
 
-    def findAcceptedConceptByLSID(lsid){
-        NameSearchResult nameSearchRecord
-        try{
-            nameSearchRecord = getNameSearcher().searchForRecordByLsid(lsid)
+    def findAcceptedConceptByLSID(lsid) {
+        NameUsageMatch record
+        try {
+            record = nameExplorerService.searchForRecordByLsid(lsid)
         }
-        catch(Exception e){
+        catch (Exception e) {
             log.error(e.getMessage())
         }
-        nameSearchRecord
+        record
     }
 
     def findAcceptedConceptByNameFamily(String scientificName, String family) {
-        NameSearchResult nameSearchRecord
-        try{
-            def cl = new LinnaeanRankClassification()
-            cl.setScientificName(scientificName)
-            cl.setFamily(family)
-            nameSearchRecord = getNameSearcher().searchForAcceptedRecordDefaultHandling(cl, true)
+        NameUsageMatch record
+        try {
+            record = nameExplorerService.searchForRecordByNameFamily(scientificName, family)
         }
-        catch(Exception e){
+        catch (Exception e) {
             log.error(e.getMessage())
         }
-        nameSearchRecord
+        record
     }
 
-    def findAcceptedConceptByScientificName(scientificName){
-        NameSearchResult nameSearchRecord
-        try{
-            def cl = new LinnaeanRankClassification()
-            cl.setScientificName(scientificName)
-            nameSearchRecord = getNameSearcher().searchForAcceptedRecordDefaultHandling(cl, true)
+    def findAcceptedConceptByScientificName(scientificName) {
+        NameUsageMatch record
+        try {
+            record = nameExplorerService.searchForRecordByScientificName(scientificName)
         }
-        catch(Exception e){
+        catch (Exception e) {
             log.error(e.getMessage())
         }
-        nameSearchRecord
+        record
     }
 
-    def findAcceptedConceptByCommonName(commonName){
-        NameSearchResult nameSearchRecord
-        try{
-            nameSearchRecord = getNameSearcher().searchForCommonName(commonName)
+    def findAcceptedConceptByCommonName(commonName) {
+        NameUsageMatch record
+        try {
+            record = nameExplorerService.searchForRecordByCommonName(commonName)
         }
-        catch(Exception e){
+        catch (Exception e) {
             log.error(e.getMessage())
         }
-        nameSearchRecord
+        record
     }
 
     // JSON response is returned as the unconverted model with the appropriate
@@ -691,6 +694,7 @@ class HelperService {
         }
     }
 
+    @Transactional
     def createRecord (params) {
         def sl = SpeciesList.get(params.id)
         log.debug "params = " + params
@@ -699,7 +703,7 @@ class HelperService {
             return [text: "Missing required field: rawScientificName", status: 400]
         }
         else if (sl) {
-            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?", sl.dataResourceUid)
+            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=:dataResourceUid", [dataResourceUid: sl.dataResourceUid])
             log.debug "keys = " + keys
             def sli = new SpeciesListItem(dataResourceUid: sl.dataResourceUid, rawScientificName: params.rawScientificName, itemOrder: sl.items.size() + 1)
             //sli.guid = helperService.findAcceptedLsidByScientificName(sli.rawScientificName)?: helperService.findAcceptedLsidByCommonName(sli.rawScientificName)

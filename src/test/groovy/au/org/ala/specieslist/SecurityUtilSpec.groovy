@@ -1,18 +1,17 @@
 package au.org.ala.specieslist
 
 import au.org.ala.web.AuthService
-import grails.test.mixin.Mock
-import grails.test.mixin.TestMixin
-import grails.test.mixin.domain.DomainClassUnitTestMixin
-import grails.test.mixin.support.GrailsUnitTestMixin
+import grails.testing.gorm.DataTest
 import spock.lang.Specification
 
-@TestMixin([GrailsUnitTestMixin, DomainClassUnitTestMixin])
-@Mock([SpeciesList])
-class SecurityUtilTest extends Specification {
+class SecurityUtilSpec extends Specification implements DataTest {
 
-    def authService = Mock(AuthService)
-    def localAuthService = Mock(LocalAuthService)
+    void setupSpec() {
+        mockDomains(SpeciesList)
+    }
+
+    def authService = Stub(AuthService)
+    def localAuthService = Stub(LocalAuthService)
 
     def "checkListAccess should return true for public lists"() {
         setup:

@@ -61,10 +61,14 @@ class SpeciesListTagLib {
 
 
     def selectedFacetLink = { attrs ->
-
+        def query = params.q
         def queryUrl = "?"
+        if (query){
+            queryUrl += "q=" + params.q
+        }
+
         params.each { key, value ->
-            if (attrs.filter != key && !(key in ["controller","action"])) {
+            if (attrs.filter != key && !(key in ["controller","action", "q"])) {
                 if (queryUrl.length() > 1){
                     queryUrl += "&"
                 }
@@ -75,7 +79,6 @@ class SpeciesListTagLib {
     }
 
     def facetLink = { attrs ->
-
         def query = params.q
         def queryUrl = "?"
         if (query){

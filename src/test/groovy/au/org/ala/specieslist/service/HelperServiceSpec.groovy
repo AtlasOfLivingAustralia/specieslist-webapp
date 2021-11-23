@@ -1,31 +1,28 @@
 package au.org.ala.specieslist.service
 
-import au.org.ala.names.search.ALANameSearcher
 import au.org.ala.specieslist.*
 import au.org.ala.web.AuthService
 import com.opencsv.CSVReader
-import grails.test.mixin.Mock
-import grails.test.mixin.TestFor
-import grails.test.mixin.TestMixin
-import grails.test.mixin.domain.DomainClassUnitTestMixin
-import grails.test.mixin.support.GrailsUnitTestMixin
+import grails.testing.gorm.DataTest
+import grails.testing.services.ServiceUnitTest
 import org.grails.web.json.JSONObject
 import spock.lang.Specification
 import spock.lang.Unroll
 
-@TestFor(HelperService)
-@TestMixin([GrailsUnitTestMixin, DomainClassUnitTestMixin])
 @Unroll
-@Mock([SpeciesListItem, SpeciesList, SpeciesListKVP])
-class HelperServiceTest extends Specification {
+class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperService>, DataTest {
 
     def helperService = new HelperService()
+
+    void setupSpec() {
+        mockDomains(SpeciesListItem, SpeciesList, SpeciesListKVP)
+    }
 
     def setup() {
         grailsApplication.config.commonNameColumns="commonname,vernacularname"
         grailsApplication.config.ambiguousNameColumns="name"
         grailsApplication.config.speciesNameColumns = "scientificname,suppliedname,taxonname,species"
-        helperService.transactionManager = transactionManager
+//        helperService.transactionManager = transactionManager
         helperService.grailsApplication = grailsApplication
         helperService.init()
     }
@@ -57,9 +54,6 @@ class HelperServiceTest extends Specification {
     }
 
     def "insertSpeciesItem should not create a KVP record for a blank value"() {
-        setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
-
         when:
         def speciesItem = helperService.insertSpeciesItem((String[]) [blank], "Dr1", -1, (String[]) ["Header"], [:], 0)
 
@@ -71,9 +65,6 @@ class HelperServiceTest extends Specification {
     }
 
     def "insertSpeciesItem should create a KVP record for a non-blank value"() {
-        setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
-
         when:
         def speciesItem = helperService.insertSpeciesItem((String[]) ["test"], "Dr1", -1, (String[]) ["Header"], [:], 0)
 
@@ -82,9 +73,6 @@ class HelperServiceTest extends Specification {
     }
 
     def "insertSpeciesItem should not default the rawScientificName to the last column if the species index is -1"() {
-        setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
-
         when:
         def row = ["Col1", "Col2", "Col3"]
         def header = ["Header1", "Header2", "Header3"]
@@ -95,9 +83,6 @@ class HelperServiceTest extends Specification {
     }
 
     def "insertSpeciesItem should set the rawScientificName to the specified column if the species index is not -1"() {
-        setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
-
         when:
         def row = ["Col1", "Col2", "Col3"]
         def header = ["Header1", "Header2", "Header3"]
@@ -112,7 +97,6 @@ class HelperServiceTest extends Specification {
         CSVReader reader = Mock(CSVReader)
         reader.readNext() >>> ["Col1, Col2, Col3", null]
 
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
 
@@ -130,7 +114,6 @@ class HelperServiceTest extends Specification {
         CSVReader reader = Mock(CSVReader)
         reader.readNext() >>> ["Col1, Col2, Col3", null]
 
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
 
@@ -145,7 +128,6 @@ class HelperServiceTest extends Specification {
 
     def "loadSpeciesListFromJSON should update an existing list when matching by Data Resource ID"() {
         setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         UserDetailsService userDetailsService = Mock(UserDetailsService)
@@ -175,7 +157,6 @@ class HelperServiceTest extends Specification {
 
     def "loadSpeciesListFromJSON should create a new list if there is no match on the Data Resource ID"() {
         setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         UserDetailsService userDetailsService = Mock(UserDetailsService)
@@ -204,7 +185,6 @@ class HelperServiceTest extends Specification {
 
     def "loadSpeciesListFromJSON should throw an exception when the item list structure is not recognised"() {
         setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         helperService.setUserDetailsService(Mock(UserDetailsService))
@@ -219,7 +199,6 @@ class HelperServiceTest extends Specification {
 
     def "loadSpeciesListFromJSON for v2 should create list items with no KVP if the JSON request has no KVP details"() {
         setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         UserDetailsService userDetailsService = Mock(UserDetailsService)
@@ -254,7 +233,6 @@ class HelperServiceTest extends Specification {
 
     def "loadSpeciesListFromJSON for v1 should throw an exception when there are no list items"() {
         setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         helperService.setUserDetailsService(Mock(UserDetailsService))
@@ -269,7 +247,6 @@ class HelperServiceTest extends Specification {
 
     def "loadSpeciesListFromJSON for v2 should throw an exception when there are no list items"() {
         setup:
-        helperService.setCbIdxSearcher(Mock(ALANameSearcher))
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         helperService.setUserDetailsService(Mock(UserDetailsService))

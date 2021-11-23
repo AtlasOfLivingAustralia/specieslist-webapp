@@ -1,15 +1,16 @@
 package au.org.ala.specieslist
 
 import au.org.ala.web.AuthService
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
+import grails.testing.mixin.integration.Integration
 import spock.lang.Specification
+import org.springframework.beans.factory.annotation.Autowired
 
 @Integration
 @Rollback
-class QueryServicePrivateListTest extends Specification {
+class QueryServicePrivateListSpec extends Specification {
 
-    QueryService service = new QueryService()
+    @Autowired QueryService service
 
     def "only public lists should be returned when there is no user present"() {
         setup:

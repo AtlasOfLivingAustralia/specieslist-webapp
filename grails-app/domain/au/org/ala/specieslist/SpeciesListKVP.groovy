@@ -29,6 +29,7 @@ class SpeciesListKVP implements Comparable {
         key column: 'the_key', index: 'idx_key'
         value column: "value", sqlType: "TEXT"
         dataResourceUid index: 'idx_data_resource_uid'
+        itemOrder index: 'idx_item_order'
     }
 
     public int compareTo(def other){

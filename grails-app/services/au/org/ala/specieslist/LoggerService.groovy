@@ -1,11 +1,12 @@
 package au.org.ala.specieslist
 
 import groovyx.net.http.HTTPBuilder
+import grails.plugin.cache.Cacheable
 
 class LoggerService {
     def grailsApplication
 
-    //@Cacheable("loggerCache")
+    @Cacheable("loggerCache")
     def getReasons() {
         log.info("Refreshing the download reasons")
          HTTPBuilder http = new HTTPBuilder("${grailsApplication.config.logger.baseURL}/logger/reasons")

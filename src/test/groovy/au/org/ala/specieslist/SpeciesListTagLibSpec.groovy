@@ -1,10 +1,9 @@
 package au.org.ala.specieslist
 
-import grails.test.mixin.TestFor
+import grails.testing.web.taglib.TagLibUnitTest
 import spock.lang.Specification
 
-@TestFor(SpeciesListTagLib)
-class SpeciesListTagLibSpec {
+class SpeciesListTagLibSpec extends Specification implements TagLibUnitTest<SpeciesListTagLib> {
 
     void "test selectedFacetLink"() {
         given:

@@ -1,33 +1,43 @@
-package au.org.ala.specieslist.controller
+package au.org.ala.specieslist
 
-import au.org.ala.names.search.ALANameSearcher
-import au.org.ala.specieslist.*
 import au.org.ala.web.AuthService
 import au.org.ala.web.UserDetails
-import grails.test.mixin.TestFor
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
+import grails.testing.mixin.integration.Integration
+import grails.util.GrailsWebMockUtil
+import org.grails.plugins.testing.GrailsMockHttpServletRequest
+import org.grails.plugins.testing.GrailsMockHttpServletResponse
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.web.context.WebApplicationContext
 import spock.lang.Specification
 
 import javax.servlet.http.Cookie
 
-@TestFor(WebServiceController)
-//@TestMixin([DomainClassUnitTestMixin])
 @Integration
 @Rollback
-class WebServiceControllerIntegrationTest extends Specification {
+class WebServiceControllerIntegrationSpec extends Specification {
     def helperService
 
+    @Autowired
+    WebServiceController controller
+
+    @Autowired
+    WebApplicationContext ctx
+
     def setup(){
-        helperService = new HelperService()
-        helperService.transactionManager = transactionManager
+        GrailsMockHttpServletRequest grailsMockHttpServletRequest = new GrailsMockHttpServletRequest()
+        GrailsMockHttpServletResponse grailsMockHttpServletResponse = new GrailsMockHttpServletResponse()
+        GrailsWebMockUtil.bindMockWebRequest(ctx, grailsMockHttpServletRequest, grailsMockHttpServletResponse)
+
+        helperService = new HelperService() // not a mock - we want to use the real service here
+//        helperService.transactionManager = transactionManager
     }
 
     def "saveList version 1 should support JSON requests with a comma separated list of item names"() {
         String version1Json = "{\"listName\": \"list1\",  \"listType\": \"TEST\", \"listItems\": \"item1,item2,item3\"}"
         setup:
-        helperService.cbIdxSearcher = Mock(ALANameSearcher)
+        helperService.nameExplorerService = Mock(NameExplorerService)
 
         helperService.setUserDetailsService([getFullListOfUserDetailsByUsername : {return [a:"a"]}]
                 as UserDetailsService)
@@ -81,7 +91,7 @@ class WebServiceControllerIntegrationTest extends Specification {
                                     ]
                                 }"""
         setup:
-        helperService.cbIdxSearcher = Mock(ALANameSearcher)
+        helperService.nameExplorerService = Mock(NameExplorerService)
 
         helperService.setUserDetailsService([getFullListOfUserDetailsByUsername : {return [a:"a"]}]
                 as UserDetailsService)

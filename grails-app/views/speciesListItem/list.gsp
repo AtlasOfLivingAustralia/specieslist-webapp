@@ -65,7 +65,7 @@
             });
 
             function loadGridOrList() {
-                var storedView = amplify.store('view-state');
+                var storedView = window.localStorage.getItem('view-state');
                 if (storedView == '#grid') {
                     enableGrid()
                 } else if (storedView == '#list') {
@@ -99,7 +99,7 @@
             });
 
             // Tooltip for link title
-            $('#content a').not('.thumbImage').tooltip({placement: "bottom", html: true, delay: 200, container: "body"});
+            // $('#content a').not('.thumbImage').tooltip({placement: "bottom", html: true, delay: 200, container: "body"});
 
             // submit edit record changes via POST
             $("button.saveRecord").click(function() {
@@ -260,7 +260,7 @@
             $('#listItemView .grid').addClass('disabled');
             $('#listItemView .list').removeClass('disabled');
             $('#viewRecord').modal("hide");
-            amplify.store('view-state', '#grid');
+            window.localStorage.setItem('view-state', '#grid');
         }
 
         function enableList() {
@@ -269,7 +269,7 @@
             $('#listItemView .list').addClass('disabled');
             $('#listItemView .grid').removeClass('disabled');
             $('#viewRecord').modal("hide");
-            amplify.store('view-state', '#list');
+            window.localStorage.setItem('view-state', '#list');
         }
 
         function toggleEditMeta(showHide) {
@@ -850,7 +850,7 @@
             <div id="gridView" class="not-visible">
                 <g:each var="result" in="${results}" status="i">
                     <g:set var="recId" value="${result.id}"/>
-                    <g:set var="bieTitle">${message(code:'public.lists.view.table.tooltip03', default:'species page for ')}<i>${result.rawScientificName}</i></g:set>
+%{--                    <g:set var="bieTitle">${message(code:'public.lists.view.table.tooltip03', default:'species page for ')}<i>${result.rawScientificName}</i></g:set>--}%
                     <div class="imgCon">
                         <a class="thumbImage viewRecordButton" rel="thumbs" title="${message(code:'public.lists.view.table.tooltip02', default:'click to view details')}" href="#viewRecord"
                                     data-id="${recId}"><img
@@ -918,7 +918,7 @@
                             <tbody>
                             <g:each var="result" in="${results}" status="i">
                                 <g:set var="recId" value="${result.id}"/>
-                                <g:set var="bieTitle">${message(code:'public.lists.view.table.tooltip03', default:'species page for')} <i>${result.rawScientificName}</i></g:set>
+%{--                                <g:set var="bieTitle">${message(code:'public.lists.view.table.tooltip03', default:'species page for')} <i>${result.rawScientificName}</i></g:set>--}%
                                 <tr class="${(i % 2) == 0 ? 'odd' : 'even'}" id="row_${recId}">
                                     <td class="action">
                                         <div class="btn-group action-btn-group-width" role="group">
@@ -949,7 +949,7 @@
                                     <td class="matchedName">
                                         <g:if test="${result.guid}">
                                             <a href="${bieUrl}/species/${result.guid}"
-                                               title="${bieTitle}">${result.matchedName}</a>
+                                               title="click to view species page">${result.matchedName}</a>
                                         </g:if>
                                         <g:else>
                                             ${result.matchedName}
@@ -957,7 +957,7 @@
                                     </td>
                                     <td id="img_${result.guid}">
                                         <g:if test="${result.imageUrl}">
-                                            <a href="${bieUrl}/species/${result.guid}" title="${bieTitle}"><img
+                                            <a href="${bieUrl}/species/${result.guid}" title="click to view species page"><img
                                                     src="${result.imageUrl}"
                                                     class="smallSpeciesImage"/></a>
                                         </g:if>
@@ -1077,7 +1077,6 @@
     </div>
 </div> <!-- content div -->
 <asset:javascript src="fancybox.js" asset-defer=""/>
-<asset:javascript src="amplify.js" asset-defer=""/>
 <asset:script type="text/javascript" asset-defer="">
 
     $(document).ready(function(){

@@ -17,6 +17,7 @@ package au.org.ala.specieslist
 import au.org.ala.web.AuthService
 import com.opencsv.CSVReader
 import grails.converters.JSON
+import grails.gorm.transactions.Transactional
 import org.grails.web.json.JSONObject
 import org.springframework.web.multipart.MultipartHttpServletRequest
 
@@ -70,6 +71,7 @@ class SpeciesListController {
      * Current mechanism for deleting a species list
      * @return
      */
+    @Transactional
     def delete(){
         log.debug("Deleting from collectory...")
         def sl = SpeciesList.get(params.id)
@@ -263,7 +265,7 @@ class SpeciesListController {
             def itemsIds = queryService.getFilterSpeciesListItemsIds(params)
 
             def lists = queryService.getFilterListResult(params, true, itemsIds)
-            def typeFacets = queryService.getTypeFacetCounts(params, itemsIds)
+            def typeFacets = (params.listType) ? null : queryService.getTypeFacetCounts(params, true, itemsIds)
             def tagFacets = queryService.getTagFacetCounts(params, itemsIds)
             //now remove the params that were added
             //params.remove('username')
@@ -451,6 +453,7 @@ class SpeciesListController {
     /**
      * Rematches the scientific names in the supplied list
      */
+    @Transactional
     def rematch() {
         log.info("Rematching for " + params.id)
         if (params.id && !params.id.startsWith("dr"))
