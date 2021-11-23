@@ -16,7 +16,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "2.3.1"
 }
 
-version "4.0.0-SNAPSHOT"
+version "4.1.0-SNAPSHOT"
 group "au.org.ala"
 
 apply plugin:"eclipse"
@@ -109,6 +109,7 @@ dependencies {
     runtime "mysql:mysql-connector-java:8.0.23"
     compile "org.codehaus.groovy.modules.http-builder:http-builder:0.7.1"
     compile "org.nibor.autolink:autolink:0.5.0"
+    compile "com.opencsv:opencsv:3.7"
 
     testCompile "io.micronaut:micronaut-inject-groovy"
     testCompile "org.grails:grails-gorm-testing-support"
@@ -122,11 +123,6 @@ dependencies {
     testRuntime "org.seleniumhq.selenium:selenium-firefox-driver:3.14.0"
 
     // ALA
-    compile ('au.org.ala:ala-name-matching:3.4'){
-        exclude module: "log4j"
-        exclude module: "slf4j-log4j12"
-        exclude group: 'org.apache.bval', module: 'org.apache.bval.bundle'
-    }
     compile "org.grails.plugins:ala-auth:3.2.3"
     compile "org.grails.plugins:ala-ws-security-plugin:2.0.1"
     compile "org.grails.plugins:ala-ws-plugin:2.0"
@@ -136,6 +132,9 @@ dependencies {
     }
     compile "au.org.ala:userdetails-service-client:1.5.0"
     compile 'au.org.ala:ala-cas-client:2.5'
+    compile ("au.org.ala.names:ala-namematching-client:1.4") {
+        exclude group: "com.squareup.okhttp3", module: "okhttp"
+    }
 
     //???
     compile 'org.gbif:gbif-common:0.37'
