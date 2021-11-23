@@ -77,7 +77,7 @@ class HelperService {
      * @return
      */
     def addDataResourceForList(map) {
-        if(grailsApplication.config.collectory.enableSync?.toString()?.toBoolean()){
+        if(grailsApplication.config.getProperty('collectory.enableSync', Boolean, false)){
             def postUrl = grailsApplication.config.collectory.baseURL + "/ws/dataResource"
             def http = new HTTPBuilder(postUrl)
             http.setHeaders([Authorization: "${grailsApplication.config.registryApiKey}"])
@@ -112,7 +112,7 @@ class HelperService {
     }
 
     def deleteDataResourceForList(drId) {
-        if(grailsApplication.config.collectory.enableSync?.toString()?.toBoolean()){
+        if(grailsApplication.config.getProperty('collectory.enableSync', Boolean, false)){
             def deleteUrl = grailsApplication.config.collectory.baseURL +"/ws/dataResource/" + drId
             def http = new HTTPBuilder(deleteUrl)
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
@@ -135,7 +135,7 @@ class HelperService {
     }
 
     def updateDataResourceForList(drId, map) {
-        if (grailsApplication.config.collectory.enableSync?.toString()?.toBoolean()){
+        if (grailsApplication.config.getProperty('collectory.enableSync', Boolean, false)){
             def postUrl = grailsApplication.config.collectory.baseURL + "/ws/dataResource/" + drId
             def http = new HTTPBuilder(postUrl)
             http.setHeaders([Authorization: "${grailsApplication.config.registryApiKey}"])
