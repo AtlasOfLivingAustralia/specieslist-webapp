@@ -7,7 +7,7 @@ branches:
   - master
   - develop
   - grails4
-  - issue-195-namingservice
+  - issue-199-nmatch-enhancement
 
 before_install:
   - rm -fr $HOME/.gradle/caches

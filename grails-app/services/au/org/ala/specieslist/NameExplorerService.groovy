@@ -117,11 +117,23 @@ class NameExplorerService implements GrailsConfigurationAware {
         NameSearch.NameSearchBuilder builder = new NameSearch.NameSearchBuilder()
 
         builder.vernacularName = StringUtils.trimToNull(commonName)
-        builder.ph
         NameUsageMatch result = find(builder.build())
         return result.success? result : null
     }
 
+    /**
+     * Search NameUsageMatch by terms
+     * @param scientificName
+     * @param commonName
+     * @param kingdom
+     * @param phylum
+     * @param clazz
+     * @param order
+     * @param family
+     * @param genus
+     * @param rank
+     * @return matched NameUsageMatch or null
+     */
     NameUsageMatch searchForRecordByTerms(String scientificName,
                                           String commonName,
                                           String kingdom,
@@ -129,7 +141,8 @@ class NameExplorerService implements GrailsConfigurationAware {
                                           String clazz,
                                           String order,
                                           String family,
-                                          String genus) {
+                                          String genus,
+                                          String rank) {
         NameSearch.NameSearchBuilder builder = new NameSearch.NameSearchBuilder()
 
         if (scientificName) {
@@ -155,6 +168,9 @@ class NameExplorerService implements GrailsConfigurationAware {
         }
         if (genus) {
             builder.genus = StringUtils.trimToNull(genus)
+        }
+        if (rank) {
+            builder.rank = StringUtils.trimToNull(rank)
         }
         NameUsageMatch result = find(builder.build())
         return result.success? result : null

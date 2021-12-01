@@ -48,6 +48,7 @@ class HelperService {
     private static final String ORDER = "order"
     private static final String FAMILY = "family"
     private static final String GENUS = "genus"
+    private static final String RANK = "rank"
 
     MessageSource messageSource
 
@@ -70,6 +71,7 @@ class HelperService {
     String[] orderColumns = []
     String[] familyColumns = []
     String[] genusColumns = []
+    String[] rankColumns = []
 
 
     // Only permit URLs for added safety
@@ -96,6 +98,8 @@ class HelperService {
                 grailsApplication?.config?.familyColumns?.split(',') : []
         genusColumns = grailsApplication?.config?.genusColumns ?
                 grailsApplication?.config?.genusColumns?.split(',') : []
+        rankColumns = grailsApplication?.config?.rankColumns ?
+                grailsApplication?.config?.rankColumns?.split(',') : []
     }
 
     /**
@@ -276,7 +280,6 @@ class HelperService {
     }
 
     def parseHeader(String[] header) {
-
         //first step check to see if scientificname or common name is provided as a header
         def hasName = false;
         def headerResponse = header.collect {
@@ -366,8 +369,7 @@ class HelperService {
         return idx
     }
 
-    //TODO
-    Map getTermAndIndex(Object[] header){
+    private Map getTermAndIndex(Object[] header){
         Map termMap = new HashMap<String, Integer>();
         locateValues(termMap, header, speciesNameColumns, RAW_SCIENTIFIC_NAME)
         locateValues(termMap, header, commonNameColumns, COMMON_NAME)
@@ -377,18 +379,19 @@ class HelperService {
         locateValues(termMap, header, orderColumns, ORDER)
         locateValues(termMap, header, familyColumns, FAMILY)
         locateValues(termMap, header, genusColumns, GENUS)
+        locateValues(termMap, header, rankColumns, RANK)
 
         return termMap
     }
 
-    private def locateValues(Map map, Object[] header, String[] cols, String term) {
+    private void locateValues(Map map, Object[] header, String[] cols, String term) {
         int idx = header.findIndexOf { cols.contains(it.toString().toLowerCase().replaceAll(" ","")) }
         if (idx != -1) {
             map.put(term, idx)
         }
     }
 
-    boolean hasValidData(Map map, String [] nextLine) {
+    private boolean hasValidData(Map map, String [] nextLine) {
         boolean result = false
         map.each { key, value ->
             if (StringUtils.isNotBlank(nextLine[value])){
@@ -523,7 +526,6 @@ class HelperService {
         speciesGuidKvp
     }
 
-    //TODO
     def loadSpeciesListFromCSV(CSVReader reader, druid, listname, ListType listType, description, listUrl, listWkt,
                                Boolean isBIE, Boolean isSDS, Boolean isPrivate, String region, String authority, String category,
                                String generalisation, String sdsType, String[] header, Map vocabs) {
@@ -553,12 +555,11 @@ class HelperService {
         sl.isBIE = isBIE
         sl.isSDS = isSDS
         sl.isPrivate = isPrivate
-        sl.isAuthoritative=false // default all new lists to isAuthoritative = false: it is an admin task to determine whether a list is authoritative or not
-        sl.isInvasive=false
-        sl.isThreatened=false
+        sl.isAuthoritative = false // default all new lists to isAuthoritative = false: it is an admin task to determine whether a list is authoritative or not
+        sl.isInvasive = false
+        sl.isThreatened = false
         String [] nextLine
         boolean checkedHeader = false
-//        int speciesValueIdx = getSpeciesIndex(header)
         Map termIdx = getTermAndIndex(header)
         int itemCount = 0
         int totalCount = 0
@@ -566,17 +567,13 @@ class HelperService {
             totalCount++
             if(!checkedHeader){
                 checkedHeader = true
-//                if(getSpeciesIndex(nextLine) > -1) {
-
-                if(termIdx.size() > 0) {
+                // only read next line if current line is a header line
+                if(getTermAndIndex(nextLine).size() > 0) {
                     nextLine = reader.readNext()
                 }
             }
 
-//            def test = hasValidData(termIdx, nextLine)
-//            if(nextLine.length > 0 && speciesValueIdx > -1 && StringUtils.isNotBlank(nextLine[speciesValueIdx])){
-
-            if(nextLine.length > 0 && termIdx.size() > 0 && hasValidData(termIdx, nextLine)){ // TODO
+            if(nextLine.length > 0 && termIdx.size() > 0 && hasValidData(termIdx, nextLine)){
                 itemCount++
                 sl.addToItems(insertSpeciesItem(nextLine, druid, termIdx, header, kvpmap, itemCount))
             }
@@ -593,9 +590,6 @@ class HelperService {
 
         [totalRecords: totalCount, successfulItems: itemCount]
     }
-    //from biocollect
-    //{"listItems": "Magnusiomyces,Abstoma","description":"","listName":"test","listType":"SPECIES_CHARACTERS"}
-
 
     def loadSpeciesListFromFile(listname, druid, filename, boolean useHeader, header,vocabs){
 
@@ -700,9 +694,10 @@ class HelperService {
         String clazz = termIndex.containsKey(CLASS) ? values[termIndex[CLASS]] :null
         String order = termIndex.containsKey(ORDER) ? values[termIndex[ORDER]] :null
         String genus = termIndex.containsKey(GENUS) ? values[termIndex[GENUS]] :null
+        String rank = termIndex.containsKey(RANK) ? values[termIndex[RANK]] :null
 
         NameUsageMatch nameUsageMatch = nameExplorerService.searchForRecordByTerms(rawScientificName, commonName,
-                kingdom, phylum, clazz, order, family, genus)
+                kingdom, phylum, clazz, order, family, genus, rank)
         if(nameUsageMatch){
             sli.guid = nameUsageMatch.getTaxonConceptID()
             sli.family = nameUsageMatch.getFamily()
