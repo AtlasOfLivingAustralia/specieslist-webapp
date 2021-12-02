@@ -11,13 +11,9 @@ buildscript {
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.2.4"
     }
 }
-//
-//plugins {
-//    id "com.gorylenko.gradle-git-properties" version "2.3.1"
-//}
 
 plugins {
-    id "com.gorylenko.gradle-git-properties" version "2.4.0-rc1"
+    id "com.gorylenko.gradle-git-properties" version "2.3.1"
 }
 
 version "4.0.1-SNAPSHOT"
