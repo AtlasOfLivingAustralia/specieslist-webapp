@@ -1,5 +1,6 @@
 package au.org.ala.specieslist.service
 
+import au.org.ala.names.ws.api.NameUsageMatch
 import au.org.ala.specieslist.*
 import au.org.ala.web.AuthService
 import com.opencsv.CSVReader
@@ -114,8 +115,20 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
         CSVReader reader = Mock(CSVReader)
         reader.readNext() >>> ["Col1, Col2, Col3", null]
 
+        NameExplorerService nameExplorerService = Mock(NameExplorerService)
+
+        NameUsageMatch result = new NameUsageMatch(true, "scientificName", "scientificNameAuthorship",
+                "taxonConceptID", null, null, null, null, null,
+                null, null, null, null, null,
+                null, null, null, null, null,
+                "family", null, null, null, null,
+                null, null, null, null,
+                null)
+        nameExplorerService.searchForRecordByTerms(_) >>> result
+
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
+        helperService.setNameExplorerService(nameExplorerService)
 
         when:
         def itemCounts = helperService.loadSpeciesListFromCSV(reader, "Dr1", "listname", null, "description",
