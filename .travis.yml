@@ -6,8 +6,6 @@ branches:
   only:
   - master
   - develop
-  - grails4
-  - issue-199-nmatch-enhancement
 
 before_install:
   - rm -fr $HOME/.gradle/caches
