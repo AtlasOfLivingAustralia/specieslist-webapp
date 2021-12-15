@@ -685,6 +685,17 @@ class HelperService {
         }
     }
 
+    def rematchToSpeciesListItem(SpeciesListItem sli){
+        NameUsageMatch nameUsageMatch = nameExplorerService.searchForRecordByTerms(sli.rawScientificName, sli.commonName,
+                sli.kingdom, null, null, null, sli.family, null, null)
+        if(nameUsageMatch){
+            sli.guid = nameUsageMatch.getTaxonConceptID()
+            sli.family = nameUsageMatch.getFamily()
+            sli.matchedName = nameUsageMatch.getScientificName()
+            sli.author = nameUsageMatch.getScientificNameAuthorship()
+        }
+    }
+
     def  matchValuesToSpeciesListItem(String[] values, Map termIndex, SpeciesListItem sli){
         String rawScientificName = termIndex.containsKey(RAW_SCIENTIFIC_NAME) ? values[termIndex[RAW_SCIENTIFIC_NAME]] : null
         String family = termIndex.containsKey(FAMILY) ? values[termIndex[FAMILY]] :null
@@ -863,9 +874,7 @@ class HelperService {
         else {
             def message = "${message(code: 'default.not.found.message', args: [message(code: 'speciesList.label', default: 'Species List'), params.id])}"
             return [text: message, status: 404]
-            //render(text: message, status: 404)
         }
-
     }
 
     /**

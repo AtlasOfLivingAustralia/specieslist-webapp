@@ -480,7 +480,7 @@ class SpeciesListController {
                     String rawName = item.rawScientificName
                     log.debug i + ". Rematching: " + rawName
                     if (rawName && rawName.length() > 0) {
-                        helperService.matchNameToSpeciesListItem(rawName, item)
+                        helperService.rematchToSpeciesListItem(item)
                         if (item.guid) {
                             guidBatch.push(item.guid)
                             sliBatch.push(item)
