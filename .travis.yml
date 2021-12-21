@@ -7,6 +7,7 @@ branches:
   - master
   - develop
   - grails4
+  - tag-4.0.0-10112021-beforeNMS
 
 before_install:
   - rm -fr $HOME/.gradle/caches
