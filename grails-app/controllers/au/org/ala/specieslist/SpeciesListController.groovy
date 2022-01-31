@@ -469,6 +469,7 @@ class SpeciesListController {
         while (offset < totalRows) {
             List items
             List guidBatch = [], sliBatch = []
+            List<SpeciesListItem> searchBatch = new ArrayList<SpeciesListItem>()
             if (id) {
                 items = SpeciesListItem.findAllByDataResourceUid(id, [max: BATCH_SIZE, offset: offset])
             } else {
@@ -476,16 +477,11 @@ class SpeciesListController {
             }
 
             SpeciesListItem.withSession { session ->
-                items.eachWithIndex { item, i ->
+                items.eachWithIndex { SpeciesListItem item, Integer i ->
                     String rawName = item.rawScientificName
                     log.debug i + ". Rematching: " + rawName
                     if (rawName && rawName.length() > 0) {
-                        helperService.rematchToSpeciesListItem(item)
-                        if (item.guid) {
-                            guidBatch.push(item.guid)
-                            sliBatch.push(item)
-                        }
-                        // do not save sli here since matchCommonNamesForSpeciesListItems function below will save again.
+                        searchBatch.add(item)
                     } else {
                         item.guid = null
                         if (!item.save(flush: true)) {
@@ -494,7 +490,17 @@ class SpeciesListController {
                     }
                 }
 
-                helperService.getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
+                helperService.matchAll(searchBatch)
+                searchBatch.each {SpeciesListItem item ->
+                    if (item.guid) {
+                        guidBatch.push(item.guid)
+                        sliBatch.push(item)
+                    }
+                }
+
+                if (!guidBatch.isEmpty()) {
+                    helperService.getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
+                }
 
                 session.flush()
                 session.clear()

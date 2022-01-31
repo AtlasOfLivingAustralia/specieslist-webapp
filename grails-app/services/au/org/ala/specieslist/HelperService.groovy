@@ -18,7 +18,6 @@ package au.org.ala.specieslist
 import au.org.ala.names.ws.api.NameUsageMatch
 import com.opencsv.CSVReader
 import grails.gorm.transactions.Transactional
-import groovy.json.JsonOutput
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
@@ -30,8 +29,6 @@ import org.springframework.context.MessageSource
 import org.springframework.context.i18n.LocaleContextHolder
 
 import javax.annotation.PostConstruct
-
-import static groovyx.net.http.ContentType.JSON
 
 /**
  * Provides all the services for the species list webapp.  It may be necessary to break this into
@@ -682,6 +679,8 @@ class HelperService {
             sli.family = nameUsageMatch.getFamily()
             sli.matchedName = nameUsageMatch.getScientificName()
             sli.author = nameUsageMatch.getScientificNameAuthorship()
+            sli.commonName = nameUsageMatch.getVernacularName()
+            sli.kingdom = nameUsageMatch.getKingdom()
         }
     }
 
@@ -693,10 +692,32 @@ class HelperService {
             sli.family = nameUsageMatch.getFamily()
             sli.matchedName = nameUsageMatch.getScientificName()
             sli.author = nameUsageMatch.getScientificNameAuthorship()
+            sli.commonName = nameUsageMatch.getVernacularName()
+            sli.kingdom = nameUsageMatch.getKingdom()
         }
     }
 
-    def  matchValuesToSpeciesListItem(String[] values, Map termIndex, SpeciesListItem sli){
+    void matchAll(List searchBatch) {
+        List<NameUsageMatch> matches = nameExplorerService.findAll(searchBatch);
+        matches.eachWithIndex { NameUsageMatch match, Integer index ->
+            SpeciesListItem sli = searchBatch[index]
+//            log.debug("${index}")
+//            log.debug("sli: ${sli.rawScientificName} ${sli.guid}")
+//            log.debug("match: ${match.scientificName} - ${match.taxonConceptID}")
+            if (match && match.success) {
+                sli.guid = match.getTaxonConceptID()
+                sli.family = match.getFamily()
+                sli.matchedName = match.getScientificName()
+                sli.author = match.getScientificNameAuthorship()
+                sli.commonName = match.getVernacularName()
+                sli.kingdom = match.getKingdom()
+            } else {
+                log.info("Unable to match species list item - ${sli.rawScientificName}")
+            }
+        }
+    }
+
+    def matchValuesToSpeciesListItem(String[] values, Map termIndex, SpeciesListItem sli){
         String rawScientificName = termIndex.containsKey(RAW_SCIENTIFIC_NAME) ? values[termIndex[RAW_SCIENTIFIC_NAME]] : null
         String family = termIndex.containsKey(FAMILY) ? values[termIndex[FAMILY]] :null
         String commonName = termIndex.containsKey(COMMON_NAME) ? values[termIndex[COMMON_NAME]] :null
@@ -714,6 +735,8 @@ class HelperService {
             sli.family = nameUsageMatch.getFamily()
             sli.matchedName = nameUsageMatch.getScientificName()
             sli.author = nameUsageMatch.getScientificNameAuthorship()
+            sli.commonName = nameUsageMatch.getVernacularName()
+            sli.kingdom = nameUsageMatch.getKingdom()
         }
     }
 
