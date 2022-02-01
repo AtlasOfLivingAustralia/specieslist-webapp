@@ -901,7 +901,7 @@ class HelperService {
     }
 
     /**
-     * This function finds common name for a guid and updates the corresponding SpeciesListItem record
+     * This function finds small image url for a guid and updates the corresponding SpeciesListItem record
      * @param sliBatch - list of SpeciesListItems
      * @param guidBatch - list of GUID strings
      */
@@ -911,7 +911,7 @@ class HelperService {
             speciesProfiles?.eachWithIndex { Map profile, index ->
                 SpeciesListItem slItem = sliBatch[index]
                 if (profile) {
-                    slItem.commonName = profile.commonNameSingle
+//                    slItem.commonName = profile.commonNameSingle
                     slItem.imageUrl = profile.smallImageUrl
                 }
             }
