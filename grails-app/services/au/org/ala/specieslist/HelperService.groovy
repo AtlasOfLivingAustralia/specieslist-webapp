@@ -701,9 +701,6 @@ class HelperService {
         List<NameUsageMatch> matches = nameExplorerService.findAll(searchBatch);
         matches.eachWithIndex { NameUsageMatch match, Integer index ->
             SpeciesListItem sli = searchBatch[index]
-//            log.debug("${index}")
-//            log.debug("sli: ${sli.rawScientificName} ${sli.guid}")
-//            log.debug("match: ${match.scientificName} - ${match.taxonConceptID}")
             if (match && match.success) {
                 sli.guid = match.getTaxonConceptID()
                 sli.family = match.getFamily()
@@ -827,7 +824,6 @@ class HelperService {
                 }
             } else {
                 getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
-
                 guidBatch = []
                 sliBatch = []
             }
@@ -850,7 +846,6 @@ class HelperService {
             def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=:dataResourceUid", [dataResourceUid: sl.dataResourceUid])
             log.debug "keys = " + keys
             def sli = new SpeciesListItem(dataResourceUid: sl.dataResourceUid, rawScientificName: params.rawScientificName, itemOrder: sl.items.size() + 1)
-            //sli.guid = helperService.findAcceptedLsidByScientificName(sli.rawScientificName)?: helperService.findAcceptedLsidByCommonName(sli.rawScientificName)
             matchNameToSpeciesListItem(sli.rawScientificName, sli)
 
             keys.each { key ->
@@ -863,7 +858,6 @@ class HelperService {
                         log.debug "Couldn't find an existing KVP, so creating a new one..."
                         newKvp = new SpeciesListKVP(dataResourceUid: sli.dataResourceUid, key: key, value: params[key], SpeciesListItem: sli, itemOrder: itemOrder );
                     }
-
                     sli.addToKvpValues(newKvp)
                 }
             }
@@ -874,7 +868,6 @@ class HelperService {
                 def message = "Could not update SpeciesList with new item: ${sli.rawScientificName} - " + sl.errors.allErrors
                 log.error message
                 return [text: message, status: 500]
-                //render(text: message, status: 500)
             }
             else if (sl.save()) {
                 // find common name and save it
@@ -891,7 +884,6 @@ class HelperService {
             else {
                 def message = "Could not create SpeciesListItem: ${sli.rawScientificName} - " + sl.errors.allErrors
                 return [text: message, status: 500]
-                //render(text: message, status: 500)
             }
         }
         else {
@@ -911,7 +903,6 @@ class HelperService {
             speciesProfiles?.eachWithIndex { Map profile, index ->
                 SpeciesListItem slItem = sliBatch[index]
                 if (profile) {
-//                    slItem.commonName = profile.commonNameSingle
                     slItem.imageUrl = profile.smallImageUrl
                 }
             }
