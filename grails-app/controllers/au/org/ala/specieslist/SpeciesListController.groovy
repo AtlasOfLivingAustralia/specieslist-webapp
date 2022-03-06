@@ -455,9 +455,12 @@ class SpeciesListController {
      */
     @Transactional
     def rematch() {
-        log.info("Rematching for " + params.id)
-        if (params.id && !params.id.startsWith("dr"))
+        if (params.id && !params.id.startsWith("dr")) {
             params.id = SpeciesList.get(params.id)?.dataResourceUid
+            log.info("Rematching for " + params.id)
+        } else {
+            log.error("Rematching for ALL")
+        }
         Integer totalRows, offset = 0;
         String id = params.id
         if (id) {
@@ -508,6 +511,9 @@ class SpeciesListController {
 
             offset += BATCH_SIZE;
             log.info("Rematched ${offset} of ${totalRows} - ${Math.round(offset * 100 / totalRows)}% complete")
+            if (offset > totalRows) {
+                log.error("Rematched ${offset} of ${totalRows} - ${Math.round(offset * 100 / totalRows)}% complete")
+            }
         }
 
         render(text: "${message(code: 'admin.lists.page.button.rematch.messages', default: 'Rematch complete')}")

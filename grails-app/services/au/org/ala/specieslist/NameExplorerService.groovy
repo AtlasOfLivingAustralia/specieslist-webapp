@@ -218,6 +218,6 @@ class NameExplorerService implements GrailsConfigurationAware {
         if (sli.family) {
             builder.family = StringUtils.trimToNull(sli.family)
         }
-        return builder.build()
+        return builder.loose(true).build()
     }
 }
