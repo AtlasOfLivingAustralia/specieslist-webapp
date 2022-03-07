@@ -18,7 +18,6 @@ package au.org.ala.specieslist
 import au.org.ala.names.ws.api.NameUsageMatch
 import com.opencsv.CSVReader
 import grails.gorm.transactions.Transactional
-import groovy.json.JsonOutput
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
@@ -30,8 +29,6 @@ import org.springframework.context.MessageSource
 import org.springframework.context.i18n.LocaleContextHolder
 
 import javax.annotation.PostConstruct
-
-import static groovyx.net.http.ContentType.JSON
 
 /**
  * Provides all the services for the species list webapp.  It may be necessary to break this into
@@ -682,10 +679,42 @@ class HelperService {
             sli.family = nameUsageMatch.getFamily()
             sli.matchedName = nameUsageMatch.getScientificName()
             sli.author = nameUsageMatch.getScientificNameAuthorship()
+            sli.commonName = nameUsageMatch.getVernacularName()
+            sli.kingdom = nameUsageMatch.getKingdom()
         }
     }
 
-    def  matchValuesToSpeciesListItem(String[] values, Map termIndex, SpeciesListItem sli){
+    def rematchToSpeciesListItem(SpeciesListItem sli){
+        NameUsageMatch nameUsageMatch = nameExplorerService.searchForRecordByTerms(sli.rawScientificName, sli.commonName,
+                sli.kingdom, null, null, null, sli.family, null, null)
+        if(nameUsageMatch){
+            sli.guid = nameUsageMatch.getTaxonConceptID()
+            sli.family = nameUsageMatch.getFamily()
+            sli.matchedName = nameUsageMatch.getScientificName()
+            sli.author = nameUsageMatch.getScientificNameAuthorship()
+            sli.commonName = nameUsageMatch.getVernacularName()
+            sli.kingdom = nameUsageMatch.getKingdom()
+        }
+    }
+
+    void matchAll(List searchBatch) {
+        List<NameUsageMatch> matches = nameExplorerService.findAll(searchBatch);
+        matches.eachWithIndex { NameUsageMatch match, Integer index ->
+            SpeciesListItem sli = searchBatch[index]
+            if (match && match.success) {
+                sli.guid = match.getTaxonConceptID()
+                sli.family = match.getFamily()
+                sli.matchedName = match.getScientificName()
+                sli.author = match.getScientificNameAuthorship()
+                sli.commonName = match.getVernacularName()
+                sli.kingdom = match.getKingdom()
+            } else {
+                log.info("Unable to match species list item - ${sli.rawScientificName}")
+            }
+        }
+    }
+
+    def matchValuesToSpeciesListItem(String[] values, Map termIndex, SpeciesListItem sli){
         String rawScientificName = termIndex.containsKey(RAW_SCIENTIFIC_NAME) ? values[termIndex[RAW_SCIENTIFIC_NAME]] : null
         String family = termIndex.containsKey(FAMILY) ? values[termIndex[FAMILY]] :null
         String commonName = termIndex.containsKey(COMMON_NAME) ? values[termIndex[COMMON_NAME]] :null
@@ -703,6 +732,8 @@ class HelperService {
             sli.family = nameUsageMatch.getFamily()
             sli.matchedName = nameUsageMatch.getScientificName()
             sli.author = nameUsageMatch.getScientificNameAuthorship()
+            sli.commonName = nameUsageMatch.getVernacularName()
+            sli.kingdom = nameUsageMatch.getKingdom()
         }
     }
 
@@ -793,7 +824,6 @@ class HelperService {
                 }
             } else {
                 getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
-
                 guidBatch = []
                 sliBatch = []
             }
@@ -816,7 +846,6 @@ class HelperService {
             def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=:dataResourceUid", [dataResourceUid: sl.dataResourceUid])
             log.debug "keys = " + keys
             def sli = new SpeciesListItem(dataResourceUid: sl.dataResourceUid, rawScientificName: params.rawScientificName, itemOrder: sl.items.size() + 1)
-            //sli.guid = helperService.findAcceptedLsidByScientificName(sli.rawScientificName)?: helperService.findAcceptedLsidByCommonName(sli.rawScientificName)
             matchNameToSpeciesListItem(sli.rawScientificName, sli)
 
             keys.each { key ->
@@ -829,7 +858,6 @@ class HelperService {
                         log.debug "Couldn't find an existing KVP, so creating a new one..."
                         newKvp = new SpeciesListKVP(dataResourceUid: sli.dataResourceUid, key: key, value: params[key], SpeciesListItem: sli, itemOrder: itemOrder );
                     }
-
                     sli.addToKvpValues(newKvp)
                 }
             }
@@ -840,7 +868,6 @@ class HelperService {
                 def message = "Could not update SpeciesList with new item: ${sli.rawScientificName} - " + sl.errors.allErrors
                 log.error message
                 return [text: message, status: 500]
-                //render(text: message, status: 500)
             }
             else if (sl.save()) {
                 // find common name and save it
@@ -857,19 +884,16 @@ class HelperService {
             else {
                 def message = "Could not create SpeciesListItem: ${sli.rawScientificName} - " + sl.errors.allErrors
                 return [text: message, status: 500]
-                //render(text: message, status: 500)
             }
         }
         else {
             def message = "${message(code: 'default.not.found.message', args: [message(code: 'speciesList.label', default: 'Species List'), params.id])}"
             return [text: message, status: 404]
-            //render(text: message, status: 404)
         }
-
     }
 
     /**
-     * This function finds common name for a guid and updates the corresponding SpeciesListItem record
+     * This function finds small image url for a guid and updates the corresponding SpeciesListItem record
      * @param sliBatch - list of SpeciesListItems
      * @param guidBatch - list of GUID strings
      */
@@ -879,7 +903,6 @@ class HelperService {
             speciesProfiles?.eachWithIndex { Map profile, index ->
                 SpeciesListItem slItem = sliBatch[index]
                 if (profile) {
-                    slItem.commonName = profile.commonNameSingle
                     slItem.imageUrl = profile.smallImageUrl
                 }
             }

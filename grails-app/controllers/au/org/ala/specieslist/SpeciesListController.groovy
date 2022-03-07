@@ -455,9 +455,12 @@ class SpeciesListController {
      */
     @Transactional
     def rematch() {
-        log.info("Rematching for " + params.id)
-        if (params.id && !params.id.startsWith("dr"))
+        if (params.id && !params.id.startsWith("dr")) {
             params.id = SpeciesList.get(params.id)?.dataResourceUid
+            log.info("Rematching for " + params.id)
+        } else {
+            log.error("Rematching for ALL")
+        }
         Integer totalRows, offset = 0;
         String id = params.id
         if (id) {
@@ -469,6 +472,7 @@ class SpeciesListController {
         while (offset < totalRows) {
             List items
             List guidBatch = [], sliBatch = []
+            List<SpeciesListItem> searchBatch = new ArrayList<SpeciesListItem>()
             if (id) {
                 items = SpeciesListItem.findAllByDataResourceUid(id, [max: BATCH_SIZE, offset: offset])
             } else {
@@ -476,16 +480,11 @@ class SpeciesListController {
             }
 
             SpeciesListItem.withSession { session ->
-                items.eachWithIndex { item, i ->
+                items.eachWithIndex { SpeciesListItem item, Integer i ->
                     String rawName = item.rawScientificName
                     log.debug i + ". Rematching: " + rawName
                     if (rawName && rawName.length() > 0) {
-                        helperService.matchNameToSpeciesListItem(rawName, item)
-                        if (item.guid) {
-                            guidBatch.push(item.guid)
-                            sliBatch.push(item)
-                        }
-                        // do not save sli here since matchCommonNamesForSpeciesListItems function below will save again.
+                        searchBatch.add(item)
                     } else {
                         item.guid = null
                         if (!item.save(flush: true)) {
@@ -494,7 +493,17 @@ class SpeciesListController {
                     }
                 }
 
-                helperService.getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
+                helperService.matchAll(searchBatch)
+                searchBatch.each {SpeciesListItem item ->
+                    if (item.guid) {
+                        guidBatch.push(item.guid)
+                        sliBatch.push(item)
+                    }
+                }
+
+                if (!guidBatch.isEmpty()) {
+                    helperService.getCommonNamesAndUpdateRecords(sliBatch, guidBatch)
+                }
 
                 session.flush()
                 session.clear()
@@ -502,6 +511,9 @@ class SpeciesListController {
 
             offset += BATCH_SIZE;
             log.info("Rematched ${offset} of ${totalRows} - ${Math.round(offset * 100 / totalRows)}% complete")
+            if (offset > totalRows) {
+                log.error("Rematched ${offset} of ${totalRows} - ${Math.round(offset * 100 / totalRows)}% complete")
+            }
         }
 
         render(text: "${message(code: 'admin.lists.page.button.rematch.messages', default: 'Rematch complete')}")

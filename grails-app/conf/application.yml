@@ -196,6 +196,14 @@ outboundhttp:
 
 namematching:
     serviceURL: https://namematching-ws.ala.org.au
+#    serviceURL: https://namematching-ws-test.ala.org.au
+    dataCacheConfig:
+        enableJmx: true
+        entryCapacity: 20000
+        eternal: true
+        keepDataAfterExpired: false
+        permitNullValues: false
+        suppressExceptions: true
 
 speciesNameColumns: 'scientificname,scientific,sciname,sname,latinname,latin,taxon,taxonname,taxonomic name'
 commonNameColumns: 'commonname,common,vernacular,vernacularname'

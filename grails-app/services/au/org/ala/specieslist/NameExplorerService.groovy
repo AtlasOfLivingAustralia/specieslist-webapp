@@ -19,6 +19,7 @@ import au.org.ala.names.ws.api.NameMatchService
 import au.org.ala.names.ws.api.NameSearch
 import au.org.ala.names.ws.api.NameUsageMatch
 import au.org.ala.names.ws.client.ALANameUsageMatchServiceClient
+import au.org.ala.ws.DataCacheConfiguration
 import au.org.ala.ws.ClientConfiguration
 import grails.config.Config
 import grails.core.support.GrailsConfigurationAware
@@ -29,13 +30,27 @@ import org.apache.commons.lang.StringUtils
  */
 @Transactional
 class NameExplorerService implements GrailsConfigurationAware {
-    private NameMatchService nameMatchService
+    private NameMatchService alaNameUsageMatchServiceClient
+
+    def grailsApplication
 
     @Override
     void setConfiguration(Config config) {
+        DataCacheConfiguration dataCacheConfig = DataCacheConfiguration.builder()
+                .entryCapacity(grailsApplication.config.getProperty("namematching.dataCacheConfig.entryCapacity", Integer, 20000))
+                .enableJmx(grailsApplication.config.getProperty("namematching.dataCacheConfig.enableJmx", Boolean, false))
+                .eternal(grailsApplication.config.getProperty("namematching.dataCacheConfig.eternal", Boolean, false))
+                .keepDataAfterExpired(grailsApplication.config.getProperty("namematching.dataCacheConfig.keepDataAfterExpired", Boolean, false))
+                .permitNullValues(grailsApplication.config.getProperty("namematching.dataCacheConfig.permitNullValues", Boolean, false))
+                .suppressExceptions(grailsApplication.config.getProperty("namematching.dataCacheConfig.suppressExceptions", Boolean, false))
+                .build()
+
         URL service = new URL(config.getProperty("namematching.serviceURL"))
-        ClientConfiguration cc = ClientConfiguration.builder().baseUrl(service).build()
-        this.nameMatchService = new ALANameUsageMatchServiceClient(cc)
+        ClientConfiguration cc = ClientConfiguration.builder()
+                .baseUrl(service)
+                .dataCache(dataCacheConfig)
+                .build()
+        alaNameUsageMatchServiceClient = new ALANameUsageMatchServiceClient(cc)
     }
 
     /**
@@ -44,7 +59,20 @@ class NameExplorerService implements GrailsConfigurationAware {
      * @return NameSearch
      */
     NameUsageMatch find(NameSearch search) {
-        return this.nameMatchService.match(search)
+        return alaNameUsageMatchServiceClient.match(search)
+    }
+
+    /**
+     * Find NameUsageMatch for given list items
+     * @param items list of SpeciesListItem
+     * @return list of NameUsageMatch, <b>in the same order as the items passed in</b>
+     */
+    List<NameUsageMatch> findAll(List<SpeciesListItem> items){
+        List<NameSearch> searches = new ArrayList<>();
+        items.eachWithIndex { SpeciesListItem item, Integer i ->
+            searches.add(i, buildNameSearch(item))
+        }
+        return alaNameUsageMatchServiceClient.matchAll(searches)
     }
 
     /**
@@ -53,7 +81,7 @@ class NameExplorerService implements GrailsConfigurationAware {
      * @return LSID or null if no match
      */
     String searchForLsidByCommonName(String commonName) {
-        NameUsageMatch result = nameMatchService.matchVernacular(StringUtils.trimToNull(commonName))
+        NameUsageMatch result = alaNameUsageMatchServiceClient.matchVernacular(StringUtils.trimToNull(commonName))
         return result.success? result.taxonConceptID : null
     }
 
@@ -76,7 +104,7 @@ class NameExplorerService implements GrailsConfigurationAware {
      * @return matched NameUsageMatch or null
      */
     NameUsageMatch searchForRecordByLsid(String lsid) {
-        NameUsageMatch result = nameMatchService.get(StringUtils.trimToNull(lsid))
+        NameUsageMatch result = alaNameUsageMatchServiceClient.get(StringUtils.trimToNull(lsid))
         return result.success? result : null
     }
 
@@ -174,5 +202,22 @@ class NameExplorerService implements GrailsConfigurationAware {
         }
         NameUsageMatch result = find(builder.build())
         return result.success? result : null
+    }
+
+    private NameSearch buildNameSearch(SpeciesListItem sli){
+        NameSearch.NameSearchBuilder builder = new NameSearch.NameSearchBuilder()
+        if (sli.rawScientificName) {
+            builder.scientificName = StringUtils.trimToNull(sli.rawScientificName)
+        }
+        if (sli.commonName) {
+            builder.vernacularName = StringUtils.trimToNull(sli.commonName)
+        }
+        if (sli.kingdom) {
+            builder.kingdom = StringUtils.trimToNull(sli.kingdom)
+        }
+        if (sli.family) {
+            builder.family = StringUtils.trimToNull(sli.family)
+        }
+        return builder.loose(true).build()
     }
 }
