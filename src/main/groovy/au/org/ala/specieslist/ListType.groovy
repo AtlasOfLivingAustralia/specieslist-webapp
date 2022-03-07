@@ -1,7 +1,5 @@
-package au.org.ala.specieslist
-
 /*
- * Copyright (C) 2012 Atlas of Living Australia
+ * Copyright (C) 2022 Atlas of Living Australia
  * All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public
@@ -14,6 +12,10 @@ package au.org.ala.specieslist
  * implied. See the License for the specific language governing
  * rights and limitations under the License.
  */
+
+package au.org.ala.specieslist
+
+
 
 enum ListType {
     SPECIES_CHARACTERS("Species characters list", "listtype.species.characters.list", "listtooltip.species.characters.list"),

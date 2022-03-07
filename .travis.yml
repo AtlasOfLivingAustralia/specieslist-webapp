@@ -6,7 +6,6 @@ branches:
   only:
   - master
   - develop
-  - issue-202-update-rematch
 
 before_install:
   - rm -fr $HOME/.gradle/caches
