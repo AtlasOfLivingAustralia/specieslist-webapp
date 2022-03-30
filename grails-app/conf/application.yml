@@ -18,6 +18,13 @@ grails:
             proxies: false
     cors:
         enabled: true
+            allowCredentials: true
+            allowedMethods:
+                - '*'
+            allowedHeaders:
+                - '*'
+            allowedOriginPatterns:
+                - '*'
         mappings:
             /ws/**: inherit
 info:
@@ -86,6 +93,9 @@ grails:
             maxsize: 1000
     controllers:
         defaultScope: singleton
+        upload:
+            maxFileSize: 31457280
+            maxRequestSize: 31457280
     converters:
         encoding: UTF-8
     views:
