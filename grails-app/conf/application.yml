@@ -18,13 +18,13 @@ grails:
             proxies: false
     cors:
         enabled: true
-            allowCredentials: true
-            allowedMethods:
-                - '*'
-            allowedHeaders:
-                - '*'
-            allowedOriginPatterns:
-                - '*'
+        allowCredentials: true
+        allowedMethods:
+             - '*'
+        allowedHeaders:
+             - '*'
+        allowedOrigins:
+             - '*'
         mappings:
             /ws/**: inherit
 info:
