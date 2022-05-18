@@ -185,7 +185,7 @@
                     <g:sortableColumn property="isPrivate" params="${params}"
                                       title="${message(code: 'speciesList.isPrivate.label', default: 'Private')}"/>
                 </g:if>
-                <g:sortableColumn property="ownerFullName" params="${params}"
+                <g:sortableColumn property="firstName" params="${params}"
                                   title="${message(code: 'speciesList.username.label', default: 'Owner')}"/>
                 <g:sortableColumn property="dateCreated" params="${params}"
                                   title="${message(code: 'speciesList.name.dateCreated', default: 'Date Submitted')}"/>
@@ -211,7 +211,7 @@
                         <td><g:formatBoolean boolean="${list.isSDS ?: false}" true="Yes" false="No"/></td>
                         <td><g:formatBoolean boolean="${list.isPrivate ?: false}" true="Yes" false="No"/></td>
                     </g:if>
-                    <td>${list.ownerFullName}</td>
+                    <td>${list.firstName} ${list.surname}</td>
                     <td><g:formatDate format="yyyy-MM-dd" date="${list.dateCreated}"/></td>
                     <td><g:formatDate format="yyyy-MM-dd" date="${list.lastUpdated}"/></td>
                     <td>${list.itemsCount}</td>
