@@ -967,7 +967,13 @@
                                     <g:each in="${keys}" var="key">
                                         <g:set var="kvp" value="${result.kvpValues.find { it.key == key }}"/>
                                         <g:set var="val" value="${kvp?.vocabValue ?: kvp?.value}"/>
-                                        <td class="kvp ${val?.length() > 35 ? 'scrollWidth' : ''}"><div>${val}</div>
+                                        <td class="kvp ${val?.length() > 35 ? 'scrollWidth' : ''}">
+                                            <g:if test="${key == "guid"}">
+                                                <div>${raw(val)}</div>
+                                            </g:if>
+                                            <g:else>
+                                                <div>${val}</div>
+                                            </g:else>
                                         </td>
                                     </g:each>
                                 </tr>

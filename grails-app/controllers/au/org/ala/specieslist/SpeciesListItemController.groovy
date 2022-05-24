@@ -178,16 +178,18 @@ class SpeciesListItemController {
             def fqs = params.fq?[params.fq].flatten().findAll{ it != null } : null
             def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id, params.q)
             def sli = SpeciesListItem.executeQuery("Select sli " + baseQueryAndParams[0], baseQueryAndParams[1])
-            //def sli =SpeciesListItem.findAllByDataResourceUid(params.id,params)
             def out = new StringWriter()
             def csvWriter = new CSVWriter(out)
-            def header =  ["Supplied Name","guid","scientificName","family","kingdom"]
-            header.addAll(keys)
+            def defaultHeader =  ["Supplied Name","guid","scientificName","family","kingdom"]
+            def header = defaultHeader + keys
+            // prevent headers values added by keys from duplicating values already in 'headers'
+            header.unique(true)
             log.debug(header?.toString())
             csvWriter.writeNext(header as String[])
             sli.each {
-                def values = keys.collect{key->it.kvpValues.find {kvp -> kvp.key == key}}.collect { kvp -> kvp?.vocabValue?:kvp?.value}
                 def row = [it.rawScientificName, it.guid, it.matchedName, it.family, it.kingdom]
+                // only get values for headers that are a part of defaultHeader since they are handled above.
+                def values = header.subList(defaultHeader.size(), header.size()).collect{key->it.kvpValues.find {kvp -> kvp.key == key}}.collect { kvp -> kvp?.vocabValue?:kvp?.value}
                 row.addAll(values)
                 csvWriter.writeNext(row as String[])
             }

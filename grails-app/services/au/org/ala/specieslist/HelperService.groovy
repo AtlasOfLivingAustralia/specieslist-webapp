@@ -24,9 +24,11 @@ import groovyx.net.http.Method
 import org.apache.commons.io.input.BOMInputStream
 import org.apache.commons.lang.StringUtils
 import org.grails.web.json.JSONArray
+import org.jsoup.safety.Safelist
 import org.nibor.autolink.*
 import org.springframework.context.MessageSource
 import org.springframework.context.i18n.LocaleContextHolder
+import org.jsoup.Jsoup
 
 import javax.annotation.PostConstruct
 
@@ -332,10 +334,8 @@ class HelperService {
         String item
         row.each {String it ->
             item = parseUrls(it)
-
             ret << item
         }
-
         ret
     }
 
@@ -351,12 +351,18 @@ class HelperService {
                 sb.append(text, ls.beginIndex, ls.endIndex)
                 sb.append("</a>")
             } as LinkRenderer)
+
         }
         else {
             ret = item
         }
-
+        ret = sanitizeHtml(ret)
         ret
+    }
+
+    private String sanitizeHtml(String value){
+        String v  = Jsoup.clean(value, Safelist.basic())
+        v
     }
 
     def getSpeciesIndex(Object[] header) {

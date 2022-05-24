@@ -59,8 +59,13 @@
                         <tbody>
                         <g:each in="${dataRows}" var="row">
                             <tr>
-                                <g:each in="${row}" var="value">
-                                    <td class="parse">${value}</td>
+                                <g:each status="i" in="${row}" var="value">
+                                    <g:if test="${columnHeaders.get(i) == 'guid'}">
+                                        <td class="parse">${raw(value)}</td>
+                                    </g:if>
+                                     <g:else>
+                                         <td class="parse">${value}</td>
+                                     </g:else>
                                 </g:each>
                             </tr>
                         </g:each>
