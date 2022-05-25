@@ -307,9 +307,9 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
         then:
         assert result.contains("Banksia brownii")
-        assert result.contains("pink/red <unknown>")
+        assert result.contains("pink/red")
         assert result.contains("email.address@example.com")
-        assert result.contains('A rare species, see <a href="https://www.example.com/something/234325">' +
+        assert result.contains('A rare species, see <a href="https://www.example.com/something/234325" rel="nofollow">' +
                 'https://www.example.com/something/234325</a>')
     }
 }
