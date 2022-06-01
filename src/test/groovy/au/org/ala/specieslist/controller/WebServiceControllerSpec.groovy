@@ -1,23 +1,37 @@
+/*
+ * Copyright (C) 2022 Atlas of Living Australia
+ * All Rights Reserved.
+ *
+ * The contents of this file are subject to the Mozilla Public
+ * License Version 1.1 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of
+ * the License at http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS
+ * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ */
+
 package au.org.ala.specieslist.controller
+
 
 import au.org.ala.specieslist.SpeciesList
 import au.org.ala.specieslist.SpeciesListItem
 import au.org.ala.specieslist.SpeciesListKVP
 import au.org.ala.specieslist.WebServiceController
-import grails.test.mixin.Mock
-import grails.test.mixin.TestFor
-import grails.test.mixin.TestMixin
-import grails.test.mixin.domain.DomainClassUnitTestMixin
-import grails.test.mixin.support.GrailsUnitTestMixin
+import grails.testing.gorm.DataTest
+import grails.testing.web.controllers.ControllerUnitTest
 import org.apache.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Unroll
 
-@TestFor(WebServiceController)
-@TestMixin([GrailsUnitTestMixin, DomainClassUnitTestMixin])
 @Unroll
-@Mock([SpeciesList, SpeciesListItem, SpeciesListKVP])
-class WebServiceControllerTest extends Specification {
+class WebServiceControllerSpec extends Specification implements ControllerUnitTest<WebServiceController>, DataTest {
+
+    void setupSpec() {
+        mockDomains(SpeciesListItem, SpeciesList, SpeciesListKVP)
+    }
 
     def "getListItemDetails should retrieve KVP values when includeKVP is true"() {
         setup:

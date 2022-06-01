@@ -1,4 +1,21 @@
+/*
+ * Copyright (C) 2022 Atlas of Living Australia
+ * All Rights Reserved.
+ *
+ * The contents of this file are subject to the Mozilla Public
+ * License Version 1.1 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of
+ * the License at http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS
+ * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ */
+
 package au.org.ala.specieslist
+
+import grails.gorm.transactions.Transactional
 
 import java.text.SimpleDateFormat
 
@@ -102,12 +119,12 @@ class EditorController {
             log.debug "Item's list = " + sl.listName
             log.debug "Item's DRUid = " + sli.dataResourceUid
             log.debug "Item's Size = " + sl.items.size()
-            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?", sl.dataResourceUid)
+            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid= :dataResourceUid", [dataResourceUid: sl.dataResourceUid])
             def keyVocabs = [:]
             def kvpMap = [:]
             def kvpOrder = []
             keys.each { key ->
-                def vocabValues = SpeciesListKVP.executeQuery("select distinct vocabValue from SpeciesListKVP where dataResourceUid=? and key=?", [sl.dataResourceUid, key])
+                def vocabValues = SpeciesListKVP.executeQuery("select distinct vocabValue from SpeciesListKVP where dataResourceUid=: dataResourceUid and key= :key", [dataResourceUid: sl.dataResourceUid, key: key])
                 log.debug "vocabValues = " + vocabValues + " size: " + vocabValues.size()
                 def kvp = SpeciesListKVP.findByDataResourceUidAndKey(sli.dataResourceUid, key)
                 kvpOrder.add(kvp.itemOrder)
@@ -129,13 +146,14 @@ class EditorController {
     /**
      * Edit a SpeciesListItem
      */
+    @Transactional
     def editRecord() {
         def sli = SpeciesListItem.get(params.id)
         log.debug "editRecord params = " + params
         log.debug "sli KVPs = " + sli.kvpValues
         if (sli) {
             // check for changed values
-            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=?", sli.dataResourceUid)
+            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid= :dataResourceUid", [dataResourceUid: sli.dataResourceUid])
             def kvpRemoveList = [] as Set
 
             keys.each { key ->
@@ -212,6 +230,7 @@ class EditorController {
         render(text: response.text, status: response.status)
     }
 
+    @Transactional
     def deleteRecord() {
         def sli = SpeciesListItem.get(params.id)
 
@@ -245,6 +264,7 @@ class EditorController {
     /**
      * webservice to update a list of editors for a given list
      */
+    @Transactional
     def updateEditors() {
         log.debug "editors param = " + params.'editors[]'
         def speciesList = SpeciesList.findByDataResourceUid(params.id)
@@ -269,6 +289,7 @@ class EditorController {
         }
     }
 
+    @Transactional
     def editSpeciesList() {
         def speciesList = SpeciesList.get(params.id)
         if (!speciesList) {

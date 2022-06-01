@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Atlas of Living Australia
+ * Copyright (C) 2022 Atlas of Living Australia
  * All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public
@@ -45,7 +45,7 @@ class WebServiceController {
 
     def getTaxaOnList(){
         def druid = params.druid
-        def results = SpeciesListItem.executeQuery("select guid from SpeciesListItem where dataResourceUid=?",[druid])
+        def results = SpeciesListItem.executeQuery("select guid from SpeciesListItem where dataResourceUid=:dataResourceUid",[dataResourceUid: druid])
         render results as JSON
     }
 

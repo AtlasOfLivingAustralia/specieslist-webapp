@@ -1,21 +1,44 @@
+/*
+ * Copyright (C) 2022 Atlas of Living Australia
+ * All Rights Reserved.
+ *
+ * The contents of this file are subject to the Mozilla Public
+ * License Version 1.1 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of
+ * the License at http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS
+ * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ */
+
 package au.org.ala.specieslist
 
-import au.org.ala.web.AuthService
-import grails.test.mixin.TestFor
-import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
+import grails.testing.mixin.integration.Integration
+import grails.util.GrailsWebMockUtil
+import org.grails.plugins.testing.GrailsMockHttpServletRequest
+import org.grails.plugins.testing.GrailsMockHttpServletResponse
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.context.WebApplicationContext
 import spock.lang.Specification
 
-@TestFor(WebServiceController)
 @Integration
 @Rollback
-class WebServiceControllerTests extends Specification{
-    AuthService authService = Mock(AuthService)
-    LocalAuthService localAuthService = Mock(LocalAuthService)
-    QueryService queryService = Mock(QueryService)
+class WebServiceControllerSpec extends Specification {
+
+    @Autowired
+    WebServiceController controller
+
+    @Autowired
+    WebApplicationContext ctx
 
     void setup() {
-        controller.queryService = queryService
+        GrailsMockHttpServletRequest grailsMockHttpServletRequest = new GrailsMockHttpServletRequest()
+        GrailsMockHttpServletResponse grailsMockHttpServletResponse = new GrailsMockHttpServletResponse()
+        GrailsWebMockUtil.bindMockWebRequest(ctx, grailsMockHttpServletRequest, grailsMockHttpServletResponse)
+
         SpeciesList.findAll().each {
             it.delete(flush: true, failOnError: true)
         }

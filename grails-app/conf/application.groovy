@@ -28,7 +28,6 @@ if(Environment.current != Environment.TEST){
 println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
 
 println("Current environment ${Environment.current}")
-bie.nameIndexLocation = "/data/lucene/namematching"
 
 //boolean that indicates if biocache is configured to index species lists
 biocache.indexAuthoritative = false
@@ -141,24 +140,13 @@ springcache {
     }
 }
 
-grails.cache.config = {
-
-    defaults {
-        eternal false
-        overflowToDisk false
-        maxElementsInMemory 20000
-        timeToLiveSeconds 3600
-    }
+grails {
     cache {
-        name 'userListCache'
+        ehcache {
+            ehcacheXmlLocation = 'classpath:lists-ehcache.xml'
+            lockTimeout = 1000
+        }
     }
-    cache {
-        name 'userMapCache'
-    }
-    cache {
-        name 'userDetailsCache'
-    }
-
 }
 
 app.dataDir='/tmp/'
