@@ -14,12 +14,24 @@
  */
 package au.org.ala.specieslist
 
+import au.ala.org.ws.security.RequireApiKey
+import au.org.ala.plugins.openapi.Path
 import au.org.ala.web.UserDetails
 import au.org.ala.ws.service.WebService
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.opencsv.CSVWriter
 import grails.converters.JSON
 import grails.web.JSONBuilder
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.apache.http.HttpStatus
+
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY
 
 /**
  * Provides all the webservices to be used from other sources eg the BIE
@@ -98,7 +110,53 @@ class WebServiceController {
      *   @param druid - the data resource uid for the list to return  (optional)
      *   @param splist - optional instance (added by the beforeInterceptor)
      */
-    def getListDetails ={
+    @Operation(
+            method = "GET",
+            tags = "lists",
+            operationId = "Get List Details",
+            summary = "Get List Details",
+            description = "Get details of lists or a specified list",
+            parameters = [
+                    @Parameter(name = "druid",
+                            in = PATH,
+                            description = "The data resource id to identify a list",
+                            schema = @Schema(implementation = String),
+                            required = false),
+                    @Parameter(name = "sort",
+                            in = QUERY,
+                            description = "The field  on which to sort the records list",
+                            schema = @Schema(implementation = String),
+                            required = false),
+                    @Parameter(name = "order",
+                            description = "The order to return the results in i.e asc or desc",
+                            schema = @Schema(implementation = Integer),
+                            required = false),
+                    @Parameter(name = "max",
+                            in = QUERY,
+                            description = "The number of records to return",
+                            schema = @Schema(implementation = Integer),
+                            required = false),
+                    @Parameter(name = "offset",
+                            in = QUERY,
+                            description = "The records offset, to enable paging",
+                            schema = @Schema(implementation = Integer),
+                            required = false)
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "Species List(s)",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = GetListsResponse)
+                                    )
+                            ]
+                    )
+            ]
+    )
+    @Path("/ws/speciesList/{druid}?")
+    def getListDetails() {
         log.debug("params" + params)
         if(params.splist) {
             def sl = params.splist
@@ -599,5 +657,42 @@ class WebServiceController {
 
             render results as JSON
         }
+    }
+
+    @JsonIgnoreProperties('metaClass')
+    static class SuccessResponse {
+        boolean success = true
+    }
+
+    @JsonIgnoreProperties('metaClass')
+    static class ListsReturnValue {
+        String authority
+        String category
+        String dataResourceUid
+        String dateCreated
+        String fullName
+        String generalisation
+        Boolean isAuthoritative
+        Boolean isInvasive
+        Boolean isThreatened
+        Integer itemCount
+        String astUpdated
+        String listName
+        String listType
+        String region
+        String sdsType
+        String username
+
+    }
+
+    @JsonIgnoreProperties('metaClass')
+    static class GetListsResponse {
+        Integer listCount
+        List <ListsReturnValue> lists
+        Integer max
+        Integer offset
+        String order
+        String sort
+
     }
 }
