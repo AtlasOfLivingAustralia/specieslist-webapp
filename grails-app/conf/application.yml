@@ -215,6 +215,19 @@ namematching:
         permitNullValues: false
         suppressExceptions: true
 
+security:
+    cas:
+        enabled: false
+    oidc:
+        enabled: true
+        discoveryUri: https://auth-dev.ala.org.au/cas/oidc/.well-known
+        scope: openid,profile,email,ala,roles,user_defined
+    #        allowUnsignedIdTokens: true
+    jwt:
+        enabled: true
+        discoveryUri: https://auth-dev.ala.org.au/cas/oidc/.well-known
+        fallbackToLegacyBehaviour: true
+
 speciesNameColumns: 'scientificname,scientific,sciname,sname,latinname,latin,taxon,taxonname,taxonomic name'
 commonNameColumns: 'commonname,common,vernacular,vernacularname'
 ambiguousNameColumns: 'name'
