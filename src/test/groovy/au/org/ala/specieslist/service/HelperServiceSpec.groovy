@@ -18,6 +18,7 @@ package au.org.ala.specieslist.service
 import au.org.ala.names.ws.api.NameUsageMatch
 import au.org.ala.specieslist.*
 import au.org.ala.web.AuthService
+import au.org.ala.web.UserDetails
 import com.opencsv.CSVReader
 import grails.testing.gorm.DataTest
 import grails.testing.services.ServiceUnitTest
@@ -159,7 +160,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         UserDetailsService userDetailsService = Mock(UserDetailsService)
-        userDetailsService.getFullListOfUserDetailsByUsername() >> [:]
+        userDetailsService.getCurrentUserDetails() >> Mock(UserDetails)
         helperService.setUserDetailsService(userDetailsService)
         String version1Json = "{\"listName\": \"list1\",  \"listType\": \"TEST\", \"listItems\": \"item1,item2\"}"
 
@@ -188,7 +189,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         UserDetailsService userDetailsService = Mock(UserDetailsService)
-        userDetailsService.getFullListOfUserDetailsByUsername() >> [:]
+        userDetailsService.getCurrentUserDetails() >> Mock(UserDetails)
         helperService.setUserDetailsService(userDetailsService)
         String version1Json = "{\"listName\": \"list1\",  \"listType\": \"TEST\", \"listItems\": \"item1,item2\"}"
 
@@ -230,7 +231,8 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         UserDetailsService userDetailsService = Mock(UserDetailsService)
-        userDetailsService.getFullListOfUserDetailsByUsername() >> [:]
+        userDetailsService.getCurrentUserDetails() >> Mock(UserDetails)
+        userDetailsService.getCurrentUserDetails() >> Mock(UserDetails)
         helperService.setUserDetailsService(userDetailsService)
         String version2JsonWithNoKVP = """{
                                     "listName": "list1",

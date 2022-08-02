@@ -128,7 +128,8 @@ dependencies {
     // ALA
     compile "org.grails.plugins:ala-auth:5.1.0"
     compile "org.grails.plugins:ala-ws-security-plugin:4.1.1"
-    compile "org.grails.plugins:ala-ws-plugin:3.1.0"
+    compile "org.grails.plugins:ala-ws-plugin:3.1.1"
+    compile "au.org.ala:userdetails-service-client:2.0.0"
     runtime "org.grails.plugins:ala-bootstrap3:4.1.0"
     runtime ("org.grails.plugins:ala-admin-plugin:2.3.0") {
         exclude module: "cache"
@@ -138,7 +139,7 @@ dependencies {
     compile ("au.org.ala.names:ala-namematching-client:1.7") {
         exclude group: "com.squareup.okhttp3", module: "okhttp"
     }
-    compile 'au.org.ala.plugins:openapi:1.0.0'
+    compile 'au.org.ala.plugins:openapi:1.1.0'
 
     compile 'org.gbif:gbif-common:0.37'
 }

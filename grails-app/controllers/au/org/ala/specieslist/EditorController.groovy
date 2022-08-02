@@ -60,14 +60,9 @@ class EditorController {
      */
     private List populateEditorsDetails(editors) {
         List editorsWithDetails = []
-        Map allUsersMap = userDetailsService.getFullListOfUserDetails()
-        //log.debug "allUsersMap keys = ${allUsersMap.keySet()}"
-        //log.debug "allUsersMap 13 = ${allUsersMap.get('13')}"
-
         editors.each { editor ->
             log.debug "editor = ${editor}"
-            //def detailed = authService.getUserForUserId(editor) // currently busted in prod
-            def detailed = allUsersMap.get(editor)
+            def detailed =  userDetailsService.getUserDetailsById(editor)
             log.debug "editor - detailed = ${detailed}"
             if (detailed) {
                 editorsWithDetails.add(detailed)

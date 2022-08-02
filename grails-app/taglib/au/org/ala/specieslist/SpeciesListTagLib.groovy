@@ -21,7 +21,7 @@ class SpeciesListTagLib {
     def userDetailsService
 
     def getFullNameForUserId = { attrs, body ->
-        def displayName = userDetailsService.getFullListOfUserDetails().get(attrs.userId)?.displayName
+        def displayName = userDetailsService.getUserDetailsById(attrs.userId as String)?.getDisplayName()
         out << "${displayName?:attrs.userId}"
     }
 
