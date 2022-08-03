@@ -54,7 +54,7 @@ class WebServiceControllerIntegrationSpec extends Specification {
         setup:
         helperService.nameExplorerService = Mock(NameExplorerService)
 
-        helperService.setUserDetailsService([getCurrentUserDetails : {return [a:"a"]}]
+        helperService.setUserDetailsService([getCurrentUserDetails : {new UserDetails(userName: 'a')}]
                 as UserDetailsService)
         controller.setAuthService([getUserForEmailAddress: {new UserDetails(userName: 'b')}] as AuthService)
         controller.setHelperService(helperService)
@@ -108,7 +108,7 @@ class WebServiceControllerIntegrationSpec extends Specification {
         setup:
         helperService.nameExplorerService = Mock(NameExplorerService)
 
-        helperService.setUserDetailsService([getCurrentUserDetails : {return [a:"a"]}]
+        helperService.setUserDetailsService([getCurrentUserDetails : {new UserDetails(userName: 'a')}]
                 as UserDetailsService)
         controller.setAuthService([getUserForEmailAddress: {new UserDetails(userName: 'b')}] as AuthService)
         controller.setHelperService(helperService)

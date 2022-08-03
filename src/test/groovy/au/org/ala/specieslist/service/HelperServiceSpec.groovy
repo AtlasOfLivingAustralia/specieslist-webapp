@@ -231,8 +231,8 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         UserDetailsService userDetailsService = Mock(UserDetailsService)
-        userDetailsService.getCurrentUserDetails() >> Mock(UserDetails)
-        userDetailsService.getCurrentUserDetails() >> Mock(UserDetails)
+        userDetailsService.getCurrentUserDetails() >> {}
+        userDetailsService.getCurrentUserDetails() >> {}
         helperService.setUserDetailsService(userDetailsService)
         String version2JsonWithNoKVP = """{
                                     "listName": "list1",
