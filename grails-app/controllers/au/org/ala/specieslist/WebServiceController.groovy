@@ -14,20 +14,21 @@
  */
 package au.org.ala.specieslist
 
-import au.ala.org.ws.security.RequireApiKey
 import au.org.ala.plugins.openapi.Path
 import au.org.ala.web.UserDetails
 import au.org.ala.ws.service.WebService
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.opencsv.CSVWriter
 import grails.converters.JSON
+import grails.gorm.transactions.Transactional
 import grails.web.JSONBuilder
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
-import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.apache.http.HttpStatus
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH
@@ -55,12 +56,78 @@ class WebServiceController {
         helperService.asJson(results, response)
     }
 
+    @Operation(
+            method = "GET",
+            tags = "List Items",
+            operationId = "Get guid(s) contained in a species list",
+            summary = "Get  guid(s) contained in a species list",
+            description = "Get a list of guid(s) for taxa/species list items contained in a species list ",
+            parameters = [
+                    @Parameter(name = "druid",
+                            in = PATH,
+                            description = "The data resource id to identify a list",
+                            schema = @Schema(implementation = String),
+                            required = true),
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "Species List item guid(s)",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            array = @ArraySchema(schema = @Schema(implementation = String))
+                                    )
+                            ]
+                    )
+            ]
+    )
+    @Path("/ws/speciesList/{druid}/taxa")
     def getTaxaOnList(){
         def druid = params.druid
         def results = SpeciesListItem.executeQuery("select guid from SpeciesListItem where dataResourceUid=:dataResourceUid",[dataResourceUid: druid])
         render results as JSON
     }
 
+
+    @Operation(
+            method = "GET",
+            tags = "List Items",
+            operationId = "Get species list items details for specified guid(s)",
+            summary = "Get species list items details for specified guid(s)",
+            description = "Get details of species list items i.e species for a list of guid(s)",
+            parameters = [
+                    // the "required" attribute is overridden to true when the parameter type is PATH.
+                    @Parameter(name = "guid",
+                            in = PATH,
+                            description = "A comma seperated list of guid(s) to identify a species list item i.e. species.",
+                            schema = @Schema(implementation = String),
+                            required = true),
+                    @Parameter(name = "dr",
+                            in = QUERY,
+                            description = "A comma seperated list of data resource ids to identify species lists to return matching list items from",
+                            schema = @Schema(implementation = String),
+                            required = false),
+                    @Parameter(name = "isBIE",
+                            in = QUERY,
+                            description = "The boolean value to specify whether the request is from the BIE",
+                            schema = @Schema(implementation = Boolean),
+                            required = false),
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "Species List item(s) details",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            array = @ArraySchema(schema = @Schema(implementation = GetListItemsForSpeciesResponse))
+                                    )
+                            ]
+                    )
+            ]
+    )
+    @Path("/ws/species/{guid}")
     def getListItemsForSpecies(){
         def guid = params.guid
         def lists = params.dr?.split(",")
@@ -112,19 +179,20 @@ class WebServiceController {
      */
     @Operation(
             method = "GET",
-            tags = "lists",
-            operationId = "Get List Details",
-            summary = "Get List Details",
-            description = "Get details of lists or a specified list",
+            tags = "Lists",
+            operationId = "Get species list(s) detail",
+            summary = "Get species list(s) detail",
+            description = "Get details of species lists or a specific list",
             parameters = [
+                    // the "required" attribute is overridden to true when the parameter type is PATH.
                     @Parameter(name = "druid",
                             in = PATH,
-                            description = "The data resource id to identify a list",
+                            description = "The data resource id to identify a list. This parameter is required for requesting a species list but optional for requesting species lists ",
                             schema = @Schema(implementation = String),
                             required = false),
                     @Parameter(name = "sort",
                             in = QUERY,
-                            description = "The field  on which to sort the records list",
+                            description = "The field  on which to sort the returned results",
                             schema = @Schema(implementation = String),
                             required = false),
                     @Parameter(name = "order",
@@ -219,7 +287,70 @@ class WebServiceController {
     /**
      * Returns a summary list of items that form part of the supplied species list.
      */
-    def getListItemDetails ={
+    @Operation(
+            method = "GET",
+            tags = "List Items",
+            operationId = "Get species list(s) item details",
+            summary = "Get species list(s) item details",
+            description = "Get details of individual items i.e. species for specified species list(s)",
+            parameters = [
+                    // the "required" attribute is overridden to true when the parameter type is PATH.
+                    @Parameter(name = "druid",
+                            in = PATH,
+                            description = "The data resource id or comma seperated data resource ids  to identify list(s) to return list items for e.g. '/ws/speciesListItems/dr123,dr781,dr332'",
+                            schema = @Schema(implementation = String),
+                            required = false),
+                    @Parameter(name = "q",
+                            in = QUERY,
+                            description = "Optional query string to search common name, supplied name and scientific name in the lists specified by the 'druid' e.g. 'Eurystomus orientalis'",
+                            schema = @Schema(implementation = String),
+                            required = false),
+                    @Parameter(name = "nonulls",
+                            in = QUERY,
+                            description = "The value to specify whether to include or exclude species list item with null value for species guid",
+                            schema = @Schema(implementation = Boolean),
+                            required = false),
+                    @Parameter(name = "sort",
+                            in = QUERY,
+                            description = "The field  on which to sort the returned results. Default is 'itemOrder'",
+                            schema = @Schema(implementation = String),
+                            required = false),
+                    @Parameter(name = "order",
+                            description = "The order to return the results in i.e asc or desc",
+                            schema = @Schema(implementation = Integer),
+                            required = false),
+                    @Parameter(name = "max",
+                            in = QUERY,
+                            description = "The number of records to return",
+                            schema = @Schema(implementation = Integer),
+                            required = false),
+                    @Parameter(name = "offset",
+                            in = QUERY,
+                            description = "The records offset, to enable paging",
+                            schema = @Schema(implementation = Integer),
+                            required = false),
+                    @Parameter(name = "includeKVP",
+                            in = QUERY,
+                            description = "The value to specify whether to include KVP (key value pairs) values in the returned list item ",
+                            schema = @Schema(implementation = Boolean),
+                            required = false)
+
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "Species list item(s)",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            array = @ArraySchema(schema = @Schema(implementation = GetListItemsResponse))
+                                    )
+                            ]
+                    )
+            ]
+    )
+    @Path("/ws/speciesListItems/{druid}")
+    def getListItemDetails() {
         if(params.druid) {
             // This method supports a comma separated list of druid
             List druid = params.druid.split(',')
@@ -281,6 +412,74 @@ class WebServiceController {
     /**
      * Returns a summary list of items that form part of the supplied species list.
      */
+    @Operation(
+            method = "GET",
+            tags = "List Items",
+            operationId = "Get species list(s) item details",
+            summary = "Get species list(s) item details",
+            description = "Get details of individual items i.e. species for specified species list(s) filter-able by specified fields",
+            parameters = [
+                    // the "required" attribute is overridden to true when the parameter type is PATH.
+                    @Parameter(name = "druid",
+                            in = QUERY,
+                            description = "The data resource id or comma seperated data resource ids  to identify list(s) to return list items for e.g. '/ws/speciesListItems/dr123,dr781,dr332'",
+                            schema = @Schema(implementation = String),
+                            required = false),
+                    @Parameter(name = "q",
+                            in = QUERY,
+                            description = "Optional query string to search common name, supplied name and scientific name in the lists specified by the 'druid' e.g. 'Eurystomus orientalis'",
+                            schema = @Schema(implementation = String),
+                            required = false),
+                    @Parameter(name = "fields",
+                            in = QUERY,
+                            description = "Used together with 'q', this specifies the field or fields  in list item and list item key value pairs (KVP) to apply the search query `q` against e.g. fields=commonName,group&q=bird",
+                            schema = @Schema(implementation = String),
+                            required = false),
+                    @Parameter(name = "nonulls",
+                            in = QUERY,
+                            description = "The value to specify whether to include or exclude species list item with null value for species guid",
+                            schema = @Schema(implementation = Boolean),
+                            required = false),
+                    @Parameter(name = "sort",
+                            in = QUERY,
+                            description = "The field  on which to sort the returned results. Default is 'itemOrder'",
+                            schema = @Schema(implementation = String),
+                            required = false),
+                    @Parameter(name = "order",
+                            description = "The order to return the results in i.e asc or desc",
+                            schema = @Schema(implementation = Integer),
+                            required = false),
+                    @Parameter(name = "max",
+                            in = QUERY,
+                            description = "The number of records to return",
+                            schema = @Schema(implementation = Integer),
+                            required = false),
+                    @Parameter(name = "offset",
+                            in = QUERY,
+                            description = "The records offset, to enable paging",
+                            schema = @Schema(implementation = Integer),
+                            required = false),
+                    @Parameter(name = "includeKVP",
+                            in = QUERY,
+                            description = "The value to specify whether to include KVP (key value pairs) values in the returned list item ",
+                            schema = @Schema(implementation = Boolean),
+                            required = false)
+
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "Species list item(s)",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            array = @ArraySchema(schema = @Schema(implementation = GetListItemsResponse))
+                                    )
+                            ]
+                    )
+            ]
+    )
+    @Path("/ws/queryListItemOrKVP")
     def queryListItemOrKVP () {
         if(params.druid && params.fields) {
             List druid = params.druid.split(',')
@@ -445,7 +644,34 @@ class WebServiceController {
     def notFound = { text ->
         render(status:404, text: text)
     }
-
+    @Operation(
+            method = "GET",
+            tags = "List Items",
+            operationId = "Mark species list items as published",
+            summary = "Mark species list items as published",
+            description = "Mark all species list items under thea specified species list as published",
+            parameters = [
+                    @Parameter(name = "druid",
+                            in = QUERY,
+                            description = "The data resource id to identify a list",
+                            schema = @Schema(implementation = String),
+                            required = true),
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "A message stating the operation has been successful",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "text/html",
+                                            schema = @Schema(implementation = String)
+                                    )
+                            ]
+                    )
+            ]
+    )
+    @Path("ws/speciesList/publish")
+    @Transactional
     def markAsPublished(){
         //marks the supplied data resource as published
         if (params.druid){
@@ -456,6 +682,25 @@ class WebServiceController {
         }
     }
 
+    @Operation(
+            method = "GET",
+            tags = "List Items",
+            operationId = "Get all the unpublished list items in batches of 100",
+            summary = "Get all the unpublished list items in batches of 100",
+            description = "Get all the unpublished list items in batches of 100",
+            responses = [
+                    @ApiResponse(
+                            description = "A CSV text content with a list of unpublished list items",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                       schema = @Schema(implementation = String)
+                                    )
+                            ]
+                    )
+            ]
+    )
+    @Path("/ws/speciesList/unpublished")
     def getBieUpdates(){
         //retrieve all the unpublished list items in batches of 100
         def max =100
@@ -514,6 +759,34 @@ class WebServiceController {
      * @param druid one or more DR UIDs (comma-separated if there are more than 1)
      * @return JSON list of unique key names
      */
+    @Operation(
+            method = "GET",
+            tags = "keys",
+            operationId = "Get a list of keys in a species list",
+            summary = "Get a list of keys in a species listt",
+            description = "Get a list of keys in KVP available for a species list",
+            parameters = [
+                    // the "required" attribute is overridden to true when the parameter type is PATH.
+                    @Parameter(name = "druid",
+                            in = QUERY,
+                            description = "The data resource id or comma seperated data resource ids to identify list(s) to return the keys for",
+                            schema = @Schema(implementation = String),
+                            required = true),
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "List of keys present within a species list",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            array = @ArraySchema(schema = @Schema(implementation = String))
+                                    )
+                            ]
+                    )
+            ]
+    )
+    @Path("/ws/speciesListItems/keys")
     def listKeys() {
         if (!params.druid) {
             response.status = HttpStatus.SC_BAD_REQUEST
@@ -548,6 +821,33 @@ class WebServiceController {
      * this will return
      * ['rawScientificName', 'matchedName', 'commonName', 'colour']
      */
+    @Operation(
+            method = "GET",
+            tags = "keys",
+            operationId = "Get a list of common keys in species lists ",
+            summary = "Get a list of  common in pecies lists ",
+            description = "Get a list of keys from KVP common across a list multiple species lists ",
+            parameters = [
+                    @Parameter(name = "druid",
+                            in = QUERY,
+                            description = "Comma seperated data resource ids to identify lists",
+                            schema = @Schema(implementation = String),
+                            required = true),
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "List of common keys present across multiple species lists",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            array = @ArraySchema(schema = @Schema(implementation = String))
+                                    )
+                            ]
+                    )
+            ]
+    )
+    @Path("/ws/listCommonKeys")
     def listCommonKeys() {
         if (!params.druid) {
             response.status = HttpStatus.SC_BAD_REQUEST
@@ -588,6 +888,38 @@ class WebServiceController {
      *
      * @return if format = json, {scientificName1: [{key: key1, value: value1}, ...], scientificName2: [{key: key1, value: value1}, ...]}. If format = csv, returns a CSV download with columns [ScientificName,Key1,Key2...].
      */
+    @Operation(
+            method = "GET",
+            tags = "keys",
+            operationId = "Finds species list items that contains specific keys ",
+            summary = "Finds species list items that contains specific keys ",
+            description = "Finds species list items that contains specific keys in thier KVP",
+            parameters = [
+                    @Parameter(name = "druid",
+                            in = QUERY,
+                            description = "A list of comma seperated data resource ids to identify lists by",
+                            schema = @Schema(implementation = String),
+                            required = true),
+                    @Parameter(name = "keys",
+                            in = QUERY,
+                            description = "A list of comma seperated keys to search species list items by",
+                            schema = @Schema(implementation = String),
+                            required = true),
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "Species list item names and their matched KVP",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = ListItemsByKeysResponse)
+                                    )
+                            ]
+                    )
+            ]
+    )
+    @Path("/ws/speciesListItems/byKeys")
     def listItemsByKeys() {
         if (!params.druid || !params.keys) {
             response.status = HttpStatus.SC_BAD_REQUEST
@@ -647,6 +979,34 @@ class WebServiceController {
         }
     }
 
+    @Operation(
+            method = "POST",
+            tags = "Lists",
+            operationId = "Filter lists based on specified attributes",
+            summary = "Filter lists based on specified attributes",
+            description = "Search and filter lists based on specified attributes i.e. scientificNames and drIds",
+            requestBody = @RequestBody(
+                    description = "The JSON object with filter attributes",
+                    required = true,
+                    content = @Content(
+                            mediaType = 'application/json',
+                            schema = @Schema(implementation = FilterListsBody)
+                    )
+            ),
+            responses = [
+                    @ApiResponse(
+                            description = "List of druid which match the supplied filter",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            array = @ArraySchema(schema = @Schema(implementation = String))
+                                    )
+                            ]
+                    )
+            ]
+    )
+    @Path("/ws/speciesList/filter")
     def filterLists() {
         def json = request.getJSON()
         if (!json.scientificNames) {
@@ -695,4 +1055,36 @@ class WebServiceController {
         String sort
 
     }
+
+    @JsonIgnoreProperties('metaClass')
+    static class GetListItemsResponse {
+        String commonName
+        String dataResourceUid
+        Integer id
+        List <HashMap<String, String>> kvpValues
+        String lsid
+        String name
+        String scientificName
+    }
+
+    @JsonIgnoreProperties('metaClass')
+    static class ListItemsByKeysResponse {
+        HashMap<String, List <HashMap<String, String>>> value
+    }
+
+    @JsonIgnoreProperties('metaClass')
+    static class FilterListsBody {
+        List<String> scientificNames
+        List<String> drIds
+    }
+
+    @JsonIgnoreProperties('metaClass')
+    static class GetListItemsForSpeciesResponse {
+        String dataResourceUid
+        String guid
+        List <HashMap<String, String>> kvpValues
+        HashMap<String, String> list
+    }
+
+
 }
