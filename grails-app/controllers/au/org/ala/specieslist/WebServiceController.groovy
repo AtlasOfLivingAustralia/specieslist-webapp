@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.opencsv.CSVWriter
 import grails.converters.JSON
 import grails.gorm.transactions.Transactional
-import grails.web.JSONBuilder
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.ArraySchema
@@ -47,13 +46,40 @@ class WebServiceController {
 
     def index() { }
 
+    @Operation(
+            method = "GET",
+            tags = "List Items",
+            operationId = "Get distinct values for a field in species list item ",
+            summary = "Get distinct values for a field in species list item ",
+            description = "Get a list distinct values for a field in species list item ",
+            parameters = [
+                    @Parameter(name = "field",
+                            in = PATH,
+                            description = "The field e.g.(kingdom, matchedName, rawScientificName etc.) to get distinct values for across all species list items",
+                            schema = @Schema(implementation = String),
+                            required = true),
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "List of distinct values for a specified species list item field",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            array = @ArraySchema(schema = @Schema(implementation = String))
+                                    )
+                            ]
+                    )
+            ]
+    )
+    @Path("/ws/speciesListItems/distinct/{field}")
     def getDistinctValues(){
         def field = params.field
 
         def props = [fetch:[ mylist: 'join']]
         log.debug("Distinct values " + field +" "+ params)
         def results = queryService.getFilterListItemResult(props, params,null,null,field )
-        helperService.asJson(results, response)
+        render results as JSON
     }
 
     @Operation(
@@ -137,8 +163,7 @@ class WebServiceController {
         def results = queryService.getFilterListItemResult(props, params, guid, lists,null)
 
         //def results = lists ? SpeciesListItem.findAllByGuidAndDataResourceUidInList(guid, lists,props) : SpeciesListItem.findAllByGuid(guid,props)
-        //def result2 =results.collect {[id: it.id, dataResourceUid: it.dataResourceUid, guid: it.guid, kvpValues: it.kvpValue.collect{ id:it.}]}
-        def builder = new JSONBuilder()
+        //def result2 =results.collect {[id: it.id, dataResourceUid: it.dataResourceUid, guid: it.guid, kvpValues: it.kvpValue.collect{ id:it.}]
 
         log.debug("RESULTS: " + results)
 
@@ -168,7 +193,7 @@ class WebServiceController {
                 }
             ]
         }
-        render builder.build{listOfRecordMaps}
+        render listOfRecordMaps as JSON
     }
 
     /**
@@ -229,22 +254,22 @@ class WebServiceController {
         if(params.splist) {
             def sl = params.splist
             log.debug("The speciesList: " +sl)
-            def builder = new JSONBuilder()
-
-            def retValue = builder.build{
-                dataResourceUid = sl.dataResourceUid
-                listName = sl.listName
-                if(sl.listType) listType = sl?.listType?.toString()
-                dateCreated = sl.dateCreated
-                username =  sl.username
-                fullName = sl.getFullName()
-                itemCount=sl.itemsCount//SpeciesListItem.countByList(sl)
-                isAuthoritative=sl.isAuthoritative?:false
-                isInvasive=sl.isInvasive?:false
-                isThreatened=sl.isThreatened?:false
+            def retValue = [
+                dataResourceUid: sl.dataResourceUid,
+                listName: sl.listName,
+                dateCreated: sl.dateCreated,
+                username:  sl.username,
+                fullName: sl.getFullName(),
+                itemCount:sl.itemsCount,//SpeciesListItem.countByList(sl)
+                isAuthoritative: (sl.isAuthoritative?:false),
+                isInvasive:(sl.isInvasive?:false),
+                isThreatened:(sl.isThreatened?:false)
+            ]
+            if(sl.listType){
+                retValue["listType"] = sl?.listType?.toString()
             }
             log.debug(" The retvalue: " + retValue)
-            render retValue
+            render retValue as JSON
         } else {
             //we need to return a summary of all lists
             //allowing for customisation in sort order and paging
@@ -424,7 +449,7 @@ class WebServiceController {
                             in = QUERY,
                             description = "The data resource id or comma seperated data resource ids  to identify list(s) to return list items for e.g. '/ws/speciesListItems/dr123,dr781,dr332'",
                             schema = @Schema(implementation = String),
-                            required = false),
+                            required = true),
                     @Parameter(name = "q",
                             in = QUERY,
                             description = "Optional query string to search common name, supplied name and scientific name in the lists specified by the 'druid' e.g. 'Eurystomus orientalis'",
@@ -434,7 +459,7 @@ class WebServiceController {
                             in = QUERY,
                             description = "Used together with 'q', this specifies the field or fields  in list item and list item key value pairs (KVP) to apply the search query `q` against e.g. fields=commonName,group&q=bird",
                             schema = @Schema(implementation = String),
-                            required = false),
+                            required = true),
                     @Parameter(name = "nonulls",
                             in = QUERY,
                             description = "The value to specify whether to include or exclude species list item with null value for species guid",
@@ -525,7 +550,33 @@ class WebServiceController {
             render status: HttpStatus.SC_BAD_REQUEST, text: "druid and fields parameters are required"
         }
     }
-
+    @Operation(
+            method = "GET",
+            tags = "List Items",
+            operationId = "Get all KVPs in a species list",
+            summary = "Get all KVPs in species list",
+            description = "Get all KVPs within a species list item for a specified species list",
+            parameters = [
+                    @Parameter(name = "druid",
+                            in = PATH,
+                            description = "The data resource id or comma seperated data resource ids to identify a species list",
+                            schema = @Schema(implementation = String),
+                            required = true),
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "List of of all available KVPs and the scientific name",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            array = @ArraySchema(schema = @Schema(implementation = ListItemKVPResponse))
+                                    )
+                            ]
+                    )
+            ]
+    )
+    @Path("/ws/speciesListItemKvp/{druid}")
     def getSpeciesListItemKvp() {
         def speciesListDruid = params.druid
 
@@ -1084,6 +1135,12 @@ class WebServiceController {
         String guid
         List <HashMap<String, String>> kvpValues
         HashMap<String, String> list
+    }
+
+    @JsonIgnoreProperties('metaClass')
+    static class ListItemKVPResponse {
+        List <HashMap<String, String>> kvps
+        String name
     }
 
 
