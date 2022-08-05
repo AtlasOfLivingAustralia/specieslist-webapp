@@ -14,6 +14,7 @@
  */
 package au.org.ala.specieslist
 
+import au.ala.org.ws.security.RequireApiKey
 import au.org.ala.plugins.openapi.Path
 import au.org.ala.web.UserDetails
 import au.org.ala.ws.service.WebService
@@ -28,6 +29,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.apache.http.HttpStatus
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH
@@ -616,10 +618,46 @@ class WebServiceController {
      * - v2 (structured list items with KVP): { "listName": "list1", "listType": "TEST", "listItems": [ { "itemName":
      * "item1", "kvpValues": [ { "key": "key1", "value": "value1" }, { "key": "key2", "value": "value2" } ] } ] }
      */
-    def saveList = {
+    @Operation(
+            method = "POST",
+            tags = "Lists",
+            operationId = "Add or replace a species list",
+            summary = "Add  or replace a species list",
+            description = "Add new species list or replace an existing one. When no druid is provided in the JSON body, a new list will be created",
+            requestBody = @RequestBody(
+                    description = "The JSON object containing new species list. Two JSON structures are supported: - v1 (unstructured list items): {\"listName\": \"list1\",  \"listType\": \"TEST\", \"listItems\": \"item1,item2,item3\"}, \n- v2 (structured list items with KVP): { \"listName\": \"list1\", \"listType\": \"TEST\", \"listItems\": [ { \"itemName\": \"item1\", \"kvpValues\": [ { \"key\": \"key1\", \"value\": \"value1\" }, { \"key\": \"key2\", \"value\": \"value2\" } ] } ] }",
+                    required = true,
+                    content = @Content(
+                            mediaType = 'application/json',
+                            schema = @Schema(implementation = FilterListsBody)
+                    )
+            ),
+            parameters = [
+                    @Parameter(name = "druid",
+                            in = PATH,
+                            description = "The data resource id to identify the new list",
+                            schema = @Schema(implementation = String),
+                            required = true),
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "List of druid which match the supplied filter",
+                            responseCode = "201",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = SaveListResponse)
+                                    )
+                            ]
+                    )
+            ],
+            security = [@SecurityRequirement(name = 'openIdConnect')]
+    )
+    @Path("/ws/speciesListPost/{druid}?")
+    @RequireApiKey
+    def saveList() {
         log.debug("Saving a user list")
         //create a new list
-
         try {
             def jsonBody = request.JSON
             def userCookie = null
@@ -629,16 +667,11 @@ class WebServiceController {
             }
 
             def userId = request.getHeader(WebService.DEFAULT_AUTH_HEADER)
-            def apiKey = request.getHeader(WebService.DEFAULT_API_KEY_HEADER)
 
             UserDetails user = null
 
-            if (userId && apiKey){
-                def apiKeyResponse = apiKeyService.checkApiKey(apiKey)
-                if (apiKeyResponse && apiKeyResponse.valid){
-                    //retrieve user
-                    user = authService.getUserForUserId(userId)
-                }
+            if (userId ){
+                user = authService.getUserForUserId(userId)
             } else if (userCookie) {
                 String username = java.net.URLDecoder.decode(userCookie.getValue(), 'utf-8')
                 //test to see that the user is valid
@@ -788,21 +821,6 @@ class WebServiceController {
         return '"'+value.replaceAll('"','~"')+'"'
     }
 
-    /**
-     * Check if an email address exists in AUTH and return the userId (number) if true,
-     * otherwise return an empty String
-     *
-     * @return userId
-     */
-    def checkEmailExists() {
-        String email = params.email
-
-        if (email) {
-            render authService.getUserForEmailAddress(email) as JSON
-        } else {
-            render status:400, text: 'Required param not provided: email'
-        }
-    }
 
     /**
      * Lists all unique keys from the key value pairs of all records owned by the requested data resource(s)
@@ -1141,6 +1159,14 @@ class WebServiceController {
     static class ListItemKVPResponse {
         List <HashMap<String, String>> kvps
         String name
+    }
+
+    @JsonIgnoreProperties('metaClass')
+    static class SaveListResponse{
+        Integer status
+        String message
+        String driod
+        List<String> guid
     }
 
 
