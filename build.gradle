@@ -126,7 +126,7 @@ dependencies {
     testRuntime "org.seleniumhq.selenium:selenium-firefox-driver:3.14.0"
 
     // ALA
-    compile "org.grails.plugins:ala-auth:5.1.0"
+    compile "org.grails.plugins:ala-auth:5.1.1"
     compile "org.grails.plugins:ala-ws-security-plugin:4.1.1"
     compile "org.grails.plugins:ala-ws-plugin:3.1.1"
     compile "au.org.ala:userdetails-service-client:2.0.0"

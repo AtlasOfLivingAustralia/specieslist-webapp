@@ -128,12 +128,12 @@ class WebServiceController {
                     // the "required" attribute is overridden to true when the parameter type is PATH.
                     @Parameter(name = "guid",
                             in = PATH,
-                            description = "A comma seperated list of guid(s) to identify a species list item i.e. species.",
+                            description = "A comma separated list of guid(s) to identify a species list item i.e. species.",
                             schema = @Schema(implementation = String),
                             required = true),
                     @Parameter(name = "dr",
                             in = QUERY,
-                            description = "A comma seperated list of data resource ids to identify species lists to return matching list items from",
+                            description = "A comma separated list of data resource ids to identify species lists to return matching list items from",
                             schema = @Schema(implementation = String),
                             required = false),
                     @Parameter(name = "isBIE",
@@ -324,7 +324,7 @@ class WebServiceController {
                     // the "required" attribute is overridden to true when the parameter type is PATH.
                     @Parameter(name = "druid",
                             in = PATH,
-                            description = "The data resource id or comma seperated data resource ids  to identify list(s) to return list items for e.g. '/ws/speciesListItems/dr123,dr781,dr332'",
+                            description = "The data resource id or comma separated data resource ids  to identify list(s) to return list items for e.g. '/ws/speciesListItems/dr123,dr781,dr332'",
                             schema = @Schema(implementation = String),
                             required = false),
                     @Parameter(name = "q",
@@ -449,7 +449,7 @@ class WebServiceController {
                     // the "required" attribute is overridden to true when the parameter type is PATH.
                     @Parameter(name = "druid",
                             in = QUERY,
-                            description = "The data resource id or comma seperated data resource ids  to identify list(s) to return list items for e.g. '/ws/speciesListItems/dr123,dr781,dr332'",
+                            description = "The data resource id or comma separated data resource ids  to identify list(s) to return list items for e.g. '/ws/speciesListItems/dr123,dr781,dr332'",
                             schema = @Schema(implementation = String),
                             required = true),
                     @Parameter(name = "q",
@@ -561,7 +561,7 @@ class WebServiceController {
             parameters = [
                     @Parameter(name = "druid",
                             in = PATH,
-                            description = "The data resource id or comma seperated data resource ids to identify a species list",
+                            description = "The data resource id or comma separated data resource ids to identify a species list",
                             schema = @Schema(implementation = String),
                             required = true),
             ],
@@ -736,7 +736,7 @@ class WebServiceController {
             description = "Mark all species list items under thea specified species list as published",
             parameters = [
                     @Parameter(name = "druid",
-                            in = QUERY,
+                            in = PATH,
                             description = "The data resource id to identify a list",
                             schema = @Schema(implementation = String),
                             required = true),
@@ -754,7 +754,7 @@ class WebServiceController {
                     )
             ]
     )
-    @Path("ws/speciesList/publish")
+    @Path("ws/speciesList/publish/{druid}")
     @Transactional
     def markAsPublished(){
         //marks the supplied data resource as published
@@ -838,7 +838,7 @@ class WebServiceController {
                     // the "required" attribute is overridden to true when the parameter type is PATH.
                     @Parameter(name = "druid",
                             in = QUERY,
-                            description = "The data resource id or comma seperated data resource ids to identify list(s) to return the keys for",
+                            description = "The data resource id or comma separated data resource ids to identify list(s) to return the keys for",
                             schema = @Schema(implementation = String),
                             required = true),
             ],
@@ -894,12 +894,12 @@ class WebServiceController {
             method = "GET",
             tags = "keys",
             operationId = "Get a list of common keys in species lists ",
-            summary = "Get a list of  common in pecies lists ",
+            summary = "Get a list of  common keys in species lists ",
             description = "Get a list of keys from KVP common across a list multiple species lists ",
             parameters = [
                     @Parameter(name = "druid",
                             in = QUERY,
-                            description = "Comma seperated data resource ids to identify lists",
+                            description = "Comma separated data resource ids to identify lists",
                             schema = @Schema(implementation = String),
                             required = true),
             ],
@@ -962,16 +962,16 @@ class WebServiceController {
             tags = "keys",
             operationId = "Finds species list items that contains specific keys ",
             summary = "Finds species list items that contains specific keys ",
-            description = "Finds species list items that contains specific keys in thier KVP",
+            description = "Finds species list items that contains specific keys in their KVP",
             parameters = [
                     @Parameter(name = "druid",
                             in = QUERY,
-                            description = "A list of comma seperated data resource ids to identify lists by",
+                            description = "A list of comma separated data resource ids to identify lists by",
                             schema = @Schema(implementation = String),
                             required = true),
                     @Parameter(name = "keys",
                             in = QUERY,
-                            description = "A list of comma seperated keys to search species list items by",
+                            description = "A list of comma separated keys to search species list items by",
                             schema = @Schema(implementation = String),
                             required = true),
             ],
