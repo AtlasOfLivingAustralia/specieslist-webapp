@@ -24,6 +24,7 @@ import grails.converters.JSON
 import grails.gorm.transactions.Transactional
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.headers.Header
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -70,6 +71,11 @@ class WebServiceController {
                                             mediaType = "application/json",
                                             array = @ArraySchema(schema = @Schema(implementation = String))
                                     )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
             ]
@@ -106,6 +112,11 @@ class WebServiceController {
                                             mediaType = "application/json",
                                             array = @ArraySchema(schema = @Schema(implementation = String))
                                     )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
             ]
@@ -151,6 +162,11 @@ class WebServiceController {
                                             mediaType = "application/json",
                                             array = @ArraySchema(schema = @Schema(implementation = GetListItemsForSpeciesResponse))
                                     )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
             ]
@@ -246,6 +262,11 @@ class WebServiceController {
                                             mediaType = "application/json",
                                             schema = @Schema(implementation = GetListsResponse)
                                     )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
             ]
@@ -372,6 +393,11 @@ class WebServiceController {
                                             mediaType = "application/json",
                                             array = @ArraySchema(schema = @Schema(implementation = GetListItemsResponse))
                                     )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
             ]
@@ -502,6 +528,11 @@ class WebServiceController {
                                             mediaType = "application/json",
                                             array = @ArraySchema(schema = @Schema(implementation = GetListItemsResponse))
                                     )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
             ]
@@ -574,6 +605,11 @@ class WebServiceController {
                                             mediaType = "application/json",
                                             array = @ArraySchema(schema = @Schema(implementation = ListItemKVPResponse))
                                     )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
             ]
@@ -648,6 +684,11 @@ class WebServiceController {
                                             mediaType = "application/json",
                                             schema = @Schema(implementation = SaveListResponse)
                                     )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
             ],
@@ -750,6 +791,11 @@ class WebServiceController {
                                             mediaType = "text/html",
                                             schema = @Schema(implementation = String)
                                     )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
             ]
@@ -780,6 +826,11 @@ class WebServiceController {
                                     @Content(
                                        schema = @Schema(implementation = String)
                                     )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
             ]
@@ -851,6 +902,11 @@ class WebServiceController {
                                             mediaType = "application/json",
                                             array = @ArraySchema(schema = @Schema(implementation = String))
                                     )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
             ]
@@ -912,6 +968,11 @@ class WebServiceController {
                                             mediaType = "application/json",
                                             array = @ArraySchema(schema = @Schema(implementation = String))
                                     )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
             ]
@@ -984,6 +1045,11 @@ class WebServiceController {
                                             mediaType = "application/json",
                                             schema = @Schema(implementation = ListItemsByKeysResponse)
                                     )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
             ]
@@ -1071,6 +1137,11 @@ class WebServiceController {
                                             mediaType = "application/json",
                                             array = @ArraySchema(schema = @Schema(implementation = String))
                                     )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
             ]
