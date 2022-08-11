@@ -33,6 +33,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.apache.http.HttpStatus
 
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY
 
@@ -674,6 +675,7 @@ class WebServiceController {
                             description = "The data resource id to identify the new list",
                             schema = @Schema(implementation = String),
                             required = true),
+                    @Parameter(name = "Authorization", in = HEADER, schema = @Schema(implementation = String), required = true)
             ],
             responses = [
                     @ApiResponse(
