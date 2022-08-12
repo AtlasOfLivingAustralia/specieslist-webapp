@@ -270,7 +270,7 @@ class EditorController {
         } else {
             // get userID from authService using the supplied email list and add to speciesList editors
             Set<String> editorIds = new HashSet<String>()
-            def editorEmails = params.'editors[]'
+            def editorEmails = params.list('editors[]')
             editorEmails.each {it ->
                 def newEditor = authService.getUserForEmailAddress(it.toString())
                 if(newEditor){
