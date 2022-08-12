@@ -20,11 +20,11 @@ grails:
         enabled: true
         allowCredentials: true
         allowedMethods:
-             - '*'
+            - '*'
         allowedHeaders:
-             - '*'
+            - '*'
         allowedOrigins:
-             - '*'
+            - '*'
         mappings:
             /ws/**: inherit
 info:
@@ -72,22 +72,22 @@ grails:
             csv: text/csv
             form: application/x-www-form-urlencoded
             html:
-              - text/html
-              - application/xhtml+xml
+                - text/html
+                - application/xhtml+xml
             js: text/javascript
             json:
-              - application/json
-              - text/json
+                - application/json
+                - text/json
             multipartForm: multipart/form-data
             pdf: application/pdf
             rss: application/rss+xml
             text: text/plain
             hal:
-              - application/hal+json
-              - application/hal+xml
+                - application/hal+json
+                - application/hal+xml
             xml:
-              - text/xml
-              - application/xml
+                - text/xml
+                - application/xml
     urlmapping:
         cache:
             maxsize: 1000
@@ -206,7 +206,6 @@ outboundhttp:
 
 namematching:
     serviceURL: https://namematching-ws.ala.org.au
-#    serviceURL: https://namematching-ws-test.ala.org.au
     dataCacheConfig:
         enableJmx: true
         entryCapacity: 20000
@@ -214,6 +213,26 @@ namematching:
         keepDataAfterExpired: false
         permitNullValues: false
         suppressExceptions: true
+
+security:
+    cas:
+        enabled: false
+    oidc:
+        enabled: true
+        discoveryUri: https://auth-dev.ala.org.au/cas/oidc/.well-known
+        scope: openid profile email ala roles
+#        allowUnsignedIdTokens: true
+    jwt:
+        enabled: true
+        discoveryUri: https://auth-dev.ala.org.au/cas/oidc/.well-known
+        fallbackToLegacyBehaviour: true
+
+webservice:
+    jwt: true
+    jwt-scopes: "openid users/read"
+
+userDetails:
+    url: https://auth-dev.ala.org.au/userdetails
 
 speciesNameColumns: 'scientificname,scientific,sciname,sname,latinname,latin,taxon,taxonname,taxonomic name'
 commonNameColumns: 'commonname,common,vernacular,vernacularname'

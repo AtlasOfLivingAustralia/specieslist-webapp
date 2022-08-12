@@ -62,8 +62,6 @@ class UrlMappings {
 
         "/ws"(view:'/webService/ws')
 
-        "/ws/checkEmailExists" (controller: 'webService' , action: 'checkEmailExists')
-
         "/ws/speciesListItemKvp/$druid" (controller: 'webService'){
             action = [GET: 'getSpeciesListItemKvp']
         }

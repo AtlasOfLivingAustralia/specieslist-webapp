@@ -60,14 +60,9 @@ class EditorController {
      */
     private List populateEditorsDetails(editors) {
         List editorsWithDetails = []
-        Map allUsersMap = userDetailsService.getFullListOfUserDetails()
-        //log.debug "allUsersMap keys = ${allUsersMap.keySet()}"
-        //log.debug "allUsersMap 13 = ${allUsersMap.get('13')}"
-
         editors.each { editor ->
             log.debug "editor = ${editor}"
-            //def detailed = authService.getUserForUserId(editor) // currently busted in prod
-            def detailed = allUsersMap.get(editor)
+            def detailed =  userDetailsService.getUserDetailsById(editor)
             log.debug "editor - detailed = ${detailed}"
             if (detailed) {
                 editorsWithDetails.add(detailed)
@@ -273,7 +268,17 @@ class EditorController {
         } else if (!localAuthService.isAdmin() && speciesList.userId != authService.userId) {
             render(text: "You are not authorised to modify permissions", status: 403 )
         } else {
-            speciesList.editors = params.list('editors[]')
+            // get userID from authService using the supplied email list and add to speciesList editors
+            Set<String> editorIds = new HashSet<String>()
+            def editorEmails = params.'editors[]'
+            editorEmails.each {it ->
+                def newEditor = authService.getUserForEmailAddress(it.toString())
+                if(newEditor){
+                    editorIds.add(newEditor.getUserId())
+                }
+
+            }
+            speciesList.editors = editorIds
             log.debug("editors = " + speciesList.editors);
             if (!speciesList.save(flush: true)) {
                 def errors = []

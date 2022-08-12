@@ -26,6 +26,7 @@ class SpeciesListItemController {
     LoggerService loggerService
     QueryService queryService
     LocalAuthService localAuthService
+    def authService
     int maxLengthForFacet = 30 // Note: is length of _name_ of the facet category/field
 
     def index() { }
@@ -137,6 +138,7 @@ class SpeciesListItemController {
                             keys: queryService.getSpeciesListKVPKeysByDataResourceUid(requestParams.id),
                             downloadReasons: loggerService.getReasons(),
                             users: queryService.getUsersForList(),
+                            userId: authService.getUserId(),
                             facets: queryService.generateFacetValues(fqs, baseQueryAndParams, requestParams.id, requestParams.q, maxLengthForFacet),
                             fqs : fqs
                     ])
