@@ -438,16 +438,15 @@ class HelperService {
             }
 
             if (speciesList.username && !speciesList.userId) {
-                // lookup userId for username
-                def emailLC = speciesList.username?.toLowerCase()
-                Map userNameMap = userDetailsService.getFullListOfUserDetailsByUsername()
-
-                if (userNameMap.containsKey(emailLC)) {
-                    def user = userNameMap.get(emailLC)
-                    speciesList.userId = user.userId
-                    speciesList.firstName = user.firstName
-                    speciesList.surname = user.lastName
+                def currentUser = userDetailsService.getCurrentUserDetails()
+                if(currentUser){
+                    log.warn("Current user found. Updating species list user details")
+                    speciesList.userId = currentUser.getUserId()
+                    speciesList.firstName = currentUser.getFirstName()
+                    speciesList.surname  = currentUser.getLastName()
                 }
+
+
             }
         }
 

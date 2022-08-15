@@ -15,34 +15,22 @@
 
 package au.org.ala.specieslist
 
-import grails.plugin.cache.Cacheable
+import au.org.ala.web.UserDetails
 import grails.gorm.transactions.Transactional
+import org.springframework.dao.DataIntegrityViolationException
 
 @Transactional
 class UserDetailsService {
-    def grailsApplication, authService
+    def authService
 
-    @Cacheable("userDetailsCache")
-    def Map getFullListOfUserDetails() {
-        def byIdOrEmail = [:]
-        Map byEmail = authService.getAllUserNameMap()
-        byEmail.keySet().each {
-            //log.debug "it is ${it}"
-            def details = byEmail.get(it)
-            //log.debug "details is ${details}"
-            if (details && details.hasProperty('userId')) {
-                byIdOrEmail.put(details.userId, details)
-            }
-        }
 
-        byIdOrEmail.putAll(byEmail)
-
-        byIdOrEmail
+    UserDetails getUserDetailsById(String id){
+        authService.getUserForUserId(id)
     }
 
-    @Cacheable("userDetailsCache")
-    def Map getFullListOfUserDetailsByUsername() {
-        authService.getAllUserNameMap()
+    UserDetails getCurrentUserDetails(){
+        authService.userDetails()
+
     }
 
     @Transactional
@@ -72,7 +60,7 @@ class UserDetailsService {
                         list.save(flush: true)
                         isSuccessful = true
                     }
-                    catch (org.springframework.dao.DataIntegrityViolationException e) {
+                    catch (DataIntegrityViolationException e) {
                         // deal with exception
                         log.error "Error saving list: ${e}", e
                     }
@@ -85,7 +73,7 @@ class UserDetailsService {
                         list.save(flush: true)
                         isSuccessful = true
                     }
-                    catch (org.springframework.dao.DataIntegrityViolationException e) {
+                    catch (DataIntegrityViolationException e) {
                         // deal with exception
                         log.error "Error saving list: ${e}", e
                     }
@@ -158,7 +146,7 @@ class UserDetailsService {
                     list.save(flush: true)
                     returnBool = true
                 }
-                catch (org.springframework.dao.DataIntegrityViolationException e) {
+                catch (DataIntegrityViolationException e) {
                     // deal with exception
                     log.error "Error saving list: ${e}", e
                 }
