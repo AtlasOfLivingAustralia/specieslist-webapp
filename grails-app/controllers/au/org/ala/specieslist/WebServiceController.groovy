@@ -666,7 +666,7 @@ class WebServiceController {
         tags = "Lists",
         operationId = "Add or replace a species list",
         summary = "Add  or replace a species list",
-        description = "Add new species list or replace an existing one. When no druid is provided in the JSON body, a new list will be created",
+        description = "Add new species list or replace an existing one. When no druid is provided in the JSON body, a new list will be created. Providing a druid in the path will attempt to update and existing list",
         requestBody = @RequestBody(
             description = "The JSON object containing new species list. Two JSON structures are supported: - v1 (unstructured list items): {\"listName\": \"list1\",  \"listType\": \"TEST\", \"listItems\": \"item1,item2,item3\"}, \n- v2 (structured list items with KVP): { \"listName\": \"list1\", \"listType\": \"TEST\", \"listItems\": [ { \"itemName\": \"item1\", \"kvpValues\": [ { \"key\": \"key1\", \"value\": \"value1\" }, { \"key\": \"key2\", \"value\": \"value2\" } ] } ] }",
             required = true,
@@ -678,7 +678,7 @@ class WebServiceController {
         parameters = [
             @Parameter(name = "druid",
                 in = PATH,
-                description = "The data resource id to identify the new list",
+                description = "The data resource id to identify an existing list",
                 schema = @Schema(implementation = String),
                 required = true),
             @Parameter(name = "Authorization", in = HEADER, schema = @Schema(implementation = String), required = true),
