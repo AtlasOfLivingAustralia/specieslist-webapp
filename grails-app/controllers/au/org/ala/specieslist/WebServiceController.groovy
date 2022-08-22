@@ -412,6 +412,7 @@ class WebServiceController {
             // This method supports a comma separated list of druid
             List druid = params.druid.split(',')
             params.sort = params.sort ?: "itemOrder" // default to order the items were imported in
+            params.max  = params.max ?: 500 // set default to 500 to prevent content size limit on API gateway
             def list
 
             if (params.includeKVP) {
