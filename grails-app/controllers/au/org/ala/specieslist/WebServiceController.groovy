@@ -17,6 +17,7 @@ package au.org.ala.specieslist
 import au.ala.org.ws.security.RequireApiKey
 import au.org.ala.plugins.openapi.Path
 import au.org.ala.web.UserDetails
+import au.org.ala.ws.security.JwtProperties
 import au.org.ala.ws.service.WebService
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.opencsv.CSVWriter
@@ -704,28 +705,45 @@ class WebServiceController {
         security = [@SecurityRequirement(name = 'openIdConnect')]
     )
     @Path("/ws/speciesListPost/{druid}?")
-    @RequireApiKey
     def saveList() {
         log.debug("Saving a user list")
         //create a new list
         try {
             def jsonBody = request.JSON
-            def userCookie = null
 
-            if (request.cookies) {
-                userCookie = request.cookies.find { it.name == 'ALA-Auth' }
-            }
+            def authorised = false
 
             def userId = request.getHeader(WebService.DEFAULT_AUTH_HEADER)
+            def apiKey  = request.getHeader(WebService.DEFAULT_API_KEY_HEADER)
+            def authorizationHeaderValue = request.getHeader("Authorization")
+
+            // special  backwards compatible handling of ws AUTH to account for legacy calls with api key in the Authorization .
+            // check DEFAULT_API_KEY_HEADER first
+            if(apiKey){
+                authorised = apiKeyService.checkApiKey(apiKey).valid
+            }
+
+            // if unauthorised, check Authorization header for JWT and api key
+            if(!authorised && authorizationHeaderValue){
+                if(authorizationHeaderValue){
+                    // TODO - Do JWT Auth HERE
+                } else{
+                    authorised = apiKeyService.checkApiKey(authorizationHeaderValue).valid
+                }
+            }
+
+
+            // return error and stop execution path if unauthorised
+            if (!authorised){
+                response.status = 403
+                response.sendError(403, "Forbidden")
+                return
+            }
 
             UserDetails user = null
 
             if (userId) {
                 user = authService.getUserForUserId(userId)
-            } else if (userCookie) {
-                String username = java.net.URLDecoder.decode(userCookie.getValue(), 'utf-8')
-                //test to see that the user is valid
-                user = authService.getUserForEmailAddress(username)
             }
 
             boolean replaceList = true //default behaviour
