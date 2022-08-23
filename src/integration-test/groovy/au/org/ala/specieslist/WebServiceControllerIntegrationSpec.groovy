@@ -17,6 +17,8 @@ package au.org.ala.specieslist
 
 import au.org.ala.web.AuthService
 import au.org.ala.web.UserDetails
+import au.org.ala.ws.security.service.ApiKeyService
+import au.org.ala.ws.service.WebService
 import grails.gorm.transactions.Rollback
 import grails.testing.mixin.integration.Integration
 import grails.util.GrailsWebMockUtil
@@ -33,6 +35,7 @@ import javax.servlet.http.Cookie
 @Rollback
 class WebServiceControllerIntegrationSpec extends Specification {
     def helperService
+    def apikeyService
 
     @Autowired
     WebServiceController controller
@@ -47,6 +50,10 @@ class WebServiceControllerIntegrationSpec extends Specification {
 
         helperService = new HelperService() // not a mock - we want to use the real service here
 //        helperService.transactionManager = transactionManager
+
+        apikeyService = Stub(ApiKeyService)
+//        apikeyService.checkApiKey(_) >> [valid: false]
+        apikeyService.checkApiKey('valid') >> [valid: true]
     }
 
     def "saveList version 1 should support JSON requests with a comma separated list of item names"() {
@@ -56,12 +63,14 @@ class WebServiceControllerIntegrationSpec extends Specification {
 
         helperService.setUserDetailsService([getFullListOfUserDetailsByUsername : {return [a:"a"]}]
                 as UserDetailsService)
+        controller.setApiKeyService(apikeyService)
         controller.setAuthService([getUserForEmailAddress: {new UserDetails(userName: 'b')}] as AuthService)
         controller.setHelperService(helperService)
         SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
 
         when:
-        controller.request.cookies = [new Cookie("ALA-Auth", "fred")]
+        controller.request.addHeader(WebService.DEFAULT_API_KEY_HEADER, 'valid')
+        controller.request.addHeader(WebService.DEFAULT_AUTH_HEADER, 'fred')
         controller.request.json = version1Json
         controller.params.druid = "dr1"
         controller.saveList()
@@ -110,13 +119,15 @@ class WebServiceControllerIntegrationSpec extends Specification {
 
         helperService.setUserDetailsService([getFullListOfUserDetailsByUsername : {return [a:"a"]}]
                 as UserDetailsService)
+        controller.setApiKeyService(apikeyService)
         controller.setAuthService([getUserForEmailAddress: {new UserDetails(userName: 'b')}] as AuthService)
         controller.setHelperService(helperService)
         SpeciesListItem.findAll().each { it.delete(flush: true, failOnError: true) }
         SpeciesList.findAll().each { it.delete(flush: true, failOnError: true) }
 
         when:
-        controller.request.cookies = [new Cookie("ALA-Auth", "fred")]
+        controller.request.addHeader(WebService.DEFAULT_API_KEY_HEADER, 'valid')
+        controller.request.addHeader(WebService.DEFAULT_AUTH_HEADER, 'fred')
         controller.request.json = version2Json
         controller.params.druid = "dr1"
         controller.saveList()

@@ -19,6 +19,7 @@ import au.org.ala.ws.service.WebService
 import com.opencsv.CSVWriter
 import grails.converters.JSON
 import grails.web.JSONBuilder
+import grails.web.http.HttpHeaders
 import org.apache.http.HttpStatus
 
 /**
@@ -316,25 +317,24 @@ class WebServiceController {
             def jsonBody = request.JSON
             def userCookie = null
 
+            def cookieName = grailsApplication.config.getProperty('security.cas.authCookieName', 'ALA-Auth')
             if(request.cookies) {
-                userCookie = request.cookies.find { it.name == 'ALA-Auth' }
+                userCookie = request.cookies.find { cookieName }
             }
 
             def userId = request.getHeader(WebService.DEFAULT_AUTH_HEADER)
-            def apiKey = request.getHeader(WebService.DEFAULT_API_KEY_HEADER)
+            def apiKey = request.getHeader(WebService.DEFAULT_API_KEY_HEADER) ?: request.getHeader(HttpHeaders.AUTHORIZATION)
 
             UserDetails user = null
 
-            if (userId && apiKey){
+            if (apiKey && (userId || userCookie) ){
                 def apiKeyResponse = apiKeyService.checkApiKey(apiKey)
                 if (apiKeyResponse && apiKeyResponse.valid){
                     //retrieve user
-                    user = authService.getUserForUserId(userId)
+                    user = authService.getUserForUserId(userId ?: userCookie)
                 }
-            } else if (userCookie) {
-                String username = java.net.URLDecoder.decode(userCookie.getValue(), 'utf-8')
-                //test to see that the user is valid
-                user = authService.getUserForEmailAddress(username)
+            } else if (request.userPrincipal) {
+                user = authService.userDetails()
             }
 
             boolean replaceList = true //default behaviour
