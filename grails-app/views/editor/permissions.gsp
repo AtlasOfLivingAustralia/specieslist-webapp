@@ -16,6 +16,8 @@
     <div class="message alert alert-info"><b>${message(code:'generic.lists.button.alert.label', default:'Alert')}:</b> ${flash.message}</div>
 </g:if>
 <div>${message(code:'permissions.lists.text', default:'This form allows the list owner (or administrator) to add/remove users as <strong>editors</strong> of this list. This in turn, allows those <strong>editors</strong> to edit and delete entries in this list.')}</div>
+<br>
+<div>${message(code:'permissions.lists.warning', default:'Please note that if the entered email does not match an existing ALA user, it will not be added to list permissions on Save.')}</div>
 <div>&nbsp;</div>
 <form id="userEditForm" class="form-horizontal">
     <div class="form-group">
@@ -32,11 +34,10 @@
 </form>
 <table id="userTable" class="table table-bordered" style="margin-top: 10px;">
     <thead>
-        <tr><th>${message(code:'permissions.lists.tableheader.name', default:'Name')}</th><th>${message(code:'permissions.lists.tableheader.email', default:'Email')}</th><th>${message(code:'permissions.lists.tableheader.role', default:'Role')}</th><th>${message(code:'permissions.lists.tableheader.action', default:'Action')}</th></tr>
+        <tr><th>${message(code:'permissions.lists.tableheader.email', default:'Email')}</th><th>${message(code:'permissions.lists.tableheader.role', default:'Role')}</th><th>${message(code:'permissions.lists.tableheader.action', default:'Action')}</th></tr>
     </thead>
     <tbody>
         <tr>
-            <td>${speciesList.getFullName()}</td>
             <td>${speciesList.username}</td>
             <td>${message(code:'permissions.lists.tablecolumn.owner', default:'owner')}</td>
             <td></td>
@@ -45,8 +46,7 @@
         %{--<g:each in="${speciesList.editors}" var="editor">--}%
         <g:each in="${editorsWithDetails}" var="editor">
             <tr class='editor'>
-                <td>${editor.displayName}</td>
-                <td class='userId' data-userid='${editor.userId}'>${editor.userName}</td>
+                <td class='userEmail' data-useremail='${editor.userName}'>${editor.userName}</td>
                 <td>${message(code:'permissions.lists.tablecolumn.editor', default:'editor')}</td>
                 <td>${removeLink}</td>
             </tr>
@@ -67,23 +67,12 @@
         /**
          * Add button for user id input - adds ID to the table
          */
-        $("#userEditForm").submit(function() {
-            var userId = $("#search").val().trim();
-            var url = "${g.createLink(controller:'webService', action:'checkEmailExists')}?email=" + userId;
-            $.getJSON(url, function(data) {
-                if (data && data.userId) {
-                    console.log('data', data);
-                    $("#userTable tbody").append("<tr class='editor'><td>"+ data.displayName +"</td><td class='userId' data-userid='"+data.userId+"'>"+data.userName+"</td><td>editor</td><td>${removeLink}</td></tr>");
-                    $("#search").val("");
-                } else {
-                    alert("${message(code:'permissions.lists.save.error01', default: 'The user id')} " + userId + " ${message(code:'permissions.lists.save.error02', default: 'was not found')}");
-                }
-            }).fail(function(jqxhr, textStatus, error) {
-                alert('${message(code:'permissions.lists.save.error03', default: 'Error checking email address:')} ' + textStatus + ', ' + error);
-            }).always(function() {
-                //$('#gallerySpinner').hide();
-            });
-            return false;
+        $("#userEditForm").submit(function(el) {
+            el.preventDefault();
+            var userEmail = $("#search").val().trim();
+            $("#userTable tbody").append("<tr class='editor'><td class='userEmail' data-userEmail='"+userEmail+"'>"+userEmail+"</td><td>Pending Editor</td><td>${removeLink}</td></tr>");
+            $("#search").val("");
+            return true;
         });
 
         /**
@@ -93,17 +82,17 @@
             el.preventDefault();
             var editors = [];
             $("#userTable tr.editor").each(function() {
-                //editors.push($(this).find("td.userId").html());
-                editors.push($(this).find("td.userId").data('userid'));
+                editors.push($(this).find("td.userEmail").data('useremail'));
             });
             //console.log("editors", editors);
             var params = {
                 id: "${params.id}",
                 editors: editors
             };
+
             $.post("${createLink(action: 'updateEditors')}", params, function(data, textStatus, jqXHR) {
                 //console.log("data", data, "textStatus", textStatus,"jqXHR", jqXHR);
-                alert("${message('permissions.lists.edit.messages', default:'Editors were successfully saved')}");
+                alert('Editors were successfully saved');
                 $('#modal').modal('hide');
                 window.location.reload(true);
             }).error(function(jqXHR, textStatus, error) {

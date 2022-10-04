@@ -17,13 +17,10 @@
 <g:set var="collectoryUrl" value="${grailsApplication.config.collectory.baseURL}"/>
 <g:set var="maxDownload" value="${grailsApplication.config.downloadLimit}"/>
 <g:set var="userCanEditPermissions" value="${
-    (speciesList.username == request.getUserPrincipal()?.attributes?.email || request.isUserInRole("ROLE_ADMIN"))
+    (speciesList.username == request.remoteUser || request.isUserInRole("ROLE_ADMIN"))
 }"/>
 <g:set var="userCanEditData" value="${
-    (speciesList.username == request.getUserPrincipal()?.attributes?.email ||
-            request.isUserInRole("ROLE_ADMIN") ||
-            request.getUserPrincipal()?.attributes?.userid in speciesList.editors
-    )
+            (speciesList.username == request.remoteUser || request.isUserInRole("ROLE_ADMIN") || userId in speciesList.editors)
 }"/>
 <html>
 <head>

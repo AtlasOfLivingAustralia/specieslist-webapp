@@ -16,7 +16,8 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "2.2.3"
 }
 
-version "4.0.1-SNAPSHOT"
+version "4.0.4-SNAPSHOT"
+
 
 group "au.org.ala"
 
@@ -91,7 +92,7 @@ dependencies {
     compile "org.grails.plugins:cache"
     compile "org.grails.plugins:cache-ehcache:3.0.0"
     compile "org.grails.plugins:async"
-//    compile "org.grails.plugins:scaffolding"
+
     compile "org.grails.plugins:events"
     compile "org.grails.plugins:hibernate5"
     compile "org.hibernate:hibernate-core:5.4.18.Final"
@@ -126,19 +127,21 @@ dependencies {
     testRuntime "org.seleniumhq.selenium:selenium-firefox-driver:3.14.0"
 
     // ALA
-    compile "org.grails.plugins:ala-auth:3.2.3"
-    compile "org.grails.plugins:ala-ws-security-plugin:2.0.1"
-    compile "org.grails.plugins:ala-ws-plugin:2.0"
-    runtime "org.grails.plugins:ala-bootstrap3:3.2.3"
-    runtime ("org.grails.plugins:ala-admin-plugin:2.2") {
+    compile "org.grails.plugins:ala-auth:5.1.1"
+    compile "org.grails.plugins:ala-ws-security-plugin:4.1.2"
+    compile "org.grails.plugins:ala-ws-plugin:3.1.1"
+    compile "au.org.ala:userdetails-service-client:2.0.0"
+    runtime "org.grails.plugins:ala-bootstrap3:4.1.0"
+    runtime ("org.grails.plugins:ala-admin-plugin:2.3.0") {
         exclude module: "cache"
     }
-    compile "au.org.ala:userdetails-service-client:1.5.0"
-    compile 'au.org.ala:ala-cas-client:2.5'
-    compile ("au.org.ala.names:ala-namematching-client:1.6") {
+
+    compile 'au.org.ala:ala-cas-client:3.0.0'
+    compile ("au.org.ala.names:ala-namematching-client:1.7") {
         exclude group: "com.squareup.okhttp3", module: "okhttp"
     }
-    //???
+    compile 'au.org.ala.plugins:openapi:1.1.0'
+
     compile 'org.gbif:gbif-common:0.37'
 }
 
