@@ -69,7 +69,6 @@ class SecurityInterceptorSpec extends Specification implements InterceptorUnitTe
         "au.org.ala.specieslist.SpeciesListItemController"   |   "list"
         "au.org.ala.specieslist.SpeciesListItemController"   |   "listAuth"
         "au.org.ala.specieslist.SpeciesListItemController"   |   "downloadList"
-        "au.org.ala.specieslist.SpeciesListController"       |   "deleteList"
     }
 
     def "list should return a HTTP 'OK' for private lists that the user can access - #action"() {
@@ -100,6 +99,5 @@ class SecurityInterceptorSpec extends Specification implements InterceptorUnitTe
         "au.org.ala.specieslist.SpeciesListItemController"   |   "list"         | HttpStatus.SC_OK
         "au.org.ala.specieslist.SpeciesListItemController"   |   "listAuth"     | HttpStatus.SC_OK
         "au.org.ala.specieslist.SpeciesListItemController"   |   "downloadList" | HttpStatus.SC_OK
-        "au.org.ala.specieslist.SpeciesListController"       |   "deleteList"   | HttpStatus.SC_MOVED_TEMPORARILY
     }
 }

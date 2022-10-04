@@ -22,11 +22,11 @@ class SecurityUtil {
     LocalAuthService localAuthService
     AuthService authService
 
-    boolean checkListAccess(String listId) {
+    boolean checkListAccess(String druid) {
         boolean canAccess = true
 
         if (!localAuthService.isAdmin()) {
-            SpeciesList list = SpeciesList.findByDataResourceUid(listId)
+            SpeciesList list = SpeciesList.findByDataResourceUid(druid)
             if (list?.isPrivate) {
                 String userId = authService.getUserId()
                 if (!userId || (list.userId != userId && !list.editors?.contains(userId))) {
@@ -36,5 +36,23 @@ class SecurityUtil {
         }
 
         canAccess
+    }
+
+    boolean checkListDeletePermission(String listId){
+        boolean  canDelete  = false
+
+        if(localAuthService.isAdmin()) {
+            canDelete = true
+        } else{
+            SpeciesList list = SpeciesList.get(listId)
+            String userId = authService.getUserId()
+            // check if list exists and the userId is not null.
+            if(list && userId){
+                // can delete if the lists user matches authenticated user id OR if list's editor list contains authenticated user id.
+                canDelete  = (list.userId == userId) || list.editors?.contains(userId)
+            }
+        }
+
+        canDelete
     }
 }
