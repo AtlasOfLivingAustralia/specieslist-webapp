@@ -905,10 +905,14 @@
                                                   params="${[fq: fqs]}"></g:sortableColumn>
                                 <g:sortableColumn property="matchedName" title="${message(code:'public.lists.items.header02', default:'Scientific Name (matched)')}"
                                                   params="${[fq: fqs]}"></g:sortableColumn>
-                                <th>${message(code:'public.lists.items.header05', default:'Image')}</th>
+                                <th>${message(code:'public.lists.items.header07', default:'Image')}</th>
                                 <g:sortableColumn property="author" title="${message(code:'public.lists.items.header03', default:'Author (matched)')}"
                                                   params="${[fq: fqs]}"></g:sortableColumn>
                                 <g:sortableColumn property="commonName" title="${message(code:'public.lists.items.header04', default:'Common Name (matched)')}"
+                                                  params="${[fq: fqs]}"></g:sortableColumn>
+                                <g:sortableColumn property="family" title="${message(code:'public.lists.items.header05', default:'Family (matched)')}"
+                                                  params="${[fq: fqs]}"></g:sortableColumn>
+                                <g:sortableColumn property="kingdom" title="${message(code:'public.lists.items.header06', default:'Kingdom (matched)')}"
                                                   params="${[fq: fqs]}"></g:sortableColumn>
                                 <g:each in="${keys}" var="key">
                                     <th>${key}</th>
@@ -964,6 +968,8 @@
                                     </td>
                                     <td>${result.author}</td>
                                     <td id="cn_${result.guid}">${result.commonName}</td>
+                                    <td id="fm_${result.guid}">${result.family}</td>
+                                    <td id="kn_${result.guid}">${result.kingdom}</td>
                                     <g:each in="${keys}" var="key">
                                         <g:set var="kvp" value="${result.kvpValues.find { it.key == key }}"/>
                                         <g:set var="val" value="${kvp?.vocabValue ?: kvp?.value}"/>

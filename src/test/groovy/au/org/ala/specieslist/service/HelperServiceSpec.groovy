@@ -29,6 +29,7 @@ import spock.lang.Unroll
 class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperService>, DataTest {
 
     def helperService = new HelperService()
+    def columnMatchingService = new ColumnMatchingService()
 
     void setupSpec() {
         mockDomains(SpeciesListItem, SpeciesList, SpeciesListKVP)
@@ -39,8 +40,24 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
         grailsApplication.config.ambiguousNameColumns="name"
         grailsApplication.config.speciesNameColumns = "scientificname,suppliedname,taxonname,species"
 //        helperService.transactionManager = transactionManager
+        columnMatchingService.setConfiguration(grailsApplication.config)
+        helperService.columnMatchingService = columnMatchingService
         helperService.grailsApplication = grailsApplication
         helperService.init()
+        helperService.nameExplorerService = Mock(NameExplorerService)
+    }
+
+    def addFindResult() {
+        def result = NameUsageMatch.builder()
+                .success(true)
+                .scientificName("Scientific name")
+                .scientificNameAuthorship("Scientific Name Authorship")
+                .taxonConceptID("aTaxonConceptID")
+                .kingdom("Akingdom")
+                .family("Afamily")
+                .vernacularName(" A Vernacular Name")
+                .build()
+        helperService.nameExplorerService.find(_) >>> result
     }
 
     def "addDataResourceForList should return a dummy url when collectory.enableSync is not true - #item"() {
@@ -71,6 +88,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "insertSpeciesItem should not create a KVP record for a blank value"() {
         when:
+        this.addFindResult()
         def speciesItem = helperService.insertSpeciesItem((String[]) [blank], "Dr1", -1, (String[]) ["Header"], [:], 0)
 
         then:
@@ -82,6 +100,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "insertSpeciesItem should create a KVP record for a non-blank value"() {
         when:
+        this.addFindResult()
         def speciesItem = helperService.insertSpeciesItem((String[]) ["test"], "Dr1", -1, (String[]) ["Header"], [:], 0)
 
         then:
@@ -90,6 +109,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "insertSpeciesItem should not default the rawScientificName to the last column if the species index is -1"() {
         when:
+        this.addFindResult()
         def row = ["Col1", "Col2", "Col3"]
         def header = ["Header1", "Header2", "Header3"]
         def speciesItem = helperService.insertSpeciesItem((String[]) row, "Dr1", -1, (String[]) header, [:], 0)
@@ -100,6 +120,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "insertSpeciesItem should set the rawScientificName to the specified column if the species index is not -1"() {
         when:
+        this.addFindResult()
         def row = ["Col1", "Col2", "Col3"]
         def header = ["Header1", "Header2", "Header3"]
         def speciesItem = helperService.insertSpeciesItem((String[]) row, "Dr1", 1, (String[]) header, [:], 0)
@@ -156,6 +177,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "loadSpeciesListFromJSON should update an existing list when matching by Data Resource ID"() {
         setup:
+        this.addFindResult()
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         UserDetailsService userDetailsService = Mock(UserDetailsService)
@@ -185,6 +207,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "loadSpeciesListFromJSON should create a new list if there is no match on the Data Resource ID"() {
         setup:
+        this.addFindResult()
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         UserDetailsService userDetailsService = Mock(UserDetailsService)
@@ -227,6 +250,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "loadSpeciesListFromJSON for v2 should create list items with no KVP if the JSON request has no KVP details"() {
         setup:
+        this.addFindResult()
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
         UserDetailsService userDetailsService = Mock(UserDetailsService)
@@ -285,18 +309,6 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
         then:
         thrown AssertionError
-    }
-
-    def "camel case column names should be split by spaces before each uppercase character"() {
-        when:
-        def result = helperService.parseHeader(
-                ["species", "AnyReallyLongCamelCaseHeaderName", "ÖsterreichName", "conservationCode"] as String[])
-
-        then:
-        assert result?.header?.contains("scientific name")
-        assert result?.header?.contains("Any Really Long Camel Case Header Name")
-        assert result?.header?.contains("Österreich Name");
-        assert result?.header?.contains("conservationCode")
     }
 
     def "urls in submitted text should be turned into links"() {

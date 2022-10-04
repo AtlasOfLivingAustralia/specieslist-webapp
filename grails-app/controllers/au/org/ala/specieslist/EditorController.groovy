@@ -155,12 +155,14 @@ class EditorController {
             // check for changed values
             def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid= :dataResourceUid", [dataResourceUid: sli.dataResourceUid])
             def kvpRemoveList = [] as Set
+            def changed = false
 
             keys.each { key ->
                 def kvp = sli.kvpValues.find { it.key == key } // existing KVP if any
 
                 if (params[key] != kvp?.value) {
                     log.debug "KVP has been changed: " + params[key] + " VS " + kvp?.value
+                    changed = true
                     def newKvp = SpeciesListKVP.findByDataResourceUidAndKeyAndValue(sli.dataResourceUid, key, params[key])
 
                     if (kvp) {
@@ -194,13 +196,18 @@ class EditorController {
                 sli.removeFromKvpValues(it)
             }
 
-            //check if rawScientificName has changed
+            //check if name information has changed
             if (params.rawScientificName.trim() != sli.rawScientificName.trim()) {
                 log.debug "rawScientificName is different: " + params.rawScientificName + " VS " + sli.rawScientificName
                 sli.rawScientificName = params.rawScientificName
+                changed = true
                 // lookup guid
                 helperService.matchNameToSpeciesListItem(sli.rawScientificName, sli)
                 //sli.guid = helperService.findAcceptedLsidByScientificName(sli.rawScientificName)?: helperService.findAcceptedLsidByCommonName(sli.rawScientificName)
+            }
+            if (changed) {
+                log.debug "re-matching name for ${params.rawScientificName}"
+                helperService.matchNameToSpeciesListItem(sli.rawScientificName, sli)
             }
 
             if (!sli.validate()) {

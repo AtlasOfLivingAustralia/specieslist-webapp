@@ -30,6 +30,7 @@ class SpeciesListController {
     private static final String[] ACCEPTED_CONTENT_TYPES = ["text/plain", "text/csv"]
 
     HelperService helperService
+    ColumnMatchingService columnMatchingService
     AuthService authService
     BieService bieService
     BiocacheService biocacheService
@@ -522,7 +523,7 @@ class SpeciesListController {
     private parseDataFromCSV(CSVReader csvReader, String separator) {
         def rawHeader = csvReader.readNext()
         log.debug(rawHeader.toList()?.toString())
-        def parsedHeader = helperService.parseHeader(rawHeader) ?: helperService.parseData(rawHeader)
+        def parsedHeader = columnMatchingService.parseHeader(rawHeader) ?: helperService.parseData(rawHeader)
         def processedHeader = parsedHeader.header
         log.debug(processedHeader?.toString())
         def dataRows = new ArrayList<String[]>()
@@ -531,7 +532,7 @@ class SpeciesListController {
             dataRows.add(helperService.parseRow(currentLine.toList()))
             currentLine = csvReader.readNext()
         }
-        def nameColumns = helperService.speciesNameColumns + helperService.commonNameColumns
+        def nameColumns = columnMatchingService.speciesNameMatcher.names + columnMatchingService.commonNameMatcher.names
         if (processedHeader.find {
             it == "scientific name" || it == "vernacular name" || it == "common name" || it == "ambiguous name"
         } && processedHeader.size() > 0) {

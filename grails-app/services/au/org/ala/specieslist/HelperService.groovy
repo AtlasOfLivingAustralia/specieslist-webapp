@@ -37,16 +37,6 @@ import javax.annotation.PostConstruct
 @Transactional
 class HelperService {
 
-    private static final String COMMON_NAME = "commonName"
-    private static final String KINGDOM = "kingdom"
-    private static final String RAW_SCIENTIFIC_NAME = "rawScientificName"
-    private static final String PHYLUM = "phylum"
-    private static final String CLASS = "class"
-    private static final String ORDER = "order"
-    private static final String FAMILY = "family"
-    private static final String GENUS = "genus"
-    private static final String RANK = "rank"
-
     MessageSource messageSource
 
     def grailsApplication
@@ -57,19 +47,9 @@ class HelperService {
 
     NameExplorerService nameExplorerService
 
+    ColumnMatchingService columnMatchingService
+
     Integer BATCH_SIZE
-
-    String[] speciesNameColumns = []
-    String[] commonNameColumns = []
-    String[] ambiguousNameColumns = []
-    String[] kingdomColumns = []
-    String[] phylumColumns = []
-    String[] classColumns = []
-    String[] orderColumns = []
-    String[] familyColumns = []
-    String[] genusColumns = []
-    String[] rankColumns = []
-
 
     // Only permit URLs for added safety
     private final LinkExtractor extractor = LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build()
@@ -77,27 +57,7 @@ class HelperService {
     @PostConstruct
     init(){
         BATCH_SIZE = Integer.parseInt((grailsApplication?.config?.batchSize?:200).toString())
-        speciesNameColumns = grailsApplication?.config?.speciesNameColumns ?
-                grailsApplication?.config?.speciesNameColumns?.split(',') : []
-        commonNameColumns = grailsApplication?.config?.commonNameColumns ?
-                grailsApplication?.config?.commonNameColumns?.split(',') : []
-        ambiguousNameColumns = grailsApplication?.config?.ambiguousNameColumns ?
-                grailsApplication?.config?.ambiguousNameColumns?.split(',') : []
-        kingdomColumns = grailsApplication?.config?.kingdomColumns ?
-                grailsApplication?.config?.kingdomColumns?.split(',') : []
-        phylumColumns = grailsApplication?.config?.phylumColumns ?
-                grailsApplication?.config?.phylumColumns?.split(',') : []
-        classColumns = grailsApplication?.config?.classColumns ?
-                grailsApplication?.config?.classColumns?.split(',') : []
-        orderColumns = grailsApplication?.config?.orderColumns ?
-                grailsApplication?.config?.orderColumns?.split(',') : []
-        familyColumns = grailsApplication?.config?.familyColumns ?
-                grailsApplication?.config?.familyColumns?.split(',') : []
-        genusColumns = grailsApplication?.config?.genusColumns ?
-                grailsApplication?.config?.genusColumns?.split(',') : []
-        rankColumns = grailsApplication?.config?.rankColumns ?
-                grailsApplication?.config?.rankColumns?.split(',') : []
-    }
+     }
 
     /**
      * Adds a data resource to the collectory for this species list
@@ -276,56 +236,6 @@ class HelperService {
         [header: headerResponse, nameFound: hasName]
     }
 
-    def parseHeader(String[] header) {
-        //first step check to see if scientificname or common name is provided as a header
-        def hasName = false;
-        def headerResponse = header.collect {
-            def search = it.toLowerCase().replaceAll(" ", "")
-            if (speciesNameColumns.contains(search)) {
-                hasName = true
-                "scientific name"
-            } else if (commonNameColumns.contains(search)) {
-                hasName = true
-                "vernacular name"
-            } else if (ambiguousNameColumns.contains(search)) {
-                hasName = true
-                "ambiguous name"
-            } else {
-                it
-            }
-        }
-
-        headerResponse = parseHeadersCamelCase(headerResponse)
-
-        if (hasName)
-            [header: headerResponse, nameFound: hasName]
-        else
-            null
-    }
-
-    // specieslist-webapp#50
-    def parseHeadersCamelCase(List header) {
-        def ret = []
-        header.each {String it ->
-            StringBuilder word = new StringBuilder()
-            if (Character.isUpperCase(it.codePointAt(0))) {
-                for (int i = 0; i < it.size(); i++) {
-                    if (Character.isUpperCase(it[i] as char) && i != 0) {
-                        word << " "
-                    }
-                    word << it[i]
-                }
-
-                ret << word.toString()
-            }
-            else {
-                ret << it
-            }
-        }
-
-        ret
-    }
-
     def parseRow(List row) {
         def ret = []
 
@@ -357,35 +267,6 @@ class HelperService {
         }
 
         ret
-    }
-
-    def getSpeciesIndex(Object[] header) {
-        int idx = header.findIndexOf { speciesNameColumns.contains(it.toString().toLowerCase().replaceAll(" ", "")) }
-        if (idx < 0)
-            idx = header.findIndexOf { commonNameColumns.contains(it.toString().toLowerCase().replaceAll(" ", "")) }
-        return idx
-    }
-
-    private Map getTermAndIndex(Object[] header){
-        Map termMap = new HashMap<String, Integer>();
-        locateValues(termMap, header, speciesNameColumns, RAW_SCIENTIFIC_NAME)
-        locateValues(termMap, header, commonNameColumns, COMMON_NAME)
-        locateValues(termMap, header, kingdomColumns, KINGDOM)
-        locateValues(termMap, header, phylumColumns, PHYLUM)
-        locateValues(termMap, header, classColumns, CLASS)
-        locateValues(termMap, header, orderColumns, ORDER)
-        locateValues(termMap, header, familyColumns, FAMILY)
-        locateValues(termMap, header, genusColumns, GENUS)
-        locateValues(termMap, header, rankColumns, RANK)
-
-        return termMap
-    }
-
-    private void locateValues(Map map, Object[] header, String[] cols, String term) {
-        int idx = header.findIndexOf { cols.contains(it.toString().toLowerCase().replaceAll(" ","")) }
-        if (idx != -1) {
-            map.put(term, idx)
-        }
     }
 
     private boolean hasValidData(Map map, String [] nextLine) {
@@ -507,7 +388,6 @@ class HelperService {
         items.eachWithIndex { item, i ->
             SpeciesListItem sli = new SpeciesListItem(dataResourceUid: druid, rawScientificName: item.itemName,
                     itemOrder: i)
-            matchNameToSpeciesListItem(sli.rawScientificName, sli)
 
             item.kvpValues?.eachWithIndex { k, j ->
                 SpeciesListKVP kvp = new SpeciesListKVP(value: k.value, key: k.key, itemOrder: j, dataResourceUid:
@@ -515,6 +395,7 @@ class HelperService {
                 sli.addToKvpValues(kvp)
                 kvpMap[k.key] = k.value
             }
+            matchNameToSpeciesListItem(sli.rawScientificName, sli)
 
             speciesList.addToItems(sli)
 
@@ -557,7 +438,7 @@ class HelperService {
         sl.isThreatened = false
         String [] nextLine
         boolean checkedHeader = false
-        Map termIdx = getTermAndIndex(header)
+        Map termIdx = columnMatchingService.getTermAndIndex(header)
         int itemCount = 0
         int totalCount = 0
         while ((nextLine = reader.readNext()) != null) {
@@ -565,7 +446,7 @@ class HelperService {
             if(!checkedHeader){
                 checkedHeader = true
                 // only read next line if current line is a header line
-                if(getTermAndIndex(nextLine).size() > 0) {
+                if(columnMatchingService.getTermAndIndex(nextLine).size() > 0) {
                     nextLine = reader.readNext()
                 }
             }
@@ -592,7 +473,7 @@ class HelperService {
 
         CSVReader reader = new CSVReader(new FileReader(filename),',' as char)
         header = header ?: reader.readNext()
-        int speciesValueIdx = getSpeciesIndex(header)
+        int speciesValueIdx = columnMatchingService.getSpeciesIndex(header)
         int count =0
         String [] nextLine
         def kvpmap =[:]
@@ -626,10 +507,7 @@ class HelperService {
         sli.dataResourceUid =druid
         sli.rawScientificName = speciesIdx > -1 ? values[speciesIdx] : null
         sli.itemOrder = order
-        //lookup the raw
-        //sli.guid = findAcceptedLsidByScientificName(sli.rawScientificName)?: findAcceptedLsidByCommonName(sli.rawScientificName)
-        matchNameToSpeciesListItem(sli.rawScientificName, sli)
-        int i = 0
+         int i = 0
         header.each {
             if(i != speciesIdx && values.length > i && values[i]?.trim()){
                 SpeciesListKVP kvp = map.get(it.toString()+"|"+values[i], new SpeciesListKVP(key: it.toString(), value: values[i], dataResourceUid: druid))
@@ -640,7 +518,7 @@ class HelperService {
             }
             i++
         }
-
+        matchNameToSpeciesListItem(sli.rawScientificName, sli)
         sli
     }
 
@@ -650,10 +528,9 @@ class HelperService {
 
         SpeciesListItem sli = new SpeciesListItem()
         sli.dataResourceUid = druid
-        sli.rawScientificName = termIndex.containsKey(RAW_SCIENTIFIC_NAME) ? values[termIndex[RAW_SCIENTIFIC_NAME]] : null
+        sli.rawScientificName = termIndex.containsKey(QueryService.RAW_SCIENTIFIC_NAME) ? values[termIndex[QueryService.RAW_SCIENTIFIC_NAME]] : null
         sli.itemOrder = order
 
-        matchValuesToSpeciesListItem(values, termIndex, sli)
         int i = 0
         header.each {
             if(!termIndex.containsValue(i) && values.length > i && values[i]?.trim()){
@@ -665,35 +542,26 @@ class HelperService {
             }
             i++
         }
+        matchNameToSpeciesListItem(sli.rawScientificName, sli)
         sli
     }
 
     def  matchNameToSpeciesListItem(String name, SpeciesListItem sli){
-        //includes matchedName search for rematching if nameSearcher lsids change.
-        NameUsageMatch nameUsageMatch = findAcceptedConceptByScientificName(sli.rawScientificName) ?:
-                findAcceptedConceptByCommonName(sli.rawScientificName) ?:
-                        findAcceptedConceptByLSID(sli.rawScientificName) ?:
-                                findAcceptedConceptByNameFamily(sli.matchedName, sli.family)
-        if(nameUsageMatch){
-            sli.guid = nameUsageMatch.getTaxonConceptID()
-            sli.family = nameUsageMatch.getFamily()
-            sli.matchedName = nameUsageMatch.getScientificName()
-            sli.author = nameUsageMatch.getScientificNameAuthorship()
-            sli.commonName = nameUsageMatch.getVernacularName()
-            sli.kingdom = nameUsageMatch.getKingdom()
+        // First match using all available data
+        NameUsageMatch match = nameExplorerService.find(sli)
+        if (!match || !match.success) {
+            match = nameExplorerService.searchForRecordByCommonName(sli.rawScientificName)
         }
-    }
-
-    def rematchToSpeciesListItem(SpeciesListItem sli){
-        NameUsageMatch nameUsageMatch = nameExplorerService.searchForRecordByTerms(sli.rawScientificName, sli.commonName,
-                sli.kingdom, null, null, null, sli.family, null, null)
-        if(nameUsageMatch){
-            sli.guid = nameUsageMatch.getTaxonConceptID()
-            sli.family = nameUsageMatch.getFamily()
-            sli.matchedName = nameUsageMatch.getScientificName()
-            sli.author = nameUsageMatch.getScientificNameAuthorship()
-            sli.commonName = nameUsageMatch.getVernacularName()
-            sli.kingdom = nameUsageMatch.getKingdom()
+        if (!match || !match.success) {
+            match = nameExplorerService.searchForRecordByLsid(sli.rawScientificName)
+        }
+        if(match && match.success){
+            sli.guid = match.getTaxonConceptID()
+            sli.matchedName = match.getScientificName()
+            sli.author = match.getScientificNameAuthorship()
+            sli.commonName = match.getVernacularName()
+            sli.family = match.getFamily()
+            sli.kingdom = match.getKingdom()
         }
     }
 
@@ -701,39 +569,22 @@ class HelperService {
         List<NameUsageMatch> matches = nameExplorerService.findAll(searchBatch);
         matches.eachWithIndex { NameUsageMatch match, Integer index ->
             SpeciesListItem sli = searchBatch[index]
+            if (!match.success) {
+                match = nameExplorerService.searchForRecordByCommonName(sli.rawScientificName)
+            }
+            if (!match.success) {
+                match = nameExplorerService.searchForRecordByLsid(sli.rawScientificName)
+            }
             if (match && match.success) {
                 sli.guid = match.getTaxonConceptID()
-                sli.family = match.getFamily()
                 sli.matchedName = match.getScientificName()
                 sli.author = match.getScientificNameAuthorship()
                 sli.commonName = match.getVernacularName()
+                sli.family = match.getFamily()
                 sli.kingdom = match.getKingdom()
             } else {
                 log.info("Unable to match species list item - ${sli.rawScientificName}")
             }
-        }
-    }
-
-    def matchValuesToSpeciesListItem(String[] values, Map termIndex, SpeciesListItem sli){
-        String rawScientificName = termIndex.containsKey(RAW_SCIENTIFIC_NAME) ? values[termIndex[RAW_SCIENTIFIC_NAME]] : null
-        String family = termIndex.containsKey(FAMILY) ? values[termIndex[FAMILY]] :null
-        String commonName = termIndex.containsKey(COMMON_NAME) ? values[termIndex[COMMON_NAME]] :null
-        String kingdom = termIndex.containsKey(KINGDOM) ? values[termIndex[KINGDOM]] :null
-        String phylum = termIndex.containsKey(PHYLUM) ? values[termIndex[PHYLUM]] :null
-        String clazz = termIndex.containsKey(CLASS) ? values[termIndex[CLASS]] :null
-        String order = termIndex.containsKey(ORDER) ? values[termIndex[ORDER]] :null
-        String genus = termIndex.containsKey(GENUS) ? values[termIndex[GENUS]] :null
-        String rank = termIndex.containsKey(RANK) ? values[termIndex[RANK]] :null
-
-        NameUsageMatch nameUsageMatch = nameExplorerService.searchForRecordByTerms(rawScientificName, commonName,
-                kingdom, phylum, clazz, order, family, genus, rank)
-        if(nameUsageMatch){
-            sli.guid = nameUsageMatch.getTaxonConceptID()
-            sli.family = nameUsageMatch.getFamily()
-            sli.matchedName = nameUsageMatch.getScientificName()
-            sli.author = nameUsageMatch.getScientificNameAuthorship()
-            sli.commonName = nameUsageMatch.getVernacularName()
-            sli.kingdom = nameUsageMatch.getKingdom()
         }
     }
 
@@ -755,50 +606,6 @@ class HelperService {
             log.error(e.getMessage())
         }
         lsid
-    }
-
-    def findAcceptedConceptByLSID(lsid) {
-        NameUsageMatch record
-        try {
-            record = nameExplorerService.searchForRecordByLsid(lsid)
-        }
-        catch (Exception e) {
-            log.error(e.getMessage())
-        }
-        record
-    }
-
-    def findAcceptedConceptByNameFamily(String scientificName, String family) {
-        NameUsageMatch record
-        try {
-            record = nameExplorerService.searchForRecordByNameFamily(scientificName, family)
-        }
-        catch (Exception e) {
-            log.error(e.getMessage())
-        }
-        record
-    }
-
-    def findAcceptedConceptByScientificName(scientificName) {
-        NameUsageMatch record
-        try {
-            record = nameExplorerService.searchForRecordByScientificName(scientificName)
-        }
-        catch (Exception e) {
-            log.error(e.getMessage())
-        }
-        record
-    }
-
-    def findAcceptedConceptByCommonName(commonName) {
-        NameUsageMatch record
-        try {
-            record = nameExplorerService.searchForRecordByCommonName(commonName)
-        }
-        catch (Exception e) {
-            log.error(e.getMessage())
-        }
-        record
     }
 
     // JSON response is returned as the unconverted model with the appropriate
