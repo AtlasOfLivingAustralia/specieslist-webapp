@@ -174,7 +174,7 @@ class WebServiceController {
     )
     @Path("/ws/species/{guid}")
     def getListItemsForSpecies() {
-        def guid = params.guid
+        def guid = params.guid.replaceFirst("https:/", "https://")
         def lists = params.dr?.split(",")
         def isBIE = params.boolean('isBIE')
         def props = [fetch: [kvpValues: 'join', mylist: 'join']]
