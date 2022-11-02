@@ -676,7 +676,6 @@ class WebServiceController {
                 description = "The data resource id to identify an existing list",
                 schema = @Schema(implementation = String),
                 required = true),
-            @Parameter(name = "Authorization", in = HEADER, schema = @Schema(implementation = String), required = true),
             @Parameter(name = "X-ALA-userId",  description="The user id to save the list against", in = HEADER, schema = @Schema(implementation = String), required = true)
         ],
         responses = [
