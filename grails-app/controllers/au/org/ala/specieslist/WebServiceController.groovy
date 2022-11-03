@@ -174,7 +174,7 @@ class WebServiceController {
     )
     @Path("/ws/species/{guid}")
     def getListItemsForSpecies() {
-        def guid = params.guid
+        def guid = params.guid.replaceFirst("https:/", "https://")
         def lists = params.dr?.split(",")
         def isBIE = params.boolean('isBIE')
         def props = [fetch: [kvpValues: 'join', mylist: 'join']]
@@ -350,7 +350,7 @@ class WebServiceController {
                 in = PATH,
                 description = "The data resource id or comma separated data resource ids  to identify list(s) to return list items for e.g. '/ws/speciesListItems/dr123,dr781,dr332'",
                 schema = @Schema(implementation = String),
-                required = false),
+                required = true),
             @Parameter(name = "q",
                 in = QUERY,
                 description = "Optional query string to search common name, supplied name and scientific name in the lists specified by the 'druid' e.g. 'Eurystomus orientalis'",
@@ -414,9 +414,6 @@ class WebServiceController {
             params.max = params.max ?: 400 // set default to 400 to prevent api gateway content size limit block
             def list
 
-            if (params.includeKVP) {
-                params.fetch = [kvpValues: 'join']
-            }
             if (!params.q) {
                 list = params.nonulls ?
                     SpeciesListItem.findAllByDataResourceUidInListAndGuidIsNotNull(druid, params)
@@ -460,10 +457,7 @@ class WebServiceController {
             }
             render newList as JSON
         } else {
-            //no data resource uid was supplied.
-            def props = [fetch: [kvpValues: 'join']]
-            def list = queryService.getFilterListItemResult(props, params, null, null, null)
-            render list.collect { [guid: it.guid, name: it.matchedName ?: it.rawScientificName, family: it.family, dataResourceUid: it.dataResourceUid, kvpValues: it.kvpValues?.collect { i -> [key: i.key, value: i.vocabValue ?: i.value] }] } as JSON
+            render status: HttpStatus.SC_BAD_REQUEST, text: "druid parameter is required"
         }
     }
 
@@ -682,7 +676,6 @@ class WebServiceController {
                 description = "The data resource id to identify an existing list",
                 schema = @Schema(implementation = String),
                 required = true),
-            @Parameter(name = "Authorization", in = HEADER, schema = @Schema(implementation = String), required = true),
             @Parameter(name = "X-ALA-userId",  description="The user id to save the list against", in = HEADER, schema = @Schema(implementation = String), required = true)
         ],
         responses = [

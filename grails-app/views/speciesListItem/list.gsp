@@ -22,6 +22,7 @@
 <g:set var="userCanEditData" value="${
             (speciesList.username == request.remoteUser || request.isUserInRole("ROLE_ADMIN") || userId in speciesList.editors)
 }"/>
+<g:set var="ownerVisibleToEditor" value="${grailsApplication.config.ownerVisibleToEditor.toBoolean() ? (userId in speciesList.editors) : false}"/>
 <html>
 <head>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
@@ -457,8 +458,10 @@
         <dl class="dl-horizontal" id="show-meta-dl">
             <dt>${message(code: 'speciesList.listName.label', default: 'List name')}</dt>
             <dd>${speciesList.listName ?: '&nbsp;'}</dd>
-            <dt>${message(code: 'speciesList.username.label', default: 'Owner')}</dt>
-            <dd>${speciesList.fullName ?: speciesList.username ?: '&nbsp;'}</dd>
+            <g:if test="${userCanEditPermissions || ownerVisibleToEditor}">
+                <dt>${message(code: 'speciesList.username.label', default: 'Owner')}</dt>
+                    <dd>${speciesList.fullName ?: speciesList.username}</dd>
+            </g:if>
             <dt>${message(code: 'speciesList.listType.label', default: 'List type')}</dt>
             <dd>${speciesList.listType?(message(code:speciesList.listType.i18nValue, default:speciesList.listType.displayValue)):''}</dd>
             <!--dd>${speciesList.listType?.displayValue}</dd-->
@@ -512,7 +515,7 @@
                     <dd>${speciesList.sdsType}</dd>
                 </g:if>
             </g:if>
-            <g:if test="${speciesList.editors}">
+            <g:if test="${speciesList.editors && userCanEditPermissions}">
                 <dt>${message(code: 'speciesList.editors.label', default: 'List editors')}</dt>
                 <dd>${speciesList.editors.collect { sl.getFullNameForUserId(userId: it) }?.join(", ")}</dd>
             </g:if>
@@ -534,18 +537,18 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="control-label col-md-2"
-                               for="owner">${message(code: 'speciesList.username.label', default: 'Owner')}</label>
+%{--                    <div class="form-group">--}%
+%{--                        <label class="control-label col-md-2"--}%
+%{--                               for="owner">${message(code: 'speciesList.username.label', default: 'Owner')}</label>--}%
 
-                        <div class="col-md-10">
-                            <select name="owner" id="owner" class="form-control full-width">
-                                <g:each in="${users}" var="userId"><option
-                                        value="${userId}" ${(speciesList.username == userId) ? 'selected="selected"' : ''}><sl:getFullNameForUserId
-                                            userId="${userId}"/></option></g:each>
-                            </select>
-                        </div>
-                    </div>
+%{--                        <div class="col-md-10">--}%
+%{--                            <select name="owner" id="owner" class="form-control full-width">--}%
+%{--                                <g:each in="${users}" var="userId"><option--}%
+%{--                                        value="${userId}" ${(speciesList.username == userId) ? 'selected="selected"' : ''}><sl:getFullNameForUserId--}%
+%{--                                            userId="${userId}"/></option></g:each>--}%
+%{--                            </select>--}%
+%{--                        </div>--}%
+%{--                    </div>--}%
 
                     <div class="form-group">
                         <label class="control-label col-md-2"

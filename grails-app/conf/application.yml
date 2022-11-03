@@ -244,3 +244,5 @@ orderColumns: 'order,ordo'
 familyColumns: 'family,familia'
 genusColumns: 'genus,genericEpithet,generic epithet'
 rankColumns: 'taxonrank,rank,taxon rank,taxonomicrank,taxonomic rank,linnaean rank'
+#determnines whether a  list owner's email is visible on list info panel.
+ownerVisibleToEditor: false
