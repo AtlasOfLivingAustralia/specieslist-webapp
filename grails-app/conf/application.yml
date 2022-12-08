@@ -220,7 +220,7 @@ security:
     oidc:
         enabled: true
         discoveryUri: https://auth-dev.ala.org.au/cas/oidc/.well-known
-        scope: openid profile email ala roles
+        scope: openid profile email ala/roles
 #        allowUnsignedIdTokens: true
     jwt:
         enabled: true
