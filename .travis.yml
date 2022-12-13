@@ -6,7 +6,7 @@ branches:
   only:
   - master
   - develop
-  - feature/oidcIntegration
+  - feature/lists-cognito
   - bug/issue-225
 
 before_install:
