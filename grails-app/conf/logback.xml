@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+    <jmxConfigurator />
     <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
     <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <variable name="appName" value="specieslist-webapp"/>
+
+    <appender name="TOMCAT_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${appName}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/${appName}.%i.log.gz</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>4</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>10MB</maxFileSize>
+        </triggeringPolicy>
         <encoder>
-            <charset>UTF-8</charset>
-            <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wex</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5p --- [%15.15t] %-40.40logger{39} : %m%n%wex</pattern>
         </encoder>
     </appender>
 
-    <logger name="au.org.ala.specieslist" level="INFO">
-        <appender-ref ref="STDOUT" />
-    </logger>
-
-    <root level="warn">
-        <appender-ref ref="STDOUT" />
+    <root level="WARN">
+        <appender-ref ref="TOMCAT_LOG" />
     </root>
 </configuration>
