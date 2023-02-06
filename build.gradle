@@ -117,8 +117,8 @@ dependencies {
     testImplementation "org.seleniumhq.selenium:selenium-firefox-driver:3.14.0"
 
     // ALA
-    implementation "org.grails.plugins:ala-auth:5.2.0-CognitoLogoutFix-SNAPSHOT"
-    implementation "org.grails.plugins:ala-ws-security-plugin:4.3.5-SNAPSHOT"
+    implementation "org.grails.plugins:ala-auth:5.2.0-SNAPSHOT"
+    implementation "org.grails.plugins:ala-ws-security-plugin:4.4.0-SNAPSHOT"
     implementation "org.grails.plugins:ala-ws-plugin:3.1.2"
     implementation "au.org.ala:userdetails-service-client:2.0.0"
     runtimeOnly "org.grails.plugins:ala-bootstrap3:4.1.0"
