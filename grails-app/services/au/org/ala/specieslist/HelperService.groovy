@@ -523,7 +523,8 @@ class HelperService {
     }
 
     def loadSpeciesListFromCSV(CSVReader reader, druid, listname, ListType listType, description, listUrl, listWkt,
-                               Boolean isBIE, Boolean isSDS, Boolean isPrivate, String region, String authority, String category,
+                               Boolean isBIE, Boolean isSDS, Boolean isAuthoritative, Boolean isThreatened, Boolean isInvasive,
+                               Boolean isPrivate, String region, String authority, String category,
                                String generalisation, String sdsType, String[] header, Map vocabs) {
         log.debug("Loading species list " + druid + " " + listname + " " + description + " " + listUrl + " " + header + " " + vocabs)
         def kvpmap = [:]
@@ -550,10 +551,10 @@ class HelperService {
         sl.sdsType = sdsType
         sl.isBIE = isBIE
         sl.isSDS = isSDS
+        sl.isAuthoritative = isAuthoritative
+        sl.isThreatened = isThreatened
+        sl.isInvasive = isInvasive
         sl.isPrivate = isPrivate
-        sl.isAuthoritative = false // default all new lists to isAuthoritative = false: it is an admin task to determine whether a list is authoritative or not
-        sl.isInvasive = false
-        sl.isThreatened = false
         String [] nextLine
         boolean checkedHeader = false
         Map termIdx = getTermAndIndex(header)

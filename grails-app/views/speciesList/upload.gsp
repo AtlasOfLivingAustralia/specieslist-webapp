@@ -168,13 +168,26 @@
             if($('#isBIE').length>0){
                 map['isBIE']=$('#isBIE').is(':checked');
             }
+            //admin values
+            if ($('#isAuthoritative').length>0) {
+                map['isAuthoritative']=$('#isAuthoritative').is(':checked');
+            }
+            if ($('#isThreatened').length>0) {
+                map['isThreatened']=$('#isThreatened').is(':checked');
+            }
+            if ($('#isInvasive').length>0) {
+                map['isInvasive']=$('#isInvasive').is(':checked');
+            }
+            if ($('#sdsRegion').length>0) {
+                map['region'] = $('#sdsRegion').val();
+            }
             //if the isSDS checkbox exists add the value
             if($('#isSDS').length>0){
                 map['isSDS']=$('#isSDS').is(':checked');
                 var ischecked=$('#isSDS').is(':checked');
                 if(ischecked){
                     //add the SDS only properties
-                    map['region'] = $('#sdsRegion').val();
+                    //SDS region is also part of admin values
                     map['authority'] = $('#authority').val();
                     map['category'] = $('#category').val();
                     map['generalisation'] = $('#generalisation').val();
@@ -387,13 +400,23 @@
                                 <td><label for="isSDS"><g:message code= "speciesList.isSDS.label" default= "Part of the Sensitive Data Service"/></label> </td>
                                 <td><g:checkBox name="isSDS" id="isSDS" checked="${list?.isSDS}"/></td>
                             </tr>
-                        </g:if>
-                        <tr class="SDSOnly">
+                            <tr>
+                                <td><label for="isAuthoritative"><g:message code= "speciesList.isAuthoritative.label" default= "Authoritative"/></label> </td>
+                                <td><g:checkBox name="isAuthoritative" id="isAuthoritative" checked="${list?.isAuthoritative}"/></td>
+                            </tr>
+                            <tr>
+                                <td><label for="isThreatened"><g:message code= "speciesList.isThreatened.label" default= "Threatened"/></label> </td>
+                                <td><g:checkBox name="isThreatened" id="isThreatened" checked="${list?.isThreatened}"/></td>
+                            </tr>
+                            <tr>
+                                <td><label for="isInvasive"><g:message code= "speciesList.isInvasive.label" default= "Invasive"/></label> </td>
+                                <td><g:checkBox name="isInvasive" id="isInvasive" checked="${list?.isInvasive}"/></td>
+                            </tr>
                             <td><label>${message(code:'speciesList.region.label', deafult:'Region')}</label></td>
                             <td>
                                 <g:textField name="sdsRegion" style="width:99%" value="${list?.region}"/>
                             </td>
-                        </tr>
+                        </g:if>
                         <tr class="SDSOnly">
                             <td><label>${message(code:'speciesList.authority.label', deafult:'Authority')}</label></td>
                             <td>

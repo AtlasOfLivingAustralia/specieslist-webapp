@@ -18,6 +18,7 @@ import au.org.ala.web.AuthService
 import com.opencsv.CSVReader
 import grails.converters.JSON
 import grails.gorm.transactions.Transactional
+import org.apache.commons.io.filefilter.FalseFileFilter
 import org.grails.web.json.JSONObject
 import org.springframework.web.multipart.MultipartHttpServletRequest
 
@@ -133,6 +134,14 @@ class SpeciesListController {
                     formParams.speciesListName
             )
 
+            // default all lists to isAuthoritative = false: it is an admin task to determine whether a list is authoritative or not
+            if (!request.isUserInRole("ROLE_ADMIN")) {
+                def list = SpeciesList.findByDataResourceUid(params.id)
+                formParams.isAuthoritative = list?.isAuthoritative || Boolean.FALSE
+                formParams.isThreatened = list?.isAuthoritative || Boolean.FALSE
+                formParams.isInvasive = list?.isAuthoritative || Boolean.FALSE
+            }
+
             if(druid) {
                 log.debug("Loading species list " + formParams.speciesListName)
                 def vocabs = formParams.findAll { it.key.startsWith("vocab") && it.value } //map of vocabs
@@ -158,6 +167,9 @@ class SpeciesListController {
                             formParams.listWkt,
                             formParams.isBIE,
                             formParams.isSDS,
+                            formParams.isAuthoritative,
+                            formParams.isThreatened,
+                            formParams.isInvasive,
                             formParams.isPrivate,
                             formParams.region,
                             formParams.authority,
