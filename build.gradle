@@ -65,6 +65,13 @@ configurations {
     }
 }
 
+configurations.all {
+    resolutionStrategy {
+        cacheDynamicVersionsFor 0, 'seconds'
+        cacheChangingModulesFor 0, 'seconds'
+    }
+}
+
 dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     implementation "org.springframework.boot:spring-boot-starter-logging"
@@ -104,7 +111,7 @@ dependencies {
     implementation "org.nibor.autolink:autolink:0.5.0"
     implementation "com.opencsv:opencsv:3.7"
 
-    runtimeOnly 'org.cache2k:cache2k-jcache:1.2.0.Final'
+    runtimeOnly group: 'org.cache2k', name: 'cache2k-jcache', version: '2.6.1.Final'
 
     testImplementation "io.micronaut:micronaut-inject-groovy"
     testImplementation "org.grails:grails-gorm-testing-support"
@@ -127,7 +134,7 @@ dependencies {
     }
 
     implementation 'au.org.ala:ala-cas-client:3.0.0'
-    implementation ("au.org.ala.names:ala-namematching-client:1.7") {
+    implementation ("au.org.ala.names:ala-namematching-client:1.9-SNAPSHOT") {
         exclude group: "com.squareup.okhttp3", module: "okhttp"
     }
     implementation 'au.org.ala.plugins:openapi:1.1.0'
