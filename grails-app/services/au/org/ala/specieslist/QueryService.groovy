@@ -257,9 +257,15 @@ class QueryService {
     def getTagFacetCounts(params, boolean hidePrivateLists, List itemIds) {
         def facets = []
         getBooleanQueryFacets().each { key, facet ->
-            facets << [query: key + '=eq:true', label: facet.label, tooltip: facet.tooltip, count:  getFacetCount(params, key, true, hidePrivateLists, itemIds)]
+            // only add tagfacet to selectable facet  list if it is not already selected
+            if(params.get(key) == null){
+                facets << [query: key + '=eq:true', label: facet.label, tooltip: facet.tooltip, count:  getFacetCount(params, key, true, hidePrivateLists, itemIds)]
+            }
         }
-        facets << [query: WKT_QUERY, label:'spatialBounds.list.label', tooltip: 'spatialBounds.list.tooltip', count:  getFacetCount(params, WKT, null, hidePrivateLists, itemIds)]
+        // only add WKT fact to selectable facet list if it is not already selected
+        if(params.get(WKT) == null){
+            facets << [query: WKT_QUERY, label:'spatialBounds.list.label', tooltip: 'spatialBounds.list.tooltip', count:  getFacetCount(params, WKT, null, hidePrivateLists, itemIds)]
+        }
         return facets
     }
 
