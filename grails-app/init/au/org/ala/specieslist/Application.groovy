@@ -19,9 +19,7 @@ import grails.boot.GrailsApp
 import grails.boot.config.GrailsAutoConfiguration
 
 import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
 
-@Slf4j
 @CompileStatic
 class Application extends GrailsAutoConfiguration {
     static void main(String[] args) {
