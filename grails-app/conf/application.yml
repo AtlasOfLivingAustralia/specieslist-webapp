@@ -221,26 +221,19 @@ security:
         enabled: true
         discoveryUri: https://cognito-idp.ap-southeast-2.amazonaws.com/ap-southeast-2_8pKx9BtGz/.well-known/openid-configuration
         scope: openid profile email ala/attrs ala/roles
-        logoutUrl: https://ala-dev.auth.ap-southeast-2.amazoncognito.com/logout
-        logoutAction: cognito
-    core:
-        roleAttribute: ala:role
-
     # this config is used to check incoming requests to protected APIs (methods protected with @RequireApiKey()) for JWT token in the expected header i.e. "Authorization". `fallbackToLegacyBehaviour` determines whether to check for the legacy API key when JWT is not detected/valid.
     jwt:
         discoveryUri: https://cognito-idp.ap-southeast-2.amazonaws.com/ap-southeast-2_8pKx9BtGz/.well-known/openid-configuration
         enabled: true
         fallbackToLegacyBehaviour: true
-        userIdClaim: username
-        roleClaims: cognito:groups
     apikey:
         enabled: true
         auth:
-            serviceUrl: https://auth.ala.org.au/apikey/ws/check/
+            serviceUrl: https://auth-dev.ala.org.au/apikey/ws/check/
         check:
-            serviceUrl: https://auth.ala.org.au/apikey/ws/check?apikey=
+            serviceUrl: https://auth-dev.ala.org.au/apikey/ws/check?apikey=
         userdetails:
-            serviceUrl: https://auth.ala.org.au/userdetails/userDetails/
+            serviceUrl: https://auth-dev.ala.org.au/userdetails/userDetails/
 
 webservice:
     jwt: true
