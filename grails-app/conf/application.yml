@@ -48,6 +48,7 @@ spring:
                 - '*.gson'
                 - '**/*.gson'
                 - 'logback.groovy'
+                - 'logback.xml'
                 - '*.properties'
 
 management:
@@ -220,7 +221,7 @@ security:
     oidc:
         enabled: true
         discoveryUri: https://cognito-idp.ap-southeast-2.amazonaws.com/ap-southeast-2_8pKx9BtGz/.well-known/openid-configuration
-        scope: openid profile email ala/attrs ala/roles
+        scope: openid profile email ala roles
     # this config is used to check incoming requests to protected APIs (methods protected with @RequireApiKey()) for JWT token in the expected header i.e. "Authorization". `fallbackToLegacyBehaviour` determines whether to check for the legacy API key when JWT is not detected/valid.
     jwt:
         discoveryUri: https://cognito-idp.ap-southeast-2.amazonaws.com/ap-southeast-2_8pKx9BtGz/.well-known/openid-configuration
