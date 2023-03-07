@@ -479,10 +479,13 @@
             </g:if>
             <dt>${message(code: 'speciesList.dateCreated.label', default: 'Date submitted')}</dt>
             <dd><g:formatDate format="yyyy-MM-dd"
-                              date="${speciesList.dateCreated ?: 0}"/><!-- ${speciesList.lastUpdated} --></dd>
+                              date="${speciesList.dateCreated}"/><!-- ${speciesList.lastUpdated} --></dd>
             <dt>${message(code: 'speciesList.lastUpdated.label', default: 'Date updated')}</dt>
             <dd><g:formatDate format="yyyy-MM-dd"
-                              date="${speciesList.lastUpdated ?: 0}"/></dd>
+                              date="${speciesList.lastUpdated}"/></dd>
+            <dt>${message(code: 'speciesList.lastUploaded.label', default: 'Date last loaded')}</dt>
+            <dd><g:formatDate format="yyyy-MM-dd"
+                              date="${speciesList.lastUploaded}"/></dd>
             <dt>${message(code: 'speciesList.isPrivate.label', default: 'Is private')}</dt>
             <dd><g:formatBoolean boolean="${speciesList.isPrivate ?: false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.isBIE.label', default: 'Included in BIE')}</dt>
@@ -519,6 +522,10 @@
                 <dt>${message(code: 'speciesList.editors.label', default: 'List editors')}</dt>
                 <dd>${speciesList.editors.collect { sl.getFullNameForUserId(userId: it) }?.join(", ")}</dd>
             </g:if>
+            <dt>${message(code: 'speciesList.looseSearch.label', default: 'Loose search')}</dt>
+            <dd><g:formatBoolean boolean="${speciesList.looseSearch}" true="Yes" false="No"/></dd>
+            <dt>${message(code: 'speciesList.searchStyle.label', default: 'Search style')}</dt>
+            <dd>${speciesList.searchStyle}</dd>
             <dt>${message(code: 'speciesList.metadata.label', default: 'Metadata link')}</dt>
             <dd><a href="${grailsApplication.config.collectory.baseURL}/public/show/${speciesList.dataResourceUid}">${grailsApplication.config.collectory.baseURL}/public/show/${speciesList.dataResourceUid}</a>
             </dd>
@@ -716,6 +723,18 @@
                             </div>
                         </g:if>
                     </g:if>
+                    <div class="form-group">
+                        <label class="control-label col-md-2" for="looseSearch">${message(code:'speciesList.looseSearch.label', default:'Loose Search')}</label>
+                        <div class="col-md-10">
+                            <g:select noSelection="${['':'--']}" from="[true, false]" name="looseSearch" style="width:99%" value="${speciesList.looseSearch}" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-2" for="searchStyle">${message(code:'speciesList.searchStyle.label', default:'Search Style')}</label>
+                        <div class="col-md-10">
+                            <g:select name="searchStyle" noSelection="${['':'--']}" from="${au.org.ala.names.ws.api.SearchStyle.values()}" style="width:99%" value="${speciesList.searchStyle}" />
+                        </div>
+                    </div>
                     <div class="form-group">
                         <div class="col-md-offset-2 col-md-10">
                             <button type="submit" id="edit-meta-submit" class="btn btn-primary">${message(code:'generic.lists.button.save.label', default:'Save')}</button>

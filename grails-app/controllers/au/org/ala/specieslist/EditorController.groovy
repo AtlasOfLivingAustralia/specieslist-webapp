@@ -197,12 +197,12 @@ class EditorController {
                 sli.rawScientificName = params.rawScientificName
                 changed = true
                 // lookup guid
-                helperService.matchNameToSpeciesListItem(sli.rawScientificName, sli)
+                helperService.matchNameToSpeciesListItem(sli.rawScientificName, sli, sli.mylist)
                 //sli.guid = helperService.findAcceptedLsidByScientificName(sli.rawScientificName)?: helperService.findAcceptedLsidByCommonName(sli.rawScientificName)
             }
             if (changed) {
                 log.debug "re-matching name for ${params.rawScientificName}"
-                helperService.matchNameToSpeciesListItem(sli.rawScientificName, sli)
+                helperService.matchNameToSpeciesListItem(sli.rawScientificName, sli, sli.mylist)
             }
 
             if (!sli.validate()) {

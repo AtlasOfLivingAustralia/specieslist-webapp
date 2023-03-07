@@ -1,6 +1,7 @@
 package au.org.ala.specieslist
 
 import au.org.ala.names.ws.api.NameSearch
+import au.org.ala.names.ws.api.SearchStyle
 import grails.config.Config
 import grails.core.support.GrailsConfigurationAware
 import org.apache.commons.lang3.StringUtils
@@ -21,7 +22,8 @@ class ColumnMatchingService implements GrailsConfigurationAware {
     ColumnMatcher familyMatcher = new ColumnMatcher('family', 'family')
     ColumnMatcher genusMatcher = new ColumnMatcher('genus', 'genus')
     ColumnMatcher rankMatcher = new ColumnMatcher('rank', 'rank')
-    boolean loose = false
+    boolean defaultLoose = false
+    SearchStyle defaultStyle = SearchStyle.STRICT
 
     @Override
     void setConfiguration(Config configuration) {
@@ -36,7 +38,8 @@ class ColumnMatchingService implements GrailsConfigurationAware {
         this.familyMatcher = new ColumnMatcher('family', configuration.getProperty("familyColumns"))
         this.genusMatcher = new ColumnMatcher('genus', configuration.getProperty("genusColumns"))
         this.rankMatcher = new ColumnMatcher('rank', configuration.getProperty("rankColumns"))
-        this.loose = configuration.getProperty("namematching.loose", Boolean.class, false)
+        this.defaultLoose = configuration.getProperty("namematching.defaultLoose", Boolean.class, false)
+        this.defaultStyle = configuration.getProperty('namematching.defaultStyle', SearchStyle.class, SearchStyle.STRICT)
     }
 
     /**
@@ -47,9 +50,12 @@ class ColumnMatchingService implements GrailsConfigurationAware {
      * </p>
      *
      * @param sli The species list item
+     * @param sl The parent species list (which may not yet be linked to the item)
      * @return The name search
      */
-    NameSearch buildSearch(SpeciesListItem sli) {
+    NameSearch buildSearch(SpeciesListItem sli, SpeciesList sl) {
+        boolean loose = sl?.looseSearch ?: this.defaultLoose
+        SearchStyle style = sl?.searchStyle ?: this.defaultStyle
         return NameSearch.builder()
                 .scientificName(sli.rawScientificName)
                 .scientificNameAuthorship(this.authorMatcher.get(sli))
@@ -61,7 +67,8 @@ class ColumnMatchingService implements GrailsConfigurationAware {
                 .genus(this.genusMatcher.get(sli))
                 .rank(this.rankMatcher.get(sli))
                 .vernacularName(this.commonNameMatcher.get(sli))
-                .loose(this.loose)
+                .loose(loose)
+                .style(style)
                 .build();
     }
 

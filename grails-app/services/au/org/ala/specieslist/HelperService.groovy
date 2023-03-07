@@ -16,6 +16,7 @@
 package au.org.ala.specieslist
 
 import au.org.ala.names.ws.api.NameUsageMatch
+import au.org.ala.names.ws.api.SearchStyle
 import com.opencsv.CSVReader
 import grails.gorm.transactions.Transactional
 import groovyx.net.http.ContentType
@@ -341,6 +342,7 @@ class HelperService {
         } else {
             throw new UnsupportedOperationException("Unsupported data structure")
         }
+        speciesList.lastUploaded = new Date()
 
         if (!speciesList.validate()) {
             log.error(speciesList.errors.allErrors?.toString())
@@ -366,7 +368,7 @@ class HelperService {
         List guidList = []
         items.eachWithIndex { item, i ->
             SpeciesListItem sli = new SpeciesListItem(dataResourceUid: druid, rawScientificName: item, itemOrder: i)
-            matchNameToSpeciesListItem(sli.rawScientificName, sli)
+            matchNameToSpeciesListItem(sli.rawScientificName, sli, speciesList)
             speciesList.addToItems(sli)
             guidList.push (sli.guid)
         }
@@ -394,7 +396,7 @@ class HelperService {
                 sli.addToKvpValues(kvp)
                 kvpMap[k.key] = k.value
             }
-            matchNameToSpeciesListItem(sli.rawScientificName, sli)
+            matchNameToSpeciesListItem(sli.rawScientificName, sli, speciesList)
 
             speciesList.addToItems(sli)
 
@@ -405,7 +407,7 @@ class HelperService {
 
     def loadSpeciesListFromCSV(CSVReader reader, druid, listname, ListType listType, description, listUrl, listWkt,
                                Boolean isBIE, Boolean isSDS, Boolean isPrivate, String region, String authority, String category,
-                               String generalisation, String sdsType, String[] header, Map vocabs) {
+                               String generalisation, String sdsType, Boolean looseSearch, SearchStyle searchStyle, String [] header, Map vocabs) {
         log.debug("Loading species list " + druid + " " + listname + " " + description + " " + listUrl + " " + header + " " + vocabs)
         def kvpmap = [:]
         addVocab(druid,vocabs,kvpmap)
@@ -435,6 +437,9 @@ class HelperService {
         sl.isAuthoritative = false // default all new lists to isAuthoritative = false: it is an admin task to determine whether a list is authoritative or not
         sl.isInvasive = false
         sl.isThreatened = false
+        sl.looseSearch = looseSearch
+        sl.searchStyle = searchStyle
+        sl.lastUploaded = new Date()
         String [] nextLine
         boolean checkedHeader = false
         Map termIdx = columnMatchingService.getTermAndIndex(header)
@@ -452,7 +457,7 @@ class HelperService {
 
             if(nextLine.length > 0 && termIdx.size() > 0 && hasValidData(termIdx, nextLine)){
                 itemCount++
-                sl.addToItems(insertSpeciesItem(nextLine, druid, termIdx, header, kvpmap, itemCount))
+                sl.addToItems(insertSpeciesItem(nextLine, druid, termIdx, header, kvpmap, itemCount, sl))
             }
 
         }
@@ -484,9 +489,10 @@ class HelperService {
         sl.username = localAuthService.email()
         sl.firstName = localAuthService.firstname()
         sl.surname = localAuthService.surname()
+        sl.lastUploaded = new Date()
         while ((nextLine = reader.readNext()) != null) {
             if(org.apache.commons.lang.StringUtils.isNotBlank(nextLine)){
-                sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap))
+                sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap, sl))
                 count++
             }
 
@@ -498,7 +504,7 @@ class HelperService {
         sl.save()
     }
 
-    def insertSpeciesItem(String[] values, druid, int speciesIdx, Object[] header, map, int order){
+    def insertSpeciesItem(String[] values, druid, int speciesIdx, Object[] header, map, int order, SpeciesList sl){
         values = parseRow(values as List)
         log.debug("Inserting " + values.toArrayString())
 
@@ -517,11 +523,11 @@ class HelperService {
             }
             i++
         }
-        matchNameToSpeciesListItem(sli.rawScientificName, sli)
+        matchNameToSpeciesListItem(sli.rawScientificName, sli, sl)
         sli
     }
 
-    def insertSpeciesItem(String[] values, String druid, Map termIndex, Object[] header, Map map, int order){
+    def insertSpeciesItem(String[] values, String druid, Map termIndex, Object[] header, Map map, int order, SpeciesList sl){
         values = parseRow(values as List)
         log.debug("Inserting " + values.toArrayString())
 
@@ -541,13 +547,13 @@ class HelperService {
             }
             i++
         }
-        matchNameToSpeciesListItem(sli.rawScientificName, sli)
+        matchNameToSpeciesListItem(sli.rawScientificName, sli, sl)
         sli
     }
 
-    def  matchNameToSpeciesListItem(String name, SpeciesListItem sli){
+    def  matchNameToSpeciesListItem(String name, SpeciesListItem sli, SpeciesList sl){
         // First match using all available data
-        NameUsageMatch match = nameExplorerService.find(sli)
+        NameUsageMatch match = nameExplorerService.find(sli, sl)
         if (!match || !match.success) {
             match = nameExplorerService.searchForRecordByCommonName(sli.rawScientificName)
         }
@@ -561,12 +567,19 @@ class HelperService {
             sli.commonName = match.getVernacularName()
             sli.family = match.getFamily()
             sli.kingdom = match.getKingdom()
+        } else {
+            sli.guid = null
+            sli.matchedName = null
+            sli.author = null
+            sli.commonName = null
+            sli.family = null
+            sli.kingdom = null
         }
     }
 
-    void matchAll(List searchBatch) {
-        List<NameUsageMatch> matches = nameExplorerService.findAll(searchBatch);
-        matches.eachWithIndex { NameUsageMatch match, Integer index ->
+    void matchAll(List searchBatch, SpeciesList speciesList) {
+        List<NameUsageMatch> matches = nameExplorerService.findAll(searchBatch, speciesList);
+        matches.eachWithIndex {  NameUsageMatch match, Integer index ->
             SpeciesListItem sli = searchBatch[index]
             if (!match.success) {
                 match = nameExplorerService.searchForRecordByCommonName(sli.rawScientificName)
@@ -652,7 +665,7 @@ class HelperService {
             def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid=:dataResourceUid", [dataResourceUid: sl.dataResourceUid])
             log.debug "keys = " + keys
             def sli = new SpeciesListItem(dataResourceUid: sl.dataResourceUid, rawScientificName: params.rawScientificName, itemOrder: sl.items.size() + 1)
-            matchNameToSpeciesListItem(sli.rawScientificName, sli)
+            matchNameToSpeciesListItem(sli.rawScientificName, sli, sl)
 
             keys.each { key ->
                 log.debug "key: " + key + " has value: " + params[key]

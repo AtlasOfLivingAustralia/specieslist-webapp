@@ -1,3 +1,4 @@
+<%@ page import="au.org.ala.names.ws.api.SearchStyle" %>
 %{--
   - Copyright (C) 2012 Atlas of Living Australia
   - All Rights Reserved.
@@ -181,6 +182,8 @@
                     map['sdsType'] = $('#sdsType').val();
                 }
             }
+            map['looseSearch'] = $('#looseSearch').val();
+            map['searchStyle'] = $('#searchStyle').val();
             //console.log("The map: ",map);
             $('#recognisedDataDiv').hide();
             $('#uploadDiv').hide();
@@ -442,7 +445,18 @@
                             <td>
                                 <g:textArea cols="100" rows="5" class="full-width" name="listWkt">${list?.wkt}</g:textArea>
                             </td>
-
+                        </tr>
+                        <tr>
+                            <td><label for="looseSearch">${message(code:'speciesList.looseSearch.label', default:'Loose Search')}</label></td>
+                            <td>
+                                <g:select noSelection="${['':'--']}" from="[true, false]" name="looseSearch" style="width:99%" value="${list?.looseSearch}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="searchStyle">${message(code:'speciesList.searchStyle.label', default:'Search Style')}</label></td>
+                            <td>
+                                <g:select name="searchStyle" noSelection="${['':'--']}" from="${SearchStyle.values()}" style="width:99%" value="${list?.searchStyle}" />
+                            </td>
                         </tr>
                         </tbody>
                     </table>

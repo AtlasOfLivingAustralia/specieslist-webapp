@@ -56,19 +56,21 @@ class NameExplorerService implements GrailsConfigurationAware {
     /**
      * Find a NameUsageMatch by a NameSearch
      * @param sli The species list item
+     * @param sl The parent species list (which may not yet be linked to the item)
      * @return NameSearch
      */
-    NameUsageMatch find(SpeciesListItem sli) {
-        return alaNameUsageMatchServiceClient.match(columnMatchingService.buildSearch(sli))
+    NameUsageMatch find(SpeciesListItem sli, SpeciesList sl) {
+        return alaNameUsageMatchServiceClient.match(columnMatchingService.buildSearch(sli, sl))
     }
 
     /**
      * Find NameUsageMatch for given list items
      * @param items list of SpeciesListItem
+     * @param sl The parent species list (which may not yet be linked to the item)
      * @return list of NameUsageMatch, <b>in the same order as the items passed in</b>
      */
-    List<NameUsageMatch> findAll(List<SpeciesListItem> items){
-        List<NameSearch> searches = items.collect { sli -> columnMatchingService.buildSearch(sli)}
+    List<NameUsageMatch> findAll(List<SpeciesListItem> items, SpeciesList sl){
+        List<NameSearch> searches = items.collect { sli -> columnMatchingService.buildSearch(sli, sl)}
         return alaNameUsageMatchServiceClient.matchAll(searches)
     }
 

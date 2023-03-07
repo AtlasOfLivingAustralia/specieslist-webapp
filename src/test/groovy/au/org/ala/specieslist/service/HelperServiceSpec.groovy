@@ -16,6 +16,7 @@
 package au.org.ala.specieslist.service
 
 import au.org.ala.names.ws.api.NameUsageMatch
+import au.org.ala.names.ws.api.SearchStyle
 import au.org.ala.specieslist.*
 import au.org.ala.web.AuthService
 import au.org.ala.web.UserDetails
@@ -31,6 +32,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def helperService = new HelperService()
     def columnMatchingService = new ColumnMatchingService()
+    def nameExplorerService = Mock(NameExplorerService)
 
     void setupSpec() {
         mockDomains(SpeciesListItem, SpeciesList, SpeciesListKVP)
@@ -45,7 +47,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
         helperService.columnMatchingService = columnMatchingService
         helperService.grailsApplication = grailsApplication
         helperService.init()
-        helperService.nameExplorerService = Mock(NameExplorerService)
+        helperService.nameExplorerService = nameExplorerService
     }
 
     def addFindResult() {
@@ -58,7 +60,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
                 .family("Afamily")
                 .vernacularName(" A Vernacular Name")
                 .build()
-        helperService.nameExplorerService.find(_) >>> result
+        nameExplorerService.find(_, _) >>> result
     }
 
     def "addDataResourceForList should return a dummy url when collectory.enableSync is not true - #item"() {
@@ -89,8 +91,9 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "insertSpeciesItem should not create a KVP record for a blank value"() {
         when:
+        def speciesList = new SpeciesList()
         this.addFindResult()
-        def speciesItem = helperService.insertSpeciesItem((String[]) [blank], "Dr1", -1, (String[]) ["Header"], [:], 0)
+        def speciesItem = helperService.insertSpeciesItem((String[]) [blank], "Dr1", -1, (String[]) ["Header"], [:], 0, speciesList)
 
         then:
         assert speciesItem.kvpValues == null || speciesItem.kvpValues.empty
@@ -101,8 +104,9 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "insertSpeciesItem should create a KVP record for a non-blank value"() {
         when:
+        def speciesList = new SpeciesList()
         this.addFindResult()
-        def speciesItem = helperService.insertSpeciesItem((String[]) ["test"], "Dr1", -1, (String[]) ["Header"], [:], 0)
+        def speciesItem = helperService.insertSpeciesItem((String[]) ["test"], "Dr1", -1, (String[]) ["Header"], [:], 0, speciesList)
 
         then:
         assert speciesItem.kvpValues.size() == 1
@@ -110,10 +114,11 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "insertSpeciesItem should not default the rawScientificName to the last column if the species index is -1"() {
         when:
+        def speciesList = new SpeciesList()
         this.addFindResult()
         def row = ["Col1", "Col2", "Col3"]
         def header = ["Header1", "Header2", "Header3"]
-        def speciesItem = helperService.insertSpeciesItem((String[]) row, "Dr1", -1, (String[]) header, [:], 0)
+        def speciesItem = helperService.insertSpeciesItem((String[]) row, "Dr1", -1, (String[]) header, [:], 0, speciesList)
 
         then:
         assert speciesItem.rawScientificName == null
@@ -121,13 +126,28 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
     def "insertSpeciesItem should set the rawScientificName to the specified column if the species index is not -1"() {
         when:
+        def speciesList = new SpeciesList()
         this.addFindResult()
         def row = ["Col1", "Col2", "Col3"]
         def header = ["Header1", "Header2", "Header3"]
-        def speciesItem = helperService.insertSpeciesItem((String[]) row, "Dr1", 1, (String[]) header, [:], 0)
+        def speciesItem = helperService.insertSpeciesItem((String[]) row, "Dr1", 1, (String[]) header, [:], 0, speciesList)
 
         then:
         assert speciesItem.rawScientificName == "Col2"
+    }
+
+    def "insertSpeciesItem should accept match requests"() {
+        when:
+        def speciesList = new SpeciesList()
+        speciesList.looseSearch = true
+        speciesList.searchStyle = SearchStyle.MATCH
+        this.addFindResult()
+        def row = ["Col1", "Col2", "Col3"]
+        def header = ["Header1", "Header2", "Header3"]
+        def speciesItem = helperService.insertSpeciesItem((String[]) row, "Dr1", 1, (String[]) header, [:], 0, speciesList)
+
+        then:
+        assert speciesItem.matchedName == "Scientific name"
     }
 
     def "loadSpeciesListFromCSV should not create a list item if the scientific name cannot be determined"() {
@@ -141,7 +161,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
         when:
         def itemCounts = helperService.loadSpeciesListFromCSV(reader, "Dr1", "listname", null, "description",
                 "url", "listWkt", false, false, false, "region", "authority", "category", "generalistaion", "sdsType",
-                (String[]) ["Header1", "Header2", "Header3"], [:])
+                false, SearchStyle.STRICT, (String[]) ["Header1", "Header2", "Header3"], [:])
 
         then:
         assert itemCounts.totalRecords == 1 && itemCounts.successfulItems == 0
@@ -161,7 +181,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
                 "family", null, null, null, null,
                 null, null, null, null,
                 null)
-        nameExplorerService.searchForRecordByTerms(_) >>> result
+        nameExplorerService.searchForRecordByTerms(*_) >>> result
 
         helperService.setLocalAuthService(Mock(LocalAuthService))
         helperService.setAuthService(Mock(AuthService))
@@ -170,7 +190,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
         when:
         def itemCounts = helperService.loadSpeciesListFromCSV(reader, "Dr1", "listname", null, "description",
                 "url", "listWkt", false, false, true, "region", "authority", "category", "generalistaion", "sdsType",
-                (String[]) ["Header1", "scientificname", "Header3"], [:])
+                false, SearchStyle.STRICT, (String[]) ["Header1", "scientificname", "Header3"], [:])
 
         then:
         assert itemCounts.totalRecords == 1 && itemCounts.successfulItems == 1
