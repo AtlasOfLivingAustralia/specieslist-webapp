@@ -206,6 +206,8 @@ outboundhttp:
 
 namematching:
     serviceURL: https://namematching-ws.ala.org.au
+    defaultLoose: false
+    defaultStyle: STRICT
     dataCacheConfig:
         enableJmx: true
         entryCapacity: 20000

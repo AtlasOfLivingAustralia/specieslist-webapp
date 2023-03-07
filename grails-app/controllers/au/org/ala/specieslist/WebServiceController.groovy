@@ -282,12 +282,16 @@ class WebServiceController {
                 dataResourceUid: sl.dataResourceUid,
                 listName       : sl.listName,
                 dateCreated    : sl.dateCreated,
+                lastUpdated    : sl.lastUpdated,
+                lastUploaded   : sl.lastUploaded,
                 username       : sl.username,
                 fullName       : sl.getFullName(),
                 itemCount      : sl.itemsCount,//SpeciesListItem.countByList(sl)
                 isAuthoritative: (sl.isAuthoritative ?: false),
                 isInvasive     : (sl.isInvasive ?: false),
-                isThreatened   : (sl.isThreatened ?: false)
+                isThreatened   : (sl.isThreatened ?: false),
+                looseSearch    : sl.looseSearch,
+                searchStyle    : sl.searchStyle?.toString()
             ]
             if (sl.listType) {
                 retValue["listType"] = sl?.listType?.toString()
@@ -313,11 +317,13 @@ class WebServiceController {
             def listCounts = allLists.totalCount
             def retValue = [listCount: listCounts, sort: params.sort, order: params.order, max: params.max, offset: params.offset,
                             lists    : allLists.collect {
-                                [dataResourceUid: it.dataResourceUid,
+                                [
+                                 dataResourceUid: it.dataResourceUid,
                                  listName       : it.listName,
                                  listType       : it?.listType?.toString(),
                                  dateCreated    : it.dateCreated,
                                  lastUpdated    : it.lastUpdated,
+                                 lastUploaded   : it.lastUploaded,
                                  username       : it.username,
                                  fullName       : it.getFullName(),
                                  itemCount      : it.itemsCount,
@@ -328,9 +334,12 @@ class WebServiceController {
                                  sdsType        : it.sdsType,
                                  isAuthoritative: it.isAuthoritative ?: false,
                                  isInvasive     : it.isInvasive ?: false,
-                                 isThreatened   : it.isThreatened ?: false]
-                            }]
+                                 isThreatened   : it.isThreatened ?: false,
+                                 looseSearch    : it.looseSearch,
+                                 searchStyle    : it.searchStyle?.toString()
+                                ]
 
+                            }]
             render retValue as JSON
         }
     }

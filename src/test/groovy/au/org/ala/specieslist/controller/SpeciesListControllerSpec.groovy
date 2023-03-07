@@ -15,6 +15,7 @@
 
 package au.org.ala.specieslist.controller
 
+import au.org.ala.specieslist.ColumnMatchingService
 import au.org.ala.specieslist.HelperService
 import au.org.ala.specieslist.SpeciesListController
 import grails.testing.gorm.DataTest
@@ -36,6 +37,7 @@ class SpeciesListControllerSpec extends Specification implements ControllerUnitT
     def setup() {
         mockMultipartRequest.getFile(_) >> mockFile
         controller.helperService = new HelperService()
+        controller.columnMatchingService = new ColumnMatchingService()
 //        controller.helperService.transactionManager = transactionManager
     }
 

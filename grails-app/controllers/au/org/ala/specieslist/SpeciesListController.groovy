@@ -15,6 +15,7 @@
 package au.org.ala.specieslist
 
 import au.org.ala.web.AuthService
+import au.org.ala.names.ws.api.SearchStyle
 import com.opencsv.CSVReader
 import grails.converters.JSON
 import grails.gorm.transactions.Transactional
@@ -30,6 +31,7 @@ class SpeciesListController {
     private static final String[] ACCEPTED_CONTENT_TYPES = ["text/plain", "text/csv"]
 
     HelperService helperService
+    ColumnMatchingService columnMatchingService
     AuthService authService
     BieService bieService
     BiocacheService biocacheService
@@ -164,6 +166,8 @@ class SpeciesListController {
                             formParams.category,
                             formParams.generalisation,
                             formParams.sdsType,
+                            formParams.looseSearch== null || formParams.looseSearch.isEmpty() ? null : Boolean.parseBoolean(formParams.looseSearch),
+                            formParams.searchStyle == null || formParams.searchStyle.isEmpty() ? null : SearchStyle.valueOf(formParams.searchStyle),
                             header.split(","),
                             vocabs)
 
@@ -472,6 +476,7 @@ class SpeciesListController {
         while (offset < totalRows) {
             List items
             List guidBatch = [], sliBatch = []
+            Map<SpeciesList, List<SpeciesListItem>> batches = new HashMap<>()
             List<SpeciesListItem> searchBatch = new ArrayList<SpeciesListItem>()
             if (id) {
                 items = SpeciesListItem.findAllByDataResourceUid(id, [max: BATCH_SIZE, offset: offset])
@@ -481,10 +486,16 @@ class SpeciesListController {
 
             SpeciesListItem.withSession { session ->
                 items.eachWithIndex { SpeciesListItem item, Integer i ->
+                    SpeciesList speciesList = item.mylist
+                    List<SpeciesListItem> batch = batches.get(speciesList)
+                    if (batch == null) {
+                        batch = new ArrayList<>();
+                        batches.put(speciesList, batch)
+                    }
                     String rawName = item.rawScientificName
-                    log.debug i + ". Rematching: " + rawName
+                    log.debug i + ". Rematching: " + rawName + "/" + speciesList.dataResourceUid
                     if (rawName && rawName.length() > 0) {
-                        searchBatch.add(item)
+                        batch.add(item)
                     } else {
                         item.guid = null
                         if (!item.save(flush: true)) {
@@ -492,12 +503,13 @@ class SpeciesListController {
                         }
                     }
                 }
-
-                helperService.matchAll(searchBatch)
-                searchBatch.each {SpeciesListItem item ->
-                    if (item.guid) {
-                        guidBatch.push(item.guid)
-                        sliBatch.push(item)
+                batches.each { list, batch ->
+                    helperService.matchAll(batch, list)
+                    batch.each {SpeciesListItem item ->
+                        if (item.guid) {
+                            guidBatch.push(item.guid)
+                            sliBatch.push(item)
+                        }
                     }
                 }
 
@@ -522,7 +534,7 @@ class SpeciesListController {
     private parseDataFromCSV(CSVReader csvReader, String separator) {
         def rawHeader = csvReader.readNext()
         log.debug(rawHeader.toList()?.toString())
-        def parsedHeader = helperService.parseHeader(rawHeader) ?: helperService.parseData(rawHeader)
+        def parsedHeader = columnMatchingService.parseHeader(rawHeader) ?: helperService.parseData(rawHeader)
         def processedHeader = parsedHeader.header
         log.debug(processedHeader?.toString())
         def dataRows = new ArrayList<String[]>()
@@ -531,7 +543,7 @@ class SpeciesListController {
             dataRows.add(helperService.parseRow(currentLine.toList()))
             currentLine = csvReader.readNext()
         }
-        def nameColumns = helperService.speciesNameColumns + helperService.commonNameColumns
+        def nameColumns = columnMatchingService.speciesNameMatcher.names + columnMatchingService.commonNameMatcher.names
         if (processedHeader.find {
             it == "scientific name" || it == "vernacular name" || it == "common name" || it == "ambiguous name"
         } && processedHeader.size() > 0) {
