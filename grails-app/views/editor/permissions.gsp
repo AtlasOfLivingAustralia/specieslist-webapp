@@ -46,7 +46,7 @@
         %{--<g:each in="${speciesList.editors}" var="editor">--}%
         <g:each in="${editorsWithDetails}" var="editor">
             <tr class='editor'>
-                <td class='userEmail' data-useremail='${editor.email}'>${editor.email}</td>
+                <td class='userEmail' data-useremail='${editor.userName}'>${editor.userName}</td>
                 <td>${message(code:'permissions.lists.tablecolumn.editor', default:'editor')}</td>
                 <td>${removeLink}</td>
             </tr>
