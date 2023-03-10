@@ -124,9 +124,9 @@ dependencies {
     testImplementation "org.seleniumhq.selenium:selenium-firefox-driver:3.14.0"
 
     // ALA
-    implementation "org.grails.plugins:ala-auth:5.2.0-SNAPSHOT"
-    implementation "org.grails.plugins:ala-ws-security-plugin:4.4.0-SNAPSHOT"
-    implementation "org.grails.plugins:ala-ws-plugin:3.2.0-SNAPSHOT"
+    implementation "org.grails.plugins:ala-auth:6.0.0-SNAPSHOT"
+    implementation "org.grails.plugins:ala-ws-security-plugin:6.0.0-SNAPSHOT"
+    implementation "org.grails.plugins:ala-ws-plugin:6.0.0-SNAPSHOT"
     runtimeOnly "org.grails.plugins:ala-bootstrap3:4.1.0"
     runtimeOnly ("org.grails.plugins:ala-admin-plugin:2.3.0") {
         exclude module: "cache"
