@@ -67,7 +67,7 @@ class EditorController {
             if (detailed) {
                 editorsWithDetails.add(detailed)
             } else {
-                editorsWithDetails.add([userId: editor, displayName:'', userName: ''])
+                editorsWithDetails.add([userId: editor, displayName:'', userName: '', email: ''])
             }
         }
         editorsWithDetails
