@@ -127,7 +127,7 @@ dependencies {
     implementation "org.grails.plugins:ala-auth:6.0.0-SNAPSHOT"
     implementation "org.grails.plugins:ala-ws-security-plugin:6.0.0-SNAPSHOT"
     implementation "org.grails.plugins:ala-ws-plugin:6.0.0-SNAPSHOT"
-    runtimeOnly "org.grails.plugins:ala-bootstrap3:4.1.0"
+    implementation "au.org.ala:userdetails-service-client:6.0.0-SNAPSHOT"
     runtimeOnly ("org.grails.plugins:ala-admin-plugin:2.3.0") {
         exclude module: "cache"
     }
