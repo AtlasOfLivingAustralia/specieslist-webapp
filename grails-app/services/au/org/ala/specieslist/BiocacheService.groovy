@@ -28,7 +28,7 @@ class BiocacheService {
     def getQid(guids, unMatchedNames, title, wkt){
         def http = new HTTPBuilder(grailsApplication.config.biocacheService.baseURL +"/webportal/params")
         // check apiGateway.enabled since "/webportal/params" is deprecated and replaced with generated "qio" (protected in APi Gateway)
-        if(grailsApplication.config.apiGateway.enabled){
+        if(grailsApplication.config.getProperty("apiGateway.enabled", Boolean, false)){
             http = new HTTPBuilder(grailsApplication.config.biocacheService.baseURL +"/qid")
             // /qid POST is protected on API Gateway - generate and include a JWT in the request
             http.setHeaders([Authorization: "Bearer ${webService.getTokenService().getAuthToken(false)}"])
