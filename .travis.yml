@@ -6,7 +6,7 @@ branches:
   only:
   - master
   - develop
-  - feature/lists-cognito
+  - feature/grails5
   - bug/issue-225
 
 before_install:
