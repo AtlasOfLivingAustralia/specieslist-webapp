@@ -15,6 +15,8 @@
 
 package au.org.ala.specieslist
 
+import au.org.ala.names.ws.api.SearchStyle
+
 class SpeciesList {
     def authService
 
@@ -29,6 +31,7 @@ class SpeciesList {
     String wkt
     Date dateCreated
     Date lastUpdated
+    Date lastUploaded
     ListType listType
     Boolean isPrivate
     Boolean isSDS
@@ -42,8 +45,9 @@ class SpeciesList {
     String generalisation
     String category
     String sdsType
+    Boolean looseSearch // if undefined use the server default
+    SearchStyle searchStyle // if undefined use the server default
     String ownerFullName // derived by concatenating the firstName and surname fields
-
     static transients = [ "fullName" ]
 
     static hasMany = [items: SpeciesListItem, editors: String]
@@ -67,6 +71,9 @@ class SpeciesList {
         generalisation(nullable: true)
         authority(nullable:  true)
         sdsType nullable:  true
+        looseSearch nullable: true
+        searchStyle nullable: true
+        lastUploaded nullable: true
         userId nullable: true
         ownerFullName nullable: true // derived
     }
