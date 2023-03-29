@@ -23,6 +23,8 @@ class AdminController {
 
     def index() { redirect(action: 'speciesLists') }
 
+
+    // Access managed by AdminInterceptor
     def syncMetadataForLists(){
         SpeciesList.all.each { list ->
             //update the list metadata in the collectory
@@ -43,6 +45,7 @@ class AdminController {
         render(status:201, text:'done')
     }
 
+    // Access managed by AdminInterceptor
     def speciesLists(){
         String searchTerm = null
         params.q = params.q?.trim()
@@ -71,6 +74,7 @@ class AdminController {
         }
     }
 
+    // Access managed by AdminInterceptor
     def updateListsWithUserIds() {
         Boolean successful = userDetailsService.updateSpeciesListUserDetails()
         render(status: successful ? 200 : 404, text: "Update of editors was ${(successful)?'':'not'} successful")

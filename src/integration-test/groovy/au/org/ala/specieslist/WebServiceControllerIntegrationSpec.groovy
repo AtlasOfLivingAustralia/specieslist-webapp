@@ -47,6 +47,10 @@ class WebServiceControllerIntegrationSpec extends Specification {
 
         helperService = new HelperService() // not a mock - we want to use the real service here
 //        helperService.transactionManager = transactionManager
+
+        setup:
+        controller.setAuthService([getUserId: { null }] as AuthService)
+        controller.setLocalAuthService([isAdmin: { false }] as LocalAuthService)
     }
 
     def "saveList version 1 should support JSON requests with a comma separated list of item names"() {
@@ -146,6 +150,15 @@ class WebServiceControllerIntegrationSpec extends Specification {
                 kvp.save(flush: true)
             }
         }
+        (1..2).each {
+            SpeciesList sl = new SpeciesList(dataResourceUid: "dr${it}", isPrivate: false, listName: "${it}", username: "${it}")
+
+            if (!sl.save(flush: true)) {
+                sl.errors.allErrors.each {
+                    println it
+                }
+            }
+        }
 
         when:
         controller.params.druid = "dr1,dr2"
@@ -162,6 +175,15 @@ class WebServiceControllerIntegrationSpec extends Specification {
         (1..6).each {
             SpeciesListKVP kvp = new SpeciesListKVP(key: "key${it}", value: "value${it}", dataResourceUid: "dr${it <= 3 ? '1' : '2'}", itemOrder: 1)
             kvp.save(flush: true, failOnError: true)
+        }
+        (1..2).each {
+            SpeciesList sl = new SpeciesList(dataResourceUid: "dr${it}", isPrivate: false, listName: "${it}", username: "${it}")
+
+            if (!sl.save(flush: true)) {
+                sl.errors.allErrors.each {
+                    println it
+                }
+            }
         }
 
         when:
