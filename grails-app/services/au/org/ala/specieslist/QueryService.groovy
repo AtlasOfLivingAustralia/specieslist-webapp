@@ -243,7 +243,7 @@ class QueryService {
     }
 
     def getTagFacetCounts(params, List itemIds){
-        getTypeFacetCounts(params, false, itemIds)
+        getTagFacetCounts(params, false, itemIds)
     }
 
     def getTypeFacetCounts(params, boolean hidePrivateLists, List itemIds) {
@@ -482,7 +482,7 @@ class QueryService {
             default: value; break;
         }
     }
-    
+
     /**
      * Constructs a query based on the filters that have been applied in the KVPs etc.
      * @param base

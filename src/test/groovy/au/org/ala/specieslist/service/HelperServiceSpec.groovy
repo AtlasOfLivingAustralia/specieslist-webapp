@@ -160,7 +160,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
 
         when:
         def itemCounts = helperService.loadSpeciesListFromCSV(reader, "Dr1", "listname", null, "description",
-                "url", "listWkt", false, false, false, false, false, false,  "region", "authority", "category", "generalistaion", "sdsType",
+                "url", "listWkt", false, false, false, false, false, false, "region", "authority", "category", "generalistaion", "sdsType",
                 false, SearchStyle.STRICT, (String[]) ["Header1", "Header2", "Header3"], [:])
 
         then:
