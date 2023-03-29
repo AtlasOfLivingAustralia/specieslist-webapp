@@ -33,6 +33,8 @@ class SpeciesListItemController {
 
     /**
      * Public display of a species list
+     *
+     * Access controlled by SpeciesListItemInterceptor
      */
     def list(){
         doListDisplay(params)
@@ -42,6 +44,8 @@ class SpeciesListItemController {
      * There is no functional difference between listAuth and list. This method has been retained to support existing
      * links/bookmarks/etc that may refer to it. Both URLs are in the authenticateOnlyIfLoggedInFilterPattern list
      * for CAS authentication.
+     *
+     * Access controlled by SpeciesListItemInterceptor
      */
     def listAuth() {
         doListDisplay(params)
@@ -51,6 +55,8 @@ class SpeciesListItemController {
      * Special (simple) page for displaying "Australia's Species", linked from homepage.
      *
      * @return
+     *
+     * Access controlled by SpeciesListItemInterceptor
      */
     def iconicSpecies() {
         params.id = params.id?:grailsApplication.config.iconicSpecies?.uid?:""
@@ -153,24 +159,11 @@ class SpeciesListItemController {
         }
     }
 
-    //Todo: not used ?
-    def facetsvalues(){
-        if(params.id){
-          def result = SpeciesListItem.executeQuery('select kvp.key, kvp.value, kvp.vocabValue, count(sli) as cnt ' +
-                  'from SpeciesListItem as sli join sli.kvpValues  as kvp where sli.dataResourceUid=:dataResourceUid ' +
-                  'group by kvp.key, kvp.value, kvp.vocabValue order by kvp.key,cnt desc', [dataResourceUid: params.id])
-          //group the same properties keys together
-          def properties = result.groupBy { it[0] }
-          def map = [:]
-          map.listProperties = properties
-          render map as JSON
-        }
-        null
-    }
-
     /**
      * Downloads the records for the supplied species list
      * @return
+     *
+     * Access controlled by SpeciesListItemInterceptor
      */
     def downloadList(){
         if (params.id){
@@ -201,19 +194,6 @@ class SpeciesListItemController {
 
             response.addHeader("Content-Disposition", "attachment;filename="+filename);
             render(contentType: 'text/csv', text:out.toString())
-        }
-    }
-
-    /**
-     * Returns BIE details about the supplied guid
-     * @return
-     */
-    def itemDetails(){
-        log.debug("Returning item details for " + params)
-        if(params.guids){
-            render bieService.bulkLookupSpecies(params.guid) as JSON
-        } else {
-            null
         }
     }
 }

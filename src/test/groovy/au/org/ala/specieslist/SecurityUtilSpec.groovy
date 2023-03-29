@@ -40,7 +40,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
 
         when: "checkListAccess is called for a public list"
 
-        boolean canAccess = util.checkListAccess(listId)
+        boolean canAccess = util.checkViewAccess(listId)
 
         then: "it should always return true"
         assert canAccess
@@ -58,7 +58,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
 
         when: "checkListAccess is called for a private list but the user is an admin"
 
-        boolean canAccess = util.checkListAccess(listId)
+        boolean canAccess = util.checkViewAccess(listId)
 
         then: "it should always return true"
         assert canAccess
@@ -75,7 +75,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
 
         when: "checkListAccess is called for a private list that the user owns"
 
-        boolean canAccess = util.checkListAccess(listId)
+        boolean canAccess = util.checkViewAccess(listId)
 
         then: "it should return true"
         assert canAccess
@@ -94,7 +94,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
 
         when: "checkListAccess is called for a private list that the user doesn't own but can edit"
 
-        boolean canAccess = util.checkListAccess(listId)
+        boolean canAccess = util.checkViewAccess(listId)
 
         then: "it should return true"
         assert canAccess
@@ -111,7 +111,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
 
         when: "checkListAccess is called for a private list when there is no logged in user"
 
-        boolean canAccess = util.checkListAccess(listId)
+        boolean canAccess = util.checkViewAccess(listId)
 
         then: "it should always return false"
         assert !canAccess
@@ -128,7 +128,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
 
         when: "checkListAccess is called for a public list when there is no logged in user"
 
-        boolean canAccess = util.checkListAccess(listId)
+        boolean canAccess = util.checkViewAccess(listId)
 
         then: "it should always return true"
         assert canAccess
@@ -149,7 +149,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
         "checkListAccess is called for a private list that the user does not own and cannot edit (and is not " +
                 "an admin)"
 
-        boolean canAccess = util.checkListAccess(listId)
+        boolean canAccess = util.checkViewAccess(listId)
 
         then: "it should return false"
         assert !canAccess

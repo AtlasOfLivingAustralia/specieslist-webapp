@@ -22,7 +22,7 @@ class SecurityUtil {
     LocalAuthService localAuthService
     AuthService authService
 
-    boolean checkListAccess(String druid) {
+    boolean checkViewAccess(String druid) {
         boolean canAccess = true
 
         if (!localAuthService.isAdmin()) {
@@ -32,6 +32,20 @@ class SecurityUtil {
                 if (!userId || (list.userId != userId && !list.editors?.contains(userId))) {
                     canAccess = false
                 }
+            }
+        }
+
+        canAccess
+    }
+
+    boolean checkEditAccess(String druid) {
+        boolean canAccess = true
+
+        if (!localAuthService.isAdmin()) {
+            SpeciesList list = SpeciesList.findByDataResourceUid(druid)
+            String userId = authService.getUserId()
+            if (!userId || (list.userId != userId && !list.editors?.contains(userId))) {
+                canAccess = false
             }
         }
 

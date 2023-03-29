@@ -269,6 +269,48 @@ class QueryService {
         return facets
     }
 
+    /**
+     * Fina all private lists that the current user can view.
+     *
+     * @param includePublicLists
+     * @param hidePrivateLists
+     */
+    def visibleLists(boolean includePublicLists, boolean hidePrivateLists) {
+        def c = SpeciesList.createCriteria()
+        def lists = c.get {
+            projections {
+                DATA_RESOURCE_UID
+            }
+            or {
+                if (includePublicLists) {
+                    // Include public lists.
+                    isNull(IS_PRIVATE)
+                    eq(IS_PRIVATE, false)
+                }
+
+                if (hidePrivateLists && !localAuthService.isAdmin()) {
+
+                    if (authService.getUserId()) {
+                        // Include only permitted private lists when logged in
+                        and {
+                            // Find private lists owned by the user or where the user is an editor.
+                            eq(IS_PRIVATE, true)
+                            or {
+                                eq(USER_ID, authService.getUserId())
+                                sqlRestriction(EDITOR_SQL_RESTRICTION, [authService.getUserId()])
+                            }
+                        }
+                    }
+                } else {
+                    // Include private lists.
+                    eq(IS_PRIVATE, true)
+                }
+            }
+        }
+
+        lists
+    }
+
     def getFacetCount(params, facetField, facetValue, boolean hidePrivateLists, List itemIds) {
         def speciesListProperties = getSpeciesListProperties()
         def c = SpeciesList.createCriteria()
@@ -419,7 +461,6 @@ class QueryService {
         def speciesListProperties = getSpeciesListProperties()
         def c = SpeciesListItem.createCriteria()
 
-        //log.debug("CRITERIA METHODS: " +criteriaMethods)
         c.list(props += params) {
             //set the results transformer so that we don't get duplicate records because of
             // the 1:many relationship between a list item and KVP
@@ -564,7 +605,6 @@ class QueryService {
     }
 
     List<Integer> getFilterSpeciesListItemsIds(params) {
-//        long now = System.currentTimeMillis()
         def itemIds = null
 
         def qValue = params.q
@@ -584,9 +624,7 @@ class QueryService {
             }
 
             itemIds = itemIds.unique()
-//            println(itemIds.unique().join(','))
         }
-//        println("itemsIds time taken: " + (System.currentTimeMillis() - now) + " ms");
         itemIds
     }
 
