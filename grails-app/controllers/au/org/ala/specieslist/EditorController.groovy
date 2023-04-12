@@ -94,7 +94,7 @@ class EditorController {
 
         if (params.action == "addRecordScreen") {
             def speciesList = SpeciesList.findByDataResourceUid(params.id)
-            if (!isCurrentUserEditorForList(sl)) {
+            if (!isCurrentUserEditorForList(speciesList)) {
                 render(text: "You are not authorised to access this page", status: 403 )
                 return
             }
