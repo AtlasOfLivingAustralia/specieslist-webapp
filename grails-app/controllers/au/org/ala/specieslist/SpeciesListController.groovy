@@ -34,6 +34,7 @@ class SpeciesListController {
     HelperService helperService
     ColumnMatchingService columnMatchingService
     AuthService authService
+    LocalAuthService localAuthService
     BieService bieService
     BiocacheService biocacheService
     LoggerService loggerService
