@@ -29,6 +29,8 @@ apply plugin:"com.bertramlabs.asset-pipeline"
 apply plugin:"org.grails.grails-gsp"
 apply plugin:"maven-publish"
 
+def alaSecurityLibsVersion='6.0.0'
+
 publishing {
     repositories {
         maven {
@@ -123,11 +125,11 @@ dependencies {
     testImplementation "org.seleniumhq.selenium:selenium-firefox-driver:3.14.0"
 
     // ALA
-    implementation "org.grails.plugins:ala-auth:6.0.0-SNAPSHOT"
-    implementation "org.grails.plugins:ala-ws-security-plugin:6.0.0-SNAPSHOT"
-    implementation "org.grails.plugins:ala-ws-plugin:6.0.0-SNAPSHOT"
+    implementation "org.grails.plugins:ala-auth:$alaSecurityLibsVersion"
+    implementation "org.grails.plugins:ala-ws-security-plugin:$alaSecurityLibsVersion"
+    implementation "org.grails.plugins:ala-ws-plugin:$alaSecurityLibsVersion"
     runtimeOnly "org.grails.plugins:ala-bootstrap3:4.1.0"
-    implementation "au.org.ala:userdetails-service-client:6.0.0-SNAPSHOT"
+    implementation "au.org.ala:userdetails-service-client:$alaSecurityLibsVersion"
     runtimeOnly ("org.grails.plugins:ala-admin-plugin:2.3.0") {
         exclude module: "cache"
     }
