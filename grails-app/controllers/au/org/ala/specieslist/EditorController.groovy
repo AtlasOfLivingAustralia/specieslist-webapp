@@ -37,6 +37,7 @@ class EditorController {
             //redirect(controller: "public", action: "speciesLists")
             render(text: message, status: 404 )
         } else if (!isCurrentUserEditorForList(speciesList)) {
+            def message = "You are not authorised to access this page"
             //redirect(controller: "public", action: "speciesLists")
             render(text: "You are not authorised to access this page", status: 403 )
         } else {
@@ -94,7 +95,7 @@ class EditorController {
 
         if (params.action == "addRecordScreen") {
             def speciesList = SpeciesList.findByDataResourceUid(params.id)
-            if (!isCurrentUserEditorForList(sl)) {
+            if (!isCurrentUserEditorForList(speciesList)) {
                 render(text: "You are not authorised to access this page", status: 403 )
                 return
             }

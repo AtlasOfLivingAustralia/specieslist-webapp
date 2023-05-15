@@ -137,6 +137,7 @@ dependencies {
     implementation 'au.org.ala:ala-cas-client:3.0.0'
     implementation ("au.org.ala.names:ala-namematching-client:1.9-SNAPSHOT") {
         exclude group: "com.squareup.okhttp3", module: "okhttp"
+        exclude module: "jsr250-api"
     }
     implementation 'au.org.ala.plugins:openapi:1.1.0'
 

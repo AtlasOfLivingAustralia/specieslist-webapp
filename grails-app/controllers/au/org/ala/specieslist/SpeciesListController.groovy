@@ -34,6 +34,7 @@ class SpeciesListController {
     HelperService helperService
     ColumnMatchingService columnMatchingService
     AuthService authService
+    LocalAuthService localAuthService
     BieService bieService
     BiocacheService biocacheService
     LoggerService loggerService
@@ -368,7 +369,7 @@ class SpeciesListController {
             def guids = getGuidsForList(params.id,grailsApplication.config.downloadLimit)
             def speciesList = isdr?SpeciesList.findByDataResourceUid(params.id):SpeciesList.get(params.id)
 
-            if (speciesList && !isCurrentUserEditorForList(speciesList)) {
+            if (speciesList && !isViewable(speciesList)) {
                 response.sendError(401, "Not authorised.")
                 return
             }
@@ -392,11 +393,20 @@ class SpeciesListController {
         SpeciesListItem.executeQuery("select sli.guid  " + baseQueryAndParams[0] + " and sli.guid is not null", baseQueryAndParams[1] ,[max: limit])
     }
 
+    def getUnmatchedNamesForList(id, limit) {
+        def fqs = params.fq?[params.fq].flatten().findAll{ it != null }:null
+        def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id)
+        def isdr =id.startsWith("dr")
+        //def where = isdr? "dataResourceUid=?":"id = ?"
+        def names = SpeciesListItem.executeQuery("select sli.rawScientificName  " + baseQueryAndParams[0] + " and sli.guid is null", baseQueryAndParams[1] ,[max: limit])
+        return names
+    }
+
     def spatialPortal(){
         if (params.id && params.type){
             //if the list is authoritative, then just do ?q=species_list_uid:
             SpeciesList splist = SpeciesList.findByDataResourceUid(params.id)
-            if (splist && !isCurrentUserEditorForList(splist)) {
+            if (splist && !isViewable(splist)) {
                 response.sendError(401, "Not authorised.")
                 return
             }
@@ -428,7 +438,7 @@ class SpeciesListController {
             redirect(url:biocacheService.getQueryUrlForList(params.id))
         } else if (params.id && params.type){
             def splist = SpeciesList.findByDataResourceUid(params.id)
-            if (splist && !isCurrentUserEditorForList(splist)) {
+            if (splist && !isViewable(splist)) {
                 response.sendError(401, "Not authorised.")
                 return
             }
