@@ -18,7 +18,6 @@ plugins {
 
 version "4.0.6-SNAPSHOT"
 
-
 group "au.org.ala"
 
 apply plugin:"eclipse"
@@ -125,11 +124,11 @@ dependencies {
     testImplementation "org.seleniumhq.selenium:selenium-firefox-driver:3.14.0"
 
     // ALA
-    implementation "org.grails.plugins:ala-auth:6.0.0-SNAPSHOT"
-    implementation "org.grails.plugins:ala-ws-security-plugin:6.0.0-SNAPSHOT"
-    implementation "org.grails.plugins:ala-ws-plugin:6.0.0-SNAPSHOT"
+    implementation "org.grails.plugins:ala-auth:$alaSecurityLibsVersion"
+    implementation "org.grails.plugins:ala-ws-security-plugin:$alaSecurityLibsVersion"
+    implementation "org.grails.plugins:ala-ws-plugin:$alaSecurityLibsVersion"
     runtimeOnly "org.grails.plugins:ala-bootstrap3:4.1.0"
-    implementation "au.org.ala:userdetails-service-client:6.0.0-SNAPSHOT"
+    implementation "au.org.ala:userdetails-service-client:$alaSecurityLibsVersion"
     runtimeOnly ("org.grails.plugins:ala-admin-plugin:2.3.0") {
         exclude module: "cache"
     }
@@ -138,6 +137,7 @@ dependencies {
     implementation ("au.org.ala.names:ala-namematching-client:1.9-SNAPSHOT") {
         exclude group: "com.squareup.okhttp3", module: "okhttp"
         exclude module: "jsr250-api"
+        exclude module: "sisu-guava"
     }
     implementation 'au.org.ala.plugins:openapi:1.1.0'
 
@@ -185,11 +185,8 @@ tasks.withType(GroovyCompile) {
 tasks.withType(Test) {
     systemProperty "geb.env", System.getProperty('geb.env')
     systemProperty "geb.build.reportsDir", reporting.file("geb/integrationTest")
-//    systemProperty "webdriver.chrome.driver", System.getProperty('webdriver.chrome.driver')
-//    systemProperty "webdriver.gecko.driver", System.getProperty('webdriver.gecko.driver')
-    testLogging {
-        exceptionFormat = 'full'
-    }
+    systemProperty "webdriver.chrome.driver", System.getProperty('webdriver.chrome.driver')
+    systemProperty "webdriver.gecko.driver", System.getProperty('webdriver.gecko.driver')
 }
 
 
