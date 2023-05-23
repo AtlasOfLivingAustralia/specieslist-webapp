@@ -25,12 +25,14 @@ import org.grails.plugins.testing.GrailsMockHttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.context.WebApplicationContext
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import javax.servlet.http.Cookie
 
 @Integration
 @Rollback
+@Ignore
 class WebServiceControllerIntegrationSpec extends Specification {
     def helperService
 

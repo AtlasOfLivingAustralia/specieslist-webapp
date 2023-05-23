@@ -232,18 +232,18 @@ security:
     apikey:
         enabled: true
         auth:
-            serviceUrl: https://auth-dev.ala.org.au/apikey/ws/check/
+            serviceUrl: https://auth-dev.ala.org.au/apikey/
         check:
             serviceUrl: https://auth-dev.ala.org.au/apikey/ws/check?apikey=
         userdetails:
-            serviceUrl: https://auth-dev.ala.org.au/userdetails/userDetails/
+            serviceUrl: https://auth-dev.ala.org.au/userdetails/
 
 webservice:
     jwt: true
     jwt-scopes: "openid users/read"
 
 userDetails:
-    url: https://aws-auth-dev.ala.org.au/userdetails/
+    url: https://auth-test.ala.org.au/userdetails/
 
 speciesNameColumns: 'scientificname,scientific,sciname,sname,latinname,latin,taxon,taxonname,taxonomic name'
 commonNameColumns: 'commonname,common,vernacular,vernacularname'

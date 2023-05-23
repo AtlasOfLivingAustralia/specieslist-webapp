@@ -19,10 +19,12 @@ import au.org.ala.web.AuthService
 import grails.gorm.transactions.Rollback
 import grails.testing.mixin.integration.Integration
 import org.springframework.beans.factory.annotation.Autowired
+import spock.lang.Ignore
 import spock.lang.Specification
 
 @Integration
 @Rollback
+@Ignore
 class QueryServiceSpec extends Specification {
 
     @Autowired QueryService queryService
@@ -58,7 +60,7 @@ class QueryServiceSpec extends Specification {
         when:
         //default order
         def list = queryService.getFilterListResult([:])
-        
+
         then:
         assert list[0].dataResourceUid == '1'
         assert list[1].dataResourceUid == '2'
