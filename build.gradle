@@ -7,17 +7,17 @@ buildscript {
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "org.grails.plugins:hibernate5:7.0.5"
-        classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:2.0"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.2.4"
+        classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:2.6"
+        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.4.6"
     }
 }
 
 plugins {
-    id "com.gorylenko.gradle-git-properties" version "2.2.3"
+    id "com.gorylenko.gradle-git-properties" version "2.4.1"
 }
 
+version "4.0.6-SNAPSHOT"
 
-version "4.0.5-SNAPSHOT"
 group "au.org.ala"
 
 apply plugin:"eclipse"
@@ -42,28 +42,20 @@ publishing {
     }
     publications {
         mavenJar(MavenPublication) {
-            pom.withXml {
-                def pomNode = asNode()
-                pomNode.dependencyManagement.replaceNode {}
-
-                // simply remove dependencies without a version
-                // version-less dependencies are handled with dependencyManagement
-                // see https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/8 for more complete solutions
-                pomNode.dependencies.dependency.findAll {
-                    it.version.text().isEmpty()
-                }.each {
-                    it.replaceNode {}
-                }
-            }
-            from components.web
+            artifact bootWar
         }
     }
+}
+
+bootWar {
+    launchScript()
 }
 
 repositories {
     mavenLocal()
     maven { url "https://nexus.ala.org.au/content/groups/public/" }
     maven { url "https://repo.grails.org/grails/core" }
+    mavenCentral()
 }
 
 configurations {
@@ -73,87 +65,110 @@ configurations {
     }
 }
 
+configurations.all {
+    resolutionStrategy {
+        cacheDynamicVersionsFor 0, 'seconds'
+        cacheChangingModulesFor 0, 'seconds'
+    }
+}
+
 dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-    compile "org.springframework.boot:spring-boot-starter-logging"
-    compile "org.springframework.boot:spring-boot-autoconfigure"
-    compile "org.grails:grails-core"
-    compile "org.springframework.boot:spring-boot-starter-actuator"
-    compile "org.springframework.boot:spring-boot-starter-tomcat"
-    compile "org.grails:grails-web-boot"
-    compile "org.grails:grails-logging"
-    compile "org.grails:grails-plugin-rest"
-    compile "org.grails:grails-plugin-databinding"
-    compile "org.grails:grails-plugin-i18n"
-    compile "org.grails:grails-plugin-services"
-    compile "org.grails:grails-plugin-url-mappings"
-    compile "org.grails:grails-plugin-interceptors"
-    compile "org.grails.plugins:cache"
-    compile "org.grails.plugins:cache-ehcache:3.0.0"
-    compile "org.grails.plugins:async"
+    implementation "org.springframework.boot:spring-boot-starter-logging"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation "org.grails:grails-core"
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-tomcat"
+    implementation "org.grails:grails-web-boot"
+    implementation "org.grails:grails-logging"
+    implementation "org.grails:grails-plugin-rest"
+    implementation "org.grails:grails-plugin-databinding"
+    implementation "org.grails:grails-plugin-i18n"
+    implementation "org.grails:grails-plugin-services"
+    implementation "org.grails:grails-plugin-url-mappings"
+    implementation "org.grails:grails-plugin-interceptors"
+    implementation "org.grails.plugins:cache"
+    implementation "org.grails.plugins:cache-ehcache:3.0.0"
+    implementation "org.grails.plugins:async"
 
-    compile "org.grails.plugins:events"
-    compile "org.grails.plugins:hibernate5"
-    compile "org.hibernate:hibernate-core:5.4.18.Final"
-    compile "org.hibernate:hibernate-ehcache:5.4.9.Final"
+    implementation "org.grails.plugins:events"
+    implementation "org.grails.plugins:hibernate5"
+    implementation "org.hibernate:hibernate-core:5.4.18.Final"
+    implementation "org.hibernate:hibernate-ehcache:5.4.9.Final"
 
-    compile "org.grails.plugins:gsp"
+    implementation "org.grails.plugins:gsp"
     compileOnly "io.micronaut:micronaut-inject-groovy"
     console "org.grails:grails-console"
     profile "org.grails.profiles:web"
-    runtime "org.glassfish.web:el-impl:2.1.2-b03"
-    runtime "com.h2database:h2"
-    runtime "org.apache.tomcat:tomcat-jdbc"
-    runtime "javax.xml.bind:jaxb-api:2.3.1"
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:3.2.4"
-    compile "org.grails.plugins:external-config:2.0.0"
-    runtime "mysql:mysql-connector-java:8.0.23"
-    compile "org.codehaus.groovy.modules.http-builder:http-builder:0.7.1"
-    compile "org.nibor.autolink:autolink:0.5.0"
-    compile "com.opencsv:opencsv:3.7"
+    runtimeOnly "org.glassfish.web:el-impl:2.1.2-b03"
+    runtimeOnly "com.h2database:h2"
+    runtimeOnly "org.apache.tomcat:tomcat-jdbc"
+    runtimeOnly "javax.xml.bind:jaxb-api:2.3.1"
+    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.4.6"
+    implementation 'dk.glasius:external-config:3.1.1'
+    runtimeOnly "mysql:mysql-connector-java:8.0.23"
+    implementation "org.codehaus.groovy.modules.http-builder:http-builder:0.7.2"
+    implementation "org.nibor.autolink:autolink:0.5.0"
+    implementation "com.opencsv:opencsv:3.7"
 
-    runtime 'org.cache2k:cache2k-jcache:2.6.1.Final'
+    runtimeOnly group: 'org.cache2k', name: 'cache2k-jcache', version: '2.6.1.Final'
 
-    testCompile "io.micronaut:micronaut-inject-groovy"
-    testCompile "org.grails:grails-gorm-testing-support"
-    testCompile "org.mockito:mockito-core"
-    testCompile "org.grails:grails-web-testing-support"
-    testCompile "org.grails.plugins:geb"
-    testCompile "org.seleniumhq.selenium:selenium-remote-driver:3.14.0"
-    testCompile "org.seleniumhq.selenium:selenium-api:3.14.0"
-    testCompile "org.seleniumhq.selenium:selenium-support:3.14.0"
-    testRuntime "org.seleniumhq.selenium:selenium-chrome-driver:3.14.0"
-    testRuntime "org.seleniumhq.selenium:selenium-firefox-driver:3.14.0"
+    testImplementation "io.micronaut:micronaut-inject-groovy"
+    testImplementation "org.grails:grails-gorm-testing-support"
+    testImplementation "org.mockito:mockito-core"
+    testImplementation "org.grails:grails-web-testing-support"
+    testImplementation "org.grails.plugins:geb"
+    testImplementation "org.seleniumhq.selenium:selenium-remote-driver:3.14.0"
+    testImplementation "org.seleniumhq.selenium:selenium-api:3.14.0"
+    testImplementation "org.seleniumhq.selenium:selenium-support:3.14.0"
+    testImplementation "org.seleniumhq.selenium:selenium-firefox-driver:3.14.0"
 
     // ALA
-    compile "org.grails.plugins:ala-auth:5.1.1"
-    compile "org.grails.plugins:ala-ws-security-plugin:4.1.2"
-    compile "org.grails.plugins:ala-ws-plugin:3.1.1"
-    compile "au.org.ala:userdetails-service-client:2.0.0"
-    runtime "org.grails.plugins:ala-bootstrap3:4.1.0"
-    runtime ("org.grails.plugins:ala-admin-plugin:2.3.0") {
+    implementation "org.grails.plugins:ala-auth:$alaSecurityLibsVersion"
+    implementation "org.grails.plugins:ala-ws-security-plugin:$alaSecurityLibsVersion"
+    implementation "org.grails.plugins:ala-ws-plugin:$alaSecurityLibsVersion"
+    runtimeOnly "org.grails.plugins:ala-bootstrap3:4.1.0"
+    implementation "au.org.ala:userdetails-service-client:$alaSecurityLibsVersion"
+    runtimeOnly ("org.grails.plugins:ala-admin-plugin:2.3.0") {
         exclude module: "cache"
     }
 
-    compile 'au.org.ala:ala-cas-client:3.0.0'
-    compile ('au.org.ala.names:ala-namematching-client:1.9-SNAPSHOT') {
+    implementation 'au.org.ala:ala-cas-client:3.0.0'
+    implementation ("au.org.ala.names:ala-namematching-client:1.9-SNAPSHOT") {
         exclude group: "com.squareup.okhttp3", module: "okhttp"
+        exclude module: "jsr250-api"
+        exclude module: "sisu-guava"
     }
-    compile 'au.org.ala.plugins:openapi:1.1.0'
+    implementation 'au.org.ala.plugins:openapi:1.1.0'
 
-    compile 'org.gbif:gbif-common:0.37'
+    implementation 'org.gbif:gbif-common:0.37'
 }
 
 bootRun {
     ignoreExitValue true
     jvmArgs(
-        '-Dspring.output.ansi.enabled=always', 
-        '-noverify', 
+        '-Dspring.output.ansi.enabled=always',
+        '-noverify',
         '-XX:TieredStopAtLevel=1',
         '-Xmx1024m')
     sourceResources sourceSets.main
     String springProfilesActive = 'spring.profiles.active'
     systemProperty springProfilesActive, System.getProperty(springProfilesActive)
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+integrationTest {
+    systemProperties System.properties
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
 tasks.withType(GroovyCompile) {
@@ -162,10 +177,10 @@ tasks.withType(GroovyCompile) {
     }
 }
 
-webdriverBinaries {
-    chromedriver '2.45.0'
-    geckodriver '0.24.0'
-}
+//webdriverBinaries {
+//    chromedriver '2.45.0'
+//    geckodriver '0.24.0'
+//}
 
 tasks.withType(Test) {
     systemProperty "geb.env", System.getProperty('geb.env')

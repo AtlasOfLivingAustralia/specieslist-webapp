@@ -18,14 +18,14 @@ package au.org.ala.specieslist
 import au.org.ala.web.AuthService
 import org.apache.http.HttpStatus
 
-class SecurityInterceptor {
+class SpeciesListItemInterceptor {
 
 
     LocalAuthService localAuthService
     AuthService authService
 
-    SecurityInterceptor(){
-        match(controller:'speciesListItem', action:/(list|listAuth|downloadList)/)
+    SpeciesListItemInterceptor(){
+        match(controller:'speciesListItem', action:/(list|listAuth|downloadList|iconicSpecies)/)
     }
 
     boolean before () {
@@ -38,7 +38,7 @@ class SecurityInterceptor {
     private boolean checkSecurity(String druid, AuthService authService, LocalAuthService localAuthService) {
         SecurityUtil securityUtil = new SecurityUtil(localAuthService: localAuthService, authService: authService)
 
-        if (!securityUtil.checkListAccess(druid)) {
+        if (!securityUtil.checkViewAccess(druid)) {
             response.sendError(HttpStatus.SC_UNAUTHORIZED, "Not authorised")
             false
         } else {

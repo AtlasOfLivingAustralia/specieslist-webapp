@@ -23,7 +23,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 @Unroll
-class SecurityInterceptorSpec extends Specification implements InterceptorUnitTest<SecurityInterceptor>, DataTest {
+class SpeciesListItemInterceptorSpec extends Specification implements InterceptorUnitTest<SpeciesListItemInterceptor>, DataTest {
 
     def setupSpec(){
         mockDomains(SpeciesList)

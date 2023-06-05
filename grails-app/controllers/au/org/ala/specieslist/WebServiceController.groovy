@@ -87,10 +87,21 @@ class WebServiceController {
 
         def props = [fetch: [mylist: 'join']]
         log.debug("Distinct values " + field + " " + params)
-        def results = queryService.getFilterListItemResult(props, params, null, null, field)
+
+        // fetch lists that this user has access to view
+        def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
+        def list = queryService.visibleLists(true, hidePrivateLists)
+
+        def results = queryService.getFilterListItemResult(props, params, null, list, field)
         render results as JSON
     }
 
+    /**
+     *
+     * @return
+     *
+     * View Access controlled by WebServiceInterceptor
+     */
     @Operation(
         method = "GET",
         tags = "List Items",
@@ -181,12 +192,13 @@ class WebServiceController {
 
         def results = queryService.getFilterListItemResult(props, params, guid, lists, null)
 
-        //def results = lists ? SpeciesListItem.findAllByGuidAndDataResourceUidInList(guid, lists,props) : SpeciesListItem.findAllByGuid(guid,props)
-        //def result2 =results.collect {[id: it.id, dataResourceUid: it.dataResourceUid, guid: it.guid, kvpValues: it.kvpValue.collect{ id:it.}]
-
         log.debug("RESULTS: " + results)
 
-        def filteredRecords = results.findAll { !it.mylist.isPrivate }
+        // fetch lists that this user has access to view
+        def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
+        def permittedPrivateLists = queryService.visibleLists(false, hidePrivateLists)
+
+        def filteredRecords = results.findAll { !it.mylist.isPrivate || permittedPrivateLists.contains(it.dataResourceUid) }
 
         if (isBIE) {
             // BIE only want lists with isBIE == true
@@ -220,6 +232,8 @@ class WebServiceController {
      *
      * @param druid - the data resource uid for the list to return  (optional)
      * @param splist - optional instance (added by the beforeInterceptor)
+     *
+     * View Access controlled by WebServiceInterceptor
      */
     @Operation(
         method = "GET",
@@ -336,9 +350,9 @@ class WebServiceController {
                                  isInvasive     : it.isInvasive ?: false,
                                  isThreatened   : it.isThreatened ?: false,
                                  looseSearch    : it.looseSearch,
-                                 searchStyle    : it.searchStyle?.toString()
+                                 searchStyle    : it.searchStyle?.toString(),
+                                 wkt            : it.wkt
                                 ]
-
                             }]
             render retValue as JSON
         }
@@ -346,6 +360,8 @@ class WebServiceController {
 
     /**
      * Returns a summary list of items that form part of the supplied species list.
+     *
+     * View Access controlled by WebServiceInterceptor
      */
     @Operation(
         method = "GET",
@@ -472,6 +488,8 @@ class WebServiceController {
 
     /**
      * Returns a summary list of items that form part of the supplied species list.
+     *
+     * View Access controlled by WebServiceInterceptor
      */
     @Operation(
         method = "GET",
@@ -594,6 +612,12 @@ class WebServiceController {
         }
     }
 
+    /**
+     *
+     * @return
+     *
+     * View Access controlled by WebServiceInterceptor
+     */
     @Operation(
         method = "GET",
         tags = "List Items",
@@ -664,6 +688,8 @@ class WebServiceController {
      * - v1 (unstructured list items): {"listName": "list1",  "listType": "TEST", "listItems": "item1,item2,item3"}
      * - v2 (structured list items with KVP): { "listName": "list1", "listType": "TEST", "listItems": [ { "itemName":
      * "item1", "kvpValues": [ { "key": "key1", "value": "value1" }, { "key": "key2", "value": "value2" } ] } ] }
+     *
+     * Edit Access controlled by WebServiceInterceptor
      */
     @Operation(
         method = "POST",
@@ -767,21 +793,27 @@ class WebServiceController {
         }
     }
 
-    def created = { uid, guids ->
+    private def created = { uid, guids ->
         response.addHeader 'druid', uid
         response.status = 201
         def outputMap = [status: 200, message: 'added species list', druid: uid, data: guids]
         render outputMap as JSON
     }
 
-    def badRequest = { text ->
+    private def badRequest = { text ->
         render(status: 400, text: text)
     }
 
-    def notFound = { text ->
+    private def notFound = { text ->
         render(status: 404, text: text)
     }
 
+    /**
+     *
+     * @return
+     *
+     * Edit Access controlled by WebServiceInterceptor
+     */
     @Operation(
         method = "GET",
         tags = "List Items",
@@ -825,6 +857,12 @@ class WebServiceController {
         }
     }
 
+    /**
+     *
+     * TODO: Fix or remove this method. What uses this?
+     *
+     * @return
+     */
     @Operation(
         method = "GET",
         tags = "List Items",
@@ -881,7 +919,7 @@ class WebServiceController {
         out.close()
     }
 
-    def toCsv(value) {
+    private def toCsv(value) {
         if (!value) return ""
         return '"' + value.replaceAll('"', '~"') + '"'
     }
@@ -933,8 +971,10 @@ class WebServiceController {
         } else {
             List<String> druids = params.druid.split(",")
 
+            List<String> filteredDruids = druids.findAll {isViewable(SpeciesList.findByDataResourceUid(it)) }
+
             def kvps = SpeciesListKVP.withCriteria {
-                'in'("dataResourceUid", druids)
+                'in'("dataResourceUid", filteredDruids)
 
                 projections {
                     distinct("key")
@@ -998,9 +1038,12 @@ class WebServiceController {
             response.sendError(HttpStatus.SC_BAD_REQUEST, "Must provide a comma-separated list of druid value(s).")
         } else {
             List<String> druids = params.druid.split(",")
+
+            List<String> filteredDruids = druids.findAll { isViewable(SpeciesList.findByDataResourceUid(it)) }
+
             Set intersection = new HashSet();
 
-            druids?.each { druid ->
+            filteredDruids?.each { druid ->
                 def kvps = SpeciesListKVP.withCriteria {
                     'in'("dataResourceUid", [druid])
 
@@ -1077,6 +1120,8 @@ class WebServiceController {
             List<String> druids = params.druid.split(",")
             List<String> keys = params.keys.split(",")
 
+            List<String> filteredDruids = druids.findAll { isViewable(SpeciesList.findByDataResourceUid(it)) }
+
             def listItems = SpeciesListItem.withCriteria {
                 projections {
                     property "rawScientificName"
@@ -1086,7 +1131,7 @@ class WebServiceController {
                     }
                 }
 
-                'in'("dataResourceUid", druids)
+                'in'("dataResourceUid", filteredDruids)
 
                 kvpValues {
                     'in'("key", keys)
@@ -1167,7 +1212,14 @@ class WebServiceController {
             response.status = HttpStatus.SC_BAD_REQUEST
             response.sendError(HttpStatus.SC_BAD_REQUEST, "Must provide a JSON body with a mandatory list of scientific names to filter on. An optional list of data resource ids (drIds) can also be provided.")
         } else {
-            List<String> results = queryService.filterLists(json.scientificNames, json.drIds ?: null)
+
+            // fetch lists that this user has access to view
+            def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
+            def list = queryService.visibleLists(true, hidePrivateLists)
+
+            def filteredDrIds = json.drIds ? json.drIds.findAll { list.contains(it) } : list
+
+            List<String> results = queryService.filterLists(json.scientificNames, filteredDrIds)
 
             render results as JSON
         }
@@ -1252,6 +1304,35 @@ class WebServiceController {
         String message
         String driod
         List<String> guid
+    }
+
+    /**
+     * Check if list is public OR private and user is either owner, admin or on the specieslist's editors list.
+     */
+    private boolean isViewable(SpeciesList sl) {
+        def isAllowed = false
+        def loggedInUser = authService?.userId
+        def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
+
+        log.debug "Checking isCurrentUserEditorForList: loggedInUser = " + loggedInUser
+        if (!sl) {
+            log.debug "speciesList is null"
+            isAllowed = false // saves repeating this check in subsequent else if
+        } else if (!sl.isPrivate || !hidePrivateLists) {
+            isAllowed = true
+        } else if (sl.userId == loggedInUser) {
+            log.debug "user is owner"
+            isAllowed = true
+        } else if (localAuthService.isAdmin()) {
+            log.debug "user is ADMIN"
+            isAllowed = true
+        } else if (sl.editors.any { it == loggedInUser}) {
+            log.debug "user is in editors list: " + sl.editors.join("|")
+            isAllowed = true
+        }
+
+        log.debug "isAllowed = " + isAllowed
+        return isAllowed
     }
 
 

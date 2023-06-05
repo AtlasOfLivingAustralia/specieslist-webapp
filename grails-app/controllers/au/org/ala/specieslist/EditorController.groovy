@@ -39,7 +39,7 @@ class EditorController {
         } else if (!isCurrentUserEditorForList(speciesList)) {
             def message = "You are not authorised to access this page"
             //redirect(controller: "public", action: "speciesLists")
-            render(text: message, status: 403 )
+            render(text: "You are not authorised to access this page", status: 403 )
         } else {
             if (params.message)
                 flash.message = params.message
@@ -67,7 +67,7 @@ class EditorController {
             if (detailed) {
                 editorsWithDetails.add(detailed)
             } else {
-                editorsWithDetails.add([userId: editor, displayName:'', userName: ''])
+                editorsWithDetails.add([userId: editor, displayName:'', userName: '', email: ''])
             }
         }
         editorsWithDetails
@@ -95,6 +95,10 @@ class EditorController {
 
         if (params.action == "addRecordScreen") {
             def speciesList = SpeciesList.findByDataResourceUid(params.id)
+            if (!isCurrentUserEditorForList(speciesList)) {
+                render(text: "You are not authorised to access this page", status: 403 )
+                return
+            }
             log.debug "speciesList DRUid = " + speciesList.dataResourceUid
             // create new item (not actually saved in DB)
             sli = new SpeciesListItem(mylist: speciesList, dataResourceUid: speciesList.dataResourceUid)
@@ -102,6 +106,10 @@ class EditorController {
         }
         else  {
             sli = SpeciesListItem.get(params.id)
+            if (!isCurrentUserEditorForList(SpeciesList.findByDataResourceUid(sli.dataResourceUid))) {
+                render(text: "You are not authorised to access this page", status: 403 )
+                return
+            }
         }
 
         if (!sli) {
@@ -144,6 +152,11 @@ class EditorController {
     @Transactional
     def editRecord() {
         def sli = SpeciesListItem.get(params.id)
+        if (!isCurrentUserEditorForList(SpeciesList.findByDataResourceUid(sli.dataResourceUid))) {
+            render(text: "You are not authorised to access this page", status: 403 )
+            return
+        }
+
         log.debug "editRecord params = " + params
         log.debug "sli KVPs = " + sli.kvpValues
         if (sli) {
@@ -228,6 +241,11 @@ class EditorController {
      * Create a new SpeciesListItem
      */
     def createRecord() {
+        if (!isCurrentUserEditorForList(SpeciesList.get(params.id))) {
+            render(text: "You are not authorised to access this page", status: 403 )
+            return
+        }
+
         def response = helperService.createRecord(params)
         render(text: response.text, status: response.status)
     }
@@ -235,6 +253,11 @@ class EditorController {
     @Transactional
     def deleteRecord() {
         def sli = SpeciesListItem.get(params.id)
+
+        if (!isCurrentUserEditorForList(SpeciesList.findByDataResourceUid(sli.dataResourceUid))) {
+            render(text: "You are not authorised to access this page", status: 403 )
+            return
+        }
 
         if (sli) {
             // remove attached KVP records
@@ -273,6 +296,7 @@ class EditorController {
         if (!speciesList) {
             render(text: "Requested list with ID " + params.id + " was not found", status: 404);
         } else if (!localAuthService.isAdmin() && speciesList.userId != authService.userId) {
+            // can only be edited by admin or list owner
             render(text: "You are not authorised to modify permissions", status: 403 )
         } else {
             // get userID from authService using the supplied email list and add to speciesList editors
@@ -307,6 +331,7 @@ class EditorController {
         if (!speciesList) {
             render(text: "Requested list with ID " + params.id + " was not found", status: 404);
         } else if (!localAuthService.isAdmin() && speciesList.userId != authService.userId) {
+            // whole list only editable by admin or list owner
             render(text: "You are not authorised to modify this list", status: 403 )
         } else {
             // fix date format
