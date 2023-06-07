@@ -307,19 +307,10 @@ class HelperService {
     def parseHeadersCamelCase(List header) {
         def ret = []
         header.each {String it ->
-            StringBuilder word = new StringBuilder()
-            if (Character.isUpperCase(it.codePointAt(0))) {
-                for (int i = 0; i < it.size(); i++) {
-                    if (Character.isUpperCase(it[i] as char) && i != 0) {
-                        word << " "
-                    }
-                    word << it[i]
-                }
-
-                ret << word.toString()
-            }
-            else {
+            if (it.contains(' ')) {
                 ret << it
+            } else {
+                ret << StringUtils.splitByCharacterTypeCamelCase(it).join(' ')
             }
         }
 

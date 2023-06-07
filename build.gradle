@@ -136,7 +136,7 @@ dependencies {
     }
 
     compile 'au.org.ala:ala-cas-client:3.0.0'
-    compile ("au.org.ala.names:ala-namematching-client:1.7") {
+    compile ("au.org.ala.names:ala-namematching-client:1.8") {
         exclude group: "com.squareup.okhttp3", module: "okhttp"
     }
     compile 'au.org.ala.plugins:openapi:1.1.0'
@@ -147,8 +147,8 @@ dependencies {
 bootRun {
     ignoreExitValue true
     jvmArgs(
-        '-Dspring.output.ansi.enabled=always', 
-        '-noverify', 
+        '-Dspring.output.ansi.enabled=always',
+        '-noverify',
         '-XX:TieredStopAtLevel=1',
         '-Xmx1024m')
     sourceResources sourceSets.main
