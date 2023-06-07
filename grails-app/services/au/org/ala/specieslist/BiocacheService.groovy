@@ -23,9 +23,16 @@ class BiocacheService {
     static final int DEFAULT_TIMEOUT_MILLIS = 60000
 
     def grailsApplication
+    def webService
 
     def getQid(guids, unMatchedNames, title, wkt){
         def http = new HTTPBuilder(grailsApplication.config.biocacheService.baseURL +"/webportal/params")
+        // check apiGateway.enabled since "/webportal/params" is deprecated and replaced with generated "qio" (protected in APi Gateway)
+        if(grailsApplication.config.getProperty("apiGateway.enabled", Boolean, false)){
+            http = new HTTPBuilder(grailsApplication.config.biocacheService.baseURL +"/qid")
+            // /qid POST is protected on API Gateway - generate and include a JWT in the request
+            http.setHeaders([Authorization: "Bearer ${webService.getTokenService().getAuthToken(false)}"])
+        }
 
         http.getClient().getParams().setParameter("http.socket.timeout", getTimeout())
         def query = ""
