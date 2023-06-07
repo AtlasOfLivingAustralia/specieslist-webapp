@@ -51,7 +51,7 @@ class ColumnMatchingServiceSpec extends Specification implements ServiceUnitTest
         assert result?.header?.contains("scientific name")
         assert result?.header?.contains("Any Really Long Camel Case Header Name")
         assert result?.header?.contains("Österreich Name");
-        assert result?.header?.contains("conservationCode")
+        assert result?.header?.contains("conservation Code")
     }
 
 }
