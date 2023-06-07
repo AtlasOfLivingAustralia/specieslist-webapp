@@ -97,7 +97,7 @@ class ColumnMatchingService implements GrailsConfigurationAware {
      * Check find suitable names from a header
      *
      * @param header The header
-     * 
+     *
      * @return The results
      */
     def parseHeader(String[] header) {
@@ -130,19 +130,11 @@ class ColumnMatchingService implements GrailsConfigurationAware {
     // specieslist-webapp#50
     protected parseHeadersCamelCase(List header) {
         def ret = []
-        header.each { String it ->
-            StringBuilder word = new StringBuilder()
-            if (Character.isUpperCase(it.codePointAt(0))) {
-                for (int i = 0; i < it.size(); i++) {
-                    if (Character.isUpperCase(it[i] as char) && i != 0) {
-                        word << " "
-                    }
-                    word << it[i]
-                }
-
-                ret << word.toString()
-            } else {
+        header.each {String it ->
+            if (it.contains(' ')) {
                 ret << it
+            } else {
+                ret << org.apache.commons.lang.StringUtils.splitByCharacterTypeCamelCase(it).join(' ')
             }
         }
         ret
@@ -185,7 +177,7 @@ class ColumnMatchingService implements GrailsConfigurationAware {
         String column;
         String[] names
         Set<String> matches
-        
+
         ColumnMatcher(String column, String names) {
             this.column = column;
             this.names = names?.split(',') ?: []

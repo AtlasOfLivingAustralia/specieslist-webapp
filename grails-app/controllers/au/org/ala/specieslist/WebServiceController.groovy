@@ -765,7 +765,7 @@ class WebServiceController {
                     def druid = params.druid
 
                     // This is passed in from web service call to make sure it doesn't replace existing list
-                    if (jsonBody.replaceList != null) {
+                    if (jsonBody.replaceList == Boolean.FALSE) {
                         replaceList = jsonBody.replaceList
                     }
 

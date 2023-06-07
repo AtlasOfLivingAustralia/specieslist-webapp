@@ -175,6 +175,7 @@ class EditorController {
 
                     if (kvp) {
                         // old value was not empty - remove from this SLI
+                        sli.removeFromKvpValues(kvp)
                         kvpRemoveList.add(kvp)
                     }
 
@@ -201,7 +202,7 @@ class EditorController {
             // remove KVP items that have changed (need to do this separately to avoid java.util.ConcurrentModificationException)
             kvpRemoveList.each {
                 log.debug "Removing outdated kvp value: ${it}"
-                sli.removeFromKvpValues(it)
+                it.delete()
             }
 
             //check if name information has changed
