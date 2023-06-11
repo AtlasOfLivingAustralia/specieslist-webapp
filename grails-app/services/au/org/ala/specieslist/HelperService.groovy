@@ -350,6 +350,8 @@ class HelperService {
 
         List sli = speciesList.getItems().toList()
         matchCommonNamesForSpeciesListItems(sli)
+        speciesList.lastMatched = new Date()
+
         speciesList.save(flush: true, failOnError: true)
 
         [speciesList: speciesList, speciesGuids: guidList]
@@ -441,6 +443,7 @@ class HelperService {
         sl.looseSearch = looseSearch
         sl.searchStyle = searchStyle
         sl.lastUploaded = new Date()
+        sl.lastMatched = new Date()
         String [] nextLine
         boolean checkedHeader = false
         Map termIdx = columnMatchingService.getTermAndIndex(header)
@@ -491,6 +494,7 @@ class HelperService {
         sl.firstName = localAuthService.firstname()
         sl.surname = localAuthService.surname()
         sl.lastUploaded = new Date()
+        sl.lastMatched = new Date()
         while ((nextLine = reader.readNext()) != null) {
             if(org.apache.commons.lang.StringUtils.isNotBlank(nextLine)){
                 sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap, sl))
@@ -692,7 +696,10 @@ class HelperService {
             else if (sl.save()) {
                 // find common name and save it
                 matchCommonNamesForSpeciesListItems([sli])
+                sl.lastMatched = new Date()
+                sl.lastUploaded = new Date()
                 sl.save(flush: true)
+
                 // Commented out as we would like to keep species list generic
                 /*   def preferredSpeciesImageListName = grailsApplication.config.ala.preferred.species.name
                    if (sl.listName == preferredSpeciesImageListName) {

@@ -298,6 +298,7 @@ class WebServiceController {
                 dateCreated    : sl.dateCreated,
                 lastUpdated    : sl.lastUpdated,
                 lastUploaded   : sl.lastUploaded,
+                lastMatched    : sl.lastMatched,
                 username       : sl.username,
                 fullName       : sl.getFullName(),
                 itemCount      : sl.itemsCount,//SpeciesListItem.countByList(sl)
@@ -338,6 +339,7 @@ class WebServiceController {
                                  dateCreated    : it.dateCreated,
                                  lastUpdated    : it.lastUpdated,
                                  lastUploaded   : it.lastUploaded,
+                                 lastMatched    : it.lastMatched,
                                  username       : it.username,
                                  fullName       : it.getFullName(),
                                  itemCount      : it.itemsCount,
