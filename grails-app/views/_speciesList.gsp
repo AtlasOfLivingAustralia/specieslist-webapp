@@ -191,6 +191,8 @@
                                   title="${message(code: 'speciesList.name.dateCreated', default: 'Date Submitted')}"/>
                 <g:sortableColumn property="lastUpdated" params="${params}"
                                   title="${message(code: 'speciesList.name.lastUpdated', default: 'Date Updated')}"/>
+                <g:sortableColumn property="lastUploaded" params="${params}"
+                                  title="${message(code: 'speciesList.name.lastUploaded', default: 'Date Uploaded')}"/>
                 <g:sortableColumn property="itemsCount" params="${params}"
                                   title="${message(code: 'speciesList.name.count', default: 'Item Count')}"/>
                 <g:if test="${showActions && request.getUserPrincipal()}">
@@ -214,6 +216,7 @@
                     <td>${list.ownerFullName}</td>
                     <td><g:formatDate format="yyyy-MM-dd" date="${list.dateCreated}"/></td>
                     <td><g:formatDate format="yyyy-MM-dd" date="${list.lastUpdated}"/></td>
+                    <td><g:formatDate format="yyyy-MM-dd" date="${list.lastUploaded}"/></td>
                     <td>${list.itemsCount}</td>
                     <g:if test="${showActions && (list.username == request.remoteUser || request.isUserInRole("ROLE_ADMIN"))}">
                         <td>

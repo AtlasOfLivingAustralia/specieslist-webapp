@@ -486,6 +486,9 @@
             <dt>${message(code: 'speciesList.lastUploaded.label', default: 'Date last loaded')}</dt>
             <dd><g:formatDate format="yyyy-MM-dd"
                               date="${speciesList.lastUploaded}"/></dd>
+            <dt>${message(code: 'speciesList.lastMatched.label', default: 'Date last matched')}</dt>
+            <dd><g:formatDate format="yyyy-MM-dd"
+                              date="${speciesList.lastMatched}"/></dd>
             <dt>${message(code: 'speciesList.isPrivate.label', default: 'Is private')}</dt>
             <dd><g:formatBoolean boolean="${speciesList.isPrivate ?: false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.isBIE.label', default: 'Included in BIE')}</dt>

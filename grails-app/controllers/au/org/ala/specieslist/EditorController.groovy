@@ -152,6 +152,9 @@ class EditorController {
     @Transactional
     def editRecord() {
         def sli = SpeciesListItem.get(params.id)
+
+        def sl = sli.mylist
+
         if (!isCurrentUserEditorForList(SpeciesList.findByDataResourceUid(sli.dataResourceUid))) {
             render(text: "You are not authorised to access this page", status: 403 )
             return
@@ -177,6 +180,7 @@ class EditorController {
                         // old value was not empty - remove from this SLI
                         sli.removeFromKvpValues(kvp)
                         kvpRemoveList.add(kvp)
+                        sl.lastUploaded = new Date()
                     }
 
                     if (params[key]) {
@@ -217,6 +221,7 @@ class EditorController {
             if (changed) {
                 log.debug "re-matching name for ${params.rawScientificName}"
                 helperService.matchNameToSpeciesListItem(sli.rawScientificName, sli, sli.mylist)
+                sl.lastMatched = new Date()
             }
 
             if (!sli.validate()) {
@@ -225,6 +230,7 @@ class EditorController {
                 render(text: message, status: 500)
             }
             else if (sli.save(flush: true)) {
+                sl.save(flush: true)
                 def msg = message(code:'public.lists.view.table.edit.messages', default:'Record successfully created')
                 render(text: msg, status: 200)
             }
@@ -254,6 +260,9 @@ class EditorController {
     @Transactional
     def deleteRecord() {
         def sli = SpeciesListItem.get(params.id)
+
+        sli.mylist.lastUploaded = new Date()
+        sli.mylist.save(flush: true)
 
         if (!isCurrentUserEditorForList(SpeciesList.findByDataResourceUid(sli.dataResourceUid))) {
             render(text: "You are not authorised to access this page", status: 403 )
