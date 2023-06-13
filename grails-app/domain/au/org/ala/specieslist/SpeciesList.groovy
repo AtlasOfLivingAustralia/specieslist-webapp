@@ -32,6 +32,7 @@ class SpeciesList {
     Date dateCreated
     Date lastUpdated
     Date lastUploaded
+    Date lastMatched
     ListType listType
     Boolean isPrivate
     Boolean isSDS
@@ -74,6 +75,7 @@ class SpeciesList {
         looseSearch nullable: true
         searchStyle nullable: true
         lastUploaded nullable: true
+        lastMatched nullable: true
         userId nullable: true
         ownerFullName nullable: true // derived
     }
