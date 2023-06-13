@@ -31,22 +31,23 @@ class WebServiceInterceptor {
     boolean before() {
         //ensure that the supplied druid is valid
         log.debug("Prevalidating...")
-        if (params.druid) {
-            def list = SpeciesList.findByDataResourceUid(params.druid)
-            if (list) {
-                params.splist = list
+        String [] druids = params.druid?.split(',')
+        for (String druid : druids) {
+            def list = SpeciesList.findByDataResourceUid(druid)
+            params.splist = list
+
+            // view permissions
+            if (actionName == 'saveList' || actionName == 'markAsPublished') {
+                if (!checkEditSecurity(druid, authService, localAuthService)) {
+                    return false
+                }
             } else {
-                response.sendError(HttpStatus.SC_NOT_FOUND, "Unable to locate species list ${params.druid}")
-                return false
+                if (!checkViewSecurity(druid, authService, localAuthService)) {
+                    return false
+                }
             }
         }
-
-        // view permissions
-        if (actionName == 'saveList' || actionName == 'markAsPublished') {
-            return checkEditSecurity(params.druid, authService, localAuthService)
-        } else {
-            return checkViewSecurity(params.druid, authService, localAuthService)
-        }
+        return true
     }
 
     boolean after() { true }
