@@ -15,6 +15,8 @@
 
 package au.org.ala.specieslist
 
+import au.org.ala.userdetails.UserDetailsClient
+import au.org.ala.ws.security.authenticator.AlaApiKeyAuthenticator
 import grails.converters.JSON
 import groovy.sql.Sql
 import org.apache.commons.lang.WordUtils
@@ -24,7 +26,13 @@ class BootStrap {
     Sql groovySql
     def dataSource
 
+    UserDetailsClient userDetailsClient
+    def getAlaApiKeyClient
+
     def init = { servletContext ->
+
+        ((AlaApiKeyAuthenticator) getAlaApiKeyClient.authenticator).setUserDetailsClient(userDetailsClient)
+
         Object.metaClass.trimLength = {Integer stringLength ->
 
             String trimString = delegate?.toString()
