@@ -243,7 +243,7 @@ class QueryService {
     }
 
     def getTagFacetCounts(params, List itemIds){
-        getTypeFacetCounts(params, false, itemIds)
+        getTagFacetCounts(params, false, itemIds)
     }
 
     def getTypeFacetCounts(params, boolean hidePrivateLists, List itemIds) {
@@ -257,10 +257,58 @@ class QueryService {
     def getTagFacetCounts(params, boolean hidePrivateLists, List itemIds) {
         def facets = []
         getBooleanQueryFacets().each { key, facet ->
-            facets << [query: key + '=eq:true', label: facet.label, tooltip: facet.tooltip, count:  getFacetCount(params, key, true, hidePrivateLists, itemIds)]
+            // only add tagfacet to selectable facet  list if it is not already selected
+            if(params.get(key) == null){
+                facets << [query: key + '=eq:true', label: facet.label, tooltip: facet.tooltip, count:  getFacetCount(params, key, true, hidePrivateLists, itemIds)]
+            }
         }
-        facets << [query: WKT_QUERY, label:'spatialBounds.list.label', tooltip: 'spatialBounds.list.tooltip', count:  getFacetCount(params, WKT, null, hidePrivateLists, itemIds)]
+        // only add WKT fact to selectable facet list if it is not already selected
+        if(params.get(WKT) == null){
+            facets << [query: WKT_QUERY, label:'spatialBounds.list.label', tooltip: 'spatialBounds.list.tooltip', count:  getFacetCount(params, WKT, null, hidePrivateLists, itemIds)]
+        }
         return facets
+    }
+
+    /**
+     * Fina all private lists that the current user can view.
+     *
+     * @param includePublicLists
+     * @param hidePrivateLists
+     */
+    def visibleLists(boolean includePublicLists, boolean hidePrivateLists) {
+        def c = SpeciesList.createCriteria()
+        def lists = c.get {
+            projections {
+                DATA_RESOURCE_UID
+            }
+            or {
+                if (includePublicLists) {
+                    // Include public lists.
+                    isNull(IS_PRIVATE)
+                    eq(IS_PRIVATE, false)
+                }
+
+                if (hidePrivateLists && !localAuthService.isAdmin()) {
+
+                    if (authService.getUserId()) {
+                        // Include only permitted private lists when logged in
+                        and {
+                            // Find private lists owned by the user or where the user is an editor.
+                            eq(IS_PRIVATE, true)
+                            or {
+                                eq(USER_ID, authService.getUserId())
+                                sqlRestriction(EDITOR_SQL_RESTRICTION, [authService.getUserId()])
+                            }
+                        }
+                    }
+                } else {
+                    // Include private lists.
+                    eq(IS_PRIVATE, true)
+                }
+            }
+        }
+
+        lists
     }
 
     def getFacetCount(params, facetField, facetValue, boolean hidePrivateLists, List itemIds) {
@@ -413,7 +461,6 @@ class QueryService {
         def speciesListProperties = getSpeciesListProperties()
         def c = SpeciesListItem.createCriteria()
 
-        //log.debug("CRITERIA METHODS: " +criteriaMethods)
         c.list(props += params) {
             //set the results transformer so that we don't get duplicate records because of
             // the 1:many relationship between a list item and KVP
@@ -476,7 +523,7 @@ class QueryService {
             default: value; break;
         }
     }
-    
+
     /**
      * Constructs a query based on the filters that have been applied in the KVPs etc.
      * @param base
@@ -558,7 +605,6 @@ class QueryService {
     }
 
     List<Integer> getFilterSpeciesListItemsIds(params) {
-//        long now = System.currentTimeMillis()
         def itemIds = null
 
         def qValue = params.q
@@ -578,9 +624,7 @@ class QueryService {
             }
 
             itemIds = itemIds.unique()
-//            println(itemIds.unique().join(','))
         }
-//        println("itemsIds time taken: " + (System.currentTimeMillis() - now) + " ms");
         itemIds
     }
 

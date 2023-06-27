@@ -15,9 +15,11 @@
 package au.org.ala.specieslist
 
 import au.org.ala.web.AuthService
+import au.org.ala.names.ws.api.SearchStyle
 import com.opencsv.CSVReader
 import grails.converters.JSON
 import grails.gorm.transactions.Transactional
+import org.apache.commons.io.filefilter.FalseFileFilter
 import org.grails.web.json.JSONObject
 import org.springframework.web.multipart.MultipartHttpServletRequest
 
@@ -30,7 +32,9 @@ class SpeciesListController {
     private static final String[] ACCEPTED_CONTENT_TYPES = ["text/plain", "text/csv"]
 
     HelperService helperService
+    ColumnMatchingService columnMatchingService
     AuthService authService
+    LocalAuthService localAuthService
     BieService bieService
     BiocacheService biocacheService
     LoggerService loggerService
@@ -70,6 +74,8 @@ class SpeciesListController {
     /**
      * Current mechanism for deleting a species list
      * @return
+     *
+     * Edit Access controlled by SpeciesListDeleteInterceptor
      */
     @Transactional
     def delete(){
@@ -84,7 +90,10 @@ class SpeciesListController {
 
     /**
      * OLD delete
+     *
      * @return
+     *
+     * Permissions controlled by SpeciesListDeleteInterceptor
      */
     def deleteList(){
         log.debug("Deleting from collectory...")
@@ -101,7 +110,7 @@ class SpeciesListController {
         redirect(action:  'upload')
     }
 
-    def createOrRetrieveDataResourceUid(dataResourceUid, speciesListName){
+    private def createOrRetrieveDataResourceUid(dataResourceUid, speciesListName){
         if(!dataResourceUid){
             def drURL = helperService.addDataResourceForList([name:speciesListName])
             log.debug(drURL?.toString())
@@ -117,6 +126,11 @@ class SpeciesListController {
     }
 
     def uploadList() {
+        if (!authService.userId) {
+            response.sendError(401, "Not logged in.")
+            return
+        }
+
         //the raw data and list name must exist
         log.debug("upload the list....")
         log.debug(params?.toString())
@@ -128,10 +142,25 @@ class SpeciesListController {
 
         if(formParams.speciesListName && formParams.headers && (file || formParams.rawData)) {
 
+            // check access for existing list
+            def speciesList = SpeciesList.findByDataResourceUid(formParams.id)
+            if (speciesList && !isCurrentUserEditorForList(speciesList)) {
+                response.sendError(401, "Not authorised.")
+                return
+            }
+
             def druid = createOrRetrieveDataResourceUid(
                     formParams.id,
                     formParams.speciesListName
             )
+
+            // default all lists to isAuthoritative = false: it is an admin task to determine whether a list is authoritative or not
+            if (!request.isUserInRole("ROLE_ADMIN")) {
+                def list = SpeciesList.findByDataResourceUid(params.id)
+                formParams.isAuthoritative = list?.isAuthoritative || Boolean.FALSE
+                formParams.isThreatened = list?.isAuthoritative || Boolean.FALSE
+                formParams.isInvasive = list?.isAuthoritative || Boolean.FALSE
+            }
 
             if(druid) {
                 log.debug("Loading species list " + formParams.speciesListName)
@@ -158,12 +187,17 @@ class SpeciesListController {
                             formParams.listWkt,
                             formParams.isBIE,
                             formParams.isSDS,
+                            formParams.isAuthoritative,
+                            formParams.isThreatened,
+                            formParams.isInvasive,
                             formParams.isPrivate,
                             formParams.region,
                             formParams.authority,
                             formParams.category,
                             formParams.generalisation,
                             formParams.sdsType,
+                            formParams.looseSearch== null || formParams.looseSearch.isEmpty() ? null : Boolean.parseBoolean(formParams.looseSearch),
+                            formParams.searchStyle == null || formParams.searchStyle.isEmpty() ? null : SearchStyle.valueOf(formParams.searchStyle),
                             header.split(","),
                             vocabs)
 
@@ -209,6 +243,11 @@ class SpeciesListController {
      * This is the OLD method when supplying a file name
      */
     def submitList(){
+        if (!authService.userId) {
+            response.sendError(401, "Not logged in.")
+            return
+        }
+
         //ensure that the species list file exists before creating anything
         def uploadedFile = request.getFile('species_list')
         if(!uploadedFile.empty){
@@ -248,7 +287,6 @@ class SpeciesListController {
 
     def list(){
         //list should be based on the user that is logged in so add the filter condition
-        //def username = authService.getEmail()
         def userId = authService.getUserId()
         if (userId){
             params['userId'] = "eq:"+userId
@@ -291,14 +329,13 @@ class SpeciesListController {
         }
     }
 
-    def test(){
-        log.debug(helperService.addDataResourceForList("My test List")?.toString())
-        log.debug(authService.getEmail()?.toString())
-        //bieService.bulkLookupSpecies(["urn:lsid:biodiversity.org.au:afd.taxon:31a9b8b8-4e8f-4343-a15f-2ed24e0bf1ae"])
-        log.debug(loggerService.getReasons()?.toString())
-    }
-
     def showList(){
+        def speciesList = SpeciesList.findByDataResourceUid(params.id)
+        if (speciesList && !isViewable(speciesList)) {
+            response.sendError(401, "Not authorised.")
+            return
+        }
+
         try{
             if (params.message)
                 flash.message = params.message
@@ -331,6 +368,12 @@ class SpeciesListController {
             def isdr = params.id.startsWith("dr")
             def guids = getGuidsForList(params.id,grailsApplication.config.downloadLimit)
             def speciesList = isdr?SpeciesList.findByDataResourceUid(params.id):SpeciesList.get(params.id)
+
+            if (speciesList && !isViewable(speciesList)) {
+                response.sendError(401, "Not authorised.")
+                return
+            }
+
             if(speciesList){
                 def url = bieService.generateFieldGuide(speciesList.getDataResourceUid(), guids)
                 log.debug("THE URL:: " + url)
@@ -344,7 +387,7 @@ class SpeciesListController {
         }
     }
 
-    def getGuidsForList(id, limit){
+    private def getGuidsForList(id, limit){
         def fqs = params.fq?[params.fq].flatten().findAll{ it != null }:null
         def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id)
         SpeciesListItem.executeQuery("select sli.guid  " + baseQueryAndParams[0] + " and sli.guid is not null", baseQueryAndParams[1] ,[max: limit])
@@ -363,6 +406,11 @@ class SpeciesListController {
         if (params.id && params.type){
             //if the list is authoritative, then just do ?q=species_list_uid:
             SpeciesList splist = SpeciesList.findByDataResourceUid(params.id)
+            if (splist && !isViewable(splist)) {
+                response.sendError(401, "Not authorised.")
+                return
+            }
+
             if(grailsApplication.config.biocache.indexAuthoritative.toBoolean() && splist.isAuthoritative){
                 redirect(url: grailsApplication.config.spatial.baseURL + "/?q=species_list_uid:" + splist.dataResourceUid)
             } else {
@@ -389,9 +437,14 @@ class SpeciesListController {
         if(biocacheService.isListIndexed(params.id)){
             redirect(url:biocacheService.getQueryUrlForList(params.id))
         } else if (params.id && params.type){
+            def splist = SpeciesList.findByDataResourceUid(params.id)
+            if (splist && !isViewable(splist)) {
+                response.sendError(401, "Not authorised.")
+                return
+            }
+
             def guids = getGuidsForList(params.id, grailsApplication.config.downloadLimit)
             def unMatchedNames = getUnmatchedNamesForList(params.id, grailsApplication.config.downloadLimit)
-            def splist = SpeciesList.findByDataResourceUid(params.id)
             def title = "Species List: " + splist.listName
             def downloadDto = new DownloadDto()
             bindData(downloadDto, params)
@@ -463,6 +516,12 @@ class SpeciesListController {
         }
         Integer totalRows, offset = 0;
         String id = params.id
+        def splist = SpeciesList.findByDataResourceUid(params.id)
+        if (splist && !isCurrentUserEditorForList(splist)) {
+            response.sendError(401, "Not authorised.")
+            return
+        }
+
         if (id) {
             totalRows = SpeciesListItem.countByDataResourceUid(id)
         } else {
@@ -472,6 +531,7 @@ class SpeciesListController {
         while (offset < totalRows) {
             List items
             List guidBatch = [], sliBatch = []
+            Map<SpeciesList, List<SpeciesListItem>> batches = new HashMap<>()
             List<SpeciesListItem> searchBatch = new ArrayList<SpeciesListItem>()
             if (id) {
                 items = SpeciesListItem.findAllByDataResourceUid(id, [max: BATCH_SIZE, offset: offset])
@@ -481,10 +541,16 @@ class SpeciesListController {
 
             SpeciesListItem.withSession { session ->
                 items.eachWithIndex { SpeciesListItem item, Integer i ->
+                    SpeciesList speciesList = item.mylist
+                    List<SpeciesListItem> batch = batches.get(speciesList)
+                    if (batch == null) {
+                        batch = new ArrayList<>();
+                        batches.put(speciesList, batch)
+                    }
                     String rawName = item.rawScientificName
-                    log.debug i + ". Rematching: " + rawName
+                    log.debug i + ". Rematching: " + rawName + "/" + speciesList.dataResourceUid
                     if (rawName && rawName.length() > 0) {
-                        searchBatch.add(item)
+                        batch.add(item)
                     } else {
                         item.guid = null
                         if (!item.save(flush: true)) {
@@ -492,12 +558,13 @@ class SpeciesListController {
                         }
                     }
                 }
-
-                helperService.matchAll(searchBatch)
-                searchBatch.each {SpeciesListItem item ->
-                    if (item.guid) {
-                        guidBatch.push(item.guid)
-                        sliBatch.push(item)
+                batches.each { list, batch ->
+                    helperService.matchAll(batch, list)
+                    batch.each {SpeciesListItem item ->
+                        if (item.guid) {
+                            guidBatch.push(item.guid)
+                            sliBatch.push(item)
+                        }
                     }
                 }
 
@@ -522,7 +589,7 @@ class SpeciesListController {
     private parseDataFromCSV(CSVReader csvReader, String separator) {
         def rawHeader = csvReader.readNext()
         log.debug(rawHeader.toList()?.toString())
-        def parsedHeader = helperService.parseHeader(rawHeader) ?: helperService.parseData(rawHeader)
+        def parsedHeader = columnMatchingService.parseHeader(rawHeader) ?: helperService.parseData(rawHeader)
         def processedHeader = parsedHeader.header
         log.debug(processedHeader?.toString())
         def dataRows = new ArrayList<String[]>()
@@ -531,7 +598,7 @@ class SpeciesListController {
             dataRows.add(helperService.parseRow(currentLine.toList()))
             currentLine = csvReader.readNext()
         }
-        def nameColumns = helperService.speciesNameColumns + helperService.commonNameColumns
+        def nameColumns = columnMatchingService.speciesNameMatcher.names + columnMatchingService.commonNameMatcher.names
         if (processedHeader.find {
             it == "scientific name" || it == "vernacular name" || it == "common name" || it == "ambiguous name"
         } && processedHeader.size() > 0) {
@@ -555,6 +622,59 @@ class SpeciesListController {
 
     private boolean isMultipartRequest() {
         request instanceof MultipartHttpServletRequest
+    }
+
+    /**
+     * Check if user is either owner, admin or on the specieslist's editors list.
+     */
+    private boolean isCurrentUserEditorForList(SpeciesList sl) {
+        def isAllowed = false
+        def loggedInUser = authService.userId
+        log.debug "Checking isCurrentUserEditorForList: loggedInUser = " + loggedInUser
+        if (!sl) {
+            log.debug "speciesList is null"
+            isAllowed = false // saves repeating this check in subsequent else if
+        } else if (sl.userId == loggedInUser) {
+            log.debug "user is owner"
+            isAllowed = true
+        } else if (localAuthService.isAdmin()) {
+            log.debug "user is ADMIN"
+            isAllowed = true
+        } else if (sl.editors.any { it == loggedInUser}) {
+            log.debug "user is in editors list: " + sl.editors.join("|")
+            isAllowed = true
+        }
+
+        log.debug "isAllowed = " + isAllowed
+        return isAllowed
+    }
+
+    /**
+     * Check if list is public OR private and user is either owner, admin or on the specieslist's editors list.
+     */
+    private boolean isViewable(SpeciesList sl) {
+        def isAllowed = false
+        def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
+        def loggedInUser = authService.userId
+        log.debug "Checking isCurrentUserEditorForList: loggedInUser = " + loggedInUser
+        if (!sl) {
+            log.debug "speciesList is null"
+            isAllowed = false // saves repeating this check in subsequent else if
+        } else if (!sl.isPrivate || !hidePrivateLists) {
+            isAllowed = true
+        } else if (sl.userId == loggedInUser) {
+            log.debug "user is owner"
+            isAllowed = true
+        } else if (localAuthService.isAdmin()) {
+            log.debug "user is ADMIN"
+            isAllowed = true
+        } else if (sl.editors.any { it == loggedInUser}) {
+            log.debug "user is in editors list: " + sl.editors.join("|")
+            isAllowed = true
+        }
+
+        log.debug "isAllowed = " + isAllowed
+        return isAllowed
     }
 }
 

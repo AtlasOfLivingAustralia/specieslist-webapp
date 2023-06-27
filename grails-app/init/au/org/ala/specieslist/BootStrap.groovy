@@ -15,12 +15,24 @@
 
 package au.org.ala.specieslist
 
+import au.org.ala.userdetails.UserDetailsClient
+import au.org.ala.ws.security.authenticator.AlaApiKeyAuthenticator
+import grails.converters.JSON
+import groovy.sql.Sql
 import org.apache.commons.lang.WordUtils
 
 class BootStrap {
     def authService, userDetailsService, grailsApplication
+    Sql groovySql
+    def dataSource
+
+    UserDetailsClient userDetailsClient
+    def getAlaApiKeyClient
 
     def init = { servletContext ->
+
+        ((AlaApiKeyAuthenticator) getAlaApiKeyClient.authenticator).setUserDetailsClient(userDetailsClient)
+
         Object.metaClass.trimLength = {Integer stringLength ->
 
             String trimString = delegate?.toString()
@@ -47,6 +59,31 @@ class BootStrap {
             userDetailsService.updateSpeciesListUserDetails()
             userDetailsService.updateEditorsList()
         }
+
+        dbUpgrade()
+    }
+
+    def dbUpgrade() {
+        def conn = dataSource.getConnection()
+        def statement = conn.createStatement()
+
+
+        String [] dbModificationSql = [
+            "alter table species_list add column last_uploaded datetime",
+            "update species_list set last_uploaded = last_updated where last_uploaded is null",
+            "alter table species_list add column last_matched datetime",
+            "update species_list set last_matched = last_updated where last_matched is null",
+
+            "alter table species_list add column search_style varchar(255)",
+            "alter table species_list add column loose_search bit(1)"
+        ].each { String sql ->
+            try {
+                statement.execute(sql)
+            } catch (Exception ignored) {
+            }
+        }
+        statement.close()
+        conn.close()
     }
 
     def destroy = {

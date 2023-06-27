@@ -48,6 +48,7 @@ spring:
                 - '*.gson'
                 - '**/*.gson'
                 - 'logback.groovy'
+                - 'logback.xml'
                 - '*.properties'
 
 management:
@@ -154,7 +155,7 @@ environments:
             username: 'specieslist'
             password: 'specieslist'
             dbCreate: create-drop
-            url: jdbc:h2:mem:specieslist;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+            url: jdbc:h2:mem:specieslist;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
         security:
             cas:
                 appServerName: "https://lists-test.ala.org.au"
@@ -206,6 +207,8 @@ outboundhttp:
 
 namematching:
     serviceURL: https://namematching-ws.ala.org.au
+    defaultLoose: false
+    defaultStyle: STRICT
     dataCacheConfig:
         enableJmx: true
         entryCapacity: 20000
@@ -219,20 +222,28 @@ security:
         enabled: false
     oidc:
         enabled: true
-        discoveryUri: https://auth-dev.ala.org.au/cas/oidc/.well-known
+        discoveryUri: https://cognito-idp.ap-southeast-2.amazonaws.com/ap-southeast-2_8pKx9BtGz/.well-known/openid-configuration
         scope: openid profile email ala roles
-#        allowUnsignedIdTokens: true
+    # this config is used to check incoming requests to protected APIs (methods protected with @RequireApiKey()) for JWT token in the expected header i.e. "Authorization". `fallbackToLegacyBehaviour` determines whether to check for the legacy API key when JWT is not detected/valid.
     jwt:
+        discoveryUri: https://cognito-idp.ap-southeast-2.amazonaws.com/ap-southeast-2_8pKx9BtGz/.well-known/openid-configuration
         enabled: true
-        discoveryUri: https://auth-dev.ala.org.au/cas/oidc/.well-known
         fallbackToLegacyBehaviour: true
+    apikey:
+        enabled: true
+        auth:
+            serviceUrl: https://auth-dev.ala.org.au/apikey/
+        check:
+            serviceUrl: https://auth-dev.ala.org.au/apikey/ws/check?apikey=
+        userdetails:
+            serviceUrl: https://auth-dev.ala.org.au/userdetails/
 
 webservice:
     jwt: true
     jwt-scopes: "openid users/read"
 
 userDetails:
-    url: https://auth-dev.ala.org.au/userdetails
+    url: https://auth-test.ala.org.au/userdetails/
 
 speciesNameColumns: 'scientificname,scientific,sciname,sname,latinname,latin,taxon,taxonname,taxonomic name'
 commonNameColumns: 'commonname,common,vernacular,vernacularname'

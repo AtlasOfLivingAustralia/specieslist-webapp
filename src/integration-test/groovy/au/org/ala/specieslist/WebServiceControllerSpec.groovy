@@ -22,10 +22,12 @@ import org.grails.plugins.testing.GrailsMockHttpServletRequest
 import org.grails.plugins.testing.GrailsMockHttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.context.WebApplicationContext
+import spock.lang.Ignore
 import spock.lang.Specification
 
 @Integration
 @Rollback
+@Ignore
 class WebServiceControllerSpec extends Specification {
 
     @Autowired

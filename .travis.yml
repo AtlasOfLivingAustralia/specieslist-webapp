@@ -6,8 +6,9 @@ branches:
   only:
   - master
   - develop
-  - feature/oidcIntegration
+  - feature/grails5
   - bug/issue-225
+  - review-isprivate
 
 before_install:
   - rm -fr $HOME/.gradle/caches

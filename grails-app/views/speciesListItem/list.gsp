@@ -479,10 +479,16 @@
             </g:if>
             <dt>${message(code: 'speciesList.dateCreated.label', default: 'Date submitted')}</dt>
             <dd><g:formatDate format="yyyy-MM-dd"
-                              date="${speciesList.dateCreated ?: 0}"/><!-- ${speciesList.lastUpdated} --></dd>
+                              date="${speciesList.dateCreated}"/><!-- ${speciesList.lastUpdated} --></dd>
             <dt>${message(code: 'speciesList.lastUpdated.label', default: 'Date updated')}</dt>
             <dd><g:formatDate format="yyyy-MM-dd"
-                              date="${speciesList.lastUpdated ?: 0}"/></dd>
+                              date="${speciesList.lastUpdated}"/></dd>
+            <dt>${message(code: 'speciesList.lastUploaded.label', default: 'Date last loaded')}</dt>
+            <dd><g:formatDate format="yyyy-MM-dd"
+                              date="${speciesList.lastUploaded}"/></dd>
+            <dt>${message(code: 'speciesList.lastMatched.label', default: 'Date last matched')}</dt>
+            <dd><g:formatDate format="yyyy-MM-dd"
+                              date="${speciesList.lastMatched}"/></dd>
             <dt>${message(code: 'speciesList.isPrivate.label', default: 'Is private')}</dt>
             <dd><g:formatBoolean boolean="${speciesList.isPrivate ?: false}" true="Yes" false="No"/></dd>
             <dt>${message(code: 'speciesList.isBIE.label', default: 'Included in BIE')}</dt>
@@ -519,6 +525,10 @@
                 <dt>${message(code: 'speciesList.editors.label', default: 'List editors')}</dt>
                 <dd>${speciesList.editors.collect { sl.getFullNameForUserId(userId: it) }?.join(", ")}</dd>
             </g:if>
+            <dt>${message(code: 'speciesList.looseSearch.label', default: 'Loose search')}</dt>
+            <dd><g:formatBoolean boolean="${speciesList.looseSearch}" true="Yes" false="No"/></dd>
+            <dt>${message(code: 'speciesList.searchStyle.label', default: 'Search style')}</dt>
+            <dd>${speciesList.searchStyle}</dd>
             <dt>${message(code: 'speciesList.metadata.label', default: 'Metadata link')}</dt>
             <dd><a href="${grailsApplication.config.collectory.baseURL}/public/show/${speciesList.dataResourceUid}">${grailsApplication.config.collectory.baseURL}/public/show/${speciesList.dataResourceUid}</a>
             </dd>
@@ -717,6 +727,18 @@
                         </g:if>
                     </g:if>
                     <div class="form-group">
+                        <label class="control-label col-md-2" for="looseSearch">${message(code:'speciesList.looseSearch.label', default:'Loose Search')}</label>
+                        <div class="col-md-10">
+                            <g:select noSelection="${['':'--']}" from="[true, false]" name="looseSearch" style="width:99%" value="${speciesList.looseSearch}" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-2" for="searchStyle">${message(code:'speciesList.searchStyle.label', default:'Search Style')}</label>
+                        <div class="col-md-10">
+                            <g:select name="searchStyle" noSelection="${['':'--']}" from="${au.org.ala.names.ws.api.SearchStyle.values()}" style="width:99%" value="${speciesList.searchStyle}" />
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <div class="col-md-offset-2 col-md-10">
                             <button type="submit" id="edit-meta-submit" class="btn btn-primary">${message(code:'generic.lists.button.save.label', default:'Save')}</button>
                             <button class="btn btn-default" onclick="toggleEditMeta(false);
@@ -905,10 +927,14 @@
                                                   params="${[fq: fqs]}"></g:sortableColumn>
                                 <g:sortableColumn property="matchedName" title="${message(code:'public.lists.items.header02', default:'Scientific Name (matched)')}"
                                                   params="${[fq: fqs]}"></g:sortableColumn>
-                                <th>${message(code:'public.lists.items.header05', default:'Image')}</th>
+                                <th>${message(code:'public.lists.items.header07', default:'Image')}</th>
                                 <g:sortableColumn property="author" title="${message(code:'public.lists.items.header03', default:'Author (matched)')}"
                                                   params="${[fq: fqs]}"></g:sortableColumn>
                                 <g:sortableColumn property="commonName" title="${message(code:'public.lists.items.header04', default:'Common Name (matched)')}"
+                                                  params="${[fq: fqs]}"></g:sortableColumn>
+                                <g:sortableColumn property="family" title="${message(code:'public.lists.items.header05', default:'Family (matched)')}"
+                                                  params="${[fq: fqs]}"></g:sortableColumn>
+                                <g:sortableColumn property="kingdom" title="${message(code:'public.lists.items.header06', default:'Kingdom (matched)')}"
                                                   params="${[fq: fqs]}"></g:sortableColumn>
                                 <g:each in="${keys}" var="key">
                                     <th>${key}</th>
@@ -964,6 +990,8 @@
                                     </td>
                                     <td>${result.author}</td>
                                     <td id="cn_${result.guid}">${result.commonName}</td>
+                                    <td id="fm_${result.guid}">${result.family}</td>
+                                    <td id="kn_${result.guid}">${result.kingdom}</td>
                                     <g:each in="${keys}" var="key">
                                         <g:set var="kvp" value="${result.kvpValues.find { it.key == key }}"/>
                                         <g:set var="val" value="${kvp?.vocabValue ?: kvp?.value}"/>

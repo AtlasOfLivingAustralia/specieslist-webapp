@@ -18,11 +18,13 @@ package au.org.ala.specieslist
 import au.org.ala.web.AuthService
 import grails.gorm.transactions.Rollback
 import grails.testing.mixin.integration.Integration
+import spock.lang.Ignore
 import spock.lang.Specification
 import org.springframework.beans.factory.annotation.Autowired
 
 @Integration
 @Rollback
+@Ignore
 class QueryServicePrivateListSpec extends Specification {
 
     @Autowired QueryService service

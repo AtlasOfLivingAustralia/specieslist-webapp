@@ -32,17 +32,17 @@ import org.apache.commons.lang.StringUtils
 class NameExplorerService implements GrailsConfigurationAware {
     private NameMatchService alaNameUsageMatchServiceClient
 
-    def grailsApplication
+    ColumnMatchingService columnMatchingService
 
     @Override
     void setConfiguration(Config config) {
         DataCacheConfiguration dataCacheConfig = DataCacheConfiguration.builder()
-                .entryCapacity(grailsApplication.config.getProperty("namematching.dataCacheConfig.entryCapacity", Integer, 20000))
-                .enableJmx(grailsApplication.config.getProperty("namematching.dataCacheConfig.enableJmx", Boolean, false))
-                .eternal(grailsApplication.config.getProperty("namematching.dataCacheConfig.eternal", Boolean, false))
-                .keepDataAfterExpired(grailsApplication.config.getProperty("namematching.dataCacheConfig.keepDataAfterExpired", Boolean, false))
-                .permitNullValues(grailsApplication.config.getProperty("namematching.dataCacheConfig.permitNullValues", Boolean, false))
-                .suppressExceptions(grailsApplication.config.getProperty("namematching.dataCacheConfig.suppressExceptions", Boolean, false))
+                .entryCapacity(config.getProperty("namematching.dataCacheConfig.entryCapacity", Integer, 20000))
+                .enableJmx(config.getProperty("namematching.dataCacheConfig.enableJmx", Boolean, false))
+                .eternal(config.getProperty("namematching.dataCacheConfig.eternal", Boolean, false))
+                .keepDataAfterExpired(config.getProperty("namematching.dataCacheConfig.keepDataAfterExpired", Boolean, false))
+                .permitNullValues(config.getProperty("namematching.dataCacheConfig.permitNullValues", Boolean, false))
+                .suppressExceptions(config.getProperty("namematching.dataCacheConfig.suppressExceptions", Boolean, false))
                 .build()
 
         URL service = new URL(config.getProperty("namematching.serviceURL"))
@@ -55,23 +55,22 @@ class NameExplorerService implements GrailsConfigurationAware {
 
     /**
      * Find a NameUsageMatch by a NameSearch
-     * @param search NameUsageMatch
+     * @param sli The species list item
+     * @param sl The parent species list (which may not yet be linked to the item)
      * @return NameSearch
      */
-    NameUsageMatch find(NameSearch search) {
-        return alaNameUsageMatchServiceClient.match(search)
+    NameUsageMatch find(SpeciesListItem sli, SpeciesList sl) {
+        return alaNameUsageMatchServiceClient.match(columnMatchingService.buildSearch(sli, sl))
     }
 
     /**
      * Find NameUsageMatch for given list items
      * @param items list of SpeciesListItem
+     * @param sl The parent species list (which may not yet be linked to the item)
      * @return list of NameUsageMatch, <b>in the same order as the items passed in</b>
      */
-    List<NameUsageMatch> findAll(List<SpeciesListItem> items){
-        List<NameSearch> searches = new ArrayList<>();
-        items.eachWithIndex { SpeciesListItem item, Integer i ->
-            searches.add(i, buildNameSearch(item))
-        }
+    List<NameUsageMatch> findAll(List<SpeciesListItem> items, SpeciesList sl){
+        List<NameSearch> searches = items.collect { sli -> columnMatchingService.buildSearch(sli, sl)}
         return alaNameUsageMatchServiceClient.matchAll(searches)
     }
 
@@ -94,7 +93,7 @@ class NameExplorerService implements GrailsConfigurationAware {
         NameSearch.NameSearchBuilder builder = new NameSearch.NameSearchBuilder()
 
         builder.scientificName = StringUtils.trimToNull(scientificName)
-        NameUsageMatch result = find(builder.build())
+        NameUsageMatch result = alaNameUsageMatchServiceClient.match(builder.build())
         return result.success? result.taxonConceptID : null
     }
 
@@ -119,7 +118,7 @@ class NameExplorerService implements GrailsConfigurationAware {
 
         builder.scientificName = StringUtils.trimToNull(scientificName)
         builder.family = StringUtils.trimToNull(family)
-        NameUsageMatch result = find(builder.build())
+        NameUsageMatch result = alaNameUsageMatchServiceClient.match(builder.build())
         return result.success? result : null
     }
 
@@ -132,7 +131,7 @@ class NameExplorerService implements GrailsConfigurationAware {
         NameSearch.NameSearchBuilder builder = new NameSearch.NameSearchBuilder()
 
         builder.scientificName = StringUtils.trimToNull(scientificName)
-        NameUsageMatch result = find(builder.build())
+        NameUsageMatch result = alaNameUsageMatchServiceClient.match(builder.build())
         return result.success? result : null
     }
 
@@ -145,7 +144,7 @@ class NameExplorerService implements GrailsConfigurationAware {
         NameSearch.NameSearchBuilder builder = new NameSearch.NameSearchBuilder()
 
         builder.vernacularName = StringUtils.trimToNull(commonName)
-        NameUsageMatch result = find(builder.build())
+        NameUsageMatch result = alaNameUsageMatchServiceClient.match(builder.build())
         return result.success? result : null
     }
 
@@ -200,24 +199,8 @@ class NameExplorerService implements GrailsConfigurationAware {
         if (rank) {
             builder.rank = StringUtils.trimToNull(rank)
         }
-        NameUsageMatch result = find(builder.build())
+        NameUsageMatch result = alaNameUsageMatchServiceClient.match(builder.build())
         return result.success? result : null
     }
 
-    private NameSearch buildNameSearch(SpeciesListItem sli){
-        NameSearch.NameSearchBuilder builder = new NameSearch.NameSearchBuilder()
-        if (sli.rawScientificName) {
-            builder.scientificName = StringUtils.trimToNull(sli.rawScientificName)
-        }
-        if (sli.commonName) {
-            builder.vernacularName = StringUtils.trimToNull(sli.commonName)
-        }
-        if (sli.kingdom) {
-            builder.kingdom = StringUtils.trimToNull(sli.kingdom)
-        }
-        if (sli.family) {
-            builder.family = StringUtils.trimToNull(sli.family)
-        }
-        return builder.loose(true).build()
-    }
-}
+ }

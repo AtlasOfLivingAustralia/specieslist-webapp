@@ -15,25 +15,36 @@
 
 package au.org.ala.specieslist
 
+import au.org.ala.web.AuthService
 import org.apache.http.HttpStatus
 
 
 class WebServiceInterceptor {
 
+    LocalAuthService localAuthService
+    AuthService authService
+
     WebServiceInterceptor() {
-        match(controller: 'webService', action: /(getListDetails|saveList)/)
+        match(controller: 'webService', action: /(getListDetails|getListItemDetails|queryListItemOrKVP|getSpeciesListItemKvp|speciesListItemKvp|saveList|markAsPublished|getTaxaOnList)/)
     }
 
     boolean before() {
         //ensure that the supplied druid is valid
         log.debug("Prevalidating...")
-        if (params.druid) {
-            def list = SpeciesList.findByDataResourceUid(params.druid)
-            if (list) {
-                params.splist = list
+        String [] druids = params.druid?.split(',')
+        for (String druid : druids) {
+            def list = SpeciesList.findByDataResourceUid(druid)
+            params.splist = list
+
+            // view permissions
+            if (actionName == 'saveList' || actionName == 'markAsPublished') {
+                if (!checkEditSecurity(druid, authService, localAuthService)) {
+                    return false
+                }
             } else {
-                response.sendError(HttpStatus.SC_NOT_FOUND, "Unable to locate species list ${params.druid}")
-                return false
+                if (!checkViewSecurity(druid, authService, localAuthService)) {
+                    return false
+                }
             }
         }
         return true
@@ -43,5 +54,33 @@ class WebServiceInterceptor {
 
     void afterView() {
         // no-op
+    }
+
+    // The auth and localAuth services need to be passed in in order to use the same instance that the filters
+    // closure has - this is an issue when unit testing because the closure gets the mock services, but this method
+    // gets the 'real' injected services unless we pass them in
+    private boolean checkViewSecurity(String druid, AuthService authService, LocalAuthService localAuthService) {
+        SecurityUtil securityUtil = new SecurityUtil(localAuthService: localAuthService, authService: authService)
+
+        if (!securityUtil.checkViewAccess(druid)) {
+            response.sendError(HttpStatus.SC_UNAUTHORIZED, "Not authorised")
+            false
+        } else {
+            true
+        }
+    }
+
+    // The auth and localAuth services need to be passed in in order to use the same instance that the filters
+    // closure has - this is an issue when unit testing because the closure gets the mock services, but this method
+    // gets the 'real' injected services unless we pass them in
+    private boolean checkEditSecurity(String druid, AuthService authService, LocalAuthService localAuthService) {
+        SecurityUtil securityUtil = new SecurityUtil(localAuthService: localAuthService, authService: authService)
+
+        if (!securityUtil.checkEditAccess(druid)) {
+            response.sendError(HttpStatus.SC_UNAUTHORIZED, "Not authorised")
+            false
+        } else {
+            true
+        }
     }
 }
