@@ -129,7 +129,7 @@ class BiocacheService {
                     returnUrl = grailsApplication.config.biocache.baseURL + "/occurrences/search?q=qid:" + qid
                     break
                 case "Download":
-                    returnUrl = grailsApplication.config.biocache.baseURL + "/download/options1/?searchParams=?q=qid:" + qid + "&targetUri=/occurrences/search"
+                    returnUrl = grailsApplication.config.biocache.baseURL + "/download/options1/?searchParams=?q=qid:" + qid + "&targetUri=/occurrences/search&downloadType=records"
                     break
             }
             returnUrl
