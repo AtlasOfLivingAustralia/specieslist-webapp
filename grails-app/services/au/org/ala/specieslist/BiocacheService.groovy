@@ -117,7 +117,6 @@ class BiocacheService {
      * @return
      */
     def performBatchSearchOrDownload(guids, unMatchedNames, downloadDto, title, wkt) {
-
         def resp = getQid(guids, unMatchedNames, title, wkt)
         if(resp?.status == 302){
             resp.result
@@ -130,8 +129,7 @@ class BiocacheService {
                     returnUrl = grailsApplication.config.biocache.baseURL + "/occurrences/search?q=qid:" + qid
                     break
                 case "Download":
-                    returnUrl = grailsApplication.config.biocacheService.baseURL + "/occurrences/index/download?q=qid:" + qid + "&file=" + downloadDto.file
-                    returnUrl += "&reasonTypeId=" + downloadDto.reasonTypeId + "&email=" + downloadDto.email
+                    returnUrl = grailsApplication.config.biocache.baseURL + "/download/options1/?searchParams=?q=qid:" + qid + "&targetUri=/occurrences/search&downloadType=records"
                     break
             }
             returnUrl
