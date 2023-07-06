@@ -16,7 +16,7 @@
 package au.org.ala.specieslist.service
 
 import au.org.ala.names.ws.api.NameUsageMatch
-import au.org.ala.names.ws.api.SearchStyle
+//import au.org.ala.names.ws.api.SearchStyle
 import au.org.ala.specieslist.*
 import au.org.ala.web.AuthService
 import au.org.ala.web.UserDetails
@@ -140,7 +140,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
         when:
         def speciesList = new SpeciesList()
         speciesList.looseSearch = true
-        speciesList.searchStyle = SearchStyle.MATCH
+        //speciesList.searchStyle = SearchStyle.MATCH
         this.addFindResult()
         def row = ["Col1", "Col2", "Col3"]
         def header = ["Header1", "Header2", "Header3"]
@@ -161,7 +161,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
         when:
         def itemCounts = helperService.loadSpeciesListFromCSV(reader, "Dr1", "listname", null, "description",
                 "url", "listWkt", false, false, false, false, false, false, "region", "authority", "category", "generalistaion", "sdsType",
-                false, SearchStyle.STRICT, (String[]) ["Header1", "Header2", "Header3"], [:])
+                false, /*SearchStyle.STRICT,*/ (String[]) ["Header1", "Header2", "Header3"], [:])
 
         then:
         assert itemCounts.totalRecords == 1 && itemCounts.successfulItems == 0
@@ -190,7 +190,7 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
         when:
         def itemCounts = helperService.loadSpeciesListFromCSV(reader, "Dr1", "listname", null, "description",
                 "url", "listWkt", false, false, false, false, false, true, "region", "authority", "category", "generalistaion", "sdsType",
-                false, SearchStyle.STRICT, (String[]) ["Header1", "scientificname", "Header3"], [:])
+                false, /*SearchStyle.STRICT,*/ (String[]) ["Header1", "scientificname", "Header3"], [:])
 
         then:
         assert itemCounts.totalRecords == 1 && itemCounts.successfulItems == 1
