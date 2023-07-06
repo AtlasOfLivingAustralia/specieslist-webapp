@@ -110,7 +110,7 @@ dependencies {
     implementation "org.nibor.autolink:autolink:0.5.0"
     implementation "com.opencsv:opencsv:3.7"
 
-    runtimeOnly group: 'org.cache2k', name: 'cache2k-jcache', version: '2.6.1.Final'
+    runtimeOnly group: 'org.cache2k', name: 'cache2k-jcache', version: '1.2.0.Final'
 
     testImplementation "io.micronaut:micronaut-inject-groovy"
     testImplementation "org.grails:grails-gorm-testing-support"
