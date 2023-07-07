@@ -16,7 +16,7 @@
 package au.org.ala.specieslist
 
 import au.org.ala.names.ws.api.NameUsageMatch
-import au.org.ala.names.ws.api.SearchStyle
+//import au.org.ala.names.ws.api.SearchStyle
 import com.opencsv.CSVReader
 import grails.gorm.transactions.Transactional
 import groovyx.net.http.ContentType
@@ -410,7 +410,7 @@ class HelperService {
     def loadSpeciesListFromCSV(CSVReader reader, druid, listname, ListType listType, description, listUrl, listWkt,
                                Boolean isBIE, Boolean isSDS, Boolean isAuthoritative, Boolean isThreatened, Boolean isInvasive,
                                Boolean isPrivate, String region, String authority, String category,
-                               String generalisation, String sdsType, Boolean looseSearch, SearchStyle searchStyle, String[] header, Map vocabs) {
+                               String generalisation, String sdsType, Boolean looseSearch, /*SearchStyle searchStyle,*/ String[] header, Map vocabs) {
         log.debug("Loading species list " + druid + " " + listname + " " + description + " " + listUrl + " " + header + " " + vocabs)
         def kvpmap = [:]
         addVocab(druid,vocabs,kvpmap)
@@ -441,7 +441,7 @@ class HelperService {
         sl.isInvasive = isInvasive
         sl.isPrivate = isPrivate
         sl.looseSearch = looseSearch
-        sl.searchStyle = searchStyle
+        //sl.searchStyle = searchStyle
         sl.lastUploaded = new Date()
         sl.lastMatched = new Date()
         String [] nextLine

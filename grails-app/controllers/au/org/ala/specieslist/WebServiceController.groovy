@@ -305,8 +305,8 @@ class WebServiceController {
                 isAuthoritative: (sl.isAuthoritative ?: false),
                 isInvasive     : (sl.isInvasive ?: false),
                 isThreatened   : (sl.isThreatened ?: false),
-                looseSearch    : sl.looseSearch,
-                searchStyle    : sl.searchStyle?.toString()
+                looseSearch    : sl.looseSearch/*,
+                searchStyle    : sl.searchStyle?.toString()*/
             ]
             if (sl.listType) {
                 retValue["listType"] = sl?.listType?.toString()
@@ -352,7 +352,7 @@ class WebServiceController {
                                  isInvasive     : it.isInvasive ?: false,
                                  isThreatened   : it.isThreatened ?: false,
                                  looseSearch    : it.looseSearch,
-                                 searchStyle    : it.searchStyle?.toString(),
+                                 //searchStyle    : it.searchStyle?.toString(),
                                  wkt            : it.wkt
                                 ]
                             }]

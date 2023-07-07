@@ -15,7 +15,7 @@
 package au.org.ala.specieslist
 
 import au.org.ala.web.AuthService
-import au.org.ala.names.ws.api.SearchStyle
+//import au.org.ala.names.ws.api.SearchStyle
 import com.opencsv.CSVReader
 import grails.converters.JSON
 import grails.gorm.transactions.Transactional
@@ -197,7 +197,7 @@ class SpeciesListController {
                             formParams.generalisation,
                             formParams.sdsType,
                             formParams.looseSearch== null || formParams.looseSearch.isEmpty() ? null : Boolean.parseBoolean(formParams.looseSearch),
-                            formParams.searchStyle == null || formParams.searchStyle.isEmpty() ? null : SearchStyle.valueOf(formParams.searchStyle),
+                            //formParams.searchStyle == null || formParams.searchStyle.isEmpty() ? null : SearchStyle.valueOf(formParams.searchStyle),
                             header.split(","),
                             vocabs)
 
