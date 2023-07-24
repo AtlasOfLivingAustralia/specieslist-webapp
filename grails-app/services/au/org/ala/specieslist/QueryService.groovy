@@ -277,9 +277,9 @@ class QueryService {
      */
     def visibleLists(boolean includePublicLists, boolean hidePrivateLists) {
         def c = SpeciesList.createCriteria()
-        def lists = c.get {
+        def lists = c.list {
             projections {
-                DATA_RESOURCE_UID
+                property(DATA_RESOURCE_UID)
             }
             or {
                 if (includePublicLists) {
