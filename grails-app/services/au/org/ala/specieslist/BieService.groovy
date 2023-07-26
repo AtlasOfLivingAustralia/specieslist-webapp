@@ -62,7 +62,7 @@ class BieService {
 
     def generateFieldGuide(druid,guids, email){
         def title = "The field guide for " + druid
-        def link = grailsApplication.config.grails.serverURL + "/speciesListItems/list/" + druid
+        def link = grailsApplication.config.grails.serverURL + "/speciesListItem/list/" + druid
         try {
             def http = new HTTPBuilder(grailsApplication.config.fieldGuide.baseURL + "/generate" + "?email="+ email)
             http.setHeaders(['User-Agent': "${grailsApplication.config.outboundhttp.useragent}"])
