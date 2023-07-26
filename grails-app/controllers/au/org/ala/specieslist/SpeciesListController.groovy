@@ -375,10 +375,9 @@ class SpeciesListController {
             }
 
             if(speciesList){
-                def url = bieService.generateFieldGuide(speciesList.getDataResourceUid(), guids)
-                log.debug("THE URL:: " + url)
-                if(url)
-                    redirect(url:url)
+                def fieldguideResponse = bieService.generateFieldGuide(speciesList.getDataResourceUid(), guids, params.email)
+                if(fieldguideResponse)
+                    redirect(url: fieldguideResponse.get('statusUrl'))
                 else
                     redirect(controller: "speciesListItem", action: "list", id:params.id)
             }

@@ -17,10 +17,13 @@ package au.org.ala.specieslist
 import grails.converters.JSON
 import grails.web.JSONBuilder
 import groovyx.net.http.HTTPBuilder
+import org.apache.http.entity.ContentType
 
 class BieService {
 
     def grailsApplication
+    def webService
+    def authService
 
     def bulkLookupSpecies(list) {
         Map map = [:]
@@ -57,17 +60,14 @@ class BieService {
         }
     }
 
-    def generateFieldGuide(druid,guids){
+    def generateFieldGuide(druid,guids, email){
         def title = "The field guide for " + druid
         def link = grailsApplication.config.grails.serverURL + "/speciesListItems/list/" + druid
         try {
-            def http = new HTTPBuilder(grailsApplication.config.fieldGuide.baseURL + "/generate")
+            def http = new HTTPBuilder(grailsApplication.config.fieldGuide.baseURL + "/generate" + "?email="+ email)
             http.setHeaders(['User-Agent': "${grailsApplication.config.outboundhttp.useragent}"])
-            def response = http.post(body:  createJsonForFieldGuide(title, link, guids), requestContentType:groovyx.net.http.ContentType.JSON){ resp ->
-                def responseURL = grailsApplication.config.fieldGuide.baseURL +"/guide/"+ resp.headers['fileId'].getValue()
-                log.debug(responseURL)
-                return responseURL
-            }
+            def response = http.post(body:  createJsonForFieldGuide(title, link, guids), requestContentType:ContentType.APPLICATION_JSON)
+            return response
         } catch(ex) {
             log.error("Unable to generate field guide " ,ex)
             return null
