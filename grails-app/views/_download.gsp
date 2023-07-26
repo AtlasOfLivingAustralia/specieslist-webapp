@@ -78,7 +78,7 @@ ${message(code:'download.lists.text02', default:'Please provide the following de
                 e.preventDefault();
 
                 if (validateForm()) {
-                    var downloadUrl = "${request.contextPath}/speciesList/fieldGuide/${params.id}${params.toQueryString()}"
+                    var downloadUrl = "${request.contextPath}/speciesList/fieldGuide/${params.id}${params.toQueryString()}&email="+$("#email").val();
                     //alert(downloadUrl)
                     window.open(downloadUrl);
                     notifyDownloadStarted()
