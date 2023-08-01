@@ -662,6 +662,9 @@ class HelperService {
     def createRecord (params) {
         def sl = SpeciesList.get(params.id)
         log.debug "params = " + params
+        if (!sl && params.druid) {
+            sl = SpeciesList.findByDataResourceUid(params.druid)
+        }
 
         if (!params.rawScientificName) {
             return [text: "Missing required field: rawScientificName", status: 400]
@@ -675,12 +678,13 @@ class HelperService {
             keys.each { key ->
                 log.debug "key: " + key + " has value: " + params[key]
                 def value = params[key]
-                def itemOrder = params["itemOrder_${key}"]
+                def itemOrder = params["itemOrder_${key}"] ?: 0
                 if (value) {
                     def newKvp = SpeciesListKVP.findByDataResourceUidAndKeyAndValue(sl.dataResourceUid, key, value)
                     if (!newKvp) {
                         log.debug "Couldn't find an existing KVP, so creating a new one..."
                         newKvp = new SpeciesListKVP(dataResourceUid: sli.dataResourceUid, key: key, value: params[key], SpeciesListItem: sli, itemOrder: itemOrder );
+                        newKvp.save()
                     }
                     sli.addToKvpValues(newKvp)
                 }
@@ -699,6 +703,8 @@ class HelperService {
                 sl.lastMatched = new Date()
                 sl.lastUploaded = new Date()
                 sl.save(flush: true)
+
+                sli.save()
 
                 // Commented out as we would like to keep species list generic
                 /*   def preferredSpeciesImageListName = grailsApplication.config.ala.preferred.species.name

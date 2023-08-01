@@ -1337,5 +1337,54 @@ class WebServiceController {
         return isAllowed
     }
 
+    @RequireApiKey(scopes = ['ala/internal'])
+    def createRecord() {
+        def list = SpeciesList.get(params.id)
+        if (!list && params.druid) {
+            list = SpeciesList.findByDataResourceUid(params.druid)
+        }
+
+        def response = helperService.createRecord(params)
+        render(text: response.text, status: response.status)
+    }
+
+    @RequireApiKey(scopes = ['ala/internal'])
+    @Transactional
+    def deleteRecord() {
+        def sli = SpeciesListItem.get(params.id)
+
+        if (!sli && params.druid && params.guid) {
+            sli = SpeciesListItem.findByDataResourceUidAndGuid(params.druid, params.guid)
+        }
+
+        if (sli) {
+            // remove attached KVP records
+            // two step process to avoid java.util.ConcurrentModificationException
+            def kvpRemoveList = [] as Set
+            sli.kvpValues.each {
+                kvpRemoveList.add(it)
+            }
+            kvpRemoveList.each {
+                sli.removeFromKvpValues(it)
+            }
+
+            try {
+                sli.delete(flush: true)
+                render(text: message(code:'public.lists.view.table.delete.messages', default:'Record successfully deleted'), status: 200)
+
+                sli.mylist.lastUploaded = new Date()
+                sli.mylist.save()
+
+            }
+            catch (org.springframework.dao.DataIntegrityViolationException e) {
+                def message = "Could not delete SpeciesListItem: ${sli.rawScientificName}"
+                //redirect(action: "show", id: p.id)
+                render(text: message, status: 500)
+            }
+        } else {
+            def message = "${message(code: 'default.not.found.message', args: [message(code: 'speciesListItem.label', default: 'Species List Item'), params.id])}"
+            render(text: message, status: 404)
+        }
+    }
 
 }
