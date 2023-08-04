@@ -1337,6 +1337,42 @@ class WebServiceController {
         return isAllowed
     }
 
+    @Operation(
+            method = "GET",
+            tags = "createSpeciesListItem",
+            operationId = "Create a species list item for a species list",
+            summary = "Create a species list item for a species list",
+            description = "Create a species list item for a species list",
+            parameters = [
+                    // the "required" attribute is overridden to true when the parameter type is PATH.
+                    @Parameter(name = "druid",
+                            in = QUERY,
+                            description = "The data resource id",
+                            schema = @Schema(implementation = String),
+                            required = true),
+                    @Parameter(name = "guid",
+                            in = QUERY,
+                            description = "The taxon id",
+                            schema = @Schema(implementation = String),
+                            required = true),
+                    @Parameter(name = "rawScientificName",
+                            in = QUERY,
+                            description = "The scientific name",
+                            schema = @Schema(implementation = String),
+                            required = true),
+                    @Parameter(name = "<custom>",
+                            in = QUERY,
+                            description = "The <custom> field name and field value",
+                            schema = @Schema(implementation = String),
+                            required = false),
+            ],
+            responses = [
+                    @ApiResponse(
+                            responseCode = "200"
+                    )
+            ]
+    )
+    @Path("/ws/createRecord")
     @RequireApiKey(scopes = ['ala/internal'])
     def createRecord() {
         def list = SpeciesList.get(params.id)
@@ -1348,6 +1384,31 @@ class WebServiceController {
         render(text: response.text, status: response.status)
     }
 
+    @Operation(
+            method = "GET",
+            tags = "deleteSpeciesListItem",
+            operationId = "Delete a species list item for a species list",
+            summary = "Delete a species list item for a species list",
+            description = "Delete a species list item for a species list",
+            parameters = [
+                    // the "required" attribute is overridden to true when the parameter type is PATH.
+                    @Parameter(name = "druid",
+                            in = QUERY,
+                            description = "The data resource id",
+                            schema = @Schema(implementation = String),
+                            required = true),
+                    @Parameter(name = "guid",
+                            in = QUERY,
+                            description = "The taxon id",
+                            schema = @Schema(implementation = String),
+                            required = true)
+            ],
+            responses = [
+                    @ApiResponse(
+                            responseCode = "200"
+                    )
+            ]
+    )
     @RequireApiKey(scopes = ['ala/internal'])
     @Transactional
     def deleteRecord() {
