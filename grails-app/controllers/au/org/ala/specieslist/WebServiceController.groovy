@@ -1287,6 +1287,13 @@ class WebServiceController {
     }
 
     @JsonIgnoreProperties('metaClass')
+    static class SpeciesListItemBody {
+        String guid
+        String rawScientificName
+        HashMap<String, String> extra
+    }
+
+    @JsonIgnoreProperties('metaClass')
     static class GetListItemsForSpeciesResponse {
         String dataResourceUid
         String guid
@@ -1338,7 +1345,7 @@ class WebServiceController {
     }
 
     @Operation(
-            method = "GET",
+            method = "POST",
             tags = "createSpeciesListItem",
             operationId = "Create a species list item for a species list",
             summary = "Create a species list item for a species list",
@@ -1349,39 +1356,41 @@ class WebServiceController {
                             in = QUERY,
                             description = "The data resource id",
                             schema = @Schema(implementation = String),
-                            required = true),
-                    @Parameter(name = "guid",
-                            in = QUERY,
-                            description = "The taxon id",
-                            schema = @Schema(implementation = String),
-                            required = true),
-                    @Parameter(name = "rawScientificName",
-                            in = QUERY,
-                            description = "The scientific name",
-                            schema = @Schema(implementation = String),
-                            required = true),
-                    @Parameter(name = "<custom>",
-                            in = QUERY,
-                            description = "The <custom> field name and field value",
-                            schema = @Schema(implementation = String),
-                            required = false),
+                            required = true)
             ],
+            requestBody = @RequestBody(
+                    description = "The JSON object containing new species list item guid, rawScientificName and extra fields and values.",
+                    required = true,
+                    content = @Content(
+                            mediaType = 'application/json',
+                            schema = @Schema(implementation = SpeciesListItemBody)
+                    )
+            ),
             responses = [
                     @ApiResponse(
                             responseCode = "200"
                     )
             ]
     )
-    @Path("/ws/createRecord")
+    @Path("/ws/createItem")
     @RequireApiKey(scopes = ['ala/internal'])
-    def createRecord() {
+    def createItem() {
         def list = SpeciesList.get(params.id)
         if (!list && params.druid) {
             list = SpeciesList.findByDataResourceUid(params.druid)
         }
 
-        def response = helperService.createRecord(params)
-        render(text: response.text, status: response.status)
+        if (list) {
+            def json = request.JSON
+            json.properties.each { it ->
+                params[it.key] = it.value
+            }
+
+            def response = helperService.createRecord(params)
+            render(text: response.text, status: response.status)
+        } else {
+            render(status: 404)
+        }
     }
 
     @Operation(
@@ -1411,7 +1420,7 @@ class WebServiceController {
     )
     @RequireApiKey(scopes = ['ala/internal'])
     @Transactional
-    def deleteRecord() {
+    def deleteItem() {
         def sli = SpeciesListItem.get(params.id)
 
         if (!sli && params.druid && params.guid) {
