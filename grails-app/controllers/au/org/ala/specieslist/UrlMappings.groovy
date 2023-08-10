@@ -37,9 +37,9 @@ class UrlMappings {
             action = [GET:'getListItemDetails']
         }
 
-        "/ws/createRecord" (controller: 'webService', action: 'createRecord')
+        "/ws/createItem" (controller: 'webService', action: 'createItem')
 
-        "/ws/deleteRecord" (controller: 'webService', action: 'deleteRecord')
+        "/ws/deleteItem" (controller: 'webService', action: 'deleteItem')
 
         "/ws/queryListItemOrKVP" (controller: 'webService'){
             action = [GET:'queryListItemOrKVP']
