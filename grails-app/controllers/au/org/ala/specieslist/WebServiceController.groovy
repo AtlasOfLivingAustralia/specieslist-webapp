@@ -1375,10 +1375,7 @@ class WebServiceController {
     @Path("/ws/createItem")
     @RequireApiKey(scopes = ['ala/internal'])
     def createItem() {
-        def list = SpeciesList.get(params.id)
-        if (!list && params.druid) {
-            list = SpeciesList.findByDataResourceUid(params.druid)
-        }
+        def list = SpeciesList.findByDataResourceUid(params.druid)
 
         if (list) {
             def json = request.JSON
@@ -1421,11 +1418,7 @@ class WebServiceController {
     @RequireApiKey(scopes = ['ala/internal'])
     @Transactional
     def deleteItem() {
-        def sli = SpeciesListItem.get(params.id)
-
-        if (!sli && params.druid && params.guid) {
-            sli = SpeciesListItem.findByDataResourceUidAndGuid(params.druid, params.guid)
-        }
+        def sli = SpeciesListItem.findByDataResourceUidAndGuid(params.druid, params.guid)
 
         if (sli) {
             // remove attached KVP records
