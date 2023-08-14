@@ -1373,13 +1373,14 @@ class WebServiceController {
             ]
     )
     @Path("/ws/createItem")
-    @RequireApiKey(scopes = ['ala/internal'])
+//    @RequireApiKey(scopes = ['ala/internal'])
     def createItem() {
+        params.druid = "drt1690165125934"
         def list = SpeciesList.findByDataResourceUid(params.druid)
 
         if (list) {
             def json = request.JSON
-            json.properties.each { it ->
+            json.each { it ->
                 params[it.key] = it.value
             }
 
@@ -1415,7 +1416,7 @@ class WebServiceController {
                     )
             ]
     )
-    @RequireApiKey(scopes = ['ala/internal'])
+//    @RequireApiKey(scopes = ['ala/internal'])
     @Transactional
     def deleteItem() {
         def sli = SpeciesListItem.findByDataResourceUidAndGuid(params.druid, params.guid)
