@@ -180,9 +180,11 @@ class QueryService {
             if (query){
                 selectedFacets << [query: key, facet: query]
             } else if (key == LIST_TYPE){
-                def cleanedVaue = value.replaceAll("eq:", "")
-                query = listTyoeFacets.get(cleanedVaue)
-                selectedFacets << [query: key, facet: query]
+                if (value) {
+                    def cleanedValue = value.replaceAll("eq:", "")
+                    query = listTyoeFacets.get(cleanedValue)
+                    selectedFacets << [query: key, facet: query]
+                }
             } else if (key == WKT){
                 query = WKT_QUERY
                 selectedFacets << [query: WKT, facet: [label:'spatialBounds.list.label']]
@@ -445,8 +447,38 @@ class QueryService {
         order = order ?: ASC
         c.order(new Order(sort, ASC.equalsIgnoreCase(order)))
     }
+    /*
+    * Retrieves the species list items by given guid.
+    *
+    * @param queryParams : only supports: max, offset, sort
+    * @param guid
+    * @param isBIE
+    * @param lists: data resource ids
+    * @return
+    */
+    def getListForSpecies(guid, isBIE, lists, queryParams ) {
+        def speciesListProperties = getSpeciesListProperties()
+        def c = SpeciesListItem.createCriteria()
+
+        def results = c.list(queryParams) {
+            eq(GUID, guid)
+            if (isBIE) {
+                mylist {
+                    eq("isBIE", isBIE.toBoolean())
+                }
+            }
+            if (lists) {
+                'in'(DATA_RESOURCE_UID, lists)
+            }
+        }
+        return results
+    }
 
     /**
+     * @Todo
+     * Fix bug when param: max is set
+     * @See issue #271
+     *
      * retrieves the species list items that obey the supplied filters.
      *
      * When a distinct field is provided the values of the field are returned rather than a SpeciesListItem
@@ -461,6 +493,9 @@ class QueryService {
         def speciesListProperties = getSpeciesListProperties()
         def c = SpeciesListItem.createCriteria()
 
+        //params – pagination parameters (max, offset, etc...) closure – The closure to execute
+        //sort, max, offset
+        // max parameter does not work, @see #271
         c.list(props += params) {
             //set the results transformer so that we don't get duplicate records because of
             // the 1:many relationship between a list item and KVP
@@ -513,6 +548,7 @@ class QueryService {
                     }
                 }
             }
+
         }
     }
 
