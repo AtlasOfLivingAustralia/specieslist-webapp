@@ -3,6 +3,9 @@
 
     <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
     <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+    <logger name="org.hibernate" level="ERROR"/>
+    <logger name="org.grails.config" level="ERROR"/>
+
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -11,7 +14,7 @@
         </encoder>
     </appender>
 
-    <root level="warn">
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
