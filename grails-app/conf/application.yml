@@ -1,4 +1,8 @@
 ---
+
+logging:
+    config: /data/specieslist-webapp/config/logback.xml
+
 grails:
     profile: web
     codegen:
@@ -135,7 +139,7 @@ dataSource:
 environments:
     development:
         grails:
-            serverURL: "http://dev.ala.org.au:8080"
+            serverURL: "http://localhost:8080"
         dataSource:
             dbCreate: none
             url: jdbc:mysql://localhost/specieslist?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8
