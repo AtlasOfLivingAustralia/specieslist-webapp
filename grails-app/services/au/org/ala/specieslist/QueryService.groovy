@@ -863,7 +863,6 @@ class QueryService {
             def timeStop = new Date()
             log.info("Query KVP of " + id + "took " + TimeCategory.minus(timeStop, timeStart))
             properties = results.findAll{it[1].length()<maxLengthForFacet}.groupBy{it[0]}.findAll{it.value.size()>1 }
-            log.info("Regroup KVP took " + TimeCategory.minus(timeStop, timeStart))
             //obtain the families from the common list facets
             def commonResults = SpeciesListItem.executeQuery('select family, count(*) as cnt from SpeciesListItem ' +
                     'where family is not null AND dataResourceUid = :dataResourceUid ' +
@@ -873,7 +872,6 @@ class QueryService {
             if(commonResults.size() > 1) {
                 map.family = commonResults
             }
-            log.info("Query families from facets took " +TimeCategory.minus(new Date(), timeStop))
         }
         //if there was a facet included in the result we will need to divide the
         if(properties) {
