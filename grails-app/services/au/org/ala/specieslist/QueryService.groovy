@@ -836,7 +836,7 @@ class QueryService {
                     "group by kvp.key, kvp.value, kvp.vocabValue, kvp.itemOrder, kvp.key order by kvp.itemOrder, kvp.key, cnt desc",
                     queryParameters)
             def timeStop = new Date()
-            log.info("Query KVP of " + fqs + "took " + TimeCategory.minus(timeStop, timeStart))
+            log.info("Query KVP of ${fqs} took " + TimeCategory.minus(timeStop, timeStart))
 
             //obtain the families from the common list facets
             def commonResults = SpeciesListItem.executeQuery("select sli.family, count(sli) as cnt from SpeciesListItem sli " +
@@ -861,7 +861,7 @@ class QueryService {
                     'group by kvp.key, kvp.value, kvp.vocabValue, kvp.itemOrder order by kvp.itemOrder, kvp.key, cnt desc',
                     queryParameters)
             def timeStop = new Date()
-            log.info("Query KVP of " + id + "took " + TimeCategory.minus(timeStop, timeStart))
+            log.info("Query KVP of ${id} took " + TimeCategory.minus(timeStop, timeStart))
             properties = results.findAll{it[1].length()<maxLengthForFacet}.groupBy{it[0]}.findAll{it.value.size()>1 }
             //obtain the families from the common list facets
             def commonResults = SpeciesListItem.executeQuery('select family, count(*) as cnt from SpeciesListItem ' +
