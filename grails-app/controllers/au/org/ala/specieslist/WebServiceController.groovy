@@ -1280,6 +1280,13 @@ class WebServiceController {
     }
 
     @JsonIgnoreProperties('metaClass')
+    static class SpeciesListItemBody {
+        String guid
+        String rawScientificName
+        HashMap<String, String> extra
+    }
+
+    @JsonIgnoreProperties('metaClass')
     static class GetListItemsForSpeciesResponse {
         String dataResourceUid
         String guid
@@ -1330,10 +1337,114 @@ class WebServiceController {
         return isAllowed
     }
 
+    @Operation(
+            method = "POST",
+            tags = "createSpeciesListItem",
+            operationId = "Create a species list item for a species list",
+            summary = "Create a species list item for a species list",
+            description = "Create a species list item for a species list",
+            parameters = [
+                    // the "required" attribute is overridden to true when the parameter type is PATH.
+                    @Parameter(name = "druid",
+                            in = QUERY,
+                            description = "The data resource id",
+                            schema = @Schema(implementation = String),
+                            required = true)
+            ],
+            requestBody = @RequestBody(
+                    description = "The JSON object containing new species list item guid, rawScientificName and extra fields and values.",
+                    required = true,
+                    content = @Content(
+                            mediaType = 'application/json',
+                            schema = @Schema(implementation = SpeciesListItemBody)
+                    )
+            ),
+            responses = [
+                    @ApiResponse(
+                            responseCode = "200"
+                    )
+            ]
+    )
+    @Path("/ws/createItem")
+    @RequireApiKey(scopes = ['ala/internal'])
+    def createItem() {
+        def list = SpeciesList.findByDataResourceUid(params.druid)
+
+        if (list) {
+            def json = request.JSON
+            json.each { it ->
+                params[it.key] = it.value
+            }
+
+            def response = helperService.createRecord(params)
+            render(text: response.text, status: response.status)
+        } else {
+            render(status: 404)
+        }
+    }
+
+    @Operation(
+            method = "GET",
+            tags = "deleteSpeciesListItem",
+            operationId = "Delete a species list item for a species list",
+            summary = "Delete a species list item for a species list",
+            description = "Delete a species list item for a species list",
+            parameters = [
+                    // the "required" attribute is overridden to true when the parameter type is PATH.
+                    @Parameter(name = "druid",
+                            in = QUERY,
+                            description = "The data resource id",
+                            schema = @Schema(implementation = String),
+                            required = true),
+                    @Parameter(name = "guid",
+                            in = QUERY,
+                            description = "The taxon id",
+                            schema = @Schema(implementation = String),
+                            required = true)
+            ],
+            responses = [
+                    @ApiResponse(
+                            responseCode = "200"
+                    )
+            ]
+    )
+    @RequireApiKey(scopes = ['ala/internal'])
+    @Transactional
+    def deleteItem() {
+        def sli = SpeciesListItem.findByDataResourceUidAndGuid(params.druid, params.guid)
+
+        if (sli) {
+            // remove attached KVP records
+            // two step process to avoid java.util.ConcurrentModificationException
+            def kvpRemoveList = [] as Set
+            sli.kvpValues.each {
+                kvpRemoveList.add(it)
+            }
+            kvpRemoveList.each {
+                sli.removeFromKvpValues(it)
+            }
+
+            try {
+                sli.delete(flush: true)
+                render(text: message(code:'public.lists.view.table.delete.messages', default:'Record successfully deleted'), status: 200)
+
+                sli.mylist.lastUploaded = new Date()
+                sli.mylist.save()
+
+            }
+            catch (org.springframework.dao.DataIntegrityViolationException e) {
+                def message = "Could not delete SpeciesListItem: ${sli.rawScientificName}"
+                //redirect(action: "show", id: p.id)
+                render(text: message, status: 500)
+            }
+        } else {
+            def message = "${message(code: 'default.not.found.message', args: [message(code: 'speciesListItem.label', default: 'Species List Item'), params.id])}"
+            render(text: message, status: 404)
+        }
+    }
+
     def handleException(final Exception e ) {
         log.error(e.message)
         return {error: e.message}
     }
-
-
 }
