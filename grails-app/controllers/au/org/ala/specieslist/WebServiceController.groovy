@@ -187,42 +187,35 @@ class WebServiceController {
     def getListItemsForSpecies() {
         def guid = params.guid.replaceFirst("https:/", "https://")
         def lists = params.dr?.split(",")
-        def isBIE = params.boolean('isBIE')
-        def props = [fetch: [kvpValues: 'join', mylist: 'join']]
+        def queryParams = params.subMap(["max","sort","offset"])
 
-        def results = queryService.getFilterListItemResult(props, params, guid, lists, null)
-
+        def results = queryService.getListForSpecies(guid, params.isBIE, lists, queryParams )
         log.debug("RESULTS: " + results)
 
         // fetch lists that this user has access to view
         def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
         def permittedPrivateLists = queryService.visibleLists(false, hidePrivateLists)
 
-        def filteredRecords = results.findAll { !it.mylist.isPrivate || permittedPrivateLists.contains(it.dataResourceUid) }
-
-        if (isBIE) {
-            // BIE only want lists with isBIE == true
-            filteredRecords = filteredRecords.findAll { it.mylist.isBIE }
-        }
-
-        def listOfRecordMaps = filteredRecords.collect { li -> // don't output private lists
+        def listOfRecordMaps = results.findResults {
+            // don't output private lists
+            (!it.mylist.isPrivate) || permittedPrivateLists.contains(it.dataResourceUid) ?
             [
-                dataResourceUid: li.dataResourceUid,
-                guid           : li.guid,
+                dataResourceUid: it.dataResourceUid,
+                guid           : it.guid,
                 list           : [
-                    username: li.mylist.username,
-                    listName: li.mylist.listName,
-                    sds     : li.mylist.isSDS ?: false,
-                    isBIE   : li.mylist.isBIE ?: false
+                    username: it.mylist.username,
+                    listName: it.mylist.listName,
+                    sds     : it.mylist.isSDS ?: false,
+                    isBIE   : it.mylist.isBIE ?: false
                 ],
-                kvpValues      : li.kvpValues.collect { kvp ->
+                kvpValues      : it.kvpValues.collect { kvp ->
                     [
                         key       : kvp.key,
                         value     : kvp.value,
                         vocabValue: kvp.vocabValue
                     ]
                 }
-            ]
+            ] : null
         }
         render listOfRecordMaps as JSON
     }
@@ -1450,4 +1443,8 @@ class WebServiceController {
         }
     }
 
+    def handleException(final Exception e ) {
+        log.error(e.message)
+        return {error: e.message}
+    }
 }

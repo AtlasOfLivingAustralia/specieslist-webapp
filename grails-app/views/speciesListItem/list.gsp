@@ -225,7 +225,7 @@
                 var url = "${request.contextPath}"+"/speciesList/delete/" + listId;
 
                 $.post(url, function(data){
-                    window.location.reload()
+                    window.location.replace("${request.contextPath}"+"/speciesList/list");
                 }).error(function(jqXHR, textStatus, error) {
                     alert("An error occurred: " + error + " - " + jqXHR.responseText);
                     $(modal).modal('hide');

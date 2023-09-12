@@ -83,7 +83,9 @@ class SpeciesListController {
         def sl = SpeciesList.get(params.id)
         if(sl){
             helperService.deleteDataResourceForList(sl.dataResourceUid)
-            sl.delete(flush: true)
+            SpeciesListItem.executeUpdate("delete from SpeciesListItem where dataResourceUid = :dataResourceUid", ["dataResourceUid": sl.dataResourceUid])
+            SpeciesListKVP.executeUpdate("delete from SpeciesListKVP where dataResourceUid = :dataResourceUid", ["dataResourceUid": sl.dataResourceUid])
+            SpeciesList.executeUpdate("delete from SpeciesList where dataResourceUid = :dataResourceUid", ["dataResourceUid": sl.dataResourceUid])
         }
         redirect(action: 'list')
     }

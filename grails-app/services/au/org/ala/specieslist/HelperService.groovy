@@ -28,6 +28,7 @@ import org.grails.web.json.JSONArray
 import org.nibor.autolink.*
 import org.springframework.context.MessageSource
 import org.springframework.context.i18n.LocaleContextHolder
+import org.apache.http.util.EntityUtils
 
 import javax.annotation.PostConstruct
 
@@ -112,7 +113,8 @@ class HelperService {
                     requestContentType = ContentType.JSON
                     headers."Authorization" = "${grailsApplication.config.registryApiKey}"
                     response.success = { resp ->
-                        log.info(resp?.toString())
+                        def result = (resp.getEntity() != null ? EntityUtils.toString(resp.getEntity()) : "")
+                        log.info("${drId} has been deleted from ${grailsApplication.config.collectory.baseURL} with ${result}")
                     }
                     response.failure = { resp ->
                         log.error("Delete request for ${drId} failed with status ${resp.status}")
