@@ -43,7 +43,7 @@ class HelperService {
 
     def grailsApplication
 
-    def localAuthService, authService, userDetailsService
+    def localAuthService, authService, userDetailsService, webService
 
     BieService bieService
 
@@ -107,11 +107,11 @@ class HelperService {
             def deleteUrl = grailsApplication.config.collectory.baseURL +"/ws/dataResource/" + drId
             def http = new HTTPBuilder(deleteUrl)
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
-            try {
+            http.setHeaders([Authorization: "Bearer ${webService.getTokenService().getAuthToken(false)}"])
 
+            try {
                 http.request(Method.DELETE) {
                     requestContentType = ContentType.JSON
-                    headers."Authorization" = "${grailsApplication.config.registryApiKey}"
                     response.success = { resp ->
                         def result = (resp.getEntity() != null ? EntityUtils.toString(resp.getEntity()) : "")
                         log.info("${drId} has been deleted from ${grailsApplication.config.collectory.baseURL} with ${result}")

@@ -188,9 +188,8 @@ class WebServiceController {
         def guid = params.guid.replaceFirst("https:/", "https://")
         def lists = params.dr?.split(",")
         def queryParams = params.subMap(["max","sort","offset"])
-
-        def results = queryService.getListForSpecies(guid, params.isBIE, lists, queryParams )
-        log.debug("RESULTS: " + results)
+        def filters = params.findAll{it -> !["controller","action","max","sort","offset","guid", "dr"].contains(it.key)}
+        def results = queryService.getListForSpecies(guid, params.isBIE, lists, queryParams, filters )
 
         // fetch lists that this user has access to view
         def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)

@@ -39,7 +39,7 @@ class PublicController {
             searchTerm = params.q
             params.q = ""
         }
-        params.max = Math.min(params.max ? params.int('max') : 25, 1000)
+        params.max = Math.min((params.max ? params.int('max') : 25) ?: 25, 1000)
         params.sort = params.sort ?: "listName"
         if (params.isSDS){
             //to ensure backwards compatibility for a commonly used URL
