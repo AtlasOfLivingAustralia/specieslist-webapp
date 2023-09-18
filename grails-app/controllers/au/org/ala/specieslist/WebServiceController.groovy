@@ -643,6 +643,18 @@ class WebServiceController {
             )
         ]
     )
+
+    @Path("/ws/findSpeciesByName/")
+    def findSpeciesByName() {
+        def name = params.name
+        def id = params.id
+        def species = null
+        if (name && id) {
+            species = SpeciesListItem.findByRawScientificNameAndId(name.trim(), id)
+        }
+        render species as JSON
+    }
+
     @Path("/ws/speciesListItemKvp/{druid}")
     def getSpeciesListItemKvp() {
         def speciesListDruid = params.druid
