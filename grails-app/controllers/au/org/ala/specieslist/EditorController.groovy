@@ -212,16 +212,15 @@ class EditorController {
             //check if name information has changed
             if (params.rawScientificName.trim() != sli.rawScientificName.trim()) {
                 log.debug "rawScientificName is different: " + params.rawScientificName + " VS " + sli.rawScientificName
+                log.debug "re-matching name for ${params.rawScientificName}"
                 sli.rawScientificName = params.rawScientificName
                 changed = true
                 // lookup guid
                 helperService.matchNameToSpeciesListItem(sli.rawScientificName, sli, sli.mylist)
-                //sli.guid = helperService.findAcceptedLsidByScientificName(sli.rawScientificName)?: helperService.findAcceptedLsidByCommonName(sli.rawScientificName)
-            }
-            if (changed) {
-                log.debug "re-matching name for ${params.rawScientificName}"
-                helperService.matchNameToSpeciesListItem(sli.rawScientificName, sli, sli.mylist)
+                //Update image url
+                helperService.getCommonNamesAndUpdateRecords([sli],[sli.guid])
                 sl.lastMatched = new Date()
+                //sli.guid = helperService.findAcceptedLsidByScientificName(sli.rawScientificName)?: helperService.findAcceptedLsidByCommonName(sli.rawScientificName)
             }
 
             if (!sli.validate()) {

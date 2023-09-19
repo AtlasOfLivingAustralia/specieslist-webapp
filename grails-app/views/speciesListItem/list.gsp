@@ -127,12 +127,13 @@
 
                         var speciesUrl = "${createLink(controller: "ws", action: 'findSpeciesByName')}"
                         $.get(speciesUrl,{ name: rawScientificName, id:id},  function( result ) {
+                            var updatedIcon = "<i class='glyphicon glyphicon-check text-success'></i>  ";
                             var guid = result.guid;
                             if (guid === "" || guid === null || guid === undefined){
                                 //raw name
                                 var google = "http://google.com/search?q=" + rawScientificName;
                                 var biocache = "${grailsApplication.config.biocache.baseURL}/occurrences/search?q="+rawScientificName;
-                                var guidText= rawScientificName + "<br>(unmatched - try <a href='" + google +"' target='google' class='btn btn-primary btn-xs'>Google</a>," +
+                                var guidText= updatedIcon + rawScientificName + "<br>(unmatched - try <a href='" + google +"' target='google' class='btn btn-primary btn-xs'>Google</a>," +
                                  "<a href='" + biocache +" target='biocache' class='btn btn-success btn-xs'>${message(code:'generic.lists.button.Occurrences.label', default:'Occurrences')}</a>)";
 
                                 row.find("td.rawScientificName").html(guidText);
@@ -141,6 +142,7 @@
                             } else {
                                 var bie = "<a href=${bieUrl}/species/" + guid + " title='click to view species page'>"+result.matchedName + "</a>"
                                 row.find("td.matchedName").html(bie)
+                                row.find("td.rawScientificName").html( "<div>"+ updatedIcon + rawScientificName +"</div>");
 
                                 if(result.imageUrl === "" || result.imageUrl === null || result.imageUrl === undefined) {
                                      row.find("td.imageUrl").html("");
@@ -149,7 +151,6 @@
                                     row.find("td.imageUrl").html(image_url);
                                 }
                             }
-
                             row.find("td.author").text(result.author);
                             var terms = ["commonName", "family","kingdom"];
                             terms.forEach( function(item) {
