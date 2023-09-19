@@ -107,7 +107,7 @@
         <div class="form-group pull-right">
             <label class="control-label">${message(code:'public.lists.search.options',default:'Items per page')}:</label>
             <select id="maxItems" class="form-control" onchange="reloadWithMax(this)">
-                <g:each in="${[10,25,50,100,1000]}" var="max">
+                <g:each in="${[10,25,50,100]}" var="max">
                     <option ${(params.max == max)?'selected="selected"':''}>${max}</option>
                 </g:each>
             </select>
@@ -202,7 +202,7 @@
             <g:each in="${lists}" var="list" status="i">
                 <tr class="${(i % 2) == 0 ? 'odd' : 'even'}">
                     <td>
-                        <a href="${request.contextPath}/speciesListItem/list/${list.dataResourceUid}">${fieldValue(bean: list, field: "listName")}
+                        <a href="${request.contextPath}/speciesListItem/list/${list.dataResourceUid}?max=500">${fieldValue(bean: list, field: "listName")}
                         </a>
                     </td>
                     <td>${list.listType?.getDisplayValue()}</td>

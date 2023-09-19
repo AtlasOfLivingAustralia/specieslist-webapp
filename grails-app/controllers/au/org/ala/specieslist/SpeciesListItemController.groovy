@@ -112,7 +112,7 @@ class SpeciesListItemController {
                 } else {
                     if (requestParams.message)
                         flash.message = requestParams.message
-                    requestParams.max = Math.min(requestParams.max ? requestParams.int('max') : 10, 100)
+                    requestParams.max = Math.min(requestParams.max ? requestParams.int('max') : 10, 500)
                     requestParams.sort = requestParams.sort ?: "itemOrder"
                     requestParams.offset = requestParams.int('offset') ?: 0
                     requestParams.fetch = [kvpValues: 'select']

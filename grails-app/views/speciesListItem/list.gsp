@@ -1035,7 +1035,7 @@
                                         <g:if test="${result.imageUrl}">
                                             <a href="${bieUrl}/species/${result.guid}" title="click to view species page"><img
                                                     src="${result.imageUrl}"
-                                                    class="smallSpeciesImage"/></a>
+                                                    class="smallSpeciesImage" loading="lazy"/></a>
                                         </g:if>
                                     </td>
                                     <td class="author">${result.author}</td>
@@ -1058,7 +1058,7 @@
             <div class="searchWidgets">
                 ${message(code:'generic.lists.ItemsPerPage', default:'Items per page:')}
                 <select id="maxItems" onchange="reloadWithMax(this)">
-                    <g:each in="${[10, 25, 50, 100]}" var="max">
+                    <g:each in="${[10, 25, 50, 100, 500,1000]}" var="max">
                         <option ${(params.max == max) ? 'selected="selected"' : ''}>${max}</option>
                     </g:each>
                 </select>
