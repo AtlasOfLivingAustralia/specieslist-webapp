@@ -581,6 +581,7 @@ class HelperService {
             sli.commonName = null
             sli.family = null
             sli.kingdom = null
+            sli.imageUrl = null
         }
     }
 
