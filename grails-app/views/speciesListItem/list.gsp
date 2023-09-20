@@ -112,8 +112,57 @@
 
                 $.post("${createLink(controller: "editor", action: 'editRecord')}", thisFormData, function(data, textStatus, jqXHR) {
                     $(modal).modal('hide');
-                    alert(jqXHR.responseText);
-                    window.location.reload(true);
+                    var idItem = thisFormData.find(o=>o.name === "id");
+                    var rawScientificName = thisFormData.find(o=>o.name === "rawScientificName")?.value;
+                    if (idItem) {
+                        var id = idItem.value;
+                        var row = $("tr#row_"+ id);
+                        //Only change rawScientificName, and KVP
+                        thisFormData.forEach(item=>{
+                            //Avoid keys such as 'Profile No'
+                            var td = row.find("td."+item.name.replace(" ", "_"));
+                            if (td.length > 0) {
+                                   td.html("<div>"+ item.value +"</div>");
+                               }
+                        });
+
+                        var speciesUrl = "${createLink(controller: "ws", action: 'findSpeciesByName')}"
+                        $.get(speciesUrl,{ name: rawScientificName, id:id},  function( result ) {
+                            var updatedIcon = "<i class='glyphicon glyphicon-check text-success'></i>  ";
+                            var guid = result.guid;
+                            if (guid === "" || guid === null || guid === undefined){
+                                //raw name
+                                var google = "http://google.com/search?q=" + rawScientificName;
+                                var biocache = "${grailsApplication.config.biocache.baseURL}/occurrences/search?q="+rawScientificName;
+                                var guidText= updatedIcon + rawScientificName + "<br>(unmatched - try <a href='" + google +"' target='google' class='btn btn-primary btn-xs'>Google</a>," +
+                                 "<a href='" + biocache +" target='biocache' class='btn btn-success btn-xs'>${message(code:'generic.lists.button.Occurrences.label', default:'Occurrences')}</a>)";
+
+                                row.find("td.rawScientificName").html(guidText);
+                                row.find("td.matchedName").html(result.matchedName);
+                                row.find("td.imageUrl").html("");
+                            } else {
+                                var bie = "<a href=${bieUrl}/species/" + guid + " title='click to view species page'>"+result.matchedName + "</a>"
+                                row.find("td.matchedName").html(bie)
+                                row.find("td.rawScientificName").html( "<div>"+ updatedIcon + rawScientificName +"</div>");
+
+                                if(result.imageUrl === "" || result.imageUrl === null || result.imageUrl === undefined) {
+                                     row.find("td.imageUrl").html("");
+                                } else {
+                                    var image_url ="<a href=${bieUrl}/species/"+guid+"  title='click to view species page'><img src="+result.imageUrl+" class='smallSpeciesImage'/></a>";
+                                    row.find("td.imageUrl").html(image_url);
+                                }
+                            }
+                            row.find("td.author").text(result.author);
+                            var terms = ["commonName", "family","kingdom"];
+                            terms.forEach( function(item) {
+                               var td = row.find("td."+item);
+                               if ( td.length>0 ) {
+                                  td.text(result[item]);
+                                  td[0].id= td[0].id.substring(0,3) + guid;
+                               }
+                            })
+                        })
+                    }
                 }).error(function(jqXHR, textStatus, error) {
                     alert("An error occurred: " + error + " - " + jqXHR.responseText);
                     $(modal).modal('hide');
@@ -942,6 +991,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                            
                             <g:each var="result" in="${results}" status="i">
                                 <g:set var="recId" value="${result.id}"/>
 %{--                                <g:set var="bieTitle">${message(code:'public.lists.view.table.tooltip03', default:'species page for')} <i>${result.rawScientificName}</i></g:set>--}%
@@ -981,21 +1031,21 @@
                                             ${result.matchedName}
                                         </g:else>
                                     </td>
-                                    <td id="img_${result.guid}">
+                                    <td id="img_${result.guid}" class="imageUrl">
                                         <g:if test="${result.imageUrl}">
                                             <a href="${bieUrl}/species/${result.guid}" title="click to view species page"><img
                                                     src="${result.imageUrl}"
                                                     class="smallSpeciesImage"/></a>
                                         </g:if>
                                     </td>
-                                    <td>${result.author}</td>
-                                    <td id="cn_${result.guid}">${result.commonName}</td>
-                                    <td id="fm_${result.guid}">${result.family}</td>
-                                    <td id="kn_${result.guid}">${result.kingdom}</td>
+                                    <td class="author">${result.author}</td>
+                                    <td id="cn_${result.guid}" class="commonName" >${result.commonName}</td>
+                                    <td id="fm_${result.guid}" class="family">${result.family}</td>
+                                    <td id="kn_${result.guid}" class="kingdom">${result.kingdom}</td>
                                     <g:each in="${keys}" var="key">
                                         <g:set var="kvp" value="${result.kvpValues.find { it.key == key }}"/>
                                         <g:set var="val" value="${kvp?.vocabValue ?: kvp?.value}"/>
-                                        <td class="kvp ${val?.length() > 35 ? 'scrollWidth' : ''}"><div>${val}</div>
+                                        <td class="kvp ${key.replace(" ","_")} ${val?.length() > 35 ? 'scrollWidth' : ''}"><div>${val}</div>
                                         </td>
                                     </g:each>
                                 </tr>
@@ -1008,7 +1058,7 @@
             <div class="searchWidgets">
                 ${message(code:'generic.lists.ItemsPerPage', default:'Items per page:')}
                 <select id="maxItems" onchange="reloadWithMax(this)">
-                    <g:each in="${[10, 25, 50, 100]}" var="max">
+                    <g:each in="${[10, 25, 50, 100, 500, 1000]}" var="max">
                         <option ${(params.max == max) ? 'selected="selected"' : ''}>${max}</option>
                     </g:each>
                 </select>
@@ -1133,5 +1183,6 @@
         });
     });
 </asset:script>
+
 </body>
 </html>

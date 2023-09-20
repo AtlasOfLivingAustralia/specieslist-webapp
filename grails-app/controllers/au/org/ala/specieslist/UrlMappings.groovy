@@ -46,6 +46,7 @@ class UrlMappings {
         }
 
         //"/ws/speciesListItems" (controller: "webService", action: "getListItemDetails")
+        "/ws/findSpeciesByName" (controller: "webService", action: "findSpeciesByName")
         "/ws/speciesListItems/keys" (controller: "webService", action: "listKeys")
         "/ws/speciesListItems/byKeys" (controller: "webService", action: "listItemsByKeys")
 
