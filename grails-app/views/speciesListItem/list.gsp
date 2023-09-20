@@ -990,7 +990,6 @@
                             </tr>
                             </thead>
                             <tbody>
-%{--                            <div v-scope="SpeciesList(JSON.parse('${json_results}'))" @vue:mounted="mounted"></div>--}%
 
                             <g:each var="result" in="${results}" status="i">
                                 <g:set var="recId" value="${result.id}"/>
@@ -1184,31 +1183,6 @@
     });
 </asset:script>
 
-<script type="module">
-    import { createApp } from 'https://unpkg.com/petite-vue?module'
-    function SpeciesList(data) {
-        return {
-            $template: '#display-species-list',
-            speciesList: data,
-            mounted() {
-
-            },
-
-            click() {
-                alert("i am vue")
-            },
-
-            save() {
-                alert("saved")
-            }
-
-        }
-    }
-
-    createApp({
-        SpeciesList
-    }).mount()
-</script>
 <template id="display-species-list">
 
     <table>
