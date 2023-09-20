@@ -991,8 +991,7 @@
                             </tr>
                             </thead>
                             <tbody>
-%{--                            <div v-scope="SpeciesList(JSON.parse('${json_results}'))" @vue:mounted="mounted"></div>--}%
-
+                            
                             <g:each var="result" in="${results}" status="i">
                                 <g:set var="recId" value="${result.id}"/>
 %{--                                <g:set var="bieTitle">${message(code:'public.lists.view.table.tooltip03', default:'species page for')} <i>${result.rawScientificName}</i></g:set>--}%
@@ -1059,7 +1058,7 @@
             <div class="searchWidgets">
                 ${message(code:'generic.lists.ItemsPerPage', default:'Items per page:')}
                 <select id="maxItems" onchange="reloadWithMax(this)">
-                    <g:each in="${[10, 25, 50, 100]}" var="max">
+                    <g:each in="${[10, 25, 50, 100, 500, 1000]}" var="max">
                         <option ${(params.max == max) ? 'selected="selected"' : ''}>${max}</option>
                     </g:each>
                 </select>
@@ -1184,67 +1183,6 @@
         });
     });
 </asset:script>
-
-<script type="module">
-    import { createApp } from 'https://unpkg.com/petite-vue?module'
-    function SpeciesList(data) {
-        return {
-            $template: '#display-species-list',
-            speciesList: data,
-            mounted() {
-
-            },
-
-            click() {
-                alert("i am vue")
-            },
-
-            save() {
-                alert("saved")
-            }
-
-        }
-    }
-
-    createApp({
-        SpeciesList
-    }).mount()
-</script>
-<template id="display-species-list">
-
-    <table>
-    <tr v-for="(species, i) in speciesList" :id="'row_'+species.id">
-        <td class="action">
-            <div class="btn-group action-btn-group-width" role="group">
-                <a class="btn btn-default btn-xs viewRecordButton" href="#viewRecord"
-                   title="${message(code:'public.lists.view.table.tooltip01', default:'view record')}" :data-id="species.id"><i
-                        class="glyphicon glyphicon-info-sign"></i></a>
-                <g:if test="${userCanEditData}">
-                    <a class="btn btn-default btn-xs" href="#" title="${message(code:'public.lists.view.table.tooltip04', default:'edit')}"
-                       :data-remote-url="'${createLink(controller: 'editor', action: 'editRecordScreen')}?id=' + species.id"
-                       :data-target="'#editRecord_'+species.id" data-toggle="modal"><i
-                            class="glyphicon glyphicon-pencil"></i></a>
-                    <a class="btn btn-default btn-xs" href="#" title="${message(code:'public.lists.view.table.tooltip05', default:'delete')}"
-                       :data-target="'#deleteRecord_'+species.id" data-toggle="modal"><i
-                            class="glyphicon glyphicon-trash"></i></a>
-                </g:if>
-            </div>
-        </td>
-        <td class="rawScientificName">
-            {{species.rawScientificName}}
-            <p v-if="species.guid == null">
-                <br/>(unmatched - try <a
-                    :href="'http://google.com/search?q=' + species.rawScientificName.trim()}"
-                    target="google" class="btn btn-primary btn-xs">Google</a>,
-                <a href="'${grailsApplication.config.biocache.baseURL}/occurrences/search?q='+species.rawScientificName.trim()"
-                   target="biocache" class="btn btn-success btn-xs">${message(code:'generic.lists.button.Occurrences.label', default:'Occurrences')}</a>)
-            </p>
-        </td>
-    </tr>
-    </table>
-
-</template>
-
 
 </body>
 </html>
