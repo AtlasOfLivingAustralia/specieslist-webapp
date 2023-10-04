@@ -648,11 +648,14 @@ class WebServiceController {
     def findSpeciesByName() {
         def name = params.name
         def id = params.id
-        def species = null
+        def result = [:] as HashMap
+
         if (name && id) {
-            species = SpeciesListItem.findByRawScientificNameAndId(name.trim(), id)
+           def species = SpeciesListItem.findByRawScientificNameAndId(name.trim(), id)
+            // default JSON converter does 'shallow' search, it won't convert the child table : matchedSpecies
+            result = species.toMap()
         }
-        render species as JSON
+        render result as JSON
     }
 
     @Path("/ws/speciesListItemKvp/{druid}")
@@ -1452,6 +1455,16 @@ class WebServiceController {
             def message = "${message(code: 'default.not.found.message', args: [message(code: 'speciesListItem.label', default: 'Species List Item'), params.id])}"
             render(text: message, status: 404)
         }
+    }
+
+    /**
+     * Only used for 4.4.0 release
+     * Update existing SpeciesListItem, add a linked matched species
+     */
+    def updateMatchedSpecies_v4() {
+        def result = helperService.updateMatchedSpecies_v4()
+        def resp =  [remaining: "${result.total - result.updated}" , eclipsed: "${result.time}"]
+        render resp as JSON
     }
 
     def handleException(final Exception e ) {

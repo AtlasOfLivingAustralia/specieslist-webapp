@@ -142,7 +142,15 @@
                                 row.find("td.imageUrl").html("");
                             } else {
                                 var bie = "<a href=${bieUrl}/species/" + guid + " title='click to view species page'>"+result.matchedName + "</a>"
-                                row.find("td.matchedName").html(bie)
+
+                                if (result?.matchedSpecies?.vernacularName)
+                                    bie +="<br/>" + result?.matchedSpecies.vernacularName
+                                if (result?.matchedSpecies?.scientificNameAuthorship)
+                                    bie += "<br/>Autheor(s):" + result?.matchedSpecies.scientificNameAuthorship
+                                    bie +="<br/>" + result?.matchedSpecies?.kingdom +" - " + result?.matchedSpecies?.family +" - " +  result?.matchedSpecies?.taxonOrder +
+                                      " - " + result?.matchedSpecies?.taxonClass +" - " + result?.matchedSpecies?.phylum +" - " + result?.matchedSpecies?.genus
+                                var matchedTaxon = bie
+                                row.find("td.matchedName").html(matchedTaxon)
                                 row.find("td.rawScientificName").html( "<div>"+ updatedIcon + rawScientificName +"</div>");
 
                                 if(result.imageUrl === "" || result.imageUrl === null || result.imageUrl === undefined) {
@@ -152,15 +160,6 @@
                                     row.find("td.imageUrl").html(image_url);
                                 }
                             }
-                            row.find("td.author").text(result.author);
-                            var terms = ["commonName", "family","kingdom"];
-                            terms.forEach( function(item) {
-                               var td = row.find("td."+item);
-                               if ( td.length>0 ) {
-                                  td.text(result[item]);
-                                  td[0].id= td[0].id.substring(0,3) + guid;
-                               }
-                            })
                         })
                     }
                 }).error(function(jqXHR, textStatus, error) {
@@ -973,18 +972,41 @@
                             <tr>
                                 <th class="action">${message(code:'public.lists.view.table.action.label', default:'Action')}</th>
                                 <g:sortableColumn property="rawScientificName" title="${message(code:'public.lists.items.header01', default:'Supplied Name')}"
-                                                  params="${[fq: fqs]}"></g:sortableColumn>
-                                <g:sortableColumn property="matchedName" title="${message(code:'public.lists.items.header02', default:'Scientific Name (matched)')}"
-                                                  params="${[fq: fqs]}"></g:sortableColumn>
-                                <th>${message(code:'public.lists.items.header07', default:'Image')}</th>
-                                <g:sortableColumn property="author" title="${message(code:'public.lists.items.header03', default:'Author (matched)')}"
-                                                  params="${[fq: fqs]}"></g:sortableColumn>
+                                                      params="${[fq: fqs]}"></g:sortableColumn>
+                                <th>${message(code:'public.lists.items.header02', default:'Scientific Name (matched)')}
+                                <g:set var="sortBy" value="asc"/>
+                                <g:set var="sortByIcon" value="glyphicon-sort-by-alphabet"/>
+                                <g:if test = "${params.sort == 'matchedSpecies.kingdom'}">
+                                    <g:if test = "${params.order == 'asc'}">
+                                        <g:set var="sortBy" value="desc"/>
+                                        <g:set var="sortByIcon" value="glyphicon-sort-by-alphabet-alt"/>
+                                    </g:if>
+                                    <a href= "${createLink(controller: 'speciesListItem', action:'list', params:[id: speciesList.dataResourceUid, sort: 'matchedSpecies.kingdom', max: params.max, order: sortBy])}">
+                                        Kingdom <span class="glyphicon ${sortByIcon}"></span></a>
+                                </g:if>
+                                <g:else>
+                                    <a href= "${createLink(controller: 'speciesListItem', action:'list', params:[id: speciesList.dataResourceUid, sort: 'matchedSpecies.kingdom', max: params.max, order: sortBy])}">
+                                        Kingdom <span class="glyphicon ${sortByIcon}"></span></a>
+                                </g:else>
+
+                                <g:if test = "${params.sort == 'matchedSpecies.family'}">
+                                    <g:if test = "${params.order == 'asc'}">
+                                        <g:set var="sortBy" value="desc"/>
+                                        <g:set var="sortByIcon" value="glyphicon-sort-by-alphabet-alt"/>
+                                    </g:if>
+                                    <a href= "${createLink(controller: 'speciesListItem', action:'list', params:[id: speciesList.dataResourceUid, sort: 'matchedSpecies.family', max: params.max, order: sortBy])}">
+                                        Family <span class="glyphicon ${sortByIcon}"></span></a>
+                                </g:if>
+                                <g:else>
+                                    <a href= "${createLink(controller: 'speciesListItem', action:'list', params:[id: speciesList.dataResourceUid, sort: 'matchedSpecies.family', max: params.max, order: sortBy])}">
+                                        Family <span class="glyphicon ${sortByIcon}"></span></a>
+                                </g:else>
+
+                                </th>
+                                <th>${message(code:'public.lists.items.header11', default:'Image')}</th>
                                 <g:sortableColumn property="commonName" title="${message(code:'public.lists.items.header04', default:'Common Name (matched)')}"
                                                   params="${[fq: fqs]}"></g:sortableColumn>
-                                <g:sortableColumn property="family" title="${message(code:'public.lists.items.header05', default:'Family (matched)')}"
-                                                  params="${[fq: fqs]}"></g:sortableColumn>
-                                <g:sortableColumn property="kingdom" title="${message(code:'public.lists.items.header06', default:'Kingdom (matched)')}"
-                                                  params="${[fq: fqs]}"></g:sortableColumn>
+
                                 <g:each in="${keys}" var="key">
                                     <th>${key}</th>
                                 </g:each>
@@ -1023,13 +1045,22 @@
                                         </g:if>
                                     </td>
                                     <td class="matchedName">
-                                        <g:if test="${result.guid}">
+
+                                        <g:if test="${result.guid && result.matchedSpecies}">
                                             <a href="${bieUrl}/species/${result.guid}"
-                                               title="click to view species page">${result.matchedName}</a>
+                                               title="click to view species page">${result.matchedSpecies?.scientificName}</a>
+                                            <g:if test="${result.matchedSpecies?.vernacularName}">
+                                                 <br/>${result.matchedSpecies?.vernacularName}
+                                            </g:if>
+                                            <g:if test="$result.matchedSpecies?.scientificNameAuthorship}">
+                                                <br/><i>Author(s): ${result.matchedSpecies?.scientificNameAuthorship}</i>
+                                            </g:if>
+
+                                            <br/>${result.matchedSpecies?.kingdom}
+                                            - ${result.matchedSpecies?.phylum} - ${result.matchedSpecies?.taxonClass}
+                                            - ${result.matchedSpecies?.taxonOrder} - ${result.matchedSpecies?.family} - ${result.matchedSpecies?.genus}
+
                                         </g:if>
-                                        <g:else>
-                                            ${result.matchedName}
-                                        </g:else>
                                     </td>
                                     <td id="img_${result.guid}" class="imageUrl">
                                         <g:if test="${result.imageUrl}">
@@ -1038,10 +1069,7 @@
                                                     class="smallSpeciesImage"/></a>
                                         </g:if>
                                     </td>
-                                    <td class="author">${result.author}</td>
                                     <td id="cn_${result.guid}" class="commonName" >${result.commonName}</td>
-                                    <td id="fm_${result.guid}" class="family">${result.family}</td>
-                                    <td id="kn_${result.guid}" class="kingdom">${result.kingdom}</td>
                                     <g:each in="${keys}" var="key">
                                         <g:set var="kvp" value="${result.kvpValues.find { it.key == key }}"/>
                                         <g:set var="val" value="${kvp?.vocabValue ?: kvp?.value}"/>

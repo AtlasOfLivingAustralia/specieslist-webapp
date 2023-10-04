@@ -18,6 +18,8 @@ package au.org.ala.specieslist
 import au.org.ala.names.ws.api.NameUsageMatch
 //import au.org.ala.names.ws.api.SearchStyle
 import com.opencsv.CSVReader
+import groovy.time.TimeCategory
+import groovy.time.TimeDuration
 import grails.gorm.transactions.Transactional
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
@@ -414,6 +416,7 @@ class HelperService {
                                Boolean isPrivate, String region, String authority, String category,
                                String generalisation, String sdsType, Boolean looseSearch, /*SearchStyle searchStyle,*/ String[] header, Map vocabs) {
         log.debug("Loading species list " + druid + " " + listname + " " + description + " " + listUrl + " " + header + " " + vocabs)
+
         def kvpmap = [:]
         addVocab(druid,vocabs,kvpmap)
         //attempt to retrieve an existing list first
@@ -483,6 +486,7 @@ class HelperService {
 
         CSVReader reader = new CSVReader(new FileReader(filename),',' as char)
         header = header ?: reader.readNext()
+
         int speciesValueIdx = columnMatchingService.getSpeciesIndex(header)
         int count =0
         String [] nextLine
@@ -544,16 +548,31 @@ class HelperService {
         sli.itemOrder = order
 
         int i = 0
+
+        def excludedFields = [QueryService.RAW_SCIENTIFIC_NAME, QueryService.COMMON_NAME]
+        // vernacular name is defined as commonName in termIndex
+        if (termIndex.containsKey(QueryService.COMMON_NAME)) {
+
+            SpeciesListKVP kvp = new SpeciesListKVP(key: "vernacularName", value: values[termIndex.get(QueryService.COMMON_NAME)], dataResourceUid: druid)
+            if  (kvp.itemOrder == null) {
+                kvp.itemOrder = 0
+            }
+            sli.addToKvpValues(kvp)
+        }
+
         header.each {
-            if(!termIndex.containsValue(i) && values.length > i && values[i]?.trim()){
-                SpeciesListKVP kvp = map.get(it.toString()+"|"+values[i], new SpeciesListKVP(key: it.toString(), value: values[i], dataResourceUid: druid))
-                if  (kvp.itemOrder == null) {
-                    kvp.itemOrder = i
+            if (values.length > i && values[i]?.trim()) {
+                if (!excludedFields.contains(termIndex.find{it.value == i}?.key)) {
+                    SpeciesListKVP kvp = map.get(it.toString()+"|"+values[i], new SpeciesListKVP(key: it.toString(), value: values[i], dataResourceUid: druid))
+                    if  (kvp.itemOrder == null) {
+                        kvp.itemOrder = i
+                    }
+                    sli.addToKvpValues(kvp)
                 }
-                sli.addToKvpValues(kvp)
             }
             i++
         }
+
         matchNameToSpeciesListItem(sli.rawScientificName, sli, sl)
         sli
     }
@@ -568,20 +587,43 @@ class HelperService {
             match = nameExplorerService.searchForRecordByLsid(sli.rawScientificName)
         }
         if(match && match.success){
-            sli.guid = match.getTaxonConceptID()
-            sli.matchedName = match.getScientificName()
-            sli.author = match.getScientificNameAuthorship()
-            sli.commonName = match.getVernacularName()
+            // Not necessary
+            sli.matchedName = match.scientificName
+            sli.commonName = match.vernacularName
+            //Legacy: 'family, kingdom' field is used by group query for facades
             sli.family = match.getFamily()
             sli.kingdom = match.getKingdom()
+
+            sli.guid = match.taxonConceptID
+            MatchedSpecies ms = MatchedSpecies.findByTaxonConceptID(match.getTaxonConceptID())
+            if (ms) {
+                sli.matchedSpecies = ms
+            } else {
+                MatchedSpecies newMS = new MatchedSpecies()
+                newMS.taxonConceptID  = match.taxonConceptID
+                newMS.scientificName = match.scientificName
+                newMS.scientificNameAuthorship = match.scientificNameAuthorship
+                newMS.vernacularName = match.vernacularName
+
+                newMS.kingdom = match.kingdom
+                newMS.phylum = match.phylum
+                newMS.taxonClass = match.classs
+                newMS.taxonOrder = match.order
+                newMS.family = match.family
+                newMS.genus = match.genus
+                newMS.taxonRank = match.rank
+
+                sli.matchedSpecies = newMS
+            }
         } else {
             sli.guid = null
             sli.matchedName = null
             sli.author = null
-            sli.commonName = null
-            sli.family = null
-            sli.kingdom = null
+            sli.matchedSpecies = null
+
+            //reset image
             sli.imageUrl = null
+
         }
     }
 
@@ -600,8 +642,8 @@ class HelperService {
                 sli.matchedName = match.getScientificName()
                 sli.author = match.getScientificNameAuthorship()
                 sli.commonName = match.getVernacularName()
-                sli.family = match.getFamily()
-                sli.kingdom = match.getKingdom()
+//                sli.family = match.getFamily()
+//                sli.kingdom = match.getKingdom()
             } else {
                 log.info("Unable to match species list item - ${sli.rawScientificName}")
             }
@@ -746,5 +788,70 @@ class HelperService {
             log.error("an exception occurred during rematching: ${e.message}");
             log.error(e.stackTrace?.toString())
         }
+    }
+
+    def updateMatchedSpecies_v4() {
+        def startTime = new Date()
+        def total = 0
+
+        def max = 1000
+        def round = 1
+        def offset = 0
+
+        int i = 0
+        while (i < round) {
+            offset = i * max
+            def c = SpeciesListItem.createCriteria()
+            def speciesList = c.list(max:max, offset: offset) {
+                order("dateCreated","desc")
+                and {
+                    {isNotNull("matchedName")}
+                    {ne "matchedName", ""}
+                    {isNull("matchedSpecies")}
+                }
+            }
+
+            total =  speciesList.totalCount
+            speciesList.forEach {it->
+                def matchedSpecies =  MatchedSpecies.findByScientificName(it.matchedName)
+                //already in MatchedSpecies table
+                if (matchedSpecies) {
+                    it.matchedSpecies = matchedSpecies
+                } else {
+                    // Matching with scientific name should be secure enough.
+                    def match = nameExplorerService.searchForRecordByScientificName(it.matchedName)
+
+                    if(match && match.success){
+                        MatchedSpecies ms = MatchedSpecies.findByTaxonConceptID(match.getTaxonConceptID())
+                        if (ms) {
+                            it.matchedSpecies = ms
+                        } else {
+                            MatchedSpecies newMS = new MatchedSpecies()
+                            newMS.taxonConceptID  = match.taxonConceptID
+                            newMS.scientificName = match.scientificName
+                            newMS.scientificNameAuthorship = match.scientificNameAuthorship
+                            newMS.vernacularName = match.vernacularName
+
+                            newMS.kingdom = match.kingdom
+                            newMS.phylum = match.phylum
+                            newMS.taxonClass = match.classs
+                            newMS.taxonOrder = match.order
+                            newMS.family = match.family
+                            newMS.genus = match.genus
+                            newMS.taxonRank = match.rank
+                            newMS.save(flush:true) //Need to store immediately, avoiding duplicated records
+
+                            it.matchedSpecies = newMS
+                        }
+                    } else {
+                        it.matchedName = " " //Avoid this species being selected next time.
+                    }
+                }
+                it.save()
+            }
+            i++
+        }
+
+        return [total: total, updated: max * round, time: TimeCategory.minus( new Date(), startTime )]
     }
 }

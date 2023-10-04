@@ -16,6 +16,7 @@
 package au.org.ala.specieslist
 
 import groovy.time.*
+import io.micrometer.core.instrument.binder.okhttp3.OkHttpMetricsEventListener
 import org.hibernate.Criteria
 import org.hibernate.criterion.CriteriaQuery
 import org.hibernate.criterion.Order
@@ -726,6 +727,7 @@ class QueryService {
             def criteria = SpeciesListItem.createCriteria()
             def q = requestParams.q
             speciesListItems = criteria.list(requestParams) {
+
                 and {
                     eq(DATA_RESOURCE_UID, requestParams.id)
                     if (q) {
@@ -843,7 +845,22 @@ class QueryService {
     }
 
     def getSpeciesListKVPKeysByDataResourceUid(String id) {
-        SpeciesListKVP.executeQuery("select distinct key, itemOrder from SpeciesListKVP where dataResourceUid = :dataResourceUid order by itemOrder", [dataResourceUid: id]).collect { it[0] }
+        def kvpKeys = SpeciesListKVP.executeQuery("select distinct key, itemOrder from SpeciesListKVP where dataResourceUid = :dataResourceUid order by itemOrder", [dataResourceUid: id]).collect { it[0] }
+        return sortTaxonHeader(kvpKeys)
+    }
+
+    def sortTaxonHeader(header) {
+        def taxons = ['vernacularName','kingdom','family','order','class', 'rank', 'phylum','genus', 'taxonRank'].reverse()
+        List headers = header.toList()
+        def sortedHeader = []
+        taxons.forEach {
+            if (headers.stream().anyMatch(it::equalsIgnoreCase)) {
+                sortedHeader.push(it)
+                headers.removeIf(value->value.equalsIgnoreCase(it));
+            }
+        }
+        sortedHeader.addAll(headers)
+        sortedHeader
     }
 
     def getUsersForList() {
@@ -884,7 +901,7 @@ class QueryService {
                     "group by sli.family order by cnt desc",
                     queryParameters)
             if (commonResults.size() > 1) {
-                map.family = commonResults
+                map["family(matched)"] = commonResults
             }
 
             //println(results)
@@ -909,7 +926,7 @@ class QueryService {
                     'group by family order by cnt desc',
                     queryParameters)
             if(commonResults.size() > 1) {
-                map.family = commonResults
+                map["family(matched)"] = commonResults
             }
         }
         //if there was a facet included in the result we will need to divide the

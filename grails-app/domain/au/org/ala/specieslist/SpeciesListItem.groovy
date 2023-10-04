@@ -17,19 +17,21 @@ package au.org.ala.specieslist
 
 class SpeciesListItem {
 
-    String rawScientificName
+    String rawScientificName //AKA supplied name
     String dataResourceUid
     String guid
-    String matchedName
-    String author
+    String commonName   //matched common name
+    String matchedName //Matched scientific name
+    String author //matched author
     String imageUrl
-    String kingdom
-    String family
+    String kingdom // matched kingdom (not used)
+    String family  // matched family
     Boolean isPublished //stores whether or not the species list for this item has been published to the BIE
     Date dateCreated
     Date lastUpdated
     Integer itemOrder
-    String commonName
+
+    MatchedSpecies matchedSpecies
 
     static hasMany = [kvpValues: SpeciesListKVP]
     //allows the items to be sorted before they are extracted.
@@ -43,11 +45,12 @@ class SpeciesListItem {
         isPublished(nullable:true)
         guid(nullable:true)
         matchedName(nullable: true)
-        kingdom(nullable:  true)
-        family(nullable:  true)
         commonName(nullable:  true)
         imageUrl(nullable: true)
         author(nullable: true)
+        matchedSpecies(nullable: true)
+        kingdom(nullable:  true)
+        family(nullable:  true)
     }
 
     static mapping ={
@@ -63,6 +66,14 @@ class SpeciesListItem {
         mylist index: 'idx_list_id'
         //kvpValues cascade: "all-delete-orphan"
         //kvpValues lazy: false
+        matchedSpecies (ignoreNotFound: true)
     }
 
+    def toMap() {
+        def map = this.class.declaredFields.findAll { it.modifiers == java.lang.reflect.Modifier.PRIVATE}.
+                collectEntries { [it.name, this[it.name]] }
+
+        map["matchedSpecies"] = this.matchedSpecies?.toMap()
+        return map
+    }
 }
