@@ -1056,9 +1056,13 @@
                                                 <br/><i>Author(s): ${result.matchedSpecies?.scientificNameAuthorship}</i>
                                             </g:if>
 
-                                            <br/>${result.matchedSpecies?.kingdom}
-                                            - ${result.matchedSpecies?.phylum} - ${result.matchedSpecies?.taxonClass}
-                                            - ${result.matchedSpecies?.taxonOrder} - ${result.matchedSpecies?.family} - ${result.matchedSpecies?.genus}
+                                            <br/>
+                                            <g:if test="result.matchedSpecies?.kingdom}">${result.matchedSpecies?.kingdom}</g:if>
+                                            <g:if test="result.matchedSpecies?.phylum}">- ${result.matchedSpecies?.phylum}</g:if>
+                                            <g:if test="result.matchedSpecies?.taxonClass}">- ${result.matchedSpecies?.taxonClass}</g:if>
+                                            <g:if test="result.matchedSpecies?.taxonOrder}">- ${result.matchedSpecies?.taxonOrder}</g:if>
+                                            <g:if test="result.matchedSpecies?.family}">- ${result.matchedSpecies?.family}</g:if>
+                                            <g:if test="result.matchedSpecies?.genus}">- ${result.matchedSpecies?.genus}</g:if>
 
                                         </g:if>
                                     </td>
