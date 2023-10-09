@@ -790,68 +790,61 @@ class HelperService {
         }
     }
 
-    def updateMatchedSpecies_v4() {
-        def startTime = new Date()
-        def total = 0
+    def updateMatchedSpecies_v4(int max) {
+        def begin = new Date()
+        log.info("Starts updating ${max}  matched species ....")
 
-        def max = 1000
-        def round = 1
         def offset = 0
 
-        int i = 0
-        while (i < round) {
-            offset = i * max
-            def c = SpeciesListItem.createCriteria()
-            def speciesList = c.list(max:max, offset: offset) {
-                order("dateCreated","desc")
-                and {
-                    {isNotNull("matchedName")}
-                    {ne "matchedName", ""}
-                    {isNull("matchedSpecies")}
-                }
+        def c = SpeciesListItem.createCriteria()
+        def speciesList = c.list(max:max, offset: offset) {
+            order("dateCreated","desc")
+            and {
+                {isNotNull("matchedName")}
+                {ne "matchedName", ""}
+                {isNull("matchedSpecies")}
             }
+        }
 
-            total =  speciesList.totalCount
-            speciesList.forEach {it->
-                def matchedSpecies =  MatchedSpecies.findByScientificName(it.matchedName)
-                //already in MatchedSpecies table
-                if (matchedSpecies) {
-                    it.matchedSpecies = matchedSpecies
+        def total =  speciesList.totalCount
+        def countNewSpecies = 1;
+        speciesList.forEach { it ->
+            def matchedSpecies = MatchedSpecies.findByScientificName(it.matchedName)
+            //already in MatchedSpecies table
+            if (matchedSpecies) {
+                it.matchedSpecies = matchedSpecies
+            } else {
+                // Matching with scientific name should be secure enough.
+                def match = nameExplorerService.searchForRecordByScientificName(it.matchedName)
+
+                if (match && match.success) {
+                    MatchedSpecies newMS = new MatchedSpecies()
+                    newMS.taxonConceptID = match.taxonConceptID
+                    newMS.scientificName = match.scientificName
+                    newMS.scientificNameAuthorship = match.scientificNameAuthorship
+                    newMS.vernacularName = match.vernacularName
+
+                    newMS.kingdom = match.kingdom
+                    newMS.phylum = match.phylum
+                    newMS.taxonClass = match.classs
+                    newMS.taxonOrder = match.order
+                    newMS.family = match.family
+                    newMS.genus = match.genus
+                    newMS.taxonRank = match.rank
+
+                    newMS.save(flush: true)
+                    it.matchedSpecies = newMS
+                    countNewSpecies++
                 } else {
-                    // Matching with scientific name should be secure enough.
-                    def match = nameExplorerService.searchForRecordByScientificName(it.matchedName)
-
-                    if(match && match.success){
-                        MatchedSpecies ms = MatchedSpecies.findByTaxonConceptID(match.getTaxonConceptID())
-                        if (ms) {
-                            it.matchedSpecies = ms
-                        } else {
-                            MatchedSpecies newMS = new MatchedSpecies()
-                            newMS.taxonConceptID  = match.taxonConceptID
-                            newMS.scientificName = match.scientificName
-                            newMS.scientificNameAuthorship = match.scientificNameAuthorship
-                            newMS.vernacularName = match.vernacularName
-
-                            newMS.kingdom = match.kingdom
-                            newMS.phylum = match.phylum
-                            newMS.taxonClass = match.classs
-                            newMS.taxonOrder = match.order
-                            newMS.family = match.family
-                            newMS.genus = match.genus
-                            newMS.taxonRank = match.rank
-                            newMS.save(flush:true) //Need to store immediately, avoiding duplicated records
-
-                            it.matchedSpecies = newMS
-                        }
-                    } else {
-                        it.matchedName = " " //Avoid this species being selected next time.
-                    }
+                    it.matchedName = " " //Avoid this species being selected next time.
                 }
                 it.save()
             }
-            i++
         }
+        def eclipsedTime = TimeCategory.minus( new Date(), begin )
+        log.info("Completed! ${total - max} species are remained to be updated. ${countNewSpecies} species are inserted. Time eclipsed ${eclipsedTime} in total")
 
-        return [total: total, updated: max * round, time: TimeCategory.minus( new Date(), startTime )]
+        return [total: total, updated: max, newAddedSpecies: countNewSpecies, time: eclipsedTime]
     }
 }
+

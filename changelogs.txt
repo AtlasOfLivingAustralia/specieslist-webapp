@@ -4,10 +4,10 @@ Qifeng.bai@csiro.au
 
     Add a new table: matchedSpecies with fields: taxonConceptID, scientificName, scientificNameAuthorship, vernacularName, kingdom, phylum, taxonClass, taxonOrder, taxonRank, family, genus
 
-            CREATE TABLE `matched_species` (
+          CREATE TABLE `matched_species` (
               `id` int NOT NULL AUTO_INCREMENT,
               `taxon_concept_id` varchar(255) DEFAULT NULL,
-              `scientific_name` varchar(255) DEFAULT NULL,
+              `scientific_name` varchar(255) NOT NULL,
               `scientific_name_authorship` varchar(255) DEFAULT NULL,
               `vernacular_name` varchar(255) DEFAULT NULL,
               `kingdom` varchar(255) DEFAULT NULL,
@@ -17,7 +17,8 @@ Qifeng.bai@csiro.au
               `family` varchar(255) DEFAULT NULL,
               `genus` varchar(255) DEFAULT NULL,
               `taxon_rank` varchar(255) DEFAULT NULL,
-              PRIMARY KEY (`id`),
+              `version` BIGINT NOT NULL DEFAULT 0,
+              PRIMARY KEY (`id`,`scientific_name`),
               UNIQUE KEY `id_UNIQUE` (`id`)
               )
 
@@ -25,5 +26,42 @@ Qifeng.bai@csiro.au
             ALTER TABLE `specieslist`.`species_list_item`
             ADD COLUMN `matched_species_id` INT DEFAULT NULL
 
-* Groovy script to update existing records
+* Groovy script to update existing records:
+
+/**
+ * It can be safely run multiple times. We can stop and rerun at any time
+ */
+
+        import groovy.json.JsonSlurper
+
+        String listsServer = "http://localhost:8080/ws/update_4.4"
+        boolean completed = false;
+        int i = 1;
+        println("*** Task starts ***")
+        while (!completed) {
+            URL url = new URL(listsServer)
+            HttpURLConnection con = (HttpURLConnection) url.openConnection()
+            con.setRequestMethod("GET")
+            con.setRequestProperty("Accept", "application/json");
+            println("updating... " + i)
+            try(BufferedReader br = new BufferedReader(
+                    new InputStreamReader(con.getInputStream(), "utf-8"))) {
+
+                def parser = new JsonSlurper()
+                def result = parser.parse(br)
+                println("${result.remaining} species list need to be updated.  ${result.eclipsed} was used.")
+                if (Integer.parseInt(result.remaining) <= 0) {
+                    completed = true
+                }
+            } catch(Exception e) {
+                completed = true
+                println("Exception: ${e}")
+                println("The application is terminated due to runtime error!")
+            }
+
+            i++
+        }
+
+        println("*** Task is completed ***")
+
 

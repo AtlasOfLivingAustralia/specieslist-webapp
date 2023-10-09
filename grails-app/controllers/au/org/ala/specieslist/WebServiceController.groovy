@@ -1461,9 +1461,12 @@ class WebServiceController {
      * Only used for 4.4.0 release
      * Update existing SpeciesListItem, add a linked matched species
      */
-    def updateMatchedSpecies_v4() {
-        def result = helperService.updateMatchedSpecies_v4()
-        def resp =  [remaining: "${result.total - result.updated}" , eclipsed: "${result.time}"]
+    def updateMatchedSpecies_v4(int max) {
+        if (!max || max < 0) {
+            max = 1000
+        }
+        def result = helperService.updateMatchedSpecies_v4(max)
+        def resp =  [remaining: "${result.total - result.updated}" , newMatchedSpecies: "${result.newAddedSpecies}", eclipsed: "${result.time}"]
         render resp as JSON
     }
 
