@@ -1457,16 +1457,19 @@ class WebServiceController {
         }
     }
 
+
     /**
-     * Only used for 4.4.0 release
-     * Update existing SpeciesListItem, add a linked matched species
+     * rematch existing SpeciesListItem
      */
-    def updateMatchedSpecies_v4(int max) {
-        if (!max || max < 0) {
-            max = 1000
-        }
-        def result = helperService.updateMatchedSpecies_v4(max)
-        def resp =  [remaining: "${result.total - result.updated}" , newMatchedSpecies: "${result.newAddedSpecies}", eclipsed: "${result.time}"]
+    def rematchSpecies() {
+        def result = helperService.rematchSpecies("developer", params.matchAll)
+        def resp = result.toMap()
+        render resp as JSON
+    }
+
+    def rematchStatus() {
+        def result = helperService.queryRematchingProcess()
+        def resp = result
         render resp as JSON
     }
 

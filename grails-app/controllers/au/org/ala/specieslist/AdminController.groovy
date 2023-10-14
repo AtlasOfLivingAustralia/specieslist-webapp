@@ -57,11 +57,14 @@ class AdminController {
             // retrieve qualified SpeciesListItems for performance reason
             def itemsIds = queryService.getFilterSpeciesListItemsIds(params)
             def lists = queryService.getFilterListResult(params, false, itemsIds)
+            def rematchLogs = helperService.queryRematchingProcess()
             def model = [lists:lists,
                          total:lists.totalCount,
                          typeFacets: (params.listType) ? null : queryService.getTypeFacetCounts(params, false, itemsIds),
                          tagFacets: queryService.getTagFacetCounts(params, itemsIds),
-                         selectedFacets:queryService.getSelectedFacets(params)]
+                         selectedFacets:queryService.getSelectedFacets(params),
+                         rematchLogs: rematchLogs
+            ]
             if (searchTerm) {
                 params.q = searchTerm
                 model.errors = "Error: Search terms must contain at least 3 characters"

@@ -16,7 +16,6 @@
 package au.org.ala.specieslist
 
 import groovy.time.*
-import io.micrometer.core.instrument.binder.okhttp3.OkHttpMetricsEventListener
 import org.hibernate.Criteria
 import org.hibernate.criterion.CriteriaQuery
 import org.hibernate.criterion.Order

@@ -146,7 +146,7 @@
                                 if (result?.matchedSpecies?.vernacularName)
                                     bie +="<br/>" + result?.matchedSpecies.vernacularName
                                 if (result?.matchedSpecies?.scientificNameAuthorship)
-                                    bie += "<br/>Autheor(s):" + result?.matchedSpecies.scientificNameAuthorship
+                                    bie += "<br/>${message(code:'speciesListItem.author', default:'Author(s)')} :" + result?.matchedSpecies.scientificNameAuthorship
                                     bie +="<br/>" + result?.matchedSpecies?.kingdom +" - " + result?.matchedSpecies?.family +" - " +  result?.matchedSpecies?.taxonOrder +
                                       " - " + result?.matchedSpecies?.taxonClass +" - " + result?.matchedSpecies?.phylum +" - " + result?.matchedSpecies?.genus
                                 var matchedTaxon = bie
@@ -1053,7 +1053,8 @@
                                                  <br/>${result.matchedSpecies?.vernacularName}
                                             </g:if>
                                             <g:if test="$result.matchedSpecies?.scientificNameAuthorship}">
-                                                <br/><i>Author(s): ${result.matchedSpecies?.scientificNameAuthorship}</i>
+
+                                                <br/><i>${message(code:"speciesListItem.author", default:"Author(s)")}: ${result.matchedSpecies?.scientificNameAuthorship}</i>
                                             </g:if>
 
                                             <br/>

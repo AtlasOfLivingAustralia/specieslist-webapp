@@ -30,16 +30,48 @@
                         $("img#spinner").show(); // show spinning gif
                         $("#fancyConfirm_ok").attr("disabled", "disabled"); // disable "Yes" button while processing
                         $.post(url, function (data) {
-                            alert(msgComplete);
-                            window.location.reload()
                         }).error(function (jqXHR, textStatus, error) {
                             alert("An error occurred: " + error + " - unable to rematch your lists.");
-                        }).complete(function () {
-                            $("img#spinner").hide();
-                            $("#fancyConfirm_ok").removeAttr("disabled");
-                            jQuery.fancybox.close();
-                        });
+                        })
+                        jQuery.fancybox.close();
+                        window.location.reload()
                     })
+                }
+            })
+        }
+
+        function showRematchingProcess(url) {
+            jQuery.fancybox.open("<div style='padding:20px;width:800px;text-align:center;'><div style='text-align:center;margin-top:10px;'><div id='logs'></div><input id='fancyConfirm_ok' type='button' value='Close' class='actionButton btn btn-default btn-sm'></div></div>", {
+                'padding': 0,
+                'margin': 0,
+                'width': 'auto',
+                'height': 'auto',
+                afterShow: function () {
+                    $.get(url, function(rematchingLogs) {
+                        var message = "";
+                        if (rematchingLogs.processing) {
+                            var logs = rematchingLogs.history.filter(({status}) => status === "RUNNING");
+                            message = "<table><tr><th>Who</th><th>Start time</th><th>Last update time</th><th>Remaining records</th><th>Total Records</th></tr>"
+                            for(i in logs) {
+                                var log = logs[i]
+                                message +="<tr>"
+                                message += "<td>"+log.byWhom+"</td>"
+                                message += "<td>"+log.startTime+"</td>"
+                                message += "<td>"+log.recentProcessTime+"</td>"
+                                message += "<td>"+log.remaining+"</td>"
+                                message += "<td>"+log.total+"</td>"
+                                message +="</tr>"
+                            }
+                            message +="</table>";
+                        } else {
+                            message = "There is no active rematching process";
+                        }
+
+                        $("div#logs").html(message);
+                    })
+                    jQuery("#fancyConfirm_ok").click(function () {
+                        jQuery.fancybox.close();
+                    });
                 }
             })
         }
@@ -57,11 +89,17 @@
                     <span class="pull-right">
                         <a class="btn btn-primary" title="${message(code:'upload.lists.header01', default:'Upload a list')}" href="${request.contextPath}/speciesList/upload">${message(code:'upload.lists.header01', default:'Upload a list')}</a>
                         <a class="btn btn-primary" title="${message(code:'generic.lists.button.mylist.label', default:'My Lists')}" href="${request.contextPath}/speciesList/list">${message(code:'generic.lists.button.mylist.label', default:'My Lists')}</a>
-                        <a href="#" title="${message(code:'admin.lists.page.button.rematch.tooltip', default:'Rematch')}"
-                           onclick="rematchConfirm('${message(code:"admin.lists.actions.button.rematch.messages", default:"Are you sure that you would like to rematch?")}',
-                               '${request.contextPath}/speciesList/rematch',
-                               '${message(code:"admin.lists.page.button.rematch.messages", default:"Rematch complete")}');
-                           return false;" class="btn btn-primary">${message(code:'admin.lists.page.button.rematch.label', default:'Rematch All')}</a>
+                        <g:if test="${rematchLogs.processing}">
+                            <button class="btn btn-primary" onclick="showRematchingProcess('${request.contextPath}/ws/rematchStatus')">Rematching is on process. Click to check status</button>
+                        </g:if>
+                        <g:else>
+                            <a href="#" title="${message(code:'admin.lists.page.button.rematch.tooltip', default:'Rematch')}"
+                               onclick="rematchConfirm('${message(code:"admin.lists.actions.button.rematch.messages", default:"Are you sure that you would like to rematch?")}',
+                                   '${request.contextPath}/speciesList/rematch',
+                                   '${message(code:"admin.lists.page.button.rematch.messages", default:"Rematch complete")}');
+                               return false;" class="btn btn-primary">${message(code:'admin.lists.page.button.rematch.label', default:'Rematch All')}</a>
+                            <a href="${request.contextPath}/ws/rematchStatus">Check rematching history</a>
+                        </g:else>
                     </span>
                 </div>
             </div><!--inner-->

@@ -18,7 +18,6 @@ package au.org.ala.specieslist
 //import au.org.ala.names.ws.api.SearchStyle
 
 class MatchedSpecies {
-    String id
     String taxonConceptID
     String scientificName
     String scientificNameAuthorship
@@ -30,6 +29,7 @@ class MatchedSpecies {
     String taxonRank
     String family
     String genus
+    Date lastUpdated
 
     static constraints = {
         vernacularName(nullable:  true)
@@ -43,6 +43,7 @@ class MatchedSpecies {
         taxonRank(nullable: true)
         phylum(nullable: true)
         genus(nullable: true)
+        lastUpdated(nullable: true)
     }
 
 
@@ -59,6 +60,20 @@ class MatchedSpecies {
     def toMap() {
         this.class.declaredFields.findAll { it.modifiers == java.lang.reflect.Modifier.PRIVATE }.
                 collectEntries { [it.name, this[it.name]] }
+    }
+
+    def isSame(def target){
+        return this.taxonConceptID?.equalsIgnoreCase(target.taxonConceptID) &&
+                this.scientificNameAuthorship?.equalsIgnoreCase(target.scientificNameAuthorship) &&
+                this.vernacularName?.equalsIgnoreCase(target.vernacularName) &&
+                this.kingdom?.equalsIgnoreCase(target.kingdom) &&
+                this.phylum?.equalsIgnoreCase(target.phylum) &&
+                this.taxonClass?.equalsIgnoreCase(target.classs) &&
+                this.taxonOrder?.equalsIgnoreCase(target.order) &&
+                this.family?.equalsIgnoreCase(target.family) &&
+                this.genus?.equalsIgnoreCase(target.genus) &&
+                this.taxonRank?.equalsIgnoreCase(target.rank)
+
     }
 
 }

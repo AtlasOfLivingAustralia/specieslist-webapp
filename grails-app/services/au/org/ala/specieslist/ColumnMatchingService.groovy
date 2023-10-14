@@ -119,8 +119,6 @@ class ColumnMatchingService implements GrailsConfigurationAware {
             }
         }
 
-        //headerResponse = parseHeadersCamelCase(headerResponse)
-
         if (hasName)
             [header: headerResponse, nameFound: hasName]
         else
