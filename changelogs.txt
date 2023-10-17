@@ -18,10 +18,14 @@ Qifeng.bai@csiro.au
               `genus` varchar(255) DEFAULT NULL,
               `taxon_rank` varchar(255) DEFAULT NULL,
               `version` BIGINT NOT NULL DEFAULT 0,
-              PRIMARY KEY (`id`,`scientific_name`),
               UNIQUE KEY `id_UNIQUE` (`id`)
               )
 
+        Create an index for:
+        ALTER TABLE `specieslist`.`matched_species`
+          Add index `idx_concept_id` (`taxon_concept_id`);
+        ALTER TABLE `specieslist`.`matched_species`
+          Add index `idx_scientific_name` (`scientific_name`);
     Link the new created matchedSpecies table to speciesListItem table:
             ALTER TABLE `specieslist`.`species_list_item`
             ADD COLUMN `matched_species_id` INT DEFAULT NULL

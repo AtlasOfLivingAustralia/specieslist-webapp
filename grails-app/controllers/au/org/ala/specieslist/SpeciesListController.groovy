@@ -512,7 +512,12 @@ class SpeciesListController {
             params.id = SpeciesList.get(params.id)?.dataResourceUid
             log.info("Rematching for " + params.id)
         } else {
-            log.warn("Rematching for ALL")
+            if (params.beforeId) {
+                log.warn("Rematching for ALL before ${params.beforeId}")
+            } else {
+                log.warn("Rematching for ALL")
+            }
+
         }
         Integer totalRows, offset = 0;
         String id = params.id
@@ -521,8 +526,8 @@ class SpeciesListController {
             response.sendError(401, "Not authorised.")
             return
         }
-
-        helperService.rematch(id)
+        Long before = Long.parseLong(params.beforeId)
+        helperService.rematch(id,before)
 
         render(text: "${message(code: 'admin.lists.page.button.rematch.messages', default: 'Rematch complete')}")
     }

@@ -70,7 +70,7 @@ class UrlMappings {
         "/ws/speciesListItemKvp/$druid" (controller: 'webService'){
             action = [GET: 'getSpeciesListItemKvp']
         }
-        "/ws/rematchSpecies" (controller: "webService", action: "rematchSpecies")
+
         "/ws/rematchStatus" (controller: "webService", action: "rematchStatus")
 		"/"(controller: 'public' ,action:  'index')
 		"500"(view:'/error')

@@ -21,6 +21,7 @@ import com.opencsv.CSVReader
 import grails.gorm.transactions.NotTransactional
 import java.time.LocalDateTime
 import java.sql.Timestamp
+import groovy.time.*
 import grails.gorm.transactions.Transactional
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
@@ -865,18 +866,32 @@ class HelperService {
         return result
     }
 
+    /**
+     *
+     * @param id the species need to rematched
+     * @param beforeId if @id is not given, but @before is given, it will rematch all species before 'beforeId'
+     * @return
+     */
     @NotTransactional
-    def rematch(id) {
+    def rematch(id, beforeId) {
         Integer totalRows, offset = 0;
         // Save to DB if no id is given.
         boolean saveToDB = id ? false:true
-        def rematchLog = new RematchLog(byWhom: authService.userId ?: "Developer", startTime: new Date(), status: Status.RUNNING);
+        def rematchLog = new RematchLog(byWhom: authService.userId ?: "Developer", startTime: new Date(), recentProcessTime: new Date(), status: Status.RUNNING);
         rematchLog.saveToDB = saveToDB
 
         if (id) {
             totalRows = SpeciesListItem.countByDataResourceUid(id)
         } else {
-            totalRows = SpeciesListItem.count();
+            if (beforeId) {
+                def c = SpeciesListItem.createCriteria()
+                totalRows = c.list(max:1, offset: 0) {
+                    order "id", "desc"
+                    le("id", beforeId)
+                }.totalCount
+            } else {
+                totalRows = SpeciesListItem.count();
+            }
         }
         rematchLog.total = totalRows
         rematchLog.remaining = totalRows
@@ -892,9 +907,22 @@ class HelperService {
                 if (id) {
                     items = SpeciesListItem.findAllByDataResourceUid(id, [max: BATCH_SIZE, offset: offset])
                 } else {
-                    items = SpeciesListItem.list(max: BATCH_SIZE, offset: offset, sort: "id", order: "desc")
+                    //items = SpeciesListItem.list(max: BATCH_SIZE, offset: offset, sort: "id", order: "desc")
+                    if (beforeId) {
+                        def c = SpeciesListItem.createCriteria()
+                        items = c.list(max:BATCH_SIZE, offset: offset) {
+                            order "id", "desc"
+                            le("id", beforeId)
+                        }
+                    } else {
+                        items = SpeciesListItem.list(max: BATCH_SIZE, offset: offset, sort: "id", order: "desc")
+                    }
+                    //Update
+                    totalRows = items.totalCount
+                    rematchLog.total = items.totalCount
                 }
 
+                def start = new Date()
                 SpeciesListItem.withTransaction {
                     items.eachWithIndex { SpeciesListItem item, Integer i ->
                         SpeciesList speciesList = item.mylist
@@ -930,11 +958,11 @@ class HelperService {
                 } // End transaction
 
                 offset += BATCH_SIZE;
-                log.info("Rematched ${offset} of ${totalRows} completed")
+                log.info("Rematched ${offset} of ${totalRows} completed, time elapsed:" + TimeCategory.minus(new Date(), start))
                 //Only log complete record rematching process
                 rematchLog.remaining = totalRows - offset
                 //SpeciesListItem
-                rematchLog.logs = "${items.last().id} was rematched!"
+                rematchLog.logs = "ID: ${items.last().id} was rematched!"
                 rematchLog.currentRecordId = items.last().id
                 rematchLog.recentProcessTime = new Date()
                 rematchLog.persist()
