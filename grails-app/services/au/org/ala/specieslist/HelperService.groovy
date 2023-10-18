@@ -883,7 +883,7 @@ class HelperService {
         if (id) {
             totalRows = SpeciesListItem.countByDataResourceUid(id)
         } else {
-            if (beforeId) {
+            if (beforeId && beforeId > 0) {
                 def c = SpeciesListItem.createCriteria()
                 totalRows = c.list(max:1, offset: 0) {
                     order "id", "desc"
@@ -898,7 +898,7 @@ class HelperService {
         rematchLog.persist()
 
         try {
-            while (offset < totalRows) {
+            while (true) {
                 List items
                 List guidBatch = [], sliBatch = []
                 Map<SpeciesList, List<SpeciesListItem>> batches = new HashMap<>()
@@ -920,6 +920,10 @@ class HelperService {
                     //Update
                     totalRows = items.totalCount
                     rematchLog.total = items.totalCount
+                }
+
+                if ( items.size() <=0 ){
+                    break;
                 }
 
                 def start = new Date()
@@ -958,25 +962,36 @@ class HelperService {
                 } // End transaction
 
                 offset += BATCH_SIZE;
-                log.info("Rematched ${offset} of ${totalRows} completed, time elapsed:" + TimeCategory.minus(new Date(), start))
-                //Only log complete record rematching process
-                rematchLog.remaining = totalRows - offset
+                if (totalRows < offset) {
+                    log.info("Rematched the last ${totalRows} species, time elapsed:" + TimeCategory.minus(new Date(), start))
+                    rematchLog.remaining = 0
+                } else {
+                    log.info("Rematched ${offset} of ${totalRows} completed, time elapsed:" + TimeCategory.minus(new Date(), start))
+                    rematchLog.remaining = totalRows - offset
+                }
+
                 //SpeciesListItem
-                rematchLog.logs = "ID: ${items.last().id} was rematched!"
-                rematchLog.currentRecordId = items.last().id
-                rematchLog.recentProcessTime = new Date()
-                rematchLog.persist()
+                RematchLog.withTransaction {
+                    rematchLog.logs = "ID: ${items.last().id} was rematched!"
+                    rematchLog.currentRecordId = items.last().id
+                    rematchLog.recentProcessTime = new Date()
+                    rematchLog.persist()
+                }
+
 
             }// end full iteration
             rematchLog.status = Status.COMPLETED
             rematchLog.endTime = new Date()
+            rematchLog.logs = "Rematch completed"
             log.info("Rematching is completed")
         } catch (Exception e) {
             log.error("Error in rematching:" + e.message)
             rematchLog.status = Status.FAILED
             rematchLog.endTime = new Date()
         } finally {
-            rematchLog.persist()
+            RematchLog.withTransaction {
+                rematchLog.persist()
+            }
         } // end try
         return rematchLog
     }

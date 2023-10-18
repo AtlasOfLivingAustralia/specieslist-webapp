@@ -508,16 +508,23 @@ class SpeciesListController {
      * Rematches the scientific names in the supplied list
      */
     def rematch() {
+        long  beforeId = 0
         if (params.id && !params.id.startsWith("dr")) {
             params.id = SpeciesList.get(params.id)?.dataResourceUid
             log.info("Rematching for " + params.id)
         } else {
+            String msg = "Rematching for ALL"
             if (params.beforeId) {
-                log.warn("Rematching for ALL before ${params.beforeId}")
-            } else {
-                log.warn("Rematching for ALL")
+                try {
+                    beforeId = Long.parseLong(params.beforeId)
+                    if ( beforeId > 0) {
+                        msg = "Continue to rematch the rest of species before id: " + beforeId
+                    }
+                }catch(Exception e){
+                }
             }
 
+            log.warn(msg)
         }
         Integer totalRows, offset = 0;
         String id = params.id
@@ -526,8 +533,8 @@ class SpeciesListController {
             response.sendError(401, "Not authorised.")
             return
         }
-        Long before = Long.parseLong(params.beforeId)
-        helperService.rematch(id,before)
+
+        helperService.rematch(id,beforeId)
 
         render(text: "${message(code: 'admin.lists.page.button.rematch.messages', default: 'Rematch complete')}")
     }

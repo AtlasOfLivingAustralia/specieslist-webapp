@@ -106,7 +106,7 @@
                             message += "<td>"+log.byWhom+"</td>"
                             message += "<td>"+new Date(Date.parse(log.startTime)).toLocaleString()+"</td>"
                             message += "<td>"+new Date(Date.parse(log.recentProcessTime)).toLocaleString()+"</td>"
-                            message +="<td>"+Math.round(((log.total-log.remaining)/ log.total) * 100)+"%</td>"
+                            message +="<td>"+Math.floor(((log.total-log.remaining)/ log.total) * 10000)/100+"%</td>"
                             message += elapsedTimeTd
                             message += "<td>"+numberWithCommas(log.remaining)+"</td>"
                             message += "<td>"+numberWithCommas(log.total)+"</td>"
