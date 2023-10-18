@@ -18,6 +18,8 @@ package au.org.ala.specieslist
 
 import com.opencsv.CSVWriter
 import grails.converters.JSON
+import groovy.json.JsonBuilder
+import groovy.json.JsonOutput
 
 class SpeciesListItemController {
 
@@ -110,7 +112,7 @@ class SpeciesListItemController {
                 } else {
                     if (requestParams.message)
                         flash.message = requestParams.message
-                    requestParams.max = Math.min(requestParams.max ? requestParams.int('max') : 10, 100)
+                    requestParams.max = Math.min(requestParams.max ? requestParams.int('max') : 100, 1000)
                     requestParams.sort = requestParams.sort ?: "itemOrder"
                     requestParams.offset = requestParams.int('offset') ?: 0
                     requestParams.fetch = [kvpValues: 'select']
@@ -133,10 +135,13 @@ class SpeciesListItemController {
 
                     log.debug("Checking speciesList: " + speciesList)
                     log.debug("Checking editors: " + speciesList.editors)
+                    def speciesListItems = queryService.getSpeciesListItemsByParams(requestParams, baseQueryAndParamsForListingSLI)
+
+
                     render(view: 'list', model: [
                             speciesList: speciesList,
                             params: requestParams,
-                            results: queryService.getSpeciesListItemsByParams(requestParams, baseQueryAndParamsForListingSLI),
+                            results: speciesListItems,
                             totalCount: queryService.getTotalCountByParams(requestParams, baseQueryAndParams),
                             noMatchCount: noMatchCount,
                             distinctCount: queryService.getDistinctCountByParams(requestParams, baseQueryAndParams),

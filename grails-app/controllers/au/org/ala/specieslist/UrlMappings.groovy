@@ -37,11 +37,16 @@ class UrlMappings {
             action = [GET:'getListItemDetails']
         }
 
+        "/ws/createItem" (controller: 'webService', action: 'createItem')
+
+        "/ws/deleteItem" (controller: 'webService', action: 'deleteItem')
+
         "/ws/queryListItemOrKVP" (controller: 'webService'){
             action = [GET:'queryListItemOrKVP']
         }
 
         //"/ws/speciesListItems" (controller: "webService", action: "getListItemDetails")
+        "/ws/findSpeciesByName" (controller: "webService", action: "findSpeciesByName")
         "/ws/speciesListItems/keys" (controller: "webService", action: "listKeys")
         "/ws/speciesListItems/byKeys" (controller: "webService", action: "listItemsByKeys")
 
@@ -66,6 +71,7 @@ class UrlMappings {
             action = [GET: 'getSpeciesListItemKvp']
         }
 
+        "/ws/rematchStatus" (controller: "webService", action: "rematchStatus")
 		"/"(controller: 'public' ,action:  'index')
 		"500"(view:'/error')
         "404"(view:'/404')

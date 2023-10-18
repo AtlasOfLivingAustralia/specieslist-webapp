@@ -112,8 +112,56 @@
 
                 $.post("${createLink(controller: "editor", action: 'editRecord')}", thisFormData, function(data, textStatus, jqXHR) {
                     $(modal).modal('hide');
-                    alert(jqXHR.responseText);
-                    window.location.reload(true);
+                    var idItem = thisFormData.find(o=>o.name === "id");
+                    var rawScientificName = thisFormData.find(o=>o.name === "rawScientificName")?.value;
+                    if (idItem) {
+                        var id = idItem.value;
+                        var row = $("tr#row_"+ id);
+                        //Only change rawScientificName, and KVP
+                        thisFormData.forEach(item=>{
+                            //Avoid keys such as 'Profile No'
+                            var td = row.find("td."+item.name.replace(" ", "_"));
+                            if (td.length > 0) {
+                                   td.html("<div>"+ item.value +"</div>");
+                               }
+                        });
+
+                        var speciesUrl = "${createLink(controller: "ws", action: 'findSpeciesByName')}"
+                        $.get(speciesUrl,{ name: rawScientificName, id:id},  function( result ) {
+                            var updatedIcon = "<i class='glyphicon glyphicon-check text-success'></i>  ";
+                            var guid = result.guid;
+                            if (guid === "" || guid === null || guid === undefined){
+                                //raw name
+                                var google = "http://google.com/search?q=" + rawScientificName;
+                                var biocache = "${grailsApplication.config.biocache.baseURL}/occurrences/search?q="+rawScientificName;
+                                var guidText= updatedIcon + rawScientificName + "<br>(unmatched - try <a href='" + google +"' target='google' class='btn btn-primary btn-xs'>Google</a>," +
+                                 "<a href='" + biocache +" target='biocache' class='btn btn-success btn-xs'>${message(code:'generic.lists.button.Occurrences.label', default:'Occurrences')}</a>)";
+
+                                row.find("td.rawScientificName").html(guidText);
+                                row.find("td.matchedName").html(result.matchedName);
+                                row.find("td.imageUrl").html("");
+                            } else {
+                                var bie = "<a href=${bieUrl}/species/" + guid + " title='click to view species page'>"+result.matchedName + "</a>"
+
+                                if (result?.matchedSpecies?.vernacularName)
+                                    bie +="<br/>" + result?.matchedSpecies.vernacularName
+                                if (result?.matchedSpecies?.scientificNameAuthorship)
+                                    bie += "<br/>${message(code:'speciesListItem.author', default:'Author(s)')} :" + result?.matchedSpecies.scientificNameAuthorship
+                                    bie +="<br/>" + result?.matchedSpecies?.kingdom +" - " + result?.matchedSpecies?.family +" - " +  result?.matchedSpecies?.taxonOrder +
+                                      " - " + result?.matchedSpecies?.taxonClass +" - " + result?.matchedSpecies?.phylum +" - " + result?.matchedSpecies?.genus
+                                var matchedTaxon = bie
+                                row.find("td.matchedName").html(matchedTaxon)
+                                row.find("td.rawScientificName").html( "<div>"+ updatedIcon + rawScientificName +"</div>");
+
+                                if(result.imageUrl === "" || result.imageUrl === null || result.imageUrl === undefined) {
+                                     row.find("td.imageUrl").html("");
+                                } else {
+                                    var image_url ="<a href=${bieUrl}/species/"+guid+"  title='click to view species page'><img src="+result.imageUrl+" class='smallSpeciesImage'/></a>";
+                                    row.find("td.imageUrl").html(image_url);
+                                }
+                            }
+                        })
+                    }
                 }).error(function(jqXHR, textStatus, error) {
                     alert("An error occurred: " + error + " - " + jqXHR.responseText);
                     $(modal).modal('hide');
@@ -924,24 +972,48 @@
                             <tr>
                                 <th class="action">${message(code:'public.lists.view.table.action.label', default:'Action')}</th>
                                 <g:sortableColumn property="rawScientificName" title="${message(code:'public.lists.items.header01', default:'Supplied Name')}"
-                                                  params="${[fq: fqs]}"></g:sortableColumn>
-                                <g:sortableColumn property="matchedName" title="${message(code:'public.lists.items.header02', default:'Scientific Name (matched)')}"
-                                                  params="${[fq: fqs]}"></g:sortableColumn>
-                                <th>${message(code:'public.lists.items.header07', default:'Image')}</th>
-                                <g:sortableColumn property="author" title="${message(code:'public.lists.items.header03', default:'Author (matched)')}"
-                                                  params="${[fq: fqs]}"></g:sortableColumn>
+                                                      params="${[fq: fqs]}"></g:sortableColumn>
+                                <th>${message(code:'public.lists.items.header02', default:'Scientific Name (matched)')}
+                                <g:set var="sortBy" value="asc"/>
+                                <g:set var="sortByIcon" value="glyphicon-sort-by-alphabet"/>
+                                <g:if test = "${params.sort == 'matchedSpecies.kingdom'}">
+                                    <g:if test = "${params.order == 'asc'}">
+                                        <g:set var="sortBy" value="desc"/>
+                                        <g:set var="sortByIcon" value="glyphicon-sort-by-alphabet-alt"/>
+                                    </g:if>
+                                    <a href= "${createLink(controller: 'speciesListItem', action:'list', params:[id: speciesList.dataResourceUid, sort: 'matchedSpecies.kingdom', max: params.max, order: sortBy])}">
+                                        Kingdom <span class="glyphicon ${sortByIcon}"></span></a>
+                                </g:if>
+                                <g:else>
+                                    <a href= "${createLink(controller: 'speciesListItem', action:'list', params:[id: speciesList.dataResourceUid, sort: 'matchedSpecies.kingdom', max: params.max, order: sortBy])}">
+                                        Kingdom <span class="glyphicon ${sortByIcon}"></span></a>
+                                </g:else>
+
+                                <g:if test = "${params.sort == 'matchedSpecies.family'}">
+                                    <g:if test = "${params.order == 'asc'}">
+                                        <g:set var="sortBy" value="desc"/>
+                                        <g:set var="sortByIcon" value="glyphicon-sort-by-alphabet-alt"/>
+                                    </g:if>
+                                    <a href= "${createLink(controller: 'speciesListItem', action:'list', params:[id: speciesList.dataResourceUid, sort: 'matchedSpecies.family', max: params.max, order: sortBy])}">
+                                        Family <span class="glyphicon ${sortByIcon}"></span></a>
+                                </g:if>
+                                <g:else>
+                                    <a href= "${createLink(controller: 'speciesListItem', action:'list', params:[id: speciesList.dataResourceUid, sort: 'matchedSpecies.family', max: params.max, order: sortBy])}">
+                                        Family <span class="glyphicon ${sortByIcon}"></span></a>
+                                </g:else>
+
+                                </th>
+                                <th>${message(code:'public.lists.items.header11', default:'Image')}</th>
                                 <g:sortableColumn property="commonName" title="${message(code:'public.lists.items.header04', default:'Common Name (matched)')}"
                                                   params="${[fq: fqs]}"></g:sortableColumn>
-                                <g:sortableColumn property="family" title="${message(code:'public.lists.items.header05', default:'Family (matched)')}"
-                                                  params="${[fq: fqs]}"></g:sortableColumn>
-                                <g:sortableColumn property="kingdom" title="${message(code:'public.lists.items.header06', default:'Kingdom (matched)')}"
-                                                  params="${[fq: fqs]}"></g:sortableColumn>
+
                                 <g:each in="${keys}" var="key">
                                     <th>${key}</th>
                                 </g:each>
                             </tr>
                             </thead>
                             <tbody>
+                            
                             <g:each var="result" in="${results}" status="i">
                                 <g:set var="recId" value="${result.id}"/>
 %{--                                <g:set var="bieTitle">${message(code:'public.lists.view.table.tooltip03', default:'species page for')} <i>${result.rawScientificName}</i></g:set>--}%
@@ -973,29 +1045,40 @@
                                         </g:if>
                                     </td>
                                     <td class="matchedName">
-                                        <g:if test="${result.guid}">
+
+                                        <g:if test="${result.guid && result.matchedSpecies}">
                                             <a href="${bieUrl}/species/${result.guid}"
-                                               title="click to view species page">${result.matchedName}</a>
+                                               title="click to view species page">${result.matchedSpecies?.scientificName}</a>
+                                            <g:if test="${result.matchedSpecies?.vernacularName}">
+                                                 <br/>${result.matchedSpecies?.vernacularName}
+                                            </g:if>
+                                            <g:if test="$result.matchedSpecies?.scientificNameAuthorship}">
+
+                                                <br/><i>${message(code:"speciesListItem.author", default:"Author(s)")}: ${result.matchedSpecies?.scientificNameAuthorship}</i>
+                                            </g:if>
+
+                                            <br/>
+                                            <g:if test="result.matchedSpecies?.kingdom}">${result.matchedSpecies?.kingdom}</g:if>
+                                            <g:if test="result.matchedSpecies?.phylum}">- ${result.matchedSpecies?.phylum}</g:if>
+                                            <g:if test="result.matchedSpecies?.taxonClass}">- ${result.matchedSpecies?.taxonClass}</g:if>
+                                            <g:if test="result.matchedSpecies?.taxonOrder}">- ${result.matchedSpecies?.taxonOrder}</g:if>
+                                            <g:if test="result.matchedSpecies?.family}">- ${result.matchedSpecies?.family}</g:if>
+                                            <g:if test="result.matchedSpecies?.genus}">- ${result.matchedSpecies?.genus}</g:if>
+
                                         </g:if>
-                                        <g:else>
-                                            ${result.matchedName}
-                                        </g:else>
                                     </td>
-                                    <td id="img_${result.guid}">
+                                    <td id="img_${result.guid}" class="imageUrl">
                                         <g:if test="${result.imageUrl}">
                                             <a href="${bieUrl}/species/${result.guid}" title="click to view species page"><img
                                                     src="${result.imageUrl}"
                                                     class="smallSpeciesImage"/></a>
                                         </g:if>
                                     </td>
-                                    <td>${result.author}</td>
-                                    <td id="cn_${result.guid}">${result.commonName}</td>
-                                    <td id="fm_${result.guid}">${result.family}</td>
-                                    <td id="kn_${result.guid}">${result.kingdom}</td>
+                                    <td id="cn_${result.guid}" class="commonName" >${result.commonName}</td>
                                     <g:each in="${keys}" var="key">
                                         <g:set var="kvp" value="${result.kvpValues.find { it.key == key }}"/>
                                         <g:set var="val" value="${kvp?.vocabValue ?: kvp?.value}"/>
-                                        <td class="kvp ${val?.length() > 35 ? 'scrollWidth' : ''}"><div>${val}</div>
+                                        <td class="kvp ${key.replace(" ","_")} ${val?.length() > 35 ? 'scrollWidth' : ''}"><div>${val}</div>
                                         </td>
                                     </g:each>
                                 </tr>
@@ -1008,7 +1091,7 @@
             <div class="searchWidgets">
                 ${message(code:'generic.lists.ItemsPerPage', default:'Items per page:')}
                 <select id="maxItems" onchange="reloadWithMax(this)">
-                    <g:each in="${[10, 25, 50, 100]}" var="max">
+                    <g:each in="${[10, 25, 50, 100, 500, 1000]}" var="max">
                         <option ${(params.max == max) ? 'selected="selected"' : ''}>${max}</option>
                     </g:each>
                 </select>
@@ -1133,5 +1216,6 @@
         });
     });
 </asset:script>
+
 </body>
 </html>

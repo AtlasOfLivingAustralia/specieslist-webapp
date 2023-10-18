@@ -456,7 +456,7 @@ class QueryService {
     * @param lists: data resource ids
     * @return
     */
-    def getListForSpecies(guid, isBIE, lists, queryParams ) {
+    def getListForSpecies(guid, isBIE, lists, queryParams, filters ) {
         def speciesListProperties = getSpeciesListProperties()
         def c = SpeciesListItem.createCriteria()
 
@@ -470,7 +470,46 @@ class QueryService {
             if (lists) {
                 'in'(DATA_RESOURCE_UID, lists)
             }
+
+            filters.each { key, value ->
+                if (speciesListProperties.containsKey(key)) {
+                    mylist {
+                        //the value suffix tells us which filter operation to perform
+                        def matcher = (value =~ filterRegEx)
+                        if (matcher.matches()) {
+                            def fvalue = matcher[0][2] //
+                            //now handle the supported filter conditions by gaining access to the criteria methods using reflection
+                            def method = criteriaMethods.get(matcher[0][1])
+                            if (method) {
+                                Object[] args = [getValueBasedOnType(speciesListProperties[key], fvalue)]
+                                if (method.getParameterTypes().size() > 1)
+                                    args = [key] + args[0]
+                                //log.debug("ARGS : " +args + " method : " + method)
+                                method.invoke(c, args)
+                            }
+                        }
+                    }
+                } else {
+                    //the value suffix tells us which filter operation to perform
+                    def matcher = (value =~ filterRegEx)
+                    if (matcher.matches()) {
+                        def fvalue = matcher[0][2]
+
+                        //now handle the supported filter conditions by gaining access to the criteria methods using reflection
+                        def method = criteriaMethods.get(matcher[0][1])
+                        if (method) {
+                            Object[] args = [getValueBasedOnType(speciesListProperties[key], fvalue)]
+                            if (method.getParameterTypes().size() > 1) {
+                                args = [key] + args
+                            }
+                            method.invoke(c, args)
+                        }
+                    }
+                }
+            }
         }
+
+
         return results
     }
 
@@ -548,7 +587,6 @@ class QueryService {
                     }
                 }
             }
-
         }
     }
 
@@ -804,7 +842,22 @@ class QueryService {
     }
 
     def getSpeciesListKVPKeysByDataResourceUid(String id) {
-        SpeciesListKVP.executeQuery("select distinct key, itemOrder from SpeciesListKVP where dataResourceUid = :dataResourceUid order by itemOrder", [dataResourceUid: id]).collect { it[0] }
+        def kvpKeys = SpeciesListKVP.executeQuery("select distinct key, itemOrder from SpeciesListKVP where dataResourceUid = :dataResourceUid order by itemOrder", [dataResourceUid: id]).collect { it[0] }
+        return sortTaxonHeader(kvpKeys)
+    }
+
+    def sortTaxonHeader(header) {
+        def taxons = ['vernacularName','kingdom','family','order','class', 'rank', 'phylum','genus', 'taxonRank'].reverse()
+        List headers = header.toList()
+        def sortedHeader = []
+        taxons.forEach {
+            if (headers.stream().anyMatch(it::equalsIgnoreCase)) {
+                sortedHeader.push(it)
+                headers.removeIf(value->value.equalsIgnoreCase(it));
+            }
+        }
+        sortedHeader.addAll(headers)
+        sortedHeader
     }
 
     def getUsersForList() {
@@ -836,7 +889,7 @@ class QueryService {
                     "group by kvp.key, kvp.value, kvp.vocabValue, kvp.itemOrder, kvp.key order by kvp.itemOrder, kvp.key, cnt desc",
                     queryParameters)
             def timeStop = new Date()
-            log.info("Query KVP of " + fqs + "took " + TimeCategory.minus(timeStop, timeStart))
+            log.warn("Query KVP of " + fqs + "took " + TimeCategory.minus(timeStop, timeStart))
 
             //obtain the families from the common list facets
             def commonResults = SpeciesListItem.executeQuery("select sli.family, count(sli) as cnt from SpeciesListItem sli " +
@@ -845,7 +898,7 @@ class QueryService {
                     "group by sli.family order by cnt desc",
                     queryParameters)
             if (commonResults.size() > 1) {
-                map.family = commonResults
+                map["family(matched)"] = commonResults
             }
 
             //println(results)
@@ -861,7 +914,7 @@ class QueryService {
                     'group by kvp.key, kvp.value, kvp.vocabValue, kvp.itemOrder order by kvp.itemOrder, kvp.key, cnt desc',
                     queryParameters)
             def timeStop = new Date()
-            log.info("Query KVP of " + id + "took " + TimeCategory.minus(timeStop, timeStart))
+            log.warn("Query KVP of ${id} took " + TimeCategory.minus(timeStop, timeStart))
             properties = results.findAll{it[1].length()<maxLengthForFacet}.groupBy{it[0]}.findAll{it.value.size()>1 }
             //obtain the families from the common list facets
             def commonResults = SpeciesListItem.executeQuery('select family, count(*) as cnt from SpeciesListItem ' +
@@ -870,7 +923,7 @@ class QueryService {
                     'group by family order by cnt desc',
                     queryParameters)
             if(commonResults.size() > 1) {
-                map.family = commonResults
+                map["family(matched)"] = commonResults
             }
         }
         //if there was a facet included in the result we will need to divide the

@@ -41,17 +41,19 @@ class ColumnMatchingServiceSpec extends Specification implements ServiceUnitTest
         columnMatchingService.setConfiguration(grailsApplication.config)
     }
 
-
-    def "camel case column names should be split by spaces before each uppercase character"() {
-        when:
-        def result = columnMatchingService.parseHeader(
-                ["species", "AnyReallyLongCamelCaseHeaderName", "ÖsterreichName", "conservationCode"] as String[])
-
-        then:
-        assert result?.header?.contains("scientific name")
-        assert result?.header?.contains("Any Really Long Camel Case Header Name")
-        assert result?.header?.contains("Österreich Name");
-        assert result?.header?.contains("conservation Code")
-    }
+    /**
+     * Required by Doug. The KVP columns should remain what it is
+     */
+//    def "camel case column names should be split by spaces before each uppercase character"() {
+//        when:
+//        def result = columnMatchingService.parseHeader(
+//                ["species", "AnyReallyLongCamelCaseHeaderName", "ÖsterreichName", "conservationCode"] as String[])
+//
+//        then:
+//        assert result?.header?.contains("scientific name")
+//        assert result?.header?.contains("Any Really Long Camel Case Header Name")
+//        assert result?.header?.contains("Österreich Name");
+//        assert result?.header?.contains("conservation Code")
+//    }
 
 }
