@@ -71,6 +71,7 @@ class UrlMappings {
             action = [GET: 'getSpeciesListItemKvp']
         }
 
+        "/ws/rematchStatus" (controller: "webService", action: "rematchStatus")
 		"/"(controller: 'public' ,action:  'index')
 		"500"(view:'/error')
         "404"(view:'/404')

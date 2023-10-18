@@ -7,8 +7,8 @@ branches:
   - master
   - develop
   - feature/grails5
-  - bug/issue-225
   - review-isprivate
+  - 279_missing_taxon
 
 before_install:
   - rm -fr $HOME/.gradle/caches
