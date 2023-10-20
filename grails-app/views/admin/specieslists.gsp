@@ -33,8 +33,15 @@
                         }).error(function (jqXHR, textStatus, error) {
                             alert("An error occurred: " + error + " - unable to rematch your lists.");
                         })
-                        jQuery.fancybox.close();
-                        window.location.reload()
+                        jQuery.fancybox.open("<div style=\"padding:20px;width:400px;text-align:center;\"><img src='${asset.assetPath(src:'spinner.gif')}' id='spinner'/>Processing rematching request ...</div></div>", {
+                        'padding': 0,
+                        'margin': 0,
+                        'width': 'auto',
+                        'height': 'auto',
+                        afterShow: function () {
+                               setTimeout(function(){window.location.reload()}, 3000);
+                            }
+                        })
                     })
                 }
             })
