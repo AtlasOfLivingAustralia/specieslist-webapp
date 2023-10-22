@@ -893,9 +893,11 @@ class HelperService {
                 totalRows = SpeciesListItem.count();
             }
         }
-        rematchLog.total = totalRows
-        rematchLog.remaining = totalRows
-        rematchLog.persist()
+        RematchLog.withTransaction {
+            rematchLog.total = totalRows
+            rematchLog.remaining = totalRows
+            rematchLog.persist()
+        }
 
         try {
             while (true) {
@@ -969,16 +971,12 @@ class HelperService {
                     log.info("Rematched ${offset} of ${totalRows} completed, time elapsed:" + TimeCategory.minus(new Date(), start))
                     rematchLog.remaining = totalRows - offset
                 }
-
-                //SpeciesListItem
                 RematchLog.withTransaction {
                     rematchLog.logs = "ID: ${items.last().id} was rematched!"
                     rematchLog.currentRecordId = items.last().id
                     rematchLog.recentProcessTime = new Date()
                     rematchLog.persist()
                 }
-
-
             }// end full iteration
             rematchLog.status = Status.COMPLETED
             rematchLog.endTime = new Date()
@@ -989,7 +987,7 @@ class HelperService {
             rematchLog.status = Status.FAILED
             rematchLog.endTime = new Date()
         } finally {
-            RematchLog.withTransaction {
+            RematchLog.withTransaction{
                 rematchLog.persist()
             }
         } // end try
