@@ -409,7 +409,8 @@ class WebServiceController {
                                     @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
-            ]
+            ],
+            security = [@SecurityRequirement(name = 'openIdConnect', scopes = ['ala/internal'])]
     )
     @RequireApiKey(scopes = ['ala/internal'])
     @Path("/ws/speciesListInternal/{druid}?")
@@ -618,7 +619,8 @@ class WebServiceController {
                                     @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
                             ]
                     )
-            ]
+            ],
+            security = [@SecurityRequirement(name = 'openIdConnect', scopes = ['ala/internal'])]
     )
     @RequireApiKey(scopes = ['ala/internal'])
     @Path("/ws/speciesListItemsInternal/{druid}")
@@ -1499,7 +1501,7 @@ class WebServiceController {
 
     @Operation(
             method = "POST",
-            tags = "createSpeciesListItem",
+            tags = "List Items",
             operationId = "Create a species list item for a species list",
             summary = "Create a species list item for a species list",
             description = "Create a species list item for a species list",
@@ -1523,7 +1525,8 @@ class WebServiceController {
                     @ApiResponse(
                             responseCode = "200"
                     )
-            ]
+            ],
+            security = [@SecurityRequirement(name = 'openIdConnect', scopes = ['ala/internal'])]
     )
     @Path("/ws/createItem")
     @RequireApiKey(scopes = ['ala/internal'])
@@ -1545,7 +1548,7 @@ class WebServiceController {
 
     @Operation(
             method = "GET",
-            tags = "deleteSpeciesListItem",
+            tags = "List Items",
             operationId = "Delete a species list item for a species list",
             summary = "Delete a species list item for a species list",
             description = "Delete a species list item for a species list",
@@ -1566,9 +1569,11 @@ class WebServiceController {
                     @ApiResponse(
                             responseCode = "200"
                     )
-            ]
+            ],
+            security = [@SecurityRequirement(name = 'openIdConnect', scopes = ['ala/internal'])]
     )
     @RequireApiKey(scopes = ['ala/internal'])
+    @Path("/ws/deleteItem")
     @Transactional
     def deleteItem() {
         def sli = SpeciesListItem.findByDataResourceUidAndGuid(params.druid, params.guid)
