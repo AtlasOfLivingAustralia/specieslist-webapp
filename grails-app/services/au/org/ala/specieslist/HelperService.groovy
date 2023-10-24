@@ -491,7 +491,6 @@ class HelperService {
                 log.info("${totalCount} records have been processed.")
             }
         }
-
         log.info("Completed ${totalCount} records in total")
         if(!sl.validate()){
             log.error(sl.errors.allErrors?.toString())
@@ -888,7 +887,7 @@ class HelperService {
         Integer totalRows, offset = 0;
         // Save to DB if no id is given.
         boolean saveToDB = id ? false:true
-        def rematchLog = new RematchLog(byWhom: authService.userId ?: "Developer", startTime: new Date(), recentProcessTime: new Date(), status: Status.RUNNING);
+        def rematchLog = new RematchLog(byWhom: authService?.userDetails()?.email ?: "Developer", startTime: new Date(), recentProcessTime: new Date(), status: Status.RUNNING);
         rematchLog.saveToDB = saveToDB
 
         if (id) {

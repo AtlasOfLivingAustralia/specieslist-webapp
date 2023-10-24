@@ -128,9 +128,9 @@ dependencies {
     implementation "org.grails.plugins:ala-auth:$alaSecurityLibsVersion"
     implementation "org.grails.plugins:ala-ws-security-plugin:$alaSecurityLibsVersion"
     implementation "org.grails.plugins:ala-ws-plugin:$alaSecurityLibsVersion"
-    runtimeOnly "org.grails.plugins:ala-bootstrap3:4.3.0"
+    runtimeOnly "org.grails.plugins:ala-bootstrap3:$alaBootstrap3Version"
     implementation "au.org.ala:userdetails-service-client:$alaSecurityLibsVersion"
-    runtimeOnly ("org.grails.plugins:ala-admin-plugin:2.3.0") {
+    runtimeOnly ("org.grails.plugins:ala-admin-plugin:$alaAdminPluginVersion") {
         exclude module: "cache"
     }
 
