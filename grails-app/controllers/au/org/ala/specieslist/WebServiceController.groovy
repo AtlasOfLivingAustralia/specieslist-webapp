@@ -413,7 +413,7 @@ class WebServiceController {
             security = [@SecurityRequirement(name = 'openIdConnect', scopes = ['ala/internal'])]
     )
     @RequireApiKey(scopes = ['ala/internal'])
-    @Path("/ws/speciesListInternal/{druid}?")
+    @Path("/ws/speciesListInternal/{druid}")
     def getListDetailsInternal() {
         // set splist manually because splist is set in the WebServiceInterceptor that is not triggered by this function
         params.splist = SpeciesList.findByDataResourceUid(params.druid)
