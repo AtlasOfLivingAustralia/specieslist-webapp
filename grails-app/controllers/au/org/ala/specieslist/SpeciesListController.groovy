@@ -21,6 +21,7 @@ import grails.converters.JSON
 import grails.gorm.transactions.Transactional
 import org.apache.commons.io.filefilter.FalseFileFilter
 import org.grails.web.json.JSONObject
+import org.hibernate.criterion.DetachedCriteria
 import org.springframework.web.multipart.MultipartHttpServletRequest
 
 import javax.annotation.PostConstruct

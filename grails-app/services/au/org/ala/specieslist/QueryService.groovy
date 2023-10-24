@@ -917,7 +917,7 @@ class QueryService {
                     queryParameters)
             def timeStop = new Date()
             log.info("Query KVP of ${id} took " + TimeCategory.minus(timeStop, timeStart))
-            properties = results.findAll{it[1].length()<maxLengthForFacet}.groupBy{it[0]}.findAll{it.value.size()>1 }
+            properties = results.findAll{it[1] && it[1]?.length()<maxLengthForFacet}.groupBy{it[0]}.findAll{it.value.size()>1 }
             //obtain the families from the common list facets
             def commonResults = SpeciesListItem.executeQuery('select family, count(*) as cnt from SpeciesListItem ' +
                     'where family is not null AND dataResourceUid = :dataResourceUid ' +

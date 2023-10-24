@@ -471,6 +471,7 @@ class HelperService {
         Map termIdx = columnMatchingService.getTermAndIndex(header)
         int itemCount = 0
         int totalCount = 0
+        log.info('Loading records from CSV/Excel...')
         while ((nextLine = reader.readNext()) != null) {
             totalCount++
             if(!checkedHeader){
@@ -485,15 +486,20 @@ class HelperService {
                 itemCount++
                 sl.addToItems(insertSpeciesItem(nextLine, druid, termIdx, header, kvpmap, itemCount, sl))
             }
-
+            if (totalCount % 500 == 0) {
+                log.info("${totalCount} records have been processed.")
+            }
         }
+
+        log.info("Completed ${totalCount} records in total")
         if(!sl.validate()){
             log.error(sl.errors.allErrors?.toString())
         }
 
+        log.info("Matching ${totalCount} records....")
         List sli = sl.getItems()?.toList()
         matchCommonNamesForSpeciesListItems(sli)
-
+        log.info("Saving ${totalCount} records....")
         sl.save()
 
         [totalRecords: totalCount, successfulItems: itemCount]
@@ -569,8 +575,8 @@ class HelperService {
         def excludedFields = [QueryService.RAW_SCIENTIFIC_NAME, QueryService.COMMON_NAME]
         // vernacular name is defined as commonName in termIndex
         if (termIndex.containsKey(QueryService.COMMON_NAME)) {
-
-            SpeciesListKVP kvp = new SpeciesListKVP(key: "vernacularName", value: values[termIndex.get(QueryService.COMMON_NAME)], dataResourceUid: druid)
+            def kValue =  values[termIndex.get(QueryService.COMMON_NAME)] ? values[termIndex.get(QueryService.COMMON_NAME)] : ""
+            SpeciesListKVP kvp = new SpeciesListKVP(key: "vernacularName", value: kValue, dataResourceUid: druid)
             if  (kvp.itemOrder == null) {
                 kvp.itemOrder = 0
             }
@@ -580,7 +586,8 @@ class HelperService {
         header.each {
             if (values.length > i && values[i]?.trim()) {
                 if (!excludedFields.contains(termIndex.find{it.value == i}?.key)) {
-                    SpeciesListKVP kvp = map.get(it.toString()+"|"+values[i], new SpeciesListKVP(key: it.toString(), value: values[i], dataResourceUid: druid))
+                    def kValue = values[i] ? values[i] : ""
+                    SpeciesListKVP kvp = map.get(it.toString()+"|"+values[i], new SpeciesListKVP(key: it.toString(), value: kValue, dataResourceUid: druid))
                     if  (kvp.itemOrder == null) {
                         kvp.itemOrder = i
                     }
@@ -612,10 +619,7 @@ class HelperService {
             sli.kingdom = match.getKingdom()
 
             sli.guid = match.taxonConceptID
-            MatchedSpecies ms = MatchedSpecies.findByTaxonConceptID(match.getTaxonConceptID())
-            if (ms) {
-                sli.matchedSpecies = ms
-            } else {
+
                 MatchedSpecies newMS = new MatchedSpecies()
                 newMS.taxonConceptID  = match.taxonConceptID
                 newMS.scientificName = match.scientificName
@@ -631,7 +635,7 @@ class HelperService {
                 newMS.taxonRank = match.rank
                 newMS.save(flush:true)
                 sli.matchedSpecies = newMS
-            }
+
         } else {
             sli.guid = null
             sli.matchedName = null
@@ -663,28 +667,21 @@ class HelperService {
                 sli.family = match.getFamily()
                 sli.kingdom = match.getKingdom()
 
-                MatchedSpecies ms = MatchedSpecies.findByTaxonConceptID(match.getTaxonConceptID())
-                if (ms) {
-                    sli.matchedSpecies = ms
-                } else {
-                    MatchedSpecies newMS = new MatchedSpecies()
-                    newMS.taxonConceptID  = match.taxonConceptID
-                    newMS.scientificName = match.scientificName
-                    newMS.scientificNameAuthorship = match.scientificNameAuthorship
-                    newMS.vernacularName = match.vernacularName
+                MatchedSpecies newMS = new MatchedSpecies()
+                newMS.taxonConceptID  = match.taxonConceptID
+                newMS.scientificName = match.scientificName
+                newMS.scientificNameAuthorship = match.scientificNameAuthorship
+                newMS.vernacularName = match.vernacularName
+                newMS.kingdom = match.kingdom
+                newMS.phylum = match.phylum
+                newMS.taxonClass = match.classs
+                newMS.taxonOrder = match.order
+                newMS.family = match.family
+                newMS.genus = match.genus
+                newMS.taxonRank = match.rank
+                newMS.lastUpdated = new Date()
 
-                    newMS.kingdom = match.kingdom
-                    newMS.phylum = match.phylum
-                    newMS.taxonClass = match.classs
-                    newMS.taxonOrder = match.order
-                    newMS.family = match.family
-                    newMS.genus = match.genus
-                    newMS.taxonRank = match.rank
-                    newMS.lastUpdated = new Date()
-                    newMS.save()
-
-                    sli.matchedSpecies = newMS
-                }
+                sli.matchedSpecies = newMS
             } else {
                 sli.guid = null
                 sli.matchedName = null
@@ -891,6 +888,11 @@ class HelperService {
                 }.totalCount
             } else {
                 totalRows = SpeciesListItem.count();
+                //Total rematch - Clean matchedSpecies table
+                MatchedSpecies.withTransaction {
+                    MatchedSpecies.executeUpdate("delete from MatchedSpecies")
+                }
+
             }
         }
         RematchLog.withTransaction {
