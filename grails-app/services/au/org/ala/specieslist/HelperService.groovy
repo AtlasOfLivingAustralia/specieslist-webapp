@@ -502,7 +502,7 @@ class HelperService {
         matchCommonNamesForSpeciesListItems(sli)
         log.info("Saving ${totalCount} records....")
         sl.save()
-
+        log.info("${totalCount} records saved")
         [totalRecords: totalCount, successfulItems: itemCount]
     }
 
