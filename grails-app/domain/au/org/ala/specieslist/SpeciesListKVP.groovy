@@ -24,6 +24,7 @@ class SpeciesListKVP implements Comparable {
     static constraints = {
         vocabValue(nullable:true)
         itemOrder(nullable:true)
+        value(nullable:true)
     }
     static mapping ={
         key column: 'the_key', index: 'idx_key'

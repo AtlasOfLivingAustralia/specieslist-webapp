@@ -217,6 +217,7 @@
                 processData: !isFileUpload,
                 contentType: (isFileUpload ? false : ""),
                 data: data,
+                timeout: 1800000,
                 success: function(response){
                     //console.log(response, response.url)
                     if(response.url != null && response.error == null) {

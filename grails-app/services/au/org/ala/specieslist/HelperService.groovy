@@ -35,7 +35,6 @@ import org.springframework.context.i18n.LocaleContextHolder
 import org.apache.http.util.EntityUtils
 
 import javax.annotation.PostConstruct
-import javax.security.auth.login.FailedLoginException
 
 /**
  * Provides all the services for the species list webapp.  It may be necessary to break this into
@@ -471,10 +470,13 @@ class HelperService {
         Map termIdx = columnMatchingService.getTermAndIndex(header)
         int itemCount = 0
         int totalCount = 0
+        log.info('Loading records from CSV/Excel...')
+        String[] rawHeaders = []
         while ((nextLine = reader.readNext()) != null) {
             totalCount++
             if(!checkedHeader){
                 checkedHeader = true
+                rawHeaders = nextLine
                 // only read next line if current line is a header line
                 if(columnMatchingService.getTermAndIndex(nextLine).size() > 0) {
                     nextLine = reader.readNext()
@@ -483,22 +485,28 @@ class HelperService {
 
             if(nextLine.length > 0 && termIdx.size() > 0 && hasValidData(termIdx, nextLine)){
                 itemCount++
-                sl.addToItems(insertSpeciesItem(nextLine, druid, termIdx, header, kvpmap, itemCount, sl))
+                sl.addToItems(insertSpeciesItem(nextLine, druid, termIdx, header, rawHeaders,kvpmap, itemCount, sl))
             }
-
+            if (totalCount % 500 == 0) {
+                log.info("${totalCount} records have been processed.")
+            }
         }
+
+        log.info("Completed ${totalCount} records in total")
         if(!sl.validate()){
             log.error(sl.errors.allErrors?.toString())
         }
 
+        log.info("Matching ${totalCount} records....")
         List sli = sl.getItems()?.toList()
         matchCommonNamesForSpeciesListItems(sli)
-
+        log.info("Saving ${totalCount} records....")
         sl.save()
-
+        log.info("${totalCount} records saved")
         [totalRecords: totalCount, successfulItems: itemCount]
     }
 
+    @Deprecated
     def loadSpeciesListFromFile(listname, druid, filename, boolean useHeader, header,vocabs){
 
         CSVReader reader = new CSVReader(new FileReader(filename),',' as char)
@@ -520,7 +528,7 @@ class HelperService {
         sl.lastMatched = new Date()
         while ((nextLine = reader.readNext()) != null) {
             if(org.apache.commons.lang.StringUtils.isNotBlank(nextLine)){
-                sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap, sl))
+                sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header, kvpmap, sl))
                 count++
             }
 
@@ -532,6 +540,7 @@ class HelperService {
         sl.save()
     }
 
+    @Deprecated
     def insertSpeciesItem(String[] values, druid, int speciesIdx, Object[] header, map, int order, SpeciesList sl){
         values = parseRow(values as List)
         log.debug("Inserting " + values.toArrayString())
@@ -555,7 +564,19 @@ class HelperService {
         sli
     }
 
-    def insertSpeciesItem(String[] values, String druid, Map termIndex, Object[] header, Map map, int order, SpeciesList sl){
+    /**
+     *
+     * @param values
+     * @param druid
+     * @param termIndex
+     * @param header
+     * @param rawHeaders  Use the original header when store values into KVP, especial for vernacular name variants
+     * @param map
+     * @param order
+     * @param sl
+     * @return
+     */
+    def insertSpeciesItem(String[] values, String druid, Map termIndex, Object[] header, String[] rawHeaders, Map map, int order, SpeciesList sl){
         values = parseRow(values as List)
         log.debug("Inserting " + values.toArrayString())
 
@@ -567,10 +588,16 @@ class HelperService {
         int i = 0
 
         def excludedFields = [QueryService.RAW_SCIENTIFIC_NAME, QueryService.COMMON_NAME]
-        // vernacular name is defined as commonName in termIndex
-        if (termIndex.containsKey(QueryService.COMMON_NAME)) {
 
-            SpeciesListKVP kvp = new SpeciesListKVP(key: "vernacularName", value: values[termIndex.get(QueryService.COMMON_NAME)], dataResourceUid: druid)
+        // vernacular name is converted to 'commonName' in termIndex
+        // check commonNameColumns in config ->  commonname,common,vernacular,vernacularname will be interpreted as "commonName"
+        // We want to store the original header value as key
+        if (termIndex.containsKey(QueryService.COMMON_NAME)) {
+            def kValue =  values[termIndex.get(QueryService.COMMON_NAME)] ? values[termIndex.get(QueryService.COMMON_NAME)] : ""
+            def commanName = QueryService.COMMON_NAME
+            def possibleNames  = grailsApplication.config.getProperty("commonNameColumns")?.split(",")
+            def orginalName = rawHeaders.find{it -> possibleNames*.toLowerCase().contains(it.toLowerCase())}
+            SpeciesListKVP kvp = new SpeciesListKVP(key: orginalName ? orginalName : commanName, value: kValue, dataResourceUid: druid)
             if  (kvp.itemOrder == null) {
                 kvp.itemOrder = 0
             }
@@ -580,7 +607,8 @@ class HelperService {
         header.each {
             if (values.length > i && values[i]?.trim()) {
                 if (!excludedFields.contains(termIndex.find{it.value == i}?.key)) {
-                    SpeciesListKVP kvp = map.get(it.toString()+"|"+values[i], new SpeciesListKVP(key: it.toString(), value: values[i], dataResourceUid: druid))
+                    def kValue = values[i] ? values[i] : ""
+                    SpeciesListKVP kvp = map.get(it.toString()+"|"+values[i], new SpeciesListKVP(key: it.toString(), value: kValue, dataResourceUid: druid))
                     if  (kvp.itemOrder == null) {
                         kvp.itemOrder = i
                     }
@@ -610,37 +638,27 @@ class HelperService {
             //Legacy: 'family, kingdom' field is used by group query for facades
             sli.family = match.getFamily()
             sli.kingdom = match.getKingdom()
-
             sli.guid = match.taxonConceptID
-            MatchedSpecies ms = MatchedSpecies.findByTaxonConceptID(match.getTaxonConceptID())
-            if (ms) {
-                sli.matchedSpecies = ms
-            } else {
-                MatchedSpecies newMS = new MatchedSpecies()
-                newMS.taxonConceptID  = match.taxonConceptID
-                newMS.scientificName = match.scientificName
-                newMS.scientificNameAuthorship = match.scientificNameAuthorship
-                newMS.vernacularName = match.vernacularName
-
-                newMS.kingdom = match.kingdom
-                newMS.phylum = match.phylum
-                newMS.taxonClass = match.classs
-                newMS.taxonOrder = match.order
-                newMS.family = match.family
-                newMS.genus = match.genus
-                newMS.taxonRank = match.rank
-                newMS.save(flush:true)
-                sli.matchedSpecies = newMS
-            }
+            MatchedSpecies newMS = new MatchedSpecies()
+            newMS.taxonConceptID  = match.taxonConceptID
+            newMS.scientificName = match.scientificName
+            newMS.scientificNameAuthorship = match.scientificNameAuthorship
+            newMS.vernacularName = match.vernacularName
+            newMS.kingdom = match.kingdom
+            newMS.phylum = match.phylum
+            newMS.taxonClass = match.classs
+            newMS.taxonOrder = match.order
+            newMS.family = match.family
+            newMS.genus = match.genus
+            newMS.taxonRank = match.rank
+            sli.matchedSpecies = newMS
         } else {
             sli.guid = null
             sli.matchedName = null
             sli.author = null
             sli.matchedSpecies = null
-
             //reset image
             sli.imageUrl = null
-
         }
         sli.save()
     }
@@ -663,28 +681,21 @@ class HelperService {
                 sli.family = match.getFamily()
                 sli.kingdom = match.getKingdom()
 
-                MatchedSpecies ms = MatchedSpecies.findByTaxonConceptID(match.getTaxonConceptID())
-                if (ms) {
-                    sli.matchedSpecies = ms
-                } else {
-                    MatchedSpecies newMS = new MatchedSpecies()
-                    newMS.taxonConceptID  = match.taxonConceptID
-                    newMS.scientificName = match.scientificName
-                    newMS.scientificNameAuthorship = match.scientificNameAuthorship
-                    newMS.vernacularName = match.vernacularName
+                MatchedSpecies newMS = new MatchedSpecies()
+                newMS.taxonConceptID  = match.taxonConceptID
+                newMS.scientificName = match.scientificName
+                newMS.scientificNameAuthorship = match.scientificNameAuthorship
+                newMS.vernacularName = match.vernacularName
+                newMS.kingdom = match.kingdom
+                newMS.phylum = match.phylum
+                newMS.taxonClass = match.classs
+                newMS.taxonOrder = match.order
+                newMS.family = match.family
+                newMS.genus = match.genus
+                newMS.taxonRank = match.rank
+                newMS.lastUpdated = new Date()
 
-                    newMS.kingdom = match.kingdom
-                    newMS.phylum = match.phylum
-                    newMS.taxonClass = match.classs
-                    newMS.taxonOrder = match.order
-                    newMS.family = match.family
-                    newMS.genus = match.genus
-                    newMS.taxonRank = match.rank
-                    newMS.lastUpdated = new Date()
-                    newMS.save()
-
-                    sli.matchedSpecies = newMS
-                }
+                sli.matchedSpecies = newMS
             } else {
                 sli.guid = null
                 sli.matchedName = null
@@ -891,6 +902,11 @@ class HelperService {
                 }.totalCount
             } else {
                 totalRows = SpeciesListItem.count();
+                //Total rematch - Clean matchedSpecies table
+                MatchedSpecies.withTransaction {
+                    MatchedSpecies.executeUpdate("delete from MatchedSpecies")
+                    SpeciesListItem.executeUpdate("update SpeciesListItem set matched_species_id = null")
+                }
             }
         }
         RematchLog.withTransaction {
