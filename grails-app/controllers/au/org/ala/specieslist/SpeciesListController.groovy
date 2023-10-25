@@ -84,6 +84,8 @@ class SpeciesListController {
         def sl = SpeciesList.get(params.id)
         if(sl){
             helperService.deleteDataResourceForList(sl.dataResourceUid)
+            List msIds = SpeciesListItem.executeQuery("select sli.matchedSpecies.id as id from SpeciesListItem as sli where dataResourceUid = :dataResourceUid", ["dataResourceUid": sl.dataResourceUid])
+            MatchedSpecies.executeUpdate("delete from MatchedSpecies where id in (:msIds)", ["msIds": msIds])
             SpeciesListItem.executeUpdate("delete from SpeciesListItem where dataResourceUid = :dataResourceUid", ["dataResourceUid": sl.dataResourceUid])
             SpeciesListKVP.executeUpdate("delete from SpeciesListKVP where dataResourceUid = :dataResourceUid", ["dataResourceUid": sl.dataResourceUid])
             SpeciesList.executeUpdate("delete from SpeciesList where dataResourceUid = :dataResourceUid", ["dataResourceUid": sl.dataResourceUid])

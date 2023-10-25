@@ -659,7 +659,6 @@ class HelperService {
             sli.matchedSpecies = null
             //reset image
             sli.imageUrl = null
-
         }
         sli.save()
     }
