@@ -26,7 +26,6 @@ import grails.gorm.transactions.Transactional
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
-import groovy.sql.Sql
 import org.apache.commons.io.input.BOMInputStream
 import org.apache.commons.lang.StringUtils
 import org.grails.web.json.JSONArray
@@ -55,8 +54,6 @@ class HelperService {
     NameExplorerService nameExplorerService
 
     ColumnMatchingService columnMatchingService
-
-    def dataSource
 
     Integer BATCH_SIZE
     /**
