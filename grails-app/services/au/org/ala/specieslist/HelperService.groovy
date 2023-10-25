@@ -26,6 +26,7 @@ import grails.gorm.transactions.Transactional
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
+import groovy.sql.Sql
 import org.apache.commons.io.input.BOMInputStream
 import org.apache.commons.lang.StringUtils
 import org.grails.web.json.JSONArray
@@ -35,7 +36,6 @@ import org.springframework.context.i18n.LocaleContextHolder
 import org.apache.http.util.EntityUtils
 
 import javax.annotation.PostConstruct
-import javax.security.auth.login.FailedLoginException
 
 /**
  * Provides all the services for the species list webapp.  It may be necessary to break this into
@@ -55,6 +55,8 @@ class HelperService {
     NameExplorerService nameExplorerService
 
     ColumnMatchingService columnMatchingService
+
+    def dataSource
 
     Integer BATCH_SIZE
     /**
@@ -472,10 +474,12 @@ class HelperService {
         int itemCount = 0
         int totalCount = 0
         log.info('Loading records from CSV/Excel...')
+        String[] rawHeaders = []
         while ((nextLine = reader.readNext()) != null) {
             totalCount++
             if(!checkedHeader){
                 checkedHeader = true
+                rawHeaders = nextLine
                 // only read next line if current line is a header line
                 if(columnMatchingService.getTermAndIndex(nextLine).size() > 0) {
                     nextLine = reader.readNext()
@@ -484,7 +488,7 @@ class HelperService {
 
             if(nextLine.length > 0 && termIdx.size() > 0 && hasValidData(termIdx, nextLine)){
                 itemCount++
-                sl.addToItems(insertSpeciesItem(nextLine, druid, termIdx, header, kvpmap, itemCount, sl))
+                sl.addToItems(insertSpeciesItem(nextLine, druid, termIdx, header, rawHeaders,kvpmap, itemCount, sl))
             }
             if (totalCount % 500 == 0) {
                 log.info("${totalCount} records have been processed.")
@@ -505,6 +509,7 @@ class HelperService {
         [totalRecords: totalCount, successfulItems: itemCount]
     }
 
+    @Deprecated
     def loadSpeciesListFromFile(listname, druid, filename, boolean useHeader, header,vocabs){
 
         CSVReader reader = new CSVReader(new FileReader(filename),',' as char)
@@ -526,7 +531,7 @@ class HelperService {
         sl.lastMatched = new Date()
         while ((nextLine = reader.readNext()) != null) {
             if(org.apache.commons.lang.StringUtils.isNotBlank(nextLine)){
-                sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header,kvpmap, sl))
+                sl.addToItems(insertSpeciesItem(nextLine, druid, speciesValueIdx, header, kvpmap, sl))
                 count++
             }
 
@@ -538,6 +543,7 @@ class HelperService {
         sl.save()
     }
 
+    @Deprecated
     def insertSpeciesItem(String[] values, druid, int speciesIdx, Object[] header, map, int order, SpeciesList sl){
         values = parseRow(values as List)
         log.debug("Inserting " + values.toArrayString())
@@ -561,7 +567,19 @@ class HelperService {
         sli
     }
 
-    def insertSpeciesItem(String[] values, String druid, Map termIndex, Object[] header, Map map, int order, SpeciesList sl){
+    /**
+     *
+     * @param values
+     * @param druid
+     * @param termIndex
+     * @param header
+     * @param rawHeaders  Use the original header when store values into KVP, especial for vernacular name variants
+     * @param map
+     * @param order
+     * @param sl
+     * @return
+     */
+    def insertSpeciesItem(String[] values, String druid, Map termIndex, Object[] header, String[] rawHeaders, Map map, int order, SpeciesList sl){
         values = parseRow(values as List)
         log.debug("Inserting " + values.toArrayString())
 
@@ -573,10 +591,16 @@ class HelperService {
         int i = 0
 
         def excludedFields = [QueryService.RAW_SCIENTIFIC_NAME, QueryService.COMMON_NAME]
-        // vernacular name is defined as commonName in termIndex
+
+        // vernacular name is converted to 'commonName' in termIndex
+        // check commonNameColumns in config ->  commonname,common,vernacular,vernacularname will be interpreted as "commonName"
+        // We want to store the original header value as key
         if (termIndex.containsKey(QueryService.COMMON_NAME)) {
             def kValue =  values[termIndex.get(QueryService.COMMON_NAME)] ? values[termIndex.get(QueryService.COMMON_NAME)] : ""
-            SpeciesListKVP kvp = new SpeciesListKVP(key: "vernacularName", value: kValue, dataResourceUid: druid)
+            def commanName = QueryService.COMMON_NAME
+            def possibleNames  = grailsApplication.config.getProperty("commonNameColumns")?.split(",")
+            def orginalName = rawHeaders.find{it -> possibleNames*.toLowerCase().contains(it.toLowerCase())}
+            SpeciesListKVP kvp = new SpeciesListKVP(key: orginalName ? orginalName : commanName, value: kValue, dataResourceUid: druid)
             if  (kvp.itemOrder == null) {
                 kvp.itemOrder = 0
             }
@@ -617,31 +641,25 @@ class HelperService {
             //Legacy: 'family, kingdom' field is used by group query for facades
             sli.family = match.getFamily()
             sli.kingdom = match.getKingdom()
-
             sli.guid = match.taxonConceptID
-
-                MatchedSpecies newMS = new MatchedSpecies()
-                newMS.taxonConceptID  = match.taxonConceptID
-                newMS.scientificName = match.scientificName
-                newMS.scientificNameAuthorship = match.scientificNameAuthorship
-                newMS.vernacularName = match.vernacularName
-
-                newMS.kingdom = match.kingdom
-                newMS.phylum = match.phylum
-                newMS.taxonClass = match.classs
-                newMS.taxonOrder = match.order
-                newMS.family = match.family
-                newMS.genus = match.genus
-                newMS.taxonRank = match.rank
-                newMS.save(flush:true)
-                sli.matchedSpecies = newMS
-
+            MatchedSpecies newMS = new MatchedSpecies()
+            newMS.taxonConceptID  = match.taxonConceptID
+            newMS.scientificName = match.scientificName
+            newMS.scientificNameAuthorship = match.scientificNameAuthorship
+            newMS.vernacularName = match.vernacularName
+            newMS.kingdom = match.kingdom
+            newMS.phylum = match.phylum
+            newMS.taxonClass = match.classs
+            newMS.taxonOrder = match.order
+            newMS.family = match.family
+            newMS.genus = match.genus
+            newMS.taxonRank = match.rank
+            sli.matchedSpecies = newMS
         } else {
             sli.guid = null
             sli.matchedName = null
             sli.author = null
             sli.matchedSpecies = null
-
             //reset image
             sli.imageUrl = null
 
@@ -891,8 +909,8 @@ class HelperService {
                 //Total rematch - Clean matchedSpecies table
                 MatchedSpecies.withTransaction {
                     MatchedSpecies.executeUpdate("delete from MatchedSpecies")
+                    SpeciesListItem.executeUpdate("update SpeciesListItem set matched_species_id = null")
                 }
-
             }
         }
         RematchLog.withTransaction {

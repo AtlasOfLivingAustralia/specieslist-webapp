@@ -849,7 +849,7 @@ class QueryService {
     }
 
     def sortTaxonHeader(header) {
-        def taxons = ['vernacularName','kingdom','family','order','class', 'rank', 'phylum','genus', 'taxonRank'].reverse()
+        def taxons = ['vernacularName','vernacular Name','commonName','common Name','kingdom','family','order','class', 'rank', 'phylum','genus', 'taxonRank'].reverse()
         List headers = header.toList()
         def sortedHeader = []
         taxons.forEach {
@@ -904,7 +904,7 @@ class QueryService {
             }
 
             //println(results)
-            properties = results.findAll{ it[1].length()<maxLengthForFacet }.groupBy { it[0] }.findAll{ it.value.size()>1}
+            properties = results.findAll{ it[1] && it[1]?.length()<maxLengthForFacet }.groupBy { it[0] }.findAll{ it.value.size()>1}
 
         } else {
             def qParam = '%'+q+'%'
