@@ -208,6 +208,7 @@ class SpeciesListController {
 
                     def url = createLink(controller:'speciesListItem', action:'list', id: druid) +"?max=10"
                     //update the URL for the list
+                    log.info("Register ${url} to collectory server")
                     helperService.updateDataResourceForList(druid,
                         [
                              pubDescription: formParams.description,
