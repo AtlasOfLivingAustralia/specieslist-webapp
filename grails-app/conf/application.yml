@@ -250,7 +250,7 @@ userDetails:
     url: https://auth-test.ala.org.au/userdetails/
 
 speciesNameColumns: 'scientificname,scientific,sciname,sname,latinname,latin,taxon,taxonname,taxonomic name'
-commonNameColumns: 'commonname,common,vernacular,vernacularname'
+commonNameColumns: 'commonname,common,vernacular,vernacularname,common name,vernacular name'
 ambiguousNameColumns: 'name'
 kingdomColumns: 'kingdom,regnum'
 phylumColumns: 'phylum,divisio,division'
