@@ -6,7 +6,8 @@ branches:
   only:
   - master
   - develop
-
+  - plugin_update
+  -
 before_install:
   - rm -fr $HOME/.gradle/caches
   - sudo mkdir -p /data/specieslist-webapp/ehcache
