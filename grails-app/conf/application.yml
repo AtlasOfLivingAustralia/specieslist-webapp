@@ -1,8 +1,5 @@
 ---
 
-logging:
-    config: /data/specieslist-webapp/config/logback.xml
-
 grails:
     profile: web
     codegen:
@@ -190,6 +187,8 @@ environments:
         security:
             cas:
                 appServerName: "https://lists.ala.org.au"
+        logging:
+            config: /data/specieslist-webapp/config/logback.xml
 
 ---
 headerAndFooter:
