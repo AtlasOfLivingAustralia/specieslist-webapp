@@ -1,1 +1,16 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        maven { url "https://nexus.ala.org.au/content/groups/public/" }
+        maven { url "https://repo.grails.org/grails/core" }
+        mavenCentral()
+    }
+
+    plugins {
+        id "idea"
+        id "eclipse"
+        id "com.gorylenko.gradle-git-properties" version "2.4.1"
+    }
+}
+
 rootProject.name='specieslist-webapp'
