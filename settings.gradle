@@ -7,6 +7,7 @@ pluginManagement {
     }
 
     plugins {
+        id "org.grails.grails-gradle-plugin" version "$grailsGradlePluginVersion"
         id "idea"
         id "eclipse"
         id "com.gorylenko.gradle-git-properties" version "2.4.1"
