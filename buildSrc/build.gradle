@@ -6,7 +6,5 @@ repositories {
 }
 dependencies {
     implementation "org.grails:grails-gradle-plugin:6.0.0"
-    implementation "org.grails.plugins:hibernate5:7.3.0"
-    implementation "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:2.6"
     implementation "com.bertramlabs.plugins:asset-pipeline-gradle:3.4.6"
 }
