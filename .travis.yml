@@ -7,7 +7,7 @@ branches:
   - master
   - develop
   - plugin_update
-  -
+  - grails6
 before_install:
   - rm -fr $HOME/.gradle/caches
   - sudo mkdir -p /data/specieslist-webapp/ehcache
