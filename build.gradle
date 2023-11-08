@@ -42,7 +42,7 @@ war {
 repositories {
     mavenLocal()
     maven { url "https://nexus.ala.org.au/content/groups/public/" }
-    maven { url "https://repo.grails.org/grails/core" }
+    //maven { url "https://repo.grails.org/grails/core" }
     mavenCentral()
 }
 
