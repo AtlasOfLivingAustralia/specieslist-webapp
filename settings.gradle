@@ -1,1 +1,19 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        maven { url "https://nexus.ala.org.au/content/groups/public/" }
+        maven { url "https://repo.grails.org/grails/core" }
+        mavenCentral()
+    }
+
+    plugins {
+        id "org.grails.grails-web" version "6.0.0"
+        id "org.grails.grails-gsp" version "6.0.0"
+        id "com.bertramlabs.asset-pipeline" version "4.3.0"
+
+    }
+
+}
+
 rootProject.name='specieslist-webapp'
+
