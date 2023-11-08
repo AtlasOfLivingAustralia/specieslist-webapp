@@ -32,6 +32,11 @@ publishing {
 
 bootWar {
     launchScript()
+    dependsOn(compileGroovyPages)
+}
+
+war {
+    dependsOn(compileGroovyPages)
 }
 
 repositories {

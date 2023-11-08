@@ -259,9 +259,8 @@ security:
 webservice:
     jwt: true
     jwt-scopes: "openid users/read"
-    webservice:
-        client-id: "Replace it"
-        client-secret: "Replace it"
+    client-id: "Replace it"
+    client-secret: "Replace it"
 
 #userDetails:
 #    url: https://auth-test.ala.org.au/userdetails/
