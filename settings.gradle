@@ -12,7 +12,6 @@ pluginManagement {
         id "com.bertramlabs.asset-pipeline" version "4.3.0"
 
     }
-
 }
 
 rootProject.name='specieslist-webapp'
