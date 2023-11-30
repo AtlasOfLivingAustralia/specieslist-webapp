@@ -84,9 +84,4 @@ class AdminController {
         def result = userDetailsService.updateSpeciesListUserDetails()
         render result as JSON
     }
-
-    def updateListsEditorWithIds() {
-        def result = userDetailsService.updateEditorsList()
-        render result as JSON
-    }
 }
