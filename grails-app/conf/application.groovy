@@ -111,8 +111,8 @@ grails.hibernate.cache.queries = true
 
 //localAuthService properties
 auth.userDetailsUrl='http://auth.ala.org.au/userdetails/userDetails/'
-auth.userNamesForIdPath='getUserList'
-auth.userNamesForNumericIdPath='getUserListWithIds'
+//auth.userNamesForIdPath='getUserList'
+//auth.userNamesForNumericIdPath='getUserListWithIds'
 
 // set per-environment serverURL stem for creating absolute links
 environments {

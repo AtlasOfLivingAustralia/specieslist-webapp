@@ -57,7 +57,6 @@ class BootStrap {
 
         if (grailsApplication.config.updateUserDetailsOnStartup.toBoolean()) {
             userDetailsService.updateSpeciesListUserDetails()
-            userDetailsService.updateEditorsList()
         }
 
         dbUpgrade()

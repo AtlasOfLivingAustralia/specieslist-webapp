@@ -15,6 +15,8 @@
 
 package au.org.ala.specieslist
 
+import grails.converters.JSON
+
 class AdminController {
 
     def queryService
@@ -79,7 +81,12 @@ class AdminController {
 
     // Access managed by AdminInterceptor
     def updateListsWithUserIds() {
-        Boolean successful = userDetailsService.updateSpeciesListUserDetails()
-        render(status: successful ? 200 : 404, text: "Update of editors was ${(successful)?'':'not'} successful")
+        def result = userDetailsService.updateSpeciesListUserDetails()
+        render result as JSON
+    }
+
+    def updateListsEditorWithIds() {
+        def result = userDetailsService.updateEditorsList()
+        render result as JSON
     }
 }
