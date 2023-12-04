@@ -89,7 +89,7 @@ class HelperService {
         if(grailsApplication.config.getProperty('collectory.enableSync', Boolean, false)){
             def postUrl = grailsApplication.config.collectory.baseURL + "/ws/dataResource"
             def http = new HTTPBuilder(postUrl)
-            http.setHeaders([Authorization: "${grailsApplication.config.registryApiKey}"])
+            http.setHeaders([Authorization: "Bearer ${webService.getTokenService().getAuthToken(false)}"])
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
             Map jsonBody = createJsonForNewDataResource(map)
             log.debug(jsonBody?.toString())
@@ -148,10 +148,9 @@ class HelperService {
         if (grailsApplication.config.getProperty('collectory.enableSync', Boolean, false)){
             def postUrl = grailsApplication.config.collectory.baseURL + "/ws/dataResource/" + drId
             def http = new HTTPBuilder(postUrl)
-            http.setHeaders([Authorization: "${grailsApplication.config.registryApiKey}"])
+            http.setHeaders([Authorization: "Bearer ${webService.getTokenService().getAuthToken(false)}"])
             http.getClient().getParams().setParameter("http.socket.timeout", new Integer(5000))
             def jsonBody = createJsonForNewDataResource(map)
-            log.debug(jsonBody?.toString())
             try {
                http.request(Method.POST) {
                     uri.path = postUrl
@@ -174,11 +173,17 @@ class HelperService {
     }
 
     Map createJsonForNewDataResource(map){
-        map.api_key = grailsApplication.config.registryApiKey
         map.resourceType = "species-list"
-        map.user = 'Species list upload'
-        map.firstName = localAuthService.firstname()?:""
-        map.lastName = localAuthService.surname()?:""
+        if (map['signedUser']) {
+           map.user = map['signedUser'].userId
+           map.firstName = map['signedUser'].firstName?:""
+           map.lastName = map['signedUser'].lastName?:""
+        } else {
+            //What are those for?
+            map.user = 'Species list upload'
+            map.firstName = localAuthService.firstname() ?: ""
+            map.lastName = localAuthService.surname() ?: ""
+        }
         map
     }
 

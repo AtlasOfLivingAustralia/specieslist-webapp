@@ -927,7 +927,7 @@ class WebServiceController {
                     }
 
                     if (!druid) {
-                        def drURL = helperService.addDataResourceForList([name: jsonBody.listName, username: user.userName])
+                        def drURL = helperService.addDataResourceForList([name: jsonBody.listName, signedUser: user])
 
                         if (drURL) {
                             druid = drURL.toString().substring(drURL.lastIndexOf('/') + 1)
