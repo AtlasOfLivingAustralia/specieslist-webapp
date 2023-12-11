@@ -15,10 +15,28 @@
 
 package au.org.ala.specieslist
 
+import au.org.ala.ws.security.client.AlaAuthClient
+import org.pac4j.core.config.Config
+import org.pac4j.core.context.WebContext
+import org.pac4j.core.credentials.Credentials
+import org.pac4j.core.profile.UserProfile
+import org.pac4j.core.util.FindBest
+import org.pac4j.jee.context.JEEContextFactory
+import org.springframework.beans.factory.annotation.Autowired
+
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+
 class LocalAuthService {
     public static final  String ROLE_ADMIN="ROLE_ADMIN"
 
     def grailsApplication, authService
+
+    @Autowired
+    AlaAuthClient alaAuthClient
+
+    @Autowired
+    Config config
 
     def email(){
         authService.getEmail() ?:authService.getUserName()
@@ -34,5 +52,31 @@ class LocalAuthService {
 
     def isAdmin() {
         return (grailsApplication.config.security.cas.bypass).toBoolean() || authService.userInRole(ROLE_ADMIN)
+    }
+
+    UserProfile checkJWT(HttpServletRequest request, HttpServletResponse response) {
+        def sessionStore = org.pac4j.jee.context.session.JEESessionStoreFactory.INSTANCE.newSessionStore()
+        WebContext ctx = FindBest.webContextFactory(null, config, JEEContextFactory.INSTANCE).newContext(request, response)
+        Optional<Credentials> credentials = alaAuthClient.getCredentials(ctx, sessionStore)
+
+        Optional<UserProfile> userProfile = alaAuthClient.getUserProfile(credentials.get(), ctx, sessionStore)
+
+        if (userProfile.isPresent()) {
+            return userProfile.get()
+        } else {
+            return null
+        }
+    }
+
+    def getJwtUserId(HttpServletRequest request, HttpServletResponse response){
+        def bearer = request?.getHeader("Authorization")
+        if (bearer) {
+            UserProfile up = checkJWT(request, response)
+            if (up) {
+                return up.userId
+            }
+        }
+
+        return null
     }
 }

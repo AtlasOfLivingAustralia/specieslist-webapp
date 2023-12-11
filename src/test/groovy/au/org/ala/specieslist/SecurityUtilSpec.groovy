@@ -32,6 +32,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
         setup:
         authService.getUserId() >> 1234
         localAuthService.isAdmin() >> false
+        localAuthService.getJwtUserId() >> null
 
         SecurityUtil util = new SecurityUtil(authService: authService, localAuthService: localAuthService)
         SpeciesList speciesList = new SpeciesList(dataResourceUid: "dr1", username: "fred", listName: "list1",
@@ -40,7 +41,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
 
         when: "checkListAccess is called for a public list"
 
-        boolean canAccess = util.checkViewAccess(listId)
+        boolean canAccess = util.checkViewAccess(listId, null, null)
 
         then: "it should always return true"
         assert canAccess
@@ -51,6 +52,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
         setup:
         authService.getUserId() >> 1234
         localAuthService.isAdmin() >> true
+        localAuthService.getJwtUserId() >> null
         SecurityUtil util = new SecurityUtil(authService: authService, localAuthService: localAuthService)
         SpeciesList speciesList = new SpeciesList(dataResourceUid: "dr1", username: "fred", listName: "list1",
                 isPrivate: true).save(failOnError: true)
@@ -58,7 +60,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
 
         when: "checkListAccess is called for a private list but the user is an admin"
 
-        boolean canAccess = util.checkViewAccess(listId)
+        boolean canAccess = util.checkViewAccess(listId, null, null)
 
         then: "it should always return true"
         assert canAccess
@@ -68,6 +70,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
         setup:
         authService.getUserId() >> 1234
         localAuthService.isAdmin() >> false
+        localAuthService.getJwtUserId() >> null
         SecurityUtil util = new SecurityUtil(authService: authService, localAuthService: localAuthService)
         SpeciesList speciesList = new SpeciesList(dataResourceUid: "dr1", username: "fred", listName: "list1",
                 isPrivate: true, userId: 1234).save(failOnError: true)
@@ -75,7 +78,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
 
         when: "checkListAccess is called for a private list that the user owns"
 
-        boolean canAccess = util.checkViewAccess(listId)
+        boolean canAccess = util.checkViewAccess(listId, null, null)
 
         then: "it should return true"
         assert canAccess
@@ -85,6 +88,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
         setup:
         authService.getUserId() >> 9876
         localAuthService.isAdmin() >> false
+        localAuthService.getJwtUserId() >> null
         SecurityUtil util = new SecurityUtil(authService: authService, localAuthService: localAuthService)
         SpeciesList speciesList = new SpeciesList(dataResourceUid: "dr1", username: "fred", listName: "list1",
                 isPrivate: true, userId: 1234)
@@ -94,7 +98,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
 
         when: "checkListAccess is called for a private list that the user doesn't own but can edit"
 
-        boolean canAccess = util.checkViewAccess(listId)
+        boolean canAccess = util.checkViewAccess(listId, null, null)
 
         then: "it should return true"
         assert canAccess
@@ -104,6 +108,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
         setup:
         authService.getUserId() >> null
         localAuthService.isAdmin() >> false
+        localAuthService.getJwtUserId() >> null
         SecurityUtil util = new SecurityUtil(authService: authService, localAuthService: localAuthService)
         SpeciesList speciesList = new SpeciesList(dataResourceUid: "dr1", username: "fred", listName: "list1",
                 isPrivate: true, userId: 1234).save(failOnError: true)
@@ -111,7 +116,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
 
         when: "checkListAccess is called for a private list when there is no logged in user"
 
-        boolean canAccess = util.checkViewAccess(listId)
+        boolean canAccess = util.checkViewAccess(listId, null, null)
 
         then: "it should always return false"
         assert !canAccess
@@ -121,6 +126,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
         setup:
         authService.getUserId() >> null
         localAuthService.isAdmin() >> false
+        localAuthService.getJwtUserId() >> null
         SecurityUtil util = new SecurityUtil(authService: authService, localAuthService: localAuthService)
         SpeciesList speciesList = new SpeciesList(dataResourceUid: "dr1", username: "fred", listName: "list1",
                 isPrivate: false).save(failOnError: true)
@@ -128,7 +134,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
 
         when: "checkListAccess is called for a public list when there is no logged in user"
 
-        boolean canAccess = util.checkViewAccess(listId)
+        boolean canAccess = util.checkViewAccess(listId, null, null)
 
         then: "it should always return true"
         assert canAccess
@@ -138,6 +144,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
         setup:
         authService.getUserId() >> 666
         localAuthService.isAdmin() >> false
+        localAuthService.getJwtUserId() >> null
         SecurityUtil util = new SecurityUtil(authService: authService, localAuthService: localAuthService)
         SpeciesList speciesList = new SpeciesList(dataResourceUid: "dr1", username: "fred", listName: "list1",
                 isPrivate: true, userId: 1234)
@@ -149,7 +156,7 @@ class SecurityUtilSpec extends Specification implements DataTest {
         "checkListAccess is called for a private list that the user does not own and cannot edit (and is not " +
                 "an admin)"
 
-        boolean canAccess = util.checkViewAccess(listId)
+        boolean canAccess = util.checkViewAccess(listId, null, null)
 
         then: "it should return false"
         assert !canAccess
