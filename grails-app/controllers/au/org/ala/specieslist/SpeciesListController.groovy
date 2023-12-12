@@ -312,7 +312,7 @@ class SpeciesListController {
             // retrieve qualified SpeciesListItems for performance reason
             def itemsIds = queryService.getFilterSpeciesListItemsIds(params)
 
-            def lists = queryService.getFilterListResult(params, true, itemsIds)
+            def lists = queryService.getFilterListResult(params, true, itemsIds, request, response)
             def typeFacets = (params.listType) ? null : queryService.getTypeFacetCounts(params, true, itemsIds)
             def tagFacets = queryService.getTagFacetCounts(params, itemsIds)
             //now remove the params that were added

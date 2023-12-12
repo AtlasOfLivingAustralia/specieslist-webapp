@@ -90,7 +90,7 @@ class WebServiceController {
 
         // fetch lists that this user has access to view
         def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
-        def list = queryService.visibleLists(true, hidePrivateLists)
+        def list = queryService.visibleLists(true, hidePrivateLists, request, response)
 
         def results = queryService.getFilterListItemResult(props, params, null, list, field)
         render results as JSON
@@ -193,7 +193,7 @@ class WebServiceController {
 
         // fetch lists that this user has access to view
         def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
-        def permittedPrivateLists = queryService.visibleLists(false, hidePrivateLists)
+        def permittedPrivateLists = queryService.visibleLists(false, hidePrivateLists, request, response)
 
         def listOfRecordMaps = results.findResults {
             // don't output private lists
@@ -320,7 +320,7 @@ class WebServiceController {
             //parameter was present and params.sort was absent. Moved special case sorting when params.user is present
             //and params.sort is absent into queryService.getFilterListResults so the custom filter code will always be applied.
 
-            def allLists = queryService.getFilterListResult(params, false)
+            def allLists = queryService.getFilterListResult(params, false, null, request, response)
             def listCounts = allLists.totalCount
             def retValue = [listCount: listCounts, sort: params.sort, order: params.order, max: params.max, offset: params.offset,
                             lists    : allLists.collect {
@@ -1372,7 +1372,7 @@ class WebServiceController {
 
             // fetch lists that this user has access to view
             def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
-            def list = queryService.visibleLists(true, hidePrivateLists)
+            def list = queryService.visibleLists(true, hidePrivateLists, request, response)
 
             def filteredDrIds = json.drIds ? json.drIds.findAll { list.contains(it) } : list
 

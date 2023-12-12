@@ -38,7 +38,7 @@ class SpeciesListItemInterceptor {
     private boolean checkSecurity(String druid, AuthService authService, LocalAuthService localAuthService) {
         SecurityUtil securityUtil = new SecurityUtil(localAuthService: localAuthService, authService: authService)
 
-        if (!securityUtil.checkViewAccess(druid)) {
+        if (!securityUtil.checkViewAccess(druid, request, response)) {
             response.sendError(HttpStatus.SC_UNAUTHORIZED, "Not authorised")
             false
         } else {

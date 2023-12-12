@@ -51,7 +51,7 @@ class PublicController {
 
             // retrieve qualified SpeciesListItems for performance reason
             def itemsIds = queryService.getFilterSpeciesListItemsIds(params)
-            def lists = queryService.getFilterListResult(params, hidePrivateLists, itemsIds)
+            def lists = queryService.getFilterListResult(params, hidePrivateLists, itemsIds, request, response)
 
             def model = [
                     isAdmin: localAuthService.isAdmin(),
