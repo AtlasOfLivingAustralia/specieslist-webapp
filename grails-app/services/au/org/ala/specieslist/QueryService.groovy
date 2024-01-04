@@ -52,8 +52,9 @@ class QueryService {
         it.getParameterTypes().length < 3
     }.collectEntries{ [it.name, it] }
 
+    // This method is only used for testing
     def getFilterListResult(params){
-        getFilterListResult(params, false)
+        getFilterListResult(params, false, null, null, null)
     }
 
     /** A map of domain property names to data types */
@@ -73,17 +74,20 @@ class QueryService {
      *
      * @param params
      */
-    def getFilterListResult(params, boolean hidePrivateLists, List itemIds = null) {
+    def getFilterListResult(params, boolean hidePrivateLists, List itemIds, request, response) {
         //list should be based on the user that is logged in
         params.max = Math.min(params.max ? params.int('max') : 25, 1000)
 
         //remove sort from params
-        def sort = params.sort ?: LIST_NAME
+        def sort = params.user ? null : (params.sort ?: LIST_NAME)
         def order = params.order ?: ASC
 
         params.fetch = [items: 'lazy']
 
         def speciesListProperties = getSpeciesListProperties()
+
+        def userId = authService.getUserId()
+        if (!userId && request) userId = localAuthService.getJwtUserId(request, response)
 
         def c = SpeciesList.createCriteria()
         def lists = c.list(params){
@@ -140,15 +144,15 @@ class QueryService {
                 }
             }
             and {
-                if (authService.getUserId()) {
+                if (userId) {
                     if (hidePrivateLists || !localAuthService.isAdmin()) {
                         // the user is not an admin, so only show lists that are not private OR are owned by the user
                         // OR where the user is an editor
                         or {
                             isNull(IS_PRIVATE)
                             eq(IS_PRIVATE, false)
-                            eq(USER_ID, authService.getUserId())
-                            sqlRestriction(EDITOR_SQL_RESTRICTION, [authService.getUserId()])
+                            eq(USER_ID, userId)
+                            sqlRestriction(EDITOR_SQL_RESTRICTION, [userId])
                         }
                     } else {
                         log.debug("User is admin, so has visibility og private lists")
@@ -161,7 +165,7 @@ class QueryService {
                     }
                 }
             }
-            setSortOrder(sort, order, params.user, c)
+            setSortOrder(sort, order, userId, c)
         }
 
         //remove the extra condition "fetch" condition
@@ -277,7 +281,10 @@ class QueryService {
      * @param includePublicLists
      * @param hidePrivateLists
      */
-    def visibleLists(boolean includePublicLists, boolean hidePrivateLists) {
+    def visibleLists(boolean includePublicLists, boolean hidePrivateLists, request, response) {
+        def userId = authService.getUserId()
+        if (!userId && request) userId = localAuthService.getJwtUserId(request, response)
+
         def c = SpeciesList.createCriteria()
         def lists = c.list {
             projections {
@@ -292,14 +299,14 @@ class QueryService {
 
                 if (hidePrivateLists && !localAuthService.isAdmin()) {
 
-                    if (authService.getUserId()) {
+                    if (userId) {
                         // Include only permitted private lists when logged in
                         and {
                             // Find private lists owned by the user or where the user is an editor.
                             eq(IS_PRIVATE, true)
                             or {
-                                eq(USER_ID, authService.getUserId())
-                                sqlRestriction(EDITOR_SQL_RESTRICTION, [authService.getUserId()])
+                                eq(USER_ID, userId)
+                                sqlRestriction(EDITOR_SQL_RESTRICTION, [userId])
                             }
                         }
                     }

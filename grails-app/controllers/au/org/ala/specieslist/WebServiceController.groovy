@@ -90,7 +90,7 @@ class WebServiceController {
 
         // fetch lists that this user has access to view
         def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
-        def list = queryService.visibleLists(true, hidePrivateLists)
+        def list = queryService.visibleLists(true, hidePrivateLists, request, response)
 
         def results = queryService.getFilterListItemResult(props, params, null, list, field)
         render results as JSON
@@ -193,7 +193,7 @@ class WebServiceController {
 
         // fetch lists that this user has access to view
         def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
-        def permittedPrivateLists = queryService.visibleLists(false, hidePrivateLists)
+        def permittedPrivateLists = queryService.visibleLists(false, hidePrivateLists, request, response)
 
         def listOfRecordMaps = results.findResults {
             // don't output private lists
@@ -320,7 +320,7 @@ class WebServiceController {
             //parameter was present and params.sort was absent. Moved special case sorting when params.user is present
             //and params.sort is absent into queryService.getFilterListResults so the custom filter code will always be applied.
 
-            def allLists = queryService.getFilterListResult(params, false)
+            def allLists = queryService.getFilterListResult(params, false, null, request, response)
             def listCounts = allLists.totalCount
             def retValue = [listCount: listCounts, sort: params.sort, order: params.order, max: params.max, offset: params.offset,
                             lists    : allLists.collect {
@@ -350,6 +350,75 @@ class WebServiceController {
                             }]
             render retValue as JSON
         }
+    }
+
+    /**
+     *   Returns either a JSON list of species lists or a specific species list
+     *
+     * @param druid - the data resource uid for the list to return  (optional)
+     * @param splist - optional instance (added by the beforeInterceptor)
+     *
+     * View Access controlled by WebServiceInterceptor
+     */
+    @Operation(
+            method = "GET",
+            tags = "Lists",
+            operationId = "Get species list(s) detail",
+            summary = "Get species list(s) detail",
+            description = "Get details of species lists or a specific list",
+            parameters = [
+                    // the "required" attribute is overridden to true when the parameter type is PATH.
+                    @Parameter(name = "druid",
+                            in = PATH,
+                            description = "The data resource id to identify a list. This parameter is required for requesting a species list but optional for requesting species lists ",
+                            schema = @Schema(implementation = String),
+                            required = false),
+                    @Parameter(name = "sort",
+                            in = QUERY,
+                            description = "The field  on which to sort the returned results",
+                            schema = @Schema(implementation = String),
+                            required = false),
+                    @Parameter(name = "order",
+                            description = "The order to return the results in i.e asc or desc",
+                            schema = @Schema(implementation = Integer),
+                            required = false),
+                    @Parameter(name = "max",
+                            in = QUERY,
+                            description = "The number of records to return",
+                            schema = @Schema(implementation = Integer),
+                            required = false),
+                    @Parameter(name = "offset",
+                            in = QUERY,
+                            description = "The records offset, to enable paging",
+                            schema = @Schema(implementation = Integer),
+                            required = false)
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "Species List(s)",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = GetListsResponse)
+                                    )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                            ]
+                    )
+            ],
+            security = [@SecurityRequirement(name = 'openIdConnect', scopes = ['ala/internal'])]
+    )
+    @RequireApiKey(scopes = ['ala/internal'])
+    @Path("/ws/speciesListInternal/{druid}")
+    def getListDetailsInternal() {
+        // set splist manually because splist is set in the WebServiceInterceptor that is not triggered by this function
+        params.splist = SpeciesList.findByDataResourceUid(params.druid)
+
+        getListDetails()
     }
 
     /**
@@ -478,6 +547,85 @@ class WebServiceController {
         } else {
             render status: HttpStatus.SC_BAD_REQUEST, text: "druid parameter is required"
         }
+    }
+
+    /**
+     * Returns a summary list of items that form part of the supplied species list.
+     *
+     * View Access controlled by WebServiceInterceptor
+     */
+    @Operation(
+            method = "GET",
+            tags = "List Items",
+            operationId = "Get species list(s) item details",
+            summary = "Get species list(s) item details",
+            description = "Get details of individual items i.e. species for specified species list(s)",
+            parameters = [
+                    // the "required" attribute is overridden to true when the parameter type is PATH.
+                    @Parameter(name = "druid",
+                            in = PATH,
+                            description = "The data resource id or comma separated data resource ids  to identify list(s) to return list items for e.g. '/ws/speciesListItems/dr123,dr781,dr332'",
+                            schema = @Schema(implementation = String),
+                            required = true),
+                    @Parameter(name = "q",
+                            in = QUERY,
+                            description = "Optional query string to search common name, supplied name and scientific name in the lists specified by the 'druid' e.g. 'Eurystomus orientalis'",
+                            schema = @Schema(implementation = String),
+                            required = false),
+                    @Parameter(name = "nonulls",
+                            in = QUERY,
+                            description = "The value to specify whether to include or exclude species list item with null value for species guid",
+                            schema = @Schema(implementation = Boolean),
+                            required = false),
+                    @Parameter(name = "sort",
+                            in = QUERY,
+                            description = "The field  on which to sort the returned results. Default is 'itemOrder'",
+                            schema = @Schema(implementation = String),
+                            required = false),
+                    @Parameter(name = "order",
+                            description = "The order to return the results in i.e asc or desc",
+                            schema = @Schema(implementation = Integer),
+                            required = false),
+                    @Parameter(name = "max",
+                            in = QUERY,
+                            description = "The number of records to return",
+                            schema = @Schema(implementation = Integer),
+                            required = false),
+                    @Parameter(name = "offset",
+                            in = QUERY,
+                            description = "The records offset, to enable paging",
+                            schema = @Schema(implementation = Integer),
+                            required = false),
+                    @Parameter(name = "includeKVP",
+                            in = QUERY,
+                            description = "The value to specify whether to include KVP (key value pairs) values in the returned list item ",
+                            schema = @Schema(implementation = Boolean),
+                            required = false)
+
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "Species list item(s)",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            array = @ArraySchema(schema = @Schema(implementation = GetListItemsResponse))
+                                    )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                            ]
+                    )
+            ],
+            security = [@SecurityRequirement(name = 'openIdConnect', scopes = ['ala/internal'])]
+    )
+    @RequireApiKey(scopes = ['ala/internal'])
+    @Path("/ws/speciesListItemsInternal/{druid}")
+    def getListItemDetailsInternal() {
+        getListItemDetails()
     }
 
     /**
@@ -779,7 +927,7 @@ class WebServiceController {
                     }
 
                     if (!druid) {
-                        def drURL = helperService.addDataResourceForList([name: jsonBody.listName, username: user.userName])
+                        def drURL = helperService.addDataResourceForList([name: jsonBody.listName, signedUser: user])
 
                         if (drURL) {
                             druid = drURL.toString().substring(drURL.lastIndexOf('/') + 1)
@@ -1224,7 +1372,7 @@ class WebServiceController {
 
             // fetch lists that this user has access to view
             def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
-            def list = queryService.visibleLists(true, hidePrivateLists)
+            def list = queryService.visibleLists(true, hidePrivateLists, request, response)
 
             def filteredDrIds = json.drIds ? json.drIds.findAll { list.contains(it) } : list
 
@@ -1353,7 +1501,7 @@ class WebServiceController {
 
     @Operation(
             method = "POST",
-            tags = "createSpeciesListItem",
+            tags = "List Items",
             operationId = "Create a species list item for a species list",
             summary = "Create a species list item for a species list",
             description = "Create a species list item for a species list",
@@ -1377,7 +1525,8 @@ class WebServiceController {
                     @ApiResponse(
                             responseCode = "200"
                     )
-            ]
+            ],
+            security = [@SecurityRequirement(name = 'openIdConnect', scopes = ['ala/internal'])]
     )
     @Path("/ws/createItem")
     @RequireApiKey(scopes = ['ala/internal'])
@@ -1399,7 +1548,7 @@ class WebServiceController {
 
     @Operation(
             method = "GET",
-            tags = "deleteSpeciesListItem",
+            tags = "List Items",
             operationId = "Delete a species list item for a species list",
             summary = "Delete a species list item for a species list",
             description = "Delete a species list item for a species list",
@@ -1420,9 +1569,11 @@ class WebServiceController {
                     @ApiResponse(
                             responseCode = "200"
                     )
-            ]
+            ],
+            security = [@SecurityRequirement(name = 'openIdConnect', scopes = ['ala/internal'])]
     )
     @RequireApiKey(scopes = ['ala/internal'])
+    @Path("/ws/deleteItem")
     @Transactional
     def deleteItem() {
         def sli = SpeciesListItem.findByDataResourceUidAndGuid(params.druid, params.guid)

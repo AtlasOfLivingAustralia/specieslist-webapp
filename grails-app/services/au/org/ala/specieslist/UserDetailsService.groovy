@@ -37,123 +37,59 @@ class UserDetailsService {
     def updateSpeciesListUserDetails() {
         List listsWithoutUserIds = []
         Boolean isSuccessful =  false
+        String TOTAL = "Number of lists that need to be processed"
+        String VALID = "Number of lists with valid usernames."
+        String DEFAULT = "Number of lists  where users are not registered but end with ala.org"
+        String INVALID = "Number of lists without a username or with a registered username"
+        String FAILED = "Number of failed database updates"
+        def result = [(TOTAL):0, (VALID):0, (DEFAULT):0, (INVALID):0, (FAILED):0]
 
         try {
             listsWithoutUserIds = SpeciesList.findAllByUserIdIsNullOrUserId("",[max:9999])
-            //listsWithoutUserIds = SpeciesList.findAll("from SpeciesList where userId is null" ,[max:9999])
         } catch (Exception ex) {
             log.error "Failed dynamic finder: ${ex}", ex
         }
 
         if (listsWithoutUserIds.size() > 0) {
-            Map userNamesLookup = authService.getAllUserNameMap()
-            //log.debug "userNamesLookup = ${userNamesLookup}"
-
+            result[TOTAL] = listsWithoutUserIds.size()
             listsWithoutUserIds.each { list ->
-                def user = userNamesLookup.get(list.username?.toLowerCase()) // should be cached after the first call
+                if (list.username) {
+                    def user = authService.getUserForEmailAddress(list.username, false)
+                    if (user && user.userId) {
+                        list.userId = user.userId
+                        result[VALID] += 1
+                        log.warn "Saving userid: ${user.userId} (${list.username}) to list id: ${list.id}..."
 
-                if (user && user.userId) {
-                    list.userId = user.userId
-                    log.warn "Saving userid: ${user.userId} (${list.username}) to list id: ${list.id}..."
-
-                    try {
-                        list.save(flush: true)
-                        isSuccessful = true
-                    }
-                    catch (DataIntegrityViolationException e) {
-                        // deal with exception
-                        log.error "Error saving list: ${e}", e
-                    }
-                } else if (list.username =~ /ala\.org/) {
-                    log.error "No user or userId found for username: ${list.username} || user = ${user}"
-                    log.error "Setting username to info@ala.org.au"
-                    list.username = "info@ala.org.au"
-                    list.userId = 2729
-                    try {
-                        list.save(flush: true)
-                        isSuccessful = true
-                    }
-                    catch (DataIntegrityViolationException e) {
-                        // deal with exception
-                        log.error "Error saving list: ${e}", e
+                    } else if (list.username =~ /ala\.org/) {
+                        log.error "No user or userId found for username: ${list.username} || user = ${user}"
+                        log.error "Setting username to info@ala.org.au"
+                        list.username = "info@ala.org.au"
+                        list.userId = 2729
+                        result[DEFAULT] += 1
+                    } else {
+                        log.error "No user or userId found for username: ${list.username} || user = ${user}"
+                        log.error "Setting username to 0"
+                        list.userId = 0
+                        result[INVALID] += 1
                     }
                 } else {
-                    log.error "No user or userId found for username: ${list.username} || user = ${user}"
-                    log.error "Setting username to 0"
+                    log.error "No user is defined for list: ${list.id}. Set user id to 0 "
                     list.userId = 0
-                    try {
-                        list.save(flush: true)
-                        isSuccessful = true
-                    }
-                    catch (org.springframework.dao.DataIntegrityViolationException e) {
-                        // deal with exception
-                        log.error "Error saving list: ${e}", e
-                    }
+                    result[INVALID] += 1
                 }
-            }
-        } else {
-            log.warn "All lists have userId values: ${listsWithoutUserIds}"
-            isSuccessful = true
-        }
-
-        isSuccessful
-    }
-
-    @Transactional
-    def updateEditorsList() {
-        def listsEditorsWithoutUserIds
-        def returnBool = false
-
-        try {
-            listsEditorsWithoutUserIds = SpeciesList.findAllByEditorsIsNotNull([max:9999])
-        } catch (Exception ex) {
-            log.error "Failed dynamic finder: ${ex}", ex
-        }
-
-        if (listsEditorsWithoutUserIds.size() > 0) {
-            Map userNamesLookup = authService.getAllUserNameMap()
-
-            listsEditorsWithoutUserIds.each { list ->
-                def newEditors = []
-
-                list.editors.each { e ->
-
-                    def users = e.tokenize(",") // comma separated doh!
-
-                    users.each { u ->
-                        if (u =~ /\D+/) {
-                            def user = userNamesLookup.get(u?.toLowerCase()) // should be cached after the first call
-                            if (user && user.userId) {
-                                newEditors.add(user.userId.toString())
-                            } else {
-                                log.error "No userId found for address: ${u?.toLowerCase()}"
-
-                                if (u) {
-                                    newEditors.add(u?.toLowerCase()) // unknown user
-                                }
-                            }
-                        } else {
-                            newEditors.add(u?.toLowerCase()) // pass though for existing numeric IDs
-                        }
-
-                    }
-                }
-
-                log.warn "Saving editors with userIds: ${newEditors} to list id: ${list.id}..."
-                list.editors = newEditors
 
                 try {
                     list.save(flush: true)
-                    returnBool = true
+                    isSuccessful = true
                 }
-                catch (DataIntegrityViolationException e) {
+                catch (Exception e) {
                     // deal with exception
-                    log.error "Error saving list: ${e}", e
+                    result[FAILED] += 1
+                    log.error "Error saving list: ${list.id} : ${e}", e
                 }
             }
         }
-
-        returnBool
+        result
     }
 
 }

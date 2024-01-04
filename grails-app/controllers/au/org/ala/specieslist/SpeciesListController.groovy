@@ -80,15 +80,19 @@ class SpeciesListController {
      */
     @Transactional
     def delete(){
-        log.debug("Deleting from collectory...")
+        log.debug("Deleting from collectory (${params.id})")
         def sl = SpeciesList.get(params.id)
         if(sl){
             helperService.deleteDataResourceForList(sl.dataResourceUid)
             List msIds = SpeciesListItem.executeQuery("select sli.matchedSpecies.id as id from SpeciesListItem as sli where dataResourceUid = :dataResourceUid", ["dataResourceUid": sl.dataResourceUid])
             MatchedSpecies.executeUpdate("delete from MatchedSpecies where id in (:msIds)", ["msIds": msIds])
+            log.debug("Deleted matched species (${msIds.size()}) ")
             SpeciesListItem.executeUpdate("delete from SpeciesListItem where dataResourceUid = :dataResourceUid", ["dataResourceUid": sl.dataResourceUid])
+            log.debug("Deleted species in list: ${sl.dataResourceUid}")
             SpeciesListKVP.executeUpdate("delete from SpeciesListKVP where dataResourceUid = :dataResourceUid", ["dataResourceUid": sl.dataResourceUid])
+            log.debug("Deleted KV pairs in list: ${sl.dataResourceUid}")
             SpeciesList.executeUpdate("delete from SpeciesList where dataResourceUid = :dataResourceUid", ["dataResourceUid": sl.dataResourceUid])
+            log.debug("Deleted the list: ${sl.dataResourceUid}")
         }
         redirect(action: 'list')
     }
@@ -308,7 +312,7 @@ class SpeciesListController {
             // retrieve qualified SpeciesListItems for performance reason
             def itemsIds = queryService.getFilterSpeciesListItemsIds(params)
 
-            def lists = queryService.getFilterListResult(params, true, itemsIds)
+            def lists = queryService.getFilterListResult(params, true, itemsIds, request, response)
             def typeFacets = (params.listType) ? null : queryService.getTypeFacetCounts(params, true, itemsIds)
             def tagFacets = queryService.getTagFacetCounts(params, itemsIds)
             //now remove the params that were added

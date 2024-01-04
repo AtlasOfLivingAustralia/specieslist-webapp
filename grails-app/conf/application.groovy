@@ -37,7 +37,7 @@ termsOfUseUrl = "http://www.ala.org.au/about-the-atlas/terms-of-use/#TOUusingcon
 logger.baseURL = "https://logger.ala.org.au/service"
 bieService.baseURL = "https://bie-ws.ala.org.au/ws"
 
-registryApiKey = "xxxxxxxxxxxxxxxxxx"
+//registryApiKey = "xxxxxxxxxxxxxxxxxx"
 
 bieApiKey = "xxxxxx"
 
@@ -111,8 +111,8 @@ grails.hibernate.cache.queries = true
 
 //localAuthService properties
 auth.userDetailsUrl='http://auth.ala.org.au/userdetails/userDetails/'
-auth.userNamesForIdPath='getUserList'
-auth.userNamesForNumericIdPath='getUserListWithIds'
+//auth.userNamesForIdPath='getUserList'
+//auth.userNamesForNumericIdPath='getUserListWithIds'
 
 // set per-environment serverURL stem for creating absolute links
 environments {

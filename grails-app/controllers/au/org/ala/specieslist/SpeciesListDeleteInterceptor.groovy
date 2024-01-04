@@ -18,7 +18,7 @@ class SpeciesListDeleteInterceptor {
 
     private boolean checkDeletePermission(String listId, AuthService authService, LocalAuthService localAuthService) {
         SecurityUtil securityUtil = new SecurityUtil(localAuthService: localAuthService, authService: authService)
-        if (!securityUtil.checkListDeletePermission(listId)) {
+        if (!securityUtil.checkListDeletePermission(listId, request, response)) {
             response.sendError(HttpStatus.SC_UNAUTHORIZED, "Not authorised")
             false
         } else {

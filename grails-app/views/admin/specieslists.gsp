@@ -98,7 +98,7 @@
                             logs = rematchingLogs.history.filter(({status}) => status === "RUNNING");
                         }
 
-                        message = "<table><tr><th>Who</th><th>Start time</th><th>Last update time</th><th>Percentage</th><th>Elapsed time</th><th>Remaining records</th><th>Total Records</th><th>Status</th></tr>"
+                        message = "<table><tr><th>Who</th><th>Start time</th><th>Last update time</th><th>Percentage</th><th>Elapsed time (D:H:M)</th><th>Remaining records</th><th>Total Records</th><th>Status</th></tr>"
                         for(i in logs) {
                             var log = logs[i];
                             var elapsedTimeTd ='<td></td>';

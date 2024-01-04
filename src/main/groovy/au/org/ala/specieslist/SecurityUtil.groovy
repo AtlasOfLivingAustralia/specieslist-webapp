@@ -22,14 +22,16 @@ class SecurityUtil {
     LocalAuthService localAuthService
     AuthService authService
 
-    boolean checkViewAccess(String druid) {
+    boolean checkViewAccess(String druid, request, response) {
         boolean canAccess = true
 
         if (!localAuthService.isAdmin()) {
             SpeciesList list = SpeciesList.findByDataResourceUid(druid)
             if (list?.isPrivate) {
                 String userId = authService.getUserId()
-                if (!userId || (list.userId != userId && !list.editors?.contains(userId))) {
+                // use JWT token for userId. Not role or scope.
+                if (!userId) userId = localAuthService.getJwtUserId(request, response)
+                if (!userId || (list.userId != userId && !list.editors?.contains(userId)) ) {
                     canAccess = false
                 }
             }
@@ -38,12 +40,14 @@ class SecurityUtil {
         canAccess
     }
 
-    boolean checkEditAccess(String druid) {
+    boolean checkEditAccess(String druid, request, response) {
         boolean canAccess = true
 
         if (!localAuthService.isAdmin()) {
             SpeciesList list = SpeciesList.findByDataResourceUid(druid)
             String userId = authService.getUserId()
+            // use JWT token for userId. Not role or scope.
+            if (!userId) userId = localAuthService.getJwtUserId(request, response)
             if (!userId || (list.userId != userId && !list.editors?.contains(userId))) {
                 canAccess = false
             }
@@ -52,7 +56,7 @@ class SecurityUtil {
         canAccess
     }
 
-    boolean checkListDeletePermission(String listId){
+    boolean checkListDeletePermission(String listId, request, response){
         boolean  canDelete  = false
 
         if(localAuthService.isAdmin()) {
@@ -60,6 +64,8 @@ class SecurityUtil {
         } else{
             SpeciesList list = SpeciesList.get(listId)
             String userId = authService.getUserId()
+            // use JWT token for userId. Not role or scope.
+            if (!userId) userId = localAuthService.getJwtUserId(request, response)
             // check if list exists and the userId is not null.
             if(list && userId){
                 // can delete if the lists user matches authenticated user id OR if list's editor list contains authenticated user id.
