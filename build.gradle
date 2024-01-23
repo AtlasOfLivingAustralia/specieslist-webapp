@@ -132,7 +132,7 @@ dependencies {
         exclude module: "sisu-guava"
         exclude module: "cache2k-api"
     }
-    implementation 'au.org.ala.plugins:openapi:1.1.0'
+    implementation 'au.org.ala.plugins:openapi:1.3.0'
 
     implementation 'org.gbif:gbif-common:0.37'
 }
