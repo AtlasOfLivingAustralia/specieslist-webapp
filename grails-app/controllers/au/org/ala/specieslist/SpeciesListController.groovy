@@ -517,23 +517,23 @@ class SpeciesListController {
      */
     def rematch() {
         long  beforeId = 0
-        if (params.id && !params.id.startsWith("dr")) {
-            params.id = SpeciesList.get(params.id)?.dataResourceUid
-            log.info("Rematching for " + params.id)
-        } else {
+        if (!params.id) {
             String msg = "Rematching for ALL"
             if (params.beforeId) {
                 try {
                     beforeId = Long.parseLong(params.beforeId)
-                    if ( beforeId > 0) {
+                    if (beforeId > 0) {
                         msg = "Continue to rematch the rest of species before id: " + beforeId
                     }
-                }catch(Exception e){
+                } catch (Exception e) {
                 }
             }
-
             log.warn(msg)
+        } else if ( !params.id.startsWith("dr")) {
+            params.id = SpeciesList.get(params.id)?.dataResourceUid
+            log.info("Rematching for " + params.id)
         }
+
         Integer totalRows, offset = 0;
         String id = params.id
         def splist = SpeciesList.findByDataResourceUid(params.id)
