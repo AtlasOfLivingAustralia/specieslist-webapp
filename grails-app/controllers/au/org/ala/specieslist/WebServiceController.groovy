@@ -297,6 +297,8 @@ class WebServiceController {
                 isAuthoritative: (sl.isAuthoritative ?: false),
                 isInvasive     : (sl.isInvasive ?: false),
                 isThreatened   : (sl.isThreatened ?: false),
+                isBIE          : (sl.isBIE ?: false),
+                isSDS          : (sl.isSDS ?: false),
                 looseSearch    : sl.looseSearch/*,
                 searchStyle    : sl.searchStyle?.toString()*/
             ]
