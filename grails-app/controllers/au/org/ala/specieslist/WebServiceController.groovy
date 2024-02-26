@@ -347,6 +347,8 @@ class WebServiceController {
                                  isThreatened   : it.isThreatened ?: false,
                                  looseSearch    : it.looseSearch,
                                  //searchStyle    : it.searchStyle?.toString(),
+                                 isBIE          : (it.isBIE ?: false),
+                                 isSDS          : (it.isSDS ?: false),
                                  wkt            : it.wkt
                                 ]
                             }]
