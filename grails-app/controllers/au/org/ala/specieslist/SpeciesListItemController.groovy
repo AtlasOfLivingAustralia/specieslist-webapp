@@ -182,7 +182,7 @@ class SpeciesListItemController {
             def out = new StringWriter()
             def csvWriter = new CSVWriter(out)
             def header =  ["Supplied Name","guid","scientificName","family","kingdom"]
-            header.addAll(keys)
+            header.addAll(keys.collect { header.contains(it) ? "raw." + it : it })
             log.debug(header?.toString())
             csvWriter.writeNext(header as String[])
             sli.each {
