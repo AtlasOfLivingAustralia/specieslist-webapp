@@ -20,6 +20,7 @@ import org.apache.http.HttpStatus
 
 
 class WebServiceInterceptor {
+    int order = LOWEST_PRECEDENCE
 
     LocalAuthService localAuthService
     AuthService authService
