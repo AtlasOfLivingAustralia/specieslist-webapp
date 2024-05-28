@@ -1035,7 +1035,12 @@
                                         </div>
                                     </td>
                                     <td class="rawScientificName">
-                                        ${fieldValue(bean: result, field: "rawScientificName")}
+                                        <g:if test="${fieldValue(bean: result, field: "rawScientificName") ==~ /.*((http|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-]))*/}">
+                                            <a href="${fieldValue(bean: result, field: "rawScientificName")}" target="_blank">${fieldValue(bean: result, field: "rawScientificName")}</a>
+                                        </g:if>
+                                        <g:else>
+                                            ${fieldValue(bean: result, field: "rawScientificName")}
+                                        </g:else>
                                         <g:if test="${result.guid == null}">
                                             <br/>(unmatched - try <a
                                                 href="http://google.com/search?q=${fieldValue(bean: result, field: "rawScientificName").trim()}"

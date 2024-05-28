@@ -104,7 +104,7 @@ class NameExplorerService implements GrailsConfigurationAware {
      */
     NameUsageMatch searchForRecordByLsid(String lsid) {
         NameUsageMatch result = alaNameUsageMatchServiceClient.get(StringUtils.trimToNull(lsid))
-        return result.success? result : null
+        return result
     }
 
     /**
@@ -145,7 +145,7 @@ class NameExplorerService implements GrailsConfigurationAware {
 
         builder.vernacularName = StringUtils.trimToNull(commonName)
         NameUsageMatch result = alaNameUsageMatchServiceClient.match(builder.build())
-        return result.success? result : null
+        return result
     }
 
     /**
