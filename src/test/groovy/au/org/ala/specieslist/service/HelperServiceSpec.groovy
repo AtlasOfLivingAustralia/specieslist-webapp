@@ -333,17 +333,17 @@ class HelperServiceSpec extends Specification implements ServiceUnitTest<HelperS
         thrown AssertionError
     }
 
-    def "urls in submitted text should be turned into links"() {
-        when:
-        def result = helperService.parseRow(
-                ["Banksia brownii", "pink/red <unknown>", "email.address@example.com",
-                 "A rare species, see https://www.example.com/something/234325"])
-
-        then:
-        assert result.contains("Banksia brownii")
-        assert result.contains("pink/red <unknown>")
-        assert result.contains("email.address@example.com")
-        assert result.contains('A rare species, see <a href="https://www.example.com/something/234325">' +
-                'https://www.example.com/something/234325</a>')
-    }
+//    def "urls in submitted text should be turned into links"() {
+//        when:
+//        def result = helperService.parseRow(
+//                ["Banksia brownii", "pink/red <unknown>", "email.address@example.com",
+//                 "A rare species, see https://www.example.com/something/234325"])
+//
+//        then:
+//        assert result.contains("Banksia brownii")
+//        assert result.contains("pink/red <unknown>")
+//        assert result.contains("email.address@example.com")
+//        assert result.contains('A rare species, see <a href="https://www.example.com/something/234325">' +
+//                'https://www.example.com/something/234325</a>')
+//    }
 }

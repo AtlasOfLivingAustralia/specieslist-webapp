@@ -35,6 +35,8 @@ import org.springframework.context.i18n.LocaleContextHolder
 import org.apache.http.util.EntityUtils
 
 import javax.annotation.PostConstruct
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 /**
  * Provides all the services for the species list webapp.  It may be necessary to break this into
@@ -268,7 +270,6 @@ class HelperService {
         String item
         row.each {String it ->
             item = parseUrls(it)
-
             ret << item
         }
 
@@ -276,23 +277,24 @@ class HelperService {
     }
 
     private String parseUrls(String item) {
-        String ret = null
-
-        Iterable<LinkSpan> links = extractor.extractLinks(item)
-        if (links) {
-            ret = Autolink.renderLinks(item, links, {LinkSpan ls, CharSequence text, StringBuilder sb ->
-                sb.append("<a href=\"")
-                sb.append(text, ls.beginIndex, ls.endIndex);
-                sb.append("\">")
-                sb.append(text, ls.beginIndex, ls.endIndex)
-                sb.append("</a>")
-            } as LinkRenderer)
-        }
-        else {
-            ret = item
-        }
-
-        ret
+//        String ret = null
+//
+//        Iterable<LinkSpan> links = extractor.extractLinks(item)
+//        if (links) {
+//            ret = Autolink.renderLinks(item, links, {LinkSpan ls, CharSequence text, StringBuilder sb ->
+//                sb.append("<a href=\"")
+//                sb.append(text, ls.beginIndex, ls.endIndex);
+//                sb.append("\">")
+//                sb.append(text, ls.beginIndex, ls.endIndex)
+//                sb.append("</a>")
+//            } as LinkRenderer)
+//        }
+//        else {
+//            ret = item
+//        }
+//
+//        ret
+        return item
     }
 
     private boolean hasValidData(Map map, String [] nextLine) {
@@ -957,7 +959,13 @@ class HelperService {
                             batch = new ArrayList<>();
                             batches.put(speciesList, batch)
                         }
-                        String rawName = item.rawScientificName
+                        String rawName = removeHtmlTag(item.rawScientificName)
+                        if (rawName != item.rawScientificName) {
+                            item.rawScientificName = rawName
+                            if (!item.save(flush: true)) {
+                                log.error("Error saving item with updated rawScientificName: " + item.errors())
+                            }
+                        }
                         log.debug i + ". Rematching: " + rawName + "/" + speciesList.dataResourceUid
                         if (rawName && rawName.length() > 0) {
                             batch.add(item)
@@ -1012,5 +1020,15 @@ class HelperService {
             }
         } // end try
         return rematchLog
+    }
+
+    String removeHtmlTag(String value) {
+        Pattern pattern = Pattern.compile("<a[^>]*>(.*?)</a>")
+        Matcher matcher = pattern.matcher(value)
+
+        if (matcher.find()) {
+            return matcher.group(1)
+        }
+        return value
     }
 }
