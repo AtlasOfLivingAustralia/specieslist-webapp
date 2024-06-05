@@ -1,4 +1,4 @@
-<%@ page defaultCodec="html" %>
+<%@ page import="au.org.ala.specieslist.QueryService" defaultCodec="html" %>
 %{-- Template for diplaying a single facet for a species list. --}%
 <g:set var="facetId" value="${sl.facetAsId(key: key, prefix: "facet")}"/>
 <p><span class="FieldName">${key}</span></p>
@@ -19,7 +19,7 @@
             </g:if>
             <g:else>
                 <li><g:link action="list" id="${params.id}"
-                            params="${[fq: sl.buildFqList(fqs: fqs, fq: "${key}:${arr[0]}"), q: (params.q) ?: null, max: params.max]}">
+                            params="${[fq: sl.buildFqList(fqs: fqs, fq: "${QueryService.MATCHED_FAMILY.equals(key) ? 'matched family' : key}:${arr[0]}"), q: (params.q) ?: null, max: params.max]}">
                     <span class="fa fa-square-o">&nbsp;</span>
                     ${arr[0]}
                     (${arr[1]})
