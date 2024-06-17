@@ -19,12 +19,17 @@ import au.org.ala.web.AuthService
 import com.opencsv.CSVReader
 import grails.converters.JSON
 import grails.gorm.transactions.Transactional
+import groovy.time.TimeCategory
 import org.apache.commons.io.filefilter.FalseFileFilter
 import org.grails.web.json.JSONObject
 import org.hibernate.criterion.DetachedCriteria
 import org.springframework.web.multipart.MultipartHttpServletRequest
 
 import javax.annotation.PostConstruct
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.lang.management.ManagementFactory
+import com.sun.management.OperatingSystemMXBean
 
 class SpeciesListController {
 
@@ -512,8 +517,56 @@ class SpeciesListController {
         file?.getInputStream().withReader { r -> helperService.getSeparator(r.readLine()) }
     }
 
+    def rematchAll() {
+        //Collect all species lists ordered by creation date
+        //def speciesLists = SpeciesList.list(sort: 'dateCreated', order: 'asc')
+        def speciesLists = SpeciesList.list(sort: 'itemsCount', order: 'desc')
+        def startProcessing = new Date()
+        speciesLists.each { speciesList ->
+            helperService.rematchList(speciesList,params.reset?.toBoolean() == true)
+        }
+        log.info("Total time cost to complete ${speciesLists.itemsCount} lists : ${TimeCategory.minus(new Date(), startProcessing)}")
+    }
+
     /**
-     * Rematches the scientific names in the supplied list
+     * Rematch the species list of the given data resource id (drid)
+     * @param id dataResource id of a species list,  starting with 'dr'
+     * @reset optional, default to false.  Remove all existing matched species if true
+     * @return
+     */
+    def rematchList(String id) {
+        def speciesList = SpeciesList.findByDataResourceUid(id)
+        if (speciesList) {
+            if (!isCurrentUserEditorForList(speciesList)) {
+                response.sendError(401, "Not authorised.")
+                return
+            }
+            boolean reset  = params.reset?.toBoolean() == true
+            helperService.rematchList(speciesList, reset)
+            render([status: 0,  message: "Rematching the species list ${id} is completed" ] as JSON)
+        } else {
+            response.sendError(200, "No species list found for data resource id: ${id}")
+        }
+    }
+
+
+    /**
+     * todo: decouple the rematching all lists with rematching a single list
+     * todo: decouple resume rematching process
+     *
+     * Rematch the species list of the given data resource id (drid), or the sequence id (id)
+     *
+     * param id:  data resource id of a species list,  starting with 'dr'
+     * if the id is NOT started with "dr", it is assumed it is a sequence id of a species list
+     * the params.id will be recalculated to the data resource id of this species lis
+     *
+     * param beforeId: the id of the last matched species. It only works when the dr/sequence id of a species list is not given,
+     *
+     * If the sequence id and the data resource id is not provided, it will rematch all species lists
+     *
+     * If the sequence id and the date resource id is provided, and the before id is given,
+     * the rematch ( Species sorted in descending order by sequence ID) will start from the next species BEFORE this id
+     *
      */
     def rematch() {
         long  beforeId = 0
@@ -530,8 +583,9 @@ class SpeciesListController {
             }
             log.warn(msg)
         } else if ( !params.id.startsWith("dr")) {
+            //Get speciesList Id from species id
             params.id = SpeciesList.get(params.id)?.dataResourceUid
-            log.info("Rematching for " + params.id)
+            log.info("Rematching for data resource:" + params.id)
         }
 
         Integer totalRows, offset = 0;

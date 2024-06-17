@@ -1818,7 +1818,7 @@ class WebServiceController {
      * rematch existing SpeciesListItem
      */
     def rematchSpecies() {
-        def result = helperService.rematchSpecies("developer", params.matchAll)
+        def result = helperService.rematchSpeciesInList("developer", params.matchAll)
         def resp = result.toMap()
         render resp as JSON
     }

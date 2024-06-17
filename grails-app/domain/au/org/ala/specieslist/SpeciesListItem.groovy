@@ -32,13 +32,17 @@ class SpeciesListItem {
     Integer itemOrder
 
     MatchedSpecies matchedSpecies
+    //Impose hasOne relation for fixing session writing errors in rematch process
+    //But it affect the reading speed significantly
 
+    //static hasOne = [matchedSpecies: MatchedSpecies]
     static hasMany = [kvpValues: SpeciesListKVP]
     //allows the items to be sorted before they are extracted.
     SortedSet kvpValues
     //NC 2013-05-09: Changed the name for the list relationship because this is a reserved word in certain situations. This causes
     //issues when being used in a "criteria"
     static belongsTo = [mylist:SpeciesList]
+    static embedded = ['homeAddress', 'workAddress']
 
     static constraints = {
         //guid unique:  'name' //AK for the table
@@ -66,7 +70,7 @@ class SpeciesListItem {
         mylist index: 'idx_list_id'
         //kvpValues cascade: "all-delete-orphan"
         //kvpValues lazy: false
-        matchedSpecies (ignoreNotFound: true)
+        matchedSpecies (column: 'matched_species_id', ignoreNotFound: true, nullable: true, lazy:true)
     }
 
     def toMap() {

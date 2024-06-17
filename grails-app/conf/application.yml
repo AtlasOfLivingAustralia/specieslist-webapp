@@ -1,4 +1,6 @@
 ---
+logging:
+    config: /data/specieslist-webapp/config/logback.xml
 
 grails:
     profile: web

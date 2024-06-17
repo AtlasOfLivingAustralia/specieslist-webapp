@@ -18,11 +18,16 @@ package au.org.ala.specieslist
 import au.org.ala.names.ws.api.NameUsageMatch
 //import au.org.ala.names.ws.api.SearchStyle
 import com.opencsv.CSVReader
+import com.sun.management.OperatingSystemMXBean
 import grails.gorm.transactions.NotTransactional
+import grails.gorm.transactions.Transactional
+import net.bytebuddy.matcher.NameMatcher
+import org.hibernate.Session
+
+import java.lang.management.ManagementFactory
 import java.time.LocalDateTime
 import java.sql.Timestamp
 import groovy.time.*
-import grails.gorm.transactions.Transactional
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
@@ -38,6 +43,8 @@ import javax.annotation.PostConstruct
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+import org.hibernate.ScrollMode
+
 /**
  * Provides all the services for the species list webapp.  It may be necessary to break this into
  * multiple services if it grows too large
@@ -50,6 +57,8 @@ class HelperService {
     def grailsApplication
 
     def localAuthService, authService, userDetailsService, webService
+
+    def sessionFactory
 
     BieService bieService
 
@@ -710,7 +719,7 @@ class HelperService {
                 sli.lastUpdated = new Date()
                 //reset image
                 sli.imageUrl = null
-                log.info("Unable to match species list item - ${sli.rawScientificName}")
+                log.debug("Unable to match species list item - ${sli.rawScientificName}")
             }
             sli.save()
         }
@@ -883,10 +892,229 @@ class HelperService {
         return result
     }
 
+    def getCPULoad() {
+        OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class)
+        //round 2, will be displayed as 0.00 as percentage
+        double systemCpuLoad = (osBean.getSystemCpuLoad()*100).round(4)
+        double processCpuLoad = (osBean.getProcessCpuLoad()*100).round(4)
+        return [systemCpuLoad,processCpuLoad]
+    }
+
+
+    /**
+     * Rematch species list items for a species list
+     * @param speciesList
+     * @param reset if true, all matched species for the list will be removed
+     * @return
+     */
+    @NotTransactional
+    def rematchList(SpeciesList speciesList, boolean reset = false) {
+        // TESTING PURPOSE. Remove all matched species for the list
+        if (reset) {
+            MatchedSpecies.withTransaction {
+                MatchedSpecies.executeUpdate("delete from MatchedSpecies where id in (select matchedSpecies from SpeciesListItem where data_resource_uid = :listDRId)", [listDRId: speciesList.dataResourceUid])
+                SpeciesListItem.executeUpdate("update SpeciesListItem set matchedSpecies = null where data_resource_uid = :listDRId", [listDRId: speciesList.dataResourceUid])
+            }
+        }
+
+        String listDRId = speciesList.dataResourceUid
+        Integer totalRows = SpeciesListItem.countByDataResourceUid(listDRId)
+        log.info("Rematching ${totalRows} species in the list ${listDRId}")
+        def startProcessing = new Date()
+        Session session = sessionFactory.openSession()
+        session.beginTransaction()
+        session.doWork { connection ->
+            // Increase session timeout
+            connection.createStatement().executeUpdate("SET SESSION wait_timeout = 28800")
+            connection.createStatement().executeUpdate("SET SESSION interactive_timeout = 28800")
+            connection.createStatement().executeUpdate("SET SESSION net_read_timeout = 600")
+            connection.createStatement().executeUpdate("SET SESSION net_write_timeout = 600")
+        }
+
+        def scrollableResults
+
+        try{
+            List speciesItems = new ArrayList<SpeciesListItem>()
+            def hql = "SELECT sli FROM SpeciesListItem  sli left join fetch sli.matchedSpecies WHERE sli.dataResourceUid = :listDRId "
+            def query = session.createQuery(hql)
+            query.setParameter("listDRId", listDRId)
+            //query.setParameter("startId", startId)
+            scrollableResults = query.scroll(ScrollMode.FORWARD_ONLY)
+            int count = 0
+            def startReading = new Date()
+            while (scrollableResults.next()) {
+                def species = (SpeciesListItem) scrollableResults.get(0)
+                speciesItems.add(species)
+                if (++count % BATCH_SIZE == 0) {
+                    log.info("Reading ${count} / ${totalRows} took ${ TimeCategory.minus(new Date(), startReading)}")
+
+                    rematchSpeciesInList(session, speciesList, speciesItems)
+                    speciesItems.clear()
+                    startReading = new Date()
+                }
+            }
+            //Process the rest bit of species items < 500 (BATCH_SIZE)
+            if (speciesItems.size() > 0) {
+                rematchSpeciesInList(session, speciesList, speciesItems)
+            }
+
+            scrollableResults.close()
+            log.info("Rematching ${totalRows} species in the list ${listDRId} completed")
+        } catch (Exception e) {
+            session.getTransaction().rollback()
+            log.error("Failed in rematching the list ${listDRId}")
+            log.error("Error in rematching:" + e.message)
+        } finally {
+            scrollableResults.close()
+            if (session.isOpen()) {
+                session.close()
+            }
+        }
+
+        log.info("Total time cost to complete the list of ${speciesList.dataResourceUid} [${speciesList.itemsCount}] : ${TimeCategory.minus(new Date(), startProcessing)}")
+    }
+
+    /**
+     * Update matched species for a species list item after comparing with the name match
+     * @param sli
+     * @param nameMatch
+     */
+    void updateMatchedSpecies(Session session, SpeciesListItem sli, NameUsageMatch nameMatch) {
+        if (sli.matchedSpecies) {
+            if (sli.matchedSpecies.taxonConceptID != nameMatch.taxonConceptID ||
+                    !sli.matchedSpecies.scientificName?.equalsIgnoreCase(nameMatch.scientificName) ||
+                    !sli.matchedSpecies.scientificNameAuthorship?.equalsIgnoreCase(nameMatch.scientificNameAuthorship) ||
+                    !sli.matchedSpecies.vernacularName?.equalsIgnoreCase(nameMatch.vernacularName) ||
+                    !sli.matchedSpecies.kingdom?.equalsIgnoreCase(nameMatch.kingdom) ||
+                    !sli.matchedSpecies.phylum?.equalsIgnoreCase(nameMatch.phylum) ||
+                    !sli.matchedSpecies.taxonClass?.equalsIgnoreCase(nameMatch.classs) ||
+                    !sli.matchedSpecies.taxonOrder?.equalsIgnoreCase(nameMatch.order) ||
+                    !sli.matchedSpecies.family?.equalsIgnoreCase(nameMatch.family) ||
+                    !sli.matchedSpecies.genus?.equalsIgnoreCase(nameMatch.genus) ||
+                    !sli.matchedSpecies.taxonRank?.equalsIgnoreCase(nameMatch.rank)) {
+                sli.matchedSpecies.taxonConceptID = nameMatch.taxonConceptID
+                sli.matchedSpecies.scientificName = nameMatch.scientificName
+                sli.matchedSpecies.scientificNameAuthorship = nameMatch.scientificNameAuthorship
+                sli.matchedSpecies.vernacularName = nameMatch.vernacularName
+                sli.matchedSpecies.kingdom = nameMatch.kingdom
+                sli.matchedSpecies.phylum = nameMatch.phylum
+                sli.matchedSpecies.taxonClass = nameMatch.classs
+                sli.matchedSpecies.taxonOrder = nameMatch.order
+                sli.matchedSpecies.family = nameMatch.family
+                sli.matchedSpecies.genus = nameMatch.genus
+                sli.matchedSpecies.taxonRank = nameMatch.rank
+
+                sli.matchedSpecies.lastUpdated = new Date()
+            }
+        } else {
+            MatchedSpecies matchedSpecies = new MatchedSpecies()
+
+            matchedSpecies.taxonConceptID = nameMatch.taxonConceptID
+            matchedSpecies.scientificName = nameMatch.scientificName
+            matchedSpecies.scientificNameAuthorship = nameMatch.scientificNameAuthorship
+            matchedSpecies.vernacularName = nameMatch.vernacularName
+            matchedSpecies.kingdom = nameMatch.kingdom
+            matchedSpecies.phylum = nameMatch.phylum
+            matchedSpecies.taxonClass = nameMatch.classs
+            matchedSpecies.taxonOrder = nameMatch.order
+            matchedSpecies.family = nameMatch.family
+            matchedSpecies.genus = nameMatch.genus
+            matchedSpecies.taxonRank = nameMatch.rank
+            matchedSpecies.lastUpdated = new Date()
+            // For generating id of the matched species
+            session.saveOrUpdate(matchedSpecies)
+            sli.matchedSpecies = matchedSpecies
+        }
+
+    }
+
+    /**
+     * Rematch a list of species in a species list
+     *
+     * No DB I/O
+     * @param speciesItems
+     * @return
+     */
+
+    def rematchSpeciesInList(Session session, SpeciesList list, List<SpeciesListItem> speciesItems) {
+        Date startRematching = new Date()
+        List<String> guids = speciesItems.collect { it.guid }
+
+        speciesItems.each { SpeciesListItem item ->
+            String rawName = removeHtmlTag(item.rawScientificName)
+            if (rawName && rawName.length() > 0) {
+                if (rawName != item.rawScientificName) {
+                    item.rawScientificName = rawName
+                }
+            } else {
+                item.guid = null
+                // remove from the list of waiting process?
+            }
+        }
+
+        Date startNES = new Date()
+        List<NameUsageMatch> matches = nameExplorerService.findAll(speciesItems, list)
+        log.debug("Time cost on nameExlorerService:  ${TimeCategory.minus(new Date(), startNES)}")
+
+        Date startNESRecord = new Date()
+        matches.eachWithIndex { NameUsageMatch match, Integer index ->
+            SpeciesListItem sli = speciesItems[index]
+            if (match && !match.success) {
+                match = nameExplorerService.searchForRecordByCommonName(sli.rawScientificName)
+            }
+            if (match && !match.success) {
+                match = nameExplorerService.searchForRecordByLsid(sli.rawScientificName)
+            }
+            if (match && match.success) {
+                sli.guid = match.getTaxonConceptID()
+                sli.matchedName = match.getScientificName()
+                sli.author = match.getScientificNameAuthorship()
+                sli.commonName = match.getVernacularName()
+                sli.family = match.getFamily()
+                sli.kingdom = match.getKingdom()
+                updateMatchedSpecies(session, sli, match)
+            } else {
+                sli.guid = null
+                sli.matchedName = null
+                sli.author = null
+                sli.matchedSpecies = null
+                sli.lastUpdated = new Date()
+                //reset image
+                sli.imageUrl = null
+                log.debug("Unable to match species list item - ${sli.rawScientificName}")
+            }
+        }
+        log.debug("Time cost of Each Records on nameExlorerService:  ${TimeCategory.minus(new Date(), startNESRecord)}")
+
+        Date startBIESearch = new Date()
+
+        List speciesProfiles = bieService.bulkSpeciesLookupWithGuids(guids)
+        speciesProfiles?.eachWithIndex { Map profile, i ->
+            SpeciesListItem slItem = speciesItems[i]
+            if (profile) {
+                slItem.imageUrl = profile.smallImageUrl
+            }
+        }
+        log.debug("Time cost of Each Records on nameExlorerService:  ${TimeCategory.minus(new Date(), startBIESearch)}")
+        log.info("Rematching took ${ TimeCategory.minus(new Date(), startRematching)}")
+
+        //Save to DB
+        Date updatingDB = new Date()
+        speciesItems.each { SpeciesListItem it ->
+            session.saveOrUpdate(it)
+        }
+        session.flush()
+        session.clear()
+        log.info("Saving to DB took ${ TimeCategory.minus(new Date(), updatingDB)}")
+    }
+
     /**
      *
-     * @param id the species need to rematched
+     * @param listDRId: data resource id (dr_id) of the species list, species in this speciesList need to rematched
+     *
      * @param beforeId if @id is not given, but @before is given, it will rematch all species before 'beforeId'
+     *
+     * if both id and beforeId are not given, it will rematch all species
      * @return
      */
     @NotTransactional
@@ -997,6 +1225,9 @@ class HelperService {
                     rematchLog.remaining = 0
                 } else {
                     log.info("Rematched ${offset} of ${totalRows} completed, time elapsed:" + TimeCategory.minus(new Date(), start))
+                    if (TimeCategory.minus(new Date(), start)  > 30) {
+                        break
+                    }
                     rematchLog.remaining = totalRows - offset
                 }
                 RematchLog.withTransaction {
