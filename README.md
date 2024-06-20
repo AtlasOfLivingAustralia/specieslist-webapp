@@ -45,6 +45,8 @@ grails run-app
 
 
 ### Changelog
+- **Version 4.2.0**:
+  - improve the performance of rematching processing
 - **Version 3.0**:
   - Grails 3, Lucene 5 or above
 - **Version 2.0**:
@@ -52,3 +54,25 @@ grails run-app
 - **Version 1.0**:
   - upgraded to asset pipeline and grails 2.5.6
   - fixed unit and integration tests
+
+### Release
+- **Version 4.2.0**:
+  Database change:
+    -  rematch_Log table changed:
+  
+  ```
+  DROP TABLE IF EXISTS `rematch_log`;
+  
+  CREATE TABLE `rematch_log` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `version` bigint NOT NULL,
+  `end_time` datetime(6) DEFAULT NULL,
+  `processing` varchar(255) NOT NULL,
+  `start_time` datetime(6) NOT NULL,
+  `by_whom` varchar(255) NOT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `latest_processing_time` datetime(6) NOT NULL,
+  `history` longtext,
+  PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+  

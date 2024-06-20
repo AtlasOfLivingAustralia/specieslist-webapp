@@ -25,16 +25,10 @@ class RematchLog {
     }
 
     def beforeInsert() {
-//        if (logs.size() > 5) {
-//            logs = logs.takeRight(5)
-//        }
         history = logs.join('|')
     }
 
     def beforeUpdate() {
-//        if (logs.size() > 5) {
-//            logs = logs.takeRight(5)
-//        }
         history = logs.join('|')
     }
 
