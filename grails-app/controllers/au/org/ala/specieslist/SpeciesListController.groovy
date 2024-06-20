@@ -517,15 +517,68 @@ class SpeciesListController {
         file?.getInputStream().withReader { r -> helperService.getSeparator(r.readLine()) }
     }
 
-    def rematchAll() {
-        //Collect all species lists ordered by creation date
-        //def speciesLists = SpeciesList.list(sort: 'dateCreated', order: 'asc')
-        def speciesLists = SpeciesList.list(sort: 'itemsCount', order: 'desc')
-        def startProcessing = new Date()
-        speciesLists.each { speciesList ->
-            helperService.rematchList(speciesList,params.reset?.toBoolean() == true)
+    /**
+     *
+     * 1, Rematch the species list of the given data resource id (drid), or the sequence id (id)
+     * 2, If the sequence id and the data resource id is not provided, it will rematch all species lists
+     *
+     * param id:  data resource id of a species list,  starting with 'dr'
+     * reset optional, default to false.  Remove all existing matched species if true
+     *
+     * if the id is NOT started with "dr", it is assumed it is a sequence id of a species list
+     * the params.id will be recalculated to the data resource id of this species lis
+     *
+     */
+    def rematch() {
+        if (params.id) {
+            def drid = params.id
+            //If the id is not started with "dr", it is assumed it is a sequence id of a species list
+            if ( !params.id.startsWith("dr")) {
+                drid = SpeciesList.get(params.id)?.dataResourceUid
+            }
+            rematchList(drid)
+        } else {
+            rematchAll()
         }
-        log.info("Total time cost to complete ${speciesLists.itemsCount} lists : ${TimeCategory.minus(new Date(), startProcessing)}")
+    }
+
+    def rematchAll() {
+        def order = params.order?.equalsIgnoreCase("asc") ? 'asc' : 'desc'
+        def speciesLists = SpeciesList.list(sort: 'itemsCount', order: order)
+
+        def total = speciesLists.size()
+        def startProcessing = new Date()
+        def msg = [status: 0, message: "Rematch all species lists [${total}]"]
+        def rematchLog = new RematchLog(byWhom: authService?.userDetails()?.email ?: "Developer", startTime: new Date(), status: 'Running', logs: [msg.message]);
+
+        for(int i= 0; i < speciesLists.size(); i++) {
+            rematchLog.processing = "${i + 1}/${total}"
+            def speciesList = speciesLists[i]
+
+            msg =  helperService.rematchList(speciesList,params.reset?.toBoolean() == true)
+            if (msg['status'] == 0) {
+                rematchLog.latestProcessingTime = new Date()
+                rematchLog.appendLog("${msg['message']}")
+                rematchLog.save()
+            } else {
+                rematchLog.latestProcessingTime = new Date()
+                rematchLog.status = 'Failed'
+                rematchLog.logs.add("${msg['message']}")
+                rematchLog.save()
+                break
+            }
+        }
+        if (msg.status == 0) {
+            rematchLog.status = 'Completed'
+        } else {
+            rematchLog.status = "Failed"
+        }
+        def finalMsg = "Total time to complete ${speciesLists.itemsCount} lists : ${TimeCategory.minus(new Date(), startProcessing)}"
+        rematchLog.endTime = new Date()
+        rematchLog.appendLog(finalMsg)
+        rematchLog.save()
+
+        log.info("Total time to complete ${speciesLists.itemsCount} lists : ${TimeCategory.minus(new Date(), startProcessing)}")
     }
 
     /**
@@ -541,64 +594,11 @@ class SpeciesListController {
                 response.sendError(401, "Not authorised.")
                 return
             }
-            boolean reset  = params.reset?.toBoolean() == true
-            helperService.rematchList(speciesList, reset)
-            render([status: 0,  message: "Rematching the species list ${id} is completed" ] as JSON)
+            def msg = helperService.rematchList(speciesList, params.reset?.toBoolean() == true)
+            render(msg as JSON)
         } else {
-            response.sendError(200, "No species list found for data resource id: ${id}")
+            render([status: 0,  message: "No species list found for data resource id: ${id}" ] as JSON)
         }
-    }
-
-
-    /**
-     * todo: decouple the rematching all lists with rematching a single list
-     * todo: decouple resume rematching process
-     *
-     * Rematch the species list of the given data resource id (drid), or the sequence id (id)
-     *
-     * param id:  data resource id of a species list,  starting with 'dr'
-     * if the id is NOT started with "dr", it is assumed it is a sequence id of a species list
-     * the params.id will be recalculated to the data resource id of this species lis
-     *
-     * param beforeId: the id of the last matched species. It only works when the dr/sequence id of a species list is not given,
-     *
-     * If the sequence id and the data resource id is not provided, it will rematch all species lists
-     *
-     * If the sequence id and the date resource id is provided, and the before id is given,
-     * the rematch ( Species sorted in descending order by sequence ID) will start from the next species BEFORE this id
-     *
-     */
-    def rematch() {
-        long  beforeId = 0
-        if (!params.id) {
-            String msg = "Rematching for ALL"
-            if (params.beforeId) {
-                try {
-                    beforeId = Long.parseLong(params.beforeId)
-                    if (beforeId > 0) {
-                        msg = "Continue to rematch the rest of species before id: " + beforeId
-                    }
-                } catch (Exception e) {
-                }
-            }
-            log.warn(msg)
-        } else if ( !params.id.startsWith("dr")) {
-            //Get speciesList Id from species id
-            params.id = SpeciesList.get(params.id)?.dataResourceUid
-            log.info("Rematching for data resource:" + params.id)
-        }
-
-        Integer totalRows, offset = 0;
-        String id = params.id
-        def splist = SpeciesList.findByDataResourceUid(params.id)
-        if (splist && !isCurrentUserEditorForList(splist)) {
-            response.sendError(401, "Not authorised.")
-            return
-        }
-
-        helperService.rematch(id,beforeId)
-
-        render(text: "${message(code: 'admin.lists.page.button.rematch.messages', default: 'Rematch complete')}")
     }
 
     private parseDataFromCSV(CSVReader csvReader, String separator) {

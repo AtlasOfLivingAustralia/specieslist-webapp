@@ -874,31 +874,18 @@ class HelperService {
      * since it should update every 1-5 minutes in processing.  The Abnormal status may be caused by server shutdown.
      * @return
      */
-    @NotTransactional
     def queryRematchingProcess(){
-        //Update to abort status if the last update time of a running process is 30Minutes before
-        def expiredTime =Timestamp.valueOf(LocalDateTime.now().plusMinutes(-30))
-        RematchLog.withTransaction {
-            def abortLogs = RematchLog.findAllByStatusAndRecentProcessTimeLessThan(Status.RUNNING.name(), expiredTime)
-            abortLogs.each {
-                it.status = Status.ABORT
-                it.save()
-            }
-        }
-
         boolean processing = RematchLog.findByStatus(Status.RUNNING.toString()) ? true : false
         def logs = RematchLog.list(max: 10, sort: "id", order: "desc")
-        Map result = ["processing": processing, "history": logs]
+        Map result = ["processing": processing, "history": logs.collect { it.toMap() }]
         return result
     }
 
-    def getCPULoad() {
-        OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class)
-        //round 2, will be displayed as 0.00 as percentage
-        double systemCpuLoad = (osBean.getSystemCpuLoad()*100).round(4)
-        double processCpuLoad = (osBean.getProcessCpuLoad()*100).round(4)
-        return [systemCpuLoad,processCpuLoad]
+    def deleteRematchLog(long id) {
+        def rematchLog = RematchLog.findById(id)
+        rematchLog?.delete(flush: true)
     }
+
 
 
     /**
@@ -909,7 +896,7 @@ class HelperService {
      */
     @NotTransactional
     def rematchList(SpeciesList speciesList, boolean reset = false) {
-        // TESTING PURPOSE. Remove all matched species for the list
+
         if (reset) {
             MatchedSpecies.withTransaction {
                 MatchedSpecies.executeUpdate("delete from MatchedSpecies where id in (select matchedSpecies from SpeciesListItem where data_resource_uid = :listDRId)", [listDRId: speciesList.dataResourceUid])
@@ -919,7 +906,13 @@ class HelperService {
 
         String listDRId = speciesList.dataResourceUid
         Integer totalRows = SpeciesListItem.countByDataResourceUid(listDRId)
+        if (totalRows <= 0) {
+            return [status: 0, message: "Ignored. No species in the list ${listDRId}"]
+        }
+
+        def message=[status: 0, message: "Rematching ${totalRows} species in the list ${listDRId}"]
         log.info("Rematching ${totalRows} species in the list ${listDRId}")
+
         def startProcessing = new Date()
         Session session = sessionFactory.openSession()
         session.beginTransaction()
@@ -946,8 +939,7 @@ class HelperService {
                 def species = (SpeciesListItem) scrollableResults.get(0)
                 speciesItems.add(species)
                 if (++count % BATCH_SIZE == 0) {
-                    log.info("Reading ${count} / ${totalRows} took ${ TimeCategory.minus(new Date(), startReading)}")
-
+                    log.debug("Reading ${count} / ${totalRows} took ${ TimeCategory.minus(new Date(), startReading)}")
                     rematchSpeciesInList(session, speciesList, speciesItems)
                     speciesItems.clear()
                     startReading = new Date()
@@ -959,10 +951,12 @@ class HelperService {
             }
 
             scrollableResults.close()
-            log.info("Rematching ${totalRows} species in the list ${listDRId} completed")
+            String msg = "${listDRId} [ ${totalRows} ] completed, time cost : ${TimeCategory.minus(new Date(), startProcessing)}"
+            log.info(msg)
+            message = [status: 0, message: msg]
         } catch (Exception e) {
             session.getTransaction().rollback()
-            log.error("Failed in rematching the list ${listDRId}")
+            message = [status: 1, message: "Failed in rematching the list ${listDRId}"]
             log.error("Error in rematching:" + e.message)
         } finally {
             scrollableResults.close()
@@ -971,7 +965,8 @@ class HelperService {
             }
         }
 
-        log.info("Total time cost to complete the list of ${speciesList.dataResourceUid} [${speciesList.itemsCount}] : ${TimeCategory.minus(new Date(), startProcessing)}")
+        message
+
     }
 
     /**
@@ -1031,7 +1026,6 @@ class HelperService {
     /**
      * Rematch a list of species in a species list
      *
-     * No DB I/O
      * @param speciesItems
      * @return
      */
@@ -1096,7 +1090,7 @@ class HelperService {
             }
         }
         log.debug("Time cost of Each Records on nameExlorerService:  ${TimeCategory.minus(new Date(), startBIESearch)}")
-        log.info("Rematching took ${ TimeCategory.minus(new Date(), startRematching)}")
+        log.debug("Rematching took ${ TimeCategory.minus(new Date(), startRematching)}")
 
         //Save to DB
         Date updatingDB = new Date()
@@ -1105,7 +1099,7 @@ class HelperService {
         }
         session.flush()
         session.clear()
-        log.info("Saving to DB took ${ TimeCategory.minus(new Date(), updatingDB)}")
+        log.debug("Saving to DB took ${ TimeCategory.minus(new Date(), updatingDB)}")
     }
 
     /**

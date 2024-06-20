@@ -32,6 +32,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.apache.http.HttpStatus
+import grails.web.mime.MimeType
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH
@@ -1814,20 +1815,31 @@ class WebServiceController {
     }
 
 
-    /**
-     * rematch existing SpeciesListItem
-     */
-    def rematchSpecies() {
-        def result = helperService.rematchSpeciesInList("developer", params.matchAll)
-        def resp = result.toMap()
-        render resp as JSON
-    }
-
-    def rematchStatus() {
+    def rematchLogs() {
         def result = helperService.queryRematchingProcess()
         def resp = result
         render resp as JSON
     }
+
+    def deleteRematchLog(String id){
+        if (id) {
+            helperService.deleteRematchLog(id.toLong())
+            render(status: 200)
+        } else {
+            render(text: "ID is required!", status: 200)
+        }
+    }
+
+    def rematchLog(Long id) {
+        RematchLog rematchLog = RematchLog.get(id)
+        if (!rematchLog) {
+            render status: 404, text: "Log not found"
+            return
+        }
+        render rematchLog.toMap() as JSON
+
+    }
+
 
     def handleException(final Exception e ) {
         log.error(e.message)
