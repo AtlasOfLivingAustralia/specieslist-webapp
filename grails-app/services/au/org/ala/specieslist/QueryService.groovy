@@ -40,6 +40,7 @@ class QueryService {
     public static final String LIST_TYPE = "listType"
     public static final String WKT = "wkt"
     public static final String WKT_QUERY = "wkt=isNotNull"
+    public static final String MATCHED_FAMILY = "family(matched)"
 
     def authService
     def localAuthService
@@ -607,6 +608,11 @@ class QueryService {
         }
     }
 
+    def validMatchedSpeciesField(String field) {
+        return new String[] {"taxonConceptID", "scientificName", "scientificNameAuthorship", "vernacularName", "kingdom",
+                "phylum", "taxonClass", "taxonOrder", "taxonRank", "family", "genus"}.contains(field) ? field : "scientificName";
+    }
+
     /**
      * Constructs a query based on the filters that have been applied in the KVPs etc.
      * @param base
@@ -639,6 +645,15 @@ class QueryService {
                         query.append(" join sli.kvpValues kvp").append(sindex)
                         whereBuilder.append(" AND kvp").append(sindex).append(".key=:key AND kvp").append(sindex).append(".value=:value")
                         queryparams << [key: key, value: value]
+                    } else if (facet.startsWith("matched ")) {
+                        String sindex = index.toString()
+                        facet = facet.replaceFirst("matched ", "")
+                        pos = facet.indexOf(":")
+                        String key = facet.substring(0, pos)
+                        String value = facet.substring(pos + 1)
+                        query.append(" join sli.matchedSpecies matched").append(sindex)
+                        whereBuilder.append(" AND matched").append(sindex).append(".").append(validMatchedSpeciesField(key)).append("=:value")
+                        queryparams << [value: value]
                     } else {
                         String key = facet.substring(0, pos)
                         String value = facet.substring(pos + 1)
@@ -907,9 +922,11 @@ class QueryService {
                     "${q ? 'and (sli.matchedName like :qMatchedName or sli.commonName like :qCommonName or sli.rawScientificName like :qRawScientificName) ' : ''} " +
                     "group by sli.family order by cnt desc",
                     queryParameters)
-//            `if (commonResults.size() > 1) {
-//                map["family_matched"] = commonResults
-//            }`
+
+            if (commonResults.size() > 1) {
+                map[MATCHED_FAMILY] = commonResults
+            }
+
 
             //println(results)
             properties = results.findAll{ it[1] && it[1]?.length()<maxLengthForFacet }.groupBy { it[0] }.findAll{ it.value.size()>1}
@@ -933,7 +950,7 @@ class QueryService {
                     'group by family order by cnt desc',
                     queryParameters)
             if(commonResults.size() > 1) {
-                map["family_matched"] = commonResults
+                map[MATCHED_FAMILY] = commonResults
             }
         }
         //if there was a facet included in the result we will need to divide the
