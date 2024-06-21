@@ -67,11 +67,11 @@ grails run-app
   `id` bigint NOT NULL AUTO_INCREMENT,
   `version` bigint NOT NULL,
   `end_time` datetime(6) DEFAULT NULL,
-  `processing` varchar(255) NOT NULL,
+  `processing` varchar(255) DEFAULT NULL,
   `start_time` datetime(6) NOT NULL,
   `by_whom` varchar(255) NOT NULL,
   `status` varchar(255) DEFAULT NULL,
-  `latest_processing_time` datetime(6) NOT NULL,
+  `latest_processing_time` datetime(6) DEFAULT NULL,
   `history` longtext,
   PRIMARY KEY (`id`)
   ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
