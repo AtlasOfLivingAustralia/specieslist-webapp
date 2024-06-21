@@ -932,9 +932,9 @@ class QueryService {
                     "${q ? 'and (matchedName like :matchedName or commonName like :commonName or rawScientificName like :rawScientificName) ' : ''} " +
                     'group by family order by cnt desc',
                     queryParameters)
-//            if(commonResults.size() > 1) {
-//                map["family_matched"] = commonResults
-//            }
+            if(commonResults.size() > 1) {
+                map["family_matched"] = commonResults
+            }
         }
         //if there was a facet included in the result we will need to divide the
         if(properties) {
