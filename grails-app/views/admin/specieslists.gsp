@@ -129,7 +129,7 @@
                         <a class="btn btn-primary" title="${message(code:'upload.lists.header01', default:'Upload a list')}" href="${request.contextPath}/speciesList/upload">${message(code:'upload.lists.header01', default:'Upload a list')}</a>
                         <a class="btn btn-primary" title="${message(code:'generic.lists.button.mylist.label', default:'My Lists')}" href="${request.contextPath}/speciesList/list">${message(code:'generic.lists.button.mylist.label', default:'My Lists')}</a>
                         <g:if test="${rematchLogs.processing}">
-                            <button class="btn btn-primary" onclick="showRematchingProcess('${request.contextPath}/ws/rematchLogs')">Rematching is on process. Click to check status</button>
+                            <a class="btn btn-primary" onclick="showRematchingProcess('${request.contextPath}/ws/rematchLogs')">Check Rematching progress</a>
                         </g:if>
                         <g:else>
                             <a href="#" title="${message(code:'admin.lists.page.button.rematch.tooltip', default:'Rematch')}"

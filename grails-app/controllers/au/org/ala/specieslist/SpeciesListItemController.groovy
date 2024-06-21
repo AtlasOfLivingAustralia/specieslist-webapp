@@ -121,7 +121,7 @@ class SpeciesListItemController {
 
                     def fqs = requestParams.fq ? [requestParams.fq].flatten().findAll { it != null } : null
 
-                    def baseQueryAndParams = requestParams.fq ? queryService.constructWithFacets(" from SpeciesListItem sli left join fetch sli.matchedSpecies ", fqs, requestParams.id, requestParams.q) : null
+                    def baseQueryAndParams = requestParams.fq ? queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, requestParams.id, requestParams.q) : null
                     log.debug(baseQueryAndParams?.toString())
 
                     // to sort on a column 'order by' clause has to be added explicitly since executeQuery function does

@@ -14,6 +14,8 @@ class RematchLog {
 
     static constraints = {
         endTime(nullable: true)
+        latestProcessingTime(nullable: true)
+        processing(nullable: true)
         status(nullable: true)
         history(nullable: true)
     }

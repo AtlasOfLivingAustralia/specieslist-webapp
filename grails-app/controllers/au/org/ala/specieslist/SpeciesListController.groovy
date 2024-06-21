@@ -18,6 +18,7 @@ import au.org.ala.web.AuthService
 //import au.org.ala.names.ws.api.SearchStyle
 import com.opencsv.CSVReader
 import grails.converters.JSON
+import grails.gorm.transactions.NotTransactional
 import grails.gorm.transactions.Transactional
 import groovy.time.TimeCategory
 import org.apache.commons.io.filefilter.FalseFileFilter
@@ -542,14 +543,17 @@ class SpeciesListController {
         }
     }
 
+
     def rematchAll() {
         def order = params.order?.equalsIgnoreCase("asc") ? 'asc' : 'desc'
         def speciesLists = SpeciesList.list(sort: 'itemsCount', order: order)
 
         def total = speciesLists.size()
         def startProcessing = new Date()
-        def msg = [status: 0, message: "Rematch all species lists [${total}]"]
+        def msg = [status: 0, message: "Rematch all species lists [${total}], starting with order: ${order}"]
+
         def rematchLog = new RematchLog(byWhom: authService?.userDetails()?.email ?: "Developer", startTime: new Date(), status: 'Running', logs: [msg.message]);
+        rematchLog.save()
 
         for(int i= 0; i < speciesLists.size(); i++) {
             rematchLog.processing = "${i + 1}/${total}"
