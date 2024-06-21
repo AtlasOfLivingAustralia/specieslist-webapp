@@ -582,7 +582,7 @@ class SpeciesListController {
         rematchLog.appendLog(finalMsg)
         rematchLog.save()
 
-        log.info("Total time to complete ${speciesLists.itemsCount} lists : ${TimeCategory.minus(new Date(), startProcessing)}")
+        log.info("Total time to complete ${rematchLog.processing} lists : ${TimeCategory.minus(rematchLog.endTime, startProcessing)}")
 
         render(rematchLog.toMap() as JSON)
     }
