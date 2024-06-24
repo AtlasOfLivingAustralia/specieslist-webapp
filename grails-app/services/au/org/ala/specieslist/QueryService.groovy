@@ -19,6 +19,7 @@ import groovy.time.*
 import org.hibernate.Criteria
 import org.hibernate.criterion.CriteriaQuery
 import org.hibernate.criterion.Order
+import org.hibernate.FetchMode
 
 class QueryService {
 
@@ -746,9 +747,9 @@ class QueryService {
             speciesListItems = SpeciesListItem.executeQuery("select sli " + baseQueryAndParams[0], baseQueryAndParams[1], requestParams)
         } else {
             def criteria = SpeciesListItem.createCriteria()
+
             def q = requestParams.q
             speciesListItems = criteria.list(requestParams) {
-
                 and {
                     eq(DATA_RESOURCE_UID, requestParams.id)
                     if (q) {
@@ -921,9 +922,11 @@ class QueryService {
                     "${q ? 'and (sli.matchedName like :qMatchedName or sli.commonName like :qCommonName or sli.rawScientificName like :qRawScientificName) ' : ''} " +
                     "group by sli.family order by cnt desc",
                     queryParameters)
+
             if (commonResults.size() > 1) {
                 map[MATCHED_FAMILY] = commonResults
             }
+
 
             //println(results)
             properties = results.findAll{ it[1] && it[1]?.length()<maxLengthForFacet }.groupBy { it[0] }.findAll{ it.value.size()>1}

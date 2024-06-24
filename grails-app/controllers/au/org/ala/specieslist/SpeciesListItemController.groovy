@@ -147,7 +147,7 @@ class SpeciesListItemController {
                             distinctCount: queryService.getDistinctCountByParams(requestParams, baseQueryAndParams),
                             hasUnrecognised: noMatchCount > 0,
                             keys: queryService.getSpeciesListKVPKeysByDataResourceUid(requestParams.id),
-                            downloadReasons: loggerService.getReasons(),
+                            downloadReasons: null,
                             users: queryService.getUsersForList(),
                             userId: authService.getUserId(),
                             facets: queryService.generateFacetValues(fqs, baseQueryAndParams, requestParams.id, requestParams.q, maxLengthForFacet),

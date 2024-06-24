@@ -31,8 +31,6 @@ class MatchedSpecies {
     String genus
     Date lastUpdated
 
-    static belongsTo = [speciesListItem:SpeciesListItem]
-
     static constraints = {
         vernacularName(nullable:  true)
         taxonConceptID(nullable:  true)

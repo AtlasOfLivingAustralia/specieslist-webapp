@@ -18,13 +18,19 @@ import au.org.ala.web.AuthService
 //import au.org.ala.names.ws.api.SearchStyle
 import com.opencsv.CSVReader
 import grails.converters.JSON
+import grails.gorm.transactions.NotTransactional
 import grails.gorm.transactions.Transactional
+import groovy.time.TimeCategory
 import org.apache.commons.io.filefilter.FalseFileFilter
 import org.grails.web.json.JSONObject
 import org.hibernate.criterion.DetachedCriteria
 import org.springframework.web.multipart.MultipartHttpServletRequest
 
 import javax.annotation.PostConstruct
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.lang.management.ManagementFactory
+import com.sun.management.OperatingSystemMXBean
 
 class SpeciesListController {
 
@@ -513,38 +519,94 @@ class SpeciesListController {
     }
 
     /**
-     * Rematches the scientific names in the supplied list
+     *
+     * 1, Rematch the species list of the given data resource id (drid), or the sequence id (id)
+     * 2, If the sequence id and the data resource id is not provided, it will rematch all species lists
+     *
+     * param id:  data resource id of a species list,  starting with 'dr'
+     * reset optional, default to false.  Remove all existing matched species if true
+     *
+     * if the id is NOT started with "dr", it is assumed it is a sequence id of a species list
+     * the params.id will be recalculated to the data resource id of this species lis
+     *
      */
     def rematch() {
-        long  beforeId = 0
-        if (!params.id) {
-            String msg = "Rematching for ALL"
-            if (params.beforeId) {
-                try {
-                    beforeId = Long.parseLong(params.beforeId)
-                    if (beforeId > 0) {
-                        msg = "Continue to rematch the rest of species before id: " + beforeId
-                    }
-                } catch (Exception e) {
-                }
+        if (params.id) {
+            def drid = params.id
+            //If the id is not started with "dr", it is assumed it is a sequence id of a species list
+            if ( !params.id.startsWith("dr")) {
+                drid = SpeciesList.get(params.id)?.dataResourceUid
             }
-            log.warn(msg)
-        } else if ( !params.id.startsWith("dr")) {
-            params.id = SpeciesList.get(params.id)?.dataResourceUid
-            log.info("Rematching for " + params.id)
+            rematchList(drid)
+        } else {
+            rematchAll()
+        }
+    }
+
+
+    def rematchAll() {
+        def order = params.order?.equalsIgnoreCase("asc") ? 'asc' : 'desc'
+        def speciesLists = SpeciesList.list(sort: 'itemsCount', order: order)
+
+        def total = speciesLists.size()
+        def startProcessing = new Date()
+        def msg = [status: 0, message: "Rematch all species lists [${total}], starting with order: ${order}"]
+
+        def rematchLog = new RematchLog(byWhom: authService?.userDetails()?.email ?: "Developer", startTime: new Date(), status: 'Running', logs: [msg.message]);
+        rematchLog.save()
+
+        for(int i= 0; i < speciesLists.size(); i++) {
+            rematchLog.processing = "${i + 1}/${total}"
+            def speciesList = speciesLists[i]
+
+            msg =  helperService.rematchList(speciesList,params.reset?.toBoolean() == true)
+
+            rematchLog.latestProcessingTime = new Date()
+            rematchLog.appendLog("${msg['message']}")
+            rematchLog.save(failOnError: true)
+
+            if (msg['status'] != 0) {
+                break
+            }
+        }
+        if (msg.status == 0) {
+            rematchLog.status = 'Completed'
+        } else {
+            rematchLog.status = "Failed"
+        }
+        def finalMsg = "Total time to complete ${total} lists : ${TimeCategory.minus(new Date(), startProcessing)}"
+        rematchLog.endTime = new Date()
+        rematchLog.appendLog(finalMsg)
+        /**
+         * With unknown reasons, the live session is closed after the last list is completed.
+         * And the log for the last list is not saved, We have to use a new transaction to update the log.
+         */
+        RematchLog.withTransaction {
+            rematchLog.save(failOnError: true, flush: true  )
         }
 
-        Integer totalRows, offset = 0;
-        String id = params.id
-        def splist = SpeciesList.findByDataResourceUid(params.id)
-        if (splist && !isCurrentUserEditorForList(splist)) {
-            response.sendError(401, "Not authorised.")
-            return
+        log.info(finalMsg)
+        render(rematchLog.toMap() as JSON)
+    }
+
+    /**
+     * Rematch the species list of the given data resource id (drid)
+     * @param id dataResource id of a species list,  starting with 'dr'
+     * @reset optional, default to false.  Remove all existing matched species if true
+     * @return
+     */
+    def rematchList(String id) {
+        def speciesList = SpeciesList.findByDataResourceUid(id)
+        if (speciesList) {
+            if (!isCurrentUserEditorForList(speciesList)) {
+                response.sendError(401, "Not authorised.")
+                return
+            }
+            def msg = helperService.rematchList(speciesList, params.reset?.toBoolean() == true)
+            render(msg as JSON)
+        } else {
+            render([status: 0,  message: "No species list found for data resource id: ${id}" ] as JSON)
         }
-
-        helperService.rematch(id,beforeId)
-
-        render(text: "${message(code: 'admin.lists.page.button.rematch.messages', default: 'Rematch complete')}")
     }
 
     private parseDataFromCSV(CSVReader csvReader, String separator) {
