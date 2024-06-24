@@ -57,6 +57,7 @@
                 type: 'DELETE',
                 success: function(result) {
                      jQuery.fancybox.close();
+                     window.location.reload();
                 }
             });
         }

@@ -560,15 +560,12 @@ class SpeciesListController {
             def speciesList = speciesLists[i]
 
             msg =  helperService.rematchList(speciesList,params.reset?.toBoolean() == true)
-            if (msg['status'] == 0) {
-                rematchLog.latestProcessingTime = new Date()
-                rematchLog.appendLog("${msg['message']}")
-                rematchLog.save()
-            } else {
-                rematchLog.latestProcessingTime = new Date()
-                rematchLog.status = 'Failed'
-                rematchLog.logs.add("${msg['message']}")
-                rematchLog.save()
+
+            rematchLog.latestProcessingTime = new Date()
+            rematchLog.appendLog("${msg['message']}")
+            rematchLog.save(failOnError: true)
+
+            if (msg['status'] != 0) {
                 break
             }
         }
@@ -577,13 +574,18 @@ class SpeciesListController {
         } else {
             rematchLog.status = "Failed"
         }
-        def finalMsg = "Total time to complete ${speciesLists.itemsCount} lists : ${TimeCategory.minus(new Date(), startProcessing)}"
+        def finalMsg = "Total time to complete ${total} lists : ${TimeCategory.minus(new Date(), startProcessing)}"
         rematchLog.endTime = new Date()
         rematchLog.appendLog(finalMsg)
-        rematchLog.save()
+        /**
+         * With unknown reasons, the live session is closed after the last list is completed.
+         * And the log for the last list is not saved, We have to use a new transaction to update the log.
+         */
+        RematchLog.withTransaction {
+            rematchLog.save(failOnError: true, flush: true  )
+        }
 
-        log.info("Total time to complete ${rematchLog.processing} lists : ${TimeCategory.minus(rematchLog.endTime, startProcessing)}")
-
+        log.info(finalMsg)
         render(rematchLog.toMap() as JSON)
     }
 
