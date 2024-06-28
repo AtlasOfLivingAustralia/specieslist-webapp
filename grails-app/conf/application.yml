@@ -1,4 +1,6 @@
 ---
+logging:
+    config: /data/specieslist-webapp/config/logback.xml
 
 grails:
     profile: web
@@ -161,7 +163,7 @@ environments:
             driverClassName: org.h2.Driver
             username: 'specieslist'
             password: 'specieslist'
-            dbCreate: create-drop
+            dbCreate: update
             url: jdbc:h2:mem:specieslist;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
         security:
             cas:
@@ -280,3 +282,16 @@ ownerVisibleToEditor: false
 
 biocacheService:
     baseURL: https://biocache-ws.ala.org.au/ws
+
+openapi:
+    title: Species list REST services
+    description: REST services for interacting with the Species lists
+    terms: https://www.ala.org.au/terms-of-use/
+    contact:
+        name: Support
+        email: support@ala.org.au
+    license:
+        name: Mozilla Public License 1.1
+        url: https://www.mozilla.org/en-US/MPL/1.1/
+    version: '@info.app.version@'
+    cachetimeoutms: 0

@@ -62,7 +62,7 @@ class AdminController {
             def rematchLogs = helperService.queryRematchingProcess()
             def model = [lists:lists,
                          total:lists.totalCount,
-                         typeFacets: (params.listType) ? null : queryService.getTypeFacetCounts(params, false, itemsIds, request, response),
+                         typeFacets: (params.listType) ? null : queryService.getTypeFacetCounts(params, false, itemsIds),
                          tagFacets: queryService.getTagFacetCounts(params, itemsIds),
                          selectedFacets:queryService.getSelectedFacets(params),
                          rematchLogs: rematchLogs

@@ -1,37 +1,60 @@
 package au.org.ala.specieslist
 
 class RematchLog {
-    static transients = [ "saveToDB" ]
 
-    boolean saveToDB
     String byWhom
     Date startTime
     Date endTime
-    Date recentProcessTime
-
-    int total
-    int remaining
+    Date latestProcessingTime
     String status
-    String logs
-    // the id of species list item was just processed
-    // It is used to select those which are not matched yet.
-    long currentRecordId
+    String processing // e.g. "2/3000" the 2nd list of 3000 lists
+    String history
+
+    List logs = []
 
     static constraints = {
         endTime(nullable: true)
-        recentProcessTime(nullable: true)
+        latestProcessingTime(nullable: true)
+        processing(nullable: true)
         status(nullable: true)
-        logs(nullable: true)
+        history(nullable: true)
     }
 
-    def persist() {
-        if (this.saveToDB) {
-            this.save()
+    static transients = ['logs'] // Transient property for the list
+
+    static mapping = {
+        history type: 'text'
+    }
+
+    def beforeInsert() {
+        history = logs.join('|')
+    }
+
+    def beforeUpdate() {
+        history = logs.join('|')
+    }
+
+    def afterLoad() {
+        if (history) {
+            logs = history.split(/\|/)
         }
     }
 
+    void appendLog(String log) {
+        logs << log
+    }
+
+
     def toMap() {
-        this.class.declaredFields.findAll { it.modifiers == java.lang.reflect.Modifier.PRIVATE }.
-                collectEntries { [it.name, this[it.name]] }
+        def map = [
+                id: id,
+                byWhom: byWhom,
+                startTime: startTime,
+                latestProcessingTime: latestProcessingTime,
+                endtime: endTime,
+                status: status,
+                processing: processing,
+                logs : logs,
+        ]
     }
 }

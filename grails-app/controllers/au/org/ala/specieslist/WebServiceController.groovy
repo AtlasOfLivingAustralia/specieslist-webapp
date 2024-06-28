@@ -32,6 +32,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.apache.http.HttpStatus
+import grails.web.mime.MimeType
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH
@@ -74,9 +75,9 @@ class WebServiceController {
                     )
                 ],
                 headers = [
-                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                 ]
             )
         ]
@@ -126,9 +127,9 @@ class WebServiceController {
                     )
                 ],
                 headers = [
-                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                 ]
             )
         ]
@@ -176,9 +177,9 @@ class WebServiceController {
                     )
                 ],
                 headers = [
-                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                 ]
             )
         ]
@@ -230,9 +231,9 @@ class WebServiceController {
     @Operation(
         method = "GET",
         tags = "Lists",
-        operationId = "Get species list(s) detail",
-        summary = "Get species list(s) detail",
-        description = "Get details of species lists or a specific list",
+        operationId = "Get species list detail",
+        summary = "Get species list detail",
+        description = "Get details of a specific list",
         parameters = [
             // the "required" attribute is overridden to true when the parameter type is PATH.
             @Parameter(name = "druid",
@@ -271,14 +272,14 @@ class WebServiceController {
                     )
                 ],
                 headers = [
-                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                 ]
             )
         ]
     )
-    @Path("/ws/speciesList/{druid}?")
+    @Path("/ws/speciesList/{druid}")
     def getListDetails() {
         log.debug("params" + params)
         if (params.splist) {
@@ -297,6 +298,8 @@ class WebServiceController {
                 isAuthoritative: (sl.isAuthoritative ?: false),
                 isInvasive     : (sl.isInvasive ?: false),
                 isThreatened   : (sl.isThreatened ?: false),
+                isBIE          : (sl.isBIE ?: false),
+                isSDS          : (sl.isSDS ?: false),
                 looseSearch    : sl.looseSearch/*,
                 searchStyle    : sl.searchStyle?.toString()*/
             ]
@@ -345,11 +348,64 @@ class WebServiceController {
                                  isThreatened   : it.isThreatened ?: false,
                                  looseSearch    : it.looseSearch,
                                  //searchStyle    : it.searchStyle?.toString(),
+                                 isBIE          : (it.isBIE ?: false),
+                                 isSDS          : (it.isSDS ?: false),
                                  wkt            : it.wkt
                                 ]
                             }]
             render retValue as JSON
         }
+    }
+
+    @Operation(
+            method = "GET",
+            tags = "Lists",
+            operationId = "Get species list detail",
+            summary = "Get species list detail",
+            description = "Get details of species lists",
+            parameters = [
+                    @Parameter(name = "sort",
+                            in = QUERY,
+                            description = "The field  on which to sort the returned results",
+                            schema = @Schema(implementation = String),
+                            required = false),
+                    @Parameter(name = "order",
+                            description = "The order to return the results in i.e asc or desc",
+                            schema = @Schema(implementation = Integer),
+                            required = false),
+                    @Parameter(name = "max",
+                            in = QUERY,
+                            description = "The number of records to return",
+                            schema = @Schema(implementation = Integer),
+                            required = false),
+                    @Parameter(name = "offset",
+                            in = QUERY,
+                            description = "The records offset, to enable paging",
+                            schema = @Schema(implementation = Integer),
+                            required = false)
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "Species List(s)",
+                            responseCode = "200",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = GetListsResponse)
+                                    )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
+                            ]
+                    )
+            ]
+    )
+    @Path("/ws/speciesList")
+    // placeholder for openapi spec due to the optional path variable
+    def openapi4() {
+        // must do nothing, only here for the openapi spec
     }
 
     /**
@@ -404,9 +460,9 @@ class WebServiceController {
                                     )
                             ],
                             headers = [
-                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                             ]
                     )
             ],
@@ -486,9 +542,9 @@ class WebServiceController {
                     )
                 ],
                 headers = [
-                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                 ]
             )
         ]
@@ -614,9 +670,9 @@ class WebServiceController {
                                     )
                             ],
                             headers = [
-                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                             ]
                     )
             ],
@@ -698,9 +754,9 @@ class WebServiceController {
                     )
                 ],
                 headers = [
-                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                 ]
             )
         ]
@@ -784,9 +840,9 @@ class WebServiceController {
                     )
                 ],
                 headers = [
-                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                 ]
             )
         ]
@@ -881,15 +937,15 @@ class WebServiceController {
                     )
                 ],
                 headers = [
-                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                 ]
             )
         ],
         security = [@SecurityRequirement(name = 'openIdConnect')]
     )
-    @Path("/ws/speciesListPost/{druid}?")
+    @Path("/ws/speciesList/{druid}")
     @RequireApiKey
     def saveList() {
         log.debug("Saving a user list")
@@ -950,6 +1006,144 @@ class WebServiceController {
         }
     }
 
+    @Operation(
+            method = "POST",
+            tags = "Lists",
+            operationId = "Add or replace a species list",
+            summary = "Add  or replace a species list",
+            description = "Add new species list or replace an existing one. When no druid is provided in the JSON body, a new list will be created. Providing a druid in the path will attempt to update and existing list",
+            requestBody = @RequestBody(
+                    description = "The JSON object containing new species list. Two JSON structures are supported: - v1 (unstructured list items): {\"listName\": \"list1\",  \"listType\": \"TEST\", \"listItems\": \"item1,item2,item3\"}, \n- v2 (structured list items with KVP): { \"listName\": \"list1\", \"listType\": \"TEST\", \"listItems\": [ { \"itemName\": \"item1\", \"kvpValues\": [ { \"key\": \"key1\", \"value\": \"value1\" }, { \"key\": \"key2\", \"value\": \"value2\" } ] } ] }",
+                    required = true,
+                    content = @Content(
+                            mediaType = 'application/json',
+                            schema = @Schema(implementation = FilterListsBody)
+                    )
+            ),
+            parameters = [
+                    @Parameter(name = "X-ALA-userId",  description="The user id to save the list against", in = HEADER, schema = @Schema(implementation = String), required = true)
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "List of druid which match the supplied filter",
+                            responseCode = "201",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = SaveListResponse)
+                                    )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
+                            ]
+                    )
+            ],
+            security = [@SecurityRequirement(name = 'openIdConnect')]
+    )
+    @Path("/ws/speciesList")
+    // placeholder for openapi spec due to the optional path variable
+    def openapi1() {
+        // must do nothing, only here for the openapi spec
+    }
+
+    @Operation(
+            method = "POST",
+            tags = "Lists",
+            operationId = "Add or replace a species list",
+            summary = "Add  or replace a species list",
+            description = "Add new species list or replace an existing one. When no druid is provided in the JSON body, a new list will be created. Providing a druid in the path will attempt to update and existing list",
+            requestBody = @RequestBody(
+                    description = "The JSON object containing new species list. Two JSON structures are supported: - v1 (unstructured list items): {\"listName\": \"list1\",  \"listType\": \"TEST\", \"listItems\": \"item1,item2,item3\"}, \n- v2 (structured list items with KVP): { \"listName\": \"list1\", \"listType\": \"TEST\", \"listItems\": [ { \"itemName\": \"item1\", \"kvpValues\": [ { \"key\": \"key1\", \"value\": \"value1\" }, { \"key\": \"key2\", \"value\": \"value2\" } ] } ] }",
+                    required = true,
+                    content = @Content(
+                            mediaType = 'application/json',
+                            schema = @Schema(implementation = FilterListsBody)
+                    )
+            ),
+            parameters = [
+                    @Parameter(name = "druid",
+                            in = PATH,
+                            description = "The data resource id to identify an existing list",
+                            schema = @Schema(implementation = String),
+                            required = true),
+                    @Parameter(name = "X-ALA-userId",  description="The user id to save the list against", in = HEADER, schema = @Schema(implementation = String), required = true)
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "List of druid which match the supplied filter",
+                            responseCode = "201",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = SaveListResponse)
+                                    )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
+                            ]
+                    )
+            ],
+            security = [@SecurityRequirement(name = 'openIdConnect')]
+    )
+    @Deprecated // use /ws/speciesList
+    @Path("/ws/speciesListPost/{druid}")
+    // placeholder for openapi spec due to the optional path variable and duplicated service
+    def openapi2() {
+        // must do nothing, only here for the openapi spec
+    }
+
+    @Operation(
+            method = "POST",
+            tags = "Lists",
+            operationId = "Add or replace a species list",
+            summary = "Add  or replace a species list",
+            description = "Add new species list or replace an existing one. When no druid is provided in the JSON body, a new list will be created. Providing a druid in the path will attempt to update and existing list",
+            requestBody = @RequestBody(
+                    description = "The JSON object containing new species list. Two JSON structures are supported: - v1 (unstructured list items): {\"listName\": \"list1\",  \"listType\": \"TEST\", \"listItems\": \"item1,item2,item3\"}, \n- v2 (structured list items with KVP): { \"listName\": \"list1\", \"listType\": \"TEST\", \"listItems\": [ { \"itemName\": \"item1\", \"kvpValues\": [ { \"key\": \"key1\", \"value\": \"value1\" }, { \"key\": \"key2\", \"value\": \"value2\" } ] } ] }",
+                    required = true,
+                    content = @Content(
+                            mediaType = 'application/json',
+                            schema = @Schema(implementation = FilterListsBody)
+                    )
+            ),
+            parameters = [
+                    @Parameter(name = "druid",
+                            in = PATH,
+                            description = "The data resource id to identify an existing list",
+                            schema = @Schema(implementation = String),
+                            required = true),
+                    @Parameter(name = "X-ALA-userId",  description="The user id to save the list against", in = HEADER, schema = @Schema(implementation = String), required = true)
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "List of druid which match the supplied filter",
+                            responseCode = "201",
+                            content = [
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = SaveListResponse)
+                                    )
+                            ],
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
+                            ]
+                    )
+            ],
+            security = [@SecurityRequirement(name = 'openIdConnect')]
+    )
+    @Deprecated // use /ws/speciesList
+    @Path("/ws/speciesListPost")
+    // placeholder for openapi spec due to the optional path variable and duplicated service
+    def openapi3() {
+        // must do nothing, only here for the openapi spec
+    }
+
     private def created = { uid, guids ->
         response.addHeader 'druid', uid
         response.status = 201
@@ -995,9 +1189,9 @@ class WebServiceController {
                     )
                 ],
                 headers = [
-                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                 ]
             )
         ]
@@ -1036,9 +1230,9 @@ class WebServiceController {
                     )
                 ],
                 headers = [
-                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                 ]
             )
         ]
@@ -1113,9 +1307,9 @@ class WebServiceController {
                     )
                 ],
                 headers = [
-                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                 ]
             )
         ]
@@ -1181,9 +1375,9 @@ class WebServiceController {
                     )
                 ],
                 headers = [
-                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                 ]
             )
         ]
@@ -1261,9 +1455,9 @@ class WebServiceController {
                     )
                 ],
                 headers = [
-                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                 ]
             )
         ]
@@ -1355,9 +1549,9 @@ class WebServiceController {
                     )
                 ],
                 headers = [
-                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "String")),
-                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "String"))
+                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
                 ]
             )
         ]
@@ -1523,7 +1717,13 @@ class WebServiceController {
             ),
             responses = [
                     @ApiResponse(
-                            responseCode = "200"
+                            description = "Success",
+                            responseCode = "200",
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
+                            ]
                     )
             ],
             security = [@SecurityRequirement(name = 'openIdConnect', scopes = ['ala/internal'])]
@@ -1567,7 +1767,13 @@ class WebServiceController {
             ],
             responses = [
                     @ApiResponse(
-                            responseCode = "200"
+                            description = "Success",
+                            responseCode = "200",
+                            headers = [
+                                    @Header(name = 'Access-Control-Allow-Headers', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Methods', description = "CORS header", schema = @Schema(type = "string")),
+                                    @Header(name = 'Access-Control-Allow-Origin', description = "CORS header", schema = @Schema(type = "string"))
+                            ]
                     )
             ],
             security = [@SecurityRequirement(name = 'openIdConnect', scopes = ['ala/internal'])]
@@ -1609,20 +1815,31 @@ class WebServiceController {
     }
 
 
-    /**
-     * rematch existing SpeciesListItem
-     */
-    def rematchSpecies() {
-        def result = helperService.rematchSpecies("developer", params.matchAll)
-        def resp = result.toMap()
-        render resp as JSON
-    }
-
-    def rematchStatus() {
+    def rematchLogs() {
         def result = helperService.queryRematchingProcess()
         def resp = result
         render resp as JSON
     }
+
+    def deleteRematchLog(String id){
+        if (id) {
+            helperService.deleteRematchLog(id.toLong())
+            render(status: 200)
+        } else {
+            render(text: "ID is required!", status: 200)
+        }
+    }
+
+    def rematchLog(Long id) {
+        RematchLog rematchLog = RematchLog.get(id)
+        if (!rematchLog) {
+            render status: 404, text: "Log not found"
+            return
+        }
+        render rematchLog.toMap() as JSON
+
+    }
+
 
     def handleException(final Exception e ) {
         log.error(e.message)

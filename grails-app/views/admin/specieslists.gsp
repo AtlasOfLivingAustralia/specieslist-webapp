@@ -47,38 +47,19 @@
             })
         }
 
-        function continueMatch(url, beforeId) {
-            $.ajax({
-                url: url+"?beforeId="+beforeId,
-                success: function (data) {
-
-                },
-                error: function () {
-                    console.log("Failed to resuming the rematching process");
-                }
-            });
-            jQuery.fancybox.open("<div style=\"padding:20px;width:400px;text-align:center;\"><img src='${asset.assetPath(src:'spinner.gif')}' id='spinner'/>Processing the rest of records</div></div>", {
-                'padding': 0,
-                'margin': 0,
-                'width': 'auto',
-                'height': 'auto',
-                afterShow: function () {
-                       setTimeout(function(){window.location.reload()}, 3000);
-                    }
-              })
-           }
-
-
-        function calculateElapsedTime(start, end){
-            let difference = end - start;
-            let days = Math.floor(difference / (1000 * 60 * 60 * 24));
-            let hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            let minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-            return [days, hours, minutes]
-        }
-
         function numberWithCommas(x) {
              return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function deleteRematchLog(id){
+            $.ajax({
+                url: "${request.contextPath}/ws/rematchLog/" + id,
+                type: 'DELETE',
+                success: function(result) {
+                     jQuery.fancybox.close();
+                     window.location.reload();
+                }
+            });
         }
 
         function showRematchingProcess(url, showAll) {
@@ -95,34 +76,29 @@
                         if (showAll) {
                             logs = rematchingLogs.history;
                         } else {
-                            logs = rematchingLogs.history.filter(({status}) => status === "RUNNING");
+                            logs = rematchingLogs.history.filter(({status}) => status.toUpperCase() === "RUNNING");
                         }
 
-                        message = "<table><tr><th>Who</th><th>Start time</th><th>Last update time</th><th>Percentage</th><th>Elapsed time (D:H:M)</th><th>Remaining records</th><th>Total Records</th><th>Status</th></tr>"
+                        message = "<table><tr><th></th><th>Who</th><th>Status</th><th>Start/End Time</th><th>Last processed time</th><th>Processing</th><th>logs</th></tr>"
                         for(i in logs) {
                             var log = logs[i];
-                            var elapsedTimeTd ='<td></td>';
-                            if (log.endTime && log.startTime){
-                               let elapsed = calculateElapsedTime(Date.parse(log.startTime), Date.parse(log.endTime));
-                               elapsedTimeTd = "<td>"+elapsed[0]+":"+elapsed[1]+":" + elapsed[2] +"</td>"
-                            }else if (log.recentProcessTime && log.startTime) {
-                               let elapsed = calculateElapsedTime(Date.parse(log.startTime), Date.parse(log.recentProcessTime))
-                               elapsedTimeTd = "<td>"+elapsed[0]+":"+elapsed[1]+":" + elapsed[2] +"</td>"
-                            }
                             message +="<tr>"
+                            message += "<td><i class='glyphicon glyphicon-trash' onclick='deleteRematchLog("+ log.id +")'></i></td>"
                             message += "<td>"+log.byWhom+"</td>"
-                            message += "<td>"+new Date(Date.parse(log.startTime)).toLocaleString()+"</td>"
-                            message += "<td>"+new Date(Date.parse(log.recentProcessTime)).toLocaleString()+"</td>"
-                            message +="<td>"+Math.floor(((log.total-log.remaining)/ log.total) * 10000)/100+"%</td>"
-                            message += elapsedTimeTd
-                            message += "<td>"+numberWithCommas(log.remaining)+"</td>"
-                            message += "<td>"+numberWithCommas(log.total)+"</td>"
-
-                            if(log.status =="FAILED" || log.status == "ABORT") {
-                                 message += "<td>"+log.status +"<button class='btn btn-default' onclick=\"continueMatch('${request.contextPath}/speciesList/rematch',"+log.currentRecordId+")\">Resume</button>"+"</td>"
-                            }else {
-                                 message += "<td>"+log.status+"</td>"
-                             }
+                            message += "<td>"+log.status+"</td>"
+                            message += "<td>"+new Date(Date.parse(log.startTime)).toLocaleString()
+                            if (log.endTime) {
+                                 message +=" : "+ new Date(Date.parse(log.endTime)).toLocaleString()+"</td>";
+                            } else {
+                                message += " : ~ </td>";
+                            }
+                            if (log.latestProcessingTime) {
+                                message +="<td>"+ new Date(Date.parse(log.latestProcessingTime)).toLocaleString()+"</td>";
+                            } else {
+                                message += "<td></td>";
+                            }
+                            message +="<td>"+log.processing+"</td>"
+                            message +="<td><a href='${request.contextPath}/ws/rematchLog/" + log.id+"' target='_blank'>Download a full log</a><p>"+ log.logs.slice(-4).join("<br>")+"</td>"
                             message +="</tr>"
                         }
                         message +="</table>";
@@ -154,7 +130,7 @@
                         <a class="btn btn-primary" title="${message(code:'upload.lists.header01', default:'Upload a list')}" href="${request.contextPath}/speciesList/upload">${message(code:'upload.lists.header01', default:'Upload a list')}</a>
                         <a class="btn btn-primary" title="${message(code:'generic.lists.button.mylist.label', default:'My Lists')}" href="${request.contextPath}/speciesList/list">${message(code:'generic.lists.button.mylist.label', default:'My Lists')}</a>
                         <g:if test="${rematchLogs.processing}">
-                            <button class="btn btn-primary" onclick="showRematchingProcess('${request.contextPath}/ws/rematchStatus')">Rematching is on process. Click to check status</button>
+                            <a class="btn btn-primary" onclick="showRematchingProcess('${request.contextPath}/ws/rematchLogs')">Check Rematching progress</a>
                         </g:if>
                         <g:else>
                             <a href="#" title="${message(code:'admin.lists.page.button.rematch.tooltip', default:'Rematch')}"
@@ -162,7 +138,7 @@
                                    '${request.contextPath}/speciesList/rematch',
                                    '${message(code:"admin.lists.page.button.rematch.messages", default:"Rematch complete")}');
                                return false;" class="btn btn-primary">${message(code:'admin.lists.page.button.rematch.label', default:'Rematch All')}</a>
-                            <button class="btn btn-default" onclick="showRematchingProcess('${request.contextPath}/ws/rematchStatus', true)">Rematching history</button>
+                            <button class="btn btn-default" onclick="showRematchingProcess('${request.contextPath}/ws/rematchLogs', true)">Rematching history</button>
                         </g:else>
                     </span>
                 </div>

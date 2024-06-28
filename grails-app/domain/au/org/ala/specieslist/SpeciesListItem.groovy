@@ -66,7 +66,7 @@ class SpeciesListItem {
         mylist index: 'idx_list_id'
         //kvpValues cascade: "all-delete-orphan"
         //kvpValues lazy: false
-        matchedSpecies (ignoreNotFound: true)
+        matchedSpecies (column: 'matched_species_id', ignoreNotFound: true, nullable: true, lazy:true)
     }
 
     def toMap() {
