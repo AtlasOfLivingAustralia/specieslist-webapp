@@ -45,8 +45,12 @@ grails run-app
 
 
 ### Changelog
-- **Version 4.2.0**:
-  - improve the performance of rematching processing
+- **Version 5.2.1 **:
+    - improved the performance of rematching processing
+    - Fixed list csv downloads has duplicate columns
+    - Fixed the broken species list upload from spatial issue
+    - Replaced deprecated functions provided by AuthService plugin
+    - Grails 6 upgraded
 - **Version 3.0**:
   - Grails 3, Lucene 5 or above
 - **Version 2.0**:
@@ -56,7 +60,7 @@ grails run-app
   - fixed unit and integration tests
 
 ### Release
-- **Version 4.2.0**:
+- **Version 5.2.1**:
   Database change:
     -  rematch_Log table changed:
   
