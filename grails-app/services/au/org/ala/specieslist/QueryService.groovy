@@ -746,6 +746,7 @@ class QueryService {
             speciesListItems = SpeciesListItem.executeQuery("select sli " + baseQueryAndParams[0], baseQueryAndParams[1], requestParams)
         } else {
             def criteria = SpeciesListItem.createCriteria()
+
             def q = requestParams.q
             speciesListItems = criteria.list(requestParams) {
                 and {
