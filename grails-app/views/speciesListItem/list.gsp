@@ -1035,7 +1035,7 @@
                                         </div>
                                     </td>
                                     <td class="rawScientificName">
-                                        <g:if test="${fieldValue(bean: result, field: "rawScientificName") ==~ /.*((http|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-]))*/}">
+                                        <g:if test="${fieldValue(bean: result, field: 'rawScientificName') ==~ /.*((http|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])*)/}">
                                             <a href="${fieldValue(bean: result, field: "rawScientificName")}" target="_blank">${fieldValue(bean: result, field: "rawScientificName")}</a>
                                         </g:if>
                                         <g:else>
