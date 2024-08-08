@@ -165,7 +165,6 @@ class EditorController {
         if (sli) {
             // check for changed values
             def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid= :dataResourceUid", [dataResourceUid: sli.dataResourceUid])
-            def kvpRemoveList = [] as Set
             def changed = false
 
             keys.each { key ->
@@ -179,7 +178,6 @@ class EditorController {
                     if (kvp) {
                         // old value was not empty - remove from this SLI
                         sli.removeFromKvpValues(kvp)
-                        kvpRemoveList.add(kvp)
                         sl.lastUploaded = new Date()
                     }
 
@@ -201,12 +199,6 @@ class EditorController {
                 } else {
                     log.debug "KVP is unchanged: " + kvp.value
                 }
-            }
-
-            // remove KVP items that have changed (need to do this separately to avoid java.util.ConcurrentModificationException)
-            kvpRemoveList.each {
-                log.debug "Removing outdated kvp value: ${it}"
-                it.delete()
             }
 
             //check if name information has changed
