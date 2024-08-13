@@ -953,6 +953,14 @@ class HelperService {
             scrollableResults.close()
             String msg = "${listDRId} [ ${totalRows} ] completed, time cost : ${TimeCategory.minus(new Date(), startProcessing)}"
             log.info(msg)
+
+            SpeciesList speciesListToUpdate = session.get(SpeciesList.class, speciesList.id)
+            if (speciesListToUpdate != null) {
+                speciesListToUpdate.lastMatched = new Date();
+                session.update(speciesListToUpdate)
+                session.flush()
+            }
+
             message = [status: 0, message: msg]
         } catch (Exception e) {
             session.getTransaction().rollback()
