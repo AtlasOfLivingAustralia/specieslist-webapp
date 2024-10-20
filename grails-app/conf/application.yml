@@ -1,6 +1,8 @@
 ---
-logging:
-    config: /data/specieslist-webapp/config/logback.xml
+# Example of what to put in your /data/specieslist-webapp/config/specieslist-webapp-config.properties file
+# if you want different logging for local development. This is the default for production.
+#logging:
+#    config: /data/specieslist-webapp/config/logback.xml
 
 grails:
     profile: web
