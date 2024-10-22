@@ -596,7 +596,6 @@ class QueryService {
                     }
                 }
             }
-
         }
     }
 

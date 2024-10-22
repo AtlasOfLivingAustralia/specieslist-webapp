@@ -288,6 +288,7 @@ class WebServiceController {
             def retValue = [
                 dataResourceUid: sl.dataResourceUid,
                 listName       : sl.listName,
+                description    : sl.description,
                 dateCreated    : sl.dateCreated,
                 lastUpdated    : sl.lastUpdated,
                 lastUploaded   : sl.lastUploaded,
@@ -330,6 +331,7 @@ class WebServiceController {
                                 [
                                  dataResourceUid: it.dataResourceUid,
                                  listName       : it.listName,
+                                 description    : it.description,
                                  listType       : it?.listType?.toString(),
                                  dateCreated    : it.dateCreated,
                                  lastUpdated    : it.lastUpdated,
@@ -1845,4 +1847,5 @@ class WebServiceController {
         log.error(e.message)
         return {error: e.message}
     }
+
 }
