@@ -64,7 +64,7 @@
                                             </g:if>
                                             <g:else>
                                                 <td><g:link action="list" id="${params.id}"
-                                                            params="${[fq: sl.buildFqList(fqs: fqs, fq: "${key}:${arr[0]}"), q: params.q, max: params.max]}">${arr[0]}</g:link></td>
+                                                            params="${[fq: sl.buildFqList(fqs: fqs, fq: "${QueryService.MATCHED_FAMILY.equals(key) ? 'matched family' : key}:${arr[0]}"), q: (params.q) ?: null, max: params.max]}">${arr[0]}</g:link></td>
                                                 <td style="text-align: right; border-right-style: none;">${arr[1]}</td>
                                             </g:else>
                                         </tr>

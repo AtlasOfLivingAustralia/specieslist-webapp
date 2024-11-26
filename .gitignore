@@ -6,6 +6,7 @@ out
 /.slcache
 /logs
 *.iml
+.DS_Store
 grails-app/.DS_Store
 grails-app/controllers/.DS_Store
 grails-app/controllers/au/.DS_Store
