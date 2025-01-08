@@ -398,6 +398,12 @@ class SpeciesListController {
         SpeciesListItem.executeQuery("select sli.guid  " + baseQueryAndParams[0] + " and sli.guid is not null", baseQueryAndParams[1] ,[max: limit])
     }
 
+    private def getGuidsForQueryResult(id, limit){
+        def fqs = params.fq?[params.fq].flatten().findAll{ it != null }:null
+        def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id, params.q)
+        SpeciesListItem.executeQuery("select sli.guid  " + baseQueryAndParams[0] + " and sli.guid is not null", baseQueryAndParams[1] ,[max: limit])
+    }
+
     def getUnmatchedNamesForList(id, limit) {
         def fqs = params.fq?[params.fq].flatten().findAll{ it != null }:null
         def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ", fqs, params.id)
@@ -450,6 +456,32 @@ class SpeciesListController {
 
             def guids = getGuidsForList(params.id, grailsApplication.config.downloadLimit)
             def unMatchedNames = getUnmatchedNamesForList(params.id, grailsApplication.config.downloadLimit)
+            def title = "Species List: " + splist.listName
+            def downloadDto = new DownloadDto()
+            bindData(downloadDto, params)
+
+            log.debug "downloadDto = " + downloadDto
+            log.debug "unMatchedNames = " + unMatchedNames
+            def url = biocacheService.performBatchSearchOrDownload(guids, unMatchedNames, downloadDto, title, splist.wkt)
+            if(url){
+                redirect(url:url)
+            } else {
+                redirect(controller: "speciesListItem", action: "list", id:params.id)
+            }
+        }
+    }
+
+    // receives guidList as a request param
+    def occurrencesSelectedSpecies(){
+        if (params.id && params.type){
+            def splist = SpeciesList.findByDataResourceUid(params.id)
+            if (splist && !isViewable(splist)) {
+                response.sendError(401, "Not authorised.")
+                return
+            }
+
+            def guids = getGuidsForQueryResult(params.id, grailsApplication.config.downloadLimit)
+            def unMatchedNames = Collections.emptyList()//TODO is this correct?
             def title = "Species List: " + splist.listName
             def downloadDto = new DownloadDto()
             bindData(downloadDto, params)

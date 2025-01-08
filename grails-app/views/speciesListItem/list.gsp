@@ -481,8 +481,12 @@
                             <a href="#download" class="btn btn-primary" title="${message(code:'generic.lists.button.download.tooltip', default:'View the download options for this species list.')}"
                                id="downloadLink">${message(code:'generic.lists.button.download.label', default: 'Download')}</a>
 
-                            <a class="btn btn-primary" title="${message(code:'generic.lists.button.occurrences.tooltip_1', deafult:'View occurrences for up to')} ${maxDownload} ${message(code:'generic.lists.button.occurrences.tooltip_2', deafult:'species on the list')}"
+                            <a class="btn btn-primary" title="${message(code:'generic.lists.button.occurrences.tooltip_1', default:'View occurrences for up to')} ${maxDownload} ${message(code:'generic.lists.button.occurrences.tooltip_2', deafult:'species on the list')}"
                                href="${request.contextPath}/speciesList/occurrences/${params.id}${params.toQueryString()}&type=Search">${message(code:'generic.lists.button.occurrences.label', default: 'View occurrence records')}</a>
+
+                            <a class="btn btn-primary" title="${message(code:'generic.lists.button.selected.species.occurrences.tooltip', default:'View occurrences for the selection')}"
+                               href="${request.contextPath}/speciesList/occurrencesSelectedSpecies/${params.id}${params.toQueryString()}&type=Search">${message(code:'generic.lists.button.selected.species.occurrences.label', default: 'View occurrences for selection')}</a>
+
 
                             <a href="${request.contextPath}/speciesList/spatialPortal/${params.id}${params.toQueryString()}&type=Search"
                                class="btn btn-primary" title="${message(code:'generic.lists.button.spatial.tooltip', default:'View the spatial portal.')} ">${message(code:'generic.lists.button.spatial.label', default:'View in spatial portal')}</a>
@@ -1023,6 +1027,9 @@
                                             <a class="btn btn-default btn-xs viewRecordButton" href="#viewRecord"
                                                title="${message(code:'public.lists.view.table.tooltip01', default:'view record')}" data-id="${recId}"><i
                                                     class="glyphicon glyphicon-info-sign"></i></a>
+                                            <a class="btn-group" role="group" title="View occurrences">
+                                                <i class="glyphicon"></i>
+                                            </a>
                                             <g:if test="${userCanEditData}">
                                                 <a class="btn btn-default btn-xs" href="#" title="${message(code:'public.lists.view.table.tooltip04', default:'edit')}"
                                                    data-remote-url="${createLink(controller: 'editor', action: 'editRecordScreen', id: result.id)}"
