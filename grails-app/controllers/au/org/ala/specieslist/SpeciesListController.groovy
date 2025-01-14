@@ -444,11 +444,14 @@ class SpeciesListController {
      * @return
      */
     def occurrences(){
-
-        if(biocacheService.isListIndexed(params.id)){
-            redirect(url:biocacheService.getQueryUrlForList(params.id))
+        def splist = SpeciesList.findByDataResourceUid(params.id)
+        if (biocacheService.isListIndexed(params.id)) {
+            if (splist.wkt && !splist.wkt.isEmpty()) {
+                redirect(url: biocacheService.getQueryUrlForListWithinPolygon(params.id, splist.wkt))
+            } else {
+                redirect(url: biocacheService.getQueryUrlForListWithinPolygon(params.id))
+            }
         } else if (params.id && params.type){
-            def splist = SpeciesList.findByDataResourceUid(params.id)
             if (splist && !isViewable(splist)) {
                 response.sendError(401, "Not authorised.")
                 return

@@ -89,6 +89,16 @@ class BiocacheService {
     }
 
     /**
+     * Create a URL for search with this list and specified wkt
+     * @param drUid
+     * @param wkt
+     * @return
+     */
+    String getQueryUrlForListWithinPolygon(drUid, wkt){
+        grailsApplication.config.biocache.baseURL + "/occurrences/search?q=species_list_uid:" + drUid + "&wkt=" + wkt
+    }
+
+    /**
      * Checks to see if a list is indexed against in the biocache.
      *
      * @param drUid
