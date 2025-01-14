@@ -449,11 +449,12 @@ class SpeciesListController {
      */
     def occurrences(){
         def splist = SpeciesList.findByDataResourceUid(params.id)
+        def title = "Species List: " + splist.listName
         if (biocacheService.isListIndexed(params.id)) {
             if (splist.wkt && !splist.wkt.isEmpty()) {
-                redirect(url: biocacheService.getQueryUrlForListWithinPolygon(params.id, splist.wkt))
+                redirect(url: biocacheService.performSearchForSpeciesListWithWkt(params.id, title, splist.wkt))
             } else {
-                redirect(url: biocacheService.getQueryUrlForListWithinPolygon(params.id))
+                redirect(url: biocacheService.getQueryUrlForList(params.id))
             }
         } else if (params.id && params.type){
             if (splist && !isViewable(splist)) {
@@ -463,7 +464,6 @@ class SpeciesListController {
 
             def guids = getGuidsForList(params.id, grailsApplication.config.downloadLimit)
             def unMatchedNames = getUnmatchedNamesForList(params.id, grailsApplication.config.downloadLimit)
-            def title = "Species List: " + splist.listName
             def downloadDto = new DownloadDto()
             bindData(downloadDto, params)
 
