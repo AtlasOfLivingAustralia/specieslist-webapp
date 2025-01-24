@@ -27,7 +27,7 @@
 <head>
     <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
     <meta name="breadcrumb" content="${speciesList?.listName}"/>
-    <meta name="breadcrumbParent" content="${request.contextPath}/,Species lists"/>
+    <meta name="breadcrumbParent" content="${request.contextPath}/,${message(code: 'admin.lists.header', default: 'Species lists')}"/>
     <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src: 'facets.js')}"></script>
     <script language="JavaScript" type="text/javascript" src="${asset.assetPath(src: 'getQueryParam.js')}"></script>
     <script language="JavaScript" type="text/javascript"
