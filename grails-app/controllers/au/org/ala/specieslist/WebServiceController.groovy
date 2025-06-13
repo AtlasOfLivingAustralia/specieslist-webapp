@@ -324,7 +324,7 @@ class WebServiceController {
             //parameter was present and params.sort was absent. Moved special case sorting when params.user is present
             //and params.sort is absent into queryService.getFilterListResults so the custom filter code will always be applied.
             def hidePrivateLists = grailsApplication.config.getProperty('api.hidePrivateLists', Boolean, true)
-            def allLists = queryService.getFilterListResult(params, hidePrivateLists, null, request, response)
+            def allLists = queryService.getFilterListResult(params, hidePrivateLists, null, request, response, true)
             def listCounts = allLists.totalCount
             def retValue = [listCount: listCounts, sort: params.sort, order: params.order, max: params.max, offset: params.offset,
                             lists    : allLists.collect {
