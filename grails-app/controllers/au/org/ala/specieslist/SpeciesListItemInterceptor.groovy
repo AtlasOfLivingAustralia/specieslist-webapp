@@ -37,8 +37,11 @@ class SpeciesListItemInterceptor {
     // gets the 'real' injected services unless we pass them in
     private boolean checkSecurity(String druid, AuthService authService, LocalAuthService localAuthService) {
         SecurityUtil securityUtil = new SecurityUtil(localAuthService: localAuthService, authService: authService)
+        def hidePrivateLists = grailsApplication.config.getProperty('api.hidePrivateLists', Boolean, true)
+        def path = request.forwardURI ?: request.requestURI
+        Boolean isApiCall = path.startsWith('/ws/') || path.startsWith('/speciesListItem/ws/') || path.startsWith('/speciesListItem/downloadList/')
 
-        if (!securityUtil.checkViewAccess(druid, request, response)) {
+        if (!securityUtil.checkViewAccess(druid, request, response) && (!isApiCall || hidePrivateLists)) {
             response.sendError(HttpStatus.SC_UNAUTHORIZED, "Not authorised")
             false
         } else {

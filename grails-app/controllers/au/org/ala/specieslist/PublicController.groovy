@@ -47,7 +47,7 @@ class PublicController {
         }
 
         try {
-            def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, false)
+            def hidePrivateLists = grailsApplication.config.getProperty('publicview.hidePrivateLists', Boolean, true)
 
             // retrieve qualified SpeciesListItems for performance reason
             def itemsIds = queryService.getFilterSpeciesListItemsIds(params)
