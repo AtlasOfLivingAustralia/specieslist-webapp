@@ -146,8 +146,8 @@ class QueryService {
                 }
             }
             and {
-                if (userId) {
-                    if (hidePrivateLists || !localAuthService.isAdmin()) {
+                if (userId || !hidePrivateLists) {
+                    if (hidePrivateLists && !localAuthService.isAdmin()) {
                         // the user is not an admin, so only show lists that are not private OR are owned by the user
                         // OR where the user is an editor
                         or {
@@ -157,7 +157,7 @@ class QueryService {
                             sqlRestriction(EDITOR_SQL_RESTRICTION, [userId])
                         }
                     } else {
-                        log.debug("User is admin, so has visibility og private lists")
+                        log.debug("User is admin, so has visibility of private lists")
                     }
                 } else {
                     // if there is no user, do no show any private records
