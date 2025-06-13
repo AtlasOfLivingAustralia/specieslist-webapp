@@ -157,7 +157,7 @@ class QueryService {
                             sqlRestriction(EDITOR_SQL_RESTRICTION, [userId])
                         }
                     } else {
-                        log.info("User is admin, so has visibility of private lists")
+                        log.debug("User is admin, so has visibility of private lists")
                     }
                 } else if (!isApiCall || hidePrivateLists) {
                     // if there is no user, hidePrivateLists is true and its not an API call, do no show any private records
