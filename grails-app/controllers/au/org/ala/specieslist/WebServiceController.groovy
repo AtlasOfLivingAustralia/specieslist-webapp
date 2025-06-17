@@ -348,6 +348,7 @@ class WebServiceController {
                                  isAuthoritative: it.isAuthoritative ?: false,
                                  isInvasive     : it.isInvasive ?: false,
                                  isThreatened   : it.isThreatened ?: false,
+                                 isPrivate      : it.isPrivate ?: false,
                                  looseSearch    : it.looseSearch,
                                  //searchStyle    : it.searchStyle?.toString(),
                                  isBIE          : (it.isBIE ?: false),
