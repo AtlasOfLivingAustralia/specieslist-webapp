@@ -78,7 +78,7 @@ class QueryService {
      */
     def getFilterListResult(params, boolean hidePrivateLists, List itemIds, request, response) {
         //list should be based on the user that is logged in
-        params.max = Math.min(params.max ? params.int('max') : 25, 1000)
+        params.max = params.max ? params.int('max') : 25
 
         //remove sort from params
         def sort = params.user ? null : (params.sort ?: LIST_NAME)
