@@ -44,7 +44,6 @@ bieApiKey = "xxxxxx"
 /*** Config specific for species list ***/
 updateUserDetailsOnStartup = false
 iconicSpecies.uid = "dr781"
-api.hidePrivateLists = true
 
 skin.orgNameLong = "Atlas of Living Australia"
 skin.layout = "main"

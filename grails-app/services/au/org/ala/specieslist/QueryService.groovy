@@ -76,7 +76,7 @@ class QueryService {
      *
      * @param params
      */
-    def getFilterListResult(params, boolean hidePrivateLists, List itemIds, request, response, boolean isApiCall = false) {
+    def getFilterListResult(params, boolean hidePrivateLists, List itemIds, request, response) {
         //list should be based on the user that is logged in
         params.max = Math.min(params.max ? params.int('max') : 25, 1000)
 
@@ -159,8 +159,8 @@ class QueryService {
                     } else {
                         log.debug("User is admin, so has visibility of private lists")
                     }
-                } else if (!isApiCall || hidePrivateLists) {
-                    // if there is no user, hidePrivateLists is true and its not an API call, do no show any private records
+                } else {
+                    // if there is no user, do no show any private records
                     or {
                         isNull(IS_PRIVATE)
                         eq(IS_PRIVATE, false)
