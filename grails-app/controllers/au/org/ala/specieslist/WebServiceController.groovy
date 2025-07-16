@@ -323,7 +323,8 @@ class WebServiceController {
             //AC 20141218: Previous behaviour was ignoring custom filter code in queryService.getFilterListResult when params.user
             //parameter was present and params.sort was absent. Moved special case sorting when params.user is present
             //and params.sort is absent into queryService.getFilterListResults so the custom filter code will always be applied.
-            def allLists = queryService.getFilterListResult(params, false, null, request, response, true)
+            def internalPrivate = request.forwardURI == "/ws/speciesListInternal" && params.includePrivate?.toBoolean();
+            def allLists = queryService.getFilterListResult(params, false, null, request, response, internalPrivate)
             def listCounts = allLists.totalCount
             def retValue = [listCount: listCounts, sort: params.sort, order: params.order, max: params.max, offset: params.offset,
                             lists    : allLists.collect {
@@ -1207,6 +1208,39 @@ class WebServiceController {
             render "Species list " + params.druid + " has been published"
         } else {
             render(view: '../error', model: [message: "No data resource has been supplied"])
+        }
+    }
+
+    @RequireApiKey(scopes = ['ala/internal'])
+    @Path("/ws/speciesListInternal/download/{druid}")
+    def downloadListInternal() {
+        if (params.druid) {
+            params.fetch = [ kvpValues: 'join' ]
+            log.debug("Downloading Species List")
+            def keys = SpeciesListKVP.executeQuery("select distinct key from SpeciesListKVP where dataResourceUid='"+params.druid+"'")
+            def baseQueryAndParams = queryService.constructWithFacets(" from SpeciesListItem sli ", null, params.druid, null)
+            def sli = SpeciesListItem.executeQuery("Select sli " + baseQueryAndParams[0], baseQueryAndParams[1])
+            //def sli =SpeciesListItem.findAllByDataResourceUid(params.druid,params)
+            def out = new StringWriter()
+            def csvWriter = new CSVWriter(out)
+            def header =  ["Supplied Name","guid","scientificName","family","kingdom"]
+            header.addAll(keys.collect { header.contains(it) ? "raw." + it : it })
+            log.debug(header?.toString())
+            csvWriter.writeNext(header as String[])
+            sli.each {
+                def values = keys.collect{key->it.kvpValues.find {kvp -> kvp.key == key}}.collect { kvp -> kvp?.vocabValue?:kvp?.value}
+                def row = [it.rawScientificName, it.guid, it.matchedName, it.family, it.kingdom]
+                row.addAll(values)
+                csvWriter.writeNext(row as String[])
+            }
+            csvWriter.close()
+            def filename = params.file?:"list.csv"
+            if(!filename.toLowerCase().endsWith('.csv')){
+                filename += '.csv'
+            }
+
+            response.addHeader("Content-Disposition", "attachment;filename="+filename);
+            render(contentType: 'text/csv', text:out.toString())
         }
     }
 
