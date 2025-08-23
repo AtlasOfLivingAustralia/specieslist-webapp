@@ -70,6 +70,47 @@ class BiocacheService {
         }
     }
 
+    def getSpeciesListWithWktQid(speciesListId, title, wkt){
+        def http = new HTTPBuilder(grailsApplication.config.biocacheService.baseURL +"/webportal/params")
+        // check apiGateway.enabled since "/webportal/params" is deprecated and replaced with generated "qio" (protected in APi Gateway)
+        if(grailsApplication.config.getProperty("apiGateway.enabled", Boolean, false)){
+            http = new HTTPBuilder(grailsApplication.config.biocacheService.baseURL +"/qid")
+            // /qid POST is protected on API Gateway - generate and include a JWT in the request
+            http.setHeaders([Authorization: "Bearer ${webService.getTokenService().getAuthToken(false)}"])
+        }
+
+        http.getClient().getParams().setParameter("http.socket.timeout", getTimeout())
+        def query = ""
+
+        if (speciesListId) {
+            query = "species_list_uid:" + speciesListId
+        }
+
+        def postBody = [q:query, wkt: wkt, title: title]
+        log.debug "postBody = " + postBody
+
+        try {
+            http.post(body: postBody, requestContentType:groovyx.net.http.ContentType.URLENC){ resp, reader ->
+                //return the location in the header
+                log.debug(resp.headers?.toString())
+                if (resp.status == 302) {
+                    log.debug "302 redirect response from biocache"
+                    return [status:resp.status, result:resp.headers['location'].getValue()]
+                } else if (resp.status == 200) {
+                    log.debug "200 OK response from biocache"
+                    return [status:resp.status, result:reader.getText()]
+                } else {
+                    log.warn "$resp.status returned from biocache service"
+
+                    return [status:500]
+                }
+            }
+        } catch(ex) {
+            log.error("Error while creating Qid for species list " + speciesListId + "with wkt: " , ex)
+            return null;
+        }
+    }
+
     def getTimeout() {
         int timeout = DEFAULT_TIMEOUT_MILLIS
         def timeoutFromConfig = grailsApplication.config.httpTimeoutMillis
@@ -86,6 +127,16 @@ class BiocacheService {
      */
     String getQueryUrlForList(drUid){
         grailsApplication.config.biocache.baseURL + "/occurrences/search?q=species_list_uid:" + drUid
+    }
+
+    /**
+     * Create a URL for search with this list and specified wkt
+     * @param drUid
+     * @param wkt
+     * @return
+     */
+    String getQueryUrlForListWithinPolygon(drUid, wkt){
+        grailsApplication.config.biocache.baseURL + "/occurrences/search?q=species_list_uid:" + drUid + "&wkt=" + wkt
     }
 
     /**
@@ -132,6 +183,20 @@ class BiocacheService {
                     returnUrl = grailsApplication.config.biocache.baseURL + "/download/options1/?searchParams=?q=qid:" + qid + "&targetUri=/occurrences/search&downloadType=records"
                     break
             }
+            returnUrl
+        } else {
+            null
+        }
+    }
+
+    def performSearchForSpeciesListWithWkt(speciesListId, speciesListTitle, wkt) {
+        def response = getSpeciesListWithWktQid(speciesListId, speciesListTitle, wkt)
+        if(response?.status == 302){
+            response.result
+        } else if (response?.status == 200) {
+            log.debug "200 OK response"
+            def qid = response.result
+            def returnUrl = grailsApplication.config.biocache.baseURL + "/occurrences/search?q=qid:" + qid
             returnUrl
         } else {
             null

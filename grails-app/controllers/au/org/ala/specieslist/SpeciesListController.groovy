@@ -448,11 +448,15 @@ class SpeciesListController {
      * @return
      */
     def occurrences(){
-
-        if(biocacheService.isListIndexed(params.id)){
-            redirect(url:biocacheService.getQueryUrlForList(params.id))
+        def splist = SpeciesList.findByDataResourceUid(params.id)
+        def title = "Species List: " + splist.listName
+        if (biocacheService.isListIndexed(params.id)) {
+            if (splist.wkt && !splist.wkt.isEmpty()) {
+                redirect(url: biocacheService.performSearchForSpeciesListWithWkt(params.id, title, splist.wkt))
+            } else {
+                redirect(url: biocacheService.getQueryUrlForList(params.id))
+            }
         } else if (params.id && params.type){
-            def splist = SpeciesList.findByDataResourceUid(params.id)
             if (splist && !isViewable(splist)) {
                 response.sendError(401, "Not authorised.")
                 return
@@ -460,7 +464,6 @@ class SpeciesListController {
 
             def guids = getGuidsForList(params.id, grailsApplication.config.downloadLimit)
             def unMatchedNames = getUnmatchedNamesForList(params.id, grailsApplication.config.downloadLimit)
-            def title = "Species List: " + splist.listName
             def downloadDto = new DownloadDto()
             bindData(downloadDto, params)
 
