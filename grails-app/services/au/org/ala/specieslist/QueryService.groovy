@@ -76,7 +76,7 @@ class QueryService {
      *
      * @param params
      */
-    def getFilterListResult(params, boolean hidePrivateLists, List itemIds, request, response) {
+    def getFilterListResult(params, boolean hidePrivateLists, List itemIds, request, response, boolean internalPrivate = false) {
         //list should be based on the user that is logged in
         params.max = params.max ? params.int('max') : 25
 
@@ -157,10 +157,10 @@ class QueryService {
                             sqlRestriction(EDITOR_SQL_RESTRICTION, [userId])
                         }
                     } else {
-                        log.debug("User is admin, so has visibility og private lists")
+                        log.debug("User is admin, so has visibility of private lists")
                     }
-                } else {
-                    // if there is no user, do no show any private records
+                } else if (!internalPrivate) {
+                    // if there is no user, and the request isn't internal & private, do no show any private records
                     or {
                         isNull(IS_PRIVATE)
                         eq(IS_PRIVATE, false)

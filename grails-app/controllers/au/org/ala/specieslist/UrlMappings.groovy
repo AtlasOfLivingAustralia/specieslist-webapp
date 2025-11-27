@@ -45,6 +45,8 @@ class UrlMappings {
             action = [GET:'getListDetailsInternal']
         }
 
+        "/ws/speciesListInternal/download/$druid" (controller: 'webService', action:  'downloadListInternal')
+
         "/ws/createItem" (controller: 'webService', action: 'createItem')
 
         "/ws/deleteItem" (controller: 'webService', action: 'deleteItem')
